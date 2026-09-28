@@ -1,32 +1,34 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+# Project facts (stack, structure, API contract, dependencies) live in AGENTS.md,
+# which OpenCode loads in every session. This context only holds OpenSpec-specific guidance.
+#
+# PENDING (fill in when decided):
+#   - Capability grouping criterion (user story mapping: one capability per user activity) -> add to context + rules.proposal
+#   - API types location (e.g. src/shared/api) -> add to AGENTS.md + rules.design
+#   - Test tool -> add to AGENTS.md
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+context: |
+  All artifacts are written in English.
 
-# Per-operation guidance (optional)
-# Add advisory guidance for how apply and archive work should be conducted.
-# This is separate from artifact rules above.
-# Example:
-#   operations:
-#     apply:
-#       guidance:
-#         - Keep test summaries concise
-#     archive:
-#       guidance:
-#         - Summarize the archive outcome before finishing
+rules:
+  proposal:
+    - Reuse an existing capability before creating a new one.
+    - Always include an explicit out-of-scope (non-goals) section.
+    - A change is described by one verb and one object (e.g. "add login") and must fit in a single implementation session. If it needs "and", split it.
+  specs:
+    - Describe observable behavior only. Never name components, libraries or implementation details.
+    - Every screen or interaction covers loading, empty, success and error states.
+    - Include error scenarios, not only the happy path.
+    - Every piece of data shown in the UI maps to a real field of the API (OpenAPI spec).
+  design:
+    - List every API endpoint consumed with method, path, auth, request, response and errors.
+    - Define TypeScript types for API responses before any component.
+    - Explain how each API error is presented to the user.
+    - List the routes, components and files created or modified.
+    - When a feature uses the shared card, map which API field fills each card section.
+  tasks:
+    - The first task group creates the API types.
+    - Write tests before the implementation they cover.
+    - Organize tasks by complete vertical slices (data to screen), not by technical layer.
+    - Mark a task complete only after verifying it.
