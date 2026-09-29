@@ -15,8 +15,16 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - tazavera-front is the web frontend for an existing Laravel REST API.
 - Stack: Next.js 16 (App Router, Turbopack), React 19, TypeScript 5, Tailwind CSS 4, ESLint 9. Package manager: npm.
 - Source code lives under `src/`. The import alias `@/*` maps to `src/*`.
-- Tailwind CSS 4: design tokens are defined with `@theme` in `src/app/globals.css`. There is no `tailwind.config` file; never create one.
 - Planned work is described in `openspec/` (specs and changes). Follow it.
+- Tailwind CSS 4: design tokens are defined with `@theme` in `src/app/styles/globals.css`. There is no `tailwind.config` file; never create one.
+
+## Architecture (Feature-Sliced Design)
+
+- Root `app/` is Next.js routing only. Each `page.tsx` imports its screen from `src/pages/` and contains no logic.
+- Root `pages/` is intentionally empty. Never add files to it.
+- Application code lives in `src/`, organized in FSD layers, from top to bottom: `app`, `pages`, `widgets`, `features`, `entities`, `shared`.
+- A layer may only import from layers below it. Never import upwards or between slices of the same layer.
+- Before designing a change or creating files under `app/` or `src/`, load the `fsd-architecture` skill.
 
 ## API contract
 
@@ -25,6 +33,12 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - The API contract is `contracts/openapi.yaml`, a copy of the backend's Scribe spec. It is the only source of truth for API endpoints, fields and error formats.
 - Never edit `contracts/openapi.yaml`. If it looks outdated or incomplete, stop and tell the user.
 - API types are generated into `src/shared/api/schema.ts` with `npm run types:api`. Never edit that file by hand; regenerate it whenever `contracts/openapi.yaml` changes. Import API types only from `src/shared/api/`.
+
+## Testing
+
+- Unit and component tests use Vitest with React Testing Library. Run them with `npm run test:run`.
+- Async Server Components cannot be tested with Vitest; keep them thin and move logic into testable components or functions.
+- End-to-end tests (Playwright) come later, as a pre-deployment suite.
 
 ## Dependencies
 

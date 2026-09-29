@@ -24,8 +24,8 @@ rules:
   design:
     - List every API endpoint consumed with method, path, auth, request, response and errors.
     - Define TypeScript types for API responses before any component.
-    - Explain how each API error is presented to the user.
-    - List the routes, components and files created or modified.
+    - Explain how each API error is presented to the user.    
+    - List the routes, components and files created or modified, each with its full path and its Feature-Sliced Design layer (app, pages, widgets, features, entities, shared). Next.js route files go in the root app/ folder and only import screens from src/pages/.
     - When a feature uses the shared card, map which API field fills each card section.
   tasks:
     - The first task group creates the API types.
