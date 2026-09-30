@@ -17,9 +17,9 @@
 ## 4. Typography slice (tests first)
 
 - [x] 4.1 Add typographic role verification to `src/app/styles/theme-tokens.test.ts` (role table from design.md: family, weight, style, size, line height, tracking and semantic color binding per role; metric invariance across themes; sizing rules: control 16px on mobile, error and action text >= 14px), and verify `npm run test:run` runs it red because no font tokens or roles exist yet
-- [ ] 4.2 Create `src/app/fonts.ts` with Nunito and Lora via `next/font/google` (documented faces and variables), wire `app/layout.tsx` to them, and add `--font-sans`, `--font-serif` and the tracking tokens to `src/app/styles/globals.css` per design.md Decision 11, and verify `npm run test:run` passes the font wiring checks and `npx tsc --noEmit` passes
-- [ ] 4.3 Add the `type-{role}` utilities to `src/app/styles/globals.css` per the design.md role table (colors from semantic tokens only, no role changes under the dark selector), and verify `npm run test:run` reports every role check green in both themes
+- [x] 4.2 Create `src/app/fonts.ts` with Nunito and Lora via `next/font/google` (documented faces and variables), wire `app/layout.tsx` to them, and add `--font-sans`, `--font-serif` and the tracking tokens to `src/app/styles/globals.css` per design.md Decision 11, and verify `npm run test:run` passes the font wiring checks and `npx tsc --noEmit` passes
+- [x] 4.3 Add the `type-{role}` utilities to `src/app/styles/globals.css` per the design.md role table (colors from semantic tokens only, no role changes under the dark selector), and verify `npm run test:run` reports every role check green in both themes
 
 ## 5. Integration checks
 
-- [ ] 5.1 Verify `npm run test:run`, `npm run lint` and `npx tsc --noEmit` all pass together on the finished change
+- [x] 5.1 Verify `npm run test:run`, `npm run lint` and `npx tsc --noEmit` all pass together on the finished change
