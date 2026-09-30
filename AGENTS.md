@@ -44,3 +44,50 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 - Do not add, remove or upgrade dependencies without explicit approval from the user.
 - Keep ESLint on v9: the plugins in `eslint-config-next` do not support ESLint 10 yet.
+
+## Git Flow and Commits (Common to All Agents)
+
+### Branches
+- `master`: production. Only receives merges from `release/*` or `hotfix/*`. Only Augusto performs merges.
+- `develop`: integration. Each completed OpenSpec change is integrated here.
+- `feature/<change-id>`: one branch per OpenSpec change, created from `develop`. The name is the exact same `<change-id>` as the change (verb + object, kebab-case).
+- `release/*` and `hotfix/*`: only created by Augusto.
+- No agent creates, deletes, renames, or merges branches.
+
+### Commit Format (Conventional Commits)
+`<type>(<capability>): <description in imperative mood, lowercase, no period at the end>`
+
+Mandatory footer: `Refs: <change-id>`
+
+| Phase | Type and Example |
+|---|---|
+| Propose | `docs(<capability>): propose <change-id>` |
+| Artifact Review | `docs(<capability>): update <artifact> for <change-id>` |
+| Types | `feat(<capability>): add types for <object>` |
+| Tests | `test(<capability>): <what it verifies>` |
+| Implementation | `feat` / `fix` / `refactor` `(<capability>): <what it does>` |
+| Archive | `chore(openspec): archive <change-id>` |
+
+- `<capability>` is the affected OpenSpec capability (e.g., `ui`).
+- A commit touches only one capability. If a change affects multiple capabilities, one commit is made per capability.
+- `git push`, `git merge`, `git rebase`, `git reset --hard`, `git commit --amend`, and `--force` are never used.
+- Before each commit, `git status` is executed to verify that only files allowed for the agent are included.
+
+## Git Flow and Commits (if you are the architect agent)
+
+- Works only on the `feature/<change-id>` branch of the proposed change. If another branch is active, it stops and flags it.
+- Only commits files within `openspec/changes/<change-id>/`. It never commits code, configuration, or files in `openspec/specs/`.
+- One commit upon completing the propose phase - `docs(<capability>), propose <change-id>`.
+- One commit for each artifact review requested by Augusto - `docs(<capability>), update <artifact> for <change-id>`.
+- Does not commit if `openspec validate <change-id> --strict` fails.
+- Does not push, merge, or archive.
+
+## Git Flow and Commits (if you are the build agent)
+
+- Works only on the `feature/<change-id>` branch of the change it implements. If another branch is active, it stops and flags it.
+- Does not modify or commit anything within `openspec/`, except for checking off tasks in `tasks.md`.
+- One commit per completed and verified task group in `tasks.md`, in this exact order - types → tests → implementation.
+- Tests are committed before the implementation that makes them pass (`test(...)` before `feat(...)`).
+- Does not commit if tests, linting, or typechecking fail.
+- The task checkbox in `tasks.md` is checked in the exact same commit that completes it.
+- Does not push, merge, rebase, or archive.
