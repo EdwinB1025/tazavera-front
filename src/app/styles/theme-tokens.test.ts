@@ -516,3 +516,250 @@ describe("Theme completeness: every traditional semantic token defined in dark",
     });
   }
 });
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Typographic role verification (design.md role table)
+// Each role is an @utility type-{role} combining family, weight, style, size,
+// line height, tracking and a semantic color token. Role metrics are identical
+// in both themes (no role changes under [data-theme="dark"]).
+// ═══════════════════════════════════════════════════════════════════════════════
+
+interface RoleSpec {
+  name: string;
+  family?: string; // 'var(--font-sans)' or 'var(--font-serif)'
+  weight?: string; // '400', '600', '700'
+  style?: "italic";
+  transform?: "uppercase";
+  numeric?: "tabular-nums";
+  sizeBase?: string; // Tailwind size name: 'xs', 'sm', 'base', 'lg', 'xl', '2xl', '3xl', '4xl'
+  sizeMd?: string;
+  sizeLg?: string;
+  lineHeight?: "tight" | "default" | "relaxed" | "none";
+  tracking?: string; // tracking token name
+  color?: string; // semantic color token name
+}
+
+const SIZE_TO_REM: Record<string, number> = {
+  xs: 0.75,
+  sm: 0.875,
+  base: 1,
+  lg: 1.125,
+  xl: 1.25,
+  "2xl": 1.5,
+  "3xl": 1.875,
+  "4xl": 2.25,
+};
+
+const LINE_HEIGHT_VALUES: Record<string, string> = {
+  tight: "var(--leading-tight)",
+  default: "var(--leading-normal)",
+  relaxed: "var(--leading-relaxed)",
+  none: "var(--leading-none)",
+};
+
+const ROLES: RoleSpec[] = [
+  { name: "heading", family: "var(--font-serif)", weight: "700", sizeBase: "2xl", sizeMd: "3xl", sizeLg: "4xl", lineHeight: "tight", color: "text-primary" },
+  { name: "card-heading", family: "var(--font-serif)", weight: "700", sizeBase: "xl", sizeMd: "2xl", lineHeight: "tight", color: "text-primary" },
+  { name: "card-subtitle", family: "var(--font-serif)", weight: "400", style: "italic", sizeBase: "xs", lineHeight: "default", color: "text-secondary" },
+  { name: "score", family: "var(--font-serif)", weight: "700", style: "italic", numeric: "tabular-nums", sizeBase: "3xl", lineHeight: "none", color: "text-primary" },
+  { name: "body", family: "var(--font-sans)", weight: "400", sizeBase: "base", lineHeight: "relaxed", color: "text-primary" },
+  { name: "body-accent", style: "italic", color: "text-accent" },
+  { name: "subheading", family: "var(--font-sans)", weight: "600", sizeBase: "base", lineHeight: "default", tracking: "subheading", color: "text-accent" },
+  { name: "eyebrow", family: "var(--font-sans)", weight: "400", transform: "uppercase", sizeBase: "sm", sizeMd: "base", sizeLg: "lg", lineHeight: "tight", tracking: "eyebrow", color: "text-accent" },
+  { name: "eyebrow-strong", family: "var(--font-sans)", weight: "600", transform: "uppercase", sizeBase: "sm", sizeMd: "base", sizeLg: "lg", lineHeight: "tight", tracking: "eyebrow", color: "text-label" },
+  { name: "brand", family: "var(--font-sans)", weight: "700", transform: "uppercase", sizeBase: "base", sizeLg: "lg", lineHeight: "tight", tracking: "brand", color: "text-strong" },
+  { name: "label", family: "var(--font-sans)", weight: "600", sizeBase: "base", lineHeight: "tight", color: "text-label" },
+  { name: "control", family: "var(--font-sans)", weight: "400", sizeBase: "base", sizeMd: "sm", lineHeight: "default", color: "text-strong" },
+  { name: "meta", family: "var(--font-sans)", weight: "400", sizeBase: "xs", lineHeight: "default", color: "text-secondary" },
+  { name: "error", family: "var(--font-sans)", weight: "400", sizeBase: "sm", lineHeight: "default", color: "feedback-error" },
+  { name: "navbar-item", family: "var(--font-sans)", weight: "400", style: "italic", sizeBase: "base", lineHeight: "default", color: "nav-text" },
+  { name: "navlist-item", family: "var(--font-sans)", weight: "400", sizeBase: "base", lineHeight: "default", color: "nav-text" },
+  { name: "sidebar-item", family: "var(--font-sans)", weight: "400", sizeBase: "base", lineHeight: "default", color: "nav-text-dark" },
+  { name: "button", family: "var(--font-sans)", weight: "600", sizeBase: "sm", lineHeight: "default" },
+  { name: "badge", family: "var(--font-sans)", weight: "600", sizeBase: "sm", lineHeight: "default" },
+];
+
+/** Extract @utility type-{role} blocks: returns map of role name -> block content. */
+function extractTypeUtilities(css: string): Map<string, string> {
+  const utils = new Map<string, string>();
+  const regex = /@utility\s+(type-[a-z-]+)\s*\{/g;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(css)) !== null) {
+    const name = match[1]!;
+    const block = extractBlock(css, match.index + match[0].length - 1);
+    utils.set(name, block);
+  }
+  return utils;
+}
+
+/** Extract a CSS property value from a block (e.g. font-weight: 700;). */
+function getProperty(block: string, prop: string): string | null {
+  const regex = new RegExp(`${prop}\\s*:\\s*([^;]+);`);
+  const match = block.match(regex);
+  return match ? match[1]!.trim() : null;
+}
+
+/** Extract font-size from a @media (min-width: WIDTHrem) block within a utility. */
+function getResponsiveSize(block: string, widthRem: string): string | null {
+  const regex = new RegExp(
+    `@media\\s*\\(\\s*min-width\\s*:\\s*${widthRem}rem\\s*\\)\\s*\\{[^}]*font-size\\s*:\\s*([^;]+);`,
+  );
+  const match = block.match(regex);
+  return match ? match[1]!.trim() : null;
+}
+
+describe("Typographic roles: each role defined as @utility type-{role}", () => {
+  const css = readGlobals();
+  const utils = extractTypeUtilities(css);
+
+  for (const role of ROLES) {
+    it(`@utility type-${role.name} exists`, () => {
+      expect(utils.has(`type-${role.name}`)).toBe(true);
+    });
+  }
+});
+
+describe("Typographic roles: role properties match design.md table", () => {
+  const css = readGlobals();
+  const utils = extractTypeUtilities(css);
+
+  for (const role of ROLES) {
+    const block = utils.get(`type-${role.name}`);
+
+    it(`type-${role.name}: font-family`, () => {
+      if (!block) return; // skip if not defined (caught by existence test)
+      const val = getProperty(block, "font-family");
+      if (role.family) {
+        expect(val).toBe(role.family);
+      } else {
+        // body-accent inherits: font-family should not be set
+        expect(val).toBeNull();
+      }
+    });
+
+    it(`type-${role.name}: font-weight`, () => {
+      if (!block) return;
+      const val = getProperty(block, "font-weight");
+      if (role.weight) {
+        expect(val).toBe(role.weight);
+      } else {
+        expect(val).toBeNull();
+      }
+    });
+
+    it(`type-${role.name}: font-style`, () => {
+      if (!block) return;
+      const val = getProperty(block, "font-style");
+      if (role.style === "italic") {
+        expect(val).toBe("italic");
+      }
+    });
+
+    it(`type-${role.name}: text-transform`, () => {
+      if (!block) return;
+      const val = getProperty(block, "text-transform");
+      if (role.transform === "uppercase") {
+        expect(val).toBe("uppercase");
+      }
+    });
+
+    it(`type-${role.name}: font-variant-numeric`, () => {
+      if (!block) return;
+      const val = getProperty(block, "font-variant-numeric");
+      if (role.numeric === "tabular-nums") {
+        expect(val).toBe("tabular-nums");
+      }
+    });
+
+    it(`type-${role.name}: base font-size`, () => {
+      if (!block) return;
+      if (!role.sizeBase) return; // body-accent inherits
+      const val = getProperty(block, "font-size");
+      expect(val).toBe(`var(--text-${role.sizeBase})`);
+    });
+
+    it(`type-${role.name}: md font-size`, () => {
+      if (!block) return;
+      if (!role.sizeMd) return;
+      const val = getResponsiveSize(block, "48");
+      expect(val).toBe(`var(--text-${role.sizeMd})`);
+    });
+
+    it(`type-${role.name}: lg font-size`, () => {
+      if (!block) return;
+      if (!role.sizeLg) return;
+      const val = getResponsiveSize(block, "64");
+      expect(val).toBe(`var(--text-${role.sizeLg})`);
+    });
+
+    it(`type-${role.name}: line-height`, () => {
+      if (!block) return;
+      if (!role.lineHeight) return;
+      const val = getProperty(block, "line-height");
+      expect(val).toBe(LINE_HEIGHT_VALUES[role.lineHeight]);
+    });
+
+    it(`type-${role.name}: letter-spacing`, () => {
+      if (!block) return;
+      if (!role.tracking) return;
+      const val = getProperty(block, "letter-spacing");
+      expect(val).toBe(`var(--tracking-${role.tracking})`);
+    });
+
+    it(`type-${role.name}: color`, () => {
+      if (!block) return;
+      const val = getProperty(block, "color");
+      if (role.color) {
+        expect(val).toBe(`var(--color-${role.color})`);
+      } else {
+        // button/badge: no color (component applies it)
+        expect(val).toBeNull();
+      }
+    });
+  }
+});
+
+describe("Typographic roles: theme invariance (no role overrides in dark)", () => {
+  const css = readGlobals();
+  // Extract the dark block content
+  const darkRegex = /\[data-theme="dark"\]\s*\{/g;
+  let match: RegExpExecArray | null;
+  let darkBlock = "";
+  while ((match = darkRegex.exec(css)) !== null) {
+    darkBlock += extractBlock(css, match.index + match[0].length - 1);
+  }
+
+  it("dark block contains no @utility type-* overrides", () => {
+    const typeUtilityInDark = /@utility\s+type-/.test(darkBlock);
+    expect(typeUtilityInDark).toBe(false);
+  });
+});
+
+describe("Typographic roles: sizing accessibility rules", () => {
+  const css = readGlobals();
+  const utils = extractTypeUtilities(css);
+
+  it("control role renders at 16px (text-base) on mobile", () => {
+    const block = utils.get("type-control");
+    if (!block) return;
+    const val = getProperty(block, "font-size");
+    expect(val).toBe("var(--text-base)");
+    expect(SIZE_TO_REM["base"]).toBe(1); // 1rem = 16px
+  });
+
+  it("error role size >= 14px", () => {
+    const block = utils.get("type-error");
+    if (!block) return;
+    const val = getProperty(block, "font-size");
+    expect(val).toBe("var(--text-sm)");
+    expect(SIZE_TO_REM["sm"]).toBeGreaterThanOrEqual(0.875); // 14px
+  });
+
+  it("button role size >= 14px", () => {
+    const block = utils.get("type-button");
+    if (!block) return;
+    const val = getProperty(block, "font-size");
+    expect(val).toBe("var(--text-sm)");
+    expect(SIZE_TO_REM["sm"]).toBeGreaterThanOrEqual(0.875); // 14px
+  });
+});
