@@ -14,7 +14,7 @@ Tazavera's web frontend has no design-token system: `src/app/styles/globals.css`
 - Resolve and record the open token decisions the design left to this change:
   - The five unification-rule assignments: `surface-input`, `surface-filter-control` and `nav-current` unified into primitives despite deltaE >= 0.02 by product decision (requirement text: "there is no functional requirement for an additional step"), plus `action-1-bg` (traditional) and `action-3-bg` / `action-4-bg` (dark) kept as their own mixes so positional actions stay distinguishable. `nav-tabs-current` stays a translucent `color-mix`.
   - The two themeable details deferred to the components change get their home in the semantic layer: the filter-bar separator (`border-filter-separator`) and the nav item hover shadow color (`nav-hover-shadow`).
-- Add automated verification of the token contract with Vitest and no new dependencies: WCAG contrast matrices for both themes (text and button text >= 4.5:1; UI boundaries and focus indicators >= 3:1), theme completeness (every semantic role defined in both themes), and typography role checks. The matrices are computed from the designed values: three residual pairs (in `design.md`) fail and await the product owner's decision per pair — adjust the value keeping the hue, or record an explicit exception.
+- Add automated verification of the token contract with Vitest and no new dependencies: WCAG contrast matrices for both themes (text and button text >= 4.5:1; UI boundaries and focus indicators >= 3:1), theme completeness (every semantic role defined in both themes), and typography role checks. The matrices are computed from the designed values; the three residual pairs found during propose are decided and recorded in `design.md` (Decision 14: icon threshold for the nav toggle, dark nav-button hover values, traditional nav-button fill change), so every documented pair passes in both themes.
 
 ## Capabilities
 
@@ -39,6 +39,6 @@ None.
 - `src/app/styles/globals.css` (FSD layer `app`): the boilerplate is replaced by the primitive color layer, the semantic color layer, the dark theme block, the font tokens and the `type-{role}` utilities. This is the only styling source the change touches.
 - `src/app/fonts.ts` (FSD layer `app`, created): Nunito and Lora face loading via `next/font/google` with the documented faces and CSS variables.
 - `app/layout.tsx` (root `app`, modified): uses the font variables from `src/app/fonts.ts` instead of the Geist boilerplate.
-- `src/app/styles/tokens.test.ts` (FSD layer `app`, created): contrast, completeness and role verification with Vitest. No new dependencies: the color math is computed inside test code.
+- `src/app/styles/theme-tokens.test.ts` (FSD layer `app`, created): contrast, completeness and role verification with Vitest. No new dependencies: the color math is computed inside test code.
 - No routes, API calls, generated types or dependencies change. `src/shared/api/schema.ts` is untouched.
-- Three residual contrast pairs (measured list in `design.md`) need a product owner decision each before the full matrix can go green; every other documented pair passes with the designed values in both themes.
+- Every documented contrast pair passes in both themes with the decided values; the decided deltas to `tokens.css` (nav-toggle icon naming and threshold, dark nav-button hover, traditional nav-button fill) are the contract in `design.md`.
