@@ -394,3 +394,125 @@ describe("Traditional theme decorative exemptions (Decision 8 + 14)", () => {
     expect(contrast(fill, header)).toBeGreaterThanOrEqual(3.0);
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Dark theme contrast matrix (design.md Evidence)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// The dark pair matrix mirrors the traditional one. The dark theme reassigns
+// every semantic token to the night-* palette; the same pairs are measured
+// against the dark values. In the dark theme nav-button-border is NOT decorative
+// (the fill does not reach 3:1 against the header), so the border pairs are
+// included and measured.
+
+const DARK_PAIRS: ContrastPair[] = [
+  // Text pairs (>= 4.5:1)
+  { fg: "text-primary", bg: "surface-page", kind: "text" },
+  { fg: "text-primary", bg: "surface-card", kind: "text" },
+  { fg: "text-primary", bg: "surface-section", kind: "text" },
+  { fg: "text-primary", bg: "surface-section-hover", kind: "text" },
+  { fg: "text-secondary", bg: "surface-page", kind: "text" },
+  { fg: "text-secondary", bg: "surface-section", kind: "text" },
+  { fg: "text-accent", bg: "surface-card", kind: "text" },
+  { fg: "text-label", bg: "surface-page", kind: "text" },
+  { fg: "text-strong", bg: "surface-form", kind: "text" },
+  { fg: "text-placeholder", bg: "surface-input", kind: "text" },
+  { fg: "text-link", bg: "surface-card", kind: "text" },
+  { fg: "text-link-hover", bg: "surface-card", kind: "text" },
+  { fg: "action-primary-text", bg: "action-primary", kind: "text" },
+  { fg: "action-primary-text", bg: "action-primary-hover", kind: "text" },
+  { fg: "action-1-text", bg: "action-1-bg", kind: "text" },
+  { fg: "action-2-text", bg: "action-2-bg", kind: "text" },
+  { fg: "action-3-text", bg: "action-3-bg", kind: "text" },
+  { fg: "action-4-text", bg: "action-4-bg", kind: "text" },
+  { fg: "action-1-text-hover", bg: "action-1-bg-hover", kind: "text" },
+  { fg: "action-2-text-hover", bg: "action-2-bg-hover", kind: "text" },
+  { fg: "action-3-text-hover", bg: "action-3-bg-hover", kind: "text" },
+  { fg: "action-4-text-hover", bg: "action-4-bg-hover", kind: "text" },
+  { fg: "nav-text", bg: "nav-header", kind: "text" },
+  { fg: "nav-text", bg: "nav-surface", kind: "text" },
+  { fg: "nav-text", bg: "nav-current", kind: "text" },
+  { fg: "nav-text-hover", bg: "nav-hover", kind: "text" },
+  { fg: "nav-text-dark", bg: "nav-surface-dark", kind: "text" },
+  { fg: "nav-text-dark", bg: "nav-current-dark", kind: "text" },
+  { fg: "nav-toggle-icon", bg: "nav-toggle-bg", kind: "icon" },
+  { fg: "nav-button-text", bg: "nav-button-bg", kind: "text" },
+  { fg: "nav-button-text-hover", bg: "nav-button-bg-hover", kind: "text" },
+  { fg: "feedback-error", bg: "surface-page", kind: "text" },
+  { fg: "feedback-error", bg: "surface-card", kind: "text" },
+  { fg: "feedback-error", bg: "surface-form", kind: "text" },
+  { fg: "badge-verified-text", bg: "badge-verified-bg", kind: "text" },
+  { fg: "badge-provisional-text", bg: "badge-provisional-bg", kind: "text" },
+  { fg: "text-primary", bg: "evaluation-rating-exceptional", kind: "text" },
+  { fg: "text-primary", bg: "evaluation-rating-excellent", kind: "text" },
+  { fg: "text-primary", bg: "evaluation-rating-good", kind: "text" },
+  { fg: "text-primary", bg: "evaluation-rating-commercial", kind: "text" },
+
+  // Boundary pairs (>= 3:1)
+  { fg: "border-strong", bg: "surface-page", kind: "bound" },
+  { fg: "border-strong", bg: "surface-card", kind: "bound" },
+  { fg: "border-strong", bg: "surface-form", kind: "bound" },
+  { fg: "border-muted", bg: "surface-textarea", kind: "bound" },
+  { fg: "border-accent", bg: "surface-card", kind: "bound" },
+  { fg: "focus-ring", bg: "surface-page", kind: "bound" },
+  { fg: "focus-ring", bg: "surface-card", kind: "bound" },
+  { fg: "focus-ring", bg: "surface-section", kind: "bound" },
+  { fg: "focus-ring", bg: "surface-form", kind: "bound" },
+  { fg: "focus-ring", bg: "surface-filter", kind: "bound" },
+  { fg: "focus-ring", bg: "nav-surface", kind: "bound" },
+  { fg: "focus-ring", bg: "focus-offset", kind: "bound" },
+  { fg: "nav-tabs-current-border", bg: "nav-tabs-current", kind: "bound" },
+  // In dark, nav-button-border is state-identifying (not decorative): measured
+  { fg: "nav-button-border", bg: "nav-button-bg", kind: "bound" },
+  { fg: "nav-button-border", bg: "nav-header", kind: "bound" },
+  { fg: "nav-button-border-hover", bg: "nav-button-bg-hover", kind: "bound" },
+  { fg: "nav-button-border-hover", bg: "nav-header", kind: "bound" },
+];
+
+describe("Dark theme contrast matrix", () => {
+  const css = readGlobals();
+  const tradProps = extractTraditional(css);
+  const darkProps = extractDark(css);
+  // Dark resolution: dark overrides on top of traditional (the @theme primitives
+  // are shared, the [data-theme="dark"] block reassigns semantics).
+  const merged = new Map(tradProps);
+  for (const [k, v] of darkProps) merged.set(k, v);
+  const cases = expandPairs(DARK_PAIRS);
+
+  for (const tc of cases) {
+    const baseLabel = tc.base ? ` over ${tc.base}` : "";
+    it(`dark ${tc.kind}: ${tc.fg} / ${tc.bg}${baseLabel} >= ${threshold(tc.kind)}:1`, () => {
+      const fg = resolveToken(tc.fg, merged);
+      let bg = resolveToken(tc.bg, merged);
+      if (tc.base) {
+        bg = composite(bg, resolveToken(tc.base, merged));
+      } else if (bg.a < 1) {
+        throw new Error(`Translucent token ${tc.bg} has no documented base`);
+      }
+      const ratio = contrast(fg, bg);
+      expect(ratio).toBeGreaterThanOrEqual(threshold(tc.kind));
+    });
+  }
+});
+
+describe("Theme completeness: every traditional semantic token defined in dark", () => {
+  const css = readGlobals();
+  const tradProps = extractTraditional(css);
+  const darkProps = extractDark(css);
+
+  // Collect all semantic token names (those that start with --color- but are
+  // not primitives: they reference other tokens or use color-mix).
+  const semanticNames: string[] = [];
+  for (const [name, value] of tradProps) {
+    // Primitives are hex values; semantic tokens reference var() or color-mix()
+    if (value.includes("var(") || value.includes("color-mix(")) {
+      semanticNames.push(name);
+    }
+  }
+
+  for (const name of semanticNames) {
+    it(`dark theme defines ${name}`, () => {
+      expect(darkProps.has(name)).toBe(true);
+    });
+  }
+});

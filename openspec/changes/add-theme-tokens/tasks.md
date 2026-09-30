@@ -11,7 +11,7 @@
 
 ## 3. Dark theme slice (tests first)
 
-- [ ] 3.1 Add the dark pair matrix and the theme-completeness check (every semantic token defined in both themes) to `src/app/styles/theme-tokens.test.ts`, and verify `npm run test:run` runs them red because no dark block exists yet
+- [x] 3.1 Add the dark pair matrix and the theme-completeness check (every semantic token defined in both themes) to `src/app/styles/theme-tokens.test.ts`, and verify `npm run test:run` runs them red because no dark block exists yet
 - [ ] 3.2 Add the `night-*` primitives and the dark semantic block under `[data-theme="dark"]` to `src/app/styles/globals.css` per `docs/design/add-theme-tokens/tokens.css` and design.md (dark nav-button hover values per Decision 14 included), and verify `npm run test:run` reports every dark pair in design.md green and the completeness check passing
 
 ## 4. Typography slice (tests first)
