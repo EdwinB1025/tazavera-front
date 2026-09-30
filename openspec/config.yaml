@@ -10,6 +10,15 @@ schema: spec-driven
 
 context: |
   All artifacts are written in English.
+  After creating or editing any artifact, run `openspec validate <change-name> --strict`
+  and fix format errors until it passes. If a fix would change the meaning of a
+  requirement, scenario or decision, do not apply it: report the error and ask.
+  Report the final validation result at handoff.
+
+  Existing capabilities:
+  - theming: color system (primitive and semantic tokens) and application themes
+    (traditional default and dark), with WCAG AA text contrast and 3:1 for UI
+    boundaries and focus indicators.
 
 rules:
   proposal:
@@ -23,12 +32,13 @@ rules:
     - Every piece of data shown in the UI maps to a real field of the API (OpenAPI spec).
   design:
     - List every API endpoint consumed with method, path, auth, request, response and errors.
-    - Define TypeScript types for API responses before any component.
+    - Use the generated API types from src/shared/api/schema.ts. Only define derived or UI-specific types, and define them before any component.
     - Explain how each API error is presented to the user.    
     - List the routes, components and files created or modified, each with its full path and its Feature-Sliced Design layer (app, pages, widgets, features, entities, shared). Next.js route files go in the root app/ folder and only import screens from src/pages/.
     - When a feature uses the shared card, map which API field fills each card section.
   tasks:
-    - The first task group creates the API types.
+    - The first task group defines the derived types the change needs from the generated API types. It never edits or redefines generated types.
     - Write tests before the implementation they cover.
     - Organize tasks by complete vertical slices (data to screen), not by technical layer.
     - Mark a task complete only after verifying it.
+    - Tasks only touch files outside openspec/ (except checking off tasks.md) and never wait on a product-owner decision. Unresolved decisions are settled in design.md before handoff.

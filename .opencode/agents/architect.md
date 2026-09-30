@@ -6,9 +6,20 @@ permissions:
   - action: edit
     resource: "*"
     effect: deny
+  # Todo dentro de estas rutas
   - action: edit
-    resource: "openspec/**"
+    resource: "*openspec*changes*"
     effect: allow
+  - action: edit
+    resource: "*openspec*specs*"
+    effect: allow
+  - action: edit
+    resource: "*docs*design*"
+    effect: allow
+  # Deny más específico SIEMPRE al final (la última coincidencia gana)
+  - action: edit
+    resource: "*openspec*config.yaml*"
+    effect: deny
   - action: shell
     resource: "*"
     effect: ask
@@ -18,9 +29,6 @@ permissions:
   - action: shell
     resource: "ls *"
     effect: allow
-  - action: edit
-    resource: "openspec/config.yaml"
-    effect: deny
   # Git: read state
   - action: shell
     resource: "git status*"

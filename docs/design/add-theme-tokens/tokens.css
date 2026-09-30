@@ -1,7 +1,8 @@
 /* =========================================================
    TAZAVERA — CAPA PRIMITIVA (colores)
    Familia por tono real; escala por luminosidad OKLCH (pasos ≈0.08, 50 ≈ 0.97).
-   Valores hex originales de la paleta Laravel.
+   Valores hex originales de la paleta Laravel, salvo los pasos 700 nuevos
+   (petrol-700, moss-700, oxblood-700), generados en OKLCH con L = 0.45.
    ========================================================= */
 
 @theme {
@@ -24,6 +25,8 @@
     --color-petrol-300: #c6cbcc;
     /* fondo del badge provisional */
     --color-petrol-600: #6b7e83;
+    --color-petrol-700: #425a60;
+    /* nuevo: texto secundario y hover de acción 4 (OKLCH L 0.45, H 216) */
     --color-petrol-800: #2C4A52;
     --color-petrol-900: #1a2f35;
 
@@ -31,8 +34,9 @@
     --color-moss-200: #d1d4a8;
     --color-moss-400: #b5ba73;
     --color-moss-600: #6b7a1a;
-    --color-moss-700: #6b702d;
-    /* sin uso */
+    /* solo usos no textuales (subrayado de navegación) */
+    --color-moss-700: #535c02;
+    /* recalculado (antes #6b702d, L 0.53 no correspondía a 700): label, badges, acción 1 */
 
     /* ─── CHARTREUSE ─── */
     --color-chartreuse-300: #c1cd18;
@@ -41,12 +45,15 @@
     /* ─── OXBLOOD ─── */
     --color-oxblood-300: #d6c0c0;
     --color-oxblood-600: #dc2626;
-    /* error: texto e icono de error */
+    /* sin uso: el error pasó a oxblood-700 (4.0:1 sobre cream-100) */
+    --color-oxblood-700: #a3010d;
+    /* nuevo: error, texto e icono (tono del rojo de error, OKLCH L 0.45, H 27) */
     --color-oxblood-800: #8b2e2e;
     --color-oxblood-900: #5d0404;
 
     /* ─── BROWN ─── */
-    --color-brown-900: #4a2510;
+    --color-brown-900: #44200b;
+    /* oscurecido (antes #4a2510, ΔE 0.02, L 0.29 = objetivo 900): texto de navegación sobre sage-500 */
 
     /* ─── SCORE (uso exclusivo en badges de rating) ─── */
     --color-score-gold: #d9af26;
@@ -63,6 +70,7 @@
    TAZAVERA — CAPA SEMÁNTICA (tema tradicional)
    Convención: --color-{grupo}-{rol}-{estado}
    Los componentes usan solo estos tokens, nunca primitivos.
+   Contraste: texto ≥ 4.5:1 contra su fondo real; límites y foco ≥ 3:1.
    ========================================================= */
 
 @theme {
@@ -84,10 +92,9 @@
 
     /* ─── TEXTO ─── */
     --color-text-primary: var(--color-sage-800);
-    --color-text-secondary: var(--color-petrol-600);
-    --color-text-paragraph: var(--color-petrol-800);
+    --color-text-secondary: var(--color-petrol-700);
     --color-text-accent: var(--color-oxblood-800);
-    --color-text-label: var(--color-moss-600);
+    --color-text-label: var(--color-moss-700);
     --color-text-inverse: var(--color-cream-100);
     --color-text-strong: var(--color-petrol-900);
     /* marca y texto de controles */
@@ -102,32 +109,35 @@
     --color-border-muted: var(--color-petrol-600);
     /* ring del textarea */
     --color-border-accent: var(--color-oxblood-800);
+    --color-border-filter-separator: color-mix(in srgb, var(--color-petrol-900) 15%, transparent);
+    /* divisor de 1px entre campos del filtro */
 
     /* ─── ACCIÓN PRIMARIA ─── */
     --color-action-primary: var(--color-oxblood-800);
     --color-action-primary-hover: var(--color-oxblood-900);
     --color-action-primary-text: var(--color-cream-100);
 
-    /* ─── ACCIONES POR POSICIÓN ─── */
-    --color-action-1-bg: color-mix(in srgb, var(--color-moss-400) 65%, transparent);
-    --color-action-1-text: var(--color-moss-600);
-    --color-action-1-bg-hover: var(--color-moss-400);
+    /* ─── ACCIONES POR POSICIÓN ───
+       Fondo opaco: tinte mezclado con la superficie de tarjeta (cream-100). */
+    --color-action-1-bg: color-mix(in srgb, var(--color-moss-400) 40%, var(--color-cream-100));
+    --color-action-1-text: var(--color-moss-700);
+    --color-action-1-bg-hover: var(--color-moss-700);
     --color-action-1-text-hover: var(--color-cream-100);
 
-    --color-action-2-bg: color-mix(in srgb, var(--color-oxblood-800) 65%, transparent);
+    --color-action-2-bg: color-mix(in srgb, var(--color-oxblood-800) 40%, var(--color-cream-100));
     --color-action-2-text: var(--color-brown-900);
     --color-action-2-bg-hover: var(--color-oxblood-800);
     --color-action-2-text-hover: var(--color-cream-100);
 
-    --color-action-3-bg: color-mix(in srgb, var(--color-sage-800) 35%, transparent);
+    --color-action-3-bg: color-mix(in srgb, var(--color-sage-800) 20%, var(--color-cream-100));
     --color-action-3-text: var(--color-sage-800);
     --color-action-3-bg-hover: var(--color-sage-800);
     --color-action-3-text-hover: var(--color-cream-100);
 
-    --color-action-4-bg: color-mix(in srgb, var(--color-petrol-600) 35%, transparent);
+    --color-action-4-bg: color-mix(in srgb, var(--color-petrol-600) 35%, var(--color-cream-100));
     /* solo si hay cuarta acción */
-    --color-action-4-text: var(--color-petrol-600);
-    --color-action-4-bg-hover: var(--color-petrol-600);
+    --color-action-4-text: var(--color-petrol-800);
+    --color-action-4-bg-hover: var(--color-petrol-700);
     --color-action-4-text-hover: var(--color-cream-100);
 
     /* ─── NAVEGACIÓN (clara: header, navbar, navlist, menú · oscura: sidebar) ─── */
@@ -136,17 +146,20 @@
     --color-nav-surface-dark: var(--color-sage-800);
     --color-nav-text: var(--color-brown-900);
     --color-nav-text-dark: var(--color-cream-100);
-    --color-nav-text-hover: var(--color-oxblood-800);
+    --color-nav-text-hover: var(--color-petrol-900);
+    /* sobre nav-hover (sage-500); el hover no cambia el texto del ítem current */
     --color-nav-icon: var(--color-sage-800);
     --color-nav-hover: var(--color-sage-500);
     --color-nav-current: var(--color-sage-400);
     --color-nav-current-dark: var(--color-sage-700);
     --color-nav-indicator: var(--color-oxblood-800);
     --color-nav-underline: var(--color-moss-600);
-    --color-nav-toggle-bg: color-mix(in srgb, var(--color-petrol-900) 30%, transparent);
-    --color-nav-toggle-text: var(--color-cream-100);
+    --color-nav-toggle-bg: color-mix(in srgb, var(--color-petrol-900) 45%, transparent);
+    --color-nav-toggle-icon: var(--color-cream-100);
     --color-nav-avatar: var(--color-sage-800);
     --color-nav-avatar-hover: var(--color-oxblood-800);
+    --color-nav-hover-shadow: color-mix(in srgb, rgb(0 0 0) 18%, transparent);
+    /* solo color; el componente construye la sombra */
 
     /* ─── NAVEGACIÓN — PESTAÑAS (.tz-evaluations-nav) ─── */
     --color-nav-tabs-surface: var(--color-moss-200);
@@ -157,15 +170,15 @@
     --color-nav-tabs-border: color-mix(in srgb, var(--color-sage-800) 15%, transparent);
 
     /* ─── NAVEGACIÓN — BOTÓN (.tz-button-nav) ─── */
-    --color-nav-button-bg: var(--color-oxblood-800);
+    --color-nav-button-bg: var(--color-oxblood-900);
     --color-nav-button-text: var(--color-cream-100);
     --color-nav-button-border: var(--color-cream-100);
     --color-nav-button-bg-hover: color-mix(in srgb, var(--color-petrol-900) 50%, transparent);
-    --color-nav-button-text-hover: var(--color-petrol-900);
+    --color-nav-button-text-hover: var(--color-cream-100);
     --color-nav-button-border-hover: var(--color-petrol-900);
 
     /* ─── FEEDBACK (éxito y aviso pospuestos) ─── */
-    --color-feedback-error: var(--color-oxblood-600);
+    --color-feedback-error: var(--color-oxblood-700);
 
     /* ─── FOCO ─── */
     --color-focus-ring: var(--color-petrol-900);
@@ -185,11 +198,11 @@
     --color-evaluation-slider-thumb-border: var(--color-white);
 
     /* ─── ESTADO DE BADGES ─── */
-    --color-badge-text: var(--color-moss-600);
+    --color-badge-text: var(--color-moss-700);
     --color-badge-provisional-bg: var(--color-petrol-300);
     --color-badge-provisional-text: var(--color-sage-800);
     --color-badge-verified-bg: var(--color-moss-200);
-    --color-badge-verified-text: var(--color-moss-600);
+    --color-badge-verified-text: var(--color-moss-700);
 }
 
 /* =========================================================
@@ -203,6 +216,7 @@
     /* ─── NIGHT PETROL (superficies y neutros) ─── */
     --color-night-petrol-100: #d0d9dc;
     --color-night-petrol-200: #c0d1d6;
+    /* sin uso (su único consumidor, text-paragraph, se eliminó) */
     --color-night-petrol-400: #a0b1b6;
     --color-night-petrol-500: #9aa7ab;
     --color-night-petrol-600: #738488;
@@ -253,7 +267,7 @@
 
 /* =========================================================
    TAZAVERA — CAPA SEMÁNTICA (tema oscuro)
-   SELECTOR PROVISIONAL: el mecanismo de activación lo decide el agente arquitecto.
+   Contrato: [data-theme="dark"] en la raíz del documento.
    ========================================================= */
 
 @layer base {
@@ -277,7 +291,6 @@
         /* ─── TEXTO ─── */
         --color-text-primary: var(--color-night-sage-100);
         --color-text-secondary: var(--color-night-petrol-400);
-        --color-text-paragraph: var(--color-night-petrol-200);
         --color-text-accent: var(--color-night-oxblood-400);
         --color-text-label: var(--color-night-moss-300);
         --color-text-inverse: var(--color-night-petrol-950);
@@ -292,29 +305,31 @@
         --color-border-subtle: color-mix(in srgb, var(--color-night-sage-100) 15%, transparent);
         --color-border-muted: var(--color-night-petrol-600);
         --color-border-accent: var(--color-night-oxblood-600);
+        --color-border-filter-separator: color-mix(in srgb, var(--color-night-sage-100) 15%, transparent);
 
         /* ─── ACCIÓN PRIMARIA ─── */
         --color-action-primary: var(--color-night-oxblood-700);
         --color-action-primary-hover: var(--color-night-oxblood-800);
         --color-action-primary-text: var(--color-night-cream-100);
 
-        /* ─── ACCIONES POR POSICIÓN ─── */
-        --color-action-1-bg: color-mix(in srgb, var(--color-night-moss-600) 20%, transparent);
+        /* ─── ACCIONES POR POSICIÓN ───
+           Fondo opaco: tinte mezclado con la superficie de tarjeta (night-petrol-900). */
+        --color-action-1-bg: color-mix(in srgb, var(--color-night-moss-600) 20%, var(--color-night-petrol-900));
         --color-action-1-text: var(--color-night-moss-400);
         --color-action-1-bg-hover: var(--color-night-moss-700);
         --color-action-1-text-hover: var(--color-night-moss-200);
 
-        --color-action-2-bg: color-mix(in srgb, var(--color-night-oxblood-600) 20%, transparent);
+        --color-action-2-bg: color-mix(in srgb, var(--color-night-oxblood-600) 20%, var(--color-night-petrol-900));
         --color-action-2-text: var(--color-night-oxblood-400);
         --color-action-2-bg-hover: var(--color-night-oxblood-800);
         --color-action-2-text-hover: var(--color-night-oxblood-200);
 
-        --color-action-3-bg: color-mix(in srgb, var(--color-night-sage-600) 20%, transparent);
+        --color-action-3-bg: color-mix(in srgb, var(--color-night-sage-600) 20%, var(--color-night-petrol-900));
         --color-action-3-text: var(--color-night-sage-400);
         --color-action-3-bg-hover: var(--color-night-sage-700);
         --color-action-3-text-hover: var(--color-night-sage-200);
 
-        --color-action-4-bg: color-mix(in srgb, var(--color-night-petrol-600) 20%, transparent);
+        --color-action-4-bg: color-mix(in srgb, var(--color-night-petrol-600) 20%, var(--color-night-petrol-900));
         --color-action-4-text: var(--color-night-petrol-500);
         --color-action-4-bg-hover: var(--color-night-petrol-700);
         --color-action-4-text-hover: var(--color-night-petrol-100);
@@ -334,9 +349,10 @@
         --color-nav-indicator: var(--color-night-oxblood-600);
         --color-nav-underline: var(--color-night-moss-300);
         --color-nav-toggle-bg: color-mix(in srgb, var(--color-night-sage-100) 15%, transparent);
-        --color-nav-toggle-text: var(--color-night-sage-100);
+        --color-nav-toggle-icon: var(--color-night-sage-100);
         --color-nav-avatar: var(--color-night-sage-600);
         --color-nav-avatar-hover: var(--color-night-oxblood-600);
+        --color-nav-hover-shadow: color-mix(in srgb, rgb(0 0 0) 18%, transparent);
 
         /* ─── NAVEGACIÓN — PESTAÑAS ─── */
         --color-nav-tabs-surface: var(--color-night-moss-900);
@@ -349,9 +365,9 @@
         --color-nav-button-bg: var(--color-night-oxblood-700);
         --color-nav-button-text: var(--color-night-cream-100);
         --color-nav-button-border: var(--color-night-cream-100);
-        --color-nav-button-bg-hover: color-mix(in srgb, var(--color-night-sage-100) 15%, transparent);
-        --color-nav-button-text-hover: var(--color-night-sage-100);
-        --color-nav-button-border-hover: var(--color-night-sage-100);
+        --color-nav-button-bg-hover: var(--color-night-oxblood-800);
+        --color-nav-button-text-hover: var(--color-night-cream-100);
+        --color-nav-button-border-hover: var(--color-night-cream-100);
 
         /* ─── FEEDBACK ─── */
         --color-feedback-error: var(--color-night-oxblood-500);

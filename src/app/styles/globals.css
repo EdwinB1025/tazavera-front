@@ -1,26 +1,604 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* =========================================================
+   TAZAVERA — FONT AND TRACKING PRIMITIVES
+   Fonts load via next/font/google in src/app/fonts.ts.
+   The legacy font names were inverted relative to their use; this fixes it.
+   ========================================================= */
+
+@theme {
+    /* ─── FONTS ─── */
+    --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    --font-serif: var(--font-lora), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+
+    /* ─── TRACKING ─── */
+    --tracking-subheading: 0.1em;
+    --tracking-eyebrow: 0.25em;
+    --tracking-brand: 0.2em;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* =========================================================
+   TAZAVERA — PRIMITIVE LAYER (colors)
+   Families by real hue (OKLCH); scale by lightness (≈0.08 per step).
+   Original hex values from the Laravel palette, except the new 700
+   steps (petrol-700, moss-700, oxblood-700) generated in OKLCH at L 0.45.
+   ========================================================= */
+
+@theme {
+    /* ─── CREAM ─── */
+    --color-cream-50: #f6efe4;
+    --color-cream-100: #f2e8d9;
+    --color-cream-200: #e3dcd2;
+    --color-cream-300: #dbd6cb;
+
+    /* ─── SAGE (bluish green) ─── */
+    --color-sage-100: #dae9e6;
+    --color-sage-400: #85b5ad;
+    --color-sage-500: #6B9E95;
+    --color-sage-700: #456B62;
+    --color-sage-800: #2E5A52;
+
+    /* ─── PETROL (petrol blue / blue-grey) ─── */
+    --color-petrol-300: #c6cbcc;
+    --color-petrol-600: #6b7e83;
+    --color-petrol-700: #425a60;
+    --color-petrol-800: #2C4A52;
+    --color-petrol-900: #1a2f35;
+
+    /* ─── MOSS ─── */
+    --color-moss-200: #d1d4a8;
+    --color-moss-400: #b5ba73;
+    --color-moss-600: #6b7a1a;
+    --color-moss-700: #535c02;
+
+    /* ─── CHARTREUSE ─── */
+    --color-chartreuse-300: #c1cd18;
+
+    /* ─── OXBLOOD ─── */
+    --color-oxblood-300: #d6c0c0;
+    --color-oxblood-600: #dc2626;
+    --color-oxblood-700: #a3010d;
+    --color-oxblood-800: #8b2e2e;
+    --color-oxblood-900: #5d0404;
+
+    /* ─── BROWN ─── */
+    --color-brown-900: #44200b;
+
+    /* ─── SCORE (rating badges only) ─── */
+    --color-score-gold: #d9af26;
+    --color-score-citron: #C2CF54;
+    --color-score-lime: #A5D520;
+    --color-score-green: #58DB33;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* =========================================================
+   TAZAVERA — SEMANTIC LAYER (traditional theme)
+   Convention: --color-{group}-{role}-{state}
+   Components use semantic tokens only, never primitives.
+   Contrast: text ≥ 4.5:1 against rendered bg; boundaries & focus ≥ 3:1.
+   ========================================================= */
+
+@theme {
+    /* ─── SURFACE ─── */
+    --color-surface-page: var(--color-cream-100);
+    --color-surface-card: var(--color-cream-100);
+    --color-surface-section: var(--color-cream-200);
+    --color-surface-section-hover: var(--color-cream-300);
+    --color-surface-form: var(--color-cream-50);
+    --color-surface-inverse: var(--color-sage-100);
+    --color-surface-input: var(--color-cream-50);
+    --color-surface-textarea: var(--color-white);
+    --color-surface-checked: var(--color-moss-400);
+    --color-surface-filter: var(--color-moss-200);
+    --color-surface-filter-field-hover: color-mix(in srgb, var(--color-moss-400) 40%, transparent);
+    --color-surface-filter-control: var(--color-moss-200);
+    --color-surface-filter-option: color-mix(in srgb, var(--color-moss-400) 85%, transparent);
+    --color-surface-filter-panel: var(--color-moss-400);
+
+    /* ─── TEXT ─── */
+    --color-text-primary: var(--color-sage-800);
+    --color-text-secondary: var(--color-petrol-700);
+    --color-text-accent: var(--color-oxblood-800);
+    --color-text-label: var(--color-moss-700);
+    --color-text-inverse: var(--color-cream-100);
+    --color-text-strong: var(--color-petrol-900);
+    --color-text-placeholder: var(--color-sage-800);
+    --color-text-link: var(--color-sage-800);
+    --color-text-link-hover: var(--color-petrol-900);
+    --color-text-input-icon: var(--color-white);
+
+    /* ─── BORDER ─── */
+    --color-border-strong: var(--color-petrol-900);
+    --color-border-subtle: color-mix(in srgb, var(--color-sage-800) 15%, transparent);
+    --color-border-muted: var(--color-petrol-600);
+    --color-border-accent: var(--color-oxblood-800);
+    --color-border-filter-separator: color-mix(in srgb, var(--color-petrol-900) 15%, transparent);
+
+    /* ─── PRIMARY ACTION ─── */
+    --color-action-primary: var(--color-oxblood-800);
+    --color-action-primary-hover: var(--color-oxblood-900);
+    --color-action-primary-text: var(--color-cream-100);
+
+    /* ─── POSITIONAL ACTIONS ───
+       Opaque bg: tint mixed with card surface (cream-100). */
+    --color-action-1-bg: color-mix(in srgb, var(--color-moss-400) 40%, var(--color-cream-100));
+    --color-action-1-text: var(--color-moss-700);
+    --color-action-1-bg-hover: var(--color-moss-700);
+    --color-action-1-text-hover: var(--color-cream-100);
+
+    --color-action-2-bg: color-mix(in srgb, var(--color-oxblood-800) 40%, var(--color-cream-100));
+    --color-action-2-text: var(--color-brown-900);
+    --color-action-2-bg-hover: var(--color-oxblood-800);
+    --color-action-2-text-hover: var(--color-cream-100);
+
+    --color-action-3-bg: color-mix(in srgb, var(--color-sage-800) 20%, var(--color-cream-100));
+    --color-action-3-text: var(--color-sage-800);
+    --color-action-3-bg-hover: var(--color-sage-800);
+    --color-action-3-text-hover: var(--color-cream-100);
+
+    --color-action-4-bg: color-mix(in srgb, var(--color-petrol-600) 35%, var(--color-cream-100));
+    --color-action-4-text: var(--color-petrol-800);
+    --color-action-4-bg-hover: var(--color-petrol-700);
+    --color-action-4-text-hover: var(--color-cream-100);
+
+    /* ─── NAVIGATION (light: header, navbar, navlist, menu · dark: sidebar) ─── */
+    --color-nav-header: var(--color-sage-500);
+    --color-nav-surface: var(--color-sage-400);
+    --color-nav-surface-dark: var(--color-sage-800);
+    --color-nav-text: var(--color-brown-900);
+    --color-nav-text-dark: var(--color-cream-100);
+    --color-nav-text-hover: var(--color-petrol-900);
+    --color-nav-icon: var(--color-sage-800);
+    --color-nav-hover: var(--color-sage-500);
+    --color-nav-current: var(--color-sage-400);
+    --color-nav-current-dark: var(--color-sage-700);
+    --color-nav-indicator: var(--color-oxblood-800);
+    --color-nav-underline: var(--color-moss-600);
+    --color-nav-toggle-bg: color-mix(in srgb, var(--color-petrol-900) 45%, transparent);
+    --color-nav-toggle-icon: var(--color-cream-100);
+    --color-nav-avatar: var(--color-sage-800);
+    --color-nav-avatar-hover: var(--color-oxblood-800);
+    --color-nav-hover-shadow: color-mix(in srgb, rgb(0 0 0) 18%, transparent);
+
+    /* ─── NAVIGATION — TABS ─── */
+    --color-nav-tabs-surface: var(--color-moss-200);
+    --color-nav-tabs-hover: color-mix(in srgb, var(--color-moss-600) 40%, transparent);
+    --color-nav-tabs-current: color-mix(in srgb, var(--color-moss-200) 55%, color-mix(in srgb, var(--color-moss-600) 40%, transparent));
+    --color-nav-tabs-current-border: var(--color-petrol-900);
+    --color-nav-tabs-border: color-mix(in srgb, var(--color-sage-800) 15%, transparent);
+
+    /* ─── NAVIGATION — BUTTON ─── */
+    --color-nav-button-bg: var(--color-oxblood-900);
+    --color-nav-button-text: var(--color-cream-100);
+    --color-nav-button-border: var(--color-cream-100);
+    --color-nav-button-bg-hover: color-mix(in srgb, var(--color-petrol-900) 50%, transparent);
+    --color-nav-button-text-hover: var(--color-cream-100);
+    --color-nav-button-border-hover: var(--color-petrol-900);
+
+    /* ─── FEEDBACK (success and warning deferred) ─── */
+    --color-feedback-error: var(--color-oxblood-700);
+
+    /* ─── FOCUS ─── */
+    --color-focus-ring: var(--color-petrol-900);
+    --color-focus-offset: var(--color-cream-100);
+
+    /* ─── EVALUATION ─── */
+    --color-evaluation-rating-exceptional: color-mix(in srgb, var(--color-score-green) 45%, transparent);
+    --color-evaluation-rating-excellent: color-mix(in srgb, var(--color-score-lime) 45%, transparent);
+    --color-evaluation-rating-good: color-mix(in srgb, var(--color-score-citron) 45%, transparent);
+    --color-evaluation-rating-commercial: color-mix(in srgb, var(--color-score-gold) 45%, transparent);
+    --color-evaluation-bean-on: color-mix(in srgb, var(--color-oxblood-900) 80%, transparent);
+    --color-evaluation-bean-off: var(--color-moss-400);
+    --color-evaluation-slider-track: var(--color-oxblood-300);
+    --color-evaluation-slider-start: var(--color-moss-400);
+    --color-evaluation-slider-end: var(--color-sage-800);
+    --color-evaluation-slider-thumb: var(--color-sage-800);
+    --color-evaluation-slider-thumb-border: var(--color-white);
+
+    /* ─── BADGE STATE ─── */
+    --color-badge-text: var(--color-moss-700);
+    --color-badge-provisional-bg: var(--color-petrol-300);
+    --color-badge-provisional-text: var(--color-sage-800);
+    --color-badge-verified-bg: var(--color-moss-200);
+    --color-badge-verified-text: var(--color-moss-700);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* =========================================================
+   TAZAVERA — NIGHT PRIMITIVES (dark theme)
+   Dark zone (L < 0.40): numbered by order (950 darkest → 750).
+   Lighter steps follow the traditional lightness rule.
+   ========================================================= */
+
+@theme {
+    /* ─── NIGHT PETROL (surfaces and neutrals) ─── */
+    --color-night-petrol-100: #d0d9dc;
+    --color-night-petrol-200: #c0d1d6;
+    --color-night-petrol-400: #a0b1b6;
+    --color-night-petrol-500: #9aa7ab;
+    --color-night-petrol-600: #738488;
+    --color-night-petrol-700: #49585c;
+    --color-night-petrol-800: #202e32;
+    --color-night-petrol-850: #162428;
+    --color-night-petrol-900: #0d1b1e;
+    --color-night-petrol-950: #051215;
+
+    /* ─── NIGHT SAGE ─── */
+    --color-night-sage-100: #c9e5e0;
+    --color-night-sage-200: #c6ddd9;
+    --color-night-sage-400: #89ada7;
+    --color-night-sage-600: #5e8a83;
+    --color-night-sage-700: #335f58;
+    --color-night-sage-750: #264742;
+    --color-night-sage-800: #1f3b37;
+    --color-night-sage-850: #19302d;
+    --color-night-sage-900: #142b28;
+    --color-night-sage-950: #112320;
+
+    /* ─── NIGHT MOSS ─── */
+    --color-night-moss-200: #d8dbb6;
+    --color-night-moss-300: #bec387;
+    --color-night-moss-400: #a5aa6f;
+    --color-night-moss-600: #82863a;
+    --color-night-moss-700: #575a00;
+    --color-night-moss-800: #434528;
+    --color-night-moss-850: #333519;
+    --color-night-moss-900: #272817;
+    --color-night-moss-950: #191a09;
+
+    /* ─── NIGHT OXBLOOD ─── */
+    --color-night-oxblood-200: #ffc8c2;
+    --color-night-oxblood-400: #dc8c85;
+    --color-night-oxblood-500: #ef675c;
+    --color-night-oxblood-600: #c8635d;
+    --color-night-oxblood-700: #a03f3c;
+    --color-night-oxblood-800: #90302e;
+    --color-night-oxblood-950: #47211e;
+
+    /* ─── NIGHT CREAM ─── */
+    --color-night-cream-100: #f2eadd;
+}
+
+/* =========================================================
+   TAZAVERA — SEMANTIC LAYER (dark theme)
+   Contract: [data-theme="dark"] on the document root.
+   ========================================================= */
+
+@layer base {
+    [data-theme="dark"] {
+        /* ─── SURFACE ─── */
+        --color-surface-page: var(--color-night-petrol-950);
+        --color-surface-card: var(--color-night-petrol-900);
+        --color-surface-section: var(--color-night-petrol-850);
+        --color-surface-section-hover: var(--color-night-petrol-800);
+        --color-surface-form: var(--color-night-petrol-900);
+        --color-surface-inverse: var(--color-night-sage-900);
+        --color-surface-input: var(--color-night-petrol-950);
+        --color-surface-textarea: var(--color-night-petrol-950);
+        --color-surface-checked: var(--color-night-moss-600);
+        --color-surface-filter: var(--color-night-moss-900);
+        --color-surface-filter-field-hover: var(--color-night-moss-850);
+        --color-surface-filter-control: var(--color-night-moss-950);
+        --color-surface-filter-option: var(--color-night-moss-850);
+        --color-surface-filter-panel: var(--color-night-moss-850);
+
+        /* ─── TEXT ─── */
+        --color-text-primary: var(--color-night-sage-100);
+        --color-text-secondary: var(--color-night-petrol-400);
+        --color-text-accent: var(--color-night-oxblood-400);
+        --color-text-label: var(--color-night-moss-300);
+        --color-text-inverse: var(--color-night-petrol-950);
+        --color-text-strong: var(--color-night-cream-100);
+        --color-text-placeholder: var(--color-night-petrol-400);
+        --color-text-link: var(--color-night-sage-100);
+        --color-text-link-hover: var(--color-night-cream-100);
+        --color-text-input-icon: var(--color-night-sage-100);
+
+        /* ─── BORDER ─── */
+        --color-border-strong: var(--color-night-petrol-600);
+        --color-border-subtle: color-mix(in srgb, var(--color-night-sage-100) 15%, transparent);
+        --color-border-muted: var(--color-night-petrol-600);
+        --color-border-accent: var(--color-night-oxblood-600);
+        --color-border-filter-separator: color-mix(in srgb, var(--color-night-sage-100) 15%, transparent);
+
+        /* ─── PRIMARY ACTION ─── */
+        --color-action-primary: var(--color-night-oxblood-700);
+        --color-action-primary-hover: var(--color-night-oxblood-800);
+        --color-action-primary-text: var(--color-night-cream-100);
+
+        /* ─── POSITIONAL ACTIONS ───
+           Opaque bg: tint mixed with card surface (night-petrol-900). */
+        --color-action-1-bg: color-mix(in srgb, var(--color-night-moss-600) 20%, var(--color-night-petrol-900));
+        --color-action-1-text: var(--color-night-moss-400);
+        --color-action-1-bg-hover: var(--color-night-moss-700);
+        --color-action-1-text-hover: var(--color-night-moss-200);
+
+        --color-action-2-bg: color-mix(in srgb, var(--color-night-oxblood-600) 20%, var(--color-night-petrol-900));
+        --color-action-2-text: var(--color-night-oxblood-400);
+        --color-action-2-bg-hover: var(--color-night-oxblood-800);
+        --color-action-2-text-hover: var(--color-night-oxblood-200);
+
+        --color-action-3-bg: color-mix(in srgb, var(--color-night-sage-600) 20%, var(--color-night-petrol-900));
+        --color-action-3-text: var(--color-night-sage-400);
+        --color-action-3-bg-hover: var(--color-night-sage-700);
+        --color-action-3-text-hover: var(--color-night-sage-200);
+
+        --color-action-4-bg: color-mix(in srgb, var(--color-night-petrol-600) 20%, var(--color-night-petrol-900));
+        --color-action-4-text: var(--color-night-petrol-500);
+        --color-action-4-bg-hover: var(--color-night-petrol-700);
+        --color-action-4-text-hover: var(--color-night-petrol-100);
+
+        /* ─── NAVIGATION ─── */
+        --color-nav-header: var(--color-night-sage-950);
+        --color-nav-surface: var(--color-night-sage-900);
+        --color-nav-surface-dark: var(--color-night-sage-950);
+        --color-nav-text: var(--color-night-sage-100);
+        --color-nav-text-dark: var(--color-night-sage-100);
+        --color-nav-text-hover: var(--color-night-oxblood-400);
+        --color-nav-icon: var(--color-night-sage-100);
+        --color-nav-hover: var(--color-night-sage-800);
+        --color-nav-current: var(--color-night-sage-750);
+        --color-nav-current-dark: var(--color-night-sage-850);
+        --color-nav-indicator: var(--color-night-oxblood-600);
+        --color-nav-underline: var(--color-night-moss-300);
+        --color-nav-toggle-bg: color-mix(in srgb, var(--color-night-sage-100) 15%, transparent);
+        --color-nav-toggle-icon: var(--color-night-sage-100);
+        --color-nav-avatar: var(--color-night-sage-600);
+        --color-nav-avatar-hover: var(--color-night-oxblood-600);
+        --color-nav-hover-shadow: color-mix(in srgb, rgb(0 0 0) 18%, transparent);
+
+        /* ─── NAVIGATION — TABS ─── */
+        --color-nav-tabs-surface: var(--color-night-moss-900);
+        --color-nav-tabs-hover: var(--color-night-moss-850);
+        --color-nav-tabs-current: var(--color-night-moss-800);
+        --color-nav-tabs-current-border: var(--color-night-sage-100);
+        --color-nav-tabs-border: color-mix(in srgb, var(--color-night-sage-100) 15%, transparent);
+
+        /* ─── NAVIGATION — BUTTON ─── */
+        --color-nav-button-bg: var(--color-night-oxblood-700);
+        --color-nav-button-text: var(--color-night-cream-100);
+        --color-nav-button-border: var(--color-night-cream-100);
+        --color-nav-button-bg-hover: var(--color-night-oxblood-800);
+        --color-nav-button-text-hover: var(--color-night-cream-100);
+        --color-nav-button-border-hover: var(--color-night-cream-100);
+
+        /* ─── FEEDBACK ─── */
+        --color-feedback-error: var(--color-night-oxblood-500);
+
+        /* ─── FOCUS ─── */
+        --color-focus-ring: var(--color-night-sage-100);
+        --color-focus-offset: var(--color-night-petrol-950);
+
+        /* ─── EVALUATION ─── */
+        --color-evaluation-rating-exceptional: color-mix(in srgb, var(--color-score-green) 30%, transparent);
+        --color-evaluation-rating-excellent: color-mix(in srgb, var(--color-score-lime) 30%, transparent);
+        --color-evaluation-rating-good: color-mix(in srgb, var(--color-score-citron) 30%, transparent);
+        --color-evaluation-rating-commercial: color-mix(in srgb, var(--color-score-gold) 30%, transparent);
+        --color-evaluation-bean-on: var(--color-night-oxblood-600);
+        --color-evaluation-bean-off: var(--color-night-moss-800);
+        --color-evaluation-slider-track: var(--color-night-oxblood-950);
+        --color-evaluation-slider-start: var(--color-night-moss-600);
+        --color-evaluation-slider-end: var(--color-night-sage-100);
+        --color-evaluation-slider-thumb: var(--color-night-sage-100);
+        --color-evaluation-slider-thumb-border: var(--color-night-petrol-950);
+
+        /* ─── BADGE STATE ─── */
+        --color-badge-text: var(--color-night-sage-100);
+        --color-badge-provisional-bg: var(--color-night-petrol-800);
+        --color-badge-provisional-text: var(--color-night-sage-100);
+        --color-badge-verified-bg: var(--color-night-moss-850);
+        --color-badge-verified-text: var(--color-night-moss-300);
+    }
+}
+
+/* =========================================================
+   TAZAVERA — TYPOGRAPHIC ROLES (@utility type-{role})
+   Each role fixes family, weight, style, size, line height, tracking and one
+   semantic color token. Role metrics are identical in both themes: theme
+   switching comes only from the color tokens, so no role is overridden under
+   [data-theme="dark"]. Sizes use Tailwind's default text/leading scale.
+   button and badge carry no color; the component applies it.
+   ========================================================= */
+
+/* ─── DISPLAY ROLES (scale at md and lg) ─── */
+
+@utility type-heading {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-size: var(--text-2xl);
+    line-height: var(--leading-tight);
+    color: var(--color-text-primary);
+
+    @media (min-width: 48rem) {
+        font-size: var(--text-3xl);
+    }
+
+    @media (min-width: 64rem) {
+        font-size: var(--text-4xl);
+    }
+}
+
+@utility type-card-heading {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-size: var(--text-xl);
+    line-height: var(--leading-tight);
+    color: var(--color-text-primary);
+
+    @media (min-width: 48rem) {
+        font-size: var(--text-2xl);
+    }
+}
+
+@utility type-card-subtitle {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-style: italic;
+    font-size: var(--text-xs);
+    line-height: var(--leading-normal);
+    color: var(--color-text-secondary);
+}
+
+@utility type-score {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-style: italic;
+    font-variant-numeric: tabular-nums;
+    font-size: var(--text-3xl);
+    line-height: var(--leading-none);
+    color: var(--color-text-primary);
+}
+
+/* ─── BODY ROLES (single size across breakpoints) ─── */
+
+@utility type-body {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-primary);
+}
+
+/* body-accent inherits family, weight, size and line height; only style and color differ */
+@utility type-body-accent {
+    font-style: italic;
+    color: var(--color-text-accent);
+}
+
+@utility type-subheading {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    letter-spacing: var(--tracking-subheading);
+    color: var(--color-text-accent);
+}
+
+@utility type-eyebrow {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: var(--text-sm);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-eyebrow);
+    color: var(--color-text-accent);
+
+    @media (min-width: 48rem) {
+        font-size: var(--text-base);
+    }
+
+    @media (min-width: 64rem) {
+        font-size: var(--text-lg);
+    }
+}
+
+@utility type-eyebrow-strong {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: var(--text-sm);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-eyebrow);
+    color: var(--color-text-label);
+
+    @media (min-width: 48rem) {
+        font-size: var(--text-base);
+    }
+
+    @media (min-width: 64rem) {
+        font-size: var(--text-lg);
+    }
+}
+
+@utility type-brand {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: var(--text-base);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-brand);
+    color: var(--color-text-strong);
+
+    @media (min-width: 64rem) {
+        font-size: var(--text-lg);
+    }
+}
+
+/* ─── UI ROLES (single size; control stays 16px on mobile) ─── */
+
+@utility type-label {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: var(--text-base);
+    line-height: var(--leading-tight);
+    color: var(--color-text-label);
+}
+
+@utility type-control {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    color: var(--color-text-strong);
+
+    @media (min-width: 48rem) {
+        font-size: var(--text-sm);
+    }
+}
+
+@utility type-meta {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: var(--text-xs);
+    line-height: var(--leading-normal);
+    color: var(--color-text-secondary);
+}
+
+@utility type-error {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+    color: var(--color-feedback-error);
+}
+
+/* ─── NAVIGATION ROLES ─── */
+
+@utility type-navbar-item {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-style: italic;
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    color: var(--color-nav-text);
+}
+
+@utility type-navlist-item {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    color: var(--color-nav-text);
+}
+
+@utility type-sidebar-item {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    color: var(--color-nav-text-dark);
+}
+
+/* ─── COMPONENT ROLES (no color; component applies it) ─── */
+
+@utility type-button {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+}
+
+@utility type-badge {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
 }
