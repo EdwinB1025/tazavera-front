@@ -1,26 +1,187 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* =========================================================
+   TAZAVERA — PRIMITIVE LAYER (colors)
+   Families by real hue (OKLCH); scale by lightness (≈0.08 per step).
+   Original hex values from the Laravel palette, except the new 700
+   steps (petrol-700, moss-700, oxblood-700) generated in OKLCH at L 0.45.
+   ========================================================= */
+
+@theme {
+    /* ─── CREAM ─── */
+    --color-cream-50: #f6efe4;
+    --color-cream-100: #f2e8d9;
+    --color-cream-200: #e3dcd2;
+    --color-cream-300: #dbd6cb;
+
+    /* ─── SAGE (bluish green) ─── */
+    --color-sage-100: #dae9e6;
+    --color-sage-400: #85b5ad;
+    --color-sage-500: #6B9E95;
+    --color-sage-700: #456B62;
+    --color-sage-800: #2E5A52;
+
+    /* ─── PETROL (petrol blue / blue-grey) ─── */
+    --color-petrol-300: #c6cbcc;
+    --color-petrol-600: #6b7e83;
+    --color-petrol-700: #425a60;
+    --color-petrol-800: #2C4A52;
+    --color-petrol-900: #1a2f35;
+
+    /* ─── MOSS ─── */
+    --color-moss-200: #d1d4a8;
+    --color-moss-400: #b5ba73;
+    --color-moss-600: #6b7a1a;
+    --color-moss-700: #535c02;
+
+    /* ─── CHARTREUSE ─── */
+    --color-chartreuse-300: #c1cd18;
+
+    /* ─── OXBLOOD ─── */
+    --color-oxblood-300: #d6c0c0;
+    --color-oxblood-600: #dc2626;
+    --color-oxblood-700: #a3010d;
+    --color-oxblood-800: #8b2e2e;
+    --color-oxblood-900: #5d0404;
+
+    /* ─── BROWN ─── */
+    --color-brown-900: #44200b;
+
+    /* ─── SCORE (rating badges only) ─── */
+    --color-score-gold: #d9af26;
+    --color-score-citron: #C2CF54;
+    --color-score-lime: #A5D520;
+    --color-score-green: #58DB33;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* =========================================================
+   TAZAVERA — SEMANTIC LAYER (traditional theme)
+   Convention: --color-{group}-{role}-{state}
+   Components use semantic tokens only, never primitives.
+   Contrast: text ≥ 4.5:1 against rendered bg; boundaries & focus ≥ 3:1.
+   ========================================================= */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+@theme {
+    /* ─── SURFACE ─── */
+    --color-surface-page: var(--color-cream-100);
+    --color-surface-card: var(--color-cream-100);
+    --color-surface-section: var(--color-cream-200);
+    --color-surface-section-hover: var(--color-cream-300);
+    --color-surface-form: var(--color-cream-50);
+    --color-surface-inverse: var(--color-sage-100);
+    --color-surface-input: var(--color-cream-50);
+    --color-surface-textarea: var(--color-white);
+    --color-surface-checked: var(--color-moss-400);
+    --color-surface-filter: var(--color-moss-200);
+    --color-surface-filter-field-hover: color-mix(in srgb, var(--color-moss-400) 40%, transparent);
+    --color-surface-filter-control: var(--color-moss-200);
+    --color-surface-filter-option: color-mix(in srgb, var(--color-moss-400) 85%, transparent);
+    --color-surface-filter-panel: var(--color-moss-400);
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+    /* ─── TEXT ─── */
+    --color-text-primary: var(--color-sage-800);
+    --color-text-secondary: var(--color-petrol-700);
+    --color-text-accent: var(--color-oxblood-800);
+    --color-text-label: var(--color-moss-700);
+    --color-text-inverse: var(--color-cream-100);
+    --color-text-strong: var(--color-petrol-900);
+    --color-text-placeholder: var(--color-sage-800);
+    --color-text-link: var(--color-sage-800);
+    --color-text-link-hover: var(--color-petrol-900);
+    --color-text-input-icon: var(--color-white);
+
+    /* ─── BORDER ─── */
+    --color-border-strong: var(--color-petrol-900);
+    --color-border-subtle: color-mix(in srgb, var(--color-sage-800) 15%, transparent);
+    --color-border-muted: var(--color-petrol-600);
+    --color-border-accent: var(--color-oxblood-800);
+    --color-border-filter-separator: color-mix(in srgb, var(--color-petrol-900) 15%, transparent);
+
+    /* ─── PRIMARY ACTION ─── */
+    --color-action-primary: var(--color-oxblood-800);
+    --color-action-primary-hover: var(--color-oxblood-900);
+    --color-action-primary-text: var(--color-cream-100);
+
+    /* ─── POSITIONAL ACTIONS ───
+       Opaque bg: tint mixed with card surface (cream-100). */
+    --color-action-1-bg: color-mix(in srgb, var(--color-moss-400) 40%, var(--color-cream-100));
+    --color-action-1-text: var(--color-moss-700);
+    --color-action-1-bg-hover: var(--color-moss-700);
+    --color-action-1-text-hover: var(--color-cream-100);
+
+    --color-action-2-bg: color-mix(in srgb, var(--color-oxblood-800) 40%, var(--color-cream-100));
+    --color-action-2-text: var(--color-brown-900);
+    --color-action-2-bg-hover: var(--color-oxblood-800);
+    --color-action-2-text-hover: var(--color-cream-100);
+
+    --color-action-3-bg: color-mix(in srgb, var(--color-sage-800) 20%, var(--color-cream-100));
+    --color-action-3-text: var(--color-sage-800);
+    --color-action-3-bg-hover: var(--color-sage-800);
+    --color-action-3-text-hover: var(--color-cream-100);
+
+    --color-action-4-bg: color-mix(in srgb, var(--color-petrol-600) 35%, var(--color-cream-100));
+    --color-action-4-text: var(--color-petrol-800);
+    --color-action-4-bg-hover: var(--color-petrol-700);
+    --color-action-4-text-hover: var(--color-cream-100);
+
+    /* ─── NAVIGATION (light: header, navbar, navlist, menu · dark: sidebar) ─── */
+    --color-nav-header: var(--color-sage-500);
+    --color-nav-surface: var(--color-sage-400);
+    --color-nav-surface-dark: var(--color-sage-800);
+    --color-nav-text: var(--color-brown-900);
+    --color-nav-text-dark: var(--color-cream-100);
+    --color-nav-text-hover: var(--color-petrol-900);
+    --color-nav-icon: var(--color-sage-800);
+    --color-nav-hover: var(--color-sage-500);
+    --color-nav-current: var(--color-sage-400);
+    --color-nav-current-dark: var(--color-sage-700);
+    --color-nav-indicator: var(--color-oxblood-800);
+    --color-nav-underline: var(--color-moss-600);
+    --color-nav-toggle-bg: color-mix(in srgb, var(--color-petrol-900) 45%, transparent);
+    --color-nav-toggle-icon: var(--color-cream-100);
+    --color-nav-avatar: var(--color-sage-800);
+    --color-nav-avatar-hover: var(--color-oxblood-800);
+    --color-nav-hover-shadow: color-mix(in srgb, rgb(0 0 0) 18%, transparent);
+
+    /* ─── NAVIGATION — TABS ─── */
+    --color-nav-tabs-surface: var(--color-moss-200);
+    --color-nav-tabs-hover: color-mix(in srgb, var(--color-moss-600) 40%, transparent);
+    --color-nav-tabs-current: color-mix(in srgb, var(--color-moss-200) 55%, color-mix(in srgb, var(--color-moss-600) 40%, transparent));
+    --color-nav-tabs-current-border: var(--color-petrol-900);
+    --color-nav-tabs-border: color-mix(in srgb, var(--color-sage-800) 15%, transparent);
+
+    /* ─── NAVIGATION — BUTTON ─── */
+    --color-nav-button-bg: var(--color-oxblood-900);
+    --color-nav-button-text: var(--color-cream-100);
+    --color-nav-button-border: var(--color-cream-100);
+    --color-nav-button-bg-hover: color-mix(in srgb, var(--color-petrol-900) 50%, transparent);
+    --color-nav-button-text-hover: var(--color-cream-100);
+    --color-nav-button-border-hover: var(--color-petrol-900);
+
+    /* ─── FEEDBACK (success and warning deferred) ─── */
+    --color-feedback-error: var(--color-oxblood-700);
+
+    /* ─── FOCUS ─── */
+    --color-focus-ring: var(--color-petrol-900);
+    --color-focus-offset: var(--color-cream-100);
+
+    /* ─── EVALUATION ─── */
+    --color-evaluation-rating-exceptional: color-mix(in srgb, var(--color-score-green) 45%, transparent);
+    --color-evaluation-rating-excellent: color-mix(in srgb, var(--color-score-lime) 45%, transparent);
+    --color-evaluation-rating-good: color-mix(in srgb, var(--color-score-citron) 45%, transparent);
+    --color-evaluation-rating-commercial: color-mix(in srgb, var(--color-score-gold) 45%, transparent);
+    --color-evaluation-bean-on: color-mix(in srgb, var(--color-oxblood-900) 80%, transparent);
+    --color-evaluation-bean-off: var(--color-moss-400);
+    --color-evaluation-slider-track: var(--color-oxblood-300);
+    --color-evaluation-slider-start: var(--color-moss-400);
+    --color-evaluation-slider-end: var(--color-sage-800);
+    --color-evaluation-slider-thumb: var(--color-sage-800);
+    --color-evaluation-slider-thumb-border: var(--color-white);
+
+    /* ─── BADGE STATE ─── */
+    --color-badge-text: var(--color-moss-700);
+    --color-badge-provisional-bg: var(--color-petrol-300);
+    --color-badge-provisional-text: var(--color-sage-800);
+    --color-badge-verified-bg: var(--color-moss-200);
+    --color-badge-verified-text: var(--color-moss-700);
 }
