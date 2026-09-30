@@ -1,6 +1,23 @@
 @import "tailwindcss";
 
 /* =========================================================
+   TAZAVERA — FONT AND TRACKING PRIMITIVES
+   Fonts load via next/font/google in src/app/fonts.ts.
+   The legacy font names were inverted relative to their use; this fixes it.
+   ========================================================= */
+
+@theme {
+    /* ─── FONTS ─── */
+    --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    --font-serif: var(--font-lora), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+
+    /* ─── TRACKING ─── */
+    --tracking-subheading: 0.1em;
+    --tracking-eyebrow: 0.25em;
+    --tracking-brand: 0.2em;
+}
+
+/* =========================================================
    TAZAVERA — PRIMITIVE LAYER (colors)
    Families by real hue (OKLCH); scale by lightness (≈0.08 per step).
    Original hex values from the Laravel palette, except the new 700
@@ -371,4 +388,217 @@
         --color-badge-verified-bg: var(--color-night-moss-850);
         --color-badge-verified-text: var(--color-night-moss-300);
     }
+}
+
+/* =========================================================
+   TAZAVERA — TYPOGRAPHIC ROLES (@utility type-{role})
+   Each role fixes family, weight, style, size, line height, tracking and one
+   semantic color token. Role metrics are identical in both themes: theme
+   switching comes only from the color tokens, so no role is overridden under
+   [data-theme="dark"]. Sizes use Tailwind's default text/leading scale.
+   button and badge carry no color; the component applies it.
+   ========================================================= */
+
+/* ─── DISPLAY ROLES (scale at md and lg) ─── */
+
+@utility type-heading {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-size: var(--text-2xl);
+    line-height: var(--leading-tight);
+    color: var(--color-text-primary);
+
+    @media (min-width: 48rem) {
+        font-size: var(--text-3xl);
+    }
+
+    @media (min-width: 64rem) {
+        font-size: var(--text-4xl);
+    }
+}
+
+@utility type-card-heading {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-size: var(--text-xl);
+    line-height: var(--leading-tight);
+    color: var(--color-text-primary);
+
+    @media (min-width: 48rem) {
+        font-size: var(--text-2xl);
+    }
+}
+
+@utility type-card-subtitle {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-style: italic;
+    font-size: var(--text-xs);
+    line-height: var(--leading-normal);
+    color: var(--color-text-secondary);
+}
+
+@utility type-score {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-style: italic;
+    font-variant-numeric: tabular-nums;
+    font-size: var(--text-3xl);
+    line-height: var(--leading-none);
+    color: var(--color-text-primary);
+}
+
+/* ─── BODY ROLES (single size across breakpoints) ─── */
+
+@utility type-body {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-primary);
+}
+
+/* body-accent inherits family, weight, size and line height; only style and color differ */
+@utility type-body-accent {
+    font-style: italic;
+    color: var(--color-text-accent);
+}
+
+@utility type-subheading {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    letter-spacing: var(--tracking-subheading);
+    color: var(--color-text-accent);
+}
+
+@utility type-eyebrow {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: var(--text-sm);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-eyebrow);
+    color: var(--color-text-accent);
+
+    @media (min-width: 48rem) {
+        font-size: var(--text-base);
+    }
+
+    @media (min-width: 64rem) {
+        font-size: var(--text-lg);
+    }
+}
+
+@utility type-eyebrow-strong {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: var(--text-sm);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-eyebrow);
+    color: var(--color-text-label);
+
+    @media (min-width: 48rem) {
+        font-size: var(--text-base);
+    }
+
+    @media (min-width: 64rem) {
+        font-size: var(--text-lg);
+    }
+}
+
+@utility type-brand {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: var(--text-base);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-brand);
+    color: var(--color-text-strong);
+
+    @media (min-width: 64rem) {
+        font-size: var(--text-lg);
+    }
+}
+
+/* ─── UI ROLES (single size; control stays 16px on mobile) ─── */
+
+@utility type-label {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: var(--text-base);
+    line-height: var(--leading-tight);
+    color: var(--color-text-label);
+}
+
+@utility type-control {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    color: var(--color-text-strong);
+
+    @media (min-width: 48rem) {
+        font-size: var(--text-sm);
+    }
+}
+
+@utility type-meta {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: var(--text-xs);
+    line-height: var(--leading-normal);
+    color: var(--color-text-secondary);
+}
+
+@utility type-error {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+    color: var(--color-feedback-error);
+}
+
+/* ─── NAVIGATION ROLES ─── */
+
+@utility type-navbar-item {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-style: italic;
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    color: var(--color-nav-text);
+}
+
+@utility type-navlist-item {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    color: var(--color-nav-text);
+}
+
+@utility type-sidebar-item {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    color: var(--color-nav-text-dark);
+}
+
+/* ─── COMPONENT ROLES (no color; component applies it) ─── */
+
+@utility type-button {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+}
+
+@utility type-badge {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
 }

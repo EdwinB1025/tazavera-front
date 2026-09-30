@@ -10,6 +10,10 @@ schema: spec-driven
 
 context: |
   All artifacts are written in English.
+  After creating or editing any artifact, run `openspec validate <change-name> --strict`
+  and fix format errors until it passes. If a fix would change the meaning of a
+  requirement, scenario or decision, do not apply it: report the error and ask.
+  Report the final validation result at handoff.
 
   Existing capabilities:
   - theming: color system (primitive and semantic tokens) and application themes
@@ -37,3 +41,4 @@ rules:
     - Write tests before the implementation they cover.
     - Organize tasks by complete vertical slices (data to screen), not by technical layer.
     - Mark a task complete only after verifying it.
+    - Tasks only touch files outside openspec/ (except checking off tasks.md) and never wait on a product-owner decision. Unresolved decisions are settled in design.md before handoff.

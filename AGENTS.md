@@ -8,7 +8,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# Project rules
+# Common rules (all agents)
 
 ## Project
 
@@ -45,7 +45,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Do not add, remove or upgrade dependencies without explicit approval from the user.
 - Keep ESLint on v9: the plugins in `eslint-config-next` do not support ESLint 10 yet.
 
-## Git Flow and Commits (Common to All Agents)
+## Git Flow and Commits
 
 ### Branches
 - `master`: production. Only receives merges from `release/*` or `hotfix/*`. Only Augusto performs merges.
@@ -73,20 +73,31 @@ Mandatory footer: `Refs: <change-id>`
 - `git push`, `git merge`, `git rebase`, `git reset --hard`, `git commit --amend`, and `--force` are never used.
 - Before each commit, `git status` is executed to verify that only files allowed for the agent are included.
 
-## Git Flow and Commits (if you are the architect agent)
+# Architect agent rules (only if you are the architect agent)
+
+## Design context
+
+- When running /opsx:explore or /opsx:propose, first read every file in docs/design/<change-name>/ (design-summary.md and any value sources it references, such as tokens.css). These are the design source of truth: do not re-decide what they settle; resolve only what they list as open. If the folder is missing, or files contradict themselves or each other, stop and ask.
+- When /opsx:propose finishes, update docs/design/<change-name>/design-summary.md by writing or replacing only a final section `## Propose status`, with: the change-id, the date, the openspec validate result, what was resolved during propose (with its decision), and what remains open (residuals, pending decisions, deferred items). Never edit any other part of the file; if something above it is wrong or outdated, report it instead.
+
+## Git
 
 - Works only on the `feature/<change-id>` branch of the proposed change. If another branch is active, it stops and flags it.
-- Only commits files within `openspec/changes/<change-id>/`. It never commits code, configuration, or files in `openspec/specs/`.
-- One commit upon completing the propose phase - `docs(<capability>), propose <change-id>`.
-- One commit for each artifact review requested by Augusto - `docs(<capability>), update <artifact> for <change-id>`.
+- Only commits files within `openspec/changes/<change-id>/`, plus the `## Propose status` section of `docs/design/<change-name>/design-summary.md`. It never commits code or configuration.
+- One commit upon completing the propose phase - `docs(<capability>): propose <change-id>`.
+- One commit for each artifact review requested by Augusto - `docs(<capability>): update <artifact> for <change-id>`.
 - Does not commit if `openspec validate <change-id> --strict` fails.
-- Does not push, merge, or archive.
+- Runs `openspec archive <change-id> --yes` only when Augusto requests it and every task in `tasks.md` is checked. The archive commit contains only `openspec/specs/` and the archived change folder - `chore(openspec): archive <change-id>`.
+- Only modifies `openspec/specs/` through `openspec archive`, never by hand.
+- Does not push or merge.
 
-## Git Flow and Commits (if you are the build agent)
+# Build agent rules (only if you are the build agent)
+
+## Git
 
 - Works only on the `feature/<change-id>` branch of the change it implements. If another branch is active, it stops and flags it.
 - Does not modify or commit anything within `openspec/`, except for checking off tasks in `tasks.md`.
-- One commit per completed and verified task group in `tasks.md`, in this exact order - types → tests → implementation.
+- One commit per completed and verified task in `tasks.md`, in task order. A task that changes no files is checked off in the commit of the next task.
 - Tests are committed before the implementation that makes them pass (`test(...)` before `feat(...)`).
 - Does not commit if tests, linting, or typechecking fail.
 - The task checkbox in `tasks.md` is checked in the exact same commit that completes it.

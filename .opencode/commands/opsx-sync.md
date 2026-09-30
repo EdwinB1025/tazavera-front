@@ -1,5 +1,6 @@
 ---
 description: "Sync delta specs from a change to main specs"
+agent: architect
 ---
 
 Sync delta specs from a change to main specs.

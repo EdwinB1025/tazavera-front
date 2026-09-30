@@ -500,10 +500,13 @@ describe("Theme completeness: every traditional semantic token defined in dark",
   const tradProps = extractTraditional(css);
   const darkProps = extractDark(css);
 
-  // Collect all semantic token names (those that start with --color- but are
-  // not primitives: they reference other tokens or use color-mix).
+  // Collect all semantic color token names (--color-* that reference other
+  // tokens or use color-mix; primitives are plain hex values). Non-color
+  // custom properties (font, tracking) are theme-invariant by design and are
+  // excluded from the color-theme completeness contract.
   const semanticNames: string[] = [];
   for (const [name, value] of tradProps) {
+    if (!name.startsWith("--color-")) continue;
     // Primitives are hex values; semantic tokens reference var() or color-mix()
     if (value.includes("var(") || value.includes("color-mix(")) {
       semanticNames.push(name);
