@@ -11,7 +11,7 @@
 
 **Goals:**
 - One source of truth for color and typography, switchable between two complete themes behind a single contract.
-- Every open token decision resolved except the three contrast residuals listed in Risks / Trade-offs, each of which needs a product owner call.
+- Every open token decision resolved. The three contrast residuals recorded during propose are decided and recorded here (Decision 14); no decision is left for Build.
 - Automated, dependency-free verification of the contrast and role contracts for both themes.
 
 **Non-Goals:**
@@ -45,7 +45,7 @@
 
 7. **New tokens `border-filter-separator` and `nav-hover-shadow`.** `border-filter-separator` (1px filter divider): traditional `color-mix(in srgb, var(--color-petrol-900) 15%, transparent)`, dark `color-mix(in srgb, var(--color-night-sage-100) 15%, transparent)` — the dark hairline pattern shared with `border-subtle` and `nav-tabs-border`. Legacy exact value `rgba(15, 13, 11, 0.15)`; rendered over the filter surface `petrol-900` at 15% measures deltaE 0.0145 while `border-subtle` (sage-800 15%) measures 0.0330 (not unifiable, hence its own token). `nav-hover-shadow` is color only (`color-mix(in srgb, rgb(0 0 0) 18%, transparent)` in both themes, shared like `score-*`); the component builds `0 1px 3px` elevation or an inset shadow over it. Alternative: a full `--shadow-*` value (rejected: two different constructions share one color).
 
-8. **Decorative hairlines are exempt from the 3:1 boundary rule; state-identifying boundaries are not.** The spec exempts separators that do not identify a component or its state. Classification: `border-subtle`, `border-filter-separator` and `nav-tabs-border` are decorative separators (exempt); `border-strong`, `border-muted`, `border-accent`, `nav-tabs-current-border`, `nav-button-border(-hover)` and `focus-ring` identify a component or its state (verified at >= 3:1). This matches WCAG 2.2 SC 1.4.11 and the design summary.
+8. **Decorative hairlines are exempt from the 3:1 boundary rule; state-identifying boundaries are not.** The spec exempts separators that do not identify a component or its state. Classification: `border-subtle`, `border-filter-separator` and `nav-tabs-border` are decorative separators (exempt); `border-strong`, `border-muted`, `border-accent`, `nav-tabs-current-border` and `focus-ring` identify a component or its state (verified at >= 3:1). `nav-button-border(-hover)` is decorative in the traditional theme (after Decision 14 its fill reaches 4.68 >= 3:1 against the header, so the border is not state-identifying) and state-identifying in the dark theme (its fill reaches 2.55 only), where the border itself is verified at >= 3:1 against every adjacent color. This matches WCAG 2.2 SC 1.4.11 and the design summary.
 
 9. **Contrast verification in Vitest with no new dependencies.** `src/app/styles/theme-tokens.test.ts` (FSD layer `app`) parses the custom properties in `globals.css`, resolves `var()` chains and the `color-mix(in srgb, ...)` forms used there, composites translucencies over their documented bases (Decision 10), and asserts the matrices in the Evidence section. Any syntax outside those two forms must fail the test loudly rather than mis-measure. Alternative: screenshot-based e2e checks (rejected: the Playwright suite is a later phase).
 
@@ -54,7 +54,7 @@
     | Translucent token | Composited over |
     |---|---|
     | `surface-filter-field-hover`, `surface-filter-option` | `surface-filter` |
-    | `nav-toggle-bg` | `nav-surface` (light navbar) — also measured over `nav-header` (see Residual 1) |
+    | `nav-toggle-bg` | `nav-surface` (light navbar); also measured over `nav-header` — both documented, the component change pins where the toggle renders (Decision 14) |
     | `nav-button-bg-hover` | `nav-button-bg` |
     | `nav-tabs-hover`, `nav-tabs-current` (nested mix) | `nav-tabs-surface` |
     | `evaluation-rating-*` | `surface-card` |
@@ -75,6 +75,16 @@
 
     API endpoints consumed: none. Generated types: none derived from `src/shared/api/schema.ts`. API error presentation: not applicable. Shared card field mapping: not applicable.
 
+14. **Contrast residuals decided (2026-09-30; product decision by Augusto).** The three pairs that failed the first measurement are resolved and nothing is left for Build:
+
+    | Residual | Decision | Verified result |
+    |---|---|---|
+    | `nav-toggle-text` / `nav-toggle-bg` (3.96 at the text threshold) | The toggle's content is an icon, so the pair is non-text contrast at 3:1 (WCAG 2.2 SC 1.4.11), and the token is renamed `nav-toggle-icon` (its old name implied text) | 3.96 over `nav-surface`, 4.79 over `nav-header`, 7.50 dark |
+    | `nav-button-text-hover` / `nav-button-bg-hover` (dark 3.80) | The dark hover follows the dark primary action pattern: `nav-button-bg-hover` takes the `action-primary-hover` value (`night-oxblood-800`) and `nav-button-text-hover` / `nav-button-border-hover` take the `action-primary-text` value (`night-cream-100`). Values, not aliases: the semantic layer wires primitives only | 6.64 dark; 12.76 traditional over the new fill |
+    | `nav-button-border` / `nav-header` (2.49) | No single opaque border color can reach 3:1 against both adjacent colors (only pure white reaches 3.02 against the header, and it loses the cream hue), so the traditional `nav-button-bg` is darkened to `oxblood-900` (chosen over the off-scale `#7a1f20`, which reaches 3.40): the fill identifies the button at 4.68 and the cream border becomes decorative and exempt | text 11.67; hover fill 5.12 with text 12.76; dark unchanged (border rows 5.38 / 13.69 / 6.64) |
+
+    Rejected options: raising the toggle pill opacity (unnecessary at the icon threshold); a shadow treatment or an explicit 3:1 exception for `nav-button-border` (the design summary forbids contrast exceptions, and a shadow does not satisfy SC 1.4.11); changing `nav-header` (it would push `nav-text` / `nav-header` 4.77 below its threshold).
+
 ## Typographic roles (contract for `type-{role}`)
 
 Sizes are base / md / lg; `—` means the role does not change at that breakpoint. Colors are semantic tokens.
@@ -89,7 +99,7 @@ Sizes are base / md / lg; `—` means the role does not change at that breakpoin
 | body-accent | inherits family and size; italic | inherits | inherits | — | text-accent |
 | subheading | sans 600 | base | default | subheading | text-accent |
 | eyebrow | sans 400 uppercase | sm / base / lg | tight | eyebrow | text-accent |
-| eyebrow-strong | sans 600 uppercase | sm / base / lg | tight | eyebrow | text-label |
+| eyebrow-strong | sans 600 | sm / base / lg | tight | eyebrow | text-label |
 | brand | sans 700 uppercase | base / — / lg | tight | brand | text-strong |
 | label | sans 600 | base | tight | — | text-label |
 | control | sans 400 | base / sm / — | default | — | text-strong |
@@ -105,7 +115,7 @@ Sizing rules: mobile-first; sizes change only at `md` and `lg`; body and UI text
 
 ## Evidence: measured contrast matrices
 
-Computed from `tokens.css` values with WCAG 2.2 relative luminance, translucencies composited per Decision 10. Text rows require >= 4.5:1, boundary rows >= 3:1. Tokens without a defined pairing (`text-inverse`, `text-input-icon`, `surface-checked`, `nav-icon`, `nav-underline`, `evaluation-bean-*`, `evaluation-slider-*`) are excluded and verified in the component change that defines where they render.
+Computed from `tokens.css` values with WCAG 2.2 relative luminance, translucencies composited per Decision 10. Text rows require >= 4.5:1, boundary rows >= 3:1 and icon rows >= 3:1 (non-text contrast). Rows marked `exempt (decorative)` are decorative in that theme per Decision 8 and are excluded from their threshold. Tokens without a defined pairing (`text-inverse`, `text-input-icon`, `surface-checked`, `nav-icon`, `nav-underline`, `evaluation-bean-*`, `evaluation-slider-*`) are excluded and verified in the component change that defines where they render.
 
 | Pair | Kind | Traditional | Dark | Status |
 |---|---|---|---|---|
@@ -137,9 +147,9 @@ Computed from `tokens.css` values with WCAG 2.2 relative luminance, translucenci
 | `nav-text-hover` / `nav-hover` | text | 4.63 | 4.68 | ok |
 | `nav-text-dark` / `nav-surface-dark` | text | 6.41 | 12.27 | ok |
 | `nav-text-dark` / `nav-current-dark` | text | 4.90 | 10.50 | ok |
-| `nav-toggle-text` / `nav-toggle-bg` | text | **3.96** | 7.50 | Residual 1 |
-| `nav-button-text` / `nav-button-bg` | text | 6.85 | 5.38 | ok |
-| `nav-button-text-hover` / `nav-button-bg-hover` | text | 9.58 | **3.80** | Residual 2 |
+| `nav-toggle-icon` / `nav-toggle-bg` (bases: `nav-surface` / `nav-header`) | icon | 3.96 / 4.79 | 7.50 | ok |
+| `nav-button-text` / `nav-button-bg` | text | 11.67 | 5.38 | ok |
+| `nav-button-text-hover` / `nav-button-bg-hover` | text | 12.76 | 6.64 | ok |
 | `feedback-error` / `surface-page` | text | 6.75 | 6.13 | ok |
 | `feedback-error` / `surface-card` | text | 6.75 | 5.67 | ok |
 | `feedback-error` / `surface-form` | text | 7.16 | 5.67 | ok |
@@ -162,17 +172,18 @@ Computed from `tokens.css` values with WCAG 2.2 relative luminance, translucenci
 | `focus-ring` / `nav-surface` | bound | 6.13 | 11.22 | ok |
 | `focus-ring` / `focus-offset` | bound | 11.53 | 14.28 | ok |
 | `nav-tabs-current-border` / `nav-tabs-current` | bound | 7.64 | 7.44 | ok |
-| `nav-button-border` / `nav-header` | bound | **2.49** | 13.69 | Residual 3 |
-| `nav-button-border-hover` / `nav-header` | bound | 4.63 | 12.27 | ok |
+| `nav-button-border` / `nav-button-bg` | bound | exempt (decorative) | 5.38 | ok |
+| `nav-button-border` / `nav-header` | bound | exempt (decorative) | 13.69 | ok |
+| `nav-button-border-hover` / `nav-button-bg-hover` | bound | exempt (decorative) | 6.64 | ok |
+| `nav-button-border-hover` / `nav-header` | bound | exempt (decorative) | 13.69 | ok |
 
 Tight but passing (traditional 4.5-5.0): `action-1-text`/`action-1-bg` 4.89, `action-3-text`/`action-3-bg` 4.77, `nav-text`/`nav-header` 4.77, `nav-text-hover`/`nav-hover` 4.63, `nav-text-dark`/`nav-current-dark` 4.90, `badge-verified-text`/`badge-verified-bg` 4.72, `badge-provisional-text`/`badge-provisional-bg` 4.75. Dark 4.5-5.0: `nav-text-hover`/`nav-hover` 4.68, `border-strong`/`surface-card` 4.52, `border-strong`/`surface-form` 4.52, `border-accent`/`surface-card` 4.53. These are sensitive to any future value nudge.
 
 ## Risks / Trade-offs
 
-- [Three residual pairs fail with the designed values] -> Product owner decides each pair; blocks the final matrix-green task. Measured evidence and options:
-  - **Residual 1 — `nav-toggle-text` / `nav-toggle-bg` (traditional 3.96, dark 7.50).** The 45% petrol-900 pill is measured over `nav-surface`; over `nav-header` the pair measures 4.79 and passes. Options: (a) confirm the toggle renders on the header and measure only there; (b) raise the pill's overlay opacity, keeping the hue; (c) explicit exception down to 3:1 in `specs/theming/spec.md` (3.96 clears 3:1).
-  - **Residual 2 — `nav-button-text-hover` / `nav-button-bg-hover` (dark 3.80, traditional 9.58).** The 15% night-sage-100 hover overlay lightens the oxblood button. Options: (a) swap the hover text to `night-cream-100` (4.24 — still short, insufficient alone); (b) make the dark hover a solid darker tone with light text, matching the dark positional-action hover pattern from the design summary; (c) explicit exception down to 3:1.
-  - **Residual 3 — `nav-button-border` / `nav-header` (traditional 2.49, dark 13.69).** A state-identifying boundary below 3:1 cannot be excepted below 3:1, so a value change is mandatory. The cream border reads 6.85 against the button's own background but 2.49 against the header; `petrol-900` reads 4.63 against the header but 1.68 against the button background. No single opaque color contrasts with both adjacent colors; options: keep cream and add a separating treatment (e.g. shadow) so the boundary is identified against the header, or change the border value and accept which side it reads against.
+- [The header nav button's fill is visibly darker in the traditional theme (`oxblood-800` -> `oxblood-900`)] -> Product decision (Augusto), 2026-09-30 (Decision 14): chosen over the off-scale `#7a1f20` so the primitive scale stays intact; the button's text contrast improves from 6.85 to 11.67.
+- [The dark `nav-button` fill identifies the button at 2.55 against the header, so in the dark theme the border carries the identification] -> Both border rows are verified at >= 3:1 (5.38 / 13.69 / 6.64). If a future change thins or removes that border, the dark fill must lighten to >= 3:1 first.
+- [`nav-toggle` is measured over two documented bases (`nav-surface`, `nav-header`)] -> Both clear the 3:1 icon threshold (3.96 / 4.79); the component change pins where the toggle renders and the unused row is dropped.
 - [A previously recorded 12-pair failing list measured against legacy surfaces is not reproducible from `tokens.css`] -> The matrices in this document were recomputed from the designed values and are the contract; the measured-list deltas live here.
 - [Tight pairs sit 4.63-4.90] -> The harness re-runs the full matrix on every change; any value nudge lands in a test failure before it ships.
 - [Test code needs a mini color engine] -> Restrict the parser to the two syntaxes used in `globals.css`; unknown syntax fails loudly. Adding dependencies requires explicit approval, so none are added.
