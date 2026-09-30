@@ -2,11 +2,11 @@
 
 ## 1. Derived types
 
-- [ ] 1.1 Confirm the change derives no types from `src/shared/api/schema.ts` and verify with `git status` that `src/shared/api/` is untouched
+- [x] 1.1 Confirm the change derives no types from `src/shared/api/schema.ts` and verify with `git status` that `src/shared/api/` is untouched
 
 ## 2. Traditional theme slice (tests first)
 
-- [ ] 2.1 Write the test harness in `src/app/styles/theme-tokens.test.ts` (custom property parsing, `var()` and `color-mix(in srgb, ...)` resolution with loud failure on unknown syntax, documented-base compositing per design.md Decision 10, WCAG ratios for text (4.5:1), boundaries and icons (3:1), the decorative-separator and decorative-border exemptions of Decision 8 and the excluded-pair list of the Evidence section) with the traditional pair matrix from design.md, and verify `npm run test:run` runs the new suite red because `globals.css` defines no tokens yet
+- [x] 2.1 Write the test harness in `src/app/styles/theme-tokens.test.ts` (custom property parsing, `var()` and `color-mix(in srgb, ...)` resolution with loud failure on unknown syntax, documented-base compositing per design.md Decision 10, WCAG ratios for text (4.5:1), boundaries and icons (3:1), the decorative-separator and decorative-border exemptions of Decision 8 and the excluded-pair list of the Evidence section) with the traditional pair matrix from design.md, and verify `npm run test:run` runs the new suite red because `globals.css` defines no tokens yet
 - [ ] 2.2 Add the primitive layer and the traditional semantic layer to `src/app/styles/globals.css` per `docs/design/add-theme-tokens/tokens.css` and design.md (five unification assignments per Decision 5, the decided values of Decision 14 — `nav-toggle-icon` naming and `nav-button-bg` = `oxblood-900` — `border-filter-separator` and `nav-hover-shadow` included, inline group comments), and verify `npm run test:run` shows every traditional pair in design.md green
 
 ## 3. Dark theme slice (tests first)
