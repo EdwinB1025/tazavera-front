@@ -1,8 +1,15 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { Button } from "@/shared/ui/Button";
-import { Loader2, ArrowLeft } from "@/shared/ui/icons";
+import { ArrowLeft } from "@/shared/ui/icons";
+
+// This project has no global test setup, so RTL's auto-cleanup (which relies
+// on a framework-provided afterEach) does not run. Clean up manually between
+// tests so queries don't see buttons left by previous renders.
+afterEach(() => {
+  cleanup();
+});
 
 /**
  * Button control tests (design.md D2–D6, spec "Action button …").
@@ -48,9 +55,10 @@ describe("Button", () => {
       expect(btn.className).toContain("gap-2");
       const svg = container.querySelector("svg");
       expect(svg).not.toBeNull();
-      expect(svg!.className).toContain("size-4");
+      // SVG elements expose className as SVGAnimatedString; read the attribute.
+      expect(svg!.getAttribute("class")).toContain("size-4");
       // a plain icon is not animated
-      expect(svg!.className).not.toContain("animate-spin");
+      expect(svg!.getAttribute("class")).not.toContain("animate-spin");
     });
   });
 
@@ -167,8 +175,8 @@ describe("Button", () => {
       const btn = screen.getByRole("button");
       const svg = container.querySelector("svg");
       expect(svg).not.toBeNull();
-      expect(svg!.className).toContain("animate-spin");
-      expect(svg!.className).toContain("motion-reduce:animate-none");
+      expect(svg!.getAttribute("class")).toContain("animate-spin");
+      expect(svg!.getAttribute("class")).toContain("motion-reduce:animate-none");
       // spinner renders before the label
       expect(btn.firstChild).toBe(svg);
     });
@@ -179,8 +187,8 @@ describe("Button", () => {
       );
       const svgs = container.querySelectorAll("svg");
       expect(svgs.length).toBe(1);
-      expect(svgs[0]!.className).toContain("animate-spin");
-      expect(svgs[0]!.className).toContain("motion-reduce:animate-none");
+      expect(svgs[0]!.getAttribute("class")).toContain("animate-spin");
+      expect(svgs[0]!.getAttribute("class")).toContain("motion-reduce:animate-none");
     });
   });
 
