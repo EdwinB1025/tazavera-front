@@ -53,11 +53,11 @@ Action buttons SHALL show pointer feedback, a visible keyboard focus indicator, 
 
 #### Scenario: Disabled
 - **WHEN** an action button is disabled
-- **THEN** it renders at 50% opacity with a not-allowed cursor, shows no hover change, rejects activation, and is exempt from contrast requirements
+- **THEN** it renders at 50% opacity with a not-allowed cursor, shows no hover change, rejects activation, leaves the keyboard focus order, and is exempt from contrast requirements
 
 #### Scenario: Busy
 - **WHEN** an action button enters the busy state
-- **THEN** a spinner icon renders before the label, the label stays visible so the control's width does not change, the button rejects activation, and its busy state is announced to assistive technology
+- **THEN** a spinner icon renders before the label, the label stays visible so the control's width does not change, the button rejects activation while keeping keyboard focus, and its busy state is announced to assistive technology
 
 #### Scenario: Busy under reduced motion
 - **WHEN** the user prefers reduced motion and an action button is busy
@@ -86,8 +86,8 @@ Links SHALL address internal routes only and SHALL always render underlined. Nav
 - **THEN** its text is underlined and its colors come from the link tokens of the active theme
 
 #### Scenario: External destination refused
-- **WHEN** a destination points outside the application
-- **THEN** it is not rendered with the link treatment
+- **WHEN** code supplies a link destination outside the application, such as an absolute URL
+- **THEN** it is rejected at compile time (destinations accept in-application routes only) and no runtime check is involved
 
 ### Requirement: Link states and back variant
 Links SHALL show rest, hover and keyboard focus states, and SHALL offer a back variant that pairs a leading arrow icon with its text.
