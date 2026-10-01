@@ -345,6 +345,8 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "focus-ring", bg: "surface-form", kind: "bound" },
   { fg: "focus-ring", bg: "surface-filter", kind: "bound" },
   { fg: "focus-ring", bg: "nav-surface", kind: "bound" },
+  // nav-button renders in the header (D6): focus ring against nav-header
+  { fg: "focus-ring", bg: "nav-header", kind: "bound" },
   { fg: "focus-ring", bg: "focus-offset", kind: "bound" },
   // nav-tabs-current is translucent, composited over nav-tabs-surface
   { fg: "nav-tabs-current-border", bg: "nav-tabs-current", kind: "bound" },
@@ -460,6 +462,8 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "focus-ring", bg: "surface-form", kind: "bound" },
   { fg: "focus-ring", bg: "surface-filter", kind: "bound" },
   { fg: "focus-ring", bg: "nav-surface", kind: "bound" },
+  // nav-button renders in the header (D6): focus ring against nav-header
+  { fg: "focus-ring", bg: "nav-header", kind: "bound" },
   { fg: "focus-ring", bg: "focus-offset", kind: "bound" },
   { fg: "nav-tabs-current-border", bg: "nav-tabs-current", kind: "bound" },
   // In dark, nav-button-border is state-identifying (not decorative): measured
@@ -518,6 +522,49 @@ describe("Theme completeness: every traditional semantic token defined in dark",
       expect(darkProps.has(name)).toBe(true);
     });
   }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Radius token completeness (design.md D1)
+// The four radius tokens live in @theme and are reassigned to 0 under
+// [data-theme="dark"]. Completeness: each expected token is defined in the
+// traditional @theme and reassigned in the dark theme, so shapes switch with
+// the theme. Until the tokens exist (task 4.2), these checks fail.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const EXPECTED_RADIUS_TOKENS = [
+  "--radius-pill",
+  "--radius-container",
+  "--radius-field",
+  "--radius-check",
+] as const;
+
+describe("Radius token completeness: every radius token defined in both themes", () => {
+  const css = readGlobals();
+  const tradProps = extractTraditional(css);
+  const darkProps = extractDark(css);
+
+  for (const token of EXPECTED_RADIUS_TOKENS) {
+    it(`traditional @theme defines ${token}`, () => {
+      expect(tradProps.has(token)).toBe(true);
+    });
+
+    it(`dark theme reassigns ${token}`, () => {
+      expect(darkProps.has(token)).toBe(true);
+    });
+  }
+
+  // Relational completeness: every --radius-* actually defined in @theme is
+  // reassigned under [data-theme="dark"] (catches future drift where a token
+  // is added to @theme but forgotten in the dark block).
+  it("every --radius-* defined in @theme is reassigned under [data-theme=\"dark\"]", () => {
+    const radiusInTraditional = [...tradProps.keys()].filter((k) =>
+      k.startsWith("--radius-"),
+    );
+    for (const token of radiusInTraditional) {
+      expect(darkProps.has(token)).toBe(true);
+    }
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
