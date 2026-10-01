@@ -75,7 +75,7 @@ An action control shown without visible text SHALL carry an accessible name that
 - **THEN** verification fails and names the offending control
 
 ### Requirement: Link navigation
-Links SHALL address internal routes only and SHALL always render underlined. Navigation that leaves the application, such as the authorization-server redirect, SHALL NOT use this link treatment.
+Links SHALL address internal routes only and SHALL always render underlined. Navigation that leaves the application, such as the authorization-server redirect, SHALL NOT use this link treatment. External navigation is implemented natively by the capability that needs it and is out of this treatment's scope.
 
 #### Scenario: Internal navigation
 - **WHEN** the user activates a link
