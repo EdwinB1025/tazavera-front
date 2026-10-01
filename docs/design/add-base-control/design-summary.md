@@ -113,3 +113,27 @@ Contrasts computed with the WCAG relative-luminance formula against `nav-surface
 4. **Button padding per size and loading indicator** (spinner icon, label behaviour) not defined.
 5. **Input hover (default variant)** treatment not defined.
 6. Change-id and capability name.
+
+## Propose status
+
+- Change-id: `add-base-control`
+- Date: 2026-10-01
+- Validation: `openspec validate add-base-control --strict` → `Change 'add-base-control' is valid` (4/4 artifacts complete: proposal, specs, design, tasks).
+
+Resolved during propose (product-owner decisions in design chat after this summary was written):
+
+- **Scope split (open decision 6, change identity):** this summary's form-field scope — Field, Input (incl. password reveal), Select, Textarea, Checkbox, Radio (§1, §4) and the inverse variant with its tokens `focus-ring-inverse`, `focus-offset-inverse`, `border-inverse`, `text-placeholder-inverse` (§5) — moves to the next change `add-form-fields`. This change covers Button and Link (§4), the radius family (§3) and the icon entry point (§1). The summary's proposed id `add-base-controls` is not used: the change is `add-base-control` (must match branch `feature/add-base-control` and this folder's name); capability is `base-controls`.
+- **Radius per theme:** radius tokens follow the color pattern (value in `@theme`, reassigned to `0` under `[data-theme="dark"]`). The checkbox exception becomes a fourth token, `radius-check` (4px traditional, 0 dark), instead of a literal.
+- **Check mark (open decision 2):** the checked state is carried by the mark; new token `checked-mark` (petrol-900 traditional / night-petrol-950 dark; 6.82:1 and 4.91:1 against `surface-checked`). The box boundary stays `border-strong` (12.24:1). The radio dot uses the same token. Lands in `add-form-fields`.
+- **Disabled (open decision 3):** opacity 50%, `cursor: not-allowed`, no hover change; disabled controls are exempt from WCAG contrast.
+- **Button padding and loading (open decision 4):** base `px-4`, sm `px-3`, icon–label gap `gap-2`, icons 16px; icon-only buttons square (`w-10`/`w-8`). Loading shows a spinning Lucide `Loader2` before the label; the label is kept so the width does not change; the button is disabled and `aria-busy="true"`; no animation under `prefers-reduced-motion`.
+- **Password eye icon (open decision 1):** reuse `text-secondary` (6.42:1 on `surface-input`); no new token. Lands in `add-form-fields`.
+- **Input hover, default variant (open decision 5):** no visual change; the state is shown on focus. Lands in `add-form-fields`.
+- **`nav-button` placement and focus:** the navigation-action button renders in the header (`nav-header`), not on the sidebar, so `focus-ring` + `focus-offset` apply. Documented pairs re-verified with the WCAG formula: `focus-ring`/`nav-header` 4.63 (traditional) and 12.27 (dark); `focus-ring`/`focus-offset` 11.53 and 14.28. `focus-ring-inverse` and `focus-offset-inverse` stay in `add-form-fields`.
+
+Remains open (residuals and deferred items):
+
+- This summary's §1, §4 (form-field controls), §5 (inverse variant and its token table) and open decisions 1, 2 and 5 are superseded by the decisions above and belong to `add-form-fields`, which is not yet proposed. §6's verified pairs mostly support `add-form-fields`; `add-base-control` adds the `nav-button` focus pairs listed above to the verification matrix.
+- Deferred: coffee-bean scale and intensity slider (change 2); facet subcomponents (change 3); badge, callout, toast, modal, empty state (change 4); card, collapsible, tabs, label/value row, pagination (change 5); layouts and app logo (change 6, `app-shell`). If `app-shell` places `nav-button` on the dark sidebar, its focus treatment is revisited there.
+- Pending implementation detail (non-decisions, settled in `openspec/changes/add-base-control/design.md`): `radius-pill` literal `9999px`; back-link icon Lucide `ArrowLeft`; icon entry point at `src/shared/ui/icons.ts`; Button `type` defaults to `"button"`.
+- No product-owner decisions remain open for `add-base-control`.
