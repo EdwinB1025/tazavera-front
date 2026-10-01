@@ -22,10 +22,10 @@
 
 - [x] 4.1 Extend `src/app/styles/theme-tokens.test.ts` with a radius completeness check (every `--radius-*` defined in `@theme` is reassigned under `[data-theme="dark"]`) and the four documented `nav-button` focus pairs (D6) in both theme matrices, verifying `npm run test:run` shows the focus pairs passing and the radius check failing because the tokens do not exist yet
 - [x] 4.2 Add the radius `@theme` block (`radius-pill` 9999px, `radius-container` 16px, `radius-field` 8px, `radius-check` 4px) and their four `0` reassignments in the dark block of `src/app/styles/globals.css`, touching no existing token, verifying `npm run test:run` passes completely including radius completeness
-- [ ] 4.3 Confirm the generated `rounded-pill`, `rounded-container`, `rounded-field` and `rounded-check` utilities read `var(--radius-*)` so the dark reassignment applies (inspect the CSS emitted by `npm run build`); if a value is inlined instead, define that utility with `@utility` per design.md D1 and re-verify, verifying the emitted CSS resolves radii through the variables and `npm run test:run` still passes
+- [x] 4.3 Confirm the generated `rounded-pill`, `rounded-container`, `rounded-field` and `rounded-check` utilities read `var(--radius-*)` so the dark reassignment applies (inspect the CSS emitted by `npm run build`); if a value is inlined instead, define that utility with `@utility` per design.md D1 and re-verify, verifying the emitted CSS resolves radii through the variables and `npm run test:run` still passes
 
 ## 5. Segment integration
 
-- [ ] 5.1 Write a smoke test importing Button, Link and the icon module through `@/shared/ui` and rendering both controls, verifying `npm run test:run` runs it and fails because the segment entry does not exist yet
+- [x] 5.1 Write a smoke test importing Button, Link and the icon module through `@/shared/ui` and rendering both controls, verifying `npm run test:run` runs it and fails because the segment entry does not exist yet
 - [ ] 5.2 Create `src/shared/ui/index.ts` exporting Button, Link and the icon module, verifying the smoke test passes
 - [ ] 5.3 Verify the complete change with `npm run test:run`, `npm run lint` and `npx tsc --noEmit`, verifying all three commands exit 0
