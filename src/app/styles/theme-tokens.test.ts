@@ -615,7 +615,7 @@ const ROLES: RoleSpec[] = [
   { name: "body", family: "var(--font-sans)", weight: "400", sizeBase: "base", lineHeight: "relaxed", color: "text-primary" },
   { name: "body-accent", style: "italic", color: "text-accent" },
   { name: "subheading", family: "var(--font-sans)", weight: "600", sizeBase: "base", lineHeight: "default", tracking: "subheading", color: "text-accent" },
-  { name: "eyebrow", family: "var(--font-sans)", weight: "400", transform: "uppercase", sizeBase: "sm", sizeMd: "base", sizeLg: "lg", lineHeight: "tight", tracking: "eyebrow", color: "text-accent" },
+  { name: "eyebrow", family: "var(--font-sans)", weight: "400", sizeBase: "sm", sizeMd: "base", sizeLg: "lg", lineHeight: "tight", tracking: "eyebrow", color: "text-accent" },
   { name: "eyebrow-strong", family: "var(--font-sans)", weight: "600", transform: "uppercase", sizeBase: "sm", sizeMd: "base", sizeLg: "lg", lineHeight: "tight", tracking: "eyebrow", color: "text-label" },
   { name: "brand", family: "var(--font-sans)", weight: "700", transform: "uppercase", sizeBase: "base", sizeLg: "lg", lineHeight: "tight", tracking: "brand", color: "text-strong" },
   { name: "label", family: "var(--font-sans)", weight: "600", sizeBase: "base", lineHeight: "tight", color: "text-label" },
