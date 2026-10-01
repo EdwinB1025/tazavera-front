@@ -16,7 +16,7 @@
 ## 3. Link vertical slice
 
 - [x] 3.1 Write `src/shared/ui/Link.test.tsx` covering internal route rendering, permanent underline in rest and hover, the back variant (16px leading arrow icon with gap-2 and its text), hover and focus-visible state classes, and the type-level check that an absolute URL `href` fails to compile (`@ts-expect-error`, no runtime branch), verifying `npm run test:run` runs the file and fails because the component is not implemented
-- [ ] 3.2 Implement Link in `src/shared/ui/Link.tsx` with `next/link` and `href` typed `/${string}`, always underlined and back variant per D7, verifying `npm run test:run` passes the Link tests and `npm run lint` and `npx tsc --noEmit` pass
+- [x] 3.2 Implement Link in `src/shared/ui/Link.tsx` with `next/link` and `href` typed `/${string}`, always underlined and back variant per D7, verifying `npm run test:run` passes the Link tests and `npm run lint` and `npx tsc --noEmit` pass
 
 ## 4. Radius tokens and theme verification
 
