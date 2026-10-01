@@ -27,5 +27,5 @@
 ## 5. Segment integration
 
 - [x] 5.1 Write a smoke test importing Button, Link and the icon module through `@/shared/ui` and rendering both controls, verifying `npm run test:run` runs it and fails because the segment entry does not exist yet
-- [ ] 5.2 Create `src/shared/ui/index.ts` exporting Button, Link and the icon module, verifying the smoke test passes
+- [x] 5.2 Create `src/shared/ui/index.ts` exporting Button, Link and the icon module, verifying the smoke test passes
 - [ ] 5.3 Verify the complete change with `npm run test:run`, `npm run lint` and `npx tsc --noEmit`, verifying all three commands exit 0
