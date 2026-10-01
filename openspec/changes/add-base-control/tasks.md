@@ -4,7 +4,7 @@
 
 - [x] 1.1 Add the approved `lucide-react` dependency to `package.json` and install it, verifying `npm install` succeeds and `npm run lint` and `npm run test:run` still pass
 - [x] 1.2 Write the icon entry-point test (asserts `Loader2`, `ArrowLeft` and the `LucideIcon` type are exported from `src/shared/ui/icons.ts`, and that no other file under `src/` imports `lucide-react`), verifying `npm run test:run` runs the file and fails because `icons.ts` does not exist yet
-- [ ] 1.3 Create `src/shared/ui/icons.ts` as the only `lucide-react` import site, verifying the icon entry-point test passes
+- [x] 1.3 Create `src/shared/ui/icons.ts` as the only `lucide-react` import site, verifying the icon entry-point test passes
 - [ ] 1.4 Declare the UI-specific types (ButtonProps extending `ButtonHTMLAttributes<HTMLButtonElement>` with the icon-only `aria-label` union, ButtonVariant, ButtonSize, LinkProps with `href` typed `/${string}`) at the top of `src/shared/ui/Button.tsx` and `src/shared/ui/Link.tsx` with no components yet and no generated API type touched, verifying `npx tsc --noEmit` passes
 
 ## 2. Button vertical slice
