@@ -9,7 +9,7 @@
 
 ## 2. Button vertical slice
 
-- [ ] 2.1 Write the radius-utility guard test at `src/shared/ui/radius-guard.test.ts` (fails if any file in `src/shared/ui` uses `rounded-sm`, `rounded-md`, `rounded-lg`, `rounded-xl`, `rounded-2xl` or `rounded-full` instead of the radius tokens), verifying `npm run test:run` runs it, it passes on the current `src/shared/ui` surface, and it fails naming a file when a violating class is temporarily introduced
+- [x] 2.1 Write the radius-utility guard test at `src/shared/ui/radius-guard.test.ts` (fails if any file in `src/shared/ui` uses `rounded-sm`, `rounded-md`, `rounded-lg`, `rounded-xl`, `rounded-2xl` or `rounded-full` instead of the radius tokens), verifying `npm run test:run` runs it, it passes on the current `src/shared/ui` surface, and it fails naming a file when a violating class is temporarily introduced
 - [ ] 2.2 Write `src/shared/ui/Button.test.tsx` covering label rendering, size geometry (h-10 px-4 / h-8 px-3), icon 16px with gap-2, icon-only square shape and accessible name, treatment classes per variant, hover and focus-visible state classes, disabled semantics (native `disabled`, opacity, cursor, no activation), busy semantics (`aria-busy`, `aria-disabled`, activation ignored, keyboard focus kept, label kept, no rotation class under reduced motion), and passthrough of native button attributes (`form`, `name`, `value`, `aria-*`), verifying `npm run test:run` runs the file and fails because the component is not implemented
 - [ ] 2.3 Implement Button in `src/shared/ui/Button.tsx` (geometry D3, treatments D2, states D4/D5, focus D6, `radius-pill`), verifying `npm run test:run` passes the Button and guard tests and `npm run lint` and `npx tsc --noEmit` pass
 
