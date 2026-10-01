@@ -21,7 +21,7 @@
 ## 4. Radius tokens and theme verification
 
 - [x] 4.1 Extend `src/app/styles/theme-tokens.test.ts` with a radius completeness check (every `--radius-*` defined in `@theme` is reassigned under `[data-theme="dark"]`) and the four documented `nav-button` focus pairs (D6) in both theme matrices, verifying `npm run test:run` shows the focus pairs passing and the radius check failing because the tokens do not exist yet
-- [ ] 4.2 Add the radius `@theme` block (`radius-pill` 9999px, `radius-container` 16px, `radius-field` 8px, `radius-check` 4px) and their four `0` reassignments in the dark block of `src/app/styles/globals.css`, touching no existing token, verifying `npm run test:run` passes completely including radius completeness
+- [x] 4.2 Add the radius `@theme` block (`radius-pill` 9999px, `radius-container` 16px, `radius-field` 8px, `radius-check` 4px) and their four `0` reassignments in the dark block of `src/app/styles/globals.css`, touching no existing token, verifying `npm run test:run` passes completely including radius completeness
 - [ ] 4.3 Confirm the generated `rounded-pill`, `rounded-container`, `rounded-field` and `rounded-check` utilities read `var(--radius-*)` so the dark reassignment applies (inspect the CSS emitted by `npm run build`); if a value is inlined instead, define that utility with `@utility` per design.md D1 and re-verify, verifying the emitted CSS resolves radii through the variables and `npm run test:run` still passes
 
 ## 5. Segment integration
