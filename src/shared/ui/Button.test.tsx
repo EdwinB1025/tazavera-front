@@ -73,6 +73,21 @@ describe("Button", () => {
     });
   });
 
+  describe("icon color follows the control (spec: Shared icon source)", () => {
+    it('renders the icon with stroke="currentColor" and no color class of its own', () => {
+      const { container } = render(<Button icon={ArrowLeft}>Back</Button>);
+      const svg = container.querySelector("svg");
+      expect(svg).not.toBeNull();
+      expect(svg!.getAttribute("stroke")).toBe("currentColor");
+      // The icon carries no text-*/stroke-*/fill-* utility (in any state
+      // prefix), so its color is the control's text color through currentColor.
+      const colorClasses = (svg!.getAttribute("class") ?? "")
+        .split(/\s+/)
+        .filter((cls) => /^(?:[a-z-]+:)*(?:text|stroke|fill)-/.test(cls));
+      expect(colorClasses).toEqual([]);
+    });
+  });
+
   describe("icon-only shape and accessible name (spec: accessible naming)", () => {
     it("base icon-only is square (w-10 h-10) and named via aria-label", () => {
       render(<Button icon={ArrowLeft} aria-label="Go back" />);
