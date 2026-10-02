@@ -8,7 +8,7 @@
 - [x] 1.4 Add a test asserting `src/app/styles/globals.css` defines `@utility variant-inverse` with the exact reassignment block of design.md D2 (`--color-text-label`, `--color-text-secondary`, `--color-text-strong` → `var(--color-nav-text-dark)`; `--color-text-placeholder` → `var(--color-text-placeholder-inverse)`; `--color-border-strong` → `var(--color-border-inverse)`; `--color-feedback-error` → `var(--color-feedback-error-inverse)`; `--color-focus-ring` → `var(--color-focus-ring-inverse)`; `--color-focus-offset` → `var(--color-focus-offset-inverse)`), verifying `npm run test:run` runs it and it fails because the utility does not exist
 - [x] 1.5 Add the `@utility variant-inverse` block to `src/app/styles/globals.css` with exactly those eight reassignments, verifying the utility test passes and `npm run test:run` exits 0
 - [x] 1.6 Extend the icon entry-point test (`src/shared/ui/icons.test.ts`) to assert `Eye`, `EyeOff`, `ChevronDown` and `Check` are exported from `src/shared/ui/icons.ts`, verifying `npm run test:run` runs it and it fails because they are not exported yet
-- [ ] 1.7 Re-export `Eye`, `EyeOff`, `ChevronDown` and `Check` from `src/shared/ui/icons.ts` alongside `Loader2` and `ArrowLeft`, verifying the icon test passes and the guard (lucide-react imported only in `icons.ts`) stays green
+- [x] 1.7 Re-export `Eye`, `EyeOff`, `ChevronDown` and `Check` from `src/shared/ui/icons.ts` alongside `Loader2` and `ArrowLeft`, verifying the icon test passes and the guard (lucide-react imported only in `icons.ts`) stays green
 
 ## 2. Field vertical slice
 
