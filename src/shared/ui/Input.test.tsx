@@ -38,6 +38,12 @@ const BOX_TOKENS = [
   "disabled:cursor-not-allowed",
 ];
 
+// Consumer-supplied toggle copy (correction 3): Input writes no text of its
+// own, so the tests supply the labels and assert the toggle's accessible name
+// equals each one as it flips (design.md D9).
+const SHOW_PASSWORD_LABEL = "Reveal the secret";
+const HIDE_PASSWORD_LABEL = "Mask the secret";
+
 describe("Input", () => {
   describe("box treatment", () => {
     it("renders the exact box tokens", () => {
@@ -108,21 +114,35 @@ describe("Input", () => {
   });
 
   describe("password mode (spec: Password masked, Reveal and mask, Visibility toggle is named)", () => {
-    it("masks the value by default and the named toggle reveals and masks again", () => {
-      render(<Input aria-label="Password" type="password" defaultValue="s3cret" />);
+    it("masks the value by default and the toggle named by the supplied labels reveals and masks again", () => {
+      render(
+        <Input
+          aria-label="Password"
+          type="password"
+          defaultValue="s3cret"
+          showPasswordLabel={SHOW_PASSWORD_LABEL}
+          hidePasswordLabel={HIDE_PASSWORD_LABEL}
+        />,
+      );
       const input = screen.getByLabelText("Password");
       expect(input.getAttribute("type")).toBe("password");
 
-      const toggle = screen.getByRole("button", { name: /show/i });
+      const toggle = screen.getByRole("button", { name: SHOW_PASSWORD_LABEL });
       expect(toggle.getAttribute("type")).toBe("button");
+      expect(toggle.getAttribute("aria-label")).toBe(SHOW_PASSWORD_LABEL);
 
       fireEvent.click(toggle);
       expect(input.getAttribute("type")).toBe("text");
-      expect(screen.getByRole("button", { name: /hide/i })).toBeDefined();
+      const revealedToggle = screen.getByRole("button", {
+        name: HIDE_PASSWORD_LABEL,
+      });
+      expect(revealedToggle.getAttribute("aria-label")).toBe(HIDE_PASSWORD_LABEL);
 
-      fireEvent.click(screen.getByRole("button", { name: /hide/i }));
+      fireEvent.click(revealedToggle);
       expect(input.getAttribute("type")).toBe("password");
-      expect(screen.getByRole("button", { name: /show/i })).toBeDefined();
+      expect(
+        screen.getByRole("button", { name: SHOW_PASSWORD_LABEL }),
+      ).toBeDefined();
     });
 
     it("swaps the Eye / EyeOff icon at size-4 text-text-secondary and keeps the shared focus indicator on the toggle", () => {
@@ -134,9 +154,14 @@ describe("Input", () => {
       const eyeOffMarkup = eyeOffRef.querySelector("svg")!.innerHTML;
 
       const { container } = render(
-        <Input aria-label="Password" type="password" />,
+        <Input
+          aria-label="Password"
+          type="password"
+          showPasswordLabel={SHOW_PASSWORD_LABEL}
+          hidePasswordLabel={HIDE_PASSWORD_LABEL}
+        />,
       );
-      const toggle = screen.getByRole("button", { name: /show/i });
+      const toggle = screen.getByRole("button", { name: SHOW_PASSWORD_LABEL });
       expect(toggle.className).toContain("focus-visible:focus-ring");
 
       const icon = container.querySelector("svg")!;
@@ -154,16 +179,51 @@ describe("Input", () => {
     });
 
     it("disables the visibility toggle whenever the input is disabled (Unplanned fix)", () => {
-      render(<Input aria-label="Password" type="password" disabled />);
-      const toggle = screen.getByRole("button", { name: /show/i });
+      render(
+        <Input
+          aria-label="Password"
+          type="password"
+          disabled
+          showPasswordLabel={SHOW_PASSWORD_LABEL}
+          hidePasswordLabel={HIDE_PASSWORD_LABEL}
+        />,
+      );
+      const toggle = screen.getByRole("button", { name: SHOW_PASSWORD_LABEL });
       expect(toggle.hasAttribute("disabled")).toBe(true);
     });
 
     it("carries variant-inverse on the relative wrapper so the toggle resolves inverse tokens without a Field (Unplanned fix)", () => {
-      render(<Input aria-label="Password" type="password" variant="inverse" />);
+      render(
+        <Input
+          aria-label="Password"
+          type="password"
+          variant="inverse"
+          showPasswordLabel={SHOW_PASSWORD_LABEL}
+          hidePasswordLabel={HIDE_PASSWORD_LABEL}
+        />,
+      );
       const wrapper = screen.getByLabelText("Password").parentElement!;
       expect(wrapper.className).toContain("relative");
       expect(wrapper.className).toContain("variant-inverse");
+    });
+  });
+
+  describe("toggle labels (correction 3, design.md D9)", () => {
+    it('rejects type="password" without the toggle labels at the type level', () => {
+      // Input writes no copy: both labels come from the consuming capability
+      // and are required when type="password". The @ts-expect-error directive
+      // turns that into a build check: `npx tsc --noEmit` fails (TS2578,
+      // unused directive) if the case is ever accepted.
+      // @ts-expect-error showPasswordLabel and hidePasswordLabel are required
+      render(<Input aria-label="Password" type="password" />);
+      // At runtime the control still renders; the requirement is compile-time.
+      expect(screen.getByLabelText("Password")).toBeDefined();
+    });
+
+    it('rejects type="password" with only one toggle label at the type level', () => {
+      // @ts-expect-error both labels are required, not just one
+      render(<Input aria-label="Password" type="password" showPasswordLabel={SHOW_PASSWORD_LABEL} />);
+      expect(screen.getByLabelText("Password")).toBeDefined();
     });
   });
 
