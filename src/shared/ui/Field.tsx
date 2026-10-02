@@ -54,7 +54,7 @@ export function Field({
       }}
     >
       <div className={variant === "inverse" ? "variant-inverse" : undefined}>
-        <label htmlFor={controlId} className="type-label block">
+        <label htmlFor={controlId} className="type-label block mb-2">
           {label}
           {required && (
             <>
@@ -65,12 +65,12 @@ export function Field({
         </label>
         {children}
         {hasHelp && (
-          <p id={helpId} className="type-meta">
+          <p id={helpId} className="type-meta mt-1">
             {help}
           </p>
         )}
         {hasError && (
-          <p id={errorId} className="type-error">
+          <p id={errorId} className="type-error mt-1">
             {error}
           </p>
         )}

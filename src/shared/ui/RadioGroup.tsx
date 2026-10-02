@@ -131,7 +131,7 @@ export function RadioGroup({
       aria-invalid={hasError ? "true" : undefined}
       className={variant === "inverse" ? "variant-inverse" : undefined}
     >
-      <legend id={legendId} className="type-label">
+      <legend id={legendId} className="type-label mb-2">
         {legend}
       </legend>
       {options.map((option) => {
@@ -163,12 +163,12 @@ export function RadioGroup({
         );
       })}
       {hasHelp && (
-        <p id={helpId} className="type-meta">
+        <p id={helpId} className="type-meta mt-1">
           {help}
         </p>
       )}
       {hasError && (
-        <p id={errorId} className="type-error">
+        <p id={errorId} className="type-error mt-1">
           {error}
         </p>
       )}

@@ -131,12 +131,12 @@ export function Checkbox({
         <span className="type-label">{label}</span>
       </label>
       {hasHelp && (
-        <p id={helpId} className="type-meta">
+        <p id={helpId} className="type-meta mt-1">
           {help}
         </p>
       )}
       {hasError && (
-        <p id={errorId} className="type-error">
+        <p id={errorId} className="type-error mt-1">
           {error}
         </p>
       )}
