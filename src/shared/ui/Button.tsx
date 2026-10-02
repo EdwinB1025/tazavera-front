@@ -34,44 +34,45 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 // defaults to "button" so forms never get accidental submits.
 
 // ─── Treatment classes (D2: variants map 1:1 to semantic token families) ───
-// Hover is gated by `enabled:` so a disabled button shows no hover change (D5).
+// Hover is gated by `enabled:` so a natively disabled button shows no hover
+// change (D5). While busy (aria-disabled, not native disabled) `enabled:`
+// alone is not enough — the hover treatment is omitted from the className
+// entirely so a busy button cannot show a hover change (D4, correction 3).
 // Focus uses the focus-ring + focus-offset tokens everywhere (D6).
 
-const VARIANT_TREATMENTS: Record<ButtonVariant, string> = {
-  primary: [
-    "bg-action-primary",
-    "text-action-primary-text",
-    "enabled:hover:bg-action-primary-hover",
-  ].join(" "),
-  "action-1": [
-    "bg-action-1-bg",
-    "text-action-1-text",
-    "enabled:hover:bg-action-1-bg-hover",
-    "enabled:hover:text-action-1-text-hover",
-  ].join(" "),
-  "action-2": [
-    "bg-action-2-bg",
-    "text-action-2-text",
-    "enabled:hover:bg-action-2-bg-hover",
-    "enabled:hover:text-action-2-text-hover",
-  ].join(" "),
-  "action-3": [
-    "bg-action-3-bg",
-    "text-action-3-text",
-    "enabled:hover:bg-action-3-bg-hover",
-    "enabled:hover:text-action-3-text-hover",
-  ].join(" "),
-  "action-4": [
-    "bg-action-4-bg",
-    "text-action-4-text",
-    "enabled:hover:bg-action-4-bg-hover",
-    "enabled:hover:text-action-4-text-hover",
-  ].join(" "),
+const VARIANT_REST: Record<ButtonVariant, string> = {
+  primary: ["bg-action-primary", "text-action-primary-text"].join(" "),
+  "action-1": ["bg-action-1-bg", "text-action-1-text"].join(" "),
+  "action-2": ["bg-action-2-bg", "text-action-2-text"].join(" "),
+  "action-3": ["bg-action-3-bg", "text-action-3-text"].join(" "),
+  "action-4": ["bg-action-4-bg", "text-action-4-text"].join(" "),
   "nav-button": [
     "border",
     "bg-nav-button-bg",
     "text-nav-button-text",
     "border-nav-button-border",
+  ].join(" "),
+};
+
+const VARIANT_HOVER: Record<ButtonVariant, string> = {
+  primary: "enabled:hover:bg-action-primary-hover",
+  "action-1": [
+    "enabled:hover:bg-action-1-bg-hover",
+    "enabled:hover:text-action-1-text-hover",
+  ].join(" "),
+  "action-2": [
+    "enabled:hover:bg-action-2-bg-hover",
+    "enabled:hover:text-action-2-text-hover",
+  ].join(" "),
+  "action-3": [
+    "enabled:hover:bg-action-3-bg-hover",
+    "enabled:hover:text-action-3-text-hover",
+  ].join(" "),
+  "action-4": [
+    "enabled:hover:bg-action-4-bg-hover",
+    "enabled:hover:text-action-4-text-hover",
+  ].join(" "),
+  "nav-button": [
     "enabled:hover:bg-nav-button-bg-hover",
     "enabled:hover:text-nav-button-text-hover",
     "enabled:hover:border-nav-button-border-hover",
@@ -160,7 +161,16 @@ export function Button({
       onClick={handleClick}
       aria-busy={loading || undefined}
       aria-disabled={loading || undefined}
-      className={[BASE_CLASSES, VARIANT_TREATMENTS[variant], geometry, className]
+      className={[
+        BASE_CLASSES,
+        VARIANT_REST[variant],
+        // Hover treatment is omitted while busy so a busy button shows no
+        // hover change (D4/D5, correction 3). Native disabled is still gated
+        // by `enabled:` within the hover classes themselves.
+        loading ? "" : VARIANT_HOVER[variant],
+        geometry,
+        className,
+      ]
         .filter(Boolean)
         .join(" ")}
     >
