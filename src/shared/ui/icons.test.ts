@@ -25,9 +25,21 @@ describe("icon entry point (src/shared/ui/icons.ts)", () => {
         const full = pathResolve(dir, entry);
         if (statSync(full).isDirectory()) {
           visit(full);
-        } else if (full.endsWith(".ts") || full.endsWith(".tsx")) {
+        } else if (
+          (full.endsWith(".ts") || full.endsWith(".tsx")) &&
+          // Exclude test files: the guard targets component import sites, and
+          // tests reference lucide-react in prose/comments/patterns.
+          !full.endsWith(".test.ts") &&
+          !full.endsWith(".test.tsx")
+        ) {
           const content = readFileSync(full, "utf-8");
-          if (/from\s+["']lucide-react["']/.test(content)) {
+          // Correction 9 (review round 1): catch the bare module import, the
+          // subpath import (lucide-react/…) and the dynamic import. The
+          // single audit point is icons.ts.
+          if (
+            /from\s+["']lucide-react(?:\/[^"']+)?["']/.test(content) ||
+            /import\(\s*["']lucide-react(?:\/[^"']+)?["']\s*\)/.test(content)
+          ) {
             offenders.push(full);
           }
         }

@@ -3,10 +3,19 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { resolve as pathResolve } from "node:path";
 
 /**
- * Guard test enforcing design rule 1 at the code level: radii in
- * `src/shared/ui` component code come from the radius tokens
- * (`rounded-pill`, `rounded-container`, `rounded-field`, `rounded-check`) —
- * never from Tailwind's built-in radius utilities.
+ * Guard test enforcing design rule 1 at the code level (correction 8, review
+ * round 1): radii in `src/shared/ui` component code come from the radius
+ * tokens only. The guard is an ALLOWLIST — the only `rounded-*` utilities
+ * permitted are:
+ *
+ *   rounded-pill, rounded-container, rounded-field, rounded-check (the tokens),
+ *   rounded-full     (intrinsic circles: radio, coffee bean, slider thumb,
+ *                     avatar — whose shape is not a corner radius),
+ *   rounded-none     (the documented no-radius cases).
+ *
+ * Any other rounded utility fails: bare `rounded`, any size suffix
+ * (`rounded-sm`/`md`/`lg`/`xl`/`2xl`), directional variants (`rounded-t-*`,
+ * `rounded-s-*`, `rounded-tl-*`, …) and arbitrary values (`rounded-[…]`).
  *
  * The dark theme reassigns every `--radius-*` token to 0; a hardcoded
  * built-in radius utility would ignore that reassignment and stay round, so
@@ -14,12 +23,26 @@ import { resolve as pathResolve } from "node:path";
  * scan: the guard targets component source where styling lives; a test that
  * references a forbidden class only does so in prose, never as styling.
  */
-describe("radius-utility guard", () => {
+describe("radius-utility guard (allowlist)", () => {
   const uiDir = pathResolve(process.cwd(), "src/shared/ui");
 
-  // The six built-in radius utilities the tokens replace. Each is anchored as
-  // a complete class name so it does not match the token utilities above.
-  const FORBIDDEN = /\brounded-(?:sm|md|lg|xl|2xl|full)\b/;
+  // The exact set of rounded utilities permitted in src/shared/ui component
+  // source. Anything else is a violation.
+  const ALLOWED = new Set([
+    "rounded-pill",
+    "rounded-container",
+    "rounded-field",
+    "rounded-check",
+    "rounded-full",
+    "rounded-none",
+  ]);
+
+  // A rounded utility token is `rounded` optionally preceded by state prefixes
+  // (hover:, focus:, enabled:, …) and followed by a non-space boundary. We
+  // capture the bare `rounded[-suffix]` part and check it against the allowlist.
+  // This matches bare `rounded`, `rounded-sm`, `rounded-tl-lg`, `rounded-[8px]`
+  // and `rounded-full` alike; the allowlist decides what passes.
+  const ROUNDED_TOKEN = /(?<![\w-])((?:[a-z-]+:)*rounded(?:-[a-z0-9]+)?(?:-\[[^\]]+\])?)/g;
 
   /** Recursively collect component source files (excluding tests) in a dir. */
   function collectSourceFiles(dir: string): string[] {
@@ -39,20 +62,22 @@ describe("radius-utility guard", () => {
     return files;
   }
 
-  it("no component file in src/shared/ui uses a built-in Tailwind radius utility", () => {
+  it("uses only allowlisted rounded utilities in src/shared/ui", () => {
     const offenders: string[] = [];
     for (const file of collectSourceFiles(uiDir)) {
       const content = readFileSync(file, "utf-8");
-      // Report each offending file once with the class that triggered it,
-      // so the failure names the offending control.
-      const match = content.match(FORBIDDEN);
-      if (match) {
-        offenders.push(`${file} (uses "${match[0]}")`);
+      for (const match of content.matchAll(ROUNDED_TOKEN)) {
+        const token = match[1]!;
+        // Strip state prefixes (hover:, enabled:, …) before checking.
+        const bare = token.replace(/^[a-z-]+:/, "");
+        if (!ALLOWED.has(bare)) {
+          offenders.push(`${file} (uses "${token}")`);
+        }
       }
     }
     expect(
       offenders,
-      `built-in radius utilities are forbidden in src/shared/ui: ${offenders.join(", ")}`,
+      `non-allowlisted rounded utilities are forbidden in src/shared/ui: ${offenders.join(", ")}`,
     ).toEqual([]);
   });
 });

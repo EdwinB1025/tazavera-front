@@ -539,6 +539,15 @@ const EXPECTED_RADIUS_TOKENS = [
   "--radius-check",
 ] as const;
 
+// Correction 10 (review round 1): assert the radius VALUES, not only presence.
+// Traditional theme: 9999px / 16px / 8px / 4px. Dark theme: 0 for all four.
+const EXPECTED_RADIUS_TRADITIONAL: Record<string, string> = {
+  "--radius-pill": "9999px",
+  "--radius-container": "16px",
+  "--radius-field": "8px",
+  "--radius-check": "4px",
+};
+
 describe("Radius token completeness: every radius token defined in both themes", () => {
   const css = readGlobals();
   const tradProps = extractTraditional(css);
@@ -563,6 +572,24 @@ describe("Radius token completeness: every radius token defined in both themes",
     );
     for (const token of radiusInTraditional) {
       expect(darkProps.has(token)).toBe(true);
+    }
+  });
+});
+
+describe("Radius token values (correction 10)", () => {
+  const css = readGlobals();
+  const tradProps = extractTraditional(css);
+  const darkProps = extractDark(css);
+
+  it("traditional theme uses the documented radius values", () => {
+    for (const [token, value] of Object.entries(EXPECTED_RADIUS_TRADITIONAL)) {
+      expect(tradProps.get(token)).toBe(value);
+    }
+  });
+
+  it("dark theme reassigns every radius token to 0", () => {
+    for (const token of EXPECTED_RADIUS_TOKENS) {
+      expect(darkProps.get(token)).toBe("0");
     }
   });
 });
