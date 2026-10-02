@@ -10,10 +10,11 @@ schema: spec-driven
 
 context: |
   All artifacts are written in English.
-  After creating or editing any artifact, run `openspec validate <change-name> --strict`
-  and fix format errors until it passes. If a fix would change the meaning of a
-  requirement, scenario or decision, do not apply it: report the error and ask.
-  Report the final validation result at handoff.
+  The architect, after creating or editing any artifact, runs `openspec validate <change-name> --strict`
+  and fixes format errors until it passes. If a fix would change the meaning of a
+  requirement, scenario or decision, it does not apply it: it reports the error and asks.
+  It reports the final validation result at handoff. Checking off tasks in tasks.md
+  is not an artifact edit.
 
   Existing capabilities:
   - theming: color system (primitive and semantic tokens) and application themes
