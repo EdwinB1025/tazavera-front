@@ -11,4 +11,6 @@ export { Link } from "./Link";
 export type { LinkProps } from "./Link";
 export { Field } from "./Field";
 export type { FieldProps } from "./Field";
+export { Input } from "./Input";
+export type { InputProps, InputVariant } from "./Input";
 export { Loader2, ArrowLeft, type LucideIcon } from "./icons";
