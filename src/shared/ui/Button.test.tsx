@@ -104,6 +104,19 @@ describe("Button", () => {
     });
   });
 
+  describe("unnamed icon-only action (spec: accessible naming)", () => {
+    it("rejects an icon-only button with no children and no aria-label at compile time", () => {
+      // The ButtonProps union requires children or an aria-label, so this JSX
+      // must be a type error. The @ts-expect-error directive turns that into a
+      // build check: `npx tsc --noEmit` fails (TS2578, unused directive) if the
+      // union ever stops rejecting an unnamed icon-only button.
+      // @ts-expect-error no children and no aria-label
+      render(<Button icon={ArrowLeft} />);
+      // At runtime the control still renders; the naming rule is compile-time.
+      expect(screen.getByRole("button")).toBeDefined();
+    });
+  });
+
   describe("treatment classes per variant (D2)", () => {
     it("primary uses action-primary tokens", () => {
       const btn = renderButton(<Button variant="primary">Save</Button>);
