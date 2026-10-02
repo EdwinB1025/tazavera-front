@@ -76,6 +76,7 @@ Findings come from Product Owner's review, from `/opsx:verify` or from the build
 - Defect, or missing test coverage, for behaviour already stated in spec.md or design.md that changes no decision → Product Owner passes it to the build, which handles it as an unplanned fix or unplanned coverage (see Build agent rules). It does not go to corrections.md.
 - Change to specified behaviour or to a design decision → Product Owner reports it in `docs/design/<change-id>/corrections.md`, one section per review round (`## Round N`), as a numbered list, and commits that round himself before the architect processes it. The architect turns the round into artifact updates and new tasks in `tasks.md`; the build implements them only as tasks. No agent implements a correction directly from corrections.md.
 - Refactor candidates reported by the build are kept in `docs/backlog.md`, one entry per candidate: what is duplicated, where, and why it would pay off. Product Owner adds entries; the architect removes an entry only when archiving the change that resolves it.
+- Reviews of the artifacts before /opsx:apply arrive as a message from Product owner. The architect applies them directly to the artifacts, records them in `## Propose status` and commits one `docs(<capability>): update artifacts for <change-id>`. `corrections.md` is used only for findings after the build has started.
 
 ## Git Flow and Commits
 
@@ -130,10 +131,11 @@ Mandatory footer: `Refs: <change-id>`
 - Precedence: the latest round of corrections.md overrides earlier rounds, and corrections.md overrides design-summary.md. A difference explained by this precedence is not a contradiction.
 - When /opsx:propose finishes, write or replace only a final section `## Propose status` in design-summary.md: change-id, date, `openspec validate` result, what was resolved (with its decision) and what remains open. Never edit the rest of the file; report anything wrong in it instead.
 - If the change resolves a backlog entry, record its id in `## Propose status`. When archiving the change, remove that entry from `docs/backlog.md`, and only that entry.
+- Settle in design.md only implementation details that no product decision covers and that affect a single component. A mechanism shared by several components, or anything that changes a settled decision, goes to Product Owner as a question before propose continues.
 
 ## Research
 
-- Research only for decisions the design leaves open or for behaviour neither the design nor the project already covers. Never research alternatives to what the design summary or corrections settle, or to behaviour the project already provides (a requirement in `openspec/specs/`, or an existing component, utility, token or entry point in `src/`). If you believe a settled decision or an existing implementation has a clearly better library option, report it to Augusto instead, as a candidate for `docs/backlog.md`.
+- Research only for decisions the design leaves open or for behaviour neither the design nor the project already covers. Never research alternatives to what the design summary or corrections settle, or to behaviour the project already provides (a requirement in `openspec/specs/`, or an existing component, utility, token or entry point in `src/`). If you believe a settled decision or an existing implementation has a clearly better library option, report it to Product Owner instead, as a candidate for `docs/backlog.md`.
 - When a change needs non-trivial behaviour that a maintained library is likely to solve (accessibility patterns such as combobox or focus trapping, parsing, formatting, data fetching), search the web before designing it from scratch.
 - Evaluate each candidate on: active maintenance, compatibility with the project's installed versions (check package.json), license, bundle size, accessibility, and whether it allows unstyled use with the project's tokens.
 - Limit: at most 5 searches and 3 candidates per decision. Stop as soon as one candidate meets all the criteria. If none does within the limit, stop searching: record "no suitable library found", with the searches made and why each candidate failed, and design it in-house.
@@ -144,7 +146,7 @@ Mandatory footer: `Refs: <change-id>`
 
 - Do not create a separate task for tests that pass immediately (tightened assertions, guards over code that is already correct); include them in the task they belong to.
 - When a task changes behaviour that existing tests assert, it names those tests and the assertions to update. When a task adds a guard or test, it states the exact cases it must fail on and pass on.
-- When a test asserts source text (a CSS declaration, a class string), the task states the exact expected text. Otherwise the test asserts behaviour or compiled output, never a paraphrase of it.
+- When a test asserts source text that design.md defines, the task states it exactly. For details design.md leaves free, the task states the expected behaviour; the build chooses the classes and its test asserts what it chose.
 
 ## Review corrections
 
