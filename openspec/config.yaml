@@ -47,4 +47,5 @@ rules:
     - Write tests before the implementation they cover.
     - Organize tasks by complete vertical slices (data to screen), not by technical layer.
     - Mark a task complete only after verifying it.
-    - Tasks only touch files outside openspec/ (except checking off tasks.md) and never wait on a product-owner decision. Unresolved decisions are settled in design.md before handoff.
+    - Tasks only touch files outside openspec/ (except checking off tasks.md).
+    - Tasks never wait on an implementation detail; settle it in design.md before handoff. A product decision (a mechanism shared by several components, or anything that changes a settled decision) is asked of Augusto before tasks are written.
