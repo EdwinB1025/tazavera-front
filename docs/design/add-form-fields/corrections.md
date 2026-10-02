@@ -38,6 +38,40 @@ peer; hidden with invisible, shown with peer-checked:visible, faded with
 peer-disabled:opacity-50). Spec unchanged: the mark is visible exactly when
 checked. Artifact fix only, no new task.
 
+## Round 2
+
+1. Input password mode (supersedes round 1 correction 3): its end state — both
+   toggle labels required when `type="password"` through a discriminated union
+   on the literal `type` prop — is not expressible in TypeScript. `type` comes
+   from InputHTMLAttributes and includes `(string & {})`, so
+   `Exclude<..., "password">` still admits the literal "password":
+   `type="password"` without the labels compiles (verified: that
+   `@ts-expect-error` case is unused, TS2578). End state: password mode moves
+   to a separate PasswordInput component (`src/shared/ui/PasswordInput.tsx`,
+   exported from `@/shared/ui` and listed in the focus guard's shared-focus
+   list). PasswordInput is the password input: its value is masked by default
+   and readable while revealed, so it takes no `type` prop; it takes
+   `showPasswordLabel` and `hidePasswordLabel` as required props and writes no
+   copy of its own. Input stays a single-line text input with native `type`
+   passthrough, no visibility toggle and no toggle labels. All else unchanged:
+   the D1 field attribute contract as defaults, the inverse variant as an
+   explicit prop, the D7 value modes, and the D9 toggle treatment
+   (`type="button"` in the input's `relative` wrapper, Eye / EyeOff at
+   `size-4 text-text-secondary`, the shared focus indicator, disabled with the
+   input). design.md D8 (PasswordInput files) and D9 (the toggle labels are
+   plain required props of PasswordInput) updated; specs/form-fields/spec.md
+   drops the password mode from "Text input" and moves its scenarios (Password
+   masked, Reveal and mask, Visibility toggle is named) to a "Password input"
+   requirement.
+   Existing tests affected: the correction 3 cases of task 9.5 in
+   `src/shared/ui/Input.test.tsx` move to
+   `src/shared/ui/PasswordInput.test.tsx` and drop their `type="password"`
+   props; the remaining Input tests stay.
+   New test: the PasswordInput toggle's accessible name equals
+   `showPasswordLabel` while masked and `hidePasswordLabel` while revealed, and
+   the two `@ts-expect-error` cases (no labels, only one label) are
+   missing-required-prop errors kept in use by `npx tsc --noEmit`.
+
 ### Status
 
 - Date: 2026-10-03
