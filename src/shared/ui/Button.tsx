@@ -141,8 +141,14 @@ export function Button({
   const showLeading = LeadingIcon !== undefined;
 
   const handleClick: MouseEventHandler<HTMLButtonElement> = (event) => {
-    // Ignore activation while busy (aria-disabled) or natively disabled.
-    if (loading || disabled) return;
+    // While busy (aria-disabled) the button ignores activation AND cancels
+    // the native default action: a busy submit button must not submit its
+    // form (spec: "Busy does not submit forms"). Returning early from
+    // onClick alone does not cancel the native default action.
+    if (loading || disabled) {
+      event.preventDefault();
+      return;
+    }
     onClick?.(event);
   };
 
