@@ -118,9 +118,12 @@ describe("Button", () => {
   });
 
   describe("hover and focus-visible state classes", () => {
-    it("includes the hover treatment class", () => {
+    // Correction 4 (review round 1): assert the FULL prefixed class names, not
+    // substrings that would pass without the prefix. `enabled:hover:` ensures
+    // the hover treatment is gated to enabled buttons (D5).
+    it("includes the hover treatment class with the enabled: prefix", () => {
       const btn = renderButton(<Button variant="primary">Save</Button>);
-      expect(btn.className).toContain("hover:bg-action-primary-hover");
+      expect(btn.className).toContain("enabled:hover:bg-action-primary-hover");
     });
 
     it("includes focus-visible ring classes from the focus tokens (D6)", () => {
@@ -131,12 +134,15 @@ describe("Button", () => {
   });
 
   describe("disabled semantics (D5)", () => {
+    // Correction 4 (review round 1): assert the FULL prefixed class names, not
+    // substrings that would pass without the prefix. `disabled:` ensures the
+    // treatment is gated to natively disabled buttons.
     it("sets native disabled with opacity-50 and cursor-not-allowed", () => {
       render(<Button disabled>Save</Button>);
       const btn = screen.getByRole("button");
       expect(btn.hasAttribute("disabled")).toBe(true);
-      expect(btn.className).toContain("opacity-50");
-      expect(btn.className).toContain("cursor-not-allowed");
+      expect(btn.className).toContain("disabled:opacity-50");
+      expect(btn.className).toContain("disabled:cursor-not-allowed");
     });
 
     it("rejects activation (onClick not called)", () => {
@@ -189,6 +195,17 @@ describe("Button", () => {
       expect(svgs.length).toBe(1);
       expect(svgs[0]!.getAttribute("class")).toContain("animate-spin");
       expect(svgs[0]!.getAttribute("class")).toContain("motion-reduce:animate-none");
+    });
+
+    // Correction 3 (review round 1): a busy button shows no hover change,
+    // exactly like a disabled one. The hover treatment (enabled:hover:*) must
+    // be ABSENT from a busy button's className so it cannot activate on hover.
+    // jsdom has no CSS engine, so this asserts the class is not present at
+    // all. This fails while the hover treatment is always applied.
+    it("shows no hover treatment while busy (correction 3)", () => {
+      const btn = renderButton(<Button loading>Save</Button>);
+      expect(btn.className).not.toContain("enabled:hover:");
+      expect(btn.className).not.toContain("hover:bg-action-primary-hover");
     });
   });
 
