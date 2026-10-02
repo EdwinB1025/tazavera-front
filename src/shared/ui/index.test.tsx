@@ -8,6 +8,7 @@ import {
   Field,
   Input,
   Select,
+  Textarea,
 } from "@/shared/ui";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
@@ -64,5 +65,10 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
       </Select>,
     );
     expect(screen.getByRole("combobox", { name: "Size" })).toBeDefined();
+  });
+
+  it("renders the textarea exported from the segment", () => {
+    render(<Textarea aria-label="Notes" />);
+    expect(screen.getByRole("textbox", { name: "Notes" })).toBeDefined();
   });
 });
