@@ -107,5 +107,16 @@ describe("Link", () => {
       // referenced so the binding is not flagged as unused
       expect(link).toBeDefined();
     });
+
+    // Correction 7 (review round 1): a protocol-relative URL (`//…`) starts
+    // with `/`, so `/${string}` alone accepts it. The conditional type must
+    // reject `//${string}` too. This `@ts-expect-error` is currently UNUSED
+    // (the URL still compiles), so `npx tsc --noEmit` fails here until the
+    // conditional type is added (task 6.12).
+    it("rejects a protocol-relative URL href at compile time", () => {
+      // @ts-expect-error — protocol-relative URLs are not in-application routes
+      const link = <Link href="//example.com">External</Link>;
+      expect(link).toBeDefined();
+    });
   });
 });
