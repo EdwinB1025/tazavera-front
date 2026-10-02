@@ -1,6 +1,5 @@
 ---
 description: "Implement tasks from an OpenSpec change (Experimental)"
-agent: build
 ---
 
 Implement tasks from an OpenSpec change.

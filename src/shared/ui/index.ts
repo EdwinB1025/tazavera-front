@@ -1,0 +1,12 @@
+/**
+ * Public API of the `shared/ui` segment (Feature-Sliced Design).
+ *
+ * Exports the action controls (Button, Link) and the icon module so every
+ * consumer imports through this entry point. Importing a slice through its
+ * public API keeps the internal structure free to change.
+ */
+export { Button } from "./Button";
+export type { ButtonProps, ButtonVariant, ButtonSize } from "./Button";
+export { Link } from "./Link";
+export type { LinkProps } from "./Link";
+export { Loader2, ArrowLeft, type LucideIcon } from "./icons";

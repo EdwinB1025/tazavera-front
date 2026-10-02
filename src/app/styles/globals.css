@@ -204,6 +204,20 @@
 }
 
 /* =========================================================
+   TAZAVERA — RADIUS TOKEN FAMILY (base-controls)
+   Corner radii follow the color pattern: values in @theme, reassigned
+   to 0 under [data-theme="dark"] so shapes switch with the theme.
+   Tailwind generates rounded-pill/container/field/check from these.
+   ========================================================= */
+
+@theme {
+    --radius-pill: 9999px;
+    --radius-container: 16px;
+    --radius-field: 8px;
+    --radius-check: 4px;
+}
+
+/* =========================================================
    TAZAVERA — NIGHT PRIMITIVES (dark theme)
    Dark zone (L < 0.40): numbered by order (950 darkest → 750).
    Lighter steps follow the traditional lightness rule.
@@ -387,6 +401,12 @@
         --color-badge-provisional-text: var(--color-night-sage-100);
         --color-badge-verified-bg: var(--color-night-moss-850);
         --color-badge-verified-text: var(--color-night-moss-300);
+
+        /* ─── RADIUS ─── */
+        --radius-pill: 0;
+        --radius-container: 0;
+        --radius-field: 0;
+        --radius-check: 0;
     }
 }
 

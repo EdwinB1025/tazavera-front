@@ -1,6 +1,5 @@
 ---
 description: "Propose a new change - create it and generate all artifacts in one step"
-agent: architect
 ---
 
 Propose a new change - create the change and generate all artifacts in one step.
