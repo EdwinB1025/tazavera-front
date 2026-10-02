@@ -7,7 +7,7 @@
 ## 2. Shared focus indicator vertical slice
 
 - [x] 2.1 Extend `src/app/styles/theme-tokens.test.ts` with the shared-definition checks (design.md D4): `@utility focus-ring` is defined exactly once in `src/app/styles/globals.css` and renders exactly the effect of today's five-class set — outline suppressed, 2px ring resolving through `var(--color-focus-ring)`, 2px offset resolving through `var(--color-focus-offset)` — following the file's existing role-assertion pattern, verifying `npm run test:run` runs the checks and they fail because the utility is not defined yet
-- [ ] 2.2 Define `@utility focus-ring` in `src/app/styles/globals.css` (design.md D1), drawn from the existing focus tokens and touching no existing token, `type-*` role or radius rule, verifying the shared-definition checks pass, the compiled CSS inspected from the `npm run build` output resolves the ring and offset colors through `var(--color-focus-ring)` and `var(--color-focus-offset)` rather than inlined values (if a value is inlined, write the declarations directly per design.md D1 and re-verify), and `npm run lint` and `npx tsc --noEmit` exit 0
+- [x] 2.2 Define `@utility focus-ring` in `src/app/styles/globals.css` (design.md D1), drawn from the existing focus tokens and touching no existing token, `type-*` role or radius rule, verifying the shared-definition checks pass, the compiled CSS inspected from the `npm run build` output resolves the ring and offset colors through `var(--color-focus-ring)` and `var(--color-focus-offset)` rather than inlined values (if a value is inlined, write the declarations directly per design.md D1 and re-verify), and `npm run lint` and `npx tsc --noEmit` exit 0
 
 ## 3. Button vertical slice
 
