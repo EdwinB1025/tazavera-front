@@ -17,7 +17,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - `/opsx:apply`, unplanned fixes and unplanned coverage → you are the build agent.
 - Follow the Common rules plus the section for your role, and ignore the other role's section.
 - The architect never implements: it does not create or edit code, tests or configuration. The build never runs `openspec validate`, `openspec archive` or any command that creates or changes OpenSpec artifacts.
-- If no command identifies your role, ask Augusto before doing anything.
+- If no command identifies your role, ask Product Owner before doing anything.
 
 ## Project
 
@@ -66,19 +66,19 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Review findings flow
 
-Findings come from Augusto's review, from `/opsx:verify` or from the build's final report. Each one follows exactly one of two paths:
+Findings come from Product Owner's review, from `/opsx:verify` or from the build's final report. Each one follows exactly one of two paths:
 
-- Defect, or missing test coverage, for behaviour already stated in spec.md or design.md that changes no decision → Augusto passes it to the build, which handles it as an unplanned fix or unplanned coverage (see Build agent rules). It does not go to corrections.md.
-- Change to specified behaviour or to a design decision → Augusto reports it in `docs/design/<change-id>/corrections.md`, one section per review round (`## Round N`), as a numbered list, and commits that round himself before the architect processes it. The architect turns the round into artifact updates and new tasks in `tasks.md`; the build implements them only as tasks. No agent implements a correction directly from corrections.md.
-- Refactor candidates reported by the build are kept in `docs/backlog.md`, one entry per candidate: what is duplicated, where, and why it would pay off. Augusto adds entries; the architect removes an entry only when archiving the change that resolves it.
+- Defect, or missing test coverage, for behaviour already stated in spec.md or design.md that changes no decision → Product Owner passes it to the build, which handles it as an unplanned fix or unplanned coverage (see Build agent rules). It does not go to corrections.md.
+- Change to specified behaviour or to a design decision → Product Owner reports it in `docs/design/<change-id>/corrections.md`, one section per review round (`## Round N`), as a numbered list, and commits that round himself before the architect processes it. The architect turns the round into artifact updates and new tasks in `tasks.md`; the build implements them only as tasks. No agent implements a correction directly from corrections.md.
+- Refactor candidates reported by the build are kept in `docs/backlog.md`, one entry per candidate: what is duplicated, where, and why it would pay off. Product Owner adds entries; the architect removes an entry only when archiving the change that resolves it.
 
 ## Git Flow and Commits
 
 ### Branches
-- `master`: production. Only receives merges from `release/*` or `hotfix/*`. Only Augusto performs merges.
+- `master`: production. Only receives merges from `release/*` or `hotfix/*`. Only Product Owner performs merges.
 - `develop`: integration. Each completed OpenSpec change is integrated here.
 - `feature/<change-id>`: one branch per OpenSpec change, created from `develop`.
-- `release/*` and `hotfix/*`: only created by Augusto.
+- `release/*` and `hotfix/*`: only created by Product Owner.
 - No agent creates, deletes, renames, or merges branches.
 
 ### Commit Format (Conventional Commits)
@@ -90,7 +90,7 @@ Mandatory footer: `Refs: <change-id>`
 |---|---|
 | Propose | `docs(<capability>): propose <change-id>` |
 | Artifact Review | `docs(<capability>): update <artifact> for <change-id>` |
-| Review round report (Augusto) | `docs(<capability>): report review round <N> for <change-id>` |
+| Review round report (Product Owner) | `docs(<capability>): report review round <N> for <change-id>` |
 | Review round | `docs(<capability>): apply review round <N> for <change-id>` |
 | Types | `feat(<capability>): add types for <object>` |
 | Tests | `test(<capability>): <what it verifies>` |
@@ -119,7 +119,7 @@ Mandatory footer: `Refs: <change-id>`
 
 ## Design context
 
-- Before /opsx:explore or /opsx:propose, read `docs/backlog.md`. If an entry affects the change being designed (the change would add to the duplication or touch the same code), stop and tell Augusto, recommending the refactor as its own change first. Never fold a backlog entry into the change being proposed.
+- Before /opsx:explore or /opsx:propose, read `docs/backlog.md`. If an entry affects the change being designed (the change would add to the duplication or touch the same code), stop and tell Product Owner, recommending the refactor as its own change first. Never fold a backlog entry into the change being proposed.
 - When running /opsx:explore, /opsx:propose or a correction round, first read every file in `docs/design/<change-id>/` (design-summary.md, corrections.md if present, and any value sources they reference). They are the design source of truth: do not re-decide what they settle; resolve only what they list as open. If the folder is missing or its files contradict each other, stop and ask.
 - Precedence: the latest round of corrections.md overrides earlier rounds, and corrections.md overrides design-summary.md. A difference explained by this precedence is not a contradiction.
 - When /opsx:propose finishes, write or replace only a final section `## Propose status` in design-summary.md: change-id, date, `openspec validate` result, what was resolved (with its decision) and what remains open. Never edit the rest of the file; report anything wrong in it instead.
@@ -127,11 +127,11 @@ Mandatory footer: `Refs: <change-id>`
 
 ## Research
 
-- Research only for decisions the design leaves open or for behaviour it does not cover. Never research alternatives to what the design summary or corrections already settle; if you believe a settled decision has a clearly better library option, report it to Augusto instead.
+- Research only for decisions the design leaves open or for behaviour it does not cover. Never research alternatives to what the design summary or corrections already settle; if you believe a settled decision has a clearly better library option, report it to Product Owner instead.
 - When a change needs non-trivial behaviour that a maintained library is likely to solve (accessibility patterns such as combobox or focus trapping, parsing, formatting, data fetching), search the web before designing it from scratch.
 - Evaluate each candidate on: active maintenance, compatibility with the project's installed versions (check package.json), license, bundle size, accessibility, and whether it allows unstyled use with the project's tokens.
 - Limit: at most 5 searches and 3 candidates per decision. Stop as soon as one candidate meets all the criteria. If none does within the limit, stop searching: record "no suitable library found", with the searches made and why each candidate failed, and design it in-house.
-- Record the result in design.md as a decision proposal: the recommended option with its version and source URLs, the alternatives considered and why they lose, and building it in-house as one of the options. Mark it as open and pending Augusto's approval. Never add or install a dependency, and do not write tasks that depend on it until it is approved.
+- Record the result in design.md as a decision proposal: the recommended option with its version and source URLs, the alternatives considered and why they lose, and building it in-house as one of the options. Mark it as open and pending Product Owner's approval. Never add or install a dependency, and do not write tasks that depend on it until it is approved.
 - Also use web search to verify the facts the build will rely on (API names, deprecations, version-specific behaviour) for libraries already in the project, and cite the source URL in design.md. For Next.js, the local docs in node_modules take precedence over the web.
 
 ## Tasks
@@ -141,21 +141,21 @@ Mandatory footer: `Refs: <change-id>`
 
 ## Review corrections
 
-- For each correction of the latest round: if it only restores behaviour already stated in spec.md or design.md, or only adds missing test coverage for it, do not create a task; report it to Augusto as an unplanned fix or unplanned coverage for the build. Otherwise, update spec.md and design.md where it changes specified behaviour or a design decision, and add it to tasks.md as a new section, in list order, with test-first order and verification steps.
+- For each correction of the latest round: if it only restores behaviour already stated in spec.md or design.md, or only adds missing test coverage for it, do not create a task; report it to Product Owner as an unplanned fix or unplanned coverage for the build. Otherwise, update spec.md and design.md where it changes specified behaviour or a design decision, and add it to tasks.md as a new section, in list order, with test-first order and verification steps.
 - If a correction's expected end state is not explicit, or it contradicts the spec, the design or another correction, stop and ask.
 - After processing a round, append a `### Status` at the end of that round's section: date, `openspec validate <change-id> --strict` result, and for each correction the artifacts updated and tasks created (or "unplanned fix" / "unplanned coverage"). Append only: never edit the corrections, earlier rounds or earlier Status subsections. If the round is processed again, append a new dated `### Status` below the previous one.
 
 ## Verification
 
-- Before archiving, run `/opsx:verify <change-id>` and report the result to Augusto, classifying each CRITICAL and WARNING finding by the two paths of the Review findings flow.
+- Before archiving, run `/opsx:verify <change-id>` and report the result to Product Owner, classifying each CRITICAL and WARNING finding by the two paths of the Review findings flow.
 
 ## Git
 
 - Works only on the `feature/<change-id>` branch of the change. If another branch is active, it stops and flags it.
 - Only commits `openspec/changes/<change-id>/`, the `## Propose status` section of design-summary.md and the `### Status` sections of corrections.md, plus the archive commit described below. Never commits code or configuration.
-- Commits: one on completing propose (`docs(<capability>): propose <change-id>`), one per artifact review requested by Augusto (`docs(<capability>): update <artifact> for <change-id>`), one per correction round (`docs(<capability>): apply review round <N> for <change-id>`).
+- Commits: one on completing propose (`docs(<capability>): propose <change-id>`), one per artifact review requested by Product Owner (`docs(<capability>): update <artifact> for <change-id>`), one per correction round (`docs(<capability>): apply review round <N> for <change-id>`).
 - Does not commit if `openspec validate <change-id> --strict` fails.
-- Runs `openspec archive <change-id> --yes` only when Augusto requests it, every task in tasks.md is checked, `/opsx:verify` reports no CRITICAL findings, and every WARNING classified as an unplanned fix or unplanned coverage has been resolved or explicitly deferred by Augusto. The archive commit contains only `openspec/specs/`, the archived change folder and, if the change resolved a backlog entry, `docs/backlog.md` (`chore(openspec): archive <change-id>`). `openspec/specs/` is never modified by hand.
+- Runs `openspec archive <change-id> --yes` only when Product Owner requests it, every task in tasks.md is checked, `/opsx:verify` reports no CRITICAL findings, and every WARNING classified as an unplanned fix or unplanned coverage has been resolved or explicitly deferred by Product Owner. The archive commit contains only `openspec/specs/`, the archived change folder and, if the change resolved a backlog entry, `docs/backlog.md` (`chore(openspec): archive <change-id>`). `openspec/specs/` is never modified by hand.
 - Does not push or merge.
 
 # Build agent rules (only if you are the build agent)
@@ -170,11 +170,11 @@ Mandatory footer: `Refs: <change-id>`
 
 ## Unplanned fixes and coverage
 
-- You may act without a task, during an apply or when Augusto passes it to you, when all of these hold: the code belongs to the current change; the behaviour is already stated in spec.md or design.md; and no decision changes.
+- You may act without a task, during an apply or when Product Owner passes it to you, when all of these hold: the code belongs to the current change; the behaviour is already stated in spec.md or design.md; and no decision changes.
 - Defect: a single commit containing a test that reproduces it and the fix, `fix(<capability>): …` with "Unplanned fix: <spec or design reference>" in the body.
 - Missing test coverage for behaviour that is already implemented: a single `test(<capability>): …` commit with "Unplanned coverage: <spec reference>" in the body.
 - Neither kind checks off a task, and both are listed in the final report.
-- If a fix would change specified behaviour or a design decision, do not apply it: report it. Augusto decides whether it becomes a correction.
+- If a fix would change specified behaviour or a design decision, do not apply it: report it. Product Owner decides whether it becomes a correction.
 
 ## Review corrections
 
