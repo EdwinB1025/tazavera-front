@@ -1,6 +1,14 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
-import { Button, Link, Loader2, ArrowLeft, Field, Input } from "@/shared/ui";
+import {
+  Button,
+  Link,
+  Loader2,
+  ArrowLeft,
+  Field,
+  Input,
+  Select,
+} from "@/shared/ui";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
@@ -47,5 +55,14 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
   it("renders the text input exported from the segment", () => {
     render(<Input aria-label="Name" />);
     expect(screen.getByRole("textbox", { name: "Name" })).toBeDefined();
+  });
+
+  it("renders the select exported from the segment", () => {
+    render(
+      <Select aria-label="Size">
+        <option value="m">Medium</option>
+      </Select>,
+    );
+    expect(screen.getByRole("combobox", { name: "Size" })).toBeDefined();
   });
 });
