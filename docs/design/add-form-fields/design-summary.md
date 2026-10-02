@@ -101,3 +101,19 @@ Note: `feedback-error-inverse` traditional is exactly at the 4.5:1 minimum; any 
 ## 6. Responsive
 
 None of these controls needs responsive behaviour. `type-control` already switches size at `md` (16px on mobile to avoid browser zoom on focus).
+
+## Propose status
+
+- Change-id: `add-form-fields`
+- Date: 2026-10-02
+- Validation: `openspec validate add-form-fields --strict` → `Change 'add-form-fields' is valid` (4/4 artifacts complete: proposal, specs, design, tasks).
+
+Resolved (product-owner decisions in the explore review after this summary was written):
+
+- **Field ↔ control contract:** option 2, a thin context (design.md D1). Field generates the ids with `useId` and provides `controlId`, `helpId`, `errorId`, `invalid` and `required`; each control reads them as defaults with explicit props winning, and works standalone without Field. Field and every interactive control are client components. The exact attribute table is normative in design.md so the tests can assert it.
+- **Inverse focus:** option (a), local reassignment (design.md D2). The inverse variant reassigns `--color-focus-ring` and `--color-focus-offset` to the inverse pair in its own scope and keeps `focus-visible:focus-ring`; `focus-guard.test.ts` is unchanged. "Focus tokens of the active theme" in the `theming` spec covers the whole focus family, inverse pair included — no `theming` delta; the `form-fields` spec states that inverse controls use the inverse focus tokens. The mechanism is generalized to one `variant-inverse` scope utility carrying the whole inverse token reassignment (D2 table).
+- **readOnly:** not in scope (design.md D3). Design rule 7 applies to components with an interactive and a static version (bean scale, slider). Input and Textarea pass the native `readOnly` attribute through; Select, Checkbox and Radio group expose none.
+- **Delegated details settled in design.md (D9):** `checked-mark` renders as `text-checked-mark` (mark) and `bg-checked-mark` (radio dot); the 24×24px hit area is `flex min-h-6 min-w-6 items-center gap-2` on the clickable label; the select chevron is `appearance-none` plus a positioned `ChevronDown`; the password toggle is a `type="button"` control with `Eye`/`EyeOff` at `size-4 text-text-secondary` and a show/hide accessible name; the error boundary swaps to `border-feedback-error`.
+- **Shape of the change:** kept as one change; tasks are vertical slices, one component per slice with its own tests, Field first (the controls depend on its context), so the build can stop cleanly between slices.
+
+Remains open: nothing. No `docs/backlog.md` entry affects this change.
