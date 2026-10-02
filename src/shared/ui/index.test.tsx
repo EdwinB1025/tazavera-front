@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
-import { Button, Link, Loader2, ArrowLeft } from "@/shared/ui";
+import { Button, Link, Loader2, ArrowLeft, Field } from "@/shared/ui";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
@@ -30,5 +30,17 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
   it("re-exports the icon module", () => {
     expect(Loader2).toBeDefined();
     expect(ArrowLeft).toBeDefined();
+  });
+
+  it("renders the field control exported from the segment", () => {
+    render(
+      <Field label="E-mail" error="Enter a valid e-mail">
+        <input aria-label="E-mail address" />
+      </Field>,
+    );
+    expect(
+      screen.getByRole("textbox", { name: "E-mail address" }),
+    ).toBeDefined();
+    expect(screen.getByText("Enter a valid e-mail")).toBeDefined();
   });
 });
