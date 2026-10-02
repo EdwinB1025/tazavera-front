@@ -22,4 +22,4 @@
 ## 5. Divergence guard and integration verification
 
 - [x] 5.1 Write `src/shared/ui/focus-guard.test.ts` (design.md D4, the `color-guard`/`radius-guard` pattern) over `src/shared/ui`: a hand-rolled focus indicator (`outline-none`, `ring-*` or `ring-offset-*` utilities in any state prefix) fails naming the offending class and file, and the migrated controls carry `focus-visible:focus-ring`, verifying `npm run test:run` runs the guard, it passes on the migrated surface, and it fails naming a file and a class when a hand-rolled set is temporarily introduced
-- [ ] 5.2 Verify the complete change with `npm run test:run`, `npm run lint` and `npx tsc --noEmit`, verifying all three commands exit 0 and the Button and Link focus tests assert only `focus-visible:focus-ring`
+- [x] 5.2 Verify the complete change with `npm run test:run`, `npm run lint` and `npx tsc --noEmit`, verifying all three commands exit 0 and the Button and Link focus tests assert only `focus-visible:focus-ring`
