@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
-import { Button, Link, Loader2, ArrowLeft, Field } from "@/shared/ui";
+import { Button, Link, Loader2, ArrowLeft, Field, Input } from "@/shared/ui";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
@@ -42,5 +42,10 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
       screen.getByRole("textbox", { name: "E-mail address" }),
     ).toBeDefined();
     expect(screen.getByText("Enter a valid e-mail")).toBeDefined();
+  });
+
+  it("renders the text input exported from the segment", () => {
+    render(<Input aria-label="Name" />);
+    expect(screen.getByRole("textbox", { name: "Name" })).toBeDefined();
   });
 });
