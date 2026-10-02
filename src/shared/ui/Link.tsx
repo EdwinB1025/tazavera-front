@@ -29,11 +29,7 @@ const BASE_CLASSES = [
   // text-link generates no CSS.
   "text-text-link",
   "hover:text-text-link-hover",
-  "focus-visible:outline-none",
-  "focus-visible:ring-2",
-  "focus-visible:ring-focus-ring",
-  "focus-visible:ring-offset-2",
-  "focus-visible:ring-offset-focus-offset",
+  "focus-visible:focus-ring",
 ].join(" ");
 
 const BACK_CLASSES = [

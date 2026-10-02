@@ -17,7 +17,7 @@
 ## 4. Link vertical slice
 
 - [x] 4.1 Update `src/shared/ui/Link.test.tsx`, test "includes focus-visible ring classes from the focus tokens (D6)" in the "hover and focus-visible state classes" block: assert the single full prefixed class `focus-visible:focus-ring`, replacing the assertions on `focus-visible:ring-focus-ring` and `focus-visible:ring-offset-focus-offset`, verifying `npm run test:run` runs the file, every other Link assertion still passes and the updated focus assertion fails because Link still carries the five-class set
-- [ ] 4.2 Replace the five-class focus set in `BASE_CLASSES` of `src/shared/ui/Link.tsx` with `focus-visible:focus-ring` (design.md D1 and D3), changing nothing else in the component, verifying the updated focus assertion passes, every other Link test stays green unchanged, and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0
+- [x] 4.2 Replace the five-class focus set in `BASE_CLASSES` of `src/shared/ui/Link.tsx` with `focus-visible:focus-ring` (design.md D1 and D3), changing nothing else in the component, verifying the updated focus assertion passes, every other Link test stays green unchanged, and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0
 
 ## 5. Divergence guard and integration verification
 
