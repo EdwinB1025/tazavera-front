@@ -7,6 +7,7 @@ import {
   ArrowLeft,
   Field,
   Input,
+  PasswordInput,
   Select,
   Textarea,
   Checkbox,
@@ -58,6 +59,17 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
   it("renders the text input exported from the segment", () => {
     render(<Input aria-label="Name" />);
     expect(screen.getByRole("textbox", { name: "Name" })).toBeDefined();
+  });
+
+  it("renders the password input exported from the segment", () => {
+    render(
+      <PasswordInput
+        aria-label="Password"
+        showPasswordLabel="Reveal the secret"
+        hidePasswordLabel="Mask the secret"
+      />,
+    );
+    expect(screen.getByLabelText("Password")).toBeDefined();
   });
 
   it("renders the select exported from the segment", () => {

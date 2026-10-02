@@ -2,7 +2,6 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { Input } from "@/shared/ui/Input";
 import { Field } from "@/shared/ui/Field";
-import { Eye, EyeOff } from "@/shared/ui/icons";
 
 // This project has no global test setup, so RTL's auto-cleanup (which relies
 // on a framework-provided afterEach) does not run. Clean up manually between
@@ -12,10 +11,11 @@ afterEach(() => {
 });
 
 /**
- * Input control tests (design.md D1 contract, D7 modes, D9 password reveal;
- * spec "Text input"). Written before the component is implemented (task 3.2);
- * the import of `Input` fails to resolve until then, so the file runs and
- * fails as required.
+ * Input control tests (design.md D1 contract, D7 modes, D8 native `type`
+ * passthrough; spec "Text input"). Written before the component is implemented
+ * (task 3.2); the import of `Input` fails to resolve until then, so the file
+ * runs and fails as required. The password mode lives in PasswordInput
+ * (design.md D9) and is tested in `PasswordInput.test.tsx`.
  *
  * Assertions are className-/attribute-based: jsdom has no CSS engine, so the
  * box tokens are verified by their presence in `className` (they activate via
@@ -37,12 +37,6 @@ const BOX_TOKENS = [
   "disabled:opacity-50",
   "disabled:cursor-not-allowed",
 ];
-
-// Consumer-supplied toggle copy (correction 3): Input writes no text of its
-// own, so the tests supply the labels and assert the toggle's accessible name
-// equals each one as it flips (design.md D9).
-const SHOW_PASSWORD_LABEL = "Reveal the secret";
-const HIDE_PASSWORD_LABEL = "Mask the secret";
 
 describe("Input", () => {
   describe("box treatment", () => {
@@ -113,117 +107,11 @@ describe("Input", () => {
     });
   });
 
-  describe("password mode (spec: Password masked, Reveal and mask, Visibility toggle is named)", () => {
-    it("masks the value by default and the toggle named by the supplied labels reveals and masks again", () => {
-      render(
-        <Input
-          aria-label="Password"
-          type="password"
-          defaultValue="s3cret"
-          showPasswordLabel={SHOW_PASSWORD_LABEL}
-          hidePasswordLabel={HIDE_PASSWORD_LABEL}
-        />,
-      );
-      const input = screen.getByLabelText("Password");
-      expect(input.getAttribute("type")).toBe("password");
-
-      const toggle = screen.getByRole("button", { name: SHOW_PASSWORD_LABEL });
-      expect(toggle.getAttribute("type")).toBe("button");
-      expect(toggle.getAttribute("aria-label")).toBe(SHOW_PASSWORD_LABEL);
-
-      fireEvent.click(toggle);
-      expect(input.getAttribute("type")).toBe("text");
-      const revealedToggle = screen.getByRole("button", {
-        name: HIDE_PASSWORD_LABEL,
-      });
-      expect(revealedToggle.getAttribute("aria-label")).toBe(HIDE_PASSWORD_LABEL);
-
-      fireEvent.click(revealedToggle);
-      expect(input.getAttribute("type")).toBe("password");
-      expect(
-        screen.getByRole("button", { name: SHOW_PASSWORD_LABEL }),
-      ).toBeDefined();
-    });
-
-    it("swaps the Eye / EyeOff icon at size-4 text-text-secondary and keeps the shared focus indicator on the toggle", () => {
-      // Reference renders pin down which glyph is which without relying on
-      // the icon library's own markup details.
-      const { container: eyeRef } = render(<Eye />);
-      const { container: eyeOffRef } = render(<EyeOff />);
-      const eyeMarkup = eyeRef.querySelector("svg")!.innerHTML;
-      const eyeOffMarkup = eyeOffRef.querySelector("svg")!.innerHTML;
-
-      const { container } = render(
-        <Input
-          aria-label="Password"
-          type="password"
-          showPasswordLabel={SHOW_PASSWORD_LABEL}
-          hidePasswordLabel={HIDE_PASSWORD_LABEL}
-        />,
-      );
-      const toggle = screen.getByRole("button", { name: SHOW_PASSWORD_LABEL });
-      expect(toggle.className).toContain("focus-visible:focus-ring");
-
-      const icon = container.querySelector("svg")!;
-      expect(icon.innerHTML).toBe(eyeMarkup);
-      expect(icon.getAttribute("class")).toContain("size-4");
-      expect(icon.getAttribute("class")).toContain("text-text-secondary");
-
-      fireEvent.click(toggle);
-      expect(container.querySelector("svg")!.innerHTML).toBe(eyeOffMarkup);
-    });
-
-    it("renders no visibility toggle outside password mode", () => {
+  describe("visibility toggle (design.md D8, D9)", () => {
+    it("renders no visibility toggle at all", () => {
       render(<Input aria-label="Name" />);
-      expect(screen.queryByRole("button")).toBeNull();
-    });
-
-    it("disables the visibility toggle whenever the input is disabled (Unplanned fix)", () => {
-      render(
-        <Input
-          aria-label="Password"
-          type="password"
-          disabled
-          showPasswordLabel={SHOW_PASSWORD_LABEL}
-          hidePasswordLabel={HIDE_PASSWORD_LABEL}
-        />,
-      );
-      const toggle = screen.getByRole("button", { name: SHOW_PASSWORD_LABEL });
-      expect(toggle.hasAttribute("disabled")).toBe(true);
-    });
-
-    it("carries variant-inverse on the relative wrapper so the toggle resolves inverse tokens without a Field (Unplanned fix)", () => {
-      render(
-        <Input
-          aria-label="Password"
-          type="password"
-          variant="inverse"
-          showPasswordLabel={SHOW_PASSWORD_LABEL}
-          hidePasswordLabel={HIDE_PASSWORD_LABEL}
-        />,
-      );
-      const wrapper = screen.getByLabelText("Password").parentElement!;
-      expect(wrapper.className).toContain("relative");
-      expect(wrapper.className).toContain("variant-inverse");
-    });
-  });
-
-  describe("toggle labels (correction 3, design.md D9)", () => {
-    it('rejects type="password" without the toggle labels at the type level', () => {
-      // Input writes no copy: both labels come from the consuming capability
-      // and are required when type="password". The @ts-expect-error directive
-      // turns that into a build check: `npx tsc --noEmit` fails (TS2578,
-      // unused directive) if the case is ever accepted.
-      // @ts-expect-error showPasswordLabel and hidePasswordLabel are required
       render(<Input aria-label="Password" type="password" />);
-      // At runtime the control still renders; the requirement is compile-time.
-      expect(screen.getByLabelText("Password")).toBeDefined();
-    });
-
-    it('rejects type="password" with only one toggle label at the type level', () => {
-      // @ts-expect-error both labels are required, not just one
-      render(<Input aria-label="Password" type="password" showPasswordLabel={SHOW_PASSWORD_LABEL} />);
-      expect(screen.getByLabelText("Password")).toBeDefined();
+      expect(screen.queryByRole("button")).toBeNull();
     });
   });
 
