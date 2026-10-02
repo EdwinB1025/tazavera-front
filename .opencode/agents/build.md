@@ -1,5 +1,5 @@
 ---
-model: scaleway/glm-5.2
+model: xiaomi/mimo-v2.6-pro
 permissions:
   # ─── Edit: everything except OpenSpec, docs, contract and generated files ───
   - action: edit

@@ -127,7 +127,7 @@ Mandatory footer: `Refs: <change-id>`
 
 ## Research
 
-- Research only for decisions the design leaves open or for behaviour it does not cover. Never research alternatives to what the design summary or corrections already settle; if you believe a settled decision has a clearly better library option, report it to Product Owner instead.
+- Research only for decisions the design leaves open or for behaviour neither the design nor the project already covers. Never research alternatives to what the design summary or corrections settle, or to behaviour the project already provides (a requirement in `openspec/specs/`, or an existing component, utility, token or entry point in `src/`). If you believe a settled decision or an existing implementation has a clearly better library option, report it to Augusto instead, as a candidate for `docs/backlog.md`.
 - When a change needs non-trivial behaviour that a maintained library is likely to solve (accessibility patterns such as combobox or focus trapping, parsing, formatting, data fetching), search the web before designing it from scratch.
 - Evaluate each candidate on: active maintenance, compatibility with the project's installed versions (check package.json), license, bundle size, accessibility, and whether it allows unstyled use with the project's tokens.
 - Limit: at most 5 searches and 3 candidates per decision. Stop as soon as one candidate meets all the criteria. If none does within the limit, stop searching: record "no suitable library found", with the searches made and why each candidate failed, and design it in-house.
