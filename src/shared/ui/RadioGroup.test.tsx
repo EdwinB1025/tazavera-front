@@ -52,6 +52,23 @@ describe("RadioGroup", () => {
     });
   });
 
+  describe("group naming and invalid exposure (correction 1, design.md D1.1)", () => {
+    it("is found as a radiogroup named by its legend and carries the invalid state when an error is shown", () => {
+      const { container } = render(
+        <RadioGroup legend="Grind" options={OPTIONS} error="Choose a grind" />,
+      );
+      const group = screen.getByRole("radiogroup", { name: "Grind" });
+      expect(group).toBe(container.querySelector("fieldset"));
+      expect(group.getAttribute("aria-invalid")).toBe("true");
+    });
+
+    it("carries no invalid state when no error is shown", () => {
+      render(<RadioGroup legend="Grind" options={OPTIONS} />);
+      const group = screen.getByRole("radiogroup", { name: "Grind" });
+      expect(group.hasAttribute("aria-invalid")).toBe(false);
+    });
+  });
+
   describe("keyboard grouping (spec: Keyboard operation)", () => {
     it("shares one name across the options so grouping is native", () => {
       const { container } = render(
@@ -213,6 +230,11 @@ describe("RadioGroup", () => {
         `${help.id} ${error.id}`,
       );
       expect(fieldset.getAttribute("aria-invalid")).toBe("true");
+      expect(fieldset.id).toBeTruthy();
+      expect(fieldset.getAttribute("role")).toBe("radiogroup");
+      expect(fieldset.getAttribute("aria-labelledby")).toBe(
+        fieldset.querySelector("legend")!.id,
+      );
     });
 
     it("omits aria-describedby when neither help nor error exists and aria-invalid when no error is shown", () => {
@@ -222,6 +244,10 @@ describe("RadioGroup", () => {
       const fieldset = container.querySelector("fieldset")!;
       expect(fieldset.hasAttribute("aria-describedby")).toBe(false);
       expect(fieldset.hasAttribute("aria-invalid")).toBe(false);
+      expect(fieldset.getAttribute("role")).toBe("radiogroup");
+      expect(fieldset.getAttribute("aria-labelledby")).toBe(
+        fieldset.querySelector("legend")!.id,
+      );
     });
 
     it("marks each radio input required when required", () => {
