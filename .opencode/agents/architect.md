@@ -92,7 +92,7 @@ permissions:
     resource: "git add docs/backlog.md"
     effect: allow
   - action: shell
-    resource: "git show --stat --oneline *"
+    resource: "git show --stat *"
     effect: allow
   # Git: hard limits
   - action: shell
