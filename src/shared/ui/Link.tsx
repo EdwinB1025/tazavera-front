@@ -15,9 +15,9 @@ export type LinkProps = {
 };
 
 const BASE_CLASSES = [
-  "inline-flex",
-  "items-center",
-  "gap-2",
+  // Correction 6 (review round 1): the default link stays a plain inline text
+  // run so its text wraps with the surrounding text; inline-flex/items-center/
+  // gap-2 belong to the back variant only (see BACK_CLASSES).
   "underline",
   // Correction 5 (review round 1): the link color tokens are
   // --color-text-link and --color-text-link-hover, which generate the
@@ -30,6 +30,12 @@ const BASE_CLASSES = [
   "focus-visible:ring-focus-ring",
   "focus-visible:ring-offset-2",
   "focus-visible:ring-offset-focus-offset",
+].join(" ");
+
+const BACK_CLASSES = [
+  "inline-flex",
+  "items-center",
+  "gap-2",
 ].join(" ");
 
 /**
@@ -46,8 +52,13 @@ export function Link({ href, variant = "default", children }: LinkProps): ReactN
   const LeadingIcon: LucideIcon | undefined =
     variant === "back" ? ArrowLeft : undefined;
 
+  const className =
+    variant === "back"
+      ? [BASE_CLASSES, BACK_CLASSES].join(" ")
+      : BASE_CLASSES;
+
   return (
-    <NextLink href={href} className={BASE_CLASSES}>
+    <NextLink href={href} className={className}>
       {LeadingIcon && <LeadingIcon className="size-4 shrink-0" />}
       {children}
     </NextLink>
