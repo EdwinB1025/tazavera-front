@@ -7,7 +7,7 @@ Defines Tazavera's data-entry controls: how a field presents a label, help text 
 ## ADDED Requirements
 
 ### Requirement: Field structure and association
-A field SHALL present its label above the control, an optional help text and an optional error message below the control, and SHALL bind the label, the help text and the error message to its control so assistive technology reads them together with the control's state. The texts are supplied by the consuming capability.
+A field SHALL present its label above the control, an optional help text and an optional error message below the control, and SHALL bind the label, the help text and the error message to its control so assistive technology reads them together with the control's state. A field SHALL hold a text input, select or textarea; a checkbox and a radio group carry their own label, help text and error message and are never placed in a field. The texts are supplied by the consuming capability.
 
 #### Scenario: Presentation
 - **WHEN** a field renders with a label, a control and help text
@@ -30,8 +30,8 @@ A field SHALL present its label above the control, an optional help text and an 
 - **THEN** the control is associated with both messages
 
 #### Scenario: Control without a field
-- **WHEN** a data-entry control renders without a field around it
-- **THEN** it accepts input and shows its own states with no label, help text or error message associated
+- **WHEN** a text input, select or textarea renders without a field around it
+- **THEN** it accepts input and shows its own states with no label, help text or error message associated, and the accessible name supplied by the consuming capability identifies it
 
 ### Requirement: Text input
 A text input SHALL accept single-line text, show its placeholder in italics while it has no value, and offer a password mode in which the value stays masked until the user activates a visibility toggle.
@@ -72,7 +72,7 @@ A select SHALL let the user choose one option from the options supplied by the c
 - **THEN** the option list renders in the platform's native presentation without custom styling
 
 ### Requirement: Textarea
-A textarea SHALL accept multi-line text on its own surface and boundary treatment, visibly distinct from the text input's, and SHALL NOT be offered on dark surfaces.
+A textarea SHALL accept multi-line text on its own surface and boundary treatment, visibly distinct from the text input's.
 
 #### Scenario: Multi-line value
 - **WHEN** the user types text containing line breaks
@@ -82,12 +82,8 @@ A textarea SHALL accept multi-line text on its own surface and boundary treatmen
 - **WHEN** a textarea renders beside a text input
 - **THEN** their surface and boundary treatments are visibly different
 
-#### Scenario: Dark surfaces excluded
-- **WHEN** a capability places data-entry controls on a dark surface
-- **THEN** the textarea is not among the controls offered there
-
 ### Requirement: Checkbox
-A checkbox SHALL toggle a single choice on and off. Its checked state SHALL be carried by a visible check mark so it does not rest on the fill color alone, and its label SHALL be clickable so the hit area is at least 24 by 24 pixels.
+A checkbox SHALL toggle a single choice on and off. Its checked state SHALL be carried by a visible check mark so it does not rest on the fill color alone, and its label SHALL be clickable so the hit area is at least 24 by 24 pixels. It SHALL render its own label and accept an optional help text and an optional error message supplied by the consuming capability, binding them to its input so assistive technology reads them together with its state, and marking a required choice as required.
 
 #### Scenario: Toggling
 - **WHEN** the user activates the checkbox or its label
@@ -101,8 +97,20 @@ A checkbox SHALL toggle a single choice on and off. Its checked state SHALL be c
 - **WHEN** the user clicks the label text
 - **THEN** the checkbox toggles and the clickable area measures at least 24 by 24 pixels
 
+#### Scenario: Help and error
+- **WHEN** a checkbox shows help text and an error message
+- **THEN** both render below it in their typographic roles, assistive technology reads them with the input, help before error, and the error is never conveyed by color alone
+
+#### Scenario: Error state
+- **WHEN** a checkbox shows an error message
+- **THEN** its boundary switches to the error treatment and the input is exposed as invalid to assistive technology
+
+#### Scenario: Required
+- **WHEN** a checkbox is required
+- **THEN** its input is marked required
+
 ### Requirement: Radio group
-A radio group SHALL offer one choice among mutually exclusive options, present its group name as the title of the group, and keep exactly one option selected once the user chooses. Selecting an option SHALL clear the previously selected one.
+A radio group SHALL offer one choice among mutually exclusive options, present its group name as the title of the group, and keep exactly one option selected once the user chooses. Selecting an option SHALL clear the previously selected one. It SHALL accept an optional help text and an optional error message supplied by the consuming capability, binding them to the group so assistive technology reads them together with the group's state, and marking the choice as required when it is.
 
 #### Scenario: Group name
 - **WHEN** a radio group renders
@@ -123,6 +131,18 @@ A radio group SHALL offer one choice among mutually exclusive options, present i
 #### Scenario: Option click target
 - **WHEN** the user clicks an option's label
 - **THEN** that option is chosen and the clickable area measures at least 24 by 24 pixels
+
+#### Scenario: Help and error
+- **WHEN** a radio group shows help text and an error message
+- **THEN** both render below the options in their typographic roles, assistive technology reads them with the group, help before error, and the error is never conveyed by color alone
+
+#### Scenario: Error state
+- **WHEN** a radio group shows an error message
+- **THEN** its boundary switches to the error treatment and the group is exposed as invalid to assistive technology
+
+#### Scenario: Required
+- **WHEN** a radio group is required
+- **THEN** its options are marked required
 
 ### Requirement: Data-entry control states
 Every interactive data-entry control SHALL show the shared keyboard focus indicator of the theming capability, a disabled state that rejects input, and pointer feedback where the design defines one.
@@ -155,7 +175,7 @@ Data-entry controls placed on a dark surface SHALL render in the inverse variant
 - **THEN** the shared focus ring with its offset renders in the inverse focus colors, with at least 3:1 contrast against the dark surface, and the control renders no focus treatment of its own
 
 #### Scenario: Error on dark surface
-- **WHEN** an inverse field shows an error message
+- **WHEN** an inverse field, checkbox or radio group shows an error message
 - **THEN** the message and the control's error boundary render in the inverse error treatment with at least 4.5:1 contrast against the dark surface, and the error is never conveyed by color alone
 
 #### Scenario: Checked controls on dark surface
