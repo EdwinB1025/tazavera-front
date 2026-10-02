@@ -10,6 +10,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Common rules (all agents)
 
+## Working method
+
+- At the start of every request, read the current state by command (tasks.md, `git status`, `git log`, `openspec status`); never rely on command outputs from earlier turns, because the other agent or product owner may have changed them.
+- Do not deliberate about tool mechanics or cosmetic details (whitespace, trailing newlines, how to batch commands): pick the plain option and move on.
+
 ## Agent roles
 
 - Your role is determined by the command you are running:
@@ -106,6 +111,7 @@ Mandatory footer: `Refs: <change-id>`
 - `git push`, `git merge`, `git rebase`, `git reset --hard`, `git commit --amend`, and `--force` are never used.
 - Before each commit, `git status` is executed to verify that only files allowed for the agent are included.
 - AGENTS.md is read-only for every agent: never edit, stage or commit it, even when the Next.js block above says to commit it. If `git status` shows it modified, leave it unstaged and mention it in the final report.
+- Stage one path per `git add` command; never list several paths in one command.
 
 # Architect agent rules (only if you are the architect agent)
 
@@ -138,6 +144,7 @@ Mandatory footer: `Refs: <change-id>`
 
 - Do not create a separate task for tests that pass immediately (tightened assertions, guards over code that is already correct); include them in the task they belong to.
 - When a task changes behaviour that existing tests assert, it names those tests and the assertions to update. When a task adds a guard or test, it states the exact cases it must fail on and pass on.
+- When a test asserts source text (a CSS declaration, a class string), the task states the exact expected text. Otherwise the test asserts behaviour or compiled output, never a paraphrase of it.
 
 ## Review corrections
 
@@ -156,6 +163,7 @@ Mandatory footer: `Refs: <change-id>`
 - Commits: one on completing propose (`docs(<capability>): propose <change-id>`), one per artifact review requested by Product Owner (`docs(<capability>): update <artifact> for <change-id>`), one per correction round (`docs(<capability>): apply review round <N> for <change-id>`).
 - Does not commit if `openspec validate <change-id> --strict` fails.
 - Runs `openspec archive <change-id> --yes` only when Product Owner requests it, every task in tasks.md is checked, `/opsx:verify` reports no CRITICAL findings, and every WARNING classified as an unplanned fix or unplanned coverage has been resolved or explicitly deferred by Product Owner. The archive commit contains only `openspec/specs/`, the archived change folder and, if the change resolved a backlog entry, `docs/backlog.md` (`chore(openspec): archive <change-id>`). `openspec/specs/` is never modified by hand.
+- Runs `/opsx:sync` only as part of `/opsx:archive`, never on its own; main specs change only when a change is archived.
 - Does not push or merge.
 
 # Build agent rules (only if you are the build agent)
@@ -165,6 +173,8 @@ Mandatory footer: `Refs: <change-id>`
 - Plan briefly: one line per task. Analyse a task in detail only when you start it, with the current code in front of you; never pre-design later tasks. Re-plan only if a command fails or its output contradicts the plan.
 - Never reason about facts or code behaviour (generated class names, string or regex matching, type resolution): write the code or a quick check, run it, read the result, and do not revisit it.
 - Implement the minimum that satisfies the task's scenarios and verification steps. If several implementations fit, choose the simplest and note the choice in the commit body. Do not generalise tests, guards or code for inputs the task does not mention.
+- Write code directly in the edit, never drafted in your reasoning first. When unsure whether code behaves as intended, write it and run the relevant test; do not trace it by hand before running it.
+- If a task admits more than one reading that changes what you write or what a test asserts, run at most one probe; if two readings still fit, stop and ask. Never reverse a decision you have already stated.
 - The rules in AGENTS.md are settled: do not re-read or re-question them during a task. If instructions contradict each other or block progress, stop and ask instead of reasoning around it.
 - End every apply with a report: tasks completed, unplanned fixes and coverage applied, and issues noticed but not fixed.
 
