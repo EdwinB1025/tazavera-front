@@ -167,8 +167,7 @@ describe("Button", () => {
 
     it("includes focus-visible ring classes from the focus tokens (D6)", () => {
       const btn = renderButton(<Button>Save</Button>);
-      expect(btn.className).toContain("focus-visible:ring-focus-ring");
-      expect(btn.className).toContain("focus-visible:ring-offset-focus-offset");
+      expect(btn.className).toContain("focus-visible:focus-ring");
     });
   });
 
