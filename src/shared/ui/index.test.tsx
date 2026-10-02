@@ -9,6 +9,7 @@ import {
   Input,
   Select,
   Textarea,
+  Checkbox,
 } from "@/shared/ui";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
@@ -70,5 +71,10 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
   it("renders the textarea exported from the segment", () => {
     render(<Textarea aria-label="Notes" />);
     expect(screen.getByRole("textbox", { name: "Notes" })).toBeDefined();
+  });
+
+  it("renders the checkbox exported from the segment", () => {
+    render(<Checkbox label="Accept terms" />);
+    expect(screen.getByRole("checkbox", { name: "Accept terms" })).toBeDefined();
   });
 });
