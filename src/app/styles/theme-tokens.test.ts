@@ -357,6 +357,22 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "nav-button-border", bg: "nav-header", kind: "bound", exempt: true },
   { fg: "nav-button-border-hover", bg: "nav-button-bg-hover", kind: "bound", exempt: true },
   { fg: "nav-button-border-hover", bg: "nav-header", kind: "bound", exempt: true },
+
+  // ── Form-field boxes (form-fields design.md D5) ──
+  // Input/select box on the input surface. Pairs the traditional matrix does
+  // not already assert (text-placeholder / surface-input and
+  // border-muted / surface-textarea are asserted above).
+  { fg: "border-strong", bg: "surface-input", kind: "bound" },
+  { fg: "feedback-error", bg: "surface-input", kind: "text" },
+  { fg: "text-secondary", bg: "surface-input", kind: "text" },
+
+  // ── Checked and inverse states (form-fields design.md D5) ──
+  { fg: "checked-mark", bg: "surface-checked", kind: "icon" },
+  { fg: "focus-ring-inverse", bg: "nav-surface-dark", kind: "bound" },
+  { fg: "border-inverse", bg: "nav-surface-dark", kind: "bound" },
+  { fg: "text-placeholder-inverse", bg: "nav-surface-dark", kind: "text" },
+  { fg: "feedback-error-inverse", bg: "nav-surface-dark", kind: "text" },
+  { fg: "surface-checked", bg: "nav-surface-dark", kind: "bound" },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -471,6 +487,14 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "nav-button-border", bg: "nav-header", kind: "bound" },
   { fg: "nav-button-border-hover", bg: "nav-button-bg-hover", kind: "bound" },
   { fg: "nav-button-border-hover", bg: "nav-header", kind: "bound" },
+
+  // ── Checked and inverse states (form-fields design.md D5) ──
+  { fg: "checked-mark", bg: "surface-checked", kind: "icon" },
+  { fg: "focus-ring-inverse", bg: "nav-surface-dark", kind: "bound" },
+  { fg: "border-inverse", bg: "nav-surface-dark", kind: "bound" },
+  { fg: "text-placeholder-inverse", bg: "nav-surface-dark", kind: "text" },
+  { fg: "feedback-error-inverse", bg: "nav-surface-dark", kind: "text" },
+  { fg: "surface-checked", bg: "nav-surface-dark", kind: "bound" },
 ];
 
 describe("Dark theme contrast matrix", () => {
