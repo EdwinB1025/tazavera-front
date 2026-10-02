@@ -92,6 +92,7 @@ describe("focus-indicator guard", () => {
       "Input.tsx",
       "Select.tsx",
       "Textarea.tsx",
+      "Checkbox.tsx",
     ]) {
       const content = readFileSync(pathResolve(uiDir, name), "utf-8");
       expect(
