@@ -30,6 +30,17 @@ describe("Button", () => {
     });
   });
 
+  describe("activation (enabled, non-busy)", () => {
+    // Happy-path counterpart of the rejection cases below (disabled → D5,
+    // busy → D4): an enabled, non-busy button forwards the click exactly once.
+    it("calls onClick once when clicked", () => {
+      const onClick = vi.fn();
+      render(<Button onClick={onClick}>Save</Button>);
+      fireEvent.click(screen.getByRole("button", { name: "Save" }));
+      expect(onClick).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe("size geometry (D3)", () => {
     it("base size is h-10 with px-4", () => {
       render(<Button size="base">Save</Button>);
