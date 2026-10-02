@@ -918,3 +918,51 @@ describe("Shared focus indicator: @utility focus-ring (design.md D4)", () => {
     );
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Inverse variant scope utility (form-fields design.md D2)
+// One scope utility reassigns the tokens the inverse variant swaps, so every
+// control keeps one class set across both variants and the inverse surface
+// resolves through the same semantic names. The block is normative: exactly
+// the eight reassignments of design.md D2, nothing else. Until the utility
+// exists (task 1.5), these checks fail.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** Extract every @utility variant-inverse block from globals.css. */
+function extractVariantInverseUtilities(css: string): string[] {
+  const blocks: string[] = [];
+  const regex = /@utility\s+variant-inverse\s*\{/g;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(css)) !== null) {
+    blocks.push(extractBlock(css, match.index + match[0].length - 1));
+  }
+  return blocks;
+}
+
+/** The exact reassignment block of form-fields design.md D2. */
+const VARIANT_INVERSE_REASSIGNMENTS: Record<string, string> = {
+  "--color-text-label": "var(--color-nav-text-dark)",
+  "--color-text-secondary": "var(--color-nav-text-dark)",
+  "--color-text-strong": "var(--color-nav-text-dark)",
+  "--color-text-placeholder": "var(--color-text-placeholder-inverse)",
+  "--color-border-strong": "var(--color-border-inverse)",
+  "--color-feedback-error": "var(--color-feedback-error-inverse)",
+  "--color-focus-ring": "var(--color-focus-ring-inverse)",
+  "--color-focus-offset": "var(--color-focus-offset-inverse)",
+};
+
+describe("Inverse variant scope utility: @utility variant-inverse (form-fields design.md D2)", () => {
+  const css = readGlobals();
+  const blocks = extractVariantInverseUtilities(css);
+  const block = blocks[0] ?? "";
+
+  it("@utility variant-inverse is defined exactly once", () => {
+    expect(blocks).toHaveLength(1);
+  });
+
+  it("reassigns exactly the eight tokens of design.md D2", () => {
+    expect(Object.fromEntries(extractProperties(block))).toEqual(
+      VARIANT_INVERSE_REASSIGNMENTS,
+    );
+  });
+});
