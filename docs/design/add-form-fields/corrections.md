@@ -30,3 +30,21 @@
 
 4. tasks.md 6.2 and 7.2 say "D1 context defaults"; Checkbox and Radio group
    follow the D1.1 own-field contract. Artifact fix only, no new task.
+   
+5. design.md D9 and tasks 6.1 / 7.1 describe the check mark and the radio dot
+as rendered only when checked. Applied as an unplanned fix: both are always
+rendered and follow the input's real state through CSS (the input carries
+peer; hidden with invisible, shown with peer-checked:visible, faded with
+peer-disabled:opacity-50). Spec unchanged: the mark is visible exactly when
+checked. Artifact fix only, no new task.
+
+### Status
+
+- Date: 2026-10-03
+- `openspec validate add-form-fields --strict` → `Change 'add-form-fields' is valid`
+
+1. Artifacts updated: design.md D1.1 (radio fieldset carries `role="radiogroup"` and `aria-labelledby`; `aria-describedby` and `aria-invalid` stay on it). Spec unchanged (the scenarios already state the naming and invalid-exposure behaviour). Tasks created: 9.1 (tests), 9.2 (implementation).
+2. Artifacts updated: design.md D10 created (spacing decision). Spec unchanged (visual spacing, not behaviour). Tasks created: 9.3 (tests), 9.4 (implementation).
+3. Artifacts updated: design.md D9 (toggle labels `showPasswordLabel` / `hidePasswordLabel` required on `type="password"`, no copy in the component) and specs/form-fields/spec.md ("Visibility toggle is named" scenario now states the consumer-supplied name). Tasks created: 9.5 (tests, naming the task 3.1 assertions to replace), 9.6 (implementation).
+4. Artifact fix: tasks.md 6.2 and 7.2 reference the D1.1 own-field contract. No tasks.
+5. Unplanned fix (already applied by the build in commit `36fe83a`); artifact fix: design.md D9 and tasks 6.1 / 7.1 aligned to the always-rendered, CSS-driven mark and dot. Spec unchanged. No tasks.

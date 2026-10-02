@@ -54,7 +54,7 @@ A text input SHALL accept single-line text, show its placeholder in italics whil
 
 #### Scenario: Visibility toggle is named
 - **WHEN** a password input renders with its visibility toggle
-- **THEN** the toggle's accessible name identifies what activating it does
+- **THEN** the toggle's accessible name is the text the consuming capability supplied for that state and identifies what activating it does
 
 ### Requirement: Select
 A select SHALL let the user choose one option from the options supplied by the consuming capability, showing the current selection and a chevron indicator in its closed box. The open option list SHALL use the platform's native presentation without custom styling.

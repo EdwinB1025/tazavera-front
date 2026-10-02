@@ -66,6 +66,8 @@ Checkbox and Radio group are never placed inside a Field. Each renders its own l
 | `aria-invalid` | `"true"` when an error message is shown, omitted otherwise | same element as `id` |
 | `required` | set when required | the checkbox `<input>`; each radio `<input>` |
 
+The radio group's `<fieldset>` additionally carries `role="radiogroup"` and `aria-labelledby` pointing to the legend's generated id, while `aria-describedby` and `aria-invalid` stay on the fieldset (review round 1: `aria-invalid` on a plain fieldset is not exposed by assistive technology).
+
 ### D2 — Inverse focus reassigns the focus tokens locally
 
 The inverse variant reassigns `--color-focus-ring` and `--color-focus-offset` to `--color-focus-ring-inverse` / `--color-focus-offset-inverse` in the control's own scope and keeps applying the shared `focus-visible:focus-ring` class. One utility, one ring geometry; only the resolved colors vary. `focus-guard.test.ts` stays unchanged except for adding the new controls to its shared-focus list (D9): no control defines a focus treatment of its own.
@@ -150,11 +152,15 @@ The `color-guard`, `radius-guard` and `client-boundary` tests cover the new file
 
 ### D9 — Contract details (delegated to design by the product owner)
 
-- **`checked-mark` utility names**: the token renders through `text-checked-mark` (check mark) and `bg-checked-mark` (radio dot), following the `--color-{name}` → `{property}-{name}` convention.
+- **`checked-mark` utility names**: the token renders through `text-checked-mark` (check mark) and `bg-checked-mark` (radio dot), following the `--color-{name}` → `{property}-{name}` convention. The mark and the dot are always rendered and follow the input's real state through CSS — the input carries `peer`, the mark or dot `invisible`, `peer-checked:visible` and `peer-disabled:opacity-50` (review round 1, applied as an unplanned fix in `36fe83a`; the hidden base is `invisible`, not opacity, so the disabled fade never fights the checked show). The mark is visible exactly when checked; the spec is unchanged.
 - **24×24px hit area**: the clickable label of a checkbox or radio option carries `flex min-h-6 min-w-6 items-center gap-2`, so the hit area reaches at least 24 by 24 pixels with the project's 8px icon–label gap.
 - **Select chevron**: the select renders with `appearance-none` inside a `relative` wrapper with a positioned `ChevronDown` (`size-4`, `text-text-secondary`, `pointer-events-none`); the open option list stays native and unstyled.
-- **Password visibility toggle**: a `type="button"` control in the input's `relative` wrapper with `Eye` / `EyeOff` at `size-4 text-text-secondary`; its accessible name states its current action (show/hide wording). It is interactive and carries `focus-visible:focus-ring` — the focus guard only checks that the class appears somewhere in the file, so the component tests assert it on the toggle itself.
+- **Password visibility toggle**: a `type="button"` control in the input's `relative` wrapper with `Eye` / `EyeOff` at `size-4 text-text-secondary`. The component writes no copy (review round 1): Input takes `showPasswordLabel` and `hidePasswordLabel`, both required when `type="password"` through a discriminated union on the literal `type` prop, and the toggle's accessible name is `showPasswordLabel` while masked and `hidePasswordLabel` while revealed. It is interactive and carries `focus-visible:focus-ring` — the focus guard only checks that the class appears somewhere in the file, so the component tests assert it on the toggle itself.
 - **Error boundary**: every control swaps its border color class to `border-feedback-error` when its field is invalid (resolving to `border-feedback-error-inverse` inside `variant-inverse`).
+
+### D10 — Spacing (review round 1, product-owner decision)
+
+The label of Field and the legend of Radio group carry `mb-2` (8px down to the control); the help text and the error message carry `mt-1` (4px up from the element above) in Field, Checkbox and Radio group. Checkbox's label sits beside the box and carries no margin.
 
 ## Risks / Trade-offs
 
