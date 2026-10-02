@@ -70,6 +70,19 @@ describe("Field", () => {
     });
   });
 
+  describe("spacing (design.md D10, correction 2)", () => {
+    it("gives the label exactly mb-2 and the help text and error message exactly mt-1", () => {
+      const { container } = render(
+        <Field label="E-mail" help="We never share it" error="Enter a valid e-mail">
+          <Probe />
+        </Field>,
+      );
+      expect(margins(container.querySelector("label")!)).toEqual(["mb-2"]);
+      expect(margins(screen.getByText("We never share it"))).toEqual(["mt-1"]);
+      expect(margins(screen.getByText("Enter a valid e-mail"))).toEqual(["mt-1"]);
+    });
+  });
+
   describe("label association (spec: Label association)", () => {
     it("binds the label to the control: the label's htmlFor is the control's id", () => {
       const { container } = render(
@@ -273,3 +286,10 @@ describe("Field", () => {
     });
   });
 });
+
+/** The margin utilities of an element (design.md D10 pins them exactly). */
+function margins(element: Element): string[] {
+  return element.className
+    .split(/\s+/)
+    .filter((token) => /^m[trblxyse]?-/.test(token));
+}

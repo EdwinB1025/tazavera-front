@@ -270,6 +270,22 @@ describe("RadioGroup", () => {
     });
   });
 
+  describe("spacing (design.md D10, correction 2)", () => {
+    it("gives the legend exactly mb-2 and the help text and error message exactly mt-1", () => {
+      const { container } = render(
+        <RadioGroup
+          legend="Grind"
+          options={OPTIONS}
+          help="Pick one"
+          error="Choose a grind"
+        />,
+      );
+      expect(margins(container.querySelector("legend")!)).toEqual(["mb-2"]);
+      expect(margins(screen.getByText("Pick one"))).toEqual(["mt-1"]);
+      expect(margins(screen.getByText("Choose a grind"))).toEqual(["mt-1"]);
+    });
+  });
+
   describe("inverse variant (design.md D2, D4)", () => {
     it("adds variant-inverse on the fieldset", () => {
       const { container } = render(
@@ -289,4 +305,11 @@ function checkedValues(): string[] {
   )
     .filter((input) => (input as HTMLInputElement).checked)
     .map((input) => input.getAttribute("value")!);
+}
+
+/** The margin utilities of an element (design.md D10 pins them exactly). */
+function margins(element: Element): string[] {
+  return element.className
+    .split(/\s+/)
+    .filter((token) => /^m[trblxyse]?-/.test(token));
 }

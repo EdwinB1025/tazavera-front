@@ -152,6 +152,22 @@ describe("Checkbox", () => {
     });
   });
 
+  describe("spacing (design.md D10, correction 2)", () => {
+    it("gives the help text and the error message exactly mt-1", () => {
+      render(
+        <Checkbox
+          label="Accept terms"
+          help="You can undo this later"
+          error="Accept to continue"
+        />,
+      );
+      expect(margins(screen.getByText("You can undo this later"))).toEqual([
+        "mt-1",
+      ]);
+      expect(margins(screen.getByText("Accept to continue"))).toEqual(["mt-1"]);
+    });
+  });
+
   describe("value modes (design.md D7)", () => {
     it("controlled mode: checked and onChange drive the choice", () => {
       const onChange = vi.fn();
@@ -200,3 +216,10 @@ describe("Checkbox", () => {
     });
   });
 });
+
+/** The margin utilities of an element (design.md D10 pins them exactly). */
+function margins(element: Element): string[] {
+  return element.className
+    .split(/\s+/)
+    .filter((token) => /^m[trblxyse]?-/.test(token));
+}
