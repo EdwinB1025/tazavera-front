@@ -654,3 +654,25 @@
     outline: none;
     box-shadow: 0 0 0 2px var(--color-focus-offset), 0 0 0 4px var(--color-focus-ring);
 }
+
+/* =========================================================
+   TAZAVERA — INVERSE VARIANT SCOPE (@utility variant-inverse)
+   One scope utility carries the whole inverse variant (form-fields
+   design.md D2): it reassigns the tokens the dark-surface controls
+   swap, so every control keeps one class set across both variants and
+   the inverse surface resolves through the same semantic names. The
+   two inverse treatments that are not a variable swap — the input and
+   select background (bg-transparent) and their hover border
+   (hover:border-nav-text-dark) — stay explicit classes on the control.
+   ========================================================= */
+
+@utility variant-inverse {
+    --color-text-label: var(--color-nav-text-dark);
+    --color-text-secondary: var(--color-nav-text-dark);
+    --color-text-strong: var(--color-nav-text-dark);
+    --color-text-placeholder: var(--color-text-placeholder-inverse);
+    --color-border-strong: var(--color-border-inverse);
+    --color-feedback-error: var(--color-feedback-error-inverse);
+    --color-focus-ring: var(--color-focus-ring-inverse);
+    --color-focus-offset: var(--color-focus-offset-inverse);
+}
