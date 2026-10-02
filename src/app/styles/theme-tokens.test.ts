@@ -840,3 +840,57 @@ describe("Typographic roles: sizing accessibility rules", () => {
     expect(SIZE_TO_REM["sm"]).toBeGreaterThanOrEqual(0.875); // 14px
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Shared focus indicator (design.md D4)
+// The indicator is defined exactly once as @utility focus-ring and renders
+// exactly the effect of the five-class set the controls carried before:
+// outline suppressed, a 2px ring in --color-focus-ring, a 2px offset in
+// --color-focus-offset. The ring layer spreads 4px — the 2px offset gap plus
+// the 2px ring width. Colors resolve through the token variables, so theme
+// reassignment keeps working. Until the utility exists (task 2.2), these
+// checks fail.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** Extract every @utility focus-ring block from globals.css. */
+function extractFocusRingUtilities(css: string): string[] {
+  const blocks: string[] = [];
+  const regex = /@utility\s+focus-ring\s*\{/g;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(css)) !== null) {
+    blocks.push(extractBlock(css, match.index + match[0].length - 1));
+  }
+  return blocks;
+}
+
+describe("Shared focus indicator: @utility focus-ring (design.md D4)", () => {
+  const css = readGlobals();
+  const blocks = extractFocusRingUtilities(css);
+  const block = blocks[0] ?? "";
+
+  it("@utility focus-ring is defined exactly once", () => {
+    expect(blocks).toHaveLength(1);
+  });
+
+  it("focus-ring suppresses the native outline", () => {
+    expect(getProperty(block, "outline")).toBe("none");
+  });
+
+  it("focus-ring renders a 2px ring resolving through var(--color-focus-ring)", () => {
+    expect(getProperty(block, "box-shadow")).toContain(
+      "0 0 0 4px var(--color-focus-ring)",
+    );
+  });
+
+  it("focus-ring renders a 2px offset resolving through var(--color-focus-offset)", () => {
+    expect(getProperty(block, "box-shadow")).toContain(
+      "0 0 0 2px var(--color-focus-offset)",
+    );
+  });
+
+  it("focus-ring renders exactly the five-class effect", () => {
+    expect(getProperty(block, "box-shadow")).toBe(
+      "0 0 0 2px var(--color-focus-offset), 0 0 0 4px var(--color-focus-ring)",
+    );
+  });
+});
