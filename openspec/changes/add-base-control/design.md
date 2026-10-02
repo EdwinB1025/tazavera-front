@@ -45,8 +45,11 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 // `type` defaults to "button" so forms never get accidental submits.
 
 // src/shared/ui/Link.tsx
-type LinkProps = {
-  href: `/${string}`;      // in-application route — an absolute URL is a compile error
+type LinkProps<H extends `/${string}`> = {
+  // in-application route; the conditional type rejects a protocol-relative
+  // URL (`//…`) as well, so absolute and protocol-relative destinations are
+  // both compile errors (a `/${string}` template alone accepts `//example.com`)
+  href: H extends `//${string}` ? never : H;
   variant?: "default" | "back"; // default "default"
   children: ReactNode;
 };
@@ -56,7 +59,7 @@ export { Loader2, ArrowLeft, type LucideIcon } from "lucide-react";
 // the project's own SVGs (app logo, coffee-bean) are added here by changes 6 and 2
 ```
 
-The `ButtonProps` union makes an unnamed icon-only button a compile error, while extending `ButtonHTMLAttributes<HTMLButtonElement>` keeps the native button surface (`form`, `name`, `value`, `aria-*`, events) passing through to the element — spread props are forwarded unchanged rather than acting as a bypass. The runtime test asserts the accessible name as a second line of defence. Typing `href` as `` `/${string}` `` makes an absolute URL a compile error, so Link needs no runtime branch for external destinations.
+The `ButtonProps` union makes an unnamed icon-only button a compile error, while extending `ButtonHTMLAttributes<HTMLButtonElement>` keeps the native button surface (`form`, `name`, `value`, `aria-*`, events) passing through to the element. Props precedence (review round 1): `{...rest}` is spread **before** the component's own props, so the `aria-busy`, `aria-disabled`, `type`, `onClick` and `className` the component sets can never be overridden by callers. The runtime test asserts the accessible name as a second line of defence. Constraining `href` with a conditional type makes an absolute URL **and** a protocol-relative URL (`//…`) compile errors, so Link needs no runtime branch for external destinations.
 
 ### D1. Radius tokens follow the color pattern
 
@@ -74,11 +77,11 @@ Four tokens in a new `@theme` block, each reassigned to `0` under `[data-theme="
 
 ### D4. Button busy state (product-owner decision)
 
-A spinner (Lucide `Loader2`) renders before the label; the label stays so the width does not change. The button is **not** disabled while busy: it sets `aria-busy="true"` and `aria-disabled="true"`, ignores activation (pointer and keyboard), and keeps keyboard focus. Under `prefers-reduced-motion` the spinner renders without rotation (`motion-reduce:animate-none`). For icon-only buttons the spinner replaces the icon, keeping the square footprint. *Alternatives:* the native `disabled` attribute while loading (rejected: it drops keyboard focus mid-interaction); a spinner overlay on top of the label (rejected: width shift and stacking complexity for no user benefit).
+A spinner (Lucide `Loader2`) renders before the label; the label stays so the width does not change. The button is **not** disabled while busy: it sets `aria-busy="true"` and `aria-disabled="true"`, ignores activation (pointer and keyboard), and keeps keyboard focus. Ignoring activation covers the native default action too (review round 1): while busy the click handler calls `event.preventDefault()` before returning, so a busy button that submits a form cannot submit it — returning early from `onClick` alone does not cancel the default action. A busy button shows no hover change, exactly like a disabled one (the hover gate in D5). Under `prefers-reduced-motion` the spinner renders without rotation (`motion-reduce:animate-none`). For icon-only buttons the spinner replaces the icon, keeping the square footprint. *Alternatives:* the native `disabled` attribute while loading (rejected: it drops keyboard focus mid-interaction); a spinner overlay on top of the label (rejected: width shift and stacking complexity for no user benefit).
 
 ### D5. Disabled treatment (product-owner decision, all controls)
 
-The native `disabled` attribute plus `opacity-50`, `cursor-not-allowed` and no hover change. A disabled control leaves the keyboard focus order — which is exactly why the busy state (D4) uses `aria-disabled` instead. Disabled controls are exempt from WCAG contrast (SC 1.4.3 / 1.4.11 inactive-component exception), so no contrast pairs are added for this state.
+The native `disabled` attribute plus `opacity-50`, `cursor-not-allowed` and no hover change. The hover treatment is gated so it applies only when the button is neither natively disabled nor `aria-disabled` (review round 1), which is why the disabled state and the busy state (D4) both show no hover change. A disabled control leaves the keyboard focus order — which is exactly why the busy state (D4) uses `aria-disabled` instead. Disabled controls are exempt from WCAG contrast (SC 1.4.3 / 1.4.11 inactive-component exception), so no contrast pairs are added for this state.
 
 ### D6. Focus treatment — `focus-ring` + `focus-offset` everywhere
 
@@ -93,7 +96,7 @@ The navigation-action button renders in the header (`nav-header`), not on the si
 
 ### D7. Link behaviour
 
-Internal routes only, rendered with `next/link`; always underlined in every state (CSS `underline`, not a hover effect). Variant `back` renders a leading Lucide `ArrowLeft` at 16px with `gap-2` before the text. External navigation (e.g. the authorization-server redirect) is done by the component that needs it — `Link` cannot accept one at all (`href` is typed `` `/${string}` ``, so an absolute URL is a compile error, with no runtime branch). *Alternative:* an `external` variant with `target="_blank"` (rejected: out of scope by design, and it invites misuse).
+Internal routes only, rendered with `next/link`; always underlined in every state (CSS `underline`, not a hover effect). Colors come from the link tokens through their generated utility names, `text-text-link` and `hover:text-text-link-hover` (a `--color-text-link*` token generates `text-text-link*`; the unprefixed `text-link` generates no CSS). The `inline-flex items-center gap-2` layout belongs to the `back` variant only — it renders a leading Lucide `ArrowLeft` at 16px with `gap-2` before the text — while the default variant is a plain inline text run, so its text wraps with the surrounding text (review round 1). External navigation (e.g. the authorization-server redirect) is done by the component that needs it — `Link` cannot accept one at all: the `href` conditional type rejects an absolute URL and a protocol-relative URL (`//…`) at compile time, with no runtime branch. *Alternative:* an `external` variant with `target="_blank"` (rejected: out of scope by design, and it invites misuse).
 
 ### D8. Single icon entry point
 
@@ -105,7 +108,12 @@ Add `lucide-react` to `package.json` (product-owner approved). No other dependen
 
 ### D10. Verification strategy
 
-Component tests (Vitest + React Testing Library) are written before the implementation they cover. `src/app/styles/theme-tokens.test.ts` gains a radius completeness check (every `--radius-*` defined in an `@theme` block is reassigned under `[data-theme="dark"]`) and the four documented `nav-button` focus pairs from D6 in both theme matrices. The "verification fails" spec scenarios map to these checks and to the `ButtonProps` union plus the accessible-name test. A guard test (`src/shared/ui/radius-guard.test.ts`) fails if any file in `src/shared/ui` uses a default Tailwind radius utility (`rounded-sm|md|lg|xl|2xl|full`) instead of the radius tokens, enforcing design rule 1 at the code level.
+Component tests (Vitest + React Testing Library) are written before the implementation they cover, and state assertions use full prefixed class names (`disabled:opacity-50`, `disabled:cursor-not-allowed`, `enabled:hover:bg-action-primary-hover`), never substrings that would pass without the prefix (review round 1). `src/app/styles/theme-tokens.test.ts` gains a radius completeness check (every `--radius-*` defined in an `@theme` block is reassigned under `[data-theme="dark"]`), the radius values themselves (traditional `9999px` / `16px` / `8px` / `4px`, dark `0` for all four) and the four documented `nav-button` focus pairs from D6 in both theme matrices. The "verification fails" spec scenarios map to these checks and to the `ButtonProps` union plus the accessible-name test. Two guards enforce design rule 1 and D8 at the code level (review round 1):
+
+- `src/shared/ui/radius-guard.test.ts` is an **allowlist**: `rounded-pill`, `rounded-container`, `rounded-field`, `rounded-check`, `rounded-full` (intrinsic circles — radio, coffee bean, slider thumb, avatar — whose shape is not a corner radius) and `rounded-none` (the documented no-radius cases) pass; any other rounded utility fails — bare `rounded`, any size suffix, directional variants (`rounded-t-*`, `rounded-s-*`, `rounded-tl-*`, …) and arbitrary values (`rounded-[…]`).
+- `src/shared/ui/color-guard.test.ts`: every color utility used in `src/shared/ui` (`bg-`, `text-`, `border-`, `ring-`, `ring-offset-`, including state-prefixed variants) must map to a `--color-*` token defined in `src/app/styles/globals.css` or to a Tailwind built-in color, and a violation fails naming the offending class and file.
+
+`src/shared/ui/icons.test.ts` is the import guard for D8 and also flags subpath imports (`lucide-react/…`) and dynamic imports (`import("lucide-react")`), not only the bare module import.
 
 ## Files (full paths, FSD layer)
 
@@ -121,7 +129,8 @@ Created:
 | `src/shared/ui/Link.test.tsx` | `shared` | Underline, back variant, compile-time rejection of external URLs |
 | `src/shared/ui/icons.ts` | `shared` | Icon entry point (only `lucide-react` import site) |
 | `src/shared/ui/index.ts` | `shared` | Segment entry: exports Button, Link, icon module |
-| `src/shared/ui/radius-guard.test.ts` | `shared` | Fails on default radius utilities used in `src/shared/ui` |
+| `src/shared/ui/radius-guard.test.ts` | `shared` | Radius utility allowlist; fails on any rounded utility outside it |
+| `src/shared/ui/color-guard.test.ts` | `shared` | Fails on a color utility that maps to no `--color-*` token |
 
 Modified:
 

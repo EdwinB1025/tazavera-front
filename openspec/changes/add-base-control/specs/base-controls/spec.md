@@ -40,7 +40,7 @@ Action buttons SHALL come in two context-chosen sizes with identical label typog
 Action buttons SHALL show pointer feedback, a visible keyboard focus indicator, a disabled state and a busy state, and SHALL perform their action only when enabled and not busy.
 
 #### Scenario: Hover feedback
-- **WHEN** the pointer hovers an enabled action button
+- **WHEN** the pointer hovers an enabled action button that is not busy
 - **THEN** its colors switch to its treatment's hover values and return to the rest values when the pointer leaves
 
 #### Scenario: Keyboard focus
@@ -57,7 +57,11 @@ Action buttons SHALL show pointer feedback, a visible keyboard focus indicator, 
 
 #### Scenario: Busy
 - **WHEN** an action button enters the busy state
-- **THEN** a spinner icon renders before the label, the label stays visible so the control's width does not change, the button rejects activation while keeping keyboard focus, and its busy state is announced to assistive technology
+- **THEN** a spinner icon renders before the label, the label stays visible so the control's width does not change, the button rejects activation while keeping keyboard focus, shows no hover change, and its busy state is announced to assistive technology
+
+#### Scenario: Busy does not submit forms
+- **WHEN** a busy action button is the submit button of a form and the user activates it
+- **THEN** the form is not submitted
 
 #### Scenario: Busy under reduced motion
 - **WHEN** the user prefers reduced motion and an action button is busy
@@ -86,7 +90,7 @@ Links SHALL address internal routes only and SHALL always render underlined. Nav
 - **THEN** its text is underlined and its colors come from the link tokens of the active theme
 
 #### Scenario: External destination refused
-- **WHEN** code supplies a link destination outside the application, such as an absolute URL
+- **WHEN** code supplies a link destination outside the application, such as an absolute URL or a protocol-relative URL
 - **THEN** it is rejected at compile time (destinations accept in-application routes only) and no runtime check is involved
 
 ### Requirement: Link states and back variant
@@ -103,6 +107,10 @@ Links SHALL show rest, hover and keyboard focus states, and SHALL offer a back v
 #### Scenario: Back variant
 - **WHEN** a link renders with the back variant
 - **THEN** a leading arrow icon at 16px precedes its text with an 8px gap
+
+#### Scenario: Default variant stays inline
+- **WHEN** a link renders in the default variant
+- **THEN** it stays an inline text run so its text wraps with the surrounding text
 
 ### Requirement: Theme-driven corner radii
 Corner radii SHALL come from the radius token family — `radius-pill` for action buttons and pill shapes, `radius-container` for containers, `radius-field` for fields and menus, `radius-check` for checkboxes — and every radius token SHALL have a value in both themes.
