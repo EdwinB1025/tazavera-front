@@ -99,6 +99,7 @@ export function RadioGroup({
   variant = "default",
 }: RadioGroupProps): ReactNode {
   const groupId = useId();
+  const legendId = useId();
   const helpId = useId();
   const errorId = useId();
   const generatedName = useId();
@@ -108,7 +109,10 @@ export function RadioGroup({
   // empty string is not a message: `help=""` and `error=""` render nothing and
   // wire nothing. `value` / `defaultValue` / `onChange` stay at group level
   // (design.md D7): no React state mirrors the choice, the dots follow the
-  // inputs' real state through CSS.
+  // inputs' real state through CSS. Review round 1: the fieldset is the named
+  // group itself for assistive technology (`role="radiogroup"` with
+  // `aria-labelledby` on the legend) and keeps `aria-describedby` and
+  // `aria-invalid`, which a plain group does not expose.
   const hasHelp = help != null && help !== "";
   const hasError = error != null && error !== "";
   const describedBy = [
@@ -121,11 +125,15 @@ export function RadioGroup({
   return (
     <fieldset
       id={groupId}
+      role="radiogroup"
+      aria-labelledby={legendId}
       aria-describedby={describedBy || undefined}
       aria-invalid={hasError ? "true" : undefined}
       className={variant === "inverse" ? "variant-inverse" : undefined}
     >
-      <legend className="type-label">{legend}</legend>
+      <legend id={legendId} className="type-label">
+        {legend}
+      </legend>
       {options.map((option) => {
         return (
           <label key={option.value} className={OPTION_LABEL_CLASSES}>
