@@ -19,4 +19,10 @@ export { Textarea } from "./Textarea";
 export type { TextareaProps } from "./Textarea";
 export { Checkbox } from "./Checkbox";
 export type { CheckboxProps, CheckboxVariant } from "./Checkbox";
+export { RadioGroup } from "./RadioGroup";
+export type {
+  RadioGroupProps,
+  RadioGroupVariant,
+  RadioOption,
+} from "./RadioGroup";
 export { Loader2, ArrowLeft, type LucideIcon } from "./icons";

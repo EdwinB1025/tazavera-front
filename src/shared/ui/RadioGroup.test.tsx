@@ -21,11 +21,11 @@ afterEach(() => {
  * own field: every test here renders it with NO Field around it.
  */
 
-const OPTIONS: RadioOption[] = [
+const OPTIONS = [
   { value: "whole", label: "Whole bean" },
   { value: "filter", label: "Filter" },
   { value: "espresso", label: "Espresso" },
-];
+] satisfies RadioOption[];
 
 const CIRCLE_TOKENS = [
   "size-4",
