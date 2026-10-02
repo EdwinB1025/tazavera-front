@@ -27,7 +27,7 @@ See proposal.md for motivation. Current state that shapes the approach:
 
 ### D1 — Field binds to its control through a thin context
 
-Field generates the ids with `useId` (control id, help id, error id) and provides them through a context together with the invalid state, the required state and the field's variant. Field wraps only Input, Select and Textarea; those three read the context **as defaults** — an explicit prop always wins over the context value — and a control rendered outside a Field gets no context and works on its own (no injected attributes; the consuming capability supplies its accessible name, `aria-label`, which the control passes through). Field and every interactive control are client components (`"use client"`).
+Field generates the ids with `useId` (control id, help id, error id) and provides them through a context together with the invalid state, the required state and the field's variant. Field wraps only Input, PasswordInput, Select and Textarea; those four read the context **as defaults** — an explicit prop always wins over the context value — and a control rendered outside a Field gets no context and works on its own (no injected attributes; the consuming capability supplies its accessible name, `aria-label`, which the control passes through). Field and every interactive control are client components (`"use client"`).
 
 The context value (UI-specific type, declared before the components):
 
@@ -51,7 +51,7 @@ Exact attributes Input, Select and Textarea receive from the context (normative 
 | `aria-invalid` | `"true"` when `invalid`, omitted otherwise | same element as `id` |
 | `required` | `required` boolean when `required` | same element as `id` |
 
-The variant follows the same default rule: Input and Select take their `variant` from the field's context value, and an explicit `variant` prop wins.
+The variant follows the same default rule: Input, PasswordInput and Select take their `variant` from the field's context value, and an explicit `variant` prop wins.
 
 Alternatives considered: `cloneElement` injection (implicit, untypeable, breaks when the child forwards props elsewhere); Field rendering the control itself (loses composition — the password input and the select options would need Field to know them all); render props (explicit but noisy at every call site). The context keeps Field and the controls independently testable.
 
@@ -97,7 +97,7 @@ Design rule 7 (`readOnly` prop) applies to controls that have both an interactiv
 
 ### D4 — Variants
 
-Controls with a dark-surface rendering take `variant: "default" | "inverse"` (neutral values, design rule 2), defaulting to `default`; `inverse` renders the `variant-inverse` scope utility of D2. Field takes `variant` and renders `variant-inverse` on its own root, so its label, help text and error message resolve to the inverse tokens (product-owner decision, artifact review); the field context carries the variant and Input and Select default to it (D1). Checkbox and Radio group take their `variant` as an explicit prop only (D1.1). Textarea renders the default variant only and takes no `variant` prop.
+Controls with a dark-surface rendering take `variant: "default" | "inverse"` (neutral values, design rule 2), defaulting to `default`; `inverse` renders the `variant-inverse` scope utility of D2. Field takes `variant` and renders `variant-inverse` on its own root, so its label, help text and error message resolve to the inverse tokens (product-owner decision, artifact review); the field context carries the variant and Input, PasswordInput and Select default to it (D1). Checkbox and Radio group take their `variant` as an explicit prop only (D1.1). Textarea renders the default variant only and takes no `variant` prop.
 
 ### D5 — New semantic tokens
 
@@ -132,7 +132,8 @@ Created:
 |---|---|
 | `src/shared/ui/field-context.ts` | `FieldContextValue` type and the context (UI-specific types, declared before the components) |
 | `src/shared/ui/Field.tsx`, `Field.test.tsx` | Field and its tests |
-| `src/shared/ui/Input.tsx`, `Input.test.tsx` | text input incl. password reveal |
+| `src/shared/ui/Input.tsx`, `Input.test.tsx` | single-line text input, native `type` passthrough (no visibility toggle) |
+| `src/shared/ui/PasswordInput.tsx`, `PasswordInput.test.tsx` | password input with its visibility toggle (the password cases of `Input.test.tsx` move here) |
 | `src/shared/ui/Select.tsx`, `Select.test.tsx` | select |
 | `src/shared/ui/Textarea.tsx`, `Textarea.test.tsx` | textarea |
 | `src/shared/ui/Checkbox.tsx`, `Checkbox.test.tsx` | checkbox |
@@ -155,7 +156,7 @@ The `color-guard`, `radius-guard` and `client-boundary` tests cover the new file
 - **`checked-mark` utility names**: the token renders through `text-checked-mark` (check mark) and `bg-checked-mark` (radio dot), following the `--color-{name}` → `{property}-{name}` convention. The mark and the dot are always rendered and follow the input's real state through CSS — the input carries `peer`, the mark or dot `invisible`, `peer-checked:visible` and `peer-disabled:opacity-50` (review round 1, applied as an unplanned fix in `36fe83a`; the hidden base is `invisible`, not opacity, so the disabled fade never fights the checked show). The mark is visible exactly when checked; the spec is unchanged.
 - **24×24px hit area**: the clickable label of a checkbox or radio option carries `flex min-h-6 min-w-6 items-center gap-2`, so the hit area reaches at least 24 by 24 pixels with the project's 8px icon–label gap.
 - **Select chevron**: the select renders with `appearance-none` inside a `relative` wrapper with a positioned `ChevronDown` (`size-4`, `text-text-secondary`, `pointer-events-none`); the open option list stays native and unstyled.
-- **Password visibility toggle**: a `type="button"` control in the input's `relative` wrapper with `Eye` / `EyeOff` at `size-4 text-text-secondary`. The component writes no copy (review round 1): Input takes `showPasswordLabel` and `hidePasswordLabel`, both required when `type="password"` through a discriminated union on the literal `type` prop, and the toggle's accessible name is `showPasswordLabel` while masked and `hidePasswordLabel` while revealed. It is interactive and carries `focus-visible:focus-ring` — the focus guard only checks that the class appears somewhere in the file, so the component tests assert it on the toggle itself.
+- **Password visibility toggle**: PasswordInput is the password input (review round 2: a discriminated union on the literal `type` prop cannot keep the labels required — `type` comes from `InputHTMLAttributes` and admits the literal `"password"` through `(string & {})`, so the `@ts-expect-error` case is unused, TS2578). It takes no `type` prop: its value is masked by default and readable while revealed. It takes `showPasswordLabel` and `hidePasswordLabel` as plain required props and writes no copy (review round 1): the toggle's accessible name is `showPasswordLabel` while masked and `hidePasswordLabel` while revealed. The treatment is unchanged: a `type="button"` control in the input's `relative` wrapper with `Eye` / `EyeOff` at `size-4 text-text-secondary`, disabled with the input, and interactive with `focus-visible:focus-ring` — the focus guard only checks that the class appears somewhere in the file, so the component tests assert it on the toggle itself. Input stays a single-line text input with native `type` passthrough, no visibility toggle and no toggle labels.
 - **Error boundary**: every control swaps its border color class to `border-feedback-error` when its field is invalid (resolving to `border-feedback-error-inverse` inside `variant-inverse`).
 
 ### D10 — Spacing (review round 1, product-owner decision)

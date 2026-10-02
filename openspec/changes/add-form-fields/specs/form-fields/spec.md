@@ -2,12 +2,12 @@
 
 ## Purpose
 
-Defines Tazavera's data-entry controls: how a field presents a label, help text and error message and binds them to its control, and how text input (with password reveal), select, textarea, checkbox and radio group accept values in both themes, including on dark surfaces.
+Defines Tazavera's data-entry controls: how a field presents a label, help text and error message and binds them to its control, and how text input, password input, select, textarea, checkbox and radio group accept values in both themes, including on dark surfaces.
 
 ## ADDED Requirements
 
 ### Requirement: Field structure and association
-A field SHALL present its label above the control, an optional help text and an optional error message below the control, and SHALL bind the label, the help text and the error message to its control so assistive technology reads them together with the control's state. A field SHALL hold a text input, select or textarea; a checkbox and a radio group carry their own label, help text and error message and are never placed in a field. The texts are supplied by the consuming capability.
+A field SHALL present its label above the control, an optional help text and an optional error message below the control, and SHALL bind the label, the help text and the error message to its control so assistive technology reads them together with the control's state. A field SHALL hold a text input, password input, select or textarea; a checkbox and a radio group carry their own label, help text and error message and are never placed in a field. The texts are supplied by the consuming capability.
 
 #### Scenario: Presentation
 - **WHEN** a field renders with a label, a control and help text
@@ -30,11 +30,11 @@ A field SHALL present its label above the control, an optional help text and an 
 - **THEN** the control is associated with both messages
 
 #### Scenario: Control without a field
-- **WHEN** a text input, select or textarea renders without a field around it
+- **WHEN** a text input, password input, select or textarea renders without a field around it
 - **THEN** it accepts input and shows its own states with no label, help text or error message associated, and the accessible name supplied by the consuming capability identifies it
 
 ### Requirement: Text input
-A text input SHALL accept single-line text, show its placeholder in italics while it has no value, and offer a password mode in which the value stays masked until the user activates a visibility toggle.
+A text input SHALL accept single-line text and show its placeholder in italics while it has no value.
 
 #### Scenario: Typing
 - **WHEN** the user types into an enabled text input
@@ -43,6 +43,9 @@ A text input SHALL accept single-line text, show its placeholder in italics whil
 #### Scenario: Placeholder
 - **WHEN** a text input renders without a value
 - **THEN** its placeholder renders in italics in the placeholder treatment of the active surface
+
+### Requirement: Password input
+A password input SHALL accept single-line secret text, keeping its value masked until the user activates its visibility toggle, which SHALL be named for what activating it does with the text the consuming capability supplies.
 
 #### Scenario: Password masked
 - **WHEN** a password input renders

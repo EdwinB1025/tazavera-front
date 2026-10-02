@@ -82,3 +82,10 @@ checked. Artifact fix only, no new task.
 3. Artifacts updated: design.md D9 (toggle labels `showPasswordLabel` / `hidePasswordLabel` required on `type="password"`, no copy in the component) and specs/form-fields/spec.md ("Visibility toggle is named" scenario now states the consumer-supplied name). Tasks created: 9.5 (tests, naming the task 3.1 assertions to replace), 9.6 (implementation).
 4. Artifact fix: tasks.md 6.2 and 7.2 reference the D1.1 own-field contract. No tasks.
 5. Unplanned fix (already applied by the build in commit `36fe83a`); artifact fix: design.md D9 and tasks 6.1 / 7.1 aligned to the always-rendered, CSS-driven mark and dot. Spec unchanged. No tasks.
+
+### Status
+
+- Date: 2026-10-03
+- `openspec validate add-form-fields --strict` → `Change 'add-form-fields' is valid`
+
+1. Correction 1 (round 2; supersedes round 1 correction 3 and task 9.6). Artifacts updated: design.md D1 (Field wraps Input, PasswordInput, Select and Textarea; the variant default rule names PasswordInput), D4 (PasswordInput defaults its variant to the field's — product-owner decision: it keeps Input's rule, an explicit `variant` prop winning), D8 (the `PasswordInput.tsx` / `PasswordInput.test.tsx` row; the Input row retitled to a single-line text input with native `type` passthrough) and D9 (the toggle lives in PasswordInput, whose `showPasswordLabel` / `hidePasswordLabel` are plain required props; Input keeps native `type` passthrough with no toggle and no labels); specs/form-fields/spec.md ("Text input" drops the password mode, the new "Password input" requirement carries the scenarios Password masked, Reveal and mask and Visibility toggle is named, and the Purpose, the Field requirement and the "Control without a field" scenario name the password input). Tasks created: 10.1 (tests), 10.2 (implementation). Task 9.6 is closed at its stop-and-report branch and superseded.
