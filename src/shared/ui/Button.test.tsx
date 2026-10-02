@@ -209,6 +209,25 @@ describe("Button", () => {
     });
   });
 
+  describe("busy semantics cannot be overridden by callers (correction 2)", () => {
+    // `{...rest}` must be spread BEFORE the component's own props, so a
+    // caller-supplied `aria-busy` or `aria-disabled` passed through rest
+    // cannot clear the busy semantics. While `loading` the button keeps
+    // `aria-busy="true"` and `aria-disabled="true"` regardless of what the
+    // caller passes. This test fails while `{...rest}` is spread after the
+    // component's own props.
+    it("keeps aria-busy and aria-disabled true while loading even if a caller passes false", () => {
+      render(
+        <Button loading aria-busy={false} aria-disabled={false}>
+          Save
+        </Button>,
+      );
+      const btn = screen.getByRole("button", { name: "Save" });
+      expect(btn.getAttribute("aria-busy")).toBe("true");
+      expect(btn.getAttribute("aria-disabled")).toBe("true");
+    });
+  });
+
   describe("native button attribute passthrough", () => {
     it("defaults type to button so forms never get accidental submits", () => {
       render(<Button>Save</Button>);
