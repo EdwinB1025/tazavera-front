@@ -39,8 +39,8 @@ export function Field({
   const helpId = useId();
   const errorId = useId();
 
-  const hasHelp = help != null;
-  const hasError = error != null;
+  const hasHelp = help != null && help !== "";
+  const hasError = error != null && error !== "";
 
   return (
     <FieldContext.Provider

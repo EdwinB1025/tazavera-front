@@ -43,15 +43,40 @@ describe("Checkbox", () => {
       }
     });
 
-    it("renders the check mark with text-checked-mark when checked and absent when unchecked", () => {
+    it("renders the check mark always, shown through peer-checked and following the input's real state (Unplanned fix)", () => {
       const { container } = render(
-        <Checkbox label="Accept terms" defaultChecked={false} />,
+        <form>
+          <Checkbox label="Accept terms" />
+        </form>,
       );
-      expect(container.querySelector("svg")).toBeNull();
-
-      fireEvent.click(screen.getByRole("checkbox", { name: "Accept terms" }));
+      const input = screen.getByRole("checkbox") as HTMLInputElement;
       const mark = container.querySelector("svg")!;
+      // SVG elements expose className as SVGAnimatedString: read the attribute.
       expect(mark.getAttribute("class")).toContain("text-checked-mark");
+      expect(mark.getAttribute("class")).toContain("invisible");
+      expect(mark.getAttribute("class")).toContain("peer-checked:visible");
+      expect(input.className).toContain("peer");
+
+      // The mark follows the input's real state through CSS, not React state:
+      // after form.reset() the choice is gone and the same class contract
+      // hides the mark.
+      fireEvent.click(input);
+      expect(input.checked).toBe(true);
+      (container.querySelector("form") as HTMLFormElement).reset();
+      expect(input.checked).toBe(false);
+      expect(mark.getAttribute("class")).toContain("invisible");
+      expect(mark.getAttribute("class")).toContain("peer-checked:visible");
+    });
+
+    it("fades the mark when checked and disabled (peer-disabled:opacity-50) (Unplanned fix)", () => {
+      const { container } = render(
+        <Checkbox label="Accept terms" defaultChecked disabled />,
+      );
+      const input = screen.getByRole("checkbox") as HTMLInputElement;
+      expect(input.checked).toBe(true);
+      expect(container.querySelector("svg")!.getAttribute("class")).toContain(
+        "peer-disabled:opacity-50",
+      );
     });
 
     it("swaps the border to the error treatment when invalid (design.md D9)", () => {
@@ -114,6 +139,16 @@ describe("Checkbox", () => {
     it("marks the input required when required", () => {
       render(<Checkbox label="Accept terms" required />);
       expect(screen.getByRole("checkbox").hasAttribute("required")).toBe(true);
+    });
+
+    it('treats an empty string as no message (Unplanned fix)', () => {
+      const { container } = render(
+        <Checkbox label="Accept terms" help="" error="" />,
+      );
+      expect(container.querySelector("p")).toBeNull();
+      const input = screen.getByRole("checkbox");
+      expect(input.hasAttribute("aria-describedby")).toBe(false);
+      expect(input.hasAttribute("aria-invalid")).toBe(false);
     });
   });
 

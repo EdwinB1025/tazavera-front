@@ -1,3 +1,5 @@
+"use client";
+
 import { createContext } from "react";
 
 // ─── UI-specific types (declared before the components) ───

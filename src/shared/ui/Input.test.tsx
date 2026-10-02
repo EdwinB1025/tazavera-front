@@ -152,6 +152,19 @@ describe("Input", () => {
       render(<Input aria-label="Name" />);
       expect(screen.queryByRole("button")).toBeNull();
     });
+
+    it("disables the visibility toggle whenever the input is disabled (Unplanned fix)", () => {
+      render(<Input aria-label="Password" type="password" disabled />);
+      const toggle = screen.getByRole("button", { name: /show/i });
+      expect(toggle.hasAttribute("disabled")).toBe(true);
+    });
+
+    it("carries variant-inverse on the relative wrapper so the toggle resolves inverse tokens without a Field (Unplanned fix)", () => {
+      render(<Input aria-label="Password" type="password" variant="inverse" />);
+      const wrapper = screen.getByLabelText("Password").parentElement!;
+      expect(wrapper.className).toContain("relative");
+      expect(wrapper.className).toContain("variant-inverse");
+    });
   });
 
   describe("field attribute contract (design.md D1)", () => {

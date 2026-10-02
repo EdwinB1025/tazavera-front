@@ -258,4 +258,18 @@ describe("Field", () => {
       );
     });
   });
+
+  describe("empty-string messages (Unplanned fix: form-fields spec)", () => {
+    it('renders no message and wires nothing for help="" and error=""', () => {
+      const { container } = render(
+        <Field label="E-mail" help="" error="">
+          <Probe />
+        </Field>,
+      );
+      expect(container.querySelector("p")).toBeNull();
+      const input = container.querySelector("input")!;
+      expect(input.hasAttribute("aria-describedby")).toBe(false);
+      expect(input.hasAttribute("aria-invalid")).toBe(false);
+    });
+  });
 });

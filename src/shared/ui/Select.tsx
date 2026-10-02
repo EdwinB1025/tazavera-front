@@ -58,6 +58,7 @@ const CHEVRON_CLASSES = [
   "size-4",
   "-translate-y-1/2",
   "text-text-secondary",
+  "peer-disabled:opacity-50",
 ].join(" ");
 
 /**
@@ -91,8 +92,15 @@ export function Select({
   const required = requiredProp ?? (field?.required ? true : undefined);
   const invalid = ariaInvalid === true || ariaInvalid === "true";
 
+  // The wrapper carries variant-inverse with the control, so the chevron and
+  // its fades resolve to the inverse tokens even without a Field. The select
+  // is the chevron's `peer`, so the chevron fades with it when disabled.
   return (
-    <div className="relative">
+    <div
+      className={
+        variant === "inverse" ? "relative variant-inverse" : "relative"
+      }
+    >
       <select
         {...rest}
         id={id}
@@ -100,6 +108,7 @@ export function Select({
         aria-invalid={ariaInvalid}
         required={required}
         className={[
+          "peer",
           BOX_CLASSES,
           invalid ? "border-feedback-error" : "border-border-strong",
           variant === "inverse" ? INVERSE_CLASSES : "",

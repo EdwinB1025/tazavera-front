@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 
 // ─── UI-specific types (declared before the component) ───
 // No generated API type is used here: the options and every text are supplied
@@ -31,12 +31,17 @@ export type RadioGroupProps = {
 // ─── Treatment classes ───
 // The native control is replaced by a custom circle (`appearance-none`, size,
 // fill and the intrinsic rounded-full circle of design.md D6); the dot carries
-// the selected state so it never rests on the fill color alone (D9). The
-// border swaps to the error treatment when the error message is shown (D9).
-// The clickable option label keeps the hit area at least 24 by 24 pixels
-// (D9: flex min-h-6 min-w-6 items-center gap-2).
+// the selected state so it never rests on the fill color alone (D9). The dot
+// is always rendered and follows the input's REAL state through CSS (`peer`
+// on the input): hidden by default, shown with `peer-checked:`, faded with
+// `peer-disabled:opacity-50`. The hidden base is `invisible` (not opacity) so
+// the disabled fade never fights the checked show.
+// The border swaps to the error treatment when the error message is shown
+// (D9). The clickable option label keeps the hit area at least 24 by 24
+// pixels (D9: flex min-h-6 min-w-6 items-center gap-2).
 
 const CIRCLE_CLASSES = [
+  "peer",
   "size-4",
   "appearance-none",
   "rounded-full",
@@ -65,6 +70,9 @@ const DOT_CLASSES = [
   "-translate-x-1/2",
   "-translate-y-1/2",
   "bg-checked-mark",
+  "invisible",
+  "peer-checked:visible",
+  "peer-disabled:opacity-50",
 ].join(" ");
 
 /**
@@ -90,23 +98,25 @@ export function RadioGroup({
   disabled,
   variant = "default",
 }: RadioGroupProps): ReactNode {
-  const [selfValue, setSelfValue] = useState(defaultValue);
   const groupId = useId();
   const helpId = useId();
   const errorId = useId();
   const generatedName = useId();
   const name = nameProp ?? generatedName;
 
-  // D1.1: the attribute contract renders from the control's own props.
-  const hasHelp = help != null;
-  const hasError = error != null;
+  // D1.1: the attribute contract renders from the control's own props. An
+  // empty string is not a message: `help=""` and `error=""` render nothing and
+  // wire nothing. `value` / `defaultValue` / `onChange` stay at group level
+  // (design.md D7): no React state mirrors the choice, the dots follow the
+  // inputs' real state through CSS.
+  const hasHelp = help != null && help !== "";
+  const hasError = error != null && error !== "";
   const describedBy = [
     hasHelp ? helpId : undefined,
     hasError ? errorId : undefined,
   ]
     .filter(Boolean)
     .join(" ");
-  const current = value ?? selfValue;
 
   return (
     <fieldset
@@ -117,7 +127,6 @@ export function RadioGroup({
     >
       <legend className="type-label">{legend}</legend>
       {options.map((option) => {
-        const selected = option.value === current;
         return (
           <label key={option.value} className={OPTION_LABEL_CLASSES}>
             <span className="relative inline-flex">
@@ -125,14 +134,13 @@ export function RadioGroup({
                 type="radio"
                 name={name}
                 value={option.value}
-                checked={value !== undefined ? selected : undefined}
+                checked={
+                  value !== undefined ? option.value === value : undefined
+                }
                 defaultChecked={
                   value === undefined ? option.value === defaultValue : undefined
                 }
-                onChange={() => {
-                  setSelfValue(option.value);
-                  onChange?.(option.value);
-                }}
+                onChange={() => onChange?.(option.value)}
                 required={required}
                 disabled={disabled}
                 className={[
@@ -140,7 +148,7 @@ export function RadioGroup({
                   hasError ? "border-feedback-error" : "border-border-strong",
                 ].join(" ")}
               />
-              {selected && <span className={DOT_CLASSES} />}
+              <span className={DOT_CLASSES} />
             </span>
             <span className="type-label">{option.label}</span>
           </label>

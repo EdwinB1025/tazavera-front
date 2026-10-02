@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useId,
-  useState,
-  type InputHTMLAttributes,
-  type ReactNode,
-} from "react";
+import { useId, type InputHTMLAttributes, type ReactNode } from "react";
 import { Check } from "@/shared/ui/icons";
 
 // ─── UI-specific types (declared before the component) ───
@@ -30,11 +25,16 @@ export type CheckboxProps = Omit<
 // The native control is replaced by a custom box (`appearance-none`, size,
 // radius and fill from the semantic tokens); the check mark carries the
 // checked state so it never rests on the fill color alone (design.md D9).
+// The mark is always rendered and follows the input's REAL state through CSS
+// (`peer` on the input): hidden by default, shown with `peer-checked:`,
+// faded with `peer-disabled:opacity-50`. The hidden base is `invisible` (not
+// opacity) so the disabled fade never fights the checked show.
 // The border swaps to the error treatment when the error message is shown
 // (D9). The clickable label keeps the hit area at least 24 by 24 pixels
 // (D9: flex min-h-6 min-w-6 items-center gap-2).
 
 const BOX_CLASSES = [
+  "peer",
   "size-4",
   "appearance-none",
   "rounded-check",
@@ -62,6 +62,9 @@ const MARK_CLASSES = [
   "-translate-x-1/2",
   "-translate-y-1/2",
   "text-checked-mark",
+  "invisible",
+  "peer-checked:visible",
+  "peer-disabled:opacity-50",
 ].join(" ");
 
 /**
@@ -81,22 +84,22 @@ export function Checkbox({
   id: idProp,
   "aria-describedby": describedByProp,
   "aria-invalid": ariaInvalidProp,
-  checked,
-  defaultChecked = false,
-  onChange,
   className,
   ...rest
 }: CheckboxProps): ReactNode {
-  const [selfChecked, setSelfChecked] = useState(defaultChecked);
   const checkboxId = useId();
   const helpId = useId();
   const errorId = useId();
 
   // D1.1: the attribute contract renders from the control's own props; an
-  // explicit prop wins over the generated or derived value.
+  // explicit prop wins over the generated or derived value. An empty string
+  // is not a message: `help=""` and `error=""` render nothing and wire
+  // nothing. `checked`, `defaultChecked` and `onChange` pass through natively
+  // (design.md D7): no React state mirrors the choice, the mark follows the
+  // input's real state through CSS.
   const id = idProp ?? checkboxId;
-  const hasHelp = help != null;
-  const hasError = error != null;
+  const hasHelp = help != null && help !== "";
+  const hasError = error != null && error !== "";
   const describedBy =
     describedByProp ??
     ([hasHelp ? helpId : undefined, hasError ? errorId : undefined]
@@ -104,7 +107,6 @@ export function Checkbox({
       .join(" ") || undefined);
   const ariaInvalid = ariaInvalidProp ?? (hasError ? "true" : undefined);
   const invalid = ariaInvalid === true || ariaInvalid === "true";
-  const isChecked = checked ?? selfChecked;
 
   return (
     <div className={variant === "inverse" ? "variant-inverse" : undefined}>
@@ -114,12 +116,6 @@ export function Checkbox({
             {...rest}
             id={id}
             type="checkbox"
-            checked={checked}
-            defaultChecked={checked === undefined ? defaultChecked : undefined}
-            onChange={(event) => {
-              setSelfChecked(event.target.checked);
-              onChange?.(event);
-            }}
             aria-describedby={describedBy}
             aria-invalid={ariaInvalid}
             className={[
@@ -130,7 +126,7 @@ export function Checkbox({
               .filter(Boolean)
               .join(" ")}
           />
-          {isChecked && <Check className={MARK_CLASSES} />}
+          <Check className={MARK_CLASSES} />
         </span>
         <span className="type-label">{label}</span>
       </label>

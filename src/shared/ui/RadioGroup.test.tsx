@@ -78,14 +78,49 @@ describe("RadioGroup", () => {
       }
     });
 
-    it("renders the dot with bg-checked-mark when the option is selected and absent otherwise", () => {
+    it("renders a dot per option always, shown through peer-checked and following the input's real state (Unplanned fix)", () => {
       const { container } = render(
-        <RadioGroup legend="Grind" options={OPTIONS} defaultValue="filter" />,
+        <form>
+          <RadioGroup legend="Grind" options={OPTIONS} />
+        </form>,
       );
       const dots = container.querySelectorAll(".bg-checked-mark");
-      expect(dots).toHaveLength(1);
-      expect(dots[0]!.className).toContain("size-2");
-      expect(dots[0]!.className).toContain("rounded-full");
+      expect(dots).toHaveLength(3);
+      for (const dot of dots) {
+        expect(dot.className).toContain("size-2");
+        expect(dot.className).toContain("rounded-full");
+        expect(dot.className).toContain("invisible");
+        expect(dot.className).toContain("peer-checked:visible");
+      }
+      const inputs = container.querySelectorAll("input[type=radio]");
+      for (const input of inputs) {
+        expect(input.className).toContain("peer");
+      }
+
+      // The dot follows the input's real state through CSS, not React state:
+      // after form.reset() the choice is gone and the same class contract
+      // hides the dot.
+      const chosen = inputs[1] as HTMLInputElement;
+      fireEvent.click(screen.getByText("Filter"));
+      expect(chosen.checked).toBe(true);
+      (container.querySelector("form") as HTMLFormElement).reset();
+      expect(chosen.checked).toBe(false);
+    });
+
+    it("fades the dot when the group is disabled (peer-disabled:opacity-50) (Unplanned fix)", () => {
+      const { container } = render(
+        <RadioGroup
+          legend="Grind"
+          options={OPTIONS}
+          defaultValue="whole"
+          disabled
+        />,
+      );
+      const disabledInput = container.querySelectorAll("input[type=radio]")[0]!;
+      expect(disabledInput.hasAttribute("disabled")).toBe(true);
+      for (const dot of container.querySelectorAll(".bg-checked-mark")) {
+        expect(dot.className).toContain("peer-disabled:opacity-50");
+      }
     });
 
     it("swaps the circle border to the error treatment when invalid (spec: Error state, design.md D9)", () => {
@@ -196,6 +231,16 @@ describe("RadioGroup", () => {
       for (const input of container.querySelectorAll("input[type=radio]")) {
         expect(input.hasAttribute("required")).toBe(true);
       }
+    });
+
+    it('treats an empty string as no message (Unplanned fix)', () => {
+      const { container } = render(
+        <RadioGroup legend="Grind" options={OPTIONS} help="" error="" />,
+      );
+      expect(container.querySelector("p")).toBeNull();
+      const fieldset = container.querySelector("fieldset")!;
+      expect(fieldset.hasAttribute("aria-describedby")).toBe(false);
+      expect(fieldset.hasAttribute("aria-invalid")).toBe(false);
     });
   });
 

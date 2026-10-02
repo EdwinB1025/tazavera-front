@@ -73,6 +73,7 @@ export function Input({
   "aria-describedby": describedByProp,
   "aria-invalid": ariaInvalidProp,
   required: requiredProp,
+  disabled,
   className,
   ...rest
 }: InputProps): ReactNode {
@@ -99,6 +100,7 @@ export function Input({
       aria-describedby={describedBy}
       aria-invalid={ariaInvalid}
       required={required}
+      disabled={disabled}
       className={[
         BOX_CLASSES,
         invalid ? "border-feedback-error" : "border-border-strong",
@@ -115,13 +117,22 @@ export function Input({
 
   // Password mode (D9): the visibility toggle sits in the input's relative
   // wrapper, names its current action and carries the shared focus indicator.
+  // The wrapper carries variant-inverse with the control, so the toggle icon
+  // and its focus ring resolve to the inverse tokens even without a Field.
+  // The toggle is disabled whenever the input is: out of the tab order and
+  // rejecting activation with it.
   return (
-    <div className="relative">
+    <div
+      className={
+        variant === "inverse" ? "relative variant-inverse" : "relative"
+      }
+    >
       {input}
       <button
         type="button"
         onClick={() => setRevealed((was) => !was)}
         aria-label={revealed ? "Hide password" : "Show password"}
+        disabled={disabled}
         className={TOGGLE_CLASSES}
       >
         {revealed ? (

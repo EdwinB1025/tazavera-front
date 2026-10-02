@@ -64,6 +64,31 @@ describe("Select", () => {
       expect(svg.parentElement!.className).toContain("relative");
     });
 
+    it("carries variant-inverse on the relative wrapper so the chevron resolves inverse tokens without a Field (Unplanned fix)", () => {
+      render(
+        <Select aria-label="Size" variant="inverse">
+          <option value="m">Medium</option>
+        </Select>,
+      );
+      const wrapper = screen.getByRole("combobox", { name: "Size" })
+        .parentElement!;
+      expect(wrapper.className).toContain("relative");
+      expect(wrapper.className).toContain("variant-inverse");
+    });
+
+    it("fades the chevron with the select when disabled (Unplanned fix)", () => {
+      const { container } = render(
+        <Select aria-label="Size" disabled>
+          <option value="m">Medium</option>
+        </Select>,
+      );
+      const select = screen.getByRole("combobox", { name: "Size" });
+      expect(select.className).toContain("peer");
+      expect(container.querySelector("svg")!.getAttribute("class")).toContain(
+        "peer-disabled:opacity-50",
+      );
+    });
+
     it("renders consumer-supplied option children unstyled (spec: Native option list)", () => {
       render(
         <Select aria-label="Size">
