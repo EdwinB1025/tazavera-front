@@ -54,6 +54,32 @@ describe("Link", () => {
     });
   });
 
+  describe("default variant stays inline (correction 6)", () => {
+    // The default link is a plain inline text run so its text wraps with the
+    // surrounding text. inline-flex/items-center/gap-2 belong to the back
+    // variant only. This fails while the layout classes are applied to every
+    // variant.
+    it("does not carry inline-flex, items-center or gap-2", () => {
+      render(<Link href="/offerings">All offerings</Link>);
+      const link = screen.getByRole("link", { name: "All offerings" });
+      expect(link.className).not.toContain("inline-flex");
+      expect(link.className).not.toContain("items-center");
+      expect(link.className).not.toContain("gap-2");
+    });
+
+    it("back variant does carry inline-flex, items-center and gap-2", () => {
+      render(
+        <Link href="/offerings" variant="back">
+          Back to offerings
+        </Link>,
+      );
+      const link = screen.getByRole("link", { name: "Back to offerings" });
+      expect(link.className).toContain("inline-flex");
+      expect(link.className).toContain("items-center");
+      expect(link.className).toContain("gap-2");
+    });
+  });
+
   describe("hover and focus-visible state classes", () => {
     it("switches color to the link hover token on hover", () => {
       render(<Link href="/offerings">All offerings</Link>);
