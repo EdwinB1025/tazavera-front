@@ -201,6 +201,14 @@
     --color-badge-provisional-text: var(--color-sage-800);
     --color-badge-verified-bg: var(--color-moss-200);
     --color-badge-verified-text: var(--color-moss-700);
+
+    /* ─── FORM FIELDS (checked state and inverse variant) ─── */
+    --color-checked-mark: var(--color-petrol-900);
+    --color-focus-ring-inverse: var(--color-cream-100);
+    --color-focus-offset-inverse: var(--color-sage-800);
+    --color-border-inverse: var(--color-sage-400);
+    --color-text-placeholder-inverse: var(--color-petrol-300);
+    --color-feedback-error-inverse: var(--color-oxblood-300);
 }
 
 /* =========================================================
@@ -401,6 +409,14 @@
         --color-badge-provisional-text: var(--color-night-sage-100);
         --color-badge-verified-bg: var(--color-night-moss-850);
         --color-badge-verified-text: var(--color-night-moss-300);
+
+        /* ─── FORM FIELDS (checked state and inverse variant) ─── */
+        --color-checked-mark: var(--color-night-petrol-950);
+        --color-focus-ring-inverse: var(--color-night-sage-100);
+        --color-focus-offset-inverse: var(--color-night-petrol-950);
+        --color-border-inverse: var(--color-night-petrol-600);
+        --color-text-placeholder-inverse: var(--color-night-petrol-400);
+        --color-feedback-error-inverse: var(--color-night-oxblood-500);
 
         /* ─── RADIUS ─── */
         --radius-pill: 0;
