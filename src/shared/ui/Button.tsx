@@ -154,6 +154,7 @@ export function Button({
 
   return (
     <button
+      {...rest}
       type={type}
       disabled={disabled}
       onClick={handleClick}
@@ -162,7 +163,6 @@ export function Button({
       className={[BASE_CLASSES, VARIANT_TREATMENTS[variant], geometry, className]
         .filter(Boolean)
         .join(" ")}
-      {...rest}
     >
       {showLeading && (
         <LeadingIcon
