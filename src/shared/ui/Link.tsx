@@ -49,8 +49,10 @@ const BACK_CLASSES = [
  * state (CSS `underline`, not a hover effect); colors come from the link tokens
  * and switch to the hover value on hover (D7). The `back` variant renders a
  * leading `ArrowLeft` icon at 16px with an 8px gap before the text. External
- * destinations are impossible: `href` is typed `/${string}`, so an absolute URL
- * is a compile error with no runtime branch.
+ * destinations are impossible: `href` is a conditional type over the
+ * `/${string}` route template that resolves to `never` for a `//`-prefixed
+ * value, so an absolute URL and a protocol-relative URL are both compile
+ * errors with no runtime branch.
  */
 export function Link<H extends `/${string}` = `/${string}`>({
   href,

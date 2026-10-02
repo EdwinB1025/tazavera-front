@@ -1,3 +1,5 @@
+"use client";
+
 import type { ButtonHTMLAttributes, MouseEventHandler, ReactNode } from "react";
 import { Loader2 } from "@/shared/ui/icons";
 import type { LucideIcon } from "@/shared/ui/icons";
