@@ -58,7 +58,9 @@ describe("Link", () => {
     it("switches color to the link hover token on hover", () => {
       render(<Link href="/offerings">All offerings</Link>);
       const link = screen.getByRole("link");
-      expect(link.className).toContain("hover:text-link-hover");
+      // Correction 5: the generated utility is hover:text-text-link-hover
+      // (from --color-text-link-hover), not hover:text-link-hover.
+      expect(link.className).toContain("hover:text-text-link-hover");
     });
 
     it("includes focus-visible ring classes from the focus tokens (D6)", () => {

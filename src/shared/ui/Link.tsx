@@ -19,8 +19,12 @@ const BASE_CLASSES = [
   "items-center",
   "gap-2",
   "underline",
-  "text-link",
-  "hover:text-link-hover",
+  // Correction 5 (review round 1): the link color tokens are
+  // --color-text-link and --color-text-link-hover, which generate the
+  // utilities text-text-link and hover:text-text-link-hover. The unprefixed
+  // text-link generates no CSS.
+  "text-text-link",
+  "hover:text-text-link-hover",
   "focus-visible:outline-none",
   "focus-visible:ring-2",
   "focus-visible:ring-focus-ring",
