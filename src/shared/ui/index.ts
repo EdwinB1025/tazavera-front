@@ -13,6 +13,11 @@ export { Field } from "./Field";
 export type { FieldProps } from "./Field";
 export { Input } from "./Input";
 export type { InputProps, InputVariant } from "./Input";
+export { PasswordInput } from "./PasswordInput";
+export type {
+  PasswordInputProps,
+  PasswordInputVariant,
+} from "./PasswordInput";
 export { Select } from "./Select";
 export type { SelectProps, SelectVariant } from "./Select";
 export { Textarea } from "./Textarea";

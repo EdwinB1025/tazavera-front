@@ -90,6 +90,7 @@ describe("focus-indicator guard", () => {
       "Button.tsx",
       "Link.tsx",
       "Input.tsx",
+      "PasswordInput.tsx",
       "Select.tsx",
       "Textarea.tsx",
       "Checkbox.tsx",

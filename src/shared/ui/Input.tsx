@@ -1,7 +1,6 @@
 "use client";
 
-import { useContext, useState, type InputHTMLAttributes, type ReactNode } from "react";
-import { Eye, EyeOff } from "@/shared/ui/icons";
+import { useContext, type InputHTMLAttributes, type ReactNode } from "react";
 import { FieldContext } from "@/shared/ui/field-context";
 
 // ─── UI-specific types (declared before the component) ───
@@ -45,30 +44,19 @@ const INVERSE_CLASSES = [
   "hover:border-nav-text-dark",
 ].join(" ");
 
-const TOGGLE_CLASSES = [
-  "absolute",
-  "inset-y-0",
-  "right-0",
-  "flex",
-  "w-10",
-  "items-center",
-  "justify-center",
-  "focus-visible:focus-ring",
-].join(" ");
-
 /**
  * Tazavera text input.
  *
  * Box, states and contract per the `form-fields` spec ("Text input", "Data-
  * entry control states", "Control without a field") and design.md (D1 field
- * contract, D2 inverse, D7 modes, D9 password reveal). The field context
- * values are defaults; an explicit prop always wins. Outside a Field the
- * input receives none of the field attributes and relies on the accessible
- * name its consuming capability supplies.
+ * contract, D2 inverse, D7 modes, D8 native `type` passthrough). The field
+ * context values are defaults; an explicit prop always wins. Outside a Field
+ * the input receives none of the field attributes and relies on the accessible
+ * name its consuming capability supplies. The password mode and its visibility
+ * toggle live in PasswordInput (design.md D9).
  */
 export function Input({
   variant: variantProp,
-  type = "text",
   id: idProp,
   "aria-describedby": describedByProp,
   "aria-invalid": ariaInvalidProp,
@@ -78,7 +66,6 @@ export function Input({
   ...rest
 }: InputProps): ReactNode {
   const field = useContext(FieldContext);
-  const [revealed, setRevealed] = useState(false);
 
   // D1: context values are defaults, an explicit prop always wins.
   const variant = variantProp ?? field?.variant ?? "default";
@@ -90,13 +77,10 @@ export function Input({
   const required = requiredProp ?? (field?.required ? true : undefined);
   const invalid = ariaInvalid === true || ariaInvalid === "true";
 
-  const isPassword = type === "password";
-
-  const input = (
+  return (
     <input
       {...rest}
       id={id}
-      type={isPassword && revealed ? "text" : type}
       aria-describedby={describedBy}
       aria-invalid={ariaInvalid}
       required={required}
@@ -104,43 +88,11 @@ export function Input({
       className={[
         BOX_CLASSES,
         invalid ? "border-feedback-error" : "border-border-strong",
-        isPassword ? "pr-10" : "",
         variant === "inverse" ? INVERSE_CLASSES : "",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     />
-  );
-
-  if (!isPassword) return input;
-
-  // Password mode (D9): the visibility toggle sits in the input's relative
-  // wrapper, names its current action and carries the shared focus indicator.
-  // The wrapper carries variant-inverse with the control, so the toggle icon
-  // and its focus ring resolve to the inverse tokens even without a Field.
-  // The toggle is disabled whenever the input is: out of the tab order and
-  // rejecting activation with it.
-  return (
-    <div
-      className={
-        variant === "inverse" ? "relative variant-inverse" : "relative"
-      }
-    >
-      {input}
-      <button
-        type="button"
-        onClick={() => setRevealed((was) => !was)}
-        aria-label={revealed ? "Hide password" : "Show password"}
-        disabled={disabled}
-        className={TOGGLE_CLASSES}
-      >
-        {revealed ? (
-          <EyeOff className="size-4 text-text-secondary" />
-        ) : (
-          <Eye className="size-4 text-text-secondary" />
-        )}
-      </button>
-    </div>
   );
 }
