@@ -192,6 +192,23 @@ describe("Button", () => {
     });
   });
 
+  describe("busy does not submit forms (spec: Busy does not submit forms)", () => {
+    // Correction 1 (review round 1): returning early from onClick does not
+    // cancel the native default action. While busy a submit button must not
+    // submit its form, so the click handler calls preventDefault() before
+    // returning. This test fails until the handler cancels the default action.
+    it("a busy submit button does not submit its form", () => {
+      const onSubmit = vi.fn();
+      render(
+        <form onSubmit={onSubmit}>
+          <Button type="submit" loading>Save</Button>
+        </form>,
+      );
+      fireEvent.click(screen.getByRole("button", { name: "Save" }));
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
+  });
+
   describe("native button attribute passthrough", () => {
     it("defaults type to button so forms never get accidental submits", () => {
       render(<Button>Save</Button>);
