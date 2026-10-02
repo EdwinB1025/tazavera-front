@@ -15,4 +15,6 @@ export { Input } from "./Input";
 export type { InputProps, InputVariant } from "./Input";
 export { Select } from "./Select";
 export type { SelectProps, SelectVariant } from "./Select";
+export { Textarea } from "./Textarea";
+export type { TextareaProps } from "./Textarea";
 export { Loader2, ArrowLeft, type LucideIcon } from "./icons";
