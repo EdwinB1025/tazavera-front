@@ -75,4 +75,45 @@ permissions:
   - action: shell
     resource: "openspec archive*"
     effect: deny
+  # OpenSpec CLI: read-only commands only (validate, archive and authoring are the architect's)
+  - action: shell
+    resource: "openspec *"
+    effect: deny
+  - action: shell
+    resource: "openspec status*"
+    effect: allow
+  - action: shell
+    resource: "openspec instructions*"
+    effect: allow
+  - action: shell
+    resource: "openspec list*"
+    effect: allow
+  - action: shell
+    resource: "openspec show*"
+    effect: allow
+  # Cannot load the architect's workflows
+  - action: skill
+    resource: "opsx-propose*"
+    effect: deny
+  - action: skill
+    resource: "opsx-explore*"
+    effect: deny
+  - action: skill
+    resource: "opsx-verify*"
+    effect: deny
+  - action: skill
+    resource: "opsx-archive*"
+    effect: deny
+  - action: skill
+    resource: "openspec-propose*"
+    effect: deny
+  - action: skill
+    resource: "openspec-explore*"
+    effect: deny
+  - action: skill
+    resource: "openspec-verify*"
+    effect: deny
+  - action: skill
+    resource: "openspec-archive*"
+    effect: deny
 ---

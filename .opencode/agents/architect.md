@@ -6,16 +6,20 @@ permissions:
   - action: edit
     resource: "*"
     effect: deny
-  # Todo dentro de estas rutas
+  # Edición permitida: solo el cambio y los dos archivos de diseño que escribe
   - action: edit
-    resource: "*openspec*changes*"
+    resource: "*openspec/changes/*"
     effect: allow
   - action: edit
-    resource: "*openspec*specs*"
+    resource: "*docs/design/*/design-summary.md"
     effect: allow
   - action: edit
-    resource: "*docs*design*"
+    resource: "*docs/design/*/corrections.md"
     effect: allow
+  # Excepción: los cambios archivados solo cambian con openspec archive
+  - action: edit
+    resource: "*openspec/changes/archive/*"
+    effect: deny
   # Deny más específico SIEMPRE al final (la última coincidencia gana)
   - action: edit
     resource: "*openspec*config.yaml*"
@@ -26,6 +30,13 @@ permissions:
   - action: shell
     resource: "openspec *"
     effect: allow
+  # Never implements: cannot load the apply workflow
+  - action: skill
+    resource: "opsx-apply*"
+    effect: deny
+  - action: skill
+    resource: "openspec-apply*"
+    effect: deny
   - action: shell
     resource: "ls *"
     effect: allow
@@ -42,12 +53,24 @@ permissions:
   - action: shell
     resource: "git branch --show-current"
     effect: allow
+  - action: shell
+    resource: "git add openspec/specs*"
+    effect: allow
   # Git: stage and commit only its own change folder
   - action: shell
     resource: "git add openspec/changes/*"
     effect: allow
   - action: shell
     resource: "git commit *"
+    effect: allow
+  - action: shell
+    resource: "openspec archive*"
+    effect: ask
+  - action: shell
+    resource: "git add docs/design/*/design-summary.md"
+    effect: allow
+  - action: shell
+    resource: "git add docs/design/*/corrections.md"
     effect: allow
   # Git: hard limits
   - action: shell
@@ -76,8 +99,5 @@ permissions:
     effect: deny
   - action: shell
     resource: "git switch*"
-    effect: deny
-  - action: shell
-    resource: "openspec archive*"
     effect: deny
 ---

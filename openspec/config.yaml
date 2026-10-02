@@ -19,7 +19,8 @@ context: |
   - theming: color system (primitive and semantic tokens) and application themes
     (traditional default and dark), with WCAG AA text contrast and 3:1 for UI
     boundaries and focus indicators.
-  - form-controls: data-entry controls (button, link, field, input, select, textarea, checkbox, radio, bean scale, intensity slider)
+  - base-controls: action controls (button, link), radius tokens and icon entry point
+  - form-fields: data-entry controls (field, input, select, textarea, checkbox, radio, bean scale, intensity slider)
   - filtering: facet controls and filtering behaviour (search, combobox, range, options, taxonomy cascade, applied-filter chips)
   - feedback: status and messaging components (badge, callout, toast, modal, empty state)
   - content-structure: content containers (card, collapsible, tabs, label/value row, pagination)
