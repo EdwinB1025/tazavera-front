@@ -10,6 +10,7 @@ import {
   Select,
   Textarea,
   Checkbox,
+  RadioGroup,
 } from "@/shared/ui";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
@@ -76,5 +77,15 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
   it("renders the checkbox exported from the segment", () => {
     render(<Checkbox label="Accept terms" />);
     expect(screen.getByRole("checkbox", { name: "Accept terms" })).toBeDefined();
+  });
+
+  it("renders the radio group exported from the segment", () => {
+    render(
+      <RadioGroup
+        legend="Grind"
+        options={[{ value: "whole", label: "Whole bean" }]}
+      />,
+    );
+    expect(screen.getByRole("radio", { name: "Whole bean" })).toBeDefined();
   });
 });
