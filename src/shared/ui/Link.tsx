@@ -4,12 +4,16 @@ import { ArrowLeft } from "@/shared/ui/icons";
 import type { LucideIcon } from "@/shared/ui/icons";
 
 // ─── UI-specific types (declared before the component) ───
-// `href` is typed `/${string}` so an absolute URL is a compile error with no
-// runtime branch (spec: "External destination refused"). No generated API type
-// is used here.
+// `href` accepts only in-application routes. A plain `/${string}` template
+// would accept a protocol-relative URL (`//example.com`) because it starts
+// with `/`, so the conditional type rejects `//${string}` as well: an
+// absolute URL and a protocol-relative URL are both compile errors with no
+// runtime branch (spec: "External destination refused"). No generated API
+// type is used here.
 
-export type LinkProps = {
-  href: `/${string}`; // in-application route — an absolute URL is a compile error
+export type LinkProps<H extends `/${string}` = `/${string}`> = {
+  // Reject protocol-relative URLs (and anything else is in-application).
+  href: H extends `//${string}` ? never : H;
   variant?: "default" | "back"; // default "default"
   children: ReactNode;
 };
@@ -48,7 +52,11 @@ const BACK_CLASSES = [
  * destinations are impossible: `href` is typed `/${string}`, so an absolute URL
  * is a compile error with no runtime branch.
  */
-export function Link({ href, variant = "default", children }: LinkProps): ReactNode {
+export function Link<H extends `/${string}` = `/${string}`>({
+  href,
+  variant = "default",
+  children,
+}: LinkProps<H>): ReactNode {
   const LeadingIcon: LucideIcon | undefined =
     variant === "back" ? ArrowLeft : undefined;
 
