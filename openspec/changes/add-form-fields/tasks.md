@@ -42,4 +42,4 @@
 
 ## 8. Integration verification
 
-- [ ] 8.1 Verify the complete change with `npm run test:run`, `npm run lint` and `npx tsc --noEmit`, verifying all three commands exit 0 and every guard (color, radius, focus, client-boundary, icons) is green over the new files
+- [x] 8.1 Verify the complete change with `npm run test:run`, `npm run lint` and `npx tsc --noEmit`, verifying all three commands exit 0 and every guard (color, radius, focus, client-boundary, icons) is green over the new files
