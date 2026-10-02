@@ -101,11 +101,7 @@ const BASE_CLASSES = [
   "justify-center",
   "gap-2",
   "rounded-pill",
-  "focus-visible:outline-none",
-  "focus-visible:ring-2",
-  "focus-visible:ring-focus-ring",
-  "focus-visible:ring-offset-2",
-  "focus-visible:ring-offset-focus-offset",
+  "focus-visible:focus-ring",
   // disabled (D5): native disabled + opacity + cursor, exempt from contrast
   "disabled:opacity-50",
   "disabled:cursor-not-allowed",

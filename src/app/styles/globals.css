@@ -622,3 +622,19 @@
     font-size: var(--text-sm);
     line-height: var(--leading-normal);
 }
+
+/* =========================================================
+   TAZAVERA — SHARED FOCUS INDICATOR (@utility focus-ring)
+   One indicator for every interactive control (design.md D1): the
+   native outline suppressed, a 2px ring in --color-focus-ring and a
+   2px offset gap in --color-focus-offset. The ring layer spreads 4px —
+   the 2px gap plus the 2px ring width — matching the five-class set
+   the controls carried before, pixel for pixel. Colors resolve through
+   the focus tokens, so theme reassignment keeps working. Controls apply
+   it as focus-visible:focus-ring (D3) and define no focus of their own.
+   ========================================================= */
+
+@utility focus-ring {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-focus-offset), 0 0 0 4px var(--color-focus-ring);
+}

@@ -92,8 +92,7 @@ describe("Link", () => {
     it("includes focus-visible ring classes from the focus tokens (D6)", () => {
       render(<Link href="/offerings">All offerings</Link>);
       const link = screen.getByRole("link");
-      expect(link.className).toContain("focus-visible:ring-focus-ring");
-      expect(link.className).toContain("focus-visible:ring-offset-focus-offset");
+      expect(link.className).toContain("focus-visible:focus-ring");
     });
   });
 
