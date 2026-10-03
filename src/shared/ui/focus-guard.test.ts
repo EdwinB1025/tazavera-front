@@ -86,7 +86,16 @@ describe("focus-indicator guard", () => {
   });
 
   it("the migrated controls carry focus-visible:focus-ring", () => {
-    for (const name of ["Button.tsx", "Link.tsx"]) {
+    for (const name of [
+      "Button.tsx",
+      "Link.tsx",
+      "Input.tsx",
+      "PasswordInput.tsx",
+      "Select.tsx",
+      "Textarea.tsx",
+      "Checkbox.tsx",
+      "RadioGroup.tsx",
+    ]) {
       const content = readFileSync(pathResolve(uiDir, name), "utf-8");
       expect(
         extractClassTokens(content).includes(SHARED_FOCUS_CLASS),

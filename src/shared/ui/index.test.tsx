@@ -1,6 +1,18 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
-import { Button, Link, Loader2, ArrowLeft } from "@/shared/ui";
+import {
+  Button,
+  Link,
+  Loader2,
+  ArrowLeft,
+  Field,
+  Input,
+  PasswordInput,
+  Select,
+  Textarea,
+  Checkbox,
+  RadioGroup,
+} from "@/shared/ui";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
@@ -30,5 +42,62 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
   it("re-exports the icon module", () => {
     expect(Loader2).toBeDefined();
     expect(ArrowLeft).toBeDefined();
+  });
+
+  it("renders the field control exported from the segment", () => {
+    render(
+      <Field label="E-mail" error="Enter a valid e-mail">
+        <input aria-label="E-mail address" />
+      </Field>,
+    );
+    expect(
+      screen.getByRole("textbox", { name: "E-mail address" }),
+    ).toBeDefined();
+    expect(screen.getByText("Enter a valid e-mail")).toBeDefined();
+  });
+
+  it("renders the text input exported from the segment", () => {
+    render(<Input aria-label="Name" />);
+    expect(screen.getByRole("textbox", { name: "Name" })).toBeDefined();
+  });
+
+  it("renders the password input exported from the segment", () => {
+    render(
+      <PasswordInput
+        aria-label="Password"
+        showPasswordLabel="Reveal the secret"
+        hidePasswordLabel="Mask the secret"
+      />,
+    );
+    expect(screen.getByLabelText("Password")).toBeDefined();
+  });
+
+  it("renders the select exported from the segment", () => {
+    render(
+      <Select aria-label="Size">
+        <option value="m">Medium</option>
+      </Select>,
+    );
+    expect(screen.getByRole("combobox", { name: "Size" })).toBeDefined();
+  });
+
+  it("renders the textarea exported from the segment", () => {
+    render(<Textarea aria-label="Notes" />);
+    expect(screen.getByRole("textbox", { name: "Notes" })).toBeDefined();
+  });
+
+  it("renders the checkbox exported from the segment", () => {
+    render(<Checkbox label="Accept terms" />);
+    expect(screen.getByRole("checkbox", { name: "Accept terms" })).toBeDefined();
+  });
+
+  it("renders the radio group exported from the segment", () => {
+    render(
+      <RadioGroup
+        legend="Grind"
+        options={[{ value: "whole", label: "Whole bean" }]}
+      />,
+    );
+    expect(screen.getByRole("radio", { name: "Whole bean" })).toBeDefined();
   });
 });

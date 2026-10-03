@@ -357,6 +357,22 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "nav-button-border", bg: "nav-header", kind: "bound", exempt: true },
   { fg: "nav-button-border-hover", bg: "nav-button-bg-hover", kind: "bound", exempt: true },
   { fg: "nav-button-border-hover", bg: "nav-header", kind: "bound", exempt: true },
+
+  // ── Form-field boxes (form-fields design.md D5) ──
+  // Input/select box on the input surface. Pairs the traditional matrix does
+  // not already assert (text-placeholder / surface-input and
+  // border-muted / surface-textarea are asserted above).
+  { fg: "border-strong", bg: "surface-input", kind: "bound" },
+  { fg: "feedback-error", bg: "surface-input", kind: "text" },
+  { fg: "text-secondary", bg: "surface-input", kind: "text" },
+
+  // ── Checked and inverse states (form-fields design.md D5) ──
+  { fg: "checked-mark", bg: "surface-checked", kind: "icon" },
+  { fg: "focus-ring-inverse", bg: "nav-surface-dark", kind: "bound" },
+  { fg: "border-inverse", bg: "nav-surface-dark", kind: "bound" },
+  { fg: "text-placeholder-inverse", bg: "nav-surface-dark", kind: "text" },
+  { fg: "feedback-error-inverse", bg: "nav-surface-dark", kind: "text" },
+  { fg: "surface-checked", bg: "nav-surface-dark", kind: "bound" },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -471,6 +487,14 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "nav-button-border", bg: "nav-header", kind: "bound" },
   { fg: "nav-button-border-hover", bg: "nav-button-bg-hover", kind: "bound" },
   { fg: "nav-button-border-hover", bg: "nav-header", kind: "bound" },
+
+  // ── Checked and inverse states (form-fields design.md D5) ──
+  { fg: "checked-mark", bg: "surface-checked", kind: "icon" },
+  { fg: "focus-ring-inverse", bg: "nav-surface-dark", kind: "bound" },
+  { fg: "border-inverse", bg: "nav-surface-dark", kind: "bound" },
+  { fg: "text-placeholder-inverse", bg: "nav-surface-dark", kind: "text" },
+  { fg: "feedback-error-inverse", bg: "nav-surface-dark", kind: "text" },
+  { fg: "surface-checked", bg: "nav-surface-dark", kind: "bound" },
 ];
 
 describe("Dark theme contrast matrix", () => {
@@ -891,6 +915,54 @@ describe("Shared focus indicator: @utility focus-ring (design.md D4)", () => {
   it("focus-ring renders exactly the five-class effect", () => {
     expect(getProperty(block, "box-shadow")).toBe(
       "0 0 0 2px var(--color-focus-offset), 0 0 0 4px var(--color-focus-ring)",
+    );
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Inverse variant scope utility (form-fields design.md D2)
+// One scope utility reassigns the tokens the inverse variant swaps, so every
+// control keeps one class set across both variants and the inverse surface
+// resolves through the same semantic names. The block is normative: exactly
+// the eight reassignments of design.md D2, nothing else. Until the utility
+// exists (task 1.5), these checks fail.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** Extract every @utility variant-inverse block from globals.css. */
+function extractVariantInverseUtilities(css: string): string[] {
+  const blocks: string[] = [];
+  const regex = /@utility\s+variant-inverse\s*\{/g;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(css)) !== null) {
+    blocks.push(extractBlock(css, match.index + match[0].length - 1));
+  }
+  return blocks;
+}
+
+/** The exact reassignment block of form-fields design.md D2. */
+const VARIANT_INVERSE_REASSIGNMENTS: Record<string, string> = {
+  "--color-text-label": "var(--color-nav-text-dark)",
+  "--color-text-secondary": "var(--color-nav-text-dark)",
+  "--color-text-strong": "var(--color-nav-text-dark)",
+  "--color-text-placeholder": "var(--color-text-placeholder-inverse)",
+  "--color-border-strong": "var(--color-border-inverse)",
+  "--color-feedback-error": "var(--color-feedback-error-inverse)",
+  "--color-focus-ring": "var(--color-focus-ring-inverse)",
+  "--color-focus-offset": "var(--color-focus-offset-inverse)",
+};
+
+describe("Inverse variant scope utility: @utility variant-inverse (form-fields design.md D2)", () => {
+  const css = readGlobals();
+  const blocks = extractVariantInverseUtilities(css);
+  const block = blocks[0] ?? "";
+
+  it("@utility variant-inverse is defined exactly once", () => {
+    expect(blocks).toHaveLength(1);
+  });
+
+  it("reassigns exactly the eight tokens of design.md D2", () => {
+    expect(Object.fromEntries(extractProperties(block))).toEqual(
+      VARIANT_INVERSE_REASSIGNMENTS,
     );
   });
 });

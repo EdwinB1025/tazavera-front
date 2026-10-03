@@ -5422,7 +5422,7 @@ paths:
     post:
       summary: 'Log out'
       operationId: logOut
-      description: "Revokes all of the authenticated user's access tokens and their refresh\ntokens, ending the session.\n\n**Authorization:** requires the `profile:read` or `profile:write` scope."
+      description: "Revokes all of the authenticated user's access tokens and their refresh\ntokens, and ends every web session of the user on the server (the ones\nopened by the OAuth login): their rows are deleted from the sessions\ntable and the remember token is regenerated, so a later authorization\nasks for the login again.\n\n**Authorization:** requires the `profile:read` or `profile:write` scope."
       parameters: []
       responses:
         200:
@@ -5505,8 +5505,12 @@ paths:
                   example: augusto@example.com
                 password:
                   type: string
-                  description: 'Password. Must meet the default strength rules and be confirmed via password_confirmation.'
+                  description: 'Password. Must meet the default strength rules and be confirmed via passwordConfirmation. The value and <code>passwordConfirmation</code> must match.'
                   example: Str0ngP@ss!
+                passwordConfirmation:
+                  type: string
+                  description: 'Confirmation of the new password. Must match the password field. Note: camelCase, not the Laravel-default password_confirmation.'
+                  example: NewStr0ng!
                 role:
                   type: string
                   description: 'Optional. Role to assign at registration. One of: coffeeshop, specialist, user.'
@@ -5520,6 +5524,7 @@ paths:
                 - surname
                 - email
                 - password
+                - passwordConfirmation
       security: []
   /user:
     get:

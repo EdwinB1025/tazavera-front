@@ -201,6 +201,14 @@
     --color-badge-provisional-text: var(--color-sage-800);
     --color-badge-verified-bg: var(--color-moss-200);
     --color-badge-verified-text: var(--color-moss-700);
+
+    /* ─── FORM FIELDS (checked state and inverse variant) ─── */
+    --color-checked-mark: var(--color-petrol-900);
+    --color-focus-ring-inverse: var(--color-cream-100);
+    --color-focus-offset-inverse: var(--color-sage-800);
+    --color-border-inverse: var(--color-sage-400);
+    --color-text-placeholder-inverse: var(--color-petrol-300);
+    --color-feedback-error-inverse: var(--color-oxblood-300);
 }
 
 /* =========================================================
@@ -401,6 +409,14 @@
         --color-badge-provisional-text: var(--color-night-sage-100);
         --color-badge-verified-bg: var(--color-night-moss-850);
         --color-badge-verified-text: var(--color-night-moss-300);
+
+        /* ─── FORM FIELDS (checked state and inverse variant) ─── */
+        --color-checked-mark: var(--color-night-petrol-950);
+        --color-focus-ring-inverse: var(--color-night-sage-100);
+        --color-focus-offset-inverse: var(--color-night-petrol-950);
+        --color-border-inverse: var(--color-night-petrol-600);
+        --color-text-placeholder-inverse: var(--color-night-petrol-400);
+        --color-feedback-error-inverse: var(--color-night-oxblood-500);
 
         /* ─── RADIUS ─── */
         --radius-pill: 0;
@@ -637,4 +653,26 @@
 @utility focus-ring {
     outline: none;
     box-shadow: 0 0 0 2px var(--color-focus-offset), 0 0 0 4px var(--color-focus-ring);
+}
+
+/* =========================================================
+   TAZAVERA — INVERSE VARIANT SCOPE (@utility variant-inverse)
+   One scope utility carries the whole inverse variant (form-fields
+   design.md D2): it reassigns the tokens the dark-surface controls
+   swap, so every control keeps one class set across both variants and
+   the inverse surface resolves through the same semantic names. The
+   two inverse treatments that are not a variable swap — the input and
+   select background (bg-transparent) and their hover border
+   (hover:border-nav-text-dark) — stay explicit classes on the control.
+   ========================================================= */
+
+@utility variant-inverse {
+    --color-text-label: var(--color-nav-text-dark);
+    --color-text-secondary: var(--color-nav-text-dark);
+    --color-text-strong: var(--color-nav-text-dark);
+    --color-text-placeholder: var(--color-text-placeholder-inverse);
+    --color-border-strong: var(--color-border-inverse);
+    --color-feedback-error: var(--color-feedback-error-inverse);
+    --color-focus-ring: var(--color-focus-ring-inverse);
+    --color-focus-offset: var(--color-focus-offset-inverse);
 }

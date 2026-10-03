@@ -101,3 +101,30 @@ Note: `feedback-error-inverse` traditional is exactly at the 4.5:1 minimum; any 
 ## 6. Responsive
 
 None of these controls needs responsive behaviour. `type-control` already switches size at `md` (16px on mobile to avoid browser zoom on focus).
+
+## Propose status
+
+- Change-id: `add-form-fields`
+- Date: 2026-10-02 (artifact review applied the same day)
+- Validation: `openspec validate add-form-fields --strict` → `Change 'add-form-fields' is valid` (4/4 artifacts complete: proposal, specs, design, tasks). Re-validated after the artifact review: `Change 'add-form-fields' is valid`.
+
+Resolved (product-owner decisions in the explore review after this summary was written):
+
+- **Field ↔ control contract:** option 2, a thin context (design.md D1). Field generates the ids with `useId` and provides `controlId`, `helpId`, `errorId`, `invalid` and `required`; each control reads them as defaults with explicit props winning, and works standalone without Field. Field and every interactive control are client components. The exact attribute table is normative in design.md so the tests can assert it.
+- **Inverse focus:** option (a), local reassignment (design.md D2). The inverse variant reassigns `--color-focus-ring` and `--color-focus-offset` to the inverse pair in its own scope and keeps `focus-visible:focus-ring`; `focus-guard.test.ts` is unchanged. "Focus tokens of the active theme" in the `theming` spec covers the whole focus family, inverse pair included — no `theming` delta; the `form-fields` spec states that inverse controls use the inverse focus tokens. The mechanism is generalized to one `variant-inverse` scope utility carrying the whole inverse token reassignment (D2 table) — a decision taken during propose, accepted by Augusto in the artifact review below.
+- **readOnly:** not in scope (design.md D3). Design rule 7 applies to components with an interactive and a static version (bean scale, slider). Input and Textarea pass the native `readOnly` attribute through; Select, Checkbox and Radio group expose none.
+- **Delegated details settled in design.md (D9):** `checked-mark` renders as `text-checked-mark` (mark) and `bg-checked-mark` (radio dot); the 24×24px hit area is `flex min-h-6 min-w-6 items-center gap-2` on the clickable label; the select chevron is `appearance-none` plus a positioned `ChevronDown`; the password toggle is a `type="button"` control with `Eye`/`EyeOff` at `size-4 text-text-secondary` and a show/hide accessible name; the error boundary swaps to `border-feedback-error`.
+- **Shape of the change:** kept as one change; tasks are vertical slices, one component per slice with its own tests, Field first (the controls depend on its context), so the build can stop cleanly between slices.
+
+Artifact review (2026-10-02, before apply) — product-owner decisions applied to the artifacts:
+
+1. **Checkbox and Radio group are their own field.** Each renders its own label (Checkbox: label to the right; Radio group: the `fieldset` legend) and accepts help text and an error message directly (`type-meta` / `type-error`), with its own ids, `aria-describedby` (help first, then error), `aria-invalid` and `required`. They are never placed inside Field, which wraps only Input, Select and Textarea. Spec Field requirement, design D1/D1.1 and tasks 6.1/7.1 updated.
+2. **Standalone controls get their accessible name from the consumer.** A control used without Field takes the consumer-supplied `aria-label` and passes it through. Spec scenario "Control without a field" and tasks 3.1, 4.1 and 5.1 updated.
+3. **Textarea-on-dark-surfaces clause removed** from the spec requirement and its scenario: it describes consumers, cannot be tested, and is already in Out of Scope.
+4. **The `variant-inverse` generalisation** is accepted as a decision taken during propose (recorded under Resolved above).
+5. **Inverse variant on Field.** Field takes `variant` and renders `variant-inverse` on its root, so label, help and error resolve to the inverse tokens. The field context carries the variant; Input and Select use it as their default and an explicit prop wins, as for the D1 attributes. Design D1/D4 and tasks 2.1, 3.1 and 4.1 updated.
+6. **Password toggle focus.** The toggle is interactive and carries `focus-visible:focus-ring`; task 3.1 asserts it on the toggle itself (the focus guard only checks the class exists in the file).
+7. **Behaviour instead of undefined classes.** `appearance-none` (checkbox and radio inputs) and `size-2` (radio dot) are removed from tasks 6.1/7.1: the tasks state the behaviour — a custom box/circle replaces the native control; the dot appears when selected, in `bg-checked-mark` — and the build chooses those classes. Classes design.md defines stay exact.
+8. **Task 1.2 lists `checked-mark` / `surface-checked` once**, in the both-theme list.
+
+Remains open: nothing. No `docs/backlog.md` entry affects this change.

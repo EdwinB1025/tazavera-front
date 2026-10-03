@@ -297,7 +297,10 @@ export interface paths {
         /**
          * Log out
          * @description Revokes all of the authenticated user's access tokens and their refresh
-         *     tokens, ending the session.
+         *     tokens, and ends every web session of the user on the server (the ones
+         *     opened by the OAuth login): their rows are deleted from the sessions
+         *     table and the remember token is regenerated, so a later authorization
+         *     asks for the login again.
          *
          *     **Authorization:** requires the `profile:read` or `profile:write` scope.
          */
@@ -4224,10 +4227,15 @@ export interface operations {
                      */
                     email: string;
                     /**
-                     * @description Password. Must meet the default strength rules and be confirmed via password_confirmation.
+                     * @description Password. Must meet the default strength rules and be confirmed via passwordConfirmation. The value and <code>passwordConfirmation</code> must match.
                      * @example Str0ngP@ss!
                      */
                     password: string;
+                    /**
+                     * @description Confirmation of the new password. Must match the password field. Note: camelCase, not the Laravel-default password_confirmation.
+                     * @example NewStr0ng!
+                     */
+                    passwordConfirmation: string;
                     /**
                      * @description Optional. Role to assign at registration. One of: coffeeshop, specialist, user.
                      * @example coffeeshop
