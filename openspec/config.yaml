@@ -28,7 +28,7 @@ context: |
   - app-shell: app layout (signed-in and signed-out header, avatar menu, management sidebar, main area, logo, language selector), next-intl setup and message structure, and front-wide security rules (no dangerouslySetInnerHTML, Content-Security-Policy)
   - auth: OAuth Authorization Code + PKCE flow against the API (callback, in-memory tokens, refresh, silent re-authentication with prompt=none, sign out, profile:write step-up), session state and API client
   - landing: public entry page with verified offerings and the About us page
-  - user-account: registration (specialist and coffeeshop) and profile settings (view, edit, password, deactivate, delete, theme)
+  - user-account: registration (specialist and coffeeshop) and profile settings (view, edit, password, deactivate, delete)
 rules:
   proposal:
     - Reuse an existing capability before creating a new one.
