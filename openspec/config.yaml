@@ -17,15 +17,18 @@ context: |
   is not an artifact edit.
 
   Existing capabilities:
-  - theming: color system (primitive and semantic tokens) and application themes
+  - theming: color system (primitive and semantic tokens, including logo tokens) and application themes
     (traditional default and dark), with WCAG AA text contrast and 3:1 for UI
     boundaries and focus indicators.
   - base-controls: action controls (button, link), radius tokens and icon entry point
-  - form-fields: data-entry controls (field, input, select, textarea, checkbox, radio, bean scale, intensity slider)
+  - form-fields: data-entry controls (field, input, password input, select, textarea, checkbox, radio, bean scale, intensity slider)
   - filtering: facet controls and filtering behaviour (search, combobox, range, options, taxonomy cascade, applied-filter chips)
   - feedback: status and messaging components (badge, callout, toast, modal, empty state)
   - content-structure: content containers (card, collapsible, tabs, label/value row, pagination)
-  - app-shell: app layout (header, sidebar, main area, mobile filter panel, registration layout, logo)
+  - app-shell: app layout (signed-in and signed-out header, avatar menu, management sidebar, main area, mobile filter panel, logo, language selector), next-intl setup and message structure, and front-wide security rules (no dangerouslySetInnerHTML, Content-Security-Policy)
+  - auth: OAuth Authorization Code + PKCE flow against the API (callback, in-memory tokens, refresh, silent re-authentication with prompt=none, sign out, profile:write step-up)
+  - landing: public entry page with verified offerings and the About us page
+  - user-account: registration (specialist and coffeeshop) and profile settings (view, edit, password, deactivate, delete, theme)
 
 rules:
   proposal:
