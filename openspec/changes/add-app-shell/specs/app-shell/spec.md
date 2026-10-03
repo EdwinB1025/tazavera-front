@@ -17,6 +17,10 @@ Every application route SHALL live under a locale prefix, for the supported loca
 - **WHEN** the user opens the root URL
 - **THEN** the application redirects to the default locale
 
+#### Scenario: Root of a supported locale
+- **WHEN** the user opens the root of a supported locale
+- **THEN** the shell renders with an empty main area instead of reporting the page as not found
+
 #### Scenario: Unsupported locale
 - **WHEN** the user opens a URL whose locale prefix is not supported
 - **THEN** the application reports that the page was not found instead of rendering a screen in an unknown locale
@@ -151,7 +155,11 @@ The brand logotype SHALL render in three forms: the drawing alone, the drawing w
 
 #### Scenario: Browser icon
 - **WHEN** the browser shows the application's icon
-- **THEN** it shows the same drawing as the logotype
+- **THEN** it shows the same drawing as the logotype, in the traditional colors when the operating system uses a light appearance and in the dark colors when it uses a dark one
+
+#### Scenario: Icon appearance follows the operating system
+- **WHEN** the theme chosen in the application differs from the operating-system appearance
+- **THEN** the icon still follows the operating-system appearance, and a browser with no support for a dark icon shows the traditional colors
 
 ### Requirement: Management sidebar
 The management sidebar SHALL appear only for an authenticated user on a management route. On medium and larger viewports it SHALL be collapsible, and on small viewports it SHALL open as a full-screen overlay. This capability defines the region and its presentation; the navigation entries come from the capability that owns the management area in view.
@@ -184,8 +192,8 @@ Every interface text SHALL render from the message catalog of the active locale,
 - **THEN** every interface text of the screen renders from the new locale's catalog and none keeps the previous locale's wording
 
 #### Scenario: Literal interface text detected
-- **WHEN** verification finds an interface text written literally in the code that renders it
-- **THEN** verification fails naming the file and the text
+- **WHEN** verification finds an interface text written literally in the code that renders the interface
+- **THEN** verification fails naming the file and the text, and accepts only the brand wordmark inside the brand logotype
 
 #### Scenario: Brand wordmark is not interface text
 - **WHEN** the brand logotype renders

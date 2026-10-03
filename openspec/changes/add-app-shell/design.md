@@ -117,7 +117,9 @@ The alternative — building a focus-trapped overlay and a roving-focus menu by 
 
 ### D7 — Brand logotype
 
-The drawing is the original `favicon.svg` in `docs/design/add-app-shell/`, inlined as JSX with the Inkscape metadata stripped and the leaf gradient id generated per instance with `useId`, so two logotypes on one page do not collide. `app/icon.svg` carries the same drawing as the browser icon.
+The drawing is the original `favicon.svg` in `docs/design/add-app-shell/`, inlined as JSX with the Inkscape metadata stripped and the leaf gradient id generated per instance with `useId`, so two logotypes on one page do not collide.
+
+`app/icon.svg` carries the same drawing as the browser icon, adapted to both themes the only way a favicon can be: an embedded `<style>` that gives the leaf, cup and coffee parts a class each and fills them with the traditional colors as literal hex values (`#688f25`, `#0c3151`, `#472e2e`), plus an `@media (prefers-color-scheme: dark)` block reassigning them to the dark ones (`#bec387`, `#c9e5e0`, `#9b7e7d` — `night-moss-300`, `night-sage-100` and the new coffee primitive). A favicon cannot read the page's `data-theme`, so it follows the operating-system appearance rather than the theme chosen in the app, and a browser with no support for a dark icon (Safari) shows the traditional colors. These hex literals are artwork definition, not interface text, and are exempt from the no-literal-text rule exactly as the wordmark is.
 
 Three forms, settled in the design summary: `icon` (drawing alone), `inline` (wordmark to the right), `stacked` (wordmark below). Each wraps in the internal link to the locale root. The header uses `inline`, and `icon` on small viewports.
 
@@ -166,7 +168,21 @@ One catalog per area and locale at `messages/{locale}/{area}.json`, exactly as t
 
 next-intl (v4, App Router) resolves the locale and loads catalogs; the request configuration lives in `src/shared/lib/i18n/` so every layer can read an area's catalog, and `src/shared/config/locales.ts` holds the supported locales and the default. Components never call the translation API: screens load the catalog and pass the texts down as props. That is the design summary's rule, and it is what makes a component's text surface visible in its type signature.
 
-The "literal interface text detected" verification scans rendering code under `src/` for string literals passed to rendered children and to text-bearing props, ignoring comments, and exempts the logotype wordmark.
+The "literal interface text detected" verification is ESLint's `react/jsx-no-literals` (from `eslint-plugin-react`, already installed as a dependency of `eslint-config-next`), enabled in `eslint.config.mjs` and run by `npm run lint`:
+
+```js
+"react/jsx-no-literals": ["error", {
+  noStrings: true,
+  ignoreProps: true,
+  elementOverrides: { Logo: { noStrings: true, allowedStrings: ["TAZAVERA"] } },
+}]
+```
+
+`noStrings: true` closes the loophole the rule leaves open by default: without it a bare JSX text is reported, but `{"text"}` and a template literal are not. `elementOverrides` scopes the single exception to `Logo`, so the wordmark is permitted inside the logotype and the string `TAZAVERA` is still refused anywhere else.
+
+**Known limitation.** Text-bearing props are outside this verification. The rule has no per-prop granularity: `ignoreProps: true` turns attribute checking off entirely, while `noStrings: true` with `ignoreProps: false` reports *every* string attribute — `className`, `href`, `id`, `type`, `viewBox`, `d`, `fill`, `xmlns`, `width`, `height`, `role`, `aria-hidden` and the rest — which would flag the whole codebase, and `elementOverrides` cannot rescue it because its keys must match `/^[A-Z][\w.]*$/` and so cannot cover native elements. An `aria-label`, `placeholder`, `title` or `alt` written as a literal is therefore not caught by lint; the requirement still forbids it and it stays the reviewer's responsibility. Accepted by the product owner in artifact review round 1.
+
+Rejected alternative: keeping the hand-written source scan alongside the rule to cover props. It would be a second, weaker mechanism for the same concern, and the review settled on one.
 
 ### D11 — Breakpoints
 
@@ -174,13 +190,15 @@ The spec says "small" and "medium or larger" viewport. Both mean Tailwind's defa
 
 ### D12 — Theme mechanism
 
-This change builds the theme mechanism because section 1 of the design summary lists `Theme` among the shared contracts that `add-landing` and `add-user-account` rely on. It is kept minimal and business-agnostic so `add-user-account` reuses it instead of writing the same browser item its own way.
+This change builds the theme mechanism because section 1 of the design summary lists `Theme` among the shared contracts that `add-landing` and `add-user-account` rely on. The only theme selector is the one in the user menu; `add-user-account` has no theme setting of its own.
 
-`src/shared/lib/theme.ts` reads and writes the preference and applies it to the document root as `data-theme="dark"`, exactly the contract of section 1. The preference is a plain browser item: not sensitive, needing no sign in, and readable before first paint so the theme does not flash in the wrong one. `add-auth` reads the same preference when it sends `theme` to the API.
+The preference is a **cookie**, not a browser-storage item. Only cookies reach the server, so `app/layout.tsx` reads it while rendering and puts `data-theme="dark"` on `<html>` in the server-rendered markup. The page therefore arrives in the right theme with no flash and with no inline script to set it, which also keeps that script out of the CSP nonce of D9. Since D9 already makes every page dynamic, reading a request cookie in the root layout costs nothing extra.
 
-An unreadable or unknown stored value falls back to the traditional theme, which is also what a first visit gets, since `theming` makes traditional the default.
+It lives in `src/shared/lib/theme.ts` rather than inside the theme selector because two call sites already need it in this change: the root layout reads the cookie on the server, and the selector writes it on the client. The module owns reading and writing the cookie and, on a choice, applies `data-theme` to the document root immediately so the change happens without a reload. `add-auth` reads the same cookie to send `theme` to the API.
 
-Rejected alternative: keeping the read and write inside the header's theme selector. `add-user-account` has its own theme setting and would then write the preference its own way, and two writers of one browser item is exactly the duplication `docs/backlog.md` exists to catch.
+An unreadable or unknown cookie value falls back to the traditional theme, which is also what a first visit gets, since `theming` makes traditional the default.
+
+Rejected alternative: a browser-storage item. It is never sent to the server, so the root layout could not read it and the page would either flash the wrong theme on arrival or need an inline bootstrap script, which the CSP would then have to admit through the nonce.
 
 ### D13 — Files created or modified
 
@@ -220,7 +238,7 @@ Next.js route files are in the root `app/` folder and import their view from `sr
 | `src/shared/ui/xss-guard.test.ts` | `shared` | No injected raw HTML anywhere under `src/` |
 | `src/shared/lib/utils.ts` | `shared` | `cn`, the shadcn alias target |
 | `src/shared/lib/hooks/index.ts` | `shared` | Hooks the pulled components need |
-| `src/shared/lib/theme.ts` | `shared` | Read, write and apply the theme preference |
+| `src/shared/lib/theme.ts` | `shared` | Read and write the theme cookie, apply `data-theme` on choice |
 | `src/shared/lib/theme.test.ts` | `shared` | Theme states and the fallback |
 | `src/shared/lib/i18n/index.ts` | `shared` | Public entry of the message loading |
 | `src/shared/lib/i18n/request.ts` | `shared` | next-intl request configuration |
@@ -235,7 +253,7 @@ Next.js route files are in the root `app/` folder and import their view from `sr
 
 | Path | FSD layer | Change |
 |---|---|---|
-| `app/layout.tsx` | `app` | `<html lang>` from the route, `data-theme`, fonts kept |
+| `app/layout.tsx` | `app` | `<html lang>` from the route, `data-theme` from the theme cookie read on the server, fonts kept |
 | `src/app/styles/globals.css` | `app` | Four primitives and the three logotype tokens of D8 |
 | `src/app/styles/theme-tokens.test.ts` | `app` | Logotype pairs registered as exempt |
 | `src/shared/ui/index.ts` | `shared` | Export `Logo` and the three pulled components |
@@ -256,7 +274,8 @@ Next.js route files are in the root `app/` folder and import their view from `sr
 - **`SessionUser` may be defined twice.** `rules.tasks` has this change define its derived types, and `add-auth` needs the same `SessionUser`. Both build in parallel and both write `src/shared/api/index.ts`. → `add-auth` should import `SessionUser` and `UserRole` from `src/shared/api` rather than redefining them. If both define them, that duplication is a `docs/backlog.md` candidate for the product owner. Raised in `## Propose status`.
 - **Rewiring the Sidebar away from its Button and Input is the fiddliest step.** The generated Sidebar template leans on both. → Done in the same task that pulls it, with the duplicate deleted before the task is verified, so a stray shadcn Button never reaches `src/shared/ui/index.ts`.
 - **`proxy.ts` imports from `src/`.** The proxy docs warn against relying on shared modules. → The imported module is pure constants with no runtime state, which is what the warning is about. If it ever grows logic, the list moves into `proxy.ts` and becomes the single source, with `src/shared/config/locales.ts` re-exporting it.
-- **The literal-text verification is a source scan and can be evaded.** → Same trade-off as the existing guards, and the same accepted shape: it catches the honest mistake and fails loudly.
+- **The literal-text verification covers rendered text only.** Text-bearing props are not linted (the known limitation in D10), so a literal `aria-label` or `placeholder` can pass `npm run lint`. → Accepted by the product owner in artifact review round 1. Those props stay forbidden by the requirement and are caught in review and in the accessibility assertions of the component tests, which check the accessible names supplied as props.
+- **The browser icon follows the operating system, not the chosen theme.** A favicon cannot read the page's `data-theme`, so the tab icon can show dark colors while the app is in the traditional theme and the reverse, and Safari shows the traditional colors always. → Accepted in the design summary §4; the icon is brand artwork and the mismatch is confined to the browser tab.
 
 ## Migration Plan
 
