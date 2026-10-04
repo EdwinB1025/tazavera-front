@@ -9,6 +9,7 @@
 /** 200 of POST /oauth/token (RFC 6749 §5.1; the fields the contract's security scheme names). Kept inside `src/shared/api`. */
 export type TokenGrant = {
   access_token: string;
+  token_type: string;
   refresh_token: string;
   expires_in: number;
 };

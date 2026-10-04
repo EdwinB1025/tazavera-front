@@ -23,11 +23,13 @@ const API_URL = "https://api.tazavera.test";
 
 const GRANT: TokenGrant = {
   access_token: "access-1",
+  token_type: "Bearer",
   refresh_token: "refresh-1",
   expires_in: 3600,
 };
 const NEXT_GRANT: TokenGrant = {
   access_token: "access-2",
+  token_type: "Bearer",
   refresh_token: "refresh-2",
   expires_in: 3600,
 };
