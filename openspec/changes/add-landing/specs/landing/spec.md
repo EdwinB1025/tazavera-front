@@ -99,7 +99,7 @@ Each offering card SHALL show the offering's data as mapped from the API: the cu
 - **THEN** no Evaluate link renders on the card
 
 ### Requirement: Taxonomy badges on the offering card
-Each taxonomy reference of an offering's sensory taxonomy, including nested children, SHALL render as a badge carrying the taxonomy's name in the active locale and the taxonomy's data color, arranged in three rows by level (0, 1, 2). A reference that resolves to no taxonomy SHALL render no badge.
+Each taxonomy reference of an offering's sensory taxonomy, including nested children, SHALL render as a badge carrying the taxonomy's name in the active locale and the taxonomy's data color, arranged in three rows by level (0, 1, 2), each row wrapping its badges so that no row overflows the card below the medium breakpoint (768px). A reference that resolves to no taxonomy SHALL render no badge.
 
 #### Scenario: Names by locale
 - **WHEN** an offering card renders in the active locale
@@ -107,7 +107,7 @@ Each taxonomy reference of an offering's sensory taxonomy, including nested chil
 
 #### Scenario: Rows by level
 - **WHEN** an offering carries taxonomy references at levels 0, 1 and 2
-- **THEN** the badges render in three rows, one per level
+- **THEN** the badges render in three rows, one per level, each row wrapping its badges rather than overflowing the card
 
 #### Scenario: Unresolved reference
 - **WHEN** a taxonomy reference matches no taxonomy
@@ -142,3 +142,10 @@ Every text of both pages — hero, list states, card labels and captions, pagina
 #### Scenario: Settled Spanish heading
 - **WHEN** the entry page renders in Spanish
 - **THEN** its heading is exactly `Tu café, el que merece cada sorbo` with exactly one emphasized word
+
+### Requirement: Page metadata
+The document metadata of both public pages SHALL carry the title exactly `Tazavera` and a description drawn from the message catalog of the active locale.
+
+#### Scenario: Metadata by locale
+- **WHEN** a visitor opens either page in Spanish, English or Catalan
+- **THEN** the document title is exactly `Tazavera` and the document description is the metadata description text of that locale's catalog

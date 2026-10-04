@@ -34,7 +34,7 @@ None. `theming` is unchanged: the badge and card take existing semantic tokens o
 - **Authentication UI and session mechanics** (`add-auth`): this change takes the session as an input to decide whether "Evaluate" appears and never reads a session module itself.
 - **Management screens and the evaluation form** (later changes): "Evaluate" points at the future `/{locale}/manage/evaluations/new` route.
 - **Forum.**
-- **Any change to `contracts/openapi.yaml`.** The product owner updates the contract before apply with the design summary's two preconditions (§7): `GET /offerings` accepting `verified=1` and `GET /taxonomies` returning `nameCa`.
+- **Any change to `contracts/openapi.yaml` or `src/shared/api/schema.ts`.** The design summary's §7 preconditions (`GET /offerings` accepting `verified=1`, `GET /taxonomies` returning `nameCa`) are in the contract and the types since `bff523c`; no commit after it modifies either file.
 
 ## Impact
 
