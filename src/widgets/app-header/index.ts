@@ -12,3 +12,5 @@ export { LanguageSelect } from "./ui/LanguageSelect";
 export type { LanguageSelectProps } from "./ui/LanguageSelect";
 export { ThemeSelect } from "./ui/ThemeSelect";
 export type { ThemeSelectProps } from "./ui/ThemeSelect";
+export { UserMenu } from "./ui/UserMenu";
+export type { UserMenuProps, UserMenuTexts } from "./ui/UserMenu";

@@ -55,22 +55,26 @@ describe("DropdownMenu (design.md D6)", () => {
   it("opens its content from the trigger", () => {
     renderMenu();
     expect(screen.queryByRole("menuitem", { name: "Entry" })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Open" }));
+    fireEvent.pointerDown(screen.getByRole("button", { name: "Open" }));
     expect(screen.getByRole("menuitem", { name: "Entry" })).toBeDefined();
   });
 
   it("closes after choosing an entry", () => {
     const { onSelect } = renderMenu();
-    fireEvent.click(screen.getByRole("button", { name: "Open" }));
+    fireEvent.pointerDown(screen.getByRole("button", { name: "Open" }));
     fireEvent.click(screen.getByRole("menuitem", { name: "Entry" }));
     expect(onSelect).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole("menuitem", { name: "Entry" })).toBeNull();
   });
 
-  it("closes when the pointer goes outside it", () => {
+  it("closes when the pointer goes outside it", async () => {
     renderMenu();
-    fireEvent.click(screen.getByRole("button", { name: "Open" }));
+    fireEvent.pointerDown(screen.getByRole("button", { name: "Open" }));
+    // Radix arms its outside-pointerdown listener on the next tick and defers
+    // a left-button dismissal to the click that completes it.
+    await new Promise((resolve) => setTimeout(resolve, 0));
     fireEvent.pointerDown(document.body);
+    fireEvent.click(document.body);
     expect(screen.queryByRole("menuitem", { name: "Entry" })).toBeNull();
   });
 

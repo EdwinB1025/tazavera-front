@@ -234,7 +234,7 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
   }
 
   function openMenu() {
-    fireEvent.click(screen.getByRole("button", { name: "Andrés Gómez" }));
+    fireEvent.pointerDown(screen.getByRole("button", { name: "Andrés Gómez" }));
   }
 
   it("opens from a control carrying the user's initials and an accessible name identifying the user", () => {
@@ -261,16 +261,17 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
   });
 
   it("renders the security entry as an external link, natively", () => {
-    const { container } = renderSignedIn("specialist");
+    renderSignedIn("specialist");
     openMenu();
-    const security = container.querySelector(
-      'a[href="https://api.tazavera.test/user/security"]',
+    // The menu content is portaled, so it is queried through the screen.
+    const security = screen.getByRole("menuitem", { name: TEXTS.security });
+    expect(security.getAttribute("href")).toBe(
+      "https://api.tazavera.test/user/security",
     );
-    expect(security).not.toBeNull();
     // not the internal Link treatment (base-controls: external destinations
     // are rendered natively)
-    expect(security!.className).not.toContain("underline");
-    expect(security!.className).not.toContain("text-text-link");
+    expect(security.className).not.toContain("underline");
+    expect(security.className).not.toContain("text-text-link");
   });
 
   it("mounts the theme selector (spec: Theme selection)", () => {
@@ -312,10 +313,14 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
     expect(screen.queryByRole("menuitem", { name: TEXTS.signOut })).toBeNull();
   });
 
-  it("closes when the pointer goes outside it", () => {
+  it("closes when the pointer goes outside it", async () => {
     renderSignedIn("specialist");
     openMenu();
+    // Radix arms its outside-pointerdown listener on the next tick and defers
+    // a left-button dismissal to the click that completes it.
+    await new Promise((resolve) => setTimeout(resolve, 0));
     fireEvent.pointerDown(document.body);
+    fireEvent.click(document.body);
     expect(screen.queryByRole("menuitem", { name: TEXTS.signOut })).toBeNull();
   });
 });

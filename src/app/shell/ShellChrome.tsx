@@ -43,6 +43,11 @@ export function ShellChrome({
     // owner supplies the session's sign in when it lands.
   };
 
+  const handleSignOut = () => {
+    // design.md D3/D5: signing out is the flow `add-auth` owns; the session
+    // owner supplies the session's sign out when it lands.
+  };
+
   return (
     <AppHeader
       session={session}
@@ -50,6 +55,7 @@ export function ShellChrome({
       locales={locales}
       texts={texts}
       onSignIn={handleSignIn}
+      onSignOut={handleSignOut}
       onLocaleChange={handleLocaleChange}
     />
   );

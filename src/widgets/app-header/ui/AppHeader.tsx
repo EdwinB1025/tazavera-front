@@ -5,6 +5,7 @@ import { Logo, Button } from "@/shared/ui";
 import type { Session } from "@/shared/api";
 import { PrimaryNav } from "./PrimaryNav";
 import { LanguageSelect } from "./LanguageSelect";
+import { UserMenu } from "./UserMenu";
 
 // ─── UI-specific types (declared before the component) ───
 // Every interface text arrives as a prop (design.md D10), so the header's
@@ -17,6 +18,17 @@ export type AppHeaderTexts = {
   aboutUs: string;
   signIn: string;
   languageSelector: string;
+  // the user menu (spec: "Menu content")
+  profile: string;
+  editProfile: string;
+  changePassword: string;
+  deactivateAccount: string;
+  deleteAccount: string;
+  security: string;
+  themeSelector: string;
+  manageOfferings: string;
+  manageEvaluations: string;
+  signOut: string;
 };
 
 export type AppHeaderProps = {
@@ -28,6 +40,8 @@ export type AppHeaderProps = {
   texts: AppHeaderTexts;
   /** The session's sign in (spec: "Sign in starts from the current route"). */
   onSignIn: () => void;
+  /** The session's sign out (spec: "Sign out"). */
+  onSignOut: () => void;
   onLocaleChange: (locale: string) => void;
 };
 
@@ -37,10 +51,10 @@ const HEADER_CLASSES = ["flex", "h-16", "items-center", "gap-4", "bg-nav-surface
  * Tazavera app header (design summary §3).
  *
  * Signed out it shows the brand logotype, the primary navigation (from `md`),
- * the language selector and the "Sign in" action; while the session resolves
- * it shows neither the "Sign in" action nor a user menu (spec: "Session
- * resolving"). The user menu for the signed-in state arrives with the
- * signed-in header slice.
+ * the language selector and the "Sign in" action; signed in it shows the user
+ * menu instead of the "Sign in" action; while the session resolves it shows
+ * neither (spec: "Session resolving"). The user menu carries the profile
+ * settings, security, theme selector, management entry and sign out.
  *
  * The logotype renders in both forms (design.md D7): the drawing alone below
  * `md` and the wordmark form from `md` up, so the brand stays visible at
@@ -52,6 +66,7 @@ export function AppHeader({
   locales,
   texts,
   onSignIn,
+  onSignOut,
   onLocaleChange,
 }: AppHeaderProps): ReactNode {
   return (
@@ -73,6 +88,14 @@ export function AppHeader({
         <Button variant="nav-button" onClick={onSignIn}>
           {texts.signIn}
         </Button>
+      )}
+      {session.state === "authenticated" && (
+        <UserMenu
+          user={session.user}
+          locale={locale}
+          texts={texts}
+          onSignOut={onSignOut}
+        />
       )}
     </header>
   );

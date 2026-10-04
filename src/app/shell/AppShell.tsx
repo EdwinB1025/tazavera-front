@@ -57,6 +57,16 @@ export function AppShell({
           aboutUs: texts.aboutUs!,
           signIn: texts.signIn!,
           languageSelector: texts.languageSelector!,
+          profile: texts.profile!,
+          editProfile: texts.editProfile!,
+          changePassword: texts.changePassword!,
+          deactivateAccount: texts.deactivateAccount!,
+          deleteAccount: texts.deleteAccount!,
+          security: texts.security!,
+          themeSelector: texts.themeSelector!,
+          manageOfferings: texts.manageOfferings!,
+          manageEvaluations: texts.manageEvaluations!,
+          signOut: texts.signOut!,
         }}
       />
       <main className={sidebar ? `${MAIN_CLASSES} md:flex` : MAIN_CLASSES}>
