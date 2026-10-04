@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { describe, it, expect, afterEach, vi } from "vitest";
+import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { Link } from "@/shared/ui/Link";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
@@ -93,6 +93,45 @@ describe("Link", () => {
       render(<Link href="/offerings">All offerings</Link>);
       const link = screen.getByRole("link");
       expect(link.className).toContain("focus-visible:focus-ring");
+    });
+  });
+
+  describe("anchor-surface passthrough (design.md D7, review round 2)", () => {
+    // The rest of the anchor surface passes through to the element, so a
+    // composing parent (`DropdownMenuItem asChild`) merges its role, handlers
+    // and classes in through it. jsdom has no CSS engine, so "joined after the
+    // treatment classes" is asserted on the exact class string.
+
+    it("joins a caller-supplied className after the treatment classes", () => {
+      render(
+        <Link href="/offerings" className="caller-class">
+          All offerings
+        </Link>,
+      );
+      const link = screen.getByRole("link", { name: "All offerings" });
+      // the treatment classes stay and the caller's class is joined after them
+      expect(link.className).toBe(
+        "underline text-text-link hover:text-text-link-hover focus-visible:focus-ring caller-class",
+      );
+    });
+
+    it("passes caller-supplied aria-* and event handlers through to the anchor", () => {
+      const onClick = vi.fn();
+      render(
+        <Link
+          href="/offerings"
+          role="menuitem"
+          aria-label="entry label"
+          onClick={onClick}
+        >
+          All offerings
+        </Link>,
+      );
+      // the role and the aria-* attribute reach the element itself
+      const link = screen.getByRole("menuitem", { name: "entry label" });
+      expect(link.getAttribute("href")).toBe("/offerings");
+      fireEvent.click(link);
+      expect(onClick).toHaveBeenCalledTimes(1);
     });
   });
 
