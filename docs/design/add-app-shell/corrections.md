@@ -31,3 +31,11 @@ Product Owner rulings recorded after apply (2026-10-04). Each entry supersedes t
 4. **C4 — unplanned fixes.** No tasks. Items 1 and 2 are applied (commits `447dcec` and `6501381`); design.md D7, D10 and D13 and task 6.2's catalog list now state the `brandLink` and `toggleSidebar` keys and the required `toggleLabel`. Item 3 is an unplanned fix still outstanding for the build — the user menu's internal entries (`/[locale]/account/*`, `/[locale]/manage/*`) use the internal `Link` treatment, behaviour already stated in design.md D5 and task 7.1 and now explicit in D5. Item 4 records the as-built state (five profile entries; unresolvable session as `{ state: "anonymous" }`, D4 unchanged), now explicit in design.md D5.
 
 Differences against `design-summary.md` (its §3 "carve-out" wording and Propose-status item 7) are resolved by precedence: this round supersedes them.
+
+### Status
+
+2026-10-04, second entry for the same round. `openspec validate add-app-shell --strict`: `Change 'add-app-shell' is valid`.
+
+- **C4, item 3 — no longer outstanding.** Applied while the round was being processed: the build's unplanned fix `ebc5c4d` renders the user menu's internal entries (`/[locale]/account/*`, `/[locale]/manage/*`) with the internal `Link` treatment and keeps the API's `/user/security` as a native anchor, verified by `AppHeader.test.tsx`. No artifact changes and no tasks: design.md D5 already states this end state. Nothing of C4 remains for the build.
+- **Handed to the product owner, not processed here.** `ebc5c4d` also widened `Link` with the anchor-surface passthrough and hands the architect the matching widening of the `LinkProps` block in `add-base-control`'s design.md D7 (`openspec/changes/archive/2026-10-02-add-base-control/design.md`), which is outside this change's commit scope. The product owner routes it through corrections.md before `/opsx:verify`.
+- C1, C2 and C3 are unchanged from the entry above.
