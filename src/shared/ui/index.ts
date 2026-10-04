@@ -77,3 +77,10 @@ export {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "./Sidebar";
+export { Card, CardAside, CardContent, CardFooter } from "./Card";
+export type {
+  CardProps,
+  CardAsideProps,
+  CardContentProps,
+  CardFooterProps,
+} from "./Card";
