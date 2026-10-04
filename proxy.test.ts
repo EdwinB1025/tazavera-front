@@ -91,6 +91,20 @@ function runProxyOn(url: string) {
 }
 
 describe("proxy.ts locale routing (design.md D2)", () => {
+  it("redirects the root URL to the default locale (spec: Root URL)", () => {
+    const response = runProxyOn("https://tazavera.test/");
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe("https://tazavera.test/es");
+  });
+
+  it("redirects a bare path to the same path under the default locale", () => {
+    const response = runProxyOn("https://tazavera.test/about?ref=nav");
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      "https://tazavera.test/es/about?ref=nav",
+    );
+  });
+
   it("redirects an unsupported locale prefix to the same path under the default locale, keeping its query (spec: Unsupported locale)", () => {
     const response = runProxyOn("https://tazavera.test/fr/about?ref=nav");
     expect(response.status).toBe(307);
@@ -99,16 +113,27 @@ describe("proxy.ts locale routing (design.md D2)", () => {
     );
   });
 
-  it("redirects the root URL to the default locale (spec: Root URL)", () => {
-    const response = runProxyOn("https://tazavera.test/");
-    expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("https://tazavera.test/es");
-  });
-
   it("lets a supported-locale path through with no redirect", () => {
     vi.stubEnv("NEXT_PUBLIC_API_URL", API_URL);
     const response = runProxyOn("https://tazavera.test/es/about?ref=nav");
     expect(response.headers.get("location")).toBeNull();
     expect(response.headers.get("x-middleware-request-x-locale")).toBe("es");
+  });
+
+  // Framework and asset paths are not application routes: they must reach
+  // their own URL untouched — no locale prefix and nothing forwarded — or no
+  // CSS, JS, icon or font loads and the page is blank (design.md D2).
+  it("lets a framework path pass through untouched (/_next/static/x.js)", () => {
+    const response = runProxyOn("https://tazavera.test/_next/static/x.js");
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+    expect(response.headers.get("x-middleware-request-x-locale")).toBeNull();
+  });
+
+  it("lets a file path pass through untouched (/favicon.ico)", () => {
+    const response = runProxyOn("https://tazavera.test/favicon.ico");
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+    expect(response.headers.get("x-middleware-request-x-locale")).toBeNull();
   });
 });

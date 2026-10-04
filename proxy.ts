@@ -9,7 +9,9 @@ import { DEFAULT_LOCALE, LOCALES } from "@/shared/config/locales";
  * locale, the root URL redirects to it, and the matched locale is forwarded
  * upstream as `x-locale` so the root layout can set `<html lang>` (the proxy
  * passes information to the application through headers). `/callback` is
- * excluded by the matcher so `add-auth` owns its request entirely.
+ * excluded by the matcher so `add-auth` owns its request entirely, and
+ * framework and asset paths (`/_next/*`, any path with a file extension) are
+ * excluded from the proxy itself so they are never prefixed with a locale.
  *
  * Content-Security-Policy (design.md D9): set on every response this proxy
  * handles, with a fresh nonce per request forwarded upstream as `x-nonce`
@@ -24,6 +26,18 @@ import { DEFAULT_LOCALE, LOCALES } from "@/shared/config/locales";
  * `script-src` (React uses `eval` for debugging there).
  */
 export function proxy(request: NextRequest) {
+  const { pathname, search } = request.nextUrl;
+
+  // Framework and asset paths are not application routes (design.md D2) and
+  // are excluded from the proxy entirely — the same outcome as leaving them
+  // out of the matcher. Anything under `/_next/` and any path whose last
+  // segment carries a file extension (favicon, icon, images, fonts) must
+  // reach its own URL untouched: prefixing those with the locale would load
+  // no CSS, JS or font and leave the page blank.
+  if (pathname.startsWith("/_next/") || /\/[^/]*\.[^/]*$/.test(pathname)) {
+    return NextResponse.next();
+  }
+
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const isDev = process.env.NODE_ENV === "development";
   const apiOrigin = process.env.NEXT_PUBLIC_API_URL
@@ -43,7 +57,6 @@ export function proxy(request: NextRequest) {
     "frame-ancestors 'none'",
   ].join("; ");
 
-  const { pathname, search } = request.nextUrl;
   const locale = LOCALES.find(
     (candidate) =>
       pathname === `/${candidate}` || pathname.startsWith(`/${candidate}/`),
