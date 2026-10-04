@@ -23,6 +23,11 @@ export type LogoProps = {
   size: number;
   /** Active locale: the whole logotype links to its root (`/${locale}`). */
   locale: string;
+  /**
+   * Accessible name of the link when the form shows no wordmark (`icon`),
+   * supplied from the message catalog (spec: "Brand link").
+   */
+  "aria-label"?: string;
 };
 
 // ─── The drawing (inlined from docs/design/add-app-shell/favicon.svg) ───
@@ -53,7 +58,7 @@ const CONTAINER_CLASSES: Record<LogoVariant, string> = {
  * of the active locale. The leaf gradient id is generated per instance with
  * `useId`, so two logotypes on one page never collide.
  */
-export function Logo({ variant, size, locale }: LogoProps): ReactNode {
+export function Logo({ variant, size, locale, "aria-label": ariaLabel }: LogoProps): ReactNode {
   const gradientId = useId();
 
   return (
@@ -63,8 +68,10 @@ export function Logo({ variant, size, locale }: LogoProps): ReactNode {
           width={size}
           height={size}
           viewBox={VIEW_BOX}
-          aria-hidden="true"
           focusable="false"
+          {...(variant === "icon" && ariaLabel !== undefined
+            ? { role: "img", "aria-label": ariaLabel }
+            : { "aria-hidden": true })}
         >
           <defs>
             <linearGradient

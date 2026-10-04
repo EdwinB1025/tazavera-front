@@ -119,6 +119,20 @@ describe("Logo", () => {
       expect(link).not.toBeNull();
       expect(link!.getAttribute("href")).toBe("/ca");
     });
+
+    it("gives the icon-form link an accessible name from its aria-label (spec: Brand link)", () => {
+      render(
+        <Logo
+          variant="icon"
+          size={32}
+          locale="es"
+          aria-label="texts.brandLink"
+        />,
+      );
+      expect(
+        screen.getByRole("link", { name: "texts.brandLink" }),
+      ).toBeDefined();
+    });
   });
 
   describe("per-instance leaf gradient id (design.md D7)", () => {

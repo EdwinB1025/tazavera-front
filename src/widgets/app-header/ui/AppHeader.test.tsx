@@ -32,6 +32,7 @@ const TEXTS = {
   aboutUs: "texts.aboutUs",
   signIn: "texts.signIn",
   languageSelector: "texts.languageSelector",
+  brandLink: "texts.brandLink",
   profile: "texts.profile",
   editProfile: "texts.editProfile",
   changePassword: "texts.changePassword",
@@ -74,6 +75,11 @@ describe("AppHeader, signed-out state", () => {
     renderHeader();
     const logo = screen.getByRole("link", { name: "TAZAVERA" });
     expect(logo.getAttribute("href")).toBe("/es");
+  });
+
+  it("names the icon-form logotype link from its texts (spec: Brand link)", () => {
+    renderHeader();
+    expect(screen.getByRole("link", { name: TEXTS.brandLink })).toBeDefined();
   });
 
   it("keeps the logotype, the selector and the session control below md (spec: Primary navigation on a small viewport)", () => {

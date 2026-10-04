@@ -18,6 +18,7 @@ export type AppHeaderTexts = {
   aboutUs: string;
   signIn: string;
   languageSelector: string;
+  brandLink: string;
   // the user menu (spec: "Menu content")
   profile: string;
   editProfile: string;
@@ -72,7 +73,12 @@ export function AppHeader({
   return (
     <header className={HEADER_CLASSES}>
       <span className="md:hidden">
-        <Logo variant="icon" size={32} locale={locale} />
+        <Logo
+          variant="icon"
+          size={32}
+          locale={locale}
+          aria-label={texts.brandLink}
+        />
       </span>
       <span className="hidden md:inline-flex">
         <Logo variant="inline" size={32} locale={locale} />

@@ -66,6 +66,7 @@ export function AppShell({
           aboutUs: texts.aboutUs!,
           signIn: texts.signIn!,
           languageSelector: texts.languageSelector!,
+          brandLink: texts.brandLink!,
           profile: texts.profile!,
           editProfile: texts.editProfile!,
           changePassword: texts.changePassword!,
