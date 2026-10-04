@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
+import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { readFileSync, readdirSync, statSync } from "node:fs";
@@ -15,6 +15,21 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: () => {} }),
   usePathname: () => "/es",
 }));
+
+// jsdom has no matchMedia; the sidebar reads the md breakpoint through it.
+// Test infrastructure only.
+beforeAll(() => {
+  window.matchMedia = ((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  })) as unknown as typeof window.matchMedia;
+});
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {

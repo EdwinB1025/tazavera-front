@@ -41,13 +41,13 @@ describe("Sheet (design.md D6, D11)", () => {
   it("opens its content as an overlay from the trigger", () => {
     renderSheet();
     expect(screen.queryByText("Panel")).toBeNull();
-    fireEvent.pointerDown(screen.getByRole("button", { name: "Open" }));
+    fireEvent.click(screen.getByRole("button", { name: "Open" }));
     expect(screen.getByText("Panel")).toBeDefined();
   });
 
   it("closes when the pointer goes outside it", async () => {
     renderSheet();
-    fireEvent.pointerDown(screen.getByRole("button", { name: "Open" }));
+    fireEvent.click(screen.getByRole("button", { name: "Open" }));
     // Radix arms its outside-pointerdown listener on the next tick and defers
     // a left-button dismissal to the click that completes it.
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -58,8 +58,9 @@ describe("Sheet (design.md D6, D11)", () => {
 
   it("covers the screen below md (design.md D11: full-screen overlay)", () => {
     renderSheet();
-    fireEvent.pointerDown(screen.getByRole("button", { name: "Open" }));
-    const panel = screen.getByText("Panel").parentElement!;
+    fireEvent.click(screen.getByRole("button", { name: "Open" }));
+    // the panel is the element holding the content
+    const panel = screen.getByText("Panel");
     expect(panel.className).toContain("h-full");
     expect(panel.className).toContain("w-full");
   });

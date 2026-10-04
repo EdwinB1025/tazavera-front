@@ -13,13 +13,24 @@ afterEach(() => {
   cleanup();
 });
 
-// Test infrastructure only (the Radix measurements and timers jsdom lacks).
+// Test infrastructure only (the Radix measurements and timers jsdom lacks,
+// and matchMedia, which the sidebar reads the md breakpoint through).
 beforeAll(() => {
   window.ResizeObserver = class {
     observe() {}
     unobserve() {}
     disconnect() {}
   };
+  window.matchMedia = ((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  })) as unknown as typeof window.matchMedia;
 });
 
 /**

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { Session } from "@/shared/api";
 import { LOCALES } from "@/shared/config/locales";
 import { getMessages } from "@/shared/lib/i18n";
+import { AppSidebar } from "@/widgets/app-sidebar";
 import { ShellChrome } from "./ShellChrome";
 
 // ─── UI-specific types (declared before the component) ───
@@ -22,9 +23,9 @@ export type AppShellProps = {
 const ANONYMOUS: Session = { state: "anonymous" };
 
 const MAIN_CLASSES = ["bg-surface-page", "flex-1"].join(" ");
-const SIDEBAR_COLUMN_CLASSES = ["hidden", "md:block", "w-64", "shrink-0"].join(
-  " ",
-);
+// The column sizes itself on its content: with the sidebar region hidden it
+// collapses to nothing and the main area stays a single column.
+const SIDEBAR_COLUMN_CLASSES = ["hidden", "md:block", "shrink-0"].join(" ");
 const CONTENT_CLASSES = ["min-w-0", "flex-1"].join(" ");
 
 /**
@@ -45,6 +46,14 @@ export function AppShell({
 }: AppShellProps): ReactNode {
   const supplied = session ?? ANONYMOUS;
   const texts = getMessages("shell", locale);
+  // The sidebar region: the management sidebar is mounted here for an
+  // authenticated session (it shows itself only on a management route) and a
+  // caller may fill the region explicitly.
+  const region =
+    sidebar ??
+    (supplied.state === "authenticated" ? (
+      <AppSidebar session={supplied} />
+    ) : undefined);
 
   return (
     <div className="flex min-h-full flex-col">
@@ -69,8 +78,8 @@ export function AppShell({
           signOut: texts.signOut!,
         }}
       />
-      <main className={sidebar ? `${MAIN_CLASSES} md:flex` : MAIN_CLASSES}>
-        {sidebar && <aside className={SIDEBAR_COLUMN_CLASSES}>{sidebar}</aside>}
+      <main className={region ? `${MAIN_CLASSES} md:flex` : MAIN_CLASSES}>
+        {region && <aside className={SIDEBAR_COLUMN_CLASSES}>{region}</aside>}
         <div className={CONTENT_CLASSES}>{children}</div>
       </main>
     </div>
