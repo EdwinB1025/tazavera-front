@@ -192,8 +192,6 @@ The catalogs cover, from the summary's outlines: the entry eyebrow ("THE GUIDE T
 
 ### D12 — Hero photograph
 
-### D12 — Hero photograph
-
 The build copies `docs/design/add-landing/coffee-beans.png` to `public/images/coffee-beans.png` byte-for-byte — the exact paths the product owner fixed on 2026-10-04. The photograph renders through `next/image`'s `Image` with its intrinsic width and height and the descriptive `alt` from the catalog, hidden below `md` and shown beside the hero text from `md` up (summary §1). If `docs/design/add-landing/coffee-beans.png` is missing when the asset task starts, the task stops and reports rather than substituting artwork.
 
 ### D13 — Files created or modified
