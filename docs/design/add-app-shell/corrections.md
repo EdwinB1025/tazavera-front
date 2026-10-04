@@ -46,7 +46,7 @@ Build handoff of `ebc5c4d`, routed here by the product owner (2026-10-04) becaus
 
 1. **Link anchor-surface passthrough (`add-base-control` design).** Widen the `LinkProps` block of `openspec/changes/archive/2026-10-02-add-base-control/design.md` — the types section and D7 — with the anchor-surface passthrough, so `/opsx:verify` does not flag `src/shared/ui/Link.tsx` as a deviation. Expected end state: `Link` takes the rest of the `next/link` anchor surface (`className`, `aria-*`, events, `ref`) and passes it through to the element, exactly as `ButtonProps` does for the native button surface — `{...rest}` is spread before the component's own props and the caller's `className` is joined after the treatment classes, so `href` and the treatment can never be overridden — and a composing parent such as a menu entry (`DropdownMenuItem asChild`) merges its role, handlers and classes in through it. No specified behaviour changes: `base-controls` "Link navigation" and "Link states and back variant" hold as written.
 
-## Roud 3
+## Round 3
 
 1. Header layout: logo and primary navigation on the left; language selector and "Sign in" or the avatar grouped on the right, on every viewport.
 
