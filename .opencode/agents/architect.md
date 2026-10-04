@@ -16,6 +16,9 @@ permissions:
   - action: edit
     resource: "*docs/design/*/corrections.md"
     effect: allow
+  - action: edit
+    resource: "*docs/backlog.md"
+    effect: allow
   # Archived changes only change through openspec archive
   - action: edit
     resource: "*openspec/changes/archive/*"
@@ -23,9 +26,6 @@ permissions:
   - action: edit
     resource: "*openspec*config.yaml*"
     effect: deny
-  - action: edit
-    resource: "*docs/backlog.md"
-    effect: allow
 
   # ─── Skills: never implements ───
   - action: skill
@@ -36,14 +36,14 @@ permissions:
   - action: shell
     resource: "*"
     effect: ask
-  # OpenSpec CLI (all of it is the architect's)
+  # OpenSpec CLI
   - action: shell
     resource: "openspec *"
     effect: allow
   - action: shell
     resource: "npx openspec *"
     effect: allow
-  # Project checks, used by /opsx-verify (read-only)
+  # Project checks (read-only)
   - action: shell
     resource: "npm run test*"
     effect: allow
@@ -59,7 +59,10 @@ permissions:
   - action: shell
     resource: "ls *"
     effect: allow
-  # Git: read state
+  - action: shell
+    resource: "head *"
+    effect: allow
+  # Git: read state, in this folder or another worktree (-C), with or without pager
   - action: shell
     resource: "git status*"
     effect: allow
@@ -70,9 +73,63 @@ permissions:
     resource: "git log*"
     effect: allow
   - action: shell
-    resource: "git branch --show-current"
+    resource: "git show*"
     effect: allow
-  # Git: stage only its own files, and commit
+  - action: shell
+    resource: "git branch --show-current*"
+    effect: allow
+  - action: shell
+    resource: "git branch --list*"
+    effect: allow
+  - action: shell
+    resource: "git worktree list*"
+    effect: allow
+  - action: shell
+    resource: "git rev-parse*"
+    effect: allow
+  - action: shell
+    resource: "git ls-files*"
+    effect: allow
+  - action: shell
+    resource: "git --no-pager status*"
+    effect: allow
+  - action: shell
+    resource: "git --no-pager diff*"
+    effect: allow
+  - action: shell
+    resource: "git --no-pager log*"
+    effect: allow
+  - action: shell
+    resource: "git --no-pager show*"
+    effect: allow
+  - action: shell
+    resource: "git -C * status*"
+    effect: allow
+  - action: shell
+    resource: "git -C * diff*"
+    effect: allow
+  - action: shell
+    resource: "git -C * log*"
+    effect: allow
+  - action: shell
+    resource: "git -C * show*"
+    effect: allow
+  - action: shell
+    resource: "git -C * branch --show-current*"
+    effect: allow
+  - action: shell
+    resource: "git ls-tree*"
+    effect: allow
+  - action: shell
+    resource: "git -C * ls-tree*"
+    effect: allow
+  - action: shell
+    resource: "git ls-tree*"
+    effect: allow
+  - action: shell
+    resource: "git -C * ls-tree*"
+    effect: allow
+  # Git: stage only its own files, and commit (current worktree only)
   - action: shell
     resource: "git add openspec/changes/*"
     effect: allow
@@ -86,15 +143,12 @@ permissions:
     resource: "git add docs/design/*/corrections.md"
     effect: allow
   - action: shell
-    resource: "git commit *"
-    effect: allow
-  - action: shell
     resource: "git add docs/backlog.md"
     effect: allow
   - action: shell
-    resource: "git show --stat *"
+    resource: "git commit *"
     effect: allow
-  # Git: hard limits
+  # Git: hard limits (after the allows, so they win)
   - action: shell
     resource: "git add -A*"
     effect: deny
@@ -135,4 +189,8 @@ permissions:
   - action: shell
     resource: "npx openspec archive*"
     effect: ask
+  # ─── Other worktrees of this project ───
+  - action: external_directory
+    resource: "*tazavera-front*"
+    effect: allow
 ---
