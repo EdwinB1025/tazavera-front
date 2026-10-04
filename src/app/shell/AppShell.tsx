@@ -52,7 +52,10 @@ export function AppShell({
   const region =
     sidebar ??
     (supplied.state === "authenticated" ? (
-      <AppSidebar session={supplied} />
+      <AppSidebar
+        session={supplied}
+        toggleLabel={texts.toggleSidebar!}
+      />
     ) : undefined);
 
   return (

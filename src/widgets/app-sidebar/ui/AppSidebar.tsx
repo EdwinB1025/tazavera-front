@@ -18,7 +18,7 @@ export type AppSidebarProps = {
   /** Navigation entries contributed by the management area in view. */
   entries?: ReactNode;
   /** Accessible name of the collapse control (design summary §3). */
-  toggleLabel?: string;
+  toggleLabel: string;
 };
 
 // A management route is `/[locale]/manage/*` (design summary §1).
@@ -49,9 +49,7 @@ export function AppSidebar({
     <SidebarProvider>
       <Sidebar label={toggleLabel}>
         <SidebarHeader>
-          {toggleLabel !== undefined && (
-            <SidebarTrigger aria-label={toggleLabel} />
-          )}
+          <SidebarTrigger aria-label={toggleLabel} />
         </SidebarHeader>
         <SidebarContent>
           <nav>{entries}</nav>

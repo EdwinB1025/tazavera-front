@@ -13,5 +13,6 @@
   "manageOfferings": "Manage offerings",
   "manageEvaluations": "Manage evaluations",
   "signOut": "Sign out",
-  "brandLink": "Tazavera, go to the home page"
+  "brandLink": "Tazavera, go to the home page",
+  "toggleSidebar": "Show or hide the navigation"
 }

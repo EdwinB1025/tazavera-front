@@ -11,9 +11,11 @@ import { HomeScreen } from "@/pages/home";
 // The shell's client chrome drives navigation through the app router hooks,
 // which need the router context jsdom does not provide. Test infrastructure
 // only: no assertion below depends on it.
+let shellPathname = "/es";
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: () => {} }),
-  usePathname: () => "/es",
+  usePathname: () => shellPathname,
 }));
 
 // jsdom has no matchMedia; the sidebar reads the md breakpoint through it.
@@ -134,6 +136,32 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
     });
     expect(screen.queryByRole("button", { name: texts.signIn })).toBeNull();
     expect(screen.getByRole("button", { name: "Andrés Gómez" })).toBeDefined();
+  });
+
+  it("labels the sidebar collapse control from the catalog in es, en and ca", () => {
+    for (const locale of ["es", "en", "ca"]) {
+      shellPathname = `/${locale}/manage/offerings`;
+      const catalog = getMessages("shell", locale);
+      expect(
+        catalog.toggleSidebar,
+        `messages/${locale}/shell.json defines no toggleSidebar key`,
+      ).toBeTypeOf("string");
+      const { unmount } = render(
+        <AppShell
+          locale={locale}
+          session={{
+            state: "authenticated",
+            user: { name: "Andrés", surname: "Gómez", role: "specialist" },
+          }}
+        >
+          <HomeScreen />
+        </AppShell>,
+      );
+      expect(
+        screen.getByRole("button", { name: catalog.toggleSidebar }),
+      ).toBeDefined();
+      unmount();
+    }
   });
 });
 

@@ -56,6 +56,7 @@ describe("AppSidebar (spec: Management sidebar)", () => {
       <AppSidebar
         session={AUTHENTICATED}
         entries={<ul><li>offering-one</li></ul>}
+        toggleLabel="sidebar.toggle"
       />,
     );
     expect(screen.getByRole("navigation")).toBeDefined();
@@ -64,18 +65,30 @@ describe("AppSidebar (spec: Management sidebar)", () => {
 
   it("is hidden outside the management area (spec: Hidden outside the management area)", () => {
     pathname = "/es";
-    const { unmount } = render(<AppSidebar session={AUTHENTICATED} entries={<ul><li>offering-one</li></ul>} />);
+    const { unmount } = render(<AppSidebar
+          session={AUTHENTICATED}
+          entries={<ul><li>offering-one</li></ul>}
+          toggleLabel="sidebar.toggle"
+        />);
     expect(screen.queryByRole("navigation")).toBeNull();
     unmount();
 
     pathname = "/es/account/profile";
-    render(<AppSidebar session={AUTHENTICATED} entries={<ul><li>offering-one</li></ul>} />);
+    render(<AppSidebar
+          session={AUTHENTICATED}
+          entries={<ul><li>offering-one</li></ul>}
+          toggleLabel="sidebar.toggle"
+        />);
     expect(screen.queryByRole("navigation")).toBeNull();
   });
 
   it("is hidden while the session is anonymous (spec: Hidden outside the management area)", () => {
     pathname = "/es/manage/evaluations";
-    render(<AppSidebar session={ANONYMOUS} entries={<ul><li>evaluation-one</li></ul>} />);
+    render(<AppSidebar
+        session={ANONYMOUS}
+        entries={<ul><li>evaluation-one</li></ul>}
+        toggleLabel="sidebar.toggle"
+      />);
     expect(screen.queryByRole("navigation")).toBeNull();
   });
 
@@ -90,6 +103,7 @@ describe("AppSidebar (spec: Management sidebar)", () => {
             <li>evaluation-two</li>
           </ul>
         }
+        toggleLabel="sidebar.toggle"
       />,
     );
     expect(screen.getByText("evaluation-one")).toBeDefined();
@@ -98,8 +112,16 @@ describe("AppSidebar (spec: Management sidebar)", () => {
 
   it("renders its region with no entries and no empty placeholder (spec: No entries contributed)", () => {
     pathname = "/es/manage/offerings";
-    render(<AppSidebar session={AUTHENTICATED} />);
+    render(<AppSidebar session={AUTHENTICATED} toggleLabel="sidebar.toggle" />);
     const region = screen.getByRole("navigation");
     expect(region.textContent).toBe("");
+  });
+
+  it("labels its collapse control with the given text (design summary §3)", () => {
+    pathname = "/es/manage/offerings";
+    render(<AppSidebar session={AUTHENTICATED} toggleLabel="sidebar.toggle" />);
+    expect(
+      screen.getByRole("button", { name: "sidebar.toggle" }),
+    ).toBeDefined();
   });
 });
