@@ -5,9 +5,14 @@ import { useId } from "react";
 import { Link } from "@/shared/ui/Link";
 
 // ─── UI-specific types (declared before the component) ───
-// The wordmark "TAZAVERA" is brand artwork, not interface text: it is a
-// literal in this component and is identical in every locale (design.md D7,
-// spec "Brand wordmark is not interface text").
+// The wordmark is brand artwork, not interface text (design.md D7, spec
+// "Brand wordmark is not interface text"): it is the literal in this
+// component and is identical in every locale. Held as a constant and
+// rendered through a reference, so the literal-text verification reports
+// only real interface texts and the wordmark stays clean inside the logotype
+// (design.md D10).
+
+const WORDMARK = "TAZAVERA";
 
 /** The three settled forms (design summary §4). */
 export type LogoVariant = "icon" | "inline" | "stacked";
@@ -92,7 +97,7 @@ export function Logo({ variant, size, locale }: LogoProps): ReactNode {
             <path className="fill-logo-coffee" d={COFFEE_D} />
           </g>
         </svg>
-        {variant !== "icon" && <span className="type-brand">TAZAVERA</span>}
+        {variant !== "icon" && <span className="type-brand">{WORDMARK}</span>}
       </span>
     </Link>
   );
