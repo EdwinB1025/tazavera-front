@@ -84,3 +84,5 @@ export type {
   CardContentProps,
   CardFooterProps,
 } from "./Card";
+export { Badge } from "./Badge";
+export type { BadgeProps, BadgeVariant } from "./Badge";
