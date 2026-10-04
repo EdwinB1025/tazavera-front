@@ -17,6 +17,11 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SidebarProvider,
+  Sidebar,
 } from "@/shared/ui";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
@@ -122,5 +127,24 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
       </DropdownMenu>,
     );
     expect(screen.getByRole("button", { name: "Open" })).toBeDefined();
+  });
+
+  it("renders the sheet exported from the segment", () => {
+    render(
+      <Sheet>
+        <SheetTrigger>Open</SheetTrigger>
+        <SheetContent side="left">Panel</SheetContent>
+      </Sheet>,
+    );
+    expect(screen.getByRole("button", { name: "Open" })).toBeDefined();
+  });
+
+  it("renders the sidebar exported from the segment", () => {
+    render(
+      <SidebarProvider>
+        <Sidebar>Navigation</Sidebar>
+      </SidebarProvider>,
+    );
+    expect(screen.getByText("Navigation")).toBeDefined();
   });
 });
