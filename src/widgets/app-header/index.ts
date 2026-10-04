@@ -10,3 +10,5 @@ export { PrimaryNav } from "./ui/PrimaryNav";
 export type { PrimaryNavProps, PrimaryNavTexts } from "./ui/PrimaryNav";
 export { LanguageSelect } from "./ui/LanguageSelect";
 export type { LanguageSelectProps } from "./ui/LanguageSelect";
+export { ThemeSelect } from "./ui/ThemeSelect";
+export type { ThemeSelectProps } from "./ui/ThemeSelect";
