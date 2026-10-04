@@ -8,6 +8,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  Link,
 } from "@/shared/ui";
 import { ThemeSelect } from "./ThemeSelect";
 
@@ -61,6 +62,13 @@ const ITEM_HREFS = {
   deleteAccount: "account/delete",
 } as const;
 
+// ─── Entry destinations ───
+// `/[locale]/account/*` and `/[locale]/manage/*` are internal routes: they get
+// the internal `Link` treatment (`base-controls`: internal routes only), so
+// they navigate client-side and a reload — which would wipe the in-memory
+// tokens `add-auth` keeps — never happens. Only the API's `/user/security` is
+// an external destination and stays a native anchor (design.md).
+
 /**
  * User menu (design.md D5; spec "Signed-in header and user menu").
  *
@@ -80,7 +88,7 @@ export function UserMenu({
   const initials = `${user.name?.charAt(0) ?? ""}${user.surname?.charAt(0) ?? ""}`.toUpperCase();
   const name = `${user.name ?? ""} ${user.surname ?? ""}`.trim();
   const securityUrl = `${process.env.NEXT_PUBLIC_API_URL}/user/security`;
-  const management =
+  const management: { text: string; href: `/${string}` } | null =
     user.role === "coffeeshop"
       ? { text: texts.manageOfferings, href: `/${locale}/manage/offerings` }
       : user.role === "specialist"
@@ -96,7 +104,7 @@ export function UserMenu({
         {(Object.keys(ITEM_HREFS) as Array<keyof typeof ITEM_HREFS>).map(
           (key) => (
             <DropdownMenuItem key={key} asChild>
-              <a href={`/${locale}/${ITEM_HREFS[key]}`}>{texts[key]}</a>
+              <Link href={`/${locale}/${ITEM_HREFS[key]}`}>{texts[key]}</Link>
             </DropdownMenuItem>
           ),
         )}
@@ -110,7 +118,7 @@ export function UserMenu({
         <DropdownMenuSeparator />
         {management && (
           <DropdownMenuItem asChild>
-            <a href={management.href}>{management.text}</a>
+            <Link href={management.href}>{management.text}</Link>
           </DropdownMenuItem>
         )}
         <DropdownMenuItem onSelect={onSignOut}>{texts.signOut}</DropdownMenuItem>

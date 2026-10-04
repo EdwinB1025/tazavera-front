@@ -266,6 +266,30 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
     }
   });
 
+  it("renders the internal entries with the internal Link treatment (unplanned fix: base-controls \"Link navigation\")", () => {
+    renderSignedIn("specialist");
+    openMenu();
+    const entries: Array<[string, string]> = [
+      [TEXTS.profile, "/es/account/profile"],
+      [TEXTS.editProfile, "/es/account/edit"],
+      [TEXTS.changePassword, "/es/account/password"],
+      [TEXTS.deactivateAccount, "/es/account/deactivate"],
+      [TEXTS.deleteAccount, "/es/account/delete"],
+      [TEXTS.manageEvaluations, "/es/manage/evaluations"],
+    ];
+    for (const [name, href] of entries) {
+      // The entry is the anchor itself and carries the shared `Link`
+      // treatment, so the internal route opens through the client-side
+      // navigator instead of a full reload. Only /user/security stays a
+      // native anchor (the case below).
+      const entry = screen.getByRole("menuitem", { name });
+      expect(entry.getAttribute("href")).toBe(href);
+      expect(entry.className).toContain("underline");
+      expect(entry.className).toContain("text-text-link");
+      expect(entry.className).toContain("hover:text-text-link-hover");
+    }
+  });
+
   it("renders the security entry as an external link, natively", () => {
     renderSignedIn("specialist");
     openMenu();
