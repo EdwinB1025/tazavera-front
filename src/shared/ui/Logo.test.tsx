@@ -1,5 +1,7 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import { resolve as pathResolve } from "node:path";
 import { Logo } from "@/shared/ui/Logo";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
@@ -164,5 +166,45 @@ describe("Logo", () => {
         1,
       );
     });
+  });
+});
+
+describe("app/icon.svg: the browser icon in both themes (design.md D7)", () => {
+  // The browser icon cannot read the page's data-theme: it adapts to the
+  // operating-system appearance through an embedded <style> — the three parts
+  // take a class each, filled with the traditional colors as literal hex
+  // values (artwork definition, exempt from the no-literal-text rule), and an
+  // @media (prefers-color-scheme: dark) block reassigns them to the dark ones
+  // (spec: "Browser icon" and "Icon appearance follows the operating system").
+  const ICON_PATH = pathResolve(process.cwd(), "app/icon.svg");
+
+  function iconSource(): string {
+    return readFileSync(ICON_PATH, "utf-8");
+  }
+
+  /** Index of the dark block; throws the failure out when absent. */
+  function splitAtDarkBlock(src: string): { base: string; dark: string } {
+    const mediaQuery = "@media (prefers-color-scheme: dark)";
+    const mediaIdx = src.indexOf(mediaQuery);
+    expect(mediaIdx).toBeGreaterThan(-1);
+    return { base: src.slice(0, mediaIdx), dark: src.slice(mediaIdx) };
+  }
+
+  it("fills the three parts with the traditional hex values", () => {
+    const { base } = splitAtDarkBlock(iconSource());
+    expect(base).toMatch(/\.logo-leaf\s*\{[^}]*fill:\s*#688f25/);
+    expect(base).toMatch(/\.logo-cup\s*\{[^}]*fill:\s*#0c3151/);
+    expect(base).toMatch(/\.logo-coffee\s*\{[^}]*fill:\s*#472e2e/);
+  });
+
+  it("reassigns the three parts to the dark hex values in the dark block", () => {
+    const { dark } = splitAtDarkBlock(iconSource());
+    expect(dark).toMatch(/\.logo-leaf\s*\{[^}]*fill:\s*#bec387/);
+    expect(dark).toMatch(/\.logo-cup\s*\{[^}]*fill:\s*#c9e5e0/);
+    expect(dark).toMatch(/\.logo-coffee\s*\{[^}]*fill:\s*#9b7e7d/);
+  });
+
+  it("carries the media query on the operating-system appearance", () => {
+    expect(iconSource()).toContain("@media (prefers-color-scheme: dark)");
   });
 });
