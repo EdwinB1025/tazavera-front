@@ -37,7 +37,7 @@ The shell SHALL present the header above a main area that holds the content of t
 - **THEN** the sidebar occupies its own column beside the content and the content region keeps the remaining width
 
 ### Requirement: Header brand and primary navigation
-The header SHALL show the brand logotype, linking to the root of the active locale. On medium and larger viewports it SHALL also show the "Top rated" and "About us" entries; on small viewports those two entries SHALL NOT be shown.
+The header SHALL show the brand logotype, linking to the root of the active locale. The brand logotype and the primary navigation SHALL sit in one group on the left, and the language selector and the session control SHALL sit in one group on the right, on every viewport. On medium and larger viewports it SHALL also show the "Top rated" and "About us" entries; on small viewports those two entries SHALL NOT be shown.
 
 #### Scenario: Brand link
 - **WHEN** the user activates the brand logotype in the header
@@ -50,6 +50,10 @@ The header SHALL show the brand logotype, linking to the root of the active loca
 #### Scenario: Primary navigation on a small viewport
 - **WHEN** the header renders on a small viewport
 - **THEN** the "Top rated" and "About us" entries are not shown while the brand logotype, the language selector and the session control stay visible
+
+#### Scenario: Header grouping on every viewport
+- **WHEN** the header renders on any viewport
+- **THEN** the brand logotype and the primary navigation form one group on the left, the language selector and the session control form one group on the right after it, and no viewport changes that grouping
 
 ### Requirement: Signed-out header
 While the session is anonymous, the header SHALL show the language selector and a "Sign in" action, and SHALL NOT show a user menu.

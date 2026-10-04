@@ -279,6 +279,10 @@ Next.js route files are in the root `app/` folder and import their view from `sr
 
 `src/shared/api/schema.ts` is generated and is **not** modified. `contracts/openapi.yaml` is not touched.
 
+### D14 — Header layout groups
+
+Per review round 3, the header composes as two groups on every viewport: the brand logotype and the primary navigation on the left, and the language selector with the session control ("Sign in" while anonymous, the user-menu control while authenticated) grouped on the right. The grouping is not gated by any breakpoint — at `md` only the primary navigation and the logotype form change (D11) — so on a small viewport the left group holds just the logotype while the right group keeps the language selector and the session control. The right group follows the left group in DOM order, so the reading and tab order runs logo, navigation, language selector, session control. Everything else about the header holds as designed: the session control follows the session state (D5) and every text arrives as a prop (D10). The grouping was implemented as unplanned fix `90befb3` before this decision was recorded; task 14.1 verifies and aligns the code and its tests with it.
+
 ## Risks / Trade-offs
 
 - **The nonce makes every page dynamic.** The documented strict-CSP path requires a fresh nonce per request, which rules out static rendering for every route including the public landing page. → Accept it now: correctness of the security posture comes first, and the shell is per-user anyway. If landing-page performance becomes a problem, the options are a hash-based CSP or relaxing `script-src`, and either is its own change with its own spec delta. Raised for the product owner in `## Propose status`.

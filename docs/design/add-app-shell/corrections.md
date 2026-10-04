@@ -55,3 +55,11 @@ Build handoff of `ebc5c4d`, routed here by the product owner (2026-10-04) becaus
 2026-10-04. `openspec validate add-app-shell --strict`: `Change 'add-app-shell' is valid`.
 
 1. **Link anchor-surface passthrough.** Artifacts updated: `openspec/changes/archive/2026-10-02-add-base-control/design.md` — types section (`LinkProps` widened with `Omit<ComponentProps<typeof NextLink>, "href" | "children">` and its precedence comment) and D7 (composing parents merge through the passthrough) — applied and committed by the product owner (`144093d`), the archived change lying outside the architect's edit scope. No specified behaviour change: `openspec/specs/base-controls/spec.md` is untouched. Task 13.1 created (test-first `src/shared/ui/Link.test.tsx` passthrough cases, then verification).
+
+### Status
+
+2026-10-04. `openspec validate add-app-shell --strict`: `Change 'add-app-shell' is valid`. The document is processed as review round 3.
+
+1. **Header layout groups.** Classified as a change to specified behaviour: the two-group layout was stated in no spec or design artifact. Artifacts updated: `specs/app-shell/spec.md` — requirement "Header brand and primary navigation" now states the grouping (logotype and primary navigation on the left, language selector and session control on the right, on every viewport) and carries the new scenario "Header grouping on every viewport"; `design.md` — decision **D14** added (the two groups, the grouping never gated by a breakpoint with D11's `md` switch unchanged, right group after the left group in DOM order). Task 14.1 created (test-first verification and alignment of `src/widgets/app-header/ui/AppHeader.test.tsx` and `AppHeader.tsx` against D14). The implementation and its cases landed before this round was processed, as unplanned fix `90befb3`, whose handoff this processing fulfils.
+
+Notes on this entry: the round's report commit (`docs(app-shell): report review round 3 for add-app-shell`) was made by the architect on the product owner's instruction of 2026-10-04 to commit at the end himself. The section heading `## Roud 3` and the placement of round 2's `### Status` below it are left exactly as written: the architect never edits corrections, only appends. C1 to C4 and rounds 1 and 2 are unchanged.
