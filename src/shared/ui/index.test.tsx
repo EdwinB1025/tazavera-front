@@ -22,6 +22,10 @@ import {
   SheetContent,
   SidebarProvider,
   Sidebar,
+  Card,
+  CardAside,
+  CardContent,
+  CardFooter,
 } from "@/shared/ui";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
@@ -161,5 +165,18 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
       </SidebarProvider>,
     );
     expect(screen.getByText("Navigation")).toBeDefined();
+  });
+
+  it("renders the card exported from the segment", () => {
+    render(
+      <Card>
+        <CardAside>SCORE 84.25</CardAside>
+        <CardContent>COFFEE NAME</CardContent>
+        <CardFooter>FOOTER ACTIONS</CardFooter>
+      </Card>,
+    );
+    expect(screen.getByText("SCORE 84.25")).toBeDefined();
+    expect(screen.getByText("COFFEE NAME")).toBeDefined();
+    expect(screen.getByText("FOOTER ACTIONS")).toBeDefined();
   });
 });
