@@ -12,6 +12,7 @@ import {
   Textarea,
   Checkbox,
   RadioGroup,
+  Logo,
 } from "@/shared/ui";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
@@ -99,5 +100,11 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
       />,
     );
     expect(screen.getByRole("radio", { name: "Whole bean" })).toBeDefined();
+  });
+
+  it("renders the brand logotype exported from the segment", () => {
+    render(<Logo variant="inline" size={32} locale="es" />);
+    expect(screen.getByText("TAZAVERA")).toBeDefined();
+    expect(screen.getByRole("link", { name: "TAZAVERA" })).toBeDefined();
   });
 });
