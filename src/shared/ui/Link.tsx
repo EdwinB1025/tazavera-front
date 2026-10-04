@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import NextLink from "next/link";
 import { ArrowLeft } from "@/shared/ui/icons";
 import type { LucideIcon } from "@/shared/ui/icons";
@@ -10,13 +10,21 @@ import type { LucideIcon } from "@/shared/ui/icons";
 // absolute URL and a protocol-relative URL are both compile errors with no
 // runtime branch (spec: "External destination refused"). No generated API
 // type is used here.
+//
+// The rest of the anchor surface (`id`, `aria-*`, events, `ref` and
+// `className`) comes from `next/link`'s own props and passes through to the
+// element, exactly as `ButtonProps` does for the native button surface (D0):
+// a composing parent such as a menu entry (`DropdownMenuItem asChild`) merges
+// its role, handlers and classes in through it. Props precedence (D0):
+// `{...rest}` is spread before the component's own props, so `href` and the
+// treatment classes can never be overridden by callers.
 
 export type LinkProps<H extends `/${string}` = `/${string}`> = {
   // Reject protocol-relative URLs (and anything else is in-application).
   href: H extends `//${string}` ? never : H;
   variant?: "default" | "back"; // default "default"
   children: ReactNode;
-};
+} & Omit<ComponentProps<typeof NextLink>, "href" | "children">;
 
 const BASE_CLASSES = [
   // Correction 6 (review round 1): the default link stays a plain inline text
@@ -54,17 +62,24 @@ export function Link<H extends `/${string}` = `/${string}`>({
   href,
   variant = "default",
   children,
+  className,
+  ...rest
 }: LinkProps<H>): ReactNode {
   const LeadingIcon: LucideIcon | undefined =
     variant === "back" ? ArrowLeft : undefined;
 
-  const className =
-    variant === "back"
-      ? [BASE_CLASSES, BACK_CLASSES].join(" ")
-      : BASE_CLASSES;
-
   return (
-    <NextLink href={href} className={className}>
+    <NextLink
+      {...rest}
+      href={href}
+      className={[
+        BASE_CLASSES,
+        variant === "back" ? BACK_CLASSES : "",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
       {LeadingIcon && <LeadingIcon className="size-4 shrink-0" />}
       {children}
     </NextLink>

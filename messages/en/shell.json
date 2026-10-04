@@ -1,0 +1,18 @@
+{
+  "topRated": "Top rated",
+  "aboutUs": "About us",
+  "signIn": "Sign in",
+  "languageSelector": "Language",
+  "profile": "Profile",
+  "editProfile": "Edit profile",
+  "changePassword": "Change password",
+  "deactivateAccount": "Deactivate account",
+  "deleteAccount": "Delete account",
+  "security": "Security",
+  "themeSelector": "Theme",
+  "manageOfferings": "Manage offerings",
+  "manageEvaluations": "Manage evaluations",
+  "signOut": "Sign out",
+  "brandLink": "Tazavera, go to the home page",
+  "toggleSidebar": "Show or hide the navigation"
+}

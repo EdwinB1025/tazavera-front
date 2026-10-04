@@ -14,6 +14,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 - At the start of every request, read the current state by command (tasks.md, `git status`, `git log`, `openspec status`); never rely on command outputs from earlier turns, because the other agent or product owner may have changed them.
 - Do not deliberate about tool mechanics or cosmetic details (whitespace, trailing newlines, how to batch commands): pick the plain option and move on.
+- Edit and commit only inside the worktree this session started in. Read other worktrees or branches freely; prefer `git show <branch>:<path>` for committed content.
+
 
 ## Agent roles
 

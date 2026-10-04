@@ -52,14 +52,18 @@ type LinkProps<H extends `/${string}`> = {
   href: H extends `//${string}` ? never : H;
   variant?: "default" | "back"; // default "default"
   children: ReactNode;
-};
+} & Omit<ComponentProps<typeof NextLink>, "href" | "children">;
+// the rest of the anchor surface (`className`, `aria-*`, events, `ref`) comes
+// from `next/link` and passes through to the element, so a composing parent
+// (`DropdownMenuItem asChild`) merges its role, handlers and classes in
+// through it (review round 2 of add-app-shell)
 
 // src/shared/ui/icons.ts — the only module that imports lucide-react
 export { Loader2, ArrowLeft, type LucideIcon } from "lucide-react";
 // the project's own SVGs (app logo, coffee-bean) are added here by changes 6 and 2
 ```
 
-The `ButtonProps` union makes an unnamed icon-only button a compile error, while extending `ButtonHTMLAttributes<HTMLButtonElement>` keeps the native button surface (`form`, `name`, `value`, `aria-*`, events) passing through to the element. Props precedence (review round 1): `{...rest}` is spread **before** the component's own props, so the `aria-busy`, `aria-disabled`, `type`, `onClick` and `className` the component sets can never be overridden by callers. The runtime test asserts the accessible name as a second line of defence. Constraining `href` with a conditional type makes an absolute URL **and** a protocol-relative URL (`//…`) compile errors, so Link needs no runtime branch for external destinations.
+The `ButtonProps` union makes an unnamed icon-only button a compile error, while extending `ButtonHTMLAttributes<HTMLButtonElement>` keeps the native button surface (`form`, `name`, `value`, `aria-*`, events) passing through to the element. Props precedence (review round 1): `{...rest}` is spread **before** the component's own props, so the `aria-busy`, `aria-disabled`, `type`, `onClick` and `className` the component sets can never be overridden by callers. The runtime test asserts the accessible name as a second line of defence. Constraining `href` with a conditional type makes an absolute URL **and** a protocol-relative URL (`//…`) compile errors, so Link needs no runtime branch for external destinations. The `LinkProps` widening (review round 2 of `add-app-shell`) follows the same precedence on the anchor surface: the passthrough props are spread before the component's own and the caller's `className` is joined **after** the treatment classes, so `href` and the treatment can never be overridden.
 
 ### D1. Radius tokens follow the color pattern
 
@@ -96,7 +100,7 @@ The navigation-action button renders in the header (`nav-header`), not on the si
 
 ### D7. Link behaviour
 
-Internal routes only, rendered with `next/link`; always underlined in every state (CSS `underline`, not a hover effect). Colors come from the link tokens through their generated utility names, `text-text-link` and `hover:text-text-link-hover` (a `--color-text-link*` token generates `text-text-link*`; the unprefixed `text-link` generates no CSS). The `inline-flex items-center gap-2` layout belongs to the `back` variant only — it renders a leading Lucide `ArrowLeft` at 16px with `gap-2` before the text — while the default variant is a plain inline text run, so its text wraps with the surrounding text (review round 1). External navigation (e.g. the authorization-server redirect) is done by the component that needs it — `Link` cannot accept one at all: the `href` conditional type rejects an absolute URL and a protocol-relative URL (`//…`) at compile time, with no runtime branch. *Alternative:* an `external` variant with `target="_blank"` (rejected: out of scope by design, and it invites misuse).
+Internal routes only, rendered with `next/link`; always underlined in every state (CSS `underline`, not a hover effect). Colors come from the link tokens through their generated utility names, `text-text-link` and `hover:text-text-link-hover` (a `--color-text-link*` token generates `text-text-link*`; the unprefixed `text-link` generates no CSS). The `inline-flex items-center gap-2` layout belongs to the `back` variant only — it renders a leading Lucide `ArrowLeft` at 16px with `gap-2` before the text — while the default variant is a plain inline text run, so its text wraps with the surrounding text (review round 1). External navigation (e.g. the authorization-server redirect) is done by the component that needs it — `Link` cannot accept one at all: the `href` conditional type rejects an absolute URL and a protocol-relative URL (`//…`) at compile time, with no runtime branch. *Alternative:* an `external` variant with `target="_blank"` (rejected: out of scope by design, and it invites misuse). A composing parent merges its role, handlers and classes into the link through the anchor-surface passthrough of the types section — a menu entry renders as `DropdownMenuItem asChild` around it (review round 2 of `add-app-shell`).
 
 ### D8. Single icon entry point
 

@@ -358,6 +358,15 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "nav-button-border-hover", bg: "nav-button-bg-hover", kind: "bound", exempt: true },
   { fg: "nav-button-border-hover", bg: "nav-header", kind: "bound", exempt: true },
 
+  // ── Logotype exemptions (add-app-shell design.md D8) ──
+  // A part of the brand logotype is excluded from WCAG 2.2 SC 1.4.11 ("part
+  // of a logo or brand name"), so the three logotype pairs are exempt from
+  // the 3:1 rule in both themes. Their measured contrasts are asserted in a
+  // dedicated block below (design summary §4).
+  { fg: "logo-cup", bg: "nav-surface", kind: "bound", exempt: true },
+  { fg: "logo-coffee", bg: "nav-surface", kind: "bound", exempt: true },
+  { fg: "logo-leaf", bg: "nav-surface", kind: "bound", exempt: true },
+
   // ── Form-field boxes (form-fields design.md D5) ──
   // Input/select box on the input surface. Pairs the traditional matrix does
   // not already assert (text-placeholder / surface-input and
@@ -411,6 +420,70 @@ describe("Traditional theme decorative exemptions (Decision 8 + 14)", () => {
     const header = resolveToken("nav-header", props);
     expect(contrast(fill, header)).toBeGreaterThanOrEqual(3.0);
   });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Logotype exemptions (add-app-shell design.md D8, design summary §4)
+// A part of the brand logotype is excluded from the 3:1 non-text rule (WCAG
+// 2.2 SC 1.4.11: "part of a logo or brand name"), so the three logotype pairs
+// are registered as exemptions beside the decorative exemptions above and are
+// measured at their documented contrasts on nav-surface instead. Each logotype
+// token must also be defined in both theme blocks (spec: "Logotype token
+// missing from one theme").
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const LOGOTYPE_PAIRS: Array<{
+  fg: string;
+  traditional: number;
+  dark: number;
+}> = [
+  { fg: "logo-cup", traditional: 5.9, dark: 11.2 },
+  { fg: "logo-coffee", traditional: 5.4, dark: 4.0 },
+  { fg: "logo-leaf", traditional: 1.7, dark: 8.1 },
+];
+
+describe("Logotype pairs on nav-surface: exempt at their documented contrasts (design summary §4)", () => {
+  const css = readGlobals();
+  const tradProps = extractTraditional(css);
+  const darkProps = extractDark(css);
+  const merged = new Map(tradProps);
+  for (const [k, v] of darkProps) merged.set(k, v);
+
+  for (const pair of LOGOTYPE_PAIRS) {
+    it(`traditional logotype exemption: ${pair.fg} / nav-surface at ${pair.traditional}:1`, () => {
+      const fg = resolveToken(pair.fg, tradProps);
+      const bg = resolveToken("nav-surface", tradProps);
+      expect(contrast(fg, bg)).toBeCloseTo(pair.traditional, 1);
+    });
+
+    it(`dark logotype exemption: ${pair.fg} / nav-surface at ${pair.dark}:1`, () => {
+      const fg = resolveToken(pair.fg, merged);
+      const bg = resolveToken("nav-surface", merged);
+      expect(contrast(fg, bg)).toBeCloseTo(pair.dark, 1);
+    });
+  }
+});
+
+describe("Logotype token completeness: each logotype token defined in both themes", () => {
+  const css = readGlobals();
+  const tradProps = extractTraditional(css);
+  const darkProps = extractDark(css);
+
+  for (const name of ["logo-leaf", "logo-cup", "logo-coffee"]) {
+    it(`traditional @theme defines --color-${name}`, () => {
+      expect(
+        tradProps.has(`--color-${name}`),
+        `logotype token --color-${name} is undefined in the traditional theme`,
+      ).toBe(true);
+    });
+
+    it(`dark theme defines --color-${name}`, () => {
+      expect(
+        darkProps.has(`--color-${name}`),
+        `logotype token --color-${name} is undefined in the dark theme`,
+      ).toBe(true);
+    });
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -487,6 +560,13 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "nav-button-border", bg: "nav-header", kind: "bound" },
   { fg: "nav-button-border-hover", bg: "nav-button-bg-hover", kind: "bound" },
   { fg: "nav-button-border-hover", bg: "nav-header", kind: "bound" },
+
+  // ── Logotype exemptions (add-app-shell design.md D8) ──
+  // Exempt from the 3:1 rule in the dark theme as well; measured at their
+  // documented contrasts in the logotype block below.
+  { fg: "logo-cup", bg: "nav-surface", kind: "bound", exempt: true },
+  { fg: "logo-coffee", bg: "nav-surface", kind: "bound", exempt: true },
+  { fg: "logo-leaf", bg: "nav-surface", kind: "bound", exempt: true },
 
   // ── Checked and inverse states (form-fields design.md D5) ──
   { fg: "checked-mark", bg: "surface-checked", kind: "icon" },

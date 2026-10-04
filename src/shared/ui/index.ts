@@ -31,3 +31,49 @@ export type {
   RadioOption,
 } from "./RadioGroup";
 export { Loader2, ArrowLeft, type LucideIcon } from "./icons";
+export { Logo } from "./Logo";
+export type { LogoProps, LogoVariant } from "./Logo";
+export {
+  DropdownMenu,
+  DropdownMenuPortal,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuItem,
+  DropdownMenuCheckboxItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+} from "./DropdownMenu";
+export {
+  Sheet,
+  SheetTrigger,
+  SheetClose,
+  SheetPortal,
+  SheetOverlay,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+} from "./Sheet";
+export {
+  SidebarProvider,
+  Sidebar,
+  SidebarTrigger,
+  SidebarInset,
+  SidebarHeader,
+  SidebarFooter,
+  SidebarContent,
+  SidebarSeparator,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from "./Sidebar";
