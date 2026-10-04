@@ -34,9 +34,38 @@ import { resolve as pathResolve } from "node:path";
 const COLOR_UTILITY =
   /^(?:[a-z-]+:)*(bg|text|border|ring-offset|ring)-([a-z0-9][a-z0-9-]*)(?:\/[a-z0-9]+)?$/;
 
+// ─── Border-width utilities ───
+// Bare `border`, `border-<side>` and `border-<side>-<n>` (n numeric; side one
+// of t r b l x y s e) set border WIDTHS, not colors — the border-width classes
+// design.md D6 settled. They are skipped with any variant prefix; every other
+// `border-*` is a color utility and must map to a token or built-in color.
+const BORDER_WIDTH_UTILITY =
+  /^(?:[a-z-]+:)*border(?:-[trblxyse](?:-\d+)?)?$/;
+
 // ─── Built-in Tailwind color names that exist without a --color-* token in
 // this project (Tailwind ships them by default). Only the ones actually used.
 const BUILTIN_COLOR_NAMES = new Set(["white", "black", "transparent", "current"]);
+
+/**
+ * The color name `tok` resolves to when it is a color utility with no matching
+ * `--color-*` token in `colorTokens` and no built-in color — an offender — or
+ * `null` when the token is not a color utility (border widths, ring widths) or
+ * its color resolves.
+ */
+function offendingColorName(
+  tok: string,
+  colorTokens: Set<string>,
+): string | null {
+  if (BORDER_WIDTH_UTILITY.test(tok)) return null;
+  const m = tok.match(COLOR_UTILITY);
+  if (!m) return null;
+  const colorName = m[2]!;
+  // Purely-numeric names are ring WIDTH utilities (ring-2, ring-offset-2),
+  // not color utilities; skip them.
+  if (/^\d+$/.test(colorName)) return null;
+  if (BUILTIN_COLOR_NAMES.has(colorName)) return null;
+  return colorTokens.has(colorName) ? null : colorName;
+}
 
 describe("color-utility guard", () => {
   const uiDir = pathResolve(process.cwd(), "src/shared/ui");
@@ -96,14 +125,8 @@ describe("color-utility guard", () => {
     for (const file of collectSourceFiles(uiDir)) {
       const content = readFileSync(file, "utf-8");
       for (const tok of extractClassTokens(content)) {
-        const m = tok.match(COLOR_UTILITY);
-        if (!m) continue;
-        const colorName = m[2]!;
-        // Purely-numeric names are ring WIDTH utilities (ring-2, ring-offset-2),
-        // not color utilities; skip them.
-        if (/^\d+$/.test(colorName)) continue;
-        if (BUILTIN_COLOR_NAMES.has(colorName)) continue;
-        if (definedColorTokens.has(colorName)) continue;
+        const colorName = offendingColorName(tok, definedColorTokens);
+        if (colorName === null) continue;
         offenders.push(`${file} (uses "${tok}" → no --color-${colorName} token)`);
       }
     }
@@ -112,5 +135,29 @@ describe("color-utility guard", () => {
       offenders,
       `color utilities with no matching --color-* token in src/shared/ui: ${offenders.join(", ")}`,
     ).toEqual([]);
+  });
+
+  it("passes border-width utilities and fails on border colors with no token", () => {
+    // Widths carry no color (the border-width classes design.md D6 settled):
+    // bare border, a side, and a side with a numeric width, with any variant
+    // prefix. The guard passes every one of them.
+    for (const tok of [
+      "border",
+      "border-l-4",
+      "border-b",
+      "lg:border-r",
+      "lg:border-b-0",
+    ]) {
+      expect(offendingColorName(tok, definedColorTokens), tok).toBeNull();
+    }
+    // Every other `border-*` is still a color utility: unknown colors stay
+    // offenders and the settled accent token resolves.
+    expect(offendingColorName("border-nope", definedColorTokens)).toBe("nope");
+    expect(offendingColorName("border-l-nope", definedColorTokens)).toBe(
+      "l-nope",
+    );
+    expect(
+      offendingColorName("border-border-accent", definedColorTokens),
+    ).toBeNull();
   });
 });
