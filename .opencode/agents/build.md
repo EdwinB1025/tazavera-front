@@ -68,8 +68,30 @@ permissions:
   - action: shell
     resource: "node -e *"
     effect: allow
+  # Read-only file inspection
   - action: shell
     resource: "ls *"
+    effect: allow
+  - action: shell
+    resource: "cat *"
+    effect: allow
+  - action: shell
+    resource: "head *"
+    effect: allow
+  - action: shell
+    resource: "tail *"
+    effect: allow
+  - action: shell
+    resource: "wc *"
+    effect: allow
+  - action: shell
+    resource: "grep *"
+    effect: allow
+  - action: shell
+    resource: "find *"
+    effect: allow
+  - action: shell
+    resource: "sed -n *"
     effect: allow
   # Dependencies need approval
   - action: shell
@@ -112,7 +134,7 @@ permissions:
   - action: shell
     resource: "npx openspec show*"
     effect: allow
-  # Git: read state
+  # Git: read state, in this folder or another worktree (-C), with or without pager
   - action: shell
     resource: "git status*"
     effect: allow
@@ -123,21 +145,109 @@ permissions:
     resource: "git log*"
     effect: allow
   - action: shell
-    resource: "git branch --show-current"
+    resource: "git show*"
     effect: allow
-  # Git: stage and commit
+  - action: shell
+    resource: "git branch --show-current*"
+    effect: allow
+  - action: shell
+    resource: "git branch --list*"
+    effect: allow
+  - action: shell
+    resource: "git worktree list*"
+    effect: allow
+  - action: shell
+    resource: "git rev-parse*"
+    effect: allow
+  - action: shell
+    resource: "git ls-files*"
+    effect: allow
+  - action: shell
+    resource: "git --no-pager status*"
+    effect: allow
+  - action: shell
+    resource: "git --no-pager diff*"
+    effect: allow
+  - action: shell
+    resource: "git --no-pager log*"
+    effect: allow
+  - action: shell
+    resource: "git --no-pager show*"
+    effect: allow
+  - action: shell
+    resource: "git -C * status*"
+    effect: allow
+  - action: shell
+    resource: "git -C * diff*"
+    effect: allow
+  - action: shell
+    resource: "git -C * log*"
+    effect: allow
+  - action: shell
+    resource: "git -C * show*"
+    effect: allow
+  - action: shell
+    resource: "git ls-tree*"
+    effect: allow
+  - action: shell
+    resource: "git -C * ls-tree*"
+    effect: allow
+  - action: shell
+    resource: "git ls-tree*"
+    effect: allow
+  - action: shell
+    resource: "git -C * ls-tree*"
+    effect: allow
+  # Git: stage and commit (current worktree only)
   - action: shell
     resource: "git add *"
     effect: allow
   - action: shell
     resource: "git commit *"
     effect: allow
-  # Git: staging limits
+  # Git: staging limits — OpenSpec is the architect's, except tasks.md
   - action: shell
     resource: "git add openspec/*"
     effect: deny
   - action: shell
+    resource: "git add openspec/changes/*/tasks.md"
+    effect: allow
+  # Git: hard limits (after the allows, so they win)
+  - action: shell
+    resource: "git add -A*"
+    effect: deny
+  - action: shell
+    resource: "git add .*"
+    effect: deny
+  - action: shell
+    resource: "git commit -a*"
+    effect: deny
+  - action: shell
+    resource: "git commit --amend*"
+    effect: deny
+  - action: shell
+    resource: "*--no-verify*"
+    effect: deny
+  - action: shell
+    resource: "git push*"
+    effect: deny
+  - action: shell
+    resource: "git merge*"
+    effect: deny
+  - action: shell
+    resource: "git rebase*"
+    effect: deny
+  - action: shell
+    resource: "git reset*"
+    effect: deny
+  - action: shell
+    resource: "git checkout*"
+    effect: deny
+  - action: shell
+    resource: "git switch*"
+    effect: deny
   # ─── Other worktrees of this project ───
   - action: external_directory
     resource: "*tazavera-front*"
     effect: allow
+---
