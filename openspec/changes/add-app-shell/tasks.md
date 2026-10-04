@@ -2,7 +2,7 @@
 
 ## 1. Derived types
 
-- [ ] 1.1 Create `src/shared/api/index.ts` exporting exactly the types of design.md D4 — `SessionUser` (`NonNullable` of `data` in `operations["getTheAuthenticatedUser"]["responses"][200]["content"]["application/json"]`), `UserRole` (`SessionUser["role"]`) and `Session` (the union `{ state: "loading" } | { state: "anonymous" } | { state: "authenticated"; user: SessionUser }`) — built only from `operations` because `components.schemas` is `never`, with `src/shared/api/schema.ts` left byte-for-byte untouched and no generated type redefined or widened, verifying `npx tsc --noEmit` passes and the three names resolve from `@/shared/api`
+- [x] 1.1 Create `src/shared/api/index.ts` exporting exactly the types of design.md D4 — `SessionUser` (`NonNullable` of `data` in `operations["getTheAuthenticatedUser"]["responses"][200]["content"]["application/json"]`), `UserRole` (`SessionUser["role"]`) and `Session` (the union `{ state: "loading" } | { state: "anonymous" } | { state: "authenticated"; user: SessionUser }`) — built only from `operations` because `components.schemas` is `never`, with `src/shared/api/schema.ts` left byte-for-byte untouched and no generated type redefined or widened, verifying `npx tsc --noEmit` passes and the three names resolve from `@/shared/api`
 
 ## 2. Front-wide security rules (land first, so every later file is written against them)
 
