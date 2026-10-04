@@ -34,7 +34,7 @@ The root `app/` folder stays Next.js routing only. The shell's composition has s
 
 ### D2 — Locale routing and security headers in `proxy.ts`
 
-`proxy.ts` at the project root does three things: prefix a bare path with the default locale, redirect `/` to `/es`, and set the Content-Security-Policy (D9). It runs before filesystem routes, so the redirect wins over any page at `/` and `app/page.tsx` is deleted. `/callback` is excluded by the matcher so `add-auth` owns its request entirely.
+`proxy.ts` at the project root does three things: prefix a bare path with the default locale, redirect `/` to `/es`, and set the Content-Security-Policy (D9). It runs before filesystem routes, so the redirect wins over any page at `/` and `app/page.tsx` is deleted. `/callback` is excluded by the matcher so `add-auth` owns its request entirely. Framework and asset paths — anything under `/_next/` and any path whose last segment is a file name — are excluded from the proxy itself: they are never prefixed with a locale (prefixing them would leave the page without CSS, JS or fonts) and carry no policy from it (review round 4).
 
 The locale list and the default live in `src/shared/config/locales.ts` and are imported by `proxy.ts` and by the shell. That module is pure constants with no runtime state, which is what the proxy isolation guidance in `03-api-reference/03-file-conventions/proxy.md` actually warns about.
 
@@ -161,6 +161,8 @@ frame-ancestors 'none';
 `style-src` keeps `'unsafe-inline'` and no nonce. A nonce in `style-src` suppresses `'unsafe-inline'` for that directive, and the Radix overlays set inline styles for positioning, so a nonce there would break the sheet and the dropdown. Style injection is a materially lower risk than script injection, and `script-src` stays strict.
 
 In development the documented `'unsafe-eval'` is appended to `script-src`, because React uses `eval` for debugging there. It is not required in production.
+
+The policy covers **document** responses. Framework and asset paths return from the proxy before it is built (D2) and carry no policy, and `/callback` sits outside the matcher, so `add-auth` gives that route its policy (review round 4).
 
 ### D10 — Message catalogs
 

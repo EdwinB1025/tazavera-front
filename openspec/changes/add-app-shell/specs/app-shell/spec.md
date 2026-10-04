@@ -67,7 +67,7 @@ While the session is anonymous, the header SHALL show the language selector and 
 - **THEN** signing in starts for the route the user is on
 
 ### Requirement: Signed-in header and user menu
-While the session is authenticated, the header SHALL show the brand logotype, the language selector and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The menu SHALL offer the profile settings entries, a theme selector, the management entry for the user's role, and sign out.
+While the session is authenticated, the header SHALL show the brand logotype, the language selector and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The menu SHALL offer the profile settings entries, the security entry as an external link to the API's security page, a theme selector, the management entry for the user's role, and sign out.
 
 #### Scenario: User control carries the user's initials
 - **WHEN** the session is authenticated
@@ -75,7 +75,7 @@ While the session is authenticated, the header SHALL show the brand logotype, th
 
 #### Scenario: Menu content
 - **WHEN** the user opens the user menu
-- **THEN** it offers the profile settings entries, the management entry for the user's role and the sign out action
+- **THEN** it offers the profile settings entries, the external security entry, the management entry for the user's role and the sign out action
 
 #### Scenario: Management entry for a coffeeshop
 - **WHEN** the authenticated user's `data.role` from `GET /user` is `coffeeshop`
@@ -226,7 +226,7 @@ The application SHALL NOT render markup injected as raw HTML.
 - **THEN** verification fails naming the file and the rendering
 
 ### Requirement: Content-Security-Policy
-Every response of the application SHALL carry a Content-Security-Policy that allows scripts only from the application itself and allows connections to the API origin.
+Every document response of the application SHALL carry a Content-Security-Policy that allows scripts only from the application itself and allows connections to the API origin. Static assets — framework paths under `/_next/` and file paths — are intentionally excluded from the policy, and `/callback` gets its policy from `add-auth`, which owns that route.
 
 #### Scenario: Own scripts run
 - **WHEN** the application's own scripts load on a page
@@ -240,6 +240,6 @@ Every response of the application SHALL carry a Content-Security-Policy that all
 - **WHEN** the application connects to the API origin
 - **THEN** the policy allows the connection
 
-#### Scenario: Policy present on every response
+#### Scenario: Policy present on every document response
 - **WHEN** verification inspects the responses of the application
-- **THEN** each carries a Content-Security-Policy
+- **THEN** each document response carries a Content-Security-Policy, while the excluded static assets and the `/callback` route carry none from this policy

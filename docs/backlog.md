@@ -14,3 +14,36 @@ One section per candidate, in this format:
 - **Open decision (Augusto):** <options, or "none">
 - **Status:** proposed | accepted | deferred
 - **Affects:** <changes that should wait for it or reference it>
+
+## R1 — End-to-end test of "Choosing a locale" (verify W1, deferred here by the product owner)
+
+- **Duplicated:** none
+- **Where today:** `src/app/shell/ShellChrome.tsx:35-39` (the locale swap), `src/widgets/app-header/ui/LanguageSelect.tsx` (the callback), `src/app/shell/AppShell.test.tsx` (router mocked with a no-op)
+- **Why it pays off now:** the shell's one navigation interaction is verified only up to the callback; every later change that switches locale rides on it
+- **Owning capability:** app-shell
+- **Proposed change:** none yet — belongs to the pre-deployment Playwright suite
+- **Open decision (Augusto):** none
+- **Status:** deferred
+- **Affects:** none
+
+## R2 — Tighten the `/callback` matcher exclusion (verify S2)
+
+- **Duplicated:** none
+- **Where today:** `proxy.ts:97` (`matcher: ["/((?!callback).*)"]`)
+- **Why it pays off now:** the lookahead excludes any path merely starting with `callback` (e.g. `/callbackfoo` skips the default-locale redirect and 404s in place); `add-auth` lands `/callback` next and the matcher is the seam
+- **Owning capability:** app-shell
+- **Proposed change:** none
+- **Open decision (Augusto):** tighten to `callback(?:/|$)` or accept the over-exclusion
+- **Status:** proposed
+- **Affects:** `add-auth`
+
+## R3 — Cover the `/callback` exclusion and the `connect-src` fallback (verify S3)
+
+- **Duplicated:** none
+- **Where today:** `proxy.test.ts` (no case for the matcher exclusion or the unset-`NEXT_PUBLIC_API_URL` fallback), `proxy.ts:41-58`
+- **Why it pays off now:** two ruled edge cases rest on review only; `add-auth` touches the same proxy seam for `/callback`
+- **Owning capability:** app-shell
+- **Proposed change:** none
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** `add-auth`
