@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { readFileSync, readdirSync, statSync } from "node:fs";
@@ -7,6 +7,14 @@ import type { Session } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
 import { AppShell } from "@/app/shell";
 import { HomeScreen } from "@/pages/home";
+
+// The shell's client chrome drives navigation through the app router hooks,
+// which need the router context jsdom does not provide. Test infrastructure
+// only: no assertion below depends on it.
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: () => {} }),
+  usePathname: () => "/es",
+}));
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
