@@ -49,17 +49,21 @@ requestProfileWrite(returnRoute: string): void;
 
 `Session`, `SessionUser` and `UserRole` are the types `add-app-shell` defines in `src/shared/api/index.ts` (its design.md D4); this change imports them from `@/shared/api` and never redefines them. The session state is browser state, so the hook and its store sit behind a `"use client"` boundary. `AppShell.tsx`'s single session expression — `add-app-shell`'s D3 seam, today the anonymous constant — calls `useSession()`, and the header and sidebar keep receiving the session as input exactly as `add-app-shell` designed them.
 
+Session start is idempotent: a module-level guard makes the startup silent check run at most once per page load, so effects running twice — Strict Mode is on by default in the App Router and remounts in development (`01-app/03-api-reference/05-config/01-next-config-js/reactStrictMode.md`) — never start two authorization requests.
+
 Alternative considered: a React context provider wrapping the shell. Rejected: the session has exactly one consumer (`AppShell.tsx`) and the callback screen; a module store and a hook are enough, and no provider has to be mounted anywhere.
 
 ### D2 — The seam between the session module and the API client
 
 Feature-Sliced Design forbids `src/shared/api` from importing `src/features/auth`, yet the client must attach the token, refresh on a `401`, and start re-authentication when refresh fails (design summary §1). The dependency is inverted: `src/shared/api` exposes a small configuration surface — access to the current tokens, a refresh call, and what to do when nothing can recover the session — and `src/features/auth` fills it once when it initializes.
 
+The `401` recovery chain is single-flight: concurrent requests that fail with `401` share one in-flight refresh and all retry with its new token, and no second refresh starts while one is pending — the API is expected to rotate the refresh token on use (Passport default; to be confirmed against the API's Passport version), so a second grant with the same token would fail and fall through to re-authentication in the middle of normal use.
+
 Alternative considered: keeping the token memory in `src/features/auth` and passing a token per call. Rejected: the `401` recovery chain would live above the client that needs it, and every call site would carry auth plumbing.
 
 ### D3 — Tokens, flow data and the sign-in marker
 
-- Access token, refresh token and expiry live in module memory inside `src/shared/api` and are never written to any storage (design summary §3).
+- Access token, refresh token and expiry live in module memory inside `src/shared/api` and are never written to any storage (design summary §3). A successful refresh replaces the whole pair and the previous refresh token is never reused (rotation on use, D2); concurrent recoveries share the single in-flight refresh.
 - The pending-flow record — PKCE verifier, `state` and the return route — lives in `sessionStorage` under one key: written when a flow starts, deleted on every callback outcome (design summary §3: "only for the duration of the flow").
 - The sign-in marker — a value carrying no credential, recording only that the user had signed in — lives in `localStorage`. It is set when a sign-in completes and removed on sign out and on every callback error (design summary §4).
 
@@ -76,6 +80,8 @@ Outcomes (design summary §3 and §4):
 | `code` with a matching `state` | Exchange the code, delete the flow data, set the marker, authenticate | The return route, authenticated |
 | `error` (`login_required`, `access_denied`, any other) | Delete the flow data, remove the marker | The return route, anonymous |
 | A `state` mismatch, or nothing that belongs to a pending flow | Same as an error; with no pending flow there is no return route | The return route as anonymous, or the root of the default locale |
+
+The callback completion is idempotent: a module-level guard makes it run at most once per page load (and the startup silent check likewise, D1), so effects running twice never exchange the code twice — the code is single-use, and a second exchange would fail with `invalid_grant`, take the error path and drop the user to anonymous right after signing in — and never start two authorization requests.
 
 ### D5 — API endpoints consumed
 
