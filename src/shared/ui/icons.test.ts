@@ -11,6 +11,7 @@ import {
   EyeOff,
   ChevronDown,
   Check,
+  Clock,
   type LucideIcon,
 } from "@/shared/ui/icons";
 
@@ -32,6 +33,13 @@ describe("icon entry point (src/shared/ui/icons.ts)", () => {
     expect(EyeOff).toBeDefined();
     expect(ChevronDown).toBeDefined();
     expect(Check).toBeDefined();
+  });
+
+  it("exports the clock icon of the provisional badge (add-landing design.md D7)", () => {
+    // `Clock` joins the entry for the provisional badge's icon. It is not
+    // exported yet, so this test runs and fails until the badge slice
+    // re-exports it beside the other icons.
+    expect(Clock).toBeDefined();
   });
 
   it("is the only module under src/ that imports lucide-react", () => {

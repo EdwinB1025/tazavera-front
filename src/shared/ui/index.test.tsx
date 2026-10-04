@@ -26,6 +26,7 @@ import {
   CardAside,
   CardContent,
   CardFooter,
+  Badge,
 } from "@/shared/ui";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
@@ -178,5 +179,10 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
     expect(screen.getByText("SCORE 84.25")).toBeDefined();
     expect(screen.getByText("COFFEE NAME")).toBeDefined();
     expect(screen.getByText("FOOTER ACTIONS")).toBeDefined();
+  });
+
+  it("renders the badge exported from the segment", () => {
+    render(<Badge variant="verified">Verified</Badge>);
+    expect(screen.getByText("Verified")).toBeDefined();
   });
 });
