@@ -38,7 +38,7 @@ The root `app/` folder stays Next.js routing only. The shell's composition has s
 
 The locale list and the default live in `src/shared/config/locales.ts` and are imported by `proxy.ts` and by the shell. That module is pure constants with no runtime state, which is what the proxy isolation guidance in `03-api-reference/03-file-conventions/proxy.md` actually warns about.
 
-A URL whose prefix is not a supported locale is not matched by the shell and resolves to not-found.
+A path whose first segment is not a supported locale is redirected to the same path under the default locale (`/fr/about` → `/es/fr/about`), which resolves to not-found: no screen renders in an unsupported locale.
 
 ### D3 — The shell takes the session as input; `add-auth` owns the session module
 
@@ -99,9 +99,9 @@ Field mapping (design rule: every piece of data shown maps to a real API field):
 
 No other API field is displayed. `data.ulid` and `data.email` are part of the session contract but are not rendered by the shell.
 
-**`{NEXT_PUBLIC_API_URL}/user/security`** — a web page of the API (Fortify), opened as a link from the user menu. It is not a REST endpoint, the front end makes no request to it, and it is intentionally absent from `contracts/openapi.yaml`. It is an external destination, so it is rendered natively and not through the internal link treatment, as `base-controls` already specifies.
+**`{NEXT_PUBLIC_API_URL}/user/security`** — a web page of the API (Fortify), opened as a link from the user menu. It is not a REST endpoint, the front end makes no request to it, and it is intentionally absent from `contracts/openapi.yaml`. It is an external destination, so it is rendered natively and not through the internal link treatment, as `base-controls` already specifies. The menu's internal destinations do use the internal link treatment — the five profile settings entries (profile, edit, password, deactivate account, delete account) at `/[locale]/account/*` and the management entry at `/[locale]/manage/*` — so choosing one does not reload the page and wipe the in-memory tokens.
 
-**Error presentation.** This change shows no API error. When the session cannot be resolved — including a `GET /user` failure — the shell renders the anonymous header: "Sign in", no user menu. There is no error message, no error page and no retry affordance, because the signed-out shell is always usable and a session failure is not the user's problem to fix. This is the "Session unresolvable" scenario in `specs/app-shell/spec.md`.
+**Error presentation.** This change shows no API error. When the session cannot be resolved — including a `GET /user` failure — the shell renders the anonymous header: "Sign in", no user menu. There is no error message, no error page and no retry affordance, because the signed-out shell is always usable and a session failure is not the user's problem to fix. The unresolvable session reaches the shell as `{ state: "anonymous" }`; the `Session` union of D4 is unchanged. This is the "Session unresolvable" scenario in `specs/app-shell/spec.md`.
 
 The shared card is not used by this change, so the card field-mapping rule does not apply.
 
@@ -121,9 +121,9 @@ The drawing is the original `favicon.svg` in `docs/design/add-app-shell/`, inlin
 
 `app/icon.svg` carries the same drawing as the browser icon, adapted to both themes the only way a favicon can be: an embedded `<style>` that gives the leaf, cup and coffee parts a class each and fills them with the traditional colors as literal hex values (`#688f25`, `#0c3151`, `#472e2e`), plus an `@media (prefers-color-scheme: dark)` block reassigning them to the dark ones (`#bec387`, `#c9e5e0`, `#9b7e7d` — `night-moss-300`, `night-sage-100` and the new coffee primitive). A favicon cannot read the page's `data-theme`, so it follows the operating-system appearance rather than the theme chosen in the app, and a browser with no support for a dark icon (Safari) shows the traditional colors. These hex literals are artwork definition, not interface text, and are exempt from the no-literal-text rule exactly as the wordmark is.
 
-Three forms, settled in the design summary: `icon` (drawing alone), `inline` (wordmark to the right), `stacked` (wordmark below). Each wraps in the internal link to the locale root. The header uses `inline`, and `icon` on small viewports.
+Three forms, settled in the design summary: `icon` (drawing alone), `inline` (wordmark to the right), `stacked` (wordmark below). Each wraps in the internal link to the locale root. The header uses `inline`, and `icon` on small viewports. In the `icon` form the drawing names no destination, so the link carries an accessible name taken from the `shell` catalog (`brandLink`) and supplied by the caller.
 
-"TAZAVERA" is brand artwork, not interface text: it is a literal in the component and does not change with the locale. This is the explicit carve-out from the no-literal-text rule, and it is asserted by the "Brand wordmark is not interface text" scenario.
+"TAZAVERA" is brand artwork, not interface text: it is the `WORDMARK` constant of the component and does not change with the locale, so the no-literal-text rule needs no carve-out for it. It is asserted by the "Brand wordmark is not interface text" scenario.
 
 ### D8 — Logotype tokens and the contrast exemption
 
@@ -171,16 +171,22 @@ next-intl (v4, App Router) resolves the locale and loads catalogs; the request c
 The "literal interface text detected" verification is ESLint's `react/jsx-no-literals` (from `eslint-plugin-react`, already installed as a dependency of `eslint-config-next`), enabled in `eslint.config.mjs` and run by `npm run lint`:
 
 ```js
-"react/jsx-no-literals": ["error", {
-  noStrings: true,
-  ignoreProps: true,
-  elementOverrides: { Logo: { noStrings: true, allowedStrings: ["TAZAVERA"] } },
-}]
+{
+  files: ["app/**/*.{ts,tsx}", "src/**/*.{ts,tsx}", "*.ts"],
+  ignores: ["**/*.test.ts", "**/*.test.tsx"],
+  rules: {
+    "react/jsx-no-literals": ["error", {
+      noStrings: true,
+      ignoreProps: true,
+      allowedStrings: ["*"],
+    }],
+  },
+}
 ```
 
-`noStrings: true` closes the loophole the rule leaves open by default: without it a bare JSX text is reported, but `{"text"}` and a template literal are not. `elementOverrides` scopes the single exception to `Logo`, so the wordmark is permitted inside the logotype and the string `TAZAVERA` is still refused anywhere else.
+`noStrings: true` closes the loophole the rule leaves open by default: without it a bare JSX text is reported, but `{"text"}` and a template literal are not. The brand wordmark needs no allowance: it renders from the `WORDMARK` constant of `Logo.tsx` and is never JSX text, so a literal `TAZAVERA` written as JSX text is refused everywhere, inside `Logo` included. The one allowed string is `*`, the required-field marker of `Field.tsx`, which is a glyph rather than an interface text. `elementOverrides` is not used: configuring it re-enables the attribute check and crashes the installed plugin. The `files` entry reaches only the code that renders the interface, and test files are excluded because they pass interface texts as fixtures.
 
-**Known limitation.** Text-bearing props are outside this verification. The rule has no per-prop granularity: `ignoreProps: true` turns attribute checking off entirely, while `noStrings: true` with `ignoreProps: false` reports *every* string attribute — `className`, `href`, `id`, `type`, `viewBox`, `d`, `fill`, `xmlns`, `width`, `height`, `role`, `aria-hidden` and the rest — which would flag the whole codebase, and `elementOverrides` cannot rescue it because its keys must match `/^[A-Z][\w.]*$/` and so cannot cover native elements. An `aria-label`, `placeholder`, `title` or `alt` written as a literal is therefore not caught by lint; the requirement still forbids it and it stays the reviewer's responsibility. Accepted by the product owner in artifact review round 1.
+**Known limitation.** Text-bearing props are outside this verification. The rule has no per-prop granularity: `ignoreProps: true` turns attribute checking off entirely, while `noStrings: true` with `ignoreProps: false` reports *every* string attribute — `className`, `href`, `id`, `type`, `viewBox`, `d`, `fill`, `xmlns`, `width`, `height`, `role`, `aria-hidden` and the rest — which would flag the whole codebase, and `elementOverrides` cannot rescue it: its keys must match `/^[A-Z][\w.]*$/` and so cannot cover native elements, and configuring it crashes the installed plugin. An `aria-label`, `placeholder`, `title` or `alt` written as a literal is therefore not caught by lint; the requirement still forbids it and it stays the reviewer's responsibility. Accepted by the product owner in artifact review round 1.
 
 Rejected alternative: keeping the hand-written source scan alongside the rule to cover props. It would be a second, weaker mechanism for the same concern, and the review settled on one.
 
@@ -209,14 +215,17 @@ Next.js route files are in the root `app/` folder and import their view from `sr
 | Path | FSD layer | Holds |
 |---|---|---|
 | `proxy.ts` | `app` | Locale prefixing, `/` → `/es`, `/callback` excluded, CSP |
+| `proxy.test.ts` | `app` | CSP and locale routing of `proxy.ts` |
 | `app/[locale]/layout.tsx` | `app` | Route file: renders the shell |
 | `app/[locale]/page.tsx` | `app` | Route file: renders the home screen |
 | `app/icon.svg` | `app` | The brand drawing as the browser icon |
 | `src/app/shell/index.ts` | `app` | Public entry of the shell wiring |
 | `src/app/shell/AppShell.tsx` | `app` | Layout wiring: header, sidebar region, main area |
+| `src/app/shell/ShellChrome.tsx` | `app` | Client boundary of the shell chrome |
 | `src/app/shell/AppShell.test.tsx` | `app` | Shell states and regions |
 | `src/pages/home/index.ts` | `pages` | Public API of the home screen |
 | `src/pages/home/ui/HomeScreen.tsx` | `pages` | Home screen; empty main area until `add-landing` |
+| `src/pages/home/ui/HomeScreen.test.tsx` | `pages` | Home screen fills the main area with no content |
 | `src/widgets/app-header/index.ts` | `widgets` | Public API of the header block |
 | `src/widgets/app-header/ui/AppHeader.tsx` | `widgets` | Header in both session states |
 | `src/widgets/app-header/ui/AppHeader.test.tsx` | `widgets` | Header states, data mapping, a11y names |
@@ -224,8 +233,9 @@ Next.js route files are in the root `app/` folder and import their view from `sr
 | `src/widgets/app-header/ui/LanguageSelect.tsx` | `widgets` | Language selector |
 | `src/widgets/app-header/ui/UserMenu.tsx` | `widgets` | Avatar control and its menu |
 | `src/widgets/app-header/ui/ThemeSelect.tsx` | `widgets` | Theme selector in the user menu |
+| `src/widgets/app-header/ui/ThemeSelect.test.tsx` | `widgets` | The offered themes and the accessible name |
 | `src/widgets/app-sidebar/index.ts` | `widgets` | Public API of the sidebar region |
-| `src/widgets/app-sidebar/ui/AppSidebar.tsx` | `widgets` | Management sidebar and the entries slot |
+| `src/widgets/app-sidebar/ui/AppSidebar.tsx` | `widgets` | Management sidebar and the entries slot; the collapse control's `toggleLabel` is required |
 | `src/widgets/app-sidebar/ui/AppSidebar.test.tsx` | `widgets` | Visibility rules and the empty state |
 | `src/shared/ui/Logo.tsx` | `shared` | Brand logotype, three forms |
 | `src/shared/ui/Logo.test.tsx` | `shared` | Forms, link target, wordmark |
@@ -243,6 +253,8 @@ Next.js route files are in the root `app/` folder and import their view from `sr
 | `src/shared/lib/i18n/index.ts` | `shared` | Public entry of the message loading |
 | `src/shared/lib/i18n/request.ts` | `shared` | next-intl request configuration |
 | `src/shared/lib/i18n/messages.ts` | `shared` | Read one area's catalog for a locale |
+| `src/shared/lib/i18n/messages.test.ts` | `shared` | One area's catalog per locale, unsupported locale rejected |
+| `src/shared/lib/i18n/catalog-guard.test.ts` | `shared` | The same key set in every locale of an area |
 | `src/shared/config/locales.ts` | `shared` | Supported locales and the default |
 | `src/shared/api/index.ts` | `shared` | The derived types of D4 |
 | `messages/es/shell.json` | `app` | Spanish texts of the shell |
@@ -253,6 +265,7 @@ Next.js route files are in the root `app/` folder and import their view from `sr
 
 | Path | FSD layer | Change |
 |---|---|---|
+| `next.config.ts` | `app` | Registers the `next-intl` plugin |
 | `app/layout.tsx` | `app` | `<html lang>` from the route, `data-theme` from the theme cookie read on the server, fonts kept |
 | `src/app/styles/globals.css` | `app` | Four primitives and the three logotype tokens of D8 |
 | `src/app/styles/theme-tokens.test.ts` | `app` | Logotype pairs registered as exempt |

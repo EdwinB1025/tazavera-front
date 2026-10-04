@@ -23,7 +23,7 @@ Every application route SHALL live under a locale prefix, for the supported loca
 
 #### Scenario: Unsupported locale
 - **WHEN** the user opens a URL whose locale prefix is not supported
-- **THEN** the application reports that the page was not found instead of rendering a screen in an unknown locale
+- **THEN** the application redirects it to the same path under the default locale, where it resolves to a not-found page, instead of rendering a screen in an unknown locale
 
 ### Requirement: Shell layout and main area
 The shell SHALL present the header above a main area that holds the content of the current route. The main area SHALL be a single column when no sidebar is present, and SHALL give the sidebar its own column beside the content when the sidebar is present.
