@@ -1,5 +1,11 @@
 import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import {
+  render,
+  screen,
+  cleanup,
+  fireEvent,
+  within,
+} from "@testing-library/react";
 import type { Session, SessionUser } from "@/shared/api";
 import { AppHeader, PrimaryNav, LanguageSelect } from "@/widgets/app-header";
 
@@ -104,6 +110,47 @@ describe("AppHeader, signed-out state", () => {
     expect(screen.getByRole("button", { name: TEXTS.signIn }).className).not.toContain(
       "hidden",
     );
+  });
+
+  // ─── Header layout (unplanned fix: corrections.md round 3) ───
+  // The logo and the primary navigation form the left group; the language
+  // selector and the session control form one right-hand group, pushed to the
+  // right edge and never hidden, so the two groups hold on every viewport.
+
+  it("groups the logotype and the primary navigation on the left", () => {
+    renderHeader();
+    const header = screen.getByRole("banner");
+    expect(header.children).toHaveLength(2);
+    const left = header.children[0] as HTMLElement;
+    // both logotype forms (icon below md, inline from md) and the navigation
+    expect(left.querySelectorAll('a[href="/es"]')).toHaveLength(2);
+    expect(within(left).getByText(TEXTS.topRated)).toBeDefined();
+    expect(within(left).getByText(TEXTS.aboutUs)).toBeDefined();
+    // and nothing of the right-hand controls
+    expect(within(left).queryByRole("combobox")).toBeNull();
+    expect(within(left).queryByRole("button", { name: TEXTS.signIn })).toBeNull();
+  });
+
+  it("pushes the language selector and Sign in to the right edge as one group, after the left group", () => {
+    renderHeader();
+    const header = screen.getByRole("banner");
+    expect(header.children).toHaveLength(2);
+    const left = header.children[0] as HTMLElement;
+    const right = header.children[1] as HTMLElement;
+    // one group holding both right-hand controls
+    expect(
+      within(right).getByRole("combobox", { name: TEXTS.languageSelector }),
+    ).toBeDefined();
+    expect(within(right).getByRole("button", { name: TEXTS.signIn })).toBeDefined();
+    // in DOM order after the left group
+    expect(
+      left.compareDocumentPosition(right) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    // pushed to the right edge ...
+    expect(right.className).toContain("ml-auto");
+    // ... on every viewport: the group itself is never gated by a breakpoint
+    expect(right.className).not.toContain("hidden");
+    expect(right.className).not.toContain("md:");
   });
 
   it("renders the Sign in action in the nav-button-* tokens", () => {
@@ -247,6 +294,18 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
     renderSignedIn("specialist");
     const trigger = screen.getByRole("button", { name: "Andrés Gómez" });
     expect(trigger.textContent).toContain("AG");
+  });
+
+  it("groups the avatar with the language selector on the right (corrections.md round 3)", () => {
+    renderSignedIn("specialist");
+    const header = screen.getByRole("banner");
+    expect(header.children).toHaveLength(2);
+    const right = header.children[1] as HTMLElement;
+    // the session control is the avatar, in the same right-hand group
+    expect(
+      within(right).getByRole("combobox", { name: TEXTS.languageSelector }),
+    ).toBeDefined();
+    expect(within(right).getByRole("button", { name: "Andrés Gómez" })).toBeDefined();
   });
 
   it("offers the profile settings entries pointing at /es/account/*", () => {

@@ -48,6 +48,15 @@ export type AppHeaderProps = {
 
 const HEADER_CLASSES = ["flex", "h-16", "items-center", "gap-4", "bg-nav-surface", "px-4"].join(" ");
 
+// ─── The two groups of the header layout (corrections.md round 3) ───
+// The logo and the primary navigation sit on the left; the language selector
+// and the session control ("Sign in", or the avatar once signed in) are one
+// group pushed to the right edge. Neither group is gated by a breakpoint, so
+// the same two-group layout holds on every viewport while only the navigation
+// and the logotype form change at `md` (design summary §3).
+const LEFT_GROUP_CLASSES = ["flex", "items-center", "gap-4"].join(" ");
+const RIGHT_GROUP_CLASSES = ["ml-auto", "flex", "items-center", "gap-4"].join(" ");
+
 /**
  * Tazavera app header (design summary §3).
  *
@@ -72,37 +81,41 @@ export function AppHeader({
 }: AppHeaderProps): ReactNode {
   return (
     <header className={HEADER_CLASSES}>
-      <span className="md:hidden">
-        <Logo
-          variant="icon"
-          size={32}
-          locale={locale}
-          aria-label={texts.brandLink}
+      <div className={LEFT_GROUP_CLASSES}>
+        <span className="md:hidden">
+          <Logo
+            variant="icon"
+            size={32}
+            locale={locale}
+            aria-label={texts.brandLink}
+          />
+        </span>
+        <span className="hidden md:inline-flex">
+          <Logo variant="inline" size={32} locale={locale} />
+        </span>
+        <PrimaryNav locale={locale} texts={texts} />
+      </div>
+      <div className={RIGHT_GROUP_CLASSES}>
+        <LanguageSelect
+          label={texts.languageSelector}
+          locales={locales}
+          value={locale}
+          onLocaleChange={onLocaleChange}
         />
-      </span>
-      <span className="hidden md:inline-flex">
-        <Logo variant="inline" size={32} locale={locale} />
-      </span>
-      <PrimaryNav locale={locale} texts={texts} />
-      <LanguageSelect
-        label={texts.languageSelector}
-        locales={locales}
-        value={locale}
-        onLocaleChange={onLocaleChange}
-      />
-      {session.state === "anonymous" && (
-        <Button variant="nav-button" onClick={onSignIn}>
-          {texts.signIn}
-        </Button>
-      )}
-      {session.state === "authenticated" && (
-        <UserMenu
-          user={session.user}
-          locale={locale}
-          texts={texts}
-          onSignOut={onSignOut}
-        />
-      )}
+        {session.state === "anonymous" && (
+          <Button variant="nav-button" onClick={onSignIn}>
+            {texts.signIn}
+          </Button>
+        )}
+        {session.state === "authenticated" && (
+          <UserMenu
+            user={session.user}
+            locale={locale}
+            texts={texts}
+            onSignOut={onSignOut}
+          />
+        )}
+      </div>
     </header>
   );
 }
