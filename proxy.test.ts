@@ -6,7 +6,8 @@ import { NextRequest } from "next/server";
 import { proxy } from "./proxy";
 
 /**
- * Content-Security-Policy contract of `proxy.ts` (design.md D9).
+ * Content-Security-Policy contract of `proxy.ts` (design.md D9) and its
+ * locale routing (design.md D2; spec "Locale routing").
  *
  * Every response carries exactly the documented directive list with a fresh
  * nonce per request in `script-src`, and the same nonce is forwarded upstream
@@ -77,5 +78,37 @@ describe("proxy.ts Content-Security-Policy (design.md D9)", () => {
     vi.stubEnv("NODE_ENV", "development");
     const { csp, nonce } = runProxy();
     expect(csp).toBe(expectedCsp(nonce, true));
+  });
+});
+
+// ─── Locale routing (design.md D2; spec "Root URL", "Unsupported locale") ───
+// A path whose first segment is not a supported locale is redirected to the
+// same path under the default locale, keeping its query: it resolves there to
+// not-found and no screen ever renders in an unsupported locale.
+
+function runProxyOn(url: string) {
+  return proxy(new NextRequest(url));
+}
+
+describe("proxy.ts locale routing (design.md D2)", () => {
+  it("redirects an unsupported locale prefix to the same path under the default locale, keeping its query (spec: Unsupported locale)", () => {
+    const response = runProxyOn("https://tazavera.test/fr/about?ref=nav");
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      "https://tazavera.test/es/fr/about?ref=nav",
+    );
+  });
+
+  it("redirects the root URL to the default locale (spec: Root URL)", () => {
+    const response = runProxyOn("https://tazavera.test/");
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe("https://tazavera.test/es");
+  });
+
+  it("lets a supported-locale path through with no redirect", () => {
+    vi.stubEnv("NEXT_PUBLIC_API_URL", API_URL);
+    const response = runProxyOn("https://tazavera.test/es/about?ref=nav");
+    expect(response.headers.get("location")).toBeNull();
+    expect(response.headers.get("x-middleware-request-x-locale")).toBe("es");
   });
 });
