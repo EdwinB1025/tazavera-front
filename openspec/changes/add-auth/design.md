@@ -126,7 +126,7 @@ The callback completion is idempotent: a module-level guard makes it run at most
 | Method and path | `POST /oauth/token` |
 | Auth | None; the public client identifies itself with `client_id` in the body |
 | Request | `application/x-www-form-urlencoded`. Code exchange: `grant_type=authorization_code`, `code`, `redirect_uri`, `client_id`, `code_verifier`. Refresh: `grant_type=refresh_token`, `refresh_token`, `client_id` |
-| Response `200` | `{ "access_token": string, "refresh_token": string, "expires_in": number }` (the fields the contract's security scheme names; RFC 6749 §5.1) |
+| Response `200` | `{ "access_token": string, "token_type": "Bearer", "refresh_token": string, "expires_in": number }` (RFC 6749 §5.1: `token_type` is `Bearer`, verified against the API's `/oauth/token`; the remaining fields are the ones the contract's security scheme names) |
 | Errors | JSON body with `error` and `error_description` (RFC 6749 §5.2: `invalid_grant`, `invalid_request`, `invalid_client`, `unauthorized_client`, `invalid_scope`) |
 | Presented to the user | Never. A failed exchange or refresh takes the D4 error path or drops the session to anonymous; no message and no error page |
 
@@ -149,9 +149,10 @@ The screen loads the catalog through `src/shared/lib/i18n/messages.ts` and passe
 `src/shared/api/schema.ts` declares no named schemas, and the two OAuth endpoints are absent from it. Before any component, the first task group defines:
 
 ```ts
-/** 200 of POST /oauth/token (RFC 6749 §5.1; the fields the contract's security scheme names). Kept inside `src/shared/api`. */
+/** 200 of POST /oauth/token (RFC 6749 §5.1: `token_type` is `Bearer`, verified against the API's `/oauth/token`). Kept inside `src/shared/api`. */
 type TokenGrant = {
   access_token: string;
+  token_type: string;
   refresh_token: string;
   expires_in: number;
 };
