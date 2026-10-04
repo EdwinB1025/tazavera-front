@@ -21,7 +21,7 @@ context: |
     (traditional default and dark), with WCAG AA text contrast and 3:1 for UI
     boundaries and focus indicators.
   - base-controls: action controls (button, link), radius tokens and icon entry point
-  - form-fields: data-entry controls (field, input, password input, select, textarea, checkbox, radio, bean scale, intensity slider)
+  - form-fields: data-entry controls (field, input, password input, select, textarea, checkbox, radio, bean scale, intensity slider, descriptor chip group)
   - filtering: facet controls and filtering behaviour (search, combobox, range, options, taxonomy cascade, applied-filter chips, mobile filter panel)
   - feedback: status and messaging components (badge, callout, toast, modal, empty state)
   - content-structure: content containers (card, collapsible, tabs, label/value row, pagination)
@@ -29,6 +29,9 @@ context: |
   - auth: OAuth Authorization Code + PKCE flow against the API (callback, in-memory tokens, refresh, silent re-authentication with prompt=none, sign out, profile:write step-up), session state and API client
   - landing: public entry page with verified offerings and the About us page
   - user-account: registration (specialist and coffeeshop) and profile settings (view, edit, password, deactivate, delete)
+  - evaluations: specialist evaluation workflow (CVA combined form, draft and close, read-only view of closed evaluations, my evaluations list with its filter, delete)
+  - offering-catalog: public offerings listing with its filter, and offering detail
+  - offering-management: coffeeshop offerings (create from inventory by roaster and locations, list own, delete one or several)
 rules:
   proposal:
     - Reuse an existing capability before creating a new one.
