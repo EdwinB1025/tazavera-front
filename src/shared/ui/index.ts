@@ -31,3 +31,5 @@ export type {
   RadioOption,
 } from "./RadioGroup";
 export { Loader2, ArrowLeft, type LucideIcon } from "./icons";
+export { Logo } from "./Logo";
+export type { LogoProps, LogoVariant } from "./Logo";
