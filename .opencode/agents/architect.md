@@ -94,6 +94,12 @@ permissions:
   - action: shell
     resource: "git show --stat *"
     effect: allow
+  - action: shell
+    resource: "git show *"
+    effect: allow
+  - action: shell
+    resource: "head *"
+    effect: allow
   # Git: hard limits
   - action: shell
     resource: "git add -A*"
@@ -135,4 +141,8 @@ permissions:
   - action: shell
     resource: "npx openspec archive*"
     effect: ask
+  # ─── Other worktrees of this project ───
+  - action: external_directory
+    resource: "*tazavera-front*"
+    effect: allow
 ---

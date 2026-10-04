@@ -137,3 +137,7 @@ permissions:
     resource: "git add openspec/*"
     effect: deny
   - action: shell
+  # ─── Other worktrees of this project ───
+  - action: external_directory
+    resource: "*tazavera-front*"
+    effect: allow
