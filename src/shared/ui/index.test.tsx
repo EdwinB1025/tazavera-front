@@ -13,6 +13,10 @@ import {
   Checkbox,
   RadioGroup,
   Logo,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
 } from "@/shared/ui";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
@@ -106,5 +110,17 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
     render(<Logo variant="inline" size={32} locale="es" />);
     expect(screen.getByText("TAZAVERA")).toBeDefined();
     expect(screen.getByRole("link", { name: "TAZAVERA" })).toBeDefined();
+  });
+
+  it("renders the dropdown menu exported from the segment", () => {
+    render(
+      <DropdownMenu>
+        <DropdownMenuTrigger>Open</DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem>Entry</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>,
+    );
+    expect(screen.getByRole("button", { name: "Open" })).toBeDefined();
   });
 });

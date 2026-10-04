@@ -1,6 +1,6 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
+import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
-import type { Session } from "@/shared/api";
+import type { Session, SessionUser } from "@/shared/api";
 import { AppHeader, PrimaryNav, LanguageSelect } from "@/widgets/app-header";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
@@ -32,22 +32,34 @@ const TEXTS = {
   aboutUs: "texts.aboutUs",
   signIn: "texts.signIn",
   languageSelector: "texts.languageSelector",
+  profile: "texts.profile",
+  editProfile: "texts.editProfile",
+  changePassword: "texts.changePassword",
+  deactivateAccount: "texts.deactivateAccount",
+  deleteAccount: "texts.deleteAccount",
+  security: "texts.security",
+  themeSelector: "texts.themeSelector",
+  manageOfferings: "texts.manageOfferings",
+  manageEvaluations: "texts.manageEvaluations",
+  signOut: "texts.signOut",
 };
 
-function renderHeader() {
+function renderHeader(session: Session = ANONYMOUS) {
   const onSignIn = vi.fn();
+  const onSignOut = vi.fn();
   const onLocaleChange = vi.fn();
   const utils = render(
     <AppHeader
-      session={ANONYMOUS}
+      session={session}
       locale="es"
       locales={LOCALES}
       texts={TEXTS}
       onSignIn={onSignIn}
+      onSignOut={onSignOut}
       onLocaleChange={onLocaleChange}
     />,
   );
-  return { ...utils, onSignIn, onLocaleChange };
+  return { ...utils, onSignIn, onSignOut, onLocaleChange };
 }
 
 describe("AppHeader, signed-out state", () => {
@@ -196,5 +208,114 @@ describe("LanguageSelect", () => {
       target: { value: "en" },
     });
     expect(onLocaleChange).toHaveBeenCalledWith("en");
+  });
+});
+
+describe("UserMenu (spec: Signed-in header and user menu)", () => {
+  // design.md D5 field mapping: the control's initials and accessible name
+  // come from data.name and data.surname; the management entry from
+  // data.role. The profile-settings entries point at /[locale]/account/* and
+  // the management entry at /[locale]/manage/*; the security entry is the
+  // API's web page, rendered natively (spec: "Menu content").
+  const USER: SessionUser = {
+    ulid: "01M35F5RX4ADGC3CSDXXYB08DD",
+    name: "Andrés",
+    surname: "Gómez",
+    email: "andres@tazavera.test",
+    role: "specialist",
+  };
+
+  beforeAll(() => {
+    process.env.NEXT_PUBLIC_API_URL = "https://api.tazavera.test";
+  });
+
+  function renderSignedIn(role: string) {
+    return renderHeader({ state: "authenticated", user: { ...USER, role } });
+  }
+
+  function openMenu() {
+    fireEvent.click(screen.getByRole("button", { name: "Andrés Gómez" }));
+  }
+
+  it("opens from a control carrying the user's initials and an accessible name identifying the user", () => {
+    renderSignedIn("specialist");
+    const trigger = screen.getByRole("button", { name: "Andrés Gómez" });
+    expect(trigger.textContent).toContain("AG");
+  });
+
+  it("offers the profile settings entries pointing at /es/account/*", () => {
+    renderSignedIn("specialist");
+    openMenu();
+    const entries: Array<[string, string]> = [
+      [TEXTS.profile, "/es/account/profile"],
+      [TEXTS.editProfile, "/es/account/edit"],
+      [TEXTS.changePassword, "/es/account/password"],
+      [TEXTS.deactivateAccount, "/es/account/deactivate"],
+      [TEXTS.deleteAccount, "/es/account/delete"],
+    ];
+    for (const [name, href] of entries) {
+      expect(screen.getByRole("menuitem", { name }).getAttribute("href")).toBe(
+        href,
+      );
+    }
+  });
+
+  it("renders the security entry as an external link, natively", () => {
+    const { container } = renderSignedIn("specialist");
+    openMenu();
+    const security = container.querySelector(
+      'a[href="https://api.tazavera.test/user/security"]',
+    );
+    expect(security).not.toBeNull();
+    // not the internal Link treatment (base-controls: external destinations
+    // are rendered natively)
+    expect(security!.className).not.toContain("underline");
+    expect(security!.className).not.toContain("text-text-link");
+  });
+
+  it("mounts the theme selector (spec: Theme selection)", () => {
+    renderSignedIn("specialist");
+    openMenu();
+    expect(
+      screen.getByRole("combobox", { name: TEXTS.themeSelector }),
+    ).toBeDefined();
+  });
+
+  it("offers \"Manage offerings\" to /es/manage/offerings for a coffeeshop (spec: Management entry for a coffeeshop)", () => {
+    renderSignedIn("coffeeshop");
+    openMenu();
+    expect(
+      screen.getByRole("menuitem", { name: TEXTS.manageOfferings }).getAttribute("href"),
+    ).toBe("/es/manage/offerings");
+  });
+
+  it("offers \"Manage evaluations\" to /es/manage/evaluations for a specialist (spec: Management entry for a specialist)", () => {
+    renderSignedIn("specialist");
+    openMenu();
+    expect(
+      screen.getByRole("menuitem", { name: TEXTS.manageEvaluations }).getAttribute("href"),
+    ).toBe("/es/manage/evaluations");
+  });
+
+  it("offers no management entry for any other role (spec: No management entry for the role)", () => {
+    renderSignedIn("customer");
+    openMenu();
+    expect(screen.queryByText(TEXTS.manageOfferings)).toBeNull();
+    expect(screen.queryByText(TEXTS.manageEvaluations)).toBeNull();
+  });
+
+  it("invokes the session's sign out and closes (spec: Sign out)", () => {
+    const { onSignOut } = renderSignedIn("specialist");
+    openMenu();
+    fireEvent.click(screen.getByRole("menuitem", { name: TEXTS.signOut }));
+    expect(onSignOut).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("menuitem", { name: TEXTS.signOut })).toBeNull();
+  });
+
+  it("closes when the pointer goes outside it", () => {
+    renderSignedIn("specialist");
+    openMenu();
+    fireEvent.pointerDown(document.body);
+    expect(screen.queryByRole("menuitem", { name: TEXTS.signOut })).toBeNull();
   });
 });

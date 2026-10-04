@@ -109,6 +109,17 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
     expect(screen.queryByRole("status")).toBeNull();
     expect(screen.getAllByRole("button")).toHaveLength(1);
   });
+
+  it("shows the user menu when the session is authenticated", () => {
+    // The deferred assertion of task 6.3 (product owner, recorded there):
+    // it lands here with the user menu at task 7.2.
+    renderShell({
+      state: "authenticated",
+      user: { name: "Andrés", surname: "Gómez", role: "specialist" },
+    });
+    expect(screen.queryByRole("button", { name: texts.signIn })).toBeNull();
+    expect(screen.getByRole("button", { name: "Andrés Gómez" })).toBeDefined();
+  });
 });
 
 describe("route files (architecture rule: routing only)", () => {
