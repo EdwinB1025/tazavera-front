@@ -47,4 +47,4 @@
 
 ## 9. Integration verification
 
-- [ ] 9.1 Verify the complete change with `npm run test:run`, `npm run lint`, `npx tsc --noEmit` and `npm run build`, verifying all four commands exit 0, every guard (color, radius, focus, client-boundary, icons, xss, message structure) is green over the new files, `npm run lint` reports no `react/jsx-no-literals` violation outside the `Logo` wordmark exception, no shadcn `Button`, `Input`, `Select`, `Checkbox`, `Radio` or `Textarea` exists under `src/shared/ui`, and `src/shared/api/schema.ts` and `contracts/openapi.yaml` are unchanged
+- [x] 9.1 Verify the complete change with `npm run test:run`, `npm run lint`, `npx tsc --noEmit` and `npm run build`, verifying all four commands exit 0, every guard (color, radius, focus, client-boundary, icons, xss, message structure) is green over the new files, `npm run lint` reports no `react/jsx-no-literals` violation outside the `Logo` wordmark exception, no shadcn `Button`, `Input`, `Select`, `Checkbox`, `Radio` or `Textarea` exists under `src/shared/ui`, and `src/shared/api/schema.ts` and `contracts/openapi.yaml` are unchanged
