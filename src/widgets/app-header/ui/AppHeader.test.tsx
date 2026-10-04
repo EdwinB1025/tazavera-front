@@ -112,10 +112,11 @@ describe("AppHeader, signed-out state", () => {
     );
   });
 
-  // ─── Header layout (unplanned fix: corrections.md round 3) ───
+  // ─── Header layout (design.md D14; unplanned fix: corrections.md round 3) ───
   // The logo and the primary navigation form the left group; the language
   // selector and the session control form one right-hand group, pushed to the
-  // right edge and never hidden, so the two groups hold on every viewport.
+  // right edge and never hidden, so the two groups hold on every viewport
+  // (spec: "Header grouping on every viewport").
 
   it("groups the logotype and the primary navigation on the left", () => {
     renderHeader();
@@ -129,6 +130,10 @@ describe("AppHeader, signed-out state", () => {
     // and nothing of the right-hand controls
     expect(within(left).queryByRole("combobox")).toBeNull();
     expect(within(left).queryByRole("button", { name: TEXTS.signIn })).toBeNull();
+    // the group itself is never gated by a breakpoint (design.md D14: only
+    // the navigation and the logotype form change at `md`)
+    expect(left.className).not.toContain("hidden");
+    expect(left.className).not.toContain("md:");
   });
 
   it("pushes the language selector and Sign in to the right edge as one group, after the left group", () => {
@@ -300,12 +305,26 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
     renderSignedIn("specialist");
     const header = screen.getByRole("banner");
     expect(header.children).toHaveLength(2);
+    const left = header.children[0] as HTMLElement;
     const right = header.children[1] as HTMLElement;
+    // the left group keeps both logotype forms and the navigation, with none
+    // of the right-hand controls
+    expect(left.querySelectorAll('a[href="/es"]')).toHaveLength(2);
+    expect(within(left).queryByRole("combobox")).toBeNull();
+    expect(within(left).queryByRole("button", { name: "Andrés Gómez" })).toBeNull();
     // the session control is the avatar, in the same right-hand group
     expect(
       within(right).getByRole("combobox", { name: TEXTS.languageSelector }),
     ).toBeDefined();
     expect(within(right).getByRole("button", { name: "Andrés Gómez" })).toBeDefined();
+    // in DOM order after the left group, at the right edge, and never gated
+    // by a breakpoint: the grouping holds on every viewport (design.md D14)
+    expect(
+      left.compareDocumentPosition(right) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(right.className).toContain("ml-auto");
+    expect(right.className).not.toContain("hidden");
+    expect(right.className).not.toContain("md:");
   });
 
   it("offers the profile settings entries pointing at /es/account/*", () => {
