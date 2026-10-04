@@ -69,6 +69,15 @@
     --color-score-citron: #C2CF54;
     --color-score-lime: #A5D520;
     --color-score-green: #58DB33;
+
+    /* ─── BRAND (brand logotype artwork only) ───
+       Literal artwork values of the original logotype (add-app-shell
+       design.md D8). The three brand values plus the lighter coffee tone
+       the dark theme uses. */
+    --color-brand-leaf: #688f25;
+    --color-brand-cup: #0c3151;
+    --color-brand-coffee: #472e2e;
+    --color-brand-coffee-light: #9b7e7d;
 }
 
 /* =========================================================
@@ -209,6 +218,14 @@
     --color-border-inverse: var(--color-sage-400);
     --color-text-placeholder-inverse: var(--color-petrol-300);
     --color-feedback-error-inverse: var(--color-oxblood-300);
+
+    /* ─── LOGOTYPE (add-app-shell design.md D8) ───
+       The three drawn parts of the brand logotype. Exempt from the 3:1
+       non-text rule (WCAG 2.2 SC 1.4.11 excludes parts of a logo or brand
+       name); measured at their documented contrasts instead. */
+    --color-logo-leaf: var(--color-brand-leaf);
+    --color-logo-cup: var(--color-brand-cup);
+    --color-logo-coffee: var(--color-brand-coffee);
 }
 
 /* =========================================================
@@ -417,6 +434,11 @@
         --color-border-inverse: var(--color-night-petrol-600);
         --color-text-placeholder-inverse: var(--color-night-petrol-400);
         --color-feedback-error-inverse: var(--color-night-oxblood-500);
+
+        /* ─── LOGOTYPE (add-app-shell design.md D8) ─── */
+        --color-logo-leaf: var(--color-night-moss-300);
+        --color-logo-cup: var(--color-night-sage-100);
+        --color-logo-coffee: var(--color-brand-coffee-light);
 
         /* ─── RADIUS ─── */
         --radius-pill: 0;
