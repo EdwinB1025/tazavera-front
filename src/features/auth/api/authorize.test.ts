@@ -2,20 +2,25 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { DEFAULT_LOCALE } from "@/shared/config/locales";
 
 /**
- * Starting a flow and completing it at the callback (design.md D3, D4 and D5;
- * specs "Sign in", "Return through the callback" and "Credential handling").
- * Written before `./authorize` exists (task 3.1): the imports fail to resolve
- * until then, so the file runs and fails as required.
+ * Starting a flow and completing it at the callback (design.md D3, D4, D5 and
+ * D10; specs "Sign in", "Return through the callback" and "Credential
+ * handling"). Written before `./authorize` exists (task 3.1) and updated to
+ * the popup start of design.md D10 (task 3.2): sign in opens a popup and keeps
+ * its verifier, `state` and return route in the opener's memory, writing
+ * nothing to storage, while `completeCallback` runs the D4 outcomes of a
+ * full-page flow and opens the return route through client-side navigation.
  *
  * `./authorize` and `../model/flow` are imported fresh in every test
  * (`vi.resetModules()`), because the callback completion runs at most once per
  * page load behind a module-level guard (design.md D4 idempotency) and each
- * test stands for one page load. Every opening goes through the `location`
- * global's `assign`, stubbed here like `fetch`: jsdom cannot spy on the real
- * `window.location`. `location.pathname` is set to the route sign in starts
- * from, so `lang` is the locale of the route under any reading. The "as
- * anonymous" half of the error outcomes belongs to the session tests of task
- * 4.1; here the outcomes assert their flow data, marker and opening.
+ * test stands for one page load. Every popup opening goes through `window.open`
+ * and the popup window's `location.assign`, every return through the history's
+ * `pushState` (client-side navigation, never a full page load), stubbed here
+ * like `fetch`: jsdom cannot open windows or navigate. `location.pathname` is
+ * set to the route sign in starts from, so `lang` is the locale of the route
+ * under any reading. The "as anonymous" half of the error outcomes belongs to
+ * the session tests of task 4.1; here the outcomes assert their flow data,
+ * marker and opening.
  */
 
 const API_URL = "https://api.tazavera.test";
@@ -31,6 +36,13 @@ const GRANT = {
 
 const fetchMock =
   vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>();
+const popupMock = {
+  location: { assign: vi.fn<(url: string) => void>() },
+  closed: false,
+};
+const openMock = vi.fn<Window["open"]>();
+const pushMock = vi.fn<History["pushState"]>();
+const replaceMock = vi.fn<History["replaceState"]>();
 const locationMock = {
   assign: vi.fn<(url: string) => void>(),
   pathname: "/",
@@ -43,11 +55,40 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
-/** The URL of the single opening so far, parsed. */
+/** The URL the single popup opening so far was pointed at, parsed. */
 function openedUrl(): URL {
-  expect(locationMock.assign).toHaveBeenCalledTimes(1);
-  return new URL(String(locationMock.assign.mock.calls[0]![0]));
+  expect(popupMock.location.assign).toHaveBeenCalledTimes(1);
+  return new URL(String(popupMock.location.assign.mock.calls[0]![0]));
 }
+
+/** The route the single client-side navigation so far opened. */
+function openedRoute(): string {
+  expect(pushMock).toHaveBeenCalledTimes(1);
+  return String(pushMock.mock.calls[0]![2]);
+}
+
+/**
+ * Waits for the asynchronous PKCE challenge to resolve and the popup to be
+ * pointed at the authorization page (design.md D8).
+ */
+async function awaitChallenge(): Promise<void> {
+  await vi.waitFor(() => {
+    expect(popupMock.location.assign).toHaveBeenCalled();
+  });
+}
+
+/**
+ * `crypto.subtle.digest` as this realm offers it. Its result is copied into an
+ * `ArrayBuffer` of the test's own realm: in the jsdom worker the digest comes
+ * back from another realm, and `oauth4webapi`'s base64url encoder rejects it
+ * (`input.subarray is not a function`) before the challenge can resolve. The
+ * digest bytes are unchanged.
+ */
+const realDigest = crypto.subtle.digest.bind(crypto.subtle);
+const realmDigest: SubtleCrypto["digest"] = (algorithm, data) =>
+  realDigest(algorithm, data).then(
+    (value) => new Uint8Array(value).slice().buffer as ArrayBuffer,
+  );
 
 /** base64url of the SHA-256 digest of `verifier` (RFC 7636, `S256`). */
 async function s256(verifier: string): Promise<string> {
@@ -93,10 +134,19 @@ beforeEach(() => {
   localStorage.clear();
   document.cookie = "theme=; path=/; max-age=0";
   fetchMock.mockReset();
+  popupMock.location.assign.mockReset();
+  openMock.mockReset();
+  openMock.mockReturnValue(popupMock as unknown as Window);
+  pushMock.mockReset();
+  replaceMock.mockReset();
   locationMock.assign.mockReset();
   locationMock.pathname = "/";
   vi.stubGlobal("fetch", fetchMock);
   vi.stubGlobal("location", locationMock);
+  vi.spyOn(crypto.subtle, "digest").mockImplementation(realmDigest);
+  vi.spyOn(window, "open").mockImplementation(openMock);
+  vi.spyOn(window.history, "pushState").mockImplementation(pushMock);
+  vi.spyOn(window.history, "replaceState").mockImplementation(replaceMock);
   vi.resetModules();
 });
 
@@ -105,17 +155,20 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("signIn — starting the flow (spec: Sign in; design.md D3 and D5)", () => {
+describe("signIn — the popup start of design.md D10 (spec: Sign in)", () => {
   const route = "/en/offerings/1";
 
-  it("stores the verifier, state and that return route under one sessionStorage key (spec: Sign in starts from the current route)", async () => {
+  it("keeps the verifier, state and that return route in the opener's memory and writes nothing to storage (spec: Sign in starts from the current route)", async () => {
     const { signIn, flow } = await load();
     locationMock.pathname = route;
 
     signIn(route);
+    await awaitChallenge();
 
-    expect(sessionStorage.length).toBe(1);
-    const pending = flow.readFlow();
+    expect(openMock).toHaveBeenCalledTimes(1);
+    expect(sessionStorage.length).toBe(0);
+    expect(localStorage.length).toBe(0);
+    const pending = flow.readHeldFlow();
     expect(pending).not.toBeNull();
     expect(pending!.returnRoute).toBe(route);
     expect(pending!.verifier).toBeTypeOf("string");
@@ -135,8 +188,9 @@ describe("signIn — starting the flow (spec: Sign in; design.md D3 and D5)", ()
     document.cookie = "theme=dark";
 
     signIn(route);
+    await awaitChallenge();
 
-    const pending = flow.readFlow()!;
+    const pending = flow.readHeldFlow()!;
     const url = openedUrl();
     expect(url.origin).toBe(API_URL);
     expect(url.pathname).toBe("/oauth/authorize");
@@ -169,6 +223,7 @@ describe("signIn — starting the flow (spec: Sign in; design.md D3 and D5)", ()
     locationMock.pathname = route;
 
     signIn(route);
+    await awaitChallenge();
 
     expect(openedUrl().searchParams.get("theme")).toBe("traditional");
   });
@@ -178,10 +233,13 @@ describe("completeCallback — the outcomes of design.md D4 (spec: Return throug
   const route = "/en/offerings/1";
 
   it("exchanges the code, deletes the flow data, sets the credential-free marker and opens the return route (spec: Completing sign in)", async () => {
-    const { signIn, completeCallback, flow } = await load();
-    locationMock.pathname = route;
-    signIn(route);
-    const pending = flow.readFlow()!;
+    const { completeCallback, flow } = await load();
+    const pending = {
+      verifier: "verifier-123",
+      state: "state-123",
+      returnRoute: route,
+    };
+    flow.saveFlow(pending);
     fetchMock.mockResolvedValue(jsonResponse(GRANT));
 
     await completeCallback({ code: "code-123", state: pending.state });
@@ -205,15 +263,17 @@ describe("completeCallback — the outcomes of design.md D4 (spec: Return throug
       expect(dump).not.toContain(secret);
     }
 
-    expect(locationMock.assign).toHaveBeenCalledTimes(1);
-    expect(locationMock.assign).toHaveBeenCalledWith(route);
+    expect(openedRoute()).toBe(route);
   });
 
   it("deletes the flow data, removes the marker and opens the return route when the authorization comes back with an error (design.md D4 outcome table)", async () => {
-    const { signIn, completeCallback, flow } = await load();
-    locationMock.pathname = route;
-    signIn(route);
-    const pending = flow.readFlow()!;
+    const { completeCallback, flow } = await load();
+    const pending = {
+      verifier: "verifier-123",
+      state: "state-123",
+      returnRoute: route,
+    };
+    flow.saveFlow(pending);
     flow.setMarker();
 
     await completeCallback({
@@ -225,14 +285,17 @@ describe("completeCallback — the outcomes of design.md D4 (spec: Return throug
     expect(fetchMock).not.toHaveBeenCalled();
     expect(flow.readFlow()).toBeNull();
     expect(flow.hasMarker()).toBe(false);
-    expect(locationMock.assign).toHaveBeenCalledTimes(1);
-    expect(locationMock.assign).toHaveBeenCalledWith(route);
+    expect(openedRoute()).toBe(route);
   });
 
   it("takes the same path when the state does not answer the pending request (spec: The response does not answer a pending request)", async () => {
-    const { signIn, completeCallback, flow } = await load();
-    locationMock.pathname = route;
-    signIn(route);
+    const { completeCallback, flow } = await load();
+    const pending = {
+      verifier: "verifier-123",
+      state: "state-123",
+      returnRoute: route,
+    };
+    flow.saveFlow(pending);
     flow.setMarker();
 
     await completeCallback({ code: "code-123", state: "not-the-state" });
@@ -240,8 +303,7 @@ describe("completeCallback — the outcomes of design.md D4 (spec: Return throug
     expect(fetchMock).not.toHaveBeenCalled();
     expect(flow.readFlow()).toBeNull();
     expect(flow.hasMarker()).toBe(false);
-    expect(locationMock.assign).toHaveBeenCalledTimes(1);
-    expect(locationMock.assign).toHaveBeenCalledWith(route);
+    expect(openedRoute()).toBe(route);
   });
 
   it("opens the root of the default locale when no flow is pending (design.md D4 outcome table)", async () => {
@@ -253,15 +315,17 @@ describe("completeCallback — the outcomes of design.md D4 (spec: Return throug
     expect(fetchMock).not.toHaveBeenCalled();
     expect(flow.readFlow()).toBeNull();
     expect(flow.hasMarker()).toBe(false);
-    expect(locationMock.assign).toHaveBeenCalledTimes(1);
-    expect(locationMock.assign).toHaveBeenCalledWith(`/${DEFAULT_LOCALE}`);
+    expect(openedRoute()).toBe(`/${DEFAULT_LOCALE}`);
   });
 
   it("makes exactly one token request when invoked twice and takes no error path on the second invocation (design.md D4 idempotency)", async () => {
-    const { signIn, completeCallback, flow } = await load();
-    locationMock.pathname = route;
-    signIn(route);
-    const pending = flow.readFlow()!;
+    const { completeCallback, flow } = await load();
+    const pending = {
+      verifier: "verifier-123",
+      state: "state-123",
+      returnRoute: route,
+    };
+    flow.saveFlow(pending);
     flow.setMarker();
     fetchMock.mockResolvedValue(jsonResponse(GRANT));
     const params = { code: "code-123", state: pending.state };
@@ -274,7 +338,6 @@ describe("completeCallback — the outcomes of design.md D4 (spec: Return throug
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(flow.readFlow()).toBeNull();
     expect(flow.hasMarker()).toBe(true);
-    expect(locationMock.assign).toHaveBeenCalledTimes(1);
-    expect(locationMock.assign).toHaveBeenCalledWith(route);
+    expect(openedRoute()).toBe(route);
   });
 });

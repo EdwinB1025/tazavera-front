@@ -1,27 +1,30 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
-import { getMessages } from "@/shared/lib/i18n";
-import { DEFAULT_LOCALE } from "@/shared/config/locales";
-import { CallbackScreen } from "./CallbackScreen";
 
 /**
  * The callback screen (design.md D4 and D6; spec "Return through the
- * callback"). Written before `./CallbackScreen` exists (task 3.1): the import
- * fails to resolve until then, so the file runs and fails as required — as do
- * the catalog reads below, which need `messages/{locale}/auth.json`.
+ * callback"). Written before `./CallbackScreen` exists (task 3.1) and updated
+ * to the two modes of design.md D4 and the no-text rule of design.md D6 (task
+ * 3.2): with an opener of the front's origin the screen posts `{ code, state }`
+ * or `{ error, state }` to the front's origin and closes itself, performing no
+ * exchange; with no opener it runs the D4 outcomes, replaces the history entry
+ * so the code does not remain in the URL, and opens the return route through
+ * client-side navigation, never a full page load. Whatever the outcome the
+ * screen renders no text and no status region.
  *
- * The screen renders exactly the status region of design.md D6: one status
- * region carrying `callback.status`, in the language of the pending flow's
- * return route with the default locale as fallback, and no error text
- * whatever the outcome (spec: "Return through the callback"). The three texts
- * are the ones of design.md D6, asserted on the catalogs themselves here and
- * on the rendering below. The pending-flow record is written straight to
- * `sessionStorage` under `tazavera.pending-flow`, the storage contract of
- * `src/features/auth/model/flow.test.ts`; the exchange and the openings run
- * through the stubbed `fetch` and `location` globals.
+ * The screen is imported fresh in every test (`vi.resetModules()`), because the
+ * completion runs at most once per page load behind a module-level guard
+ * (design.md D4 idempotency) and each test stands for one page load. The
+ * pending-flow record is written straight to `sessionStorage` under
+ * `tazavera.pending-flow`, the storage contract of
+ * `src/features/auth/model/flow.test.ts`; the exchange, the history calls and
+ * the openings run through the stubbed `fetch`, `history`, `location`, `open`
+ * and `close` globals.
  */
 
 const FLOW_KEY = "tazavera.pending-flow";
+
+const APP_URL = "https://app.tazavera.test";
 
 const GRANT = {
   access_token: "access-1",
@@ -32,12 +35,22 @@ const GRANT = {
 
 const fetchMock =
   vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>();
+const popupMock = { location: { assign: vi.fn<(url: string) => void>() }, closed: false };
+const openMock = vi.fn<Window["open"]>();
+const pushMock = vi.fn<History["pushState"]>();
+const replaceMock = vi.fn<History["replaceState"]>();
+const closeMock = vi.fn<() => void>();
+const openerMock = {
+  location: { origin: APP_URL },
+  postMessage: vi.fn<(message: unknown, targetOrigin: string) => void>(),
+};
 const locationMock = {
   assign: vi.fn<(url: string) => void>(),
+  reload: vi.fn<() => void>(),
   pathname: "/callback",
 };
 
-/** The pending-flow record a sign-in leaves behind, under the flow key. */
+/** The pending-flow record a full-page sign-in leaves behind, under the flow key. */
 function seedFlow(locale: string): { state: string } {
   const pending = {
     verifier: "verifier-123",
@@ -48,10 +61,17 @@ function seedFlow(locale: string): { state: string } {
   return pending;
 }
 
+/** One page load of the callback screen. */
+async function loadScreen() {
+  vi.resetModules();
+  const { CallbackScreen } = await import("./CallbackScreen");
+  return CallbackScreen;
+}
+
 beforeEach(() => {
   process.env.NEXT_PUBLIC_API_URL = "https://api.tazavera.test";
   process.env.NEXT_PUBLIC_OAUTH_CLIENT_ID = "client-ulid-1";
-  process.env.NEXT_PUBLIC_APP_URL = "https://app.tazavera.test";
+  process.env.NEXT_PUBLIC_APP_URL = APP_URL;
   sessionStorage.clear();
   localStorage.clear();
   fetchMock.mockReset();
@@ -61,9 +81,21 @@ beforeEach(() => {
       headers: { "content-type": "application/json" },
     }),
   );
+  popupMock.location.assign.mockReset();
+  openMock.mockReset();
+  openMock.mockReturnValue(popupMock as unknown as Window);
+  pushMock.mockReset();
+  replaceMock.mockReset();
+  closeMock.mockReset();
+  openerMock.postMessage.mockReset();
   locationMock.assign.mockReset();
+  locationMock.reload.mockReset();
   vi.stubGlobal("fetch", fetchMock);
   vi.stubGlobal("location", locationMock);
+  vi.spyOn(window, "open").mockImplementation(openMock);
+  vi.spyOn(window, "close").mockImplementation(closeMock);
+  vi.spyOn(window.history, "pushState").mockImplementation(pushMock);
+  vi.spyOn(window.history, "replaceState").mockImplementation(replaceMock);
 });
 
 afterEach(() => {
@@ -72,50 +104,76 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("the announced status text (design.md D6; spec: The wait is announced)", () => {
-  it("messages/{locale}/auth.json defines callback.status with exactly the text of design.md D6 in es, en and ca", () => {
-    expect(getMessages("auth", "es")["callback.status"]).toBe(
-      "Completando el inicio de sesión…",
+describe("popup mode — an opener of the front's origin (design.md D4)", () => {
+  it("posts { code, state } to the front's origin and closes itself, exchanging nothing", async () => {
+    vi.stubGlobal("opener", openerMock);
+    const CallbackScreen = await loadScreen();
+
+    const { container } = render(
+      <CallbackScreen searchParams={{ code: "code-123", state: "state-123" }} />,
     );
-    expect(getMessages("auth", "en")["callback.status"]).toBe(
-      "Completing sign in…",
+
+    expect(openerMock.postMessage).toHaveBeenCalledTimes(1);
+    expect(openerMock.postMessage).toHaveBeenCalledWith(
+      { code: "code-123", state: "state-123" },
+      APP_URL,
     );
-    expect(getMessages("auth", "ca")["callback.status"]).toBe(
-      "Completant l'inici de sessió…",
-    );
+    expect(closeMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(container.textContent).toBe("");
   });
 
-  it("announces the wait as status text in the locale of the return route", () => {
-    for (const locale of ["es", "en", "ca"] as const) {
-      sessionStorage.clear();
-      seedFlow(locale);
-      const text = getMessages("auth", locale)["callback.status"];
+  it("posts { error, state } to the front's origin and closes itself, exchanging nothing", async () => {
+    vi.stubGlobal("opener", openerMock);
+    const CallbackScreen = await loadScreen();
 
-      const { container, unmount } = render(
-        <CallbackScreen searchParams={{ code: "code-123", state: "state-123" }} />,
-      );
+    render(
+      <CallbackScreen
+        searchParams={{
+          error: "access_denied",
+          error_description: "The user denied access",
+          state: "state-123",
+        }}
+      />,
+    );
 
-      expect(screen.getAllByRole("status")).toHaveLength(1);
-      expect(screen.getByRole("status").textContent?.trim()).toBe(text);
-      expect(container.textContent?.trim()).toBe(text);
-      unmount();
-    }
-  });
-
-  it("falls back to the default locale when no flow is pending (design.md D6)", () => {
-    const text = getMessages("auth", DEFAULT_LOCALE)["callback.status"];
-
-    const { container } = render(<CallbackScreen searchParams={{}} />);
-
-    expect(screen.getByRole("status").textContent?.trim()).toBe(text);
-    expect(container.textContent?.trim()).toBe(text);
+    expect(openerMock.postMessage).toHaveBeenCalledTimes(1);
+    expect(openerMock.postMessage).toHaveBeenCalledWith(
+      { error: "access_denied", state: "state-123" },
+      APP_URL,
+    );
+    expect(closeMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
 
-describe("only the loading indicator, whatever the outcome (spec: Return through the callback)", () => {
-  it("renders no error text when the authorization comes back with an error", () => {
+describe("redirect mode — no opener (design.md D4)", () => {
+  it("exchanges the code, leaves no code in the URL and opens the return route without a full page load (spec: Completing on the callback)", async () => {
+    const CallbackScreen = await loadScreen();
     const pending = seedFlow("en");
-    const text = getMessages("auth", "en")["callback.status"];
+
+    render(
+      <CallbackScreen searchParams={{ code: "code-123", state: pending.state }} />,
+    );
+
+    await vi.waitFor(() => {
+      expect(pushMock).toHaveBeenCalledTimes(1);
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(sessionStorage.length).toBe(0);
+    expect(localStorage.length).toBe(1);
+    expect(replaceMock).toHaveBeenCalledTimes(1);
+    expect(String(replaceMock.mock.calls[0]![2])).not.toContain("code");
+    expect(String(pushMock.mock.calls[0]![2])).toBe("/en/offerings/1");
+    expect(locationMock.assign).not.toHaveBeenCalled();
+    expect(locationMock.reload).not.toHaveBeenCalled();
+    expect(closeMock).not.toHaveBeenCalled();
+  });
+
+  it("renders no text and no status region whatever the outcome (design.md D6; spec: The authorization comes back with an error)", async () => {
+    const CallbackScreen = await loadScreen();
+    const pending = seedFlow("en");
 
     const { container } = render(
       <CallbackScreen
@@ -127,29 +185,13 @@ describe("only the loading indicator, whatever the outcome (spec: Return through
       />,
     );
 
+    await vi.waitFor(() => {
+      expect(pushMock).toHaveBeenCalledTimes(1);
+    });
+
+    expect(container.textContent).toBe("");
+    expect(screen.queryByRole("status")).toBeNull();
     expect(screen.queryByRole("alert")).toBeNull();
-    expect(screen.getByRole("status").textContent?.trim()).toBe(text);
-    expect(container.textContent).not.toContain("The user denied access");
-  });
-
-  it("renders no error text when the response does not answer a pending request", () => {
-    seedFlow("en");
-    const text = getMessages("auth", "en")["callback.status"];
-
-    const { container } = render(
-      <CallbackScreen searchParams={{ code: "code-123", state: "not-the-state" }} />,
-    );
-
-    expect(screen.queryByRole("alert")).toBeNull();
-    expect(container.textContent?.trim()).toBe(text);
-  });
-
-  it("renders no error text when no flow is pending", () => {
-    const text = getMessages("auth", DEFAULT_LOCALE)["callback.status"];
-
-    const { container } = render(<CallbackScreen searchParams={{}} />);
-
-    expect(screen.queryByRole("alert")).toBeNull();
-    expect(container.textContent?.trim()).toBe(text);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
