@@ -1,12 +1,11 @@
 import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { resolve as pathResolve } from "node:path";
 import type { Session } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
 import { AppShell } from "@/app/shell";
-import { HomeScreen } from "@/pages/home";
 
 // The shell's client chrome drives navigation through the app router hooks,
 // which need the router context jsdom does not provide. Test infrastructure
@@ -61,10 +60,16 @@ afterEach(() => {
 const LOCALE = "es";
 const texts = getMessages("shell", LOCALE);
 
+// The main area holds the entry page in the application (spec: "Root of a
+// supported locale"). The shell tests fill it with a plain placeholder child
+// instead, so they do not depend on the home screen.
+const PLACEHOLDER_TEXT = "placeholder child";
+const placeholderChild = <p data-testid="main-area-child">{PLACEHOLDER_TEXT}</p>;
+
 function renderShell(session?: Session, sidebar?: ReactNode) {
   return render(
     <AppShell locale={LOCALE} session={session} sidebar={sidebar}>
-      <HomeScreen />
+      {placeholderChild}
     </AppShell>,
   );
 }
@@ -96,10 +101,12 @@ describe("AppShell (spec: Shell layout and main area)", () => {
     expect(screen.getByTestId("sidebar-region")).toBeDefined();
   });
 
-  it("renders the shell with an empty main area (spec: Root of a supported locale)", () => {
+  it("renders the shell with the child it was given in its main area (spec: Root of a supported locale)", () => {
     renderShell();
     expect(screen.getByRole("banner")).toBeDefined();
-    expect(screen.getByRole("main").textContent).toBe("");
+    const main = screen.getByRole("main");
+    expect(within(main).getByTestId("main-area-child")).toBeDefined();
+    expect(main.textContent).toBe(PLACEHOLDER_TEXT);
   });
 });
 
@@ -154,7 +161,7 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
             user: { name: "Andrés", surname: "Gómez", role: "specialist" },
           }}
         >
-          <HomeScreen />
+          {placeholderChild}
         </AppShell>,
       );
       expect(
