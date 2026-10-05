@@ -174,6 +174,7 @@ describe("session states (spec: Session states and profile)", () => {
 
   it("ends authenticated carrying exactly data.ulid, data.name, data.surname, data.email and data.role when GET /user succeeds (spec: An authenticated session carries the profile)", async () => {
     const loaded = await load();
+    const seen = consume(loaded);
     const pending = {
       verifier: "verifier-123",
       state: "state-123",
@@ -183,9 +184,14 @@ describe("session states (spec: Session states and profile)", () => {
     answerTokenAndProfile(PROFILE);
 
     await loaded.completeCallback({ code: "code-123", state: pending.state });
-    const seen = consume(loaded);
 
-    expect(seen.current()).toEqual({ state: "authenticated", user: PROFILE });
+    // The consumer mounted before the flow is the one that ends authenticated
+    // — no second mount — and the page never navigates (design.md D10).
+    await vi.waitFor(() => {
+      expect(seen.current()).toEqual({ state: "authenticated", user: PROFILE });
+    });
+    expect(locationMock.assign).not.toHaveBeenCalled();
+    expect(locationMock.pathname).toBe("/en/offerings/1");
   });
 
   it("ends anonymous with no error thrown at the consumer when the profile cannot be resolved (spec: The profile cannot be resolved)", async () => {
