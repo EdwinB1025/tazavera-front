@@ -120,6 +120,14 @@ Correction rounds and refactor changes run in Claude cloud sessions (Claude Code
 7. Integrate with `git merge --ff-only origin/claude/<branch>` in the folder where `feature/<change-id>` is checked out (`git worktree list`). If it is not a fast-forward, stop and report. Then push `feature/<change-id>`.
 8. Record the session in the handoff: the branch, the commits, your review, the checks, and the integration.
 
+**Watching a session.** As soon as Product owner launches a session, watch it in the background. Ask Product owner for the session's URL, and for its branch name once it appears.
+1. Poll GitHub with `gh` every 3 minutes, using a background until-loop, never chained sleeps:
+   - `gh api repos/EdwinB1025/tazavera-front/branches --jq '.[].name'` for the session's `claude/<change-id>-<task>*` branch (GitHub may add a suffix);
+   - then `gh api "repos/EdwinB1025/tazavera-front/commits?sha=<branch>&per_page=5"` for its latest commits.
+2. **Done:** the branch holds the commit of the last task assigned to the session (its checkbox in `tasks.md`, or the round's `apply review round <N>` commit for an architect-only round). Then run steps 4–8 of the cycle without waiting to be asked.
+3. **Stalled:** no new commit on the branch for 45 minutes, or no branch 45 minutes after launch. Tell Product owner to check the session at claude.ai/code: it may be waiting for an answer, which GitHub cannot show. Keep watching until Product owner says otherwise.
+4. The watch lives only while your session is open. When you end a session with a watch still running, record it in the handoff (branch, last commit seen, time) so the next session resumes it.
+
 ## 11. Design lead
 
 The design lead is the subagent `.claude/agents/design-lead.md`. Invoke it with the Agent tool for:
