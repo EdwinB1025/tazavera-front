@@ -138,3 +138,27 @@ The 4.2 run was not killed. Only my wrapper shell was stopped. opencode kept run
 
 ### Final checks
 `npm run test:run` after `070a4a9`: Test Files 39 passed (39), Tests 835 passed (835).
+
+## Session 2026-10-05 (evening) — apply from 6.2
+Summary: no OpenCode process was running at the start (PID 36640 was gone); after that, Product owner dropped the process check. One build run for task 6.2 ran and ended with exit 1 on `Error: Insufficient account balance` (model provider) before any commit. Stopped because: every further agent run would fail the same way. MVC reachable: not checked.
+
+### Agent feedback (6.2, unfinished run)
+- Copied `docs/design/add-landing/coffee-beans.png` to `public/images/coffee-beans.png` (untracked). I checked with `cmp` that the files are identical.
+- The shell denied `python`, `identify` and similar tools, so it could not read the PNG's intrinsic size. Instead it added a case "Intrinsic photograph size (design.md D12)" to `src/pages/home/ui/HomeHero.test.tsx`. The case reads width and height from the PNG IHDR header and asserts them on the rendered image. This is based on D12 ("intrinsic width and height"). It is not part of 6.1's test list.
+- It rewrote `src/pages/home/ui/HomeScreen.test.tsx` for the filled screen. The build says the old "empty main area" case asserts what D13 changes.
+- It wrote no implementation files, ran no tests and made no commit. 6.2 is still unchecked.
+
+### Notes
+- `.opencode/agents/` shows no modification in `git status`, because Product owner committed the restricted overnight profiles in `1ca87d1`. The profile on disk is the restricted one (`OVERNIGHT VERSION` header), so I ran the build.
+- The decisions log did not exist at `tazavera-front/docs/orchestrator-decisions.md`. I created it with its heading only, per CLAUDE.md §8. It is left uncommitted on `develop` for Product owner.
+- D4 (score shown in both `type-score` and the rating chip) was left unchanged, pending Product owner's browser check.
+
+### Deferred to Product owner
+#### Q10 — Model provider account has no balance
+- Question: top up the `xiaomi/mimo-v2.6-pro` provider account (or name another model), then rerun the loop from 6.2.
+- Why deferred: it is outside the project and outside my authority.
+- State left in the worktree: modified `src/pages/home/ui/HomeHero.test.tsx` and `src/pages/home/ui/HomeScreen.test.tsx`, plus untracked `public/images/coffee-beans.png`. The next 6.2 run should continue from these files and verify them. I did not revert them, since I do not edit code.
+- Blocks: 6.2, 6.3, 7.1, 7.2, 8.1, 9.1.
+
+### Final checks
+`npm run test:run` was not run: no task commit was made, and the tree holds an unfinished 6.2. The last green run was after `070a4a9` (39 files, 835 tests).
