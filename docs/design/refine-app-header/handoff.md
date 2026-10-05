@@ -293,6 +293,7 @@ The architect's last message, verbatim: `Error: Insufficient account balance` (p
 None.
 
 ### Deferred to Augusto
+#### Q12 — ANSWERED 2026-10-05: resume (balance restored); same command rerun. Original entry below.
 #### Q12 — Architect run blocked by the provider balance
 - Question: rerun the same architect command for Round 1 once the account balance is topped up?
 - Why deferred: CLAUDE.md §6 says not to rerun after a non-zero exit until the issue is answered. The cause is outside the project.
@@ -300,6 +301,29 @@ None.
 - Recommendation: a). The restricted profiles and the commands are set up for this model.
 - Blocks: Round 1 (artifacts, tasks, `### Status`, round commit) and the apply that follows.
 - Also noted: `docs/workflow_sdd.md` is not on `develop` (`git show develop:docs/workflow_sdd.md` fails), so I could not read it at session start.
+
+### Final checks
+Not run; nothing changed in the code.
+
+## Session 2026-10-05 — correction round 1 (rerun after Q12)
+Summary: reran the same architect command. It exited 0 but stopped before editing anything, because correction 4's own stop clause fired. Stopped because: deferred question Q13. MVC reachable: not needed.
+
+### Agent feedback
+- The architect measured the correction 4 pairs over the current tokens in `globals.css`, with the WCAG text gate (4.5:1). These are the agent's numbers, not mine:
+  - traditional, `feedback-error` (#a3010d) on `nav-surface` (#85b5ad): 3.587:1, FAIL
+  - traditional, `feedback-error` on `nav-hover` (#6B9E95): 2.707:1, FAIL
+  - dark, `feedback-error` (#ef675c) on `nav-surface` (#142b28): 4.812:1, pass
+  - dark, `feedback-error` on `nav-hover` (#1f3b37): 3.890:1, FAIL
+- It held back corrections 1–3 as well. A round is one unit: one `### Status` covering every correction and one round commit. Corrections 1–3 need no decision.
+- No edits and no commit; the tree was clean at `95131a2`. The restricted profile denied `node` and writes to a temp file, so the agent worked around that (expected).
+
+### Deferred to Augusto
+#### Q13 — Correction 4 fails its contrast gate
+- Question: three of the four `feedback-error` pairs on the nav surface fail 4.5:1, and correction 4 says to stop and ask (no token changes this round). How should correction 4 land?
+- Why deferred: it involves token and colour values and a correction-round decision (CLAUDE.md §3).
+- Options: 1) register the pairs as documented exemptions, like the logotype pairs, and ship below the gate; 2) process corrections 1–3 now and move correction 4 to a later round that may change tokens; 3) you name an existing token for the destructive entry on the nav surface; 4) something else.
+- Recommendation: 2), the architect's recommendation too. It is latent (no header menu has a destructive entry), 2.7:1 is far below the gate, and 1–3 are ready. To apply it, edit Round 1 in `corrections.md` (remove or defer item 4), commit it, and I rerun the architect.
+- Blocks: the round 1 commit and the apply.
 
 ### Final checks
 Not run; nothing changed in the code.
