@@ -167,6 +167,73 @@ describe("Card", () => {
     });
   });
 
+  describe("Stacked card layout (spec: 'Stacked at every width', 'Footer at the bottom'; design.md D14)", () => {
+    function renderStackedCard(): {
+      root: HTMLElement;
+      aside: HTMLElement;
+      content: HTMLElement;
+      footer: HTMLElement;
+    } {
+      const { container } = render(
+        <Card layout="stacked">
+          <CardAside>SCORE 84.25</CardAside>
+          <CardContent>COFFEE NAME</CardContent>
+          <CardFooter>FOOTER ACTIONS</CardFooter>
+        </Card>,
+      );
+      const root = cardRoot(container);
+      return {
+        root,
+        aside: root.children[0] as HTMLElement,
+        content: root.children[1] as HTMLElement,
+        footer: root.children[2] as HTMLElement,
+      };
+    }
+
+    it("keeps the side column above the content at every width, with the separator on its bottom edge", () => {
+      const { aside, content, footer } = renderStackedCard();
+      expect(classTokens(aside)).toContain("border-b");
+      expect(classTokens(aside)).toContain("border-border-subtle");
+      for (const lgClass of [
+        "lg:float-left",
+        "lg:w-1/4",
+        "lg:border-r",
+        "lg:border-b-0",
+      ]) {
+        expect(classTokens(aside)).not.toContain(lgClass);
+      }
+      expect(classTokens(content)).not.toContain("lg:flow-root");
+      expect(classTokens(footer)).not.toContain("lg:clear-both");
+    });
+
+    it("fills its container's height as a column with the footer pushed to the bottom", () => {
+      const { root, footer } = renderStackedCard();
+      expect(classTokens(root)).toEqual(
+        expect.arrayContaining(["flex", "flex-col", "h-full"]),
+      );
+      expect(classTokens(footer)).toContain("mt-auto");
+    });
+
+    it("keeps the settled card classes on the root", () => {
+      const { root } = renderStackedCard();
+      expect(classTokens(root)).toEqual(
+        expect.arrayContaining([
+          "bg-surface-card",
+          "rounded-container",
+          "border-l-4",
+          "border-border-accent",
+          "shadow-lg",
+        ]),
+      );
+    });
+
+    it("leaves the default layout a block with its lg behaviour", () => {
+      const { root, aside } = renderFullCard();
+      expect(classTokens(root)).not.toContain("flex");
+      expect(classTokens(aside)).toContain("lg:float-left");
+    });
+  });
+
   describe("Card root", () => {
     it("renders exactly the settled classes of design.md D6", () => {
       const { container } = render(
