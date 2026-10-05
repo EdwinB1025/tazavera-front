@@ -360,3 +360,32 @@ Memory before the runs: 4.67 GB free; the only other agent was the `refine-app-h
 
 ### Final checks — 5.1
 `npm run test:run` (my re-run): Test Files 1 failed | 36 passed (37); Tests 3 failed | 798 passed (801). The 3 failures are `signOut` not exported, which 5.2 adds.
+
+## Note from the add-landing orchestrator — 2026-10-05
+Product owner approved the merge order header → landing → auth. Simulated merges (`git merge-tree`) show that `add-auth` will conflict with both on the shell.
+
+### Deferred to Product owner
+#### Q-merge — Keep header's and landing's shell changes when auth merges develop
+- `refine-app-header` (`cd536d2`, test `2d0da3f`): the shell grows to the viewport height (app-shell "Shell layout and main area", scenario "Main area fills the viewport"). The fix lives in `AppShell.tsx` classes. Auth moves the layout into `SessionShell.tsx`, so resolving the `AppShell.tsx` conflict by taking auth's side would silently drop the fix. It must be carried into `SessionShell.tsx`.
+- `add-landing` (task 10.1, `7e449b2`): `AppShell.test.tsx` renders a placeholder child instead of `HomeScreen`, and the main-area case asserts that child (app-shell "Root of a supported locale", modified by add-landing). Keep it when resolving the `AppShell.test.tsx` conflict.
+- Contract: auth already has develop's `contracts/openapi.yaml` and `schema.ts`, so there is no conflict there. `src/shared/api/index.ts` auto-merges (landing's derived types plus auth's client exports); run `npx tsc --noEmit` after the merge.
+- Timing (Product owner's call): merge develop into auth once header and landing are in, rather than waiting for auth's own merge step, to keep the conflict small.
+
+## Session 2026-10-05 (late) — 5.2 and stalled coverage runs
+Summary: the Build implemented 5.2. Three attempts at the `401`-on-`/logout` unplanned coverage stalled at OpenCode start-up and were ended. Stopped because: OpenCode `run --auto` processes stall (see below); Product owner asked to restart the session.
+
+### Agent feedback — 5.2
+- Commit `ecd27df feat(auth): implement sign out with local completion regardless of the response` (checkbox included). `/logout` is sent with the Bearer token but never enters the recovery chain (D5). Local parts complete when the request settles (`catch → finally`). The Build says the alternative, completing at once and sending the request best-effort, is a one-line move. Kept as built: D5 fixes no timing.
+- Refactor candidate: active-locale derivation duplicated in `api/authorize.ts` (`activeLang`) and `model/session.ts` (`localeRoot`). Added as **R5** in `docs/backlog.md` (uncommitted; Product owner's file; R5 because an uncommitted R4 sits in `tazavera-front/docs/backlog.md`).
+- My re-run: `npm run test:run` Test Files 37 passed (37); Tests 801 passed (801).
+
+### Decisions taken
+#### D16 — Stalled runs ended (Product owner: "cierra las ejecuciones cuando te des cuenta que no avancen")
+- Runs: PID 7452 (started 21:39, 1.5 h with an empty log, 0 CPU), PID 40568 (23:25), PID 16356 (23:36). Each was ended with `taskkill /T`; the tree stayed clean (no code changes).
+- Diagnosis (mine): OpenCode's own log shows that, since 19:39 UTC, every `run --auto` spawns `serve --stdio` and logs nothing further, including an `add-landing` run at 21:09 UTC. A short `run` without `--auto` ("pong") worked at 23:35. Cause unknown; environment, not the task.
+
+### Next session (resume here)
+1. Check OpenCode first: one short `--auto` run must answer before giving it a task.
+2. Rerun the unplanned coverage: `401` on `POST /logout` starts no refresh, recovery or authorization request, and sign out still completes (design.md D5, spec "Sign out"). Prompt in scratchpad history; message as in D15.
+3. Then 5.2b, 5.2c, 6.1, 6.2, 7.1, 8.1–8.16 (one task per run). 8.17 is Product owner's.
+4. Q-merge note above (from the `add-landing` orchestrator) still open for Product owner.
