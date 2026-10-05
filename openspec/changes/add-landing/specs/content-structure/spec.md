@@ -33,12 +33,12 @@ By default, below the large breakpoint (1024px), the card's parts SHALL stack in
 - **THEN** the side column renders beside the main content with its separator border between them
 
 ### Requirement: Stacked card layout
-A card SHALL offer a stacked layout that its consumer opts into. In that layout the parts stack in their order (side column, main content, footer) at every viewport width, with the separator border on the boundary between the side column and the main content. A card SHALL fill the height its container gives it, with the footer at the bottom of the card.
+A card SHALL offer a stacked layout that its consumer opts into. In that layout the parts stack in their order (side column, main content, footer) at every viewport width, with the separator border on the boundary between the side column and the main content, and the card fills the height its container gives it, with the footer at the bottom of the card.
 
 #### Scenario: Stacked at every width
 - **WHEN** a card renders in the stacked layout at a viewport 1024px or wider
 - **THEN** the side column renders above the main content with the separator border between them, and the footer renders below both
 
 #### Scenario: Footer at the bottom
-- **WHEN** a card is taller than its content, because its container stretches it
+- **WHEN** a card in the stacked layout is taller than its content, because its container stretches it
 - **THEN** its footer renders at the bottom edge of the card
