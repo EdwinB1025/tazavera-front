@@ -155,4 +155,40 @@ describe("HomeHero", () => {
       );
     });
   });
+
+  describe("Hero layout (spec: 'Responsive hero', 'Link groups'; design.md D14)", () => {
+    it("splits into two equal, vertically centered columns from md", () => {
+      const { container } = render(<HomeHero locale="es" texts={TEXTS} />);
+      expect(classTokens(container.firstElementChild!)).toEqual(
+        expect.arrayContaining(["grid", "items-center", "gap-8", "md:grid-cols-2"]),
+      );
+    });
+
+    it("spaces the eyebrow, heading and paragraph 1rem apart and the actions 1.5rem below", () => {
+      render(<HomeHero locale="es" texts={TEXTS} />);
+      const column = screen.getByRole("heading", { level: 1 }).parentElement!;
+      expect(classTokens(column)).toEqual(
+        expect.arrayContaining(["flex", "flex-col", "gap-4"]),
+      );
+      const actions = screen.getByRole("button").parentElement!;
+      expect(actions).not.toBe(column);
+      expect(classTokens(actions)).toEqual(
+        expect.arrayContaining(["mt-2", "flex", "flex-col", "items-start", "gap-4"]),
+      );
+    });
+
+    it("keeps the two registration links apart in a wrapping row", () => {
+      render(<HomeHero locale="es" texts={TEXTS} />);
+      const group = screen.getByRole("link", {
+        name: TEXTS.coffeeshopRegisterLabel,
+      }).parentElement!;
+      expect(group).toBe(
+        screen.getByRole("link", { name: TEXTS.specialistRegisterLabel })
+          .parentElement,
+      );
+      expect(classTokens(group)).toEqual(
+        expect.arrayContaining(["flex", "flex-wrap", "gap-x-6", "gap-y-2"]),
+      );
+    });
+  });
 });

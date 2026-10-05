@@ -181,4 +181,52 @@ describe("AboutContent", () => {
       expect(router.push).toHaveBeenCalledWith(`/${LOCALE}`);
     });
   });
+
+  describe("Page layout (spec: 'Centered content', 'Side and section spacing', 'How we evaluate', 'Link groups'; design.md D14)", () => {
+    it("pads every section and centers its content in the container", () => {
+      const { container } = render(
+        <AboutContent locale={LOCALE} texts={TEXTS} />,
+      );
+      const sections = Array.from(container.querySelectorAll("section"));
+      expect(sections).toHaveLength(5);
+      for (const section of sections) {
+        expect(classTokens(section)).toEqual(
+          expect.arrayContaining(["py-12", "md:py-16"]),
+        );
+        expect(section.childElementCount).toBe(1);
+        expect(classTokens(section.firstElementChild!)).toEqual(
+          expect.arrayContaining([
+            "mx-auto",
+            "w-full",
+            "max-w-6xl",
+            "px-4",
+            "md:px-8",
+          ]),
+        );
+      }
+    });
+
+    it("shares the container width equally between the three evaluation cards from md", () => {
+      const { container } = render(
+        <AboutContent locale={LOCALE} texts={TEXTS} />,
+      );
+      const card = Array.from(container.querySelectorAll("p")).find(
+        (p) => p.textContent === TEXTS.stepProvisional,
+      )!.closest(".bg-surface-card")!;
+      expect(classTokens(card.parentElement!)).toEqual(
+        expect.arrayContaining(["grid", "gap-6", "md:grid-cols-3"]),
+      );
+      expect(card.parentElement!.childElementCount).toBe(3);
+    });
+
+    it("keeps the two registration links apart in a wrapping row", () => {
+      render(<AboutContent locale={LOCALE} texts={TEXTS} />);
+      const group = screen.getByRole("link", {
+        name: TEXTS.coffeeshopRegisterLabel,
+      }).parentElement!;
+      expect(classTokens(group)).toEqual(
+        expect.arrayContaining(["flex", "flex-wrap", "gap-x-6", "gap-y-2"]),
+      );
+    });
+  });
 });

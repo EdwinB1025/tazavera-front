@@ -359,4 +359,47 @@ describe("OfferingCard", () => {
       }
     });
   });
+
+  describe("Card layout (spec: 'Score row above the content', 'Footer counts', 'Stacked at every width'; design.md D14)", () => {
+    it("renders the shared card in its stacked layout", () => {
+      const { container } = renderCard();
+      expect(classTokens(container.firstElementChild!)).toEqual(
+        expect.arrayContaining(["flex", "flex-col", "h-full"]),
+      );
+    });
+
+    it("puts the score, the /100 scale and the rating badge on one row", () => {
+      const { container } = renderCard();
+      const score = elementsWith(container, "type-score")[0];
+      const row = score.parentElement!;
+      expect(classTokens(row)).toEqual(
+        expect.arrayContaining(["flex", "flex-wrap", "items-baseline", "gap-2"]),
+      );
+      expect(row.contains(elementsWith(container, "type-meta")[0])).toBe(true);
+      expect(row.contains(ratingBadges(container)[0])).toBe(true);
+    });
+
+    it("separates the counts and groups the links apart at the end of the footer", () => {
+      const { container } = renderCard({ session: SPECIALIST });
+      const view = Array.from(container.querySelectorAll("a")).find(
+        (link) => link.textContent === TEXTS.viewLabel,
+      )!;
+      const links = view.parentElement!;
+      const counts = findWith(container, "type-meta", TEXTS.evaluationsLabel)!
+        .parentElement!;
+      const footer = links.parentElement!;
+      expect(counts.parentElement).toBe(footer);
+      expect(links).not.toBe(counts);
+      expect(links.querySelectorAll("a")).toHaveLength(2);
+      expect(classTokens(footer)).toEqual(
+        expect.arrayContaining(["flex", "flex-wrap", "items-center", "gap-4"]),
+      );
+      expect(classTokens(counts)).toEqual(
+        expect.arrayContaining(["flex", "flex-wrap", "gap-4"]),
+      );
+      expect(classTokens(links)).toEqual(
+        expect.arrayContaining(["ml-auto", "flex", "gap-4"]),
+      );
+    });
+  });
 });

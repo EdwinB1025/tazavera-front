@@ -224,4 +224,28 @@ describe("OfferingList", () => {
       }
     });
   });
+
+  describe("Grid by viewport (spec: 'Grid by viewport'; design.md D14)", () => {
+    it("lays the cards out in one column, two from md and three from xl, with a gap", () => {
+      const { container } = renderList({
+        state: "success",
+        items: [ITEM_ONE, ITEM_TWO],
+        meta: { current_page: 1, last_page: 1 },
+      });
+      const cards = Array.from(container.querySelectorAll(".bg-surface-card"));
+      expect(cards).toHaveLength(2);
+      const grid = cards[0].parentElement!;
+      expect(cards[1].parentElement).toBe(grid);
+      expect(grid.childElementCount).toBe(2);
+      expect(classTokens(grid)).toEqual(
+        expect.arrayContaining([
+          "grid",
+          "grid-cols-1",
+          "gap-6",
+          "md:grid-cols-2",
+          "xl:grid-cols-3",
+        ]),
+      );
+    });
+  });
 });

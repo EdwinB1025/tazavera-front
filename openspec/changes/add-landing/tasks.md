@@ -66,11 +66,11 @@ Round 3 settles the page layout (design.md D14). Each section below is test-firs
 
 ## 13. Review round 3: page layout (landing)
 
-- [ ] 13.1 Write the layout cases of design.md D14:
+- [x] 13.1 Write the layout cases of design.md D14:
   - `HomeScreen.test.tsx`: two `section` elements, the hero on `bg-surface-page` and the offerings block on `bg-surface-section`, each with its content in the centered container (spec "Entry page sections", "Centered content", "Side and section spacing").
   - `HomeHero.test.tsx`: the two equal vertically centered columns from `md`, the text-column spacing, and the registration links' wrapping row with its gaps (spec "Responsive hero", "Link groups").
   - `AboutContent.test.tsx`: every section's content in the centered container with the section padding; the evaluation cards in equal columns from `md`; the registration links' wrapping row (spec "How we evaluate", "Link groups"). The existing background-alternation case stays unchanged.
-  - `OfferingList.test.tsx` and `OfferingSkeletonCard.test.tsx`: the cards' grid, with one column, `md:grid-cols-2`, `xl:grid-cols-3` and the gap (spec "Grid by viewport").
+  - `OfferingList.test.tsx`: the cards' grid, with one column, `md:grid-cols-2`, `xl:grid-cols-3` and the gap (spec "Grid by viewport"). The skeleton fallback's grid is asserted in `HomeScreen.test.tsx`, where the fallback renders.
   - `OfferingCard.test.tsx`: the card renders with `layout="stacked"`; the score, `/100` and rating badge sit in one row element; the footer separates the counts from a link group holding View, and Evaluate when shown (spec "Score row above the content", "Footer counts").
   Each case asserts the classes the build chooses, and no existing assertion is removed. Verify that `npm run test:run` fails only on these new cases.
 - [ ] 13.2 Implement the layout of design.md D14 in `HomeScreen.tsx`, `HomeHero.tsx`, `AboutContent.tsx`, `OfferingList.tsx`, `OfferingSkeletonCard.tsx` and `OfferingCard.tsx`, with the section and container classes as one constant per screen file. Verify that the slice tests pass and that `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0.

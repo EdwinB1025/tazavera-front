@@ -125,4 +125,62 @@ describe("HomeScreen", () => {
     expect(screen.getAllByTestId("skeleton-card").length).toBeGreaterThan(1);
     expect(screen.getByRole("heading", { level: 1 })).toBeTruthy();
   });
+
+  describe("Page layout (spec: 'Entry page sections', 'Centered content', 'Side and section spacing', 'Grid by viewport'; design.md D14)", () => {
+    function classTokens(element: Element): string[] {
+      return (element.getAttribute("class") ?? "").split(/s+/).filter(Boolean);
+    }
+
+    function sections(container: HTMLElement): Element[] {
+      return Array.from(container.firstElementChild!.children);
+    }
+
+    it("renders the hero and the offerings block as two sections, on the page and the section background", () => {
+      const { container } = render(<HomeScreen locale="es" page={undefined} />);
+      const [hero, list] = sections(container);
+      expect(sections(container).map((section) => section.tagName)).toEqual([
+        "SECTION",
+        "SECTION",
+      ]);
+      expect(classTokens(hero)).toContain("bg-surface-page");
+      expect(classTokens(list)).toContain("bg-surface-section");
+      expect(hero.querySelector("h1")).not.toBeNull();
+      expect(
+        list.querySelector('[data-testid="offerings-block"]'),
+      ).not.toBeNull();
+    });
+
+    it("pads every section and centers its content in the container", () => {
+      const { container } = render(<HomeScreen locale="es" page={undefined} />);
+      for (const section of sections(container)) {
+        expect(classTokens(section)).toEqual(
+          expect.arrayContaining(["py-12", "md:py-16"]),
+        );
+        expect(classTokens(section.firstElementChild!)).toEqual(
+          expect.arrayContaining([
+            "mx-auto",
+            "w-full",
+            "max-w-6xl",
+            "px-4",
+            "md:px-8",
+          ]),
+        );
+      }
+    });
+
+    it("lays the skeleton fallback out in the offerings grid", () => {
+      block.suspend = true;
+      render(<HomeScreen locale="es" page={undefined} />);
+      const grid = screen.getAllByTestId("skeleton-card")[0].parentElement!;
+      expect(classTokens(grid)).toEqual(
+        expect.arrayContaining([
+          "grid",
+          "grid-cols-1",
+          "gap-6",
+          "md:grid-cols-2",
+          "xl:grid-cols-3",
+        ]),
+      );
+    });
+  });
 });
