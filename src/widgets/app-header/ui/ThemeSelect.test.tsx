@@ -50,4 +50,33 @@ describe("ThemeSelect", () => {
     expect(document.cookie).toContain(`${THEME_COOKIE}=dark`);
     expect(document.documentElement.getAttribute("data-theme")).toBe("dark");
   });
+
+  // ─── The menu treatment (refine-app-header design.md D9; spec: "Theme
+  // selector inside the menu") ─── The selector keeps its geometry and the
+  // shared focus indicator and takes the header menu row treatment in place
+  // of the cream input block. Written before task 3.2 restyles the control,
+  // so it runs and fails until then.
+
+  it("renders in the treatment of the menu around it (design.md D9)", () => {
+    renderSelect();
+    const select = screen.getByRole("combobox", { name: "theme.select" });
+    // the geometry and the focus indicator stay
+    for (const cls of [
+      "h-10",
+      "w-full",
+      "px-3",
+      "rounded-field",
+      "focus-visible:focus-ring",
+    ]) {
+      expect(select.classList.contains(cls), cls).toBe(true);
+    }
+    // the nav row treatment of the header menus
+    for (const cls of ["type-navlist-item", "bg-nav-surface", "border-border-strong"]) {
+      expect(select.classList.contains(cls), cls).toBe(true);
+    }
+    // and none of the input block treatment
+    for (const cls of ["type-control", "bg-surface-input"]) {
+      expect(select.classList.contains(cls), cls).toBe(false);
+    }
+  });
 });

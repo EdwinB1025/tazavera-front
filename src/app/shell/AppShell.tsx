@@ -1,6 +1,12 @@
 import type { ReactNode } from "react";
 import type { Session } from "@/shared/api";
-import { LOCALES } from "@/shared/config/locales";
+import {
+  DEFAULT_LOCALE,
+  LOCALES,
+  isSupportedLocale,
+  type Locale,
+} from "@/shared/config/locales";
+import { LOCALE_NAMES } from "@/shared/config/locale-names";
 import { getMessages } from "@/shared/lib/i18n";
 import { AppSidebar } from "@/widgets/app-sidebar";
 import { ShellChrome } from "./ShellChrome";
@@ -45,7 +51,14 @@ export function AppShell({
   children,
 }: AppShellProps): ReactNode {
   const supplied = session ?? ANONYMOUS;
-  const texts = getMessages("shell", locale);
+  // design.md D6 (correction 3 of round 1): the locale is resolved with
+  // `isSupportedLocale` and never cast. An unsupported locale resolves to
+  // DEFAULT_LOCALE (es) for the whole composition — catalog word, code and
+  // own name — so the name reads "ES — Idioma: Español" and the shell
+  // renders without throwing (the catalog included, since `getMessages`
+  // rejects an unsupported locale).
+  const active: Locale = isSupportedLocale(locale) ? locale : DEFAULT_LOCALE;
+  const texts = getMessages("shell", active);
   // The sidebar region: the management sidebar is mounted here for an
   // authenticated session (it shows itself only on a management route) and a
   // caller may fill the region explicitly.
@@ -59,16 +72,22 @@ export function AppShell({
     ) : undefined);
 
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="flex flex-1 flex-col">
       <ShellChrome
         session={supplied}
-        locale={locale}
+        locale={active}
         locales={[...LOCALES]}
         texts={{
           topRated: texts.topRated!,
           aboutUs: texts.aboutUs!,
           signIn: texts.signIn!,
-          languageSelector: texts.languageSelector!,
+          // design.md D6: the shell composes one name — the resolved
+          // locale's code in uppercase, then " — ", then the catalog word
+          // with the resolved language's own name, e.g.
+          // "ES — Idioma: Español" for es — and passes it as one string
+          // (spec: "Selector is named"), so the name leads with the code
+          // the trigger shows.
+          languageSelector: `${active.toUpperCase()} — ${texts.languageSelector!}: ${LOCALE_NAMES[active].name}`,
           brandLink: texts.brandLink!,
           profile: texts.profile!,
           editProfile: texts.editProfile!,
