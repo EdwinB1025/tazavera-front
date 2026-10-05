@@ -255,6 +255,7 @@ Next.js route files are in the root `app/` folder and only import their screen f
 | `src/shared/ui/icons.ts` | `shared` | `Clock` joins the entry (provisional badge) |
 | `src/shared/ui/icons.test.ts` | `shared` | The icon expectations gain `Clock` |
 | `src/shared/api/index.ts` | `shared` | The derived types of D2 join `add-app-shell`'s session types |
+| `src/app/shell/AppShell.test.tsx` | `app` | The shell tests take a plain placeholder child instead of the home screen, and the main-area case asserts the child the main area holds |
 
 `src/shared/api/schema.ts` is generated and is **not** modified. `contracts/openapi.yaml` is not touched. No other change's message catalog is touched.
 

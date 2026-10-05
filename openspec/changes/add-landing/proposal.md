@@ -24,7 +24,9 @@ The application has no public entry. The shell (`add-app-shell`) renders a heade
 
 ### Modified Capabilities
 
-None. `theming` is unchanged: the badge and card take existing semantic tokens only (the taxonomy chips render data colors as inline styles, not tokens). `base-controls` is unchanged: its button, link and shared icon source are reused, and the clock icon joins the existing icon entry point without a requirement change. `form-fields` is not touched.
+- `app-shell`: the requirement "Locale routing" is modified — its scenario "Root of a supported locale" states that the shell renders the entry page in its main area instead of reporting the page as not found. The rest of the requirement is unchanged.
+
+`theming` is unchanged: the badge and card take existing semantic tokens only (the taxonomy chips render data colors as inline styles, not tokens). `base-controls` is unchanged: its button, link and shared icon source are reused, and the clock icon joins the existing icon entry point without a requirement change. `form-fields` is not touched.
 
 ## Out of Scope (non-goals)
 
