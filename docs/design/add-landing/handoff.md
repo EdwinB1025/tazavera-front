@@ -162,3 +162,23 @@ Summary: no OpenCode process was running at the start (PID 36640 was gone); afte
 
 ### Final checks
 `npm run test:run` was not run: no task commit was made, and the tree holds an unfinished 6.2. The last green run was after `070a4a9` (39 files, 835 tests).
+
+## Session 2026-10-05 (evening, resumed) — apply 6.2
+Summary: after the provider balance was restored (Q10), task 6.2 was rerun. The build implemented 6.2 on top of the files the earlier run left behind, then held the commit because verification fails outside the change's files. Stopped because: of Q11 below. Everything later depends on 6.2's catalogs and screen. MVC reachable: not checked.
+
+### Agent feedback (6.2)
+- Written, uncommitted: `src/pages/home/ui/HomeHero.tsx`, `src/pages/home/ui/ExploreButton.tsx`, `src/pages/home/ui/HomeScreen.tsx` (modified), `app/[locale]/page.tsx` (modified), `messages/{es,en,ca}/landing.json`, `public/images/coffee-beans.png`, plus the earlier run's `HomeHero.test.tsx` (D12 intrinsic-size case) and `HomeScreen.test.tsx` (rewritten).
+- Build's results: the slice tests pass (11/11), the message-catalog guard is green over `landing`, `npm run lint` exits 0. `npx tsc --noEmit` exits 2, failing only on `src/app/shell/AppShell.test.tsx` (2× TS2741, `<HomeScreen />` without `locale`, lines 67 and 157). `npm run test:run` passes 40 of 41 files and 838 of 847 tests; the 9 failures are all in `src/app/shell/AppShell.test.tsx`.
+- `AppShell.test.tsx` (capability `app-shell`, owned by `add-app-shell`) renders `<AppShell><HomeScreen /></AppShell>` and asserts `main.textContent === ""` (scenario "Root of a supported locale") and `getAllByRole("button")` length 1. D13 fills that main area, so both assertions stop holding.
+- The rating badge label was not touched (D4).
+
+### Deferred to Product owner
+#### Q11 — 6.2 conflicts with the app-shell main spec and its test
+- Question: `openspec/specs/app-shell/spec.md`, scenario "Root of a supported locale", says "THEN the shell renders with an **empty main area** instead of reporting the page as not found". `add-landing` fills that area (proposal "fills the shell's empty main area", design.md D13), but its proposal lists "Modified Capabilities: None" and the change has no `app-shell` delta. Also, no task names the `AppShell.test.tsx` updates that AGENTS.md requires ("When a task changes behaviour that existing tests assert, it names those tests").
+- Why deferred: resolving it means adding a MODIFIED `app-shell` requirement to the change (a spec change in another capability) and a task that edits a shared component's test. That is a correction round, outside §4. It cannot be an unplanned fix either, because the test asserts a main-spec scenario that is still in force.
+- Options: (1) correction round. The architect adds an `app-shell` MODIFIED delta for "Root of a supported locale" (for example "THEN the shell renders the entry page in its main area instead of reporting the page as not found") and a task before 6.2's commit naming the `AppShell.test.tsx` updates: pass `locale` to `HomeScreen`, restate the empty-main-area case for the filled main area, and scope the single-button assertion to the header's Sign-in control. (2) Treat it as an unplanned fix on `AppShell.test.tsx` with no spec delta. That leaves the main spec contradicting the code after archive. (3) Fold the test edits into 6.2's commit. That breaks the one-capability-per-commit rule.
+- Recommendation: (1). It is the only option that keeps `openspec/specs/app-shell` true after archive. The build also notes that `HomeScreen` now loads the catalog and wraps an async server component, so the shell test may need a plain child instead of `HomeScreen`. The architect should state that in the task.
+- Blocks: 6.2's commit, then 6.3, 7.1, 7.2, 8.1 and 9.1 (all build on 6.2's catalogs and screen). The 6.2 files stay uncommitted in the tree for the next run.
+
+### Final checks
+`npm run test:run` (build's run on the uncommitted 6.2 tree): 40 of 41 files, 838 of 847 tests pass; the only failures are in `src/app/shell/AppShell.test.tsx`. Last committed green state: `070a4a9` (39 files, 835 tests).
