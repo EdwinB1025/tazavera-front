@@ -64,3 +64,19 @@ The task list ends with the real-browser check the round asks for (task 8.13, pr
 **Question to the product owner (corrections 7 and 8 — no tasks are written for them).** The mechanism proposed in `design.md` D11 — `add-app-shell`'s D9 per-request nonce extended to `/callback`, with `Cross-Origin-Opener-Policy: same-origin-allow-popups` beside the existing CSP on every other response — requires changing `proxy.ts` and `proxy.test.ts`, which `add-app-shell` owns. May `add-auth` change them, or are these headers delivered by `add-app-shell` or by a change of their own? (`docs/backlog.md` R2 and R3 sit on the same seam and stay out of this change either way.)
 
 Note for the product owner: corrections 1–6 and 9 leave parts of the unchecked tasks 3.2, 6.1 and 7.1 describing the earlier design (the D6 status region and the `auth` catalogs of 3.2, the navigation and `sessionStorage` assertions of 6.1, the `auth` catalog texts of 7.1). Sections 3–7 are left exactly as written, the new section's tasks name what they supersede, and sequencing the two is recorded in the final report.
+
+### Status
+
+2026-10-05 (second processing of the round, after the product owner answered handoff Q6, Q7 and Q8). `openspec validate add-auth --strict`: `Change 'add-auth' is valid`. The document is processed as review round 1.
+
+1. **PKCE challenge timing.** Unchanged in this pass; task 8.1 stands as recorded above.
+2. **Interactive sign-in and step-up in a popup.** Unchanged in this pass; tasks 8.2 and 8.3 stand as recorded above. As part of handoff Q8's rewrite, task 6.1 now plans its `requestProfileWrite` cases on the popup flow of D10 (no navigation, no `sessionStorage`).
+3. **Popup blocked.** Unchanged in this pass; tasks 8.4 and 8.5 stand as recorded above.
+4. **Popup closed before completing.** Unchanged in this pass; tasks 8.6 and 8.7 stand as recorded above.
+5. **`/callback` has two modes and renders no text.** Unchanged in this pass; tasks 8.8 and 8.9 stand as recorded above. As part of handoff Q8's rewrite, task 3.2 now states the two modes and the no-text rule with no `messages/{locale}/auth.json` files.
+6. **Public API of `src/features/auth`.** Unchanged in this pass; task 8.10 stands as recorded above.
+7. **Content-Security-Policy on `/callback`.** `design.md` D11 is settled (handoff Q6): `add-auth` changes `proxy.ts` and `proxy.test.ts` in its own tasks; the requirement stays in `specs/auth/spec.md` with its `/callback` policy and no-COOP clause. Tasks **8.13** (tests) and **8.14** (implementation) created, test first.
+8. **Cross-Origin-Opener-Policy.** The requirement moves from `specs/auth/spec.md` to the new `specs/app-shell/spec.md` delta of this change (handoff Q7), `proposal.md` lists `app-shell` under Modified Capabilities and records the `proxy.ts` seam in Impact, and `design.md` D11 records the settled mechanism and ownership. Tasks **8.15** (tests) and **8.16** (implementation) created, test first.
+9. **Token holder exposure.** Unchanged in this pass; tasks 8.11 and 8.12 stand as recorded above. As part of handoff Q8's rewrite, task 7.1 now checks the exposure against `window` and React state as well.
+
+Handoff Q8 additionally rewrites tasks 3.2, 6.1 and 7.1 in place to the updated design (popup flow and its full-page fallback, two modes of `/callback`, no-text rule with no `auth` catalogs, token exposure of correction 9), and `proposal.md`'s "What Changes" now describes the popup flow. The real-browser check moves from 8.13 to **8.17** and stays the list's last task, as the round's Verification line requires.

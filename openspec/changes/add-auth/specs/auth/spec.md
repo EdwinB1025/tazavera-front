@@ -144,10 +144,3 @@ Every document response of the callback route SHALL carry a Content-Security-Pol
 #### Scenario: Policy present on the callback
 - **WHEN** the callback route answers a request
 - **THEN** its response carries a Content-Security-Policy whose `connect-src` names the API origin, and carries no `Cross-Origin-Opener-Policy`
-
-### Requirement: Cross-Origin-Opener-Policy
-Every document response of the application except the callback route SHALL carry `Cross-Origin-Opener-Policy: same-origin-allow-popups`, so the application's pages stay isolated while a popup window keeps its opener.
-
-#### Scenario: Opener kept outside the callback
-- **WHEN** a page other than the callback route answers a request
-- **THEN** its response carries `Cross-Origin-Opener-Policy: same-origin-allow-popups`
