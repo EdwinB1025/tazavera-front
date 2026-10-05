@@ -285,6 +285,16 @@ describe("LanguageSelect (spec: Language selection)", () => {
     expect(onLocaleChange).toHaveBeenCalledWith("en");
   });
 
+  it("choosing the current language changes nothing (spec: Choosing the current language changes nothing)", () => {
+    // with value="es" the Español entry is the language already active
+    // (design.md D7: choosing it closes the menu and calls back nothing)
+    const { onLocaleChange } = renderSelect();
+    openMenu();
+    fireEvent.click(screen.getByRole("menuitemradio", { name: "Español" }));
+    expect(screen.queryByRole("menu")).toBeNull();
+    expect(onLocaleChange).not.toHaveBeenCalled();
+  });
+
   it("shows globe, code and chevron on every viewport (spec: Trigger content on every viewport)", () => {
     renderSelect();
     const trigger = screen.getByRole("button", { name: TEXTS.languageSelector });
