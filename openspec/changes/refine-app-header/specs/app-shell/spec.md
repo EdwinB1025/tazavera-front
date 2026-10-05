@@ -3,7 +3,7 @@
 ## ADDED Requirements
 
 ### Requirement: Header menu triggers
-The controls that open the header menus — the user control and the language selector — are menu triggers and SHALL NOT render as action controls: they take no action-button treatment, and at rest they carry no fill and no border. Their content — text and icons alike — SHALL take the header's navigation text colour and switch to its hover value while the pointer is on the control.
+The controls that open the header menus — the user control and the language selector — are menu triggers and SHALL NOT render as action controls: they take no action-button treatment, and at rest they carry no fill and no border. Their content — text and icons alike — SHALL take the header's navigation text colour and switch to its hover value while the pointer is on the control. On keyboard focus a trigger SHALL keep the visible focus ring defined by `base-controls`: one ring with its offset, rendered from the focus tokens of the active theme.
 
 #### Scenario: Triggers are not action controls
 - **WHEN** the header renders its user control or its language selector
@@ -12,6 +12,10 @@ The controls that open the header menus — the user control and the language se
 #### Scenario: Trigger content follows the navigation text colours
 - **WHEN** the pointer moves onto or off a header menu trigger
 - **THEN** its text and its icons switch between `nav-text` and `nav-text-hover`
+
+#### Scenario: Trigger keeps the focus ring on keyboard focus
+- **WHEN** a header menu trigger receives keyboard focus
+- **THEN** a focus ring with its offset renders around it from the focus tokens of the active theme
 
 ### Requirement: Header menu presentation
 The menus opened from the header SHALL extend the header surface: their panel SHALL take `nav-surface` with `nav-text` text, the hover of an entry SHALL take `nav-hover` with `nav-text-hover`, and the panel corner radius SHALL come from `radius-field`. The entry carrying the current choice SHALL be marked with an indicator that follows the entry's text colour. The theme selector inside the user menu SHALL render in the same treatment as the menu around it.
@@ -55,15 +59,15 @@ While the session is authenticated, the header SHALL show the brand logotype, th
 
 #### Scenario: Initials circle in the traditional theme
 - **WHEN** the header renders in the traditional theme
-- **THEN** the initials circle keeps its current fill, text and hover colours and carries no boundary ring
+- **THEN** the initials circle keeps its current fill, text and hover colours and shows no boundary ring, `nav-avatar-border` being transparent in that theme
 
 #### Scenario: Initials circle in the dark theme
 - **WHEN** the header renders in the dark theme
-- **THEN** the initials circle takes `nav-button-bg` with `nav-button-text` at rest and `action-primary-hover` with `action-primary-text` on hover
+- **THEN** the initials circle takes `nav-avatar` with `nav-text-dark` at rest and `nav-avatar-hover` on hover, those tokens holding in the dark theme the "Sign in" pair (`nav-button-bg` with `nav-button-text`) at rest and the `action-primary-hover` value on hover
 
 #### Scenario: Circle boundary in the dark theme
 - **WHEN** the initials circle renders in the dark theme
-- **THEN** it carries a boundary in `nav-button-border`, so the circle is perceivable against the header surface
+- **THEN** it carries a boundary in `nav-avatar-border`, which holds the `nav-button-border` value in the dark theme, so the circle is perceivable against the header surface
 
 #### Scenario: Menu content
 - **WHEN** the user opens the user menu

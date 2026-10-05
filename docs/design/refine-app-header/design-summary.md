@@ -98,3 +98,12 @@ Nothing open on the design. Pending outside the propose: the backlog entry for t
 
 - The `docs/backlog.md` entry for the panel-radius mismatch (`base-controls` "fields and menus" at `radius-field` vs the shared card panel's `rounded-container`): agents only read that file, so it is added by the product owner.
 - The MVC dropdown check in the browser before the archive.
+
+### Artifact review applied (Product owner review of 2026-10-05)
+
+- **Date:** 2026-10-05. **Validation after the updates:** `openspec validate refine-app-header --strict` → `Change 'refine-app-header' is valid`.
+- **Point 1 — accepted (open reading 1):** user-menu link rows keep their link treatment. No artifact text changed beyond recording the resolution in design.md "Open Questions".
+- **Point 2 — accepted with a condition (open reading 2):** the trigger hover stays a content colour switch (`nav-text` → `nav-text-hover`) with no fill, and focus keeps the visible focus ring defined by `base-controls`. Stated in spec "Header menu triggers" (requirement sentence plus the scenario "Trigger keeps the focus ring on keyboard focus") and added to task 3.1 as the case "keeps the visible focus ring on keyboard focus".
+- **Point 3 — design.md D5 rejected and rewritten:** no theme-scoped `@custom-variant theme-dark`. The dark values of the avatar tokens move to the "Sign in" dark pair — `nav-avatar` `night-oxblood-700`, `nav-avatar-hover` `night-oxblood-800`, `nav-text-dark` `night-cream-100` — and one new token `nav-avatar-border` carries the boundary (`transparent` in the traditional theme, the `nav-button-border` value `night-cream-100` in dark). The token approach expresses the requirement (per-theme token values are `theming`'s own vehicle, and the theme switch needs no reload), so D5 was not kept. The "new token only when a pair fails" rule fires on the dark circle fill (≈2.3:1 against `nav-surface`). The contrast table (design.md D13) now records every pair in both themes; the spec's circle scenarios, `proposal.md` and `tasks.md` follow the mechanism.
+- **Recorded consequence:** `nav-text-dark`'s dark value also serves `type-sidebar-item`, `variant-inverse` and the inverse controls' hover border, so those shift to `night-cream-100` in the dark theme (design.md D5 and Risks). The management sidebar's structure and behaviour are untouched.
+- **Commit:** `docs(app-shell): update artifacts for refine-app-header`.
