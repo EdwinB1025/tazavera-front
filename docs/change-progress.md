@@ -10,7 +10,7 @@ Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, 
 - Quien cambia la fase de un cambio actualiza su fila en el mismo momento: el orquestador al cerrar una sesión, Product owner al decidir.
 - **Agente** es quien tiene el siguiente paso, no quien hizo el último.
 - **Bloqueo** remite a la pregunta del handoff (`Q<n>`) o a la decisión pendiente; "—" si no hay.
-- Al mergear un cambio, su fila pasa a "Cerrados".
+- Al mergear un cambio, su fila pasa al final del tablero con fase **Merge**, y en "Estado" queda lo pendiente tras el merge.
 
 ### Fases
 
@@ -53,14 +53,44 @@ Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, 
 | `add-filter-controls` | filtering | — | Resumen | Por escribir; incluye el filtro de evaluaciones | Resumen | Product owner | — | — |
 | `add-offering-management` | offering-management | — | Resumen | Por escribir | Resumen | Product owner | — | — |
 | `add-offering-catalog` | offering-catalog | — | Resumen | Por escribir | Resumen | Product owner | — | — |
+| `add-theme-tokens` | theming | — (rama borrada) | Merge | Archivado `e53c808`, mergeado `a3a96e2` | — | — | — | `a3a96e2` |
+| `add-base-control` | base-controls | — (rama borrada) | Merge | Archivado `d492481`, mergeado `c4f70ad` | — | — | — | `c4f70ad` |
+| `add-focus-ring-utility` | theming | — (rama borrada) | Merge | Archivado `fcc6e28`, mergeado `8d23918` | — | — | — | `8d23918` |
+| `add-form-fields` | form-fields | — (rama borrada) | Merge | Archivado `6fbd517`, mergeado `c6fe64d` | — | — | — | `c6fe64d` |
+| `add-app-shell` | app-shell, theming | — (rama `feature/add-app-shell` aún existe en local) | Merge | Archivado `935236d`, mergeado `8e300b8` | — | — | — | `8e300b8` |
+| `refine-app-header` | app-shell | — (rama borrada) | Merge | Archivado `27ca840`, mergeado `124c048`. Pendiente: R4 (radio del panel) en el backlog | — | — | — | `124c048` |
+| `add-landing` | landing, content-structure, feedback, app-shell | — (rama borrada; carpeta vacía `tazavera-front-landing` por borrar) | Merge | Archivado `f6bce3b`, mergeado `2284399`. Pendiente: D4 (puntuación dos veces en la tarjeta); candidato de backlog: primitivo de sección compartido | Decisión D4 | Product owner | D4 | `2284399` |
 
 Operaciones sin cambio asignado: `GET /coffees`, `GET /roasteries`.
 
-## Cerrados
+## Cobertura del contrato
 
-| Cambio | Capabilities | Archivado | Merge en `develop` | Pendiente tras el merge |
-|---|---|---|---|---|
-| `add-form-fields` | form-fields | Sí | Sí | — |
-| `add-app-shell` | app-shell | Sí | Sí | — |
-| `refine-app-header` | app-shell | `27ca840` | `124c048` | R4 (radio del panel) en el backlog |
-| `add-landing` | landing, content-structure, feedback, app-shell | `f6bce3b` | `2284399` | D4 (puntuación dos veces en la tarjeta); candidato de backlog: primitivo de sección compartido |
+Las 23 operaciones de `contracts/openapi.yaml` (`develop`) y el cambio que las consume. Mínimo de la entrega: todas consumidas. Las marcadas *(supuesto)* son asignaciones del orquestador por el nombre del cambio; Product owner las confirma al escribir el resumen.
+
+| Operación | `operationId` | Cambio | Estado del cambio |
+|---|---|---|---|
+| `GET /offerings` | `listOfferings` | `add-landing` (verificadas); `add-offering-catalog` y `add-filter-controls` *(supuesto)* | Mergeado / por diseñar |
+| `GET /taxonomies` | `listOlfactoryTaxonomies` | `add-landing`; `add-specialist-evaluations` | Mergeado / resumen |
+| `POST /logout` | `logOut` | `add-auth` | Apply |
+| `GET /user` | `getTheAuthenticatedUser` | `add-auth`; `add-user-account` | Apply / por diseñar |
+| `POST /register` | `registerAUser` | `add-user-account` | Borrador |
+| `PUT /user` | `updateAUser` | `add-user-account` | Borrador |
+| `PUT /user` (contraseña) | `updateUserPassword` | `add-user-account` | Borrador |
+| `DELETE /user` (desactivar) | `deactivateAUser` | `add-user-account` | Borrador |
+| `DELETE /user` (borrado definitivo) | `permanentlyDeleteAUser` | `add-user-account` | Borrador |
+| `GET /evaluations` | `listEvaluations` | `add-specialist-evaluations`; filtro en `add-filter-controls` | Resumen / por diseñar |
+| `POST /evaluations` | `createAnEvaluation` | `add-specialist-evaluations` | Resumen |
+| `GET /evaluations/{id}` | `getAnEvaluation` | `add-specialist-evaluations` | Resumen |
+| `PUT /evaluations/{id}` | `updateAnEvaluation` | `add-specialist-evaluations` | Resumen |
+| `PATCH /evaluations/{id}` | `closeAnEvaluation` | `add-specialist-evaluations` | Resumen |
+| `DELETE /evaluations/{id}` | `deleteAnEvaluation` | `add-specialist-evaluations` | Resumen |
+| `GET /offerings/{id}` | `getAnOffering` | `add-offering-catalog` (página de detalle) *(supuesto)* | Por diseñar |
+| `POST /offerings` | `createOfferings` | `add-offering-management` *(supuesto)* | Por diseñar |
+| `DELETE /offerings/{id}` | `deleteAnOffering` | `add-offering-management` *(supuesto)* | Por diseñar |
+| `DELETE /offerings` (varias) | `deleteMultipleOfferings` | `add-offering-management` *(supuesto)* | Por diseñar |
+| `GET /locations` | `listMyLocations` | `add-offering-management` *(supuesto)* | Por diseñar |
+| `GET /coffeeInventory` | `listCoffeeInventory` | `add-offering-management` *(supuesto)* | Por diseñar |
+| `GET /coffees` | `listCoffees` | **Sin cambio asignado** | — |
+| `GET /roasteries` | `listRoasteries` | **Sin cambio asignado** | — |
+
+Las rutas con `{id}` y los paréntesis son orientativos; la fuente es el `operationId` en el contrato. La entrada "Mejor valorados" de la cabecera tampoco tiene cambio asignado *(supuesto: `add-offering-catalog`)*.
