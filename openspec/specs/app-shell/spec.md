@@ -18,7 +18,7 @@ Every application route SHALL live under a locale prefix, for the supported loca
 
 #### Scenario: Root of a supported locale
 - **WHEN** the user opens the root of a supported locale
-- **THEN** the shell renders with an empty main area instead of reporting the page as not found
+- **THEN** the shell renders the entry page in its main area instead of reporting the page as not found
 
 #### Scenario: Unsupported locale
 - **WHEN** the user opens a URL whose locale prefix is not supported
