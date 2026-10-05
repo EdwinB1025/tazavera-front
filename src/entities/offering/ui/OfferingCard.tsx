@@ -49,6 +49,18 @@ const TAXONOMY_LEVELS = [0, 1, 2] as const;
 // Each row wraps its badges so no row overflows the card below `md`
 // (design.md D8; spec "Rows by level").
 const ROW_CLASSES = ["flex", "flex-wrap", "gap-2"].join(" ");
+// The three rows 0.5rem apart, so they do not touch (design.md D14).
+const ROWS_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
+
+// ─── Card layout (design.md D14) ───
+// Score, `/100` and rating badge on one row above the content.
+const SCORE_ROW_CLASSES = ["flex", "flex-wrap", "items-baseline", "gap-2"].join(
+  " ",
+);
+// The counts 1rem apart, the links grouped at the end; the footer wraps.
+const FOOTER_CLASSES = ["flex", "flex-wrap", "items-center", "gap-4"].join(" ");
+const FOOTER_COUNTS_CLASSES = ["flex", "flex-wrap", "gap-4"].join(" ");
+const FOOTER_LINKS_CLASSES = ["ml-auto", "flex", "gap-4"].join(" ");
 
 /**
  * One offering filled into the shared card (design.md D4's field mapping and
@@ -66,7 +78,12 @@ export function OfferingCard({
 }: OfferingCardProps): ReactNode {
   const tier = ratingTierFor(offering.cuppingAvg);
   const coffee = offering.coffeeInventory?.coffee;
-  const origin = [coffee?.country, coffee?.region, coffee?.process, coffee?.variety]
+  const origin = [
+    coffee?.country,
+    coffee?.region,
+    coffee?.process,
+    coffee?.variety,
+  ]
     .filter((part): part is string => part != null)
     .join(ORIGIN_SEPARATOR);
   const isVerified = offering.verificationStatus === "verified";
@@ -81,12 +98,14 @@ export function OfferingCard({
   const defective = `${texts.defectiveLabel} ${offering.defectiveEvaluationCount ?? 0}`;
 
   return (
-    <Card>
+    <Card layout="stacked">
       {tier !== null ? (
         <CardAside>
-          <div className="type-score">{offering.cuppingAvg}</div>
-          <div className="type-meta">{SCORE_SCALE}</div>
-          <Badge variant={tier}>{offering.cuppingAvg}</Badge>
+          <div className={SCORE_ROW_CLASSES}>
+            <div className="type-score">{offering.cuppingAvg}</div>
+            <div className="type-meta">{SCORE_SCALE}</div>
+            <Badge variant={tier}>{offering.cuppingAvg}</Badge>
+          </div>
         </CardAside>
       ) : null}
       <CardContent>
@@ -97,36 +116,42 @@ export function OfferingCard({
         <p className="type-label">{coffeeshopCaption}</p>
         <p className="type-label">{roasterCaption}</p>
         <p className="type-meta">{origin}</p>
-        {TAXONOMY_LEVELS.map((level) => (
-          <div key={level} className={ROW_CLASSES}>
-            {taxonomies
-              .filter((badge) => badge.level === level)
-              .map((badge) => (
-                <Badge
-                  key={badge.label}
-                  variant="taxonomy"
-                  color={badge.color}
-                  level={badge.level}
-                >
-                  {badge.label}
-                </Badge>
-              ))}
-          </div>
-        ))}
+        <div className={ROWS_CLASSES}>
+          {TAXONOMY_LEVELS.map((level) => (
+            <div key={level} className={ROW_CLASSES}>
+              {taxonomies
+                .filter((badge) => badge.level === level)
+                .map((badge) => (
+                  <Badge
+                    key={badge.label}
+                    variant="taxonomy"
+                    color={badge.color}
+                    level={badge.level}
+                  >
+                    {badge.label}
+                  </Badge>
+                ))}
+            </div>
+          ))}
+        </div>
       </CardContent>
-      <CardFooter>
-        <span className="type-meta">{evaluations}</span>
-        <span className="type-meta">{defective}</span>
-        <Link href={`/${locale}/offerings/${offering.ulid ?? ""}`}>
-          {texts.viewLabel}
-        </Link>
-        {isSpecialist ? (
-          <Link
-            href={`/${locale}/manage/evaluations/new?offering=${offering.ulid ?? ""}`}
-          >
-            {texts.evaluateLabel}
+      <CardFooter className={FOOTER_CLASSES}>
+        <div className={FOOTER_COUNTS_CLASSES}>
+          <span className="type-meta">{evaluations}</span>
+          <span className="type-meta">{defective}</span>
+        </div>
+        <div className={FOOTER_LINKS_CLASSES}>
+          <Link href={`/${locale}/offerings/${offering.ulid ?? ""}`}>
+            {texts.viewLabel}
           </Link>
-        ) : null}
+          {isSpecialist ? (
+            <Link
+              href={`/${locale}/manage/evaluations/new?offering=${offering.ulid ?? ""}`}
+            >
+              {texts.evaluateLabel}
+            </Link>
+          ) : null}
+        </div>
       </CardFooter>
     </Card>
   );

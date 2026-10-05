@@ -1,9 +1,5 @@
 import type { ReactNode } from "react";
-import type {
-  OfferingsPageMeta,
-  OfferingSummary,
-  Session,
-} from "@/shared/api";
+import type { OfferingsPageMeta, OfferingSummary, Session } from "@/shared/api";
 import type {
   OfferingCardTexts,
   ResolvedTaxonomyBadge,
@@ -12,6 +8,7 @@ import { OfferingCard } from "@/entities/offering";
 import { OfferingPagination } from "./OfferingPagination";
 import type { OfferingPaginationTexts } from "./OfferingPagination";
 import { RetryButton } from "./RetryButton";
+import { OFFERING_GRID_CLASSES } from "../lib/grid";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -43,6 +40,13 @@ export type OfferingListProps = {
 // The centered empty message (spec "Empty").
 const EMPTY_CLASSES = "text-center";
 
+// The grid of cards, then the pagination below it (design.md D14).
+const BLOCK_CLASSES = ["flex", "flex-col", "gap-8"].join(" ");
+
+// The error message with its retry action, centered like the empty message,
+// so the button keeps its own width.
+const ERROR_CLASSES = ["flex", "flex-col", "items-center", "gap-4"].join(" ");
+
 /**
  * The presentation of the verified-offerings block (design.md D9; the landing
  * spec "Verified offerings list"). One offering card per item with the
@@ -59,19 +63,21 @@ export function OfferingList({
   texts,
 }: OfferingListProps): ReactNode {
   return (
-    <section id="offerings">
+    <div id="offerings" className={BLOCK_CLASSES}>
       {result.state === "success" ? (
         <>
-          {result.items.map((item, index) => (
-            <OfferingCard
-              key={item.offering.ulid ?? index}
-              offering={item.offering}
-              locale={locale}
-              session={session}
-              taxonomies={item.taxonomies}
-              texts={texts}
-            />
-          ))}
+          <div className={OFFERING_GRID_CLASSES}>
+            {result.items.map((item, index) => (
+              <OfferingCard
+                key={item.offering.ulid ?? index}
+                offering={item.offering}
+                locale={locale}
+                session={session}
+                taxonomies={item.taxonomies}
+                texts={texts}
+              />
+            ))}
+          </div>
           <OfferingPagination
             locale={locale}
             meta={result.meta}
@@ -83,11 +89,11 @@ export function OfferingList({
         <p className={EMPTY_CLASSES}>{texts.emptyMessage}</p>
       ) : null}
       {result.state === "error" ? (
-        <>
+        <div className={ERROR_CLASSES}>
           <p>{texts.errorMessage}</p>
           <RetryButton label={texts.retryLabel} />
-        </>
+        </div>
       ) : null}
-    </section>
+    </div>
   );
 }

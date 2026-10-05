@@ -272,10 +272,13 @@ describe("OfferingCard", () => {
   describe("Taxonomy badge rows (spec: 'Rows by level'; design.md D8)", () => {
     it("renders the resolved badges in three rows by level, each row carrying flex-wrap", () => {
       const { container } = renderCard();
-      // The rows are found by their `flex-wrap` token: a row without it does
-      // not show up here and the count below fails (design.md D8: each row
-      // carries `flex-wrap` so no row overflows the card below `md`).
-      const rows = elementsWith(container, "flex-wrap");
+      // The rows are found by their `flex-wrap` token inside the content
+      // region: a row without it does not show up here and the count below
+      // fails (design.md D8: each row carries `flex-wrap` so no row overflows
+      // the card below `md`). The score row and the footer wrap too (D14), so
+      // the search is scoped to the region that holds the rows.
+      const content = container.querySelector("h3")!.parentElement!;
+      const rows = elementsWith(content, "flex-wrap");
       expect(rows).toHaveLength(3);
       expect((rows[0].textContent ?? "").includes("Floral")).toBe(true);
       expect((rows[1].textContent ?? "").includes("Jazmin")).toBe(true);
@@ -373,7 +376,12 @@ describe("OfferingCard", () => {
       const score = elementsWith(container, "type-score")[0];
       const row = score.parentElement!;
       expect(classTokens(row)).toEqual(
-        expect.arrayContaining(["flex", "flex-wrap", "items-baseline", "gap-2"]),
+        expect.arrayContaining([
+          "flex",
+          "flex-wrap",
+          "items-baseline",
+          "gap-2",
+        ]),
       );
       expect(row.contains(elementsWith(container, "type-meta")[0])).toBe(true);
       expect(row.contains(ratingBadges(container)[0])).toBe(true);
@@ -385,8 +393,11 @@ describe("OfferingCard", () => {
         (link) => link.textContent === TEXTS.viewLabel,
       )!;
       const links = view.parentElement!;
-      const counts = findWith(container, "type-meta", TEXTS.evaluationsLabel)!
-        .parentElement!;
+      const counts = findWith(
+        container,
+        "type-meta",
+        TEXTS.evaluationsLabel,
+      )!.parentElement!;
       const footer = links.parentElement!;
       expect(counts.parentElement).toBe(footer);
       expect(links).not.toBe(counts);
@@ -399,6 +410,17 @@ describe("OfferingCard", () => {
       );
       expect(classTokens(links)).toEqual(
         expect.arrayContaining(["ml-auto", "flex", "gap-4"]),
+      );
+    });
+
+    it("keeps the three taxonomy rows 0.5rem apart", () => {
+      const { container } = renderCard();
+      const content = container.querySelector("h3")!.parentElement!;
+      const rows = elementsWith(content, "flex-wrap");
+      const stack = rows[0].parentElement!;
+      expect(rows.every((row) => row.parentElement === stack)).toBe(true);
+      expect(classTokens(stack)).toEqual(
+        expect.arrayContaining(["flex", "flex-col", "gap-2"]),
       );
     });
   });

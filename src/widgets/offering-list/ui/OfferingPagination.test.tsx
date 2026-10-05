@@ -74,4 +74,24 @@ describe("OfferingPagination", () => {
     fireEvent.click(next);
     expect(router.push).not.toHaveBeenCalled();
   });
+
+  describe("Layout (design.md D14)", () => {
+    it("centers Previous and Next below the grid, 1rem apart", () => {
+      const { container } = renderPagination("es", {
+        current_page: 2,
+        last_page: 3,
+      } as OfferingsPageMeta);
+      const tokens = (container.firstElementChild!.getAttribute("class") ?? "")
+        .split(/\s+/)
+        .filter(Boolean);
+      expect(tokens).toEqual(
+        expect.arrayContaining([
+          "flex",
+          "flex-wrap",
+          "justify-center",
+          "gap-4",
+        ]),
+      );
+    });
+  });
 });

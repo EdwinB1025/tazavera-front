@@ -128,7 +128,7 @@ describe("HomeScreen", () => {
 
   describe("Page layout (spec: 'Entry page sections', 'Centered content', 'Side and section spacing', 'Grid by viewport'; design.md D14)", () => {
     function classTokens(element: Element): string[] {
-      return (element.getAttribute("class") ?? "").split(/s+/).filter(Boolean);
+      return (element.getAttribute("class") ?? "").split(/\s+/).filter(Boolean);
     }
 
     function sections(container: HTMLElement): Element[] {

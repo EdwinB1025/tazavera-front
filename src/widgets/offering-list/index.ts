@@ -22,3 +22,4 @@ export type {
 export { RetryButton } from "./ui/RetryButton";
 export type { RetryButtonProps } from "./ui/RetryButton";
 export { OfferingSkeletonCard } from "./ui/OfferingSkeletonCard";
+export { OFFERING_GRID_CLASSES } from "./lib/grid";

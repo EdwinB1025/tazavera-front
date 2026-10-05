@@ -33,6 +33,26 @@ const PHOTO_HEIGHT = 500;
 /** The one emphasized heading run (spec: "Settled Spanish heading"). */
 const ACCENT_CLASSES = "text-text-accent";
 
+// ─── Hero layout (design.md D14) ───
+// Two equal columns from `md`, vertically centered; one column below.
+const HERO_CLASSES = ["grid", "items-center", "gap-8", "md:grid-cols-2"].join(
+  " ",
+);
+// Eyebrow, heading and paragraph 1rem apart.
+const TEXT_COLUMN_CLASSES = ["flex", "flex-col", "gap-4"].join(" ");
+// The actions sit 1.5rem below the paragraph (the column gap plus `mt-2`).
+const ACTIONS_CLASSES = [
+  "mt-2",
+  "flex",
+  "flex-col",
+  "items-start",
+  "gap-4",
+].join(" ");
+// The registration links stay apart and wrap when the row has no room.
+const LINK_GROUP_CLASSES = ["flex", "flex-wrap", "gap-x-6", "gap-y-2"].join(
+  " ",
+);
+
 /**
  * Hero of the entry page (design.md D10, D11, D12; the landing spec "Entry
  * page hero"). The heading renders as three parts so exactly one word takes
@@ -44,8 +64,8 @@ const ACCENT_CLASSES = "text-text-accent";
  */
 export function HomeHero({ locale, texts }: HomeHeroProps): ReactNode {
   return (
-    <section className="md:flex md:items-center md:gap-8">
-      <div>
+    <div className={HERO_CLASSES}>
+      <div className={TEXT_COLUMN_CLASSES}>
         <p className="type-eyebrow-strong">{texts.eyebrow}</p>
         <h1 className="type-heading">
           {texts.headingBefore}
@@ -53,23 +73,25 @@ export function HomeHero({ locale, texts }: HomeHeroProps): ReactNode {
           {texts.headingAfter}
         </h1>
         <p className="type-body">{texts.paragraph}</p>
-        <ExploreButton label={texts.exploreLabel} />
-        <nav>
-          <Link href={`/${locale}/register/coffeeshop`}>
-            {texts.coffeeshopRegisterLabel}
-          </Link>
-          <Link href={`/${locale}/register`}>
-            {texts.specialistRegisterLabel}
-          </Link>
-        </nav>
+        <div className={ACTIONS_CLASSES}>
+          <ExploreButton label={texts.exploreLabel} />
+          <nav className={LINK_GROUP_CLASSES}>
+            <Link href={`/${locale}/register/coffeeshop`}>
+              {texts.coffeeshopRegisterLabel}
+            </Link>
+            <Link href={`/${locale}/register`}>
+              {texts.specialistRegisterLabel}
+            </Link>
+          </nav>
+        </div>
       </div>
       <Image
         src={PHOTO_SRC}
         width={PHOTO_WIDTH}
         height={PHOTO_HEIGHT}
         alt={texts.photoAlt}
-        className="hidden md:block"
+        className="hidden md:block md:justify-self-center"
       />
-    </section>
+    </div>
   );
 }

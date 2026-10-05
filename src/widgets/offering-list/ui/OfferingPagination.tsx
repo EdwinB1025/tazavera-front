@@ -18,6 +18,14 @@ export type OfferingPaginationProps = {
   texts: OfferingPaginationTexts;
 };
 
+// Previous and Next centered below the grid, 1rem apart (design.md D14).
+const PAGINATION_CLASSES = [
+  "flex",
+  "flex-wrap",
+  "justify-center",
+  "gap-4",
+].join(" ");
+
 /**
  * Previous/Next pagination of the offerings list (design.md D9; the landing
  * spec "Paging", "Paging at the boundaries"). Activation pushes
@@ -37,7 +45,7 @@ export function OfferingPagination({
   const lastPage = meta.last_page ?? currentPage;
 
   return (
-    <div>
+    <div className={PAGINATION_CLASSES}>
       <Button
         disabled={currentPage === 1}
         onClick={() => router.push(`/${locale}?page=${currentPage - 1}`)}
