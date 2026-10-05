@@ -7,11 +7,11 @@ Gives the application its user session: signing in through the API's authorizati
 ## ADDED Requirements
 
 ### Requirement: Sign in
-Starting sign in SHALL take the user to the API's authorization page requesting the `profile:read` scope, and a completed authorization SHALL return the user to the route where sign in started with an authenticated session.
+Starting sign in SHALL open the API's authorization page requesting the `profile:read` scope in a popup window while the route the user is on stays untouched, and a completed authorization SHALL leave the user on the route where sign in started with an authenticated session. When no popup can open, sign in SHALL fall back to a full-page redirect that keeps the return destination.
 
 #### Scenario: Sign in starts from the current route
 - **WHEN** the user starts sign in from a route
-- **THEN** the application opens the API's authorization page requesting `profile:read` and keeps the route the user was on as the return destination
+- **THEN** the application opens the API's authorization page requesting `profile:read` in a popup, keeps the route the user was on as the return destination, and navigates and reloads nothing — the route and any input typed on it stay as they are
 
 #### Scenario: The authorization page carries the theme and language
 - **WHEN** the application opens the API's authorization page
@@ -19,7 +19,15 @@ Starting sign in SHALL take the user to the API's authorization page requesting 
 
 #### Scenario: Completing sign in
 - **WHEN** the API approves the authorization and returns a code that answers the pending request
-- **THEN** the application exchanges the code for tokens, opens the return destination, and the session is authenticated
+- **THEN** the application exchanges the code for tokens and the session is authenticated, with the user on the route where sign in started
+
+#### Scenario: The popup cannot be opened
+- **WHEN** no popup window can open when sign in starts
+- **THEN** the application runs the authorization as a full-page redirect keeping the return destination, and shows no message
+
+#### Scenario: The popup is closed before completing
+- **WHEN** the popup closes before the authorization completes
+- **THEN** the session stays as it was, no flow data remains, and no message is shown
 
 ### Requirement: Session states and profile
 The session SHALL resolve to exactly one of three states — `loading`, `anonymous` or `authenticated` — and an authenticated session SHALL carry the profile returned by `GET /user`: `data.ulid`, `data.name`, `data.surname`, `data.email` and `data.role`. No user data SHALL come from any other source.
@@ -90,22 +98,22 @@ When a flow needs the `profile:write` scope, the application SHALL force a fresh
 
 #### Scenario: Requesting the write scope
 - **WHEN** a flow requests the write scope from a route
-- **THEN** the API's authorization page asks the user to sign in again even when the API session is live, and a completed sign in returns to the route that asked
+- **THEN** the API's authorization page asks the user to sign in again in a popup even when the API session is live, and the route that asked — with any input typed on it — stays as it is
 
 #### Scenario: The write sign in is declined or fails
 - **WHEN** the user declines the write sign in or the authorization comes back with an error
 - **THEN** the application returns to the route that asked with no error text and the session becomes `anonymous`
 
 ### Requirement: Return through the callback
-The route the API returns to SHALL show only a loading indicator that announces the wait as status text, and SHALL NOT show the API's error text or any error page, whatever the outcome.
+The route the API returns to SHALL render no text and no status region, and SHALL NOT show the API's error text or any error page, whatever the outcome. With an opener of the application's origin it SHALL forward the result to the application and close itself; without one it SHALL complete the flow and open the return destination through client-side navigation.
+
+#### Scenario: Forwarding the result to the application
+- **WHEN** the callback has an opener of the application's origin and receives the result of an authorization
+- **THEN** it posts the result to the application's origin and closes itself, without exchanging the code
 
 #### Scenario: Completing on the callback
-- **WHEN** the callback receives a completed authorization
-- **THEN** it shows a loading indicator while it completes, then opens the return destination
-
-#### Scenario: The wait is announced
-- **WHEN** the callback shows its loading indicator
-- **THEN** it announces "Completing sign in…" as status text in the language of the return destination
+- **WHEN** the callback has no opener and receives a completed authorization
+- **THEN** it exchanges the code for tokens, replaces its history entry so no code remains in the URL, and opens the return destination through client-side navigation
 
 #### Scenario: The authorization comes back with an error
 - **WHEN** the callback receives an error response from the authorization
@@ -116,7 +124,7 @@ The route the API returns to SHALL show only a loading indicator that announces 
 - **THEN** it shows no error text and the user continues at the return destination as anonymous, or at the root of the default locale when there is no pending request
 
 ### Requirement: Credential handling
-Access and refresh tokens SHALL be kept in memory only and SHALL NOT be written to browser storage. The data a pending sign-in flow needs SHALL be removed when that flow ends, whatever its outcome. The only thing that may remain in the browser between flows is a marker carrying no credential that records that the user had signed in.
+Access and refresh tokens SHALL be kept in memory only — never assigned to `window` or to React state — and SHALL NOT be written to browser storage. The data a pending sign-in flow needs SHALL be removed when that flow ends, whatever its outcome. The only thing that may remain in the browser between flows is a marker carrying no credential that records that the user had signed in.
 
 #### Scenario: During a sign-in flow
 - **WHEN** a sign-in flow is pending
@@ -129,3 +137,17 @@ Access and refresh tokens SHALL be kept in memory only and SHALL NOT be written 
 #### Scenario: After sign out
 - **WHEN** the user signs out
 - **THEN** the marker is removed and the browser holds no trace of the session
+
+### Requirement: Content-Security-Policy on the callback
+Every document response of the callback route SHALL carry a Content-Security-Policy that allows only the page's own scripts and, in `connect-src`, the API origin, and SHALL carry no `Cross-Origin-Opener-Policy` header. The callback stays outside the locale redirect.
+
+#### Scenario: Policy present on the callback
+- **WHEN** the callback route answers a request
+- **THEN** its response carries a Content-Security-Policy whose `connect-src` names the API origin, and carries no `Cross-Origin-Opener-Policy`
+
+### Requirement: Cross-Origin-Opener-Policy
+Every document response of the application except the callback route SHALL carry `Cross-Origin-Opener-Policy: same-origin-allow-popups`, so the application's pages stay isolated while a popup window keeps its opener.
+
+#### Scenario: Opener kept outside the callback
+- **WHEN** a page other than the callback route answers a request
+- **THEN** its response carries `Cross-Origin-Opener-Policy: same-origin-allow-popups`

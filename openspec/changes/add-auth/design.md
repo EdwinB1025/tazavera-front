@@ -20,7 +20,7 @@ See `proposal.md` — Why, and `docs/design/add-auth/design-summary.md`, which s
 
 **Non-Goals:**
 
-- Any UI beyond the callback's loading state. The header, the menus and their texts belong to `add-app-shell`.
+- Any UI work. `/callback` renders no text (D6); the header, the menus and their texts belong to `add-app-shell`.
 - The API's login, 2FA and security pages (Fortify/Passport web pages).
 - A server-side session in the front end; session state lives in the browser tab's memory.
 - Any edit to `contracts/openapi.yaml` or `src/shared/api/schema.ts`.
@@ -47,6 +47,8 @@ signOut(): void;
 requestProfileWrite(returnRoute: string): void;
 ```
 
+The public entry also exports `completeCallback` — the one function `/callback` calls to complete or forward the authorization result (D4 and D10), taking the callback's query parameters — so `src/pages/callback` imports only through `@/features/auth` and never deep-imports (review round 1, correction 6). Sign in and step-up open a popup window (D10); silent re-authentication stays a full-page flow.
+
 `Session`, `SessionUser` and `UserRole` are the types `add-app-shell` defines in `src/shared/api/index.ts` (its design.md D4); this change imports them from `@/shared/api` and never redefines them. The session state is browser state, so the hook and its store sit behind a `"use client"` boundary. `AppShell.tsx`'s single session expression — `add-app-shell`'s D3 seam, today the anonymous constant — calls `useSession()`, and the header and sidebar keep receiving the session as input exactly as `add-app-shell` designed them.
 
 Session start is idempotent: a module-level guard makes the startup silent check run at most once per page load, so effects running twice — Strict Mode is on by default in the App Router and remounts in development (`01-app/03-api-reference/05-config/01-next-config-js/reactStrictMode.md`) — never start two authorization requests.
@@ -63,15 +65,20 @@ Alternative considered: keeping the token memory in `src/features/auth` and pass
 
 ### D3 — Tokens, flow data and the sign-in marker
 
-- Access token, refresh token and expiry live in module memory inside `src/shared/api` and are never written to any storage (design summary §3). A successful refresh replaces the whole pair and the previous refresh token is never reused (rotation on use, D2); concurrent recoveries share the single in-flight refresh.
-- The pending-flow record — PKCE verifier, `state` and the return route — lives in `sessionStorage` under one key: written when a flow starts, deleted on every callback outcome (design summary §3: "only for the duration of the flow").
+- Access token, refresh token and expiry live in module memory and are reachable only inside `src/shared/api/tokens.ts`: they are never assigned to `window`, to React state or to any browser storage (design summary §3; review round 1, correction 9). A successful refresh replaces the whole pair and the previous refresh token is never reused (rotation on use, D2); concurrent recoveries share the single in-flight refresh.
+- The pending-flow record — PKCE verifier, `state` and the return route — lives in `sessionStorage` under one key for a full-page flow: written when the flow starts as a redirect (the silent restore of D5 and the popup-blocked fallback of D10), deleted on every callback outcome (design summary §3: "only for the duration of the flow"). A popup flow's verifier and `state` live only in the opener's memory and never reach `sessionStorage` or `localStorage` (review round 1, corrections 2 and 3).
 - The sign-in marker — a value carrying no credential, recording only that the user had signed in — lives in `localStorage`. It is set when a sign-in completes and removed on sign out and on every callback error (design summary §4).
 
 `localStorage` over `sessionStorage` for the marker: the design summary deliberately scopes the flow data to "the duration of the flow" and describes the marker only as "stored in the browser", and silent restoration must survive a browser restart to match "had a session". A session-scoped marker would end silent restoration when the tab closes and force a manual sign-in the summary never asks for. The cost is listed under Risks.
 
 ### D4 — `/callback`: route, screen and outcomes
 
-`app/callback/page.tsx` (route file, FSD layer `app`) is a thin Server Component that reads `searchParams` and passes them to the screen — the Next 16 `searchParams` prop, which keeps the query handling testable and avoids `useSearchParams` with its Suspense requirement. The screen is `src/pages/callback/ui/CallbackScreen.tsx` (FSD layer `pages`, `"use client"`): it runs the outcome through `src/features/auth` and renders the loading indicator of D6. The route sits outside the locale prefix, where `add-app-shell`'s `proxy.ts` matcher already leaves it alone and the root layout renders it.
+`app/callback/page.tsx` (route file, FSD layer `app`) is a thin Server Component that reads `searchParams` and passes them to the screen — the Next 16 `searchParams` prop, which keeps the query handling testable and avoids `useSearchParams` with its Suspense requirement. The screen is `src/pages/callback/ui/CallbackScreen.tsx` (FSD layer `pages`, `"use client"`): it completes or forwards the outcome through `src/features/auth` (D1) and renders no text (D6). The route sits outside the locale prefix and outside the locale redirect, where `add-app-shell`'s `proxy.ts` matcher already leaves it alone and the root layout renders it.
+
+The screen has two modes (review round 1, correction 5):
+
+- **Popup mode** — it has an opener of the front's origin: it posts `{ code, state }` or `{ error, state }` to the front's origin only and closes itself. It performs no exchange; the opener completes the flow (D10).
+- **Redirect mode** — no opener: the silent restore of D5 and the popup-blocked fallback of D10 complete here. The outcome table below applies, with two additions: the history entry is replaced so the code does not remain in the URL, and the return route opens through client-side navigation, never a full page load — the in-memory tokens must survive.
 
 Outcomes (design summary §3 and §4):
 
@@ -132,17 +139,9 @@ The callback completion is idempotent: a module-level guard makes it run at most
 
 **Error presentation in summary.** No API error is ever rendered. The design summary §5 fixes the two visible behaviours: the session settles to `anonymous` and `/callback` shows only its loading indicator. The shared card is not used by this change, so the card field-mapping rule does not apply; and this change renders no user data — the profile fields reach consumers through the session contract and are mapped by `add-app-shell` (its design.md D5).
 
-### D6 — The loading indicator and its text
+### D6 — No text on `/callback` (review round 1, correction 5)
 
-The callback renders one status region carrying "Completing sign in…" and nothing else — never the API's error text, whatever the outcome (design summary §5, spec "Return through the callback"). The text comes from a new message area, per `add-app-shell`'s D10 ("each later change adds its own area file and touches no other change's catalog"): `messages/es/auth.json`, `messages/en/auth.json`, `messages/ca/auth.json`, one key `callback.status`:
-
-| Locale | Text |
-|---|---|
-| `es` | `Completando el inicio de sesión…` |
-| `en` | `Completing sign in…` |
-| `ca` | `Completant l'inici de sessió…` |
-
-The screen loads the catalog through `src/shared/lib/i18n/messages.ts` and passes the text down as a prop like every other screen. `/callback` carries no locale in its URL, so the text follows the locale of the pending flow's return route and falls back to the default locale when there is no pending flow (product-owner decision during propose).
+The callback renders no text and no status region: whatever the outcome, the page shows nothing and never the API's error text (design summary §5, spec "Return through the callback"). The earlier decision — one status region carrying "Completing sign in…" from a new `auth` message area — is rescinded: the `messages/{locale}/auth.json` files are not created and `add-app-shell`'s D10 area rule is simply not used by this change. The popup closes within a moment and the redirect mode hands over to client-side navigation (D4), so there is no wait to announce.
 
 ### D7 — Derived and UI-specific types
 
@@ -174,6 +173,8 @@ The Authorization Code + PKCE exchange, refresh and response validation are secu
 - **Building it in-house** (Web Crypto for S256, plain requests for the grants): viable and dependency-free, and the fallback if the approval is ever withdrawn. It loses because every security-sensitive detail — constant-time state comparison, error-shape parsing, BCP response checks — becomes ours to write and maintain.
 - **Framework auth suites (Auth.js / `next-auth`)**: rejected without deep evaluation — they bring their own cookie-based session model, which contradicts the settled in-memory token posture and this change's ownership of `/callback`.
 
+The challenge timing is settled (review round 1, correction 1 — handoff Q3, option 2): `code_challenge` is computed with the library's asynchronous `calculatePKCECodeChallenge` and the authorization request starts once it resolves, `signIn` keeping its `void` return (D1) so no caller can await it. No synchronous in-house SHA-256 is written.
+
 No discovery request is made: the two endpoints are configuration (the design summary names them), and the library accepts a hand-built authorization-server description.
 
 ### D9 — Files created or modified
@@ -186,22 +187,19 @@ Next.js route files go in the root `app/` folder and import their view from `src
 |---|---|---|
 | `app/callback/page.tsx` | `app` | Route file: reads `searchParams`, renders the callback screen |
 | `src/pages/callback/index.ts` | `pages` | Public API of the callback screen |
-| `src/pages/callback/ui/CallbackScreen.tsx` | `pages` | `"use client"`: runs the outcome (D4), renders the loading indicator |
-| `src/pages/callback/ui/CallbackScreen.test.tsx` | `pages` | The three outcomes and the announced status text |
-| `src/features/auth/index.ts` | `features` | Public API: `useSession`, `signIn`, `signOut`, `requestProfileWrite` |
+| `src/pages/callback/ui/CallbackScreen.tsx` | `pages` | `"use client"`: completes or forwards the outcome's two modes (D4), renders no text |
+| `src/pages/callback/ui/CallbackScreen.test.tsx` | `pages` | The two modes, their outcomes and the absence of text |
+| `src/features/auth/index.ts` | `features` | Public API: `useSession`, `signIn`, `signOut`, `requestProfileWrite` and the callback entry `completeCallback` (D1) |
 | `src/features/auth/model/session.ts` | `features` | The `Session` store and `useSession` |
 | `src/features/auth/model/session.test.ts` | `features` | The three states and their transitions |
-| `src/features/auth/model/flow.ts` | `features` | The pending-flow record (`sessionStorage`) and the sign-in marker (`localStorage`) |
+| `src/features/auth/model/flow.ts` | `features` | The pending-flow record of D3 (a popup flow's data stays in memory) and the sign-in marker (`localStorage`) |
 | `src/features/auth/model/flow.test.ts` | `features` | Flow-data lifetime and marker rules |
-| `src/features/auth/api/authorize.ts` | `features` | Building the authorization request, starting flows, completing them at the callback |
-| `src/features/auth/api/authorize.test.ts` | `features` | Redirect parameters, outcome handling, return routes |
+| `src/features/auth/api/authorize.ts` | `features` | Building the authorization request, starting the popup and redirect flows (D10), completing or forwarding at the callback (D4) |
+| `src/features/auth/api/authorize.test.ts` | `features` | Flow parameters, the popup handshake (D10), outcome handling, return routes |
 | `src/shared/api/client.ts` | `shared` | The request client: base URL, Bearer attach, `401` recovery chain |
 | `src/shared/api/client.test.ts` | `shared` | Authenticated, public and recovery behaviour |
 | `src/shared/api/tokens.ts` | `shared` | Token memory and the `oauth4webapi` grant calls (exchange, refresh) |
 | `src/shared/api/tokens.test.ts` | `shared` | Grant success and error shapes, memory-only storage |
-| `messages/es/auth.json` | `app` | Spanish text of the callback status |
-| `messages/en/auth.json` | `app` | English text of the callback status |
-| `messages/ca/auth.json` | `app` | Catalan text of the callback status |
 
 **Modified**
 
@@ -212,6 +210,29 @@ Next.js route files go in the root `app/` folder and import their view from `src
 
 `src/shared/api/schema.ts` and `contracts/openapi.yaml` are not modified.
 
+### D10 — The popup flow (review round 1, corrections 2–4)
+
+Sign in and step-up open in a popup window; silent re-authentication stays a full-page flow.
+
+- On the user's click, `signIn(returnRoute?)` and `requestProfileWrite(returnRoute)` call `window.open` synchronously within the click — a blank window first, pointed at `{NEXT_PUBLIC_API_URL}/oauth/authorize` with the parameters of D5 once the challenge of D8 resolves. A popup opened outside the click would be blocked as a pop-up.
+- The verifier and `state` of a popup flow live only in the opener's memory (D3), never in `sessionStorage` or `localStorage`; the return route is kept for the fallback below.
+- The result comes back by `postMessage`: the popup posts `{ code, state }` or `{ error, state }` to the front's origin only (D4, popup mode). The opener accepts a message only when its origin is the front's origin and its source is the popup window it opened; it then checks `state`, exchanges the code with the verifier, keeps the tokens in memory (D3), sets the credential-free marker and ends `authenticated` — after a step-up the new token replaces the previous one. A message from any other origin or window is ignored, and a `state` mismatch takes the D4 error path.
+- The opener never navigates and never reloads: the current route and any typed input stay as they are, which is what keeps a filled form's input alive through a step-up.
+- Popup blocked (`window.open` returns `null`): the same call falls back to the full-page redirect flow — the flow record in `sessionStorage` with the return route kept (D3), completed at `/callback` in redirect mode (D4) — with no message shown.
+- Popup closed before completing: the opener notices the closed window, discards the in-memory flow data and keeps its previous session state — still `anonymous` after a sign in, unchanged after a step-up — with no message. Retrying is a new click.
+
+Alternative considered: the earlier full-page redirect for the interactive flows. Rejected by review round 1: it navigates the route the user is on and loses its typed input. The redirect survives as the fallback and as silent re-authentication.
+
+### D11 — Response headers: the `/callback` CSP and COOP (proposal; open — corrections 7 and 8)
+
+End states (fixed by review round 1): document responses of `/callback` carry a Content-Security-Policy that allows only the page's own scripts and, in `connect-src`, the API origin (redirect mode exchanges the code there); `/callback` stays outside the locale redirect; every other front document response carries `Cross-Origin-Opener-Policy: same-origin-allow-popups`; `/callback` carries no COOP, because a `/callback` with COOP would be severed from its opener after returning from the API origin.
+
+**Proposed mechanism: extend `proxy.ts`.** `/callback` joins the proxy's handling and branches from the locale path: it gets the D9 directive list with its own fresh nonce — "own scripts only" needs the per-request nonce of D9 because the framework's inline bootstrap scripts block hydration without it, and redirect mode needs hydration for its client-side navigation — and no COOP. Every response the proxy already handles gains `Cross-Origin-Opener-Policy: same-origin-allow-popups` beside its existing CSP, which is exactly the scope of correction 8: the matcher already excludes `/callback`, and framework and asset paths return before the headers are built (`add-app-shell` D2). Next 16 documents exactly one path that can generate a per-request nonce — the proxy (`node_modules/next/dist/docs/01-app/02-guides/content-security-policy.md`, "Adding a nonce with Proxy").
+
+Alternatives considered: `next.config.ts` `headers()` for both headers — rejected for the CSP half, because the documented "Without Nonces" configuration admits only static values and a static `script-src` that keeps the page working needs `'unsafe-inline'`, which is not "only the page's own scripts"; it remains a fallback for the COOP half alone (a source matching every path but `/callback`), which would split the header policy across two files. The experimental SRI hash path — rejected: experimental, build-time only, and not documented for the framework's inline bootstrap scripts.
+
+**Status: open.** The mechanism requires changing `proxy.ts` and `proxy.test.ts`, which `add-app-shell` owns (its D2 and D9), and `docs/backlog.md` R2 and R3 sit on the same seam and stay out of this change either way. Per correction 7's rule, no tasks are written for corrections 7 and 8 until the product owner answers the question in Open Questions below. The end states above are not open — only the mechanism and its ownership.
+
 ## Risks / Trade-offs
 
 - **This change cannot compile before `feature/add-app-shell` is merged in.** Its `src/shared/api/index.ts`, `src/shared/lib/theme.ts`, `src/shared/lib/i18n/`, `proxy.ts` and `AppShell.tsx` are the surfaces this change uses. → The product owner merges before apply (stated during propose); the first task verifies the imported contract resolves before any feature work, so a missing merge fails immediately and loudly.
@@ -219,7 +240,7 @@ Next.js route files go in the root `app/` folder and import their view from `src
 - **The sign-in marker in `localStorage` outlives the browser session.** On a shared machine, the marker survives the browser closing until a sign-out or a failed silent restore removes it. → It carries no credential (design summary §4); its worst case is one silent `prompt=none` round trip that lands anonymous and removes it.
 - **An access token can expire between the check and its use.** → The settled `401` recovery chain (refresh → silent re-authentication → anonymous) turns the race into one retried request; no user-visible effect.
 - **`AppShell.tsx` is touched by both changes.** → Confined to the single expression `add-app-shell`'s D3 already reserved for it.
-- **The status text is the only copy this change introduces, in three languages.** → The wording is proposed in D6 and confirmed by the product owner's decision; it can still be corrected in artifact review without touching any behaviour.
+- **The popup flow depends on the API not severing the window relationship.** If `{NEXT_PUBLIC_API_URL}/oauth/authorize` or `/login` answers with `Cross-Origin-Opener-Policy: same-origin`, the popup is cut off from its opener and the flow of D10 cannot complete. → The string `Cross-Origin-Opener-Policy` appears nowhere in the API codebase (checked in its `app`, `config`, `routes`, `public` and `vendor` folders) and the API is not running locally, so the header could not be confirmed live; the real-browser check (task 8.13) confirms it before archive (review round 1).
 
 ## Migration Plan
 
@@ -231,4 +252,4 @@ No data and no front-end behaviour to migrate; the change only adds the session.
 
 ## Open Questions
 
-None.
+1. **Corrections 7 and 8 — who changes `proxy.ts`?** The mechanism proposed in D11 for the `/callback` Content-Security-Policy and the COOP header requires changing `proxy.ts` and `proxy.test.ts`, owned by `add-app-shell`. May `add-auth` change them, or are these headers delivered by `add-app-shell` or by a change of their own? No tasks are written for corrections 7 and 8 until this is answered; the end states of D11 stand either way.
