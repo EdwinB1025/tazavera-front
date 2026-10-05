@@ -188,7 +188,8 @@ Memory: two other Build runs (`refine-app-header apply 1.1`, `add-landing task 5
 - Why: the task was committed and verified; no work was lost.
 
 ### Deferred to Augusto
-#### Q12 — `AppShell.tsx` is a Server Component, but D1 has it call `useSession()`
+#### Q12 — ANSWERED 2026-10-05: option 1, a small `"use client"` component in `src/app/shell` calls `useSession()`; `AppShell.tsx` stays a Server Component (corrections.md round 2)
+##### Q12 (original) — `AppShell.tsx` is a Server Component, but D1 has it call `useSession()`
 - Question: D1 says "`AppShell.tsx`'s single session expression … calls `useSession()`" and puts the hook behind `"use client"`. `AppShell.tsx` (owned by `app-shell`) is a Server Component: it calls `getMessages`, which reads `node:fs`, and it chooses the sidebar region from the session. A hook cannot run there. `ShellChrome.tsx` and `AppSidebar.tsx` are already `"use client"`.
 - Why deferred: it changes a design decision (D1's seam) and a shared `app-shell` component; that is a correction round.
 - Options:
@@ -198,15 +199,40 @@ Memory: two other Build runs (`refine-app-header apply 1.1`, `add-landing task 5
 - Recommendation: option 1. It keeps the catalog read on the server, keeps the header and sidebar receiving the session as input as `add-app-shell` designed, and adds only one client boundary.
 - Blocks: 4.2, and through it 5.x, 7.1 and probably 8.x (all later tasks run in order).
 
-#### Q13 — Does the `session` prop of `AppShell` stay?
+#### Q13 — ANSWERED 2026-10-05: keep the `session?` prop as an explicit override (corrections.md round 2)
+##### Q13 (original) — Does the `session` prop of `AppShell` stay?
 - Question: the Build's question 1 above. Three existing `AppShell.test.tsx` cases pass literal sessions through the prop.
 - Recommendation: settle it with Q12. With option 1, `AppShell` can keep `session?` as an explicit override passed to the client component (`session ?? hook value` computed after an unconditional hook call), so the three cases stay as they are.
 - Blocks: 4.2.
 
-#### Q14 — Build's question 3 (already-mounted consumer)
+#### Q14 — ANSWERED 2026-10-05: the already-mounted consumer must end `authenticated` (corrections.md round 2)
+##### Q14 (original) — Build's question 3 (already-mounted consumer)
 - Recommendation: require it. The header is mounted when the popup completes (D10: the opener never navigates), so the mounted consumer must see `authenticated`. Settle it in the same round as Q12.
 
 ### Final checks
 - `git log -3`: `1e01a2b` (4.1), `c77945d` (3.2), `54e90b1` (proposal).
 - `npm run test:run` after 3.2: Test Files 36 passed (36); Tests 788 passed (788). After 4.1, the Build reports 787 passing, with failures only in `session.test.ts` and `AppShell.test.tsx > Session resolving`, as allowed for a test-only commit (I did not re-run it).
 - `git status --short`: ` M docs/design/add-auth/handoff.md` only.
+
+## Session 2026-10-05 — correction round 2
+Summary: checked Round 2 is in Product owner's commit `53ac2d1`; the only other OpenCode process was the `add-landing 6.2` Build run in its own worktree (PID 28536, excluded by the task prompt); the committed `.opencode/agents/architect.md` is the restricted profile (as in D5). Ran the architect once on round 2. Stopped because: completed. MVC reachable: not needed.
+
+### Agent feedback
+- No `app-shell` spec delta needed: round 2 changes a design decision (D1's seam) and test coverage, not specified behaviour. Recorded in Round 2's `### Status`.
+- Item 1: `design.md` D1 settles the seam as `SessionShell` (`src/app/shell/SessionShell.tsx`, `"use client"`); `AppShell.tsx` stays a Server Component; Goals, D9 tables and the `AppShell.tsx` risk follow; `proposal.md` Out of Scope and Impact follow; scope `auth` as in Q6. Task 4.2 rewritten.
+- Item 2: D1 records the `session?` override (`useSession()` unconditional, `session ?? <hook value>`); the three literal-session `AppShell.test.tsx` cases unchanged, checked in 4.2.
+- Item 3: no spec or design change (D1/D10 already state it). Test-only task 4.1b added before 4.2. No later unchecked task contradicts round 2; checked tasks untouched.
+- Commit `dd8b126 docs(auth): apply review round 2 for add-auth` (design.md, proposal.md, tasks.md, corrections.md).
+- Noticed, not fixed: (a) whether `design-summary.md`'s `## Propose status` should record the earlier artifact updates (`token_type`, `oauth4webapi` Impact wording) — not blocking; (b) 4.1b keeps the flow its case already drives (`completeCallback`); the popup-specific "no navigation" stays with 8.2.
+
+### Decisions taken
+#### D7 — Q12–Q14 marked answered
+- Context / Decision: the task prompt gives the answers (option 1; keep `session?` override; the already-mounted consumer must end `authenticated`), matching corrections.md Round 2 items 1–3. / Result: headings above marked ANSWERED.
+
+### Notes for Product owner
+- In `corrections.md`, Round 2 was inserted above Round 1's two `### Status` sections, so they now sit under the `## Round 2` heading, followed by Round 2's own Status. I did not move them (append-only rule).
+
+### Final checks
+- `git log -1`: `dd8b126 docs(auth): apply review round 2 for add-auth`.
+- `openspec validate add-auth --strict` (re-run by me): `Change 'add-auth' is valid`.
+- `npm run test:run` not run: no code changed in this session.
