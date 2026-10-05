@@ -389,3 +389,34 @@ Summary: the Build implemented 5.2. Three attempts at the `401`-on-`/logout` unp
 2. Rerun the unplanned coverage: `401` on `POST /logout` starts no refresh, recovery or authorization request, and sign out still completes (design.md D5, spec "Sign out"). Prompt in scratchpad history; message as in D15.
 3. Then 5.2b, 5.2c, 6.1, 6.2, 7.1, 8.1–8.16 (one task per run). 8.17 is Product owner's.
 4. Q-merge note above (from the `add-landing` orchestrator) still open for Product owner.
+
+## Session 2026-10-06 — apply from the 401 coverage to 6.1
+Summary: OpenCode answered the `--auto` health check. The Build ran the pending `401` coverage, 5.2b and 5.2c. Task 6.1 hung twice in the model call. Stopped because: 6.1 failed twice (CLAUDE.md §6.5) and Product owner asked to be told when the agents stop working so the session can be restarted. MVC reachable: not needed.
+
+### Agent feedback
+- Unplanned coverage `74c26c2 test(auth): verify a 401 on sign out starts no recovery and completes locally` (body `Unplanned coverage: design.md D5, spec Sign out`): one case in `session.test.ts`. The code already behaved as specified.
+- 5.2b `92446ba test(auth): verify the header actions sign in on the current route and sign out`: the two `AppShell.test.tsx` cases. They failed only over the empty handlers, as the task requires.
+- 5.2c `71fc39f feat(auth): wire the header sign in and sign out actions to the auth feature`: `handleSignIn` calls `signIn(pathname ?? /{locale})` and `handleSignOut` calls `signOut()`. Noticed but not fixed: the file comment in `ShellChrome.tsx` still says sign in waits for `add-auth`. The task forbade any other change to that file.
+- 6.1: no report (both runs hung; see D17).
+
+### Decisions taken
+#### D17 — 6.1 runs ended; diagnosis of the hangs
+- Runs: `add-auth task-6.1` (session `ses_ef1eb0625ffeD3DSR0ktDNUoyT`) hung at 22:05:31 UTC. The retry (`ses_ef1da9355ffewjim6X73imNg3J`) hung at 22:20:27 UTC. Both were ended with `taskkill /T`.
+- Diagnosis (mine, from `~/.local/share/opencode/opencode.db`): each hung step is an assistant message whose stream opened a `reasoning` part (`reasoning_content`) about 6 s after the request and then received nothing: no text, no tokens, no finish, no error. OpenCode has no idle timeout, so it waits forever. The process uses no CPU and OpenCode's log shows only file-watcher events. The same pattern appears in `add-landing round 3` (19:02 UTC on 10-05) and `add-auth 4.2` (16:55 UTC on 10-05). The first hung step followed the run's longest reasoning step (8k reasoning tokens, 150 s) at about 72k context. Cause: a provider-side (xiaomi `mimo-v2.6-pro`) stream stall, not the task.
+- Side effect found: running `opencode session list` (no `--standalone`) started `opencode serve --service` at 22:22:45 UTC. It resumed every interrupted session in this worktree ("The server restarted while you were working"): the hung 6.1, the retry, and the 4.2 session of 10-05. I ended it at about 22:23:50 UTC. The resumed 6.1 and 4.2 sessions produced nothing. The resumed retry made six tool steps and left an uncommitted edit to `src/features/auth/api/authorize.test.ts` (+78/−6). I did not keep or review it. Saved as a patch in my scratchpad (`6.1-partial.patch`); the file is left modified in the tree.
+
+### Deferred to Product owner
+#### Q17 — Uncommitted partial 6.1 edit in `authorize.test.ts`
+- Question: discard it (`git restore src/features/auth/api/authorize.test.ts`) before the next 6.1 run, or let the next Build run continue from it?
+- Why deferred: it is code; I never edit code, and the Build's commit rules assume a clean start.
+- Recommendation: discard it. The edit was made by a resumed session outside the stall watch, and 6.1 is a single test-first task that a clean run redoes.
+- Blocks: 6.1 onwards.
+
+### Next session (resume here)
+1. Answer Q17.
+2. Health check (`--auto` "pong"), then 6.1, 6.2, 7.1, 8.1–8.16, one task per run. 8.17 is Product owner's.
+3. Never run `opencode` commands without `--standalone`; read sessions from `opencode.db` instead.
+4. Q-merge (from `add-landing`) is still open.
+
+### Final checks
+`npm run test:run` (my re-run after 5.2c): Test Files 37 passed (37); Tests 804 passed (804). Not re-run after the partial 6.1 edit.
