@@ -47,9 +47,6 @@ export interface paths {
          *
          *     Only non-expired certifications are included (those with no expiry, or an
          *     expiry date in the future).
-         *
-         *     **Authorization:** requires the `profile:read` or `profile:write` scope.
-         *     Available to any authenticated user, regardless of role.
          */
         get: operations["listCoffees"];
         put?: never;
@@ -300,9 +297,6 @@ export interface paths {
          * List roasteries
          * @description Returns the roastery catalog. Supports filtering by name via query
          *     parameters.
-         *
-         *     **Authorization:** requires the `profile:read` or `profile:write` scope.
-         *     Available to any authenticated user, regardless of role.
          */
         get: operations["listRoasteries"];
         put?: never;
@@ -2998,6 +2992,11 @@ export interface operations {
                  * @example Geisha
                  */
                 coffeeName?: string;
+                /**
+                 * @description Filter by roastery name (partial match). Must not be greater than 150 characters.
+                 * @example Nómada
+                 */
+                roasteryName?: string;
                 /**
                  * @description Filter by country of origin. Must not be greater than 90 characters.
                  * @example Colombia

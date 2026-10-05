@@ -17,6 +17,12 @@ export type AppHeaderTexts = {
   topRated: string;
   aboutUs: string;
   signIn: string;
+  /**
+   * The composed accessible name of the language control the shell passes
+   * (design.md D6), one string composed in the shell as the current locale's
+   * code in uppercase, then " — ", then the catalog word with the current
+   * language's own name — "ES — Idioma: Español" for `es`.
+   */
   languageSelector: string;
   brandLink: string;
   // the user menu (spec: "Menu content")
@@ -44,6 +50,8 @@ export type AppHeaderProps = {
   /** The session's sign out (spec: "Sign out"). */
   onSignOut: () => void;
   onLocaleChange: (locale: string) => void;
+  /** The current route path, for the navigation's current entry (refine-app-header design.md D14). */
+  currentPath?: string;
 };
 
 const HEADER_CLASSES = ["flex", "h-16", "items-center", "gap-4", "bg-nav-surface", "px-4"].join(" ");
@@ -78,6 +86,7 @@ export function AppHeader({
   onSignIn,
   onSignOut,
   onLocaleChange,
+  currentPath,
 }: AppHeaderProps): ReactNode {
   return (
     <header className={HEADER_CLASSES}>
@@ -93,7 +102,7 @@ export function AppHeader({
         <span className="hidden md:inline-flex">
           <Logo variant="inline" size={32} locale={locale} />
         </span>
-        <PrimaryNav locale={locale} texts={texts} />
+        <PrimaryNav locale={locale} texts={texts} currentPath={currentPath} />
       </div>
       <div className={RIGHT_GROUP_CLASSES}>
         <LanguageSelect

@@ -10,4 +10,4 @@
  * Icons render with `currentColor`, so they follow the control's text color
  * through every state and theme (spec: "Shared icon source").
  */
-export { Loader2, ArrowLeft, Eye, EyeOff, ChevronDown, ChevronRight, Check, Clock, PanelLeft, type LucideIcon } from "lucide-react";
+export { Loader2, ArrowLeft, Eye, EyeOff, Globe, ChevronDown, ChevronRight, Check, Clock, PanelLeft, type LucideIcon } from "lucide-react";

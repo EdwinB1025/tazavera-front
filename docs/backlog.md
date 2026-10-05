@@ -47,3 +47,13 @@ One section per candidate, in this format:
 - **Open decision (Augusto):** none
 - **Status:** proposed
 - **Affects:** `add-auth`
+## R4 — Align the shared menu panel radius with `base-controls` (refine-app-header, Q4)
+
+- **Duplicated:** two radius choices for the same menu panel: the shared `DropdownMenu` card panel uses `rounded-container` (16px); the nav variant added by `refine-app-header` uses `radius-field` (8px), which is what `base-controls` states for menus
+- **Where today:** `src/shared/ui/DropdownMenu.tsx` (card class set, `rounded-container`; nav class set, field radius)
+- **Why it pays off now:** every new menu built on the card variant inherits the mismatch with `base-controls`
+- **Owning capability:** base-controls
+- **Proposed change:** none yet
+- **Open decision (Augusto):** move the card panel to `radius-field`, or amend `base-controls` to allow `radius-container` for card menus
+- **Status:** proposed
+- **Affects:** none

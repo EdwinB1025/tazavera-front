@@ -108,6 +108,20 @@ describe("AppShell (spec: Shell layout and main area)", () => {
     expect(within(main).getByTestId("main-area-child")).toBeDefined();
     expect(main.textContent).toBe(PLACEHOLDER_TEXT);
   });
+
+  it("grows to the body's height so the main area reaches the bottom (spec: Main area fills the viewport)", () => {
+    const { container } = renderShell();
+    // refine-app-header design.md D15: the root is a flex child of the body's
+    // column, so it grows instead of relying on an unresolvable min-h-full
+    const root = container.firstElementChild as HTMLElement;
+    for (const cls of ["flex", "flex-1", "flex-col"]) {
+      expect(root.classList.contains(cls)).toBe(true);
+    }
+    expect(root.classList.contains("min-h-full")).toBe(false);
+    const main = screen.getByRole("main");
+    expect(main.classList.contains("bg-surface-page")).toBe(true);
+    expect(main.classList.contains("flex-1")).toBe(true);
+  });
 });
 
 describe("AppShell session states (spec: Session states in the shell)", () => {
@@ -129,9 +143,18 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
     // retry affordance.
     renderShell({ state: "anonymous" });
     expect(screen.getByRole("button", { name: texts.signIn })).toBeDefined();
+    // spec "Language selection": the language control is a button trigger,
+    // named with the composed name the shell passes (design.md D6, correction
+    // 1 of round 1 — code first)
+    expect(
+      screen.getByRole("button", {
+        name: `ES — ${texts.languageSelector}: Español`,
+      }),
+    ).toBeDefined();
     expect(screen.queryByRole("alert")).toBeNull();
     expect(screen.queryByRole("status")).toBeNull();
-    expect(screen.getAllByRole("button")).toHaveLength(1);
+    // exactly these two buttons: a third one would be a retry affordance
+    expect(screen.getAllByRole("button")).toHaveLength(2);
   });
 
   it("shows the user menu when the session is authenticated", () => {
@@ -169,6 +192,40 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
       ).toBeDefined();
       unmount();
     }
+  });
+});
+
+describe("AppShell language control name (refine-app-header design.md D6)", () => {
+  it("passes the language control one composed name, never two parts (spec: Selector is named)", () => {
+    renderShell();
+    // The shell composes "<CODE uppercase> — <catalog word>: <own name>" —
+    // "ES — Idioma: Español" for es (design.md D6, correction 1 of round 1) —
+    // and passes it down as one string, so the trigger's accessible name is
+    // that composed name.
+    const composed = `ES — ${texts.languageSelector}: Español`;
+    expect(screen.getByRole("button", { name: composed })).toBeDefined();
+    // one composed name: never the catalog word and the own name as two parts
+    expect(
+      screen.queryByRole("button", { name: texts.languageSelector! }),
+    ).toBeNull();
+    expect(screen.queryByRole("button", { name: "Español" })).toBeNull();
+  });
+
+  it("composes the default locale's name for an unsupported locale", () => {
+    // design.md D6 (correction 3 of round 1): the shell resolves the locale
+    // with `isSupportedLocale`, and an unsupported locale resolves to
+    // DEFAULT_LOCALE (es) for the whole composition — catalog word, code and
+    // own name — so the shell renders without throwing and the name reads
+    // "ES — Idioma: Español".
+    expect(() =>
+      render(
+        <AppShell locale="fr">
+          {placeholderChild}
+        </AppShell>,
+      ),
+    ).not.toThrow();
+    const composed = `ES — ${texts.languageSelector}: Español`;
+    expect(screen.getByRole("button", { name: composed })).toBeDefined();
   });
 });
 

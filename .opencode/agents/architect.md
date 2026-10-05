@@ -3,6 +3,9 @@ description: Designs, reviews, verifies and archives changes with OpenSpec (/ops
 mode: primary
 model: xiaomi/mimo-v2.6-pro
 permissions:
+  # ─── OVERNIGHT VERSION (opencode run --auto): nothing may stay on "ask".
+  # ─── Restore in the morning: git restore .opencode/agents/
+
   # ─── Edit: deny all, then allow only its own artifacts ───
   - action: edit
     resource: "*"
@@ -32,10 +35,10 @@ permissions:
     resource: "openspec-apply*"
     effect: deny
 
-  # ─── Shell: ask for anything not listed below ───
+  # ─── Shell: overnight, deny anything not listed below ───
   - action: shell
     resource: "*"
-    effect: ask
+    effect: deny
   # OpenSpec CLI
   - action: shell
     resource: "openspec *"
@@ -62,6 +65,22 @@ permissions:
   - action: shell
     resource: "head *"
     effect: allow
+  # Overnight: no writes through the shell, no chaining
+  - action: shell
+    resource: "*>*"
+    effect: deny
+  - action: shell
+    resource: "*<<*"
+    effect: deny
+  - action: shell
+    resource: "*&&*"
+    effect: deny
+  - action: shell
+    resource: "*;*"
+    effect: deny
+  - action: shell
+    resource: "*|*"
+    effect: deny
   # Git: read state, in this folder or another worktree (-C), with or without pager
   - action: shell
     resource: "git status*"
@@ -123,12 +142,6 @@ permissions:
   - action: shell
     resource: "git -C * ls-tree*"
     effect: allow
-  - action: shell
-    resource: "git ls-tree*"
-    effect: allow
-  - action: shell
-    resource: "git -C * ls-tree*"
-    effect: allow
   # Git: stage only its own files, and commit (current worktree only)
   - action: shell
     resource: "git add openspec/changes/*"
@@ -182,15 +195,15 @@ permissions:
   - action: shell
     resource: "git switch*"
     effect: deny
-  # Archive only with Augusto's approval (last, so it wins over the allows above)
+  # Overnight: archive denied (it stays the product owner's call)
   - action: shell
     resource: "openspec archive*"
-    effect: ask
+    effect: deny
   - action: shell
     resource: "npx openspec archive*"
-    effect: ask
-  # ─── Other worktrees of this project ───
+    effect: deny
+  # ─── Overnight: stay inside this worktree ───
   - action: external_directory
-    resource: "*tazavera-front*"
-    effect: allow
+    resource: "*"
+    effect: deny
 ---

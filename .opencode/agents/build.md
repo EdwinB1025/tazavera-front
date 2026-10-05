@@ -161,7 +161,7 @@ permissions:
   - action: shell
     resource: "rm -r*"
     effect: deny
-  # Dependencies: denied overnight (add-landing adds none)
+  # Dependencies: denied overnight, except the approved one
   - action: shell
     resource: "npm install*"
     effect: deny
@@ -171,12 +171,8 @@ permissions:
   - action: shell
     resource: "npm uninstall*"
     effect: deny
-  # Task 6.2: the hero photograph (binary, cannot go through the edit tool)
   - action: shell
-    resource: "mkdir -p public/images"
-    effect: allow
-  - action: shell
-    resource: "cp docs/design/add-landing/coffee-beans.png public/images/coffee-beans.png"
+    resource: "npm install oauth4webapi@3.8*"
     effect: allow
   # OpenSpec CLI: read-only commands only
   - action: shell
