@@ -1,10 +1,11 @@
-import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
+import { describe, it, expect, afterEach, beforeAll, beforeEach, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { resolve as pathResolve } from "node:path";
 import type { Session } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
+import { completeCallback } from "@/features/auth";
 import { AppShell } from "@/app/shell";
 import { HomeScreen } from "@/pages/home";
 
@@ -36,6 +37,35 @@ beforeAll(() => {
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
   cleanup();
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
+
+/** The sign-in marker of `src/features/auth/model/flow` (design.md D3). */
+const MARKER_KEY = "tazavera.signed-in";
+
+const locationMock = {
+  assign: vi.fn<(url: string) => void>(),
+  pathname: "/es",
+};
+
+/**
+ * `crypto.subtle.digest` as this realm offers it, copied into an
+ * `ArrayBuffer` of the test's own realm (`authorize.test.ts`: the jsdom
+ * worker's digest is rejected by `oauth4webapi`'s base64url encoder).
+ */
+const realDigest = crypto.subtle.digest.bind(crypto.subtle);
+const realmDigest: SubtleCrypto["digest"] = (algorithm, data) =>
+  realDigest(algorithm, data).then(
+    (value) => new Uint8Array(value).slice().buffer as ArrayBuffer,
+  );
+
+beforeEach(() => {
+  localStorage.clear();
+  locationMock.assign.mockReset();
+  locationMock.pathname = "/es";
+  vi.stubGlobal("location", locationMock);
+  vi.spyOn(crypto.subtle, "digest").mockImplementation(realmDigest);
 });
 
 /**
@@ -55,7 +85,16 @@ afterEach(() => {
  *   asserts loading, anonymous and unresolvable only.
  * - "Session unresolvable" has no state of its own (D4 is unchanged): it is
  *   represented by { state: "anonymous" } and named after the spec scenario.
- *   add-auth task 4.1 rewires this test to the real session later.
+ *
+ * add-auth task 4.1: the "Session resolving" and "Session unresolvable"
+ * expectations drive the real session instead of a supplied session — the
+ * sign-in marker of `src/features/auth/model/flow` (design.md D3) makes it
+ * resolve silently and stay `loading` while that request is pending, and a
+ * callback answer that resolves nothing settles it to `anonymous`. The silent
+ * request is the authorization request of design.md D5 (`prompt=none`),
+ * started as the full-page redirect of D3, so `location` and
+ * `crypto.subtle.digest` are stubbed like in
+ * `src/features/auth/api/authorize.test.ts`.
  */
 
 const LOCALE = "es";
@@ -105,7 +144,11 @@ describe("AppShell (spec: Shell layout and main area)", () => {
 
 describe("AppShell session states (spec: Session states in the shell)", () => {
   it("Session resolving shows neither the Sign in action nor the user menu", () => {
-    renderShell({ state: "loading" });
+    // The real session (add-auth task 4.1): the marker records a previous
+    // sign in, so the session restores it silently (design.md D5) and stays
+    // `loading` while that request is pending.
+    localStorage.setItem(MARKER_KEY, "1");
+    renderShell();
     expect(screen.queryByRole("button", { name: texts.signIn })).toBeNull();
     expect(screen.queryByRole("menu")).toBeNull();
   });
@@ -116,12 +159,19 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
     expect(screen.queryByRole("menu")).toBeNull();
   });
 
-  it("Session unresolvable renders as anonymous with no error message and no retry affordance", () => {
+  it("Session unresolvable renders as anonymous with no error message and no retry affordance", async () => {
     // design.md D5: a session that cannot be resolved renders as the
     // anonymous shell — there is no error message, no error page and no
-    // retry affordance.
-    renderShell({ state: "anonymous" });
-    expect(screen.getByRole("button", { name: texts.signIn })).toBeDefined();
+    // retry affordance. The real session (add-auth task 4.1): the marker
+    // records a previous sign in, but the callback answers nothing that
+    // belongs to it, so the silent restore cannot resolve the session
+    // (design.md D4 outcome table) and the shell renders as anonymous.
+    localStorage.setItem(MARKER_KEY, "1");
+    await completeCallback({});
+    renderShell();
+    await vi.waitFor(() => {
+      expect(screen.getByRole("button", { name: texts.signIn })).toBeDefined();
+    });
     expect(screen.queryByRole("alert")).toBeNull();
     expect(screen.queryByRole("status")).toBeNull();
     expect(screen.getAllByRole("button")).toHaveLength(1);
