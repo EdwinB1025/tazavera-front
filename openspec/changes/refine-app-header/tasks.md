@@ -46,7 +46,7 @@
 ## 10. Correction round 2, 2 — the main area fills the viewport
 
 - [x] 10.1 Write the test first (corrections.md round 2, correction 2). In `src/app/shell/AppShell.test.tsx`, `describe("AppShell (spec: Shell layout and main area)")`, add "grows to the body's height so the main area reaches the bottom (spec: Main area fills the viewport)": the shell's root element carries `flex-1`, `flex` and `flex-col` and does not carry `min-h-full`, and the `main` element keeps `bg-surface-page` and `flex-1`. Verify the case runs and fails only because the root still carries `min-h-full` and not `flex-1`.
-- [ ] 10.2 Implement design.md D15 in `src/app/shell/AppShell.tsx`: the shell's root carries `flex flex-1 flex-col`; `app/layout.tsx` is unchanged. Verify the case of 10.1 passes and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0.
+- [x] 10.2 Implement design.md D15 in `src/app/shell/AppShell.tsx`: the shell's root carries `flex flex-1 flex-col`; `app/layout.tsx` is unchanged. Verify the case of 10.1 passes and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0.
 
 ## 11. Correction round 2, 3 — verification
 
