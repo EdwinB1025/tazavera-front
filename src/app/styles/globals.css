@@ -698,3 +698,14 @@
     --color-focus-ring: var(--color-focus-ring-inverse);
     --color-focus-offset: var(--color-focus-offset-inverse);
 }
+
+/* ─── Taxonomy badge label per theme (design.md D7, review round 4) ───
+   The badge sets one label per theme as custom properties; the active theme
+   picks one. */
+[data-taxonomy] {
+    color: var(--taxonomy-label);
+}
+
+[data-theme="dark"] [data-taxonomy] {
+    color: var(--taxonomy-label-dark);
+}

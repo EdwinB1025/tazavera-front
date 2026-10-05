@@ -1,4 +1,4 @@
-import type { HTMLAttributes, ReactNode } from "react";
+import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
 import { Check, Clock } from "@/shared/ui/icons";
 import { cn } from "@/shared/lib/utils";
 
@@ -68,29 +68,74 @@ function relativeLuminance(hex: string): number {
     const srgb = parseInt(value.slice(start, start + 2), 16) / 255;
     return srgb <= 0.04045 ? srgb / 12.92 : ((srgb + 0.055) / 1.055) ** 2.4;
   };
-  return (
-    0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4)
-  );
+  return 0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4);
+}
+
+/**
+ * The card surface each theme renders the badge on (`--color-surface-card`),
+ * as data: the label rule needs it during render, where CSS variables cannot
+ * be read. `Badge.test.tsx` fails if these drift from `globals.css`
+ * (design.md D7, review round 4).
+ */
+export const TAXONOMY_CARD_SURFACES = {
+  traditional: "#f2e8d9",
+  dark: "#0d1b1e",
+} as const;
+
+/** The `#RRGGBB` channels of a color. */
+function channels(hex: string): [number, number, number] {
+  const value = hex.replace(/^#/, "");
+  return [0, 2, 4].map((start) =>
+    parseInt(value.slice(start, start + 2), 16),
+  ) as [number, number, number];
+}
+
+/**
+ * The label for one theme: white or black by the luminance of the rendered
+ * background, the data color at its depth opacity over that theme's card
+ * surface (design.md D7, review round 4).
+ */
+function labelOver(
+  color: string,
+  opacity: number,
+  surface: string,
+): "white" | "black" {
+  const front = channels(color);
+  const back = channels(surface);
+  const blended = front
+    .map((channel, index) => channel * opacity + back[index] * (1 - opacity))
+    .map((channel) => Math.round(channel).toString(16).padStart(2, "0"))
+    .join("");
+  return relativeLuminance(`#${blended}`) <= LUMINANCE_THRESHOLD
+    ? "white"
+    : "black";
 }
 
 /**
  * The taxonomy badge's inline colors: the data color as the background —
  * at 92% for level 1 and 85% for level 2, the plain color at level 0 — and
- * the luminance-picked label color. The label itself stays fully opaque
- * (spec: "Depth reduces the background").
+ * one label per theme as custom properties, which the `[data-taxonomy]` rule
+ * of `globals.css` applies for the active theme. The label itself stays fully
+ * opaque (spec: "Depth reduces the background").
  */
-function taxonomyStyle(
-  color: string,
-  level: 0 | 1 | 2,
-): { backgroundColor: string; color: "white" | "black" } {
+function taxonomyStyle(color: string, level: 0 | 1 | 2): CSSProperties {
   const depth = level === 1 ? 92 : level === 2 ? 85 : null;
+  const opacity = depth === null ? 1 : depth / 100;
   return {
     backgroundColor:
       depth === null
         ? color
         : `color-mix(in srgb, ${color} ${depth}%, transparent)`,
-    color:
-      relativeLuminance(color) <= LUMINANCE_THRESHOLD ? "white" : "black",
+    ["--taxonomy-label" as string]: labelOver(
+      color,
+      opacity,
+      TAXONOMY_CARD_SURFACES.traditional,
+    ),
+    ["--taxonomy-label-dark" as string]: labelOver(
+      color,
+      opacity,
+      TAXONOMY_CARD_SURFACES.dark,
+    ),
   };
 }
 
@@ -110,12 +155,18 @@ export function Badge({
   children,
   ...rest
 }: BadgeProps): ReactNode {
-  const Icon = variant === "verified" ? Check : variant === "provisional" ? Clock : null;
+  const Icon =
+    variant === "verified" ? Check : variant === "provisional" ? Clock : null;
 
   return (
     <span
       {...rest}
-      className={cn(BASE_CLASSES, VARIANT_CLASSES[variant].join(" "), className)}
+      className={cn(
+        BASE_CLASSES,
+        VARIANT_CLASSES[variant].join(" "),
+        className,
+      )}
+      data-taxonomy={variant === "taxonomy" ? "" : undefined}
       style={
         variant === "taxonomy" && color !== undefined && level !== undefined
           ? taxonomyStyle(color, level)
