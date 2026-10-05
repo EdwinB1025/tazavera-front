@@ -50,4 +50,4 @@
 
 ## 11. Correction round 2, 3 — verification
 
-- [ ] 11.1 Verify the complete change: `npm run test:run`, `npm run lint`, `npx tsc --noEmit` and `npm run build` exit 0; every guard is green; `contracts/openapi.yaml` and `src/shared/api/schema.ts` are unchanged; and captures at 375px and 1280px of `/es` and `/es/about`, in both themes, show the navigation items (hidden at 375px), the current mark on "About us" at `/es/about`, and the page surface reaching the bottom of the viewport.
+- [x] 11.1 Verify the complete change: `npm run test:run`, `npm run lint`, `npx tsc --noEmit` and `npm run build` exit 0; every guard is green; `contracts/openapi.yaml` and `src/shared/api/schema.ts` are unchanged; and captures at 375px and 1280px of `/es` and `/es/about`, in both themes, show the navigation items (hidden at 375px), the current mark on "About us" at `/es/about`, and the page surface reaching the bottom of the viewport.
