@@ -28,6 +28,25 @@ type Scope = "profile:read" | "profile:write";
 /** The callback's query parameters (design.md D1). */
 export type CallbackParams = Record<string, string | string[] | undefined>;
 
+/**
+ * What the session module does when a flow settles (design.md D1, D4 and D5).
+ * `../model/session` fills this when it loads; without it nothing settles a
+ * session and the flow outcomes stay flow-level.
+ */
+type SessionSeam = {
+  /** The tokens settled: the session resolves with `GET /user` (design.md D5). */
+  authenticated: () => Promise<void>;
+  /** Nothing restores the session: it becomes `anonymous` (design.md D4). */
+  anonymous: () => void;
+};
+
+let seam: SessionSeam | null = null;
+
+/** Fills the session seam; `../model/session` calls it when it loads (design.md D1). */
+export function configureSession(next: SessionSeam): void {
+  seam = next;
+}
+
 /** The completion has run in this page load (design.md D4 idempotency). */
 let handled = false;
 
@@ -74,14 +93,23 @@ export async function completeCallback(params: CallbackParams): Promise<void> {
       await exchangeCode(code, pending.verifier);
       clearFlow();
       setMarker();
+      // The session resolves where the user ends up (design.md D4 and D5):
+      // here when the completion leaves them on this route, and at the return
+      // route's session start when it hands over through client-side
+      // navigation and the tokens must survive it.
+      if (returnRoute === window.location.pathname) {
+        await seam?.authenticated();
+      }
     } catch {
       // A failed exchange takes the error path (design.md D5).
       clearFlow();
       removeMarker();
+      seam?.anonymous();
     }
   } else {
     clearFlow();
     removeMarker();
+    seam?.anonymous();
   }
 
   window.history.replaceState(null, "", window.location.pathname);
@@ -114,8 +142,37 @@ function startInteractive(scope: Scope, returnRoute: string): void {
   });
 }
 
+/**
+ * Silent re-authentication (design.md D5): the full-page flow of design.md D3
+ * and D4 with `prompt=none`, so the API answers without showing its login. The
+ * return route is the route the user is on.
+ */
+export function startSilent(returnRoute: string): void {
+  const verifier = oauth.generateRandomCodeVerifier();
+  const state = oauth.generateRandomState();
+  saveFlow({ verifier, state, returnRoute });
+  void oauth
+    .calculatePKCECodeChallenge(verifier)
+    .then((challenge) => {
+      window.location.assign(authorizeUrl("profile:read", state, challenge, "none"));
+    })
+    .catch(() => {
+      // The request cannot start, so the restore fails for this reason too:
+      // the user continues as anonymous with no sign-in page and no error
+      // shown (spec: "Silent re-authentication").
+      clearFlow();
+      removeMarker();
+      seam?.anonymous();
+    });
+}
+
 /** The authorization request of design.md D5. */
-function authorizeUrl(scope: Scope, state: string, challenge: string): string {
+function authorizeUrl(
+  scope: Scope,
+  state: string,
+  challenge: string,
+  prompt?: "none",
+): string {
   const url = new URL(`${apiUrl()}/oauth/authorize`);
   url.searchParams.set("response_type", "code");
   url.searchParams.set("client_id", process.env.NEXT_PUBLIC_OAUTH_CLIENT_ID ?? "");
@@ -126,6 +183,9 @@ function authorizeUrl(scope: Scope, state: string, challenge: string): string {
   url.searchParams.set("code_challenge_method", "S256");
   url.searchParams.set("theme", readTheme(document.cookie));
   url.searchParams.set("lang", activeLang());
+  if (prompt !== undefined) {
+    url.searchParams.set("prompt", prompt);
+  }
   return url.toString();
 }
 

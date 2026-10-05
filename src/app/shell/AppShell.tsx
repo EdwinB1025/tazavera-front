@@ -1,18 +1,16 @@
 import type { ReactNode } from "react";
 import type { Session } from "@/shared/api";
-import { LOCALES } from "@/shared/config/locales";
 import { getMessages } from "@/shared/lib/i18n";
-import { AppSidebar } from "@/widgets/app-sidebar";
-import { ShellChrome } from "./ShellChrome";
+import { SessionShell } from "./SessionShell";
 
 // ─── UI-specific types (declared before the component) ───
 
 export type AppShellProps = {
   locale: string;
   /**
-   * The session as input (design.md D3). Absent or unresolvable, the shell
-   * renders the anonymous one (spec: "Session unresolvable"); `add-auth`
-   * supplies the real session later.
+   * The session as input (design.md D3). Absent, the shell uses the session
+   * `useSession()` resolves (design.md D1); passed, it wins over the hook
+   * (review round 2, item 2).
    */
   session?: Session;
   /** The management sidebar region (filled by `@/widgets/app-sidebar`). */
@@ -20,23 +18,14 @@ export type AppShellProps = {
   children?: ReactNode;
 };
 
-const ANONYMOUS: Session = { state: "anonymous" };
-
-const MAIN_CLASSES = ["bg-surface-page", "flex-1"].join(" ");
-// The column sizes itself on its content: with the sidebar region hidden it
-// collapses to nothing and the main area stays a single column.
-const SIDEBAR_COLUMN_CLASSES = ["hidden", "md:block", "shrink-0"].join(" ");
-const CONTENT_CLASSES = ["min-w-0", "flex-1"].join(" ");
-
 /**
  * Tazavera app shell (design.md D1, D3, D5, D11; spec "Shell layout and main
  * area").
  *
- * Layout wiring: the header above a main area on `bg-surface-page`. The main
- * area is one column without the sidebar and gives the sidebar its own column
- * beside the content from `md` when the region is filled. The composition
- * resolves the message catalog and supplies the session — one expression here
- * (the anonymous constant) until `add-auth` rewires it.
+ * Server composition: it resolves the message catalog and passes its texts to
+ * `SessionShell`, the `"use client"` seam that owns the session, renders the
+ * header above a main area on `bg-surface-page` and chooses the sidebar region
+ * (design.md D1; review round 2). The layout is unchanged.
  */
 export function AppShell({
   locale,
@@ -44,48 +33,33 @@ export function AppShell({
   sidebar,
   children,
 }: AppShellProps): ReactNode {
-  const supplied = session ?? ANONYMOUS;
   const texts = getMessages("shell", locale);
-  // The sidebar region: the management sidebar is mounted here for an
-  // authenticated session (it shows itself only on a management route) and a
-  // caller may fill the region explicitly.
-  const region =
-    sidebar ??
-    (supplied.state === "authenticated" ? (
-      <AppSidebar
-        session={supplied}
-        toggleLabel={texts.toggleSidebar!}
-      />
-    ) : undefined);
 
   return (
-    <div className="flex min-h-full flex-col">
-      <ShellChrome
-        session={supplied}
-        locale={locale}
-        locales={[...LOCALES]}
-        texts={{
-          topRated: texts.topRated!,
-          aboutUs: texts.aboutUs!,
-          signIn: texts.signIn!,
-          languageSelector: texts.languageSelector!,
-          brandLink: texts.brandLink!,
-          profile: texts.profile!,
-          editProfile: texts.editProfile!,
-          changePassword: texts.changePassword!,
-          deactivateAccount: texts.deactivateAccount!,
-          deleteAccount: texts.deleteAccount!,
-          security: texts.security!,
-          themeSelector: texts.themeSelector!,
-          manageOfferings: texts.manageOfferings!,
-          manageEvaluations: texts.manageEvaluations!,
-          signOut: texts.signOut!,
-        }}
-      />
-      <main className={region ? `${MAIN_CLASSES} md:flex` : MAIN_CLASSES}>
-        {region && <aside className={SIDEBAR_COLUMN_CLASSES}>{region}</aside>}
-        <div className={CONTENT_CLASSES}>{children}</div>
-      </main>
-    </div>
+    <SessionShell
+      locale={locale}
+      session={session}
+      sidebar={sidebar}
+      texts={{
+        topRated: texts.topRated!,
+        aboutUs: texts.aboutUs!,
+        signIn: texts.signIn!,
+        languageSelector: texts.languageSelector!,
+        brandLink: texts.brandLink!,
+        profile: texts.profile!,
+        editProfile: texts.editProfile!,
+        changePassword: texts.changePassword!,
+        deactivateAccount: texts.deactivateAccount!,
+        deleteAccount: texts.deleteAccount!,
+        security: texts.security!,
+        themeSelector: texts.themeSelector!,
+        manageOfferings: texts.manageOfferings!,
+        manageEvaluations: texts.manageEvaluations!,
+        signOut: texts.signOut!,
+        toggleSidebar: texts.toggleSidebar!,
+      }}
+    >
+      {children}
+    </SessionShell>
   );
 }
