@@ -199,6 +199,24 @@ describe("AppHeader, signed-out state", () => {
       screen.getByRole("button", { name: TEXTS.languageSelector }),
     ).toBeDefined();
   });
+
+  it("passes the current path to the primary navigation (design.md D14)", () => {
+    render(
+      <AppHeader
+        session={ANONYMOUS}
+        locale="es"
+        locales={LOCALES}
+        texts={TEXTS}
+        currentPath="/es/about"
+        onSignIn={vi.fn()}
+        onSignOut={vi.fn()}
+        onLocaleChange={vi.fn()}
+      />,
+    );
+    expect(
+      screen.getByRole("link", { name: TEXTS.aboutUs }).getAttribute("aria-current"),
+    ).toBe("page");
+  });
 });
 
 describe("PrimaryNav", () => {
@@ -231,6 +249,72 @@ describe("PrimaryNav", () => {
     expect(screen.getByRole("link", { name: TEXTS.aboutUs }).getAttribute("href")).toBe(
       "/ca/about",
     );
+  });
+
+  // ─── Navigation items (corrections.md round 2, correction 1; design.md D14) ───
+
+  it("renders its entries as navigation items with no underline (spec: Navigation entries are navigation items)", () => {
+    renderNav();
+    for (const name of [TEXTS.topRated, TEXTS.aboutUs]) {
+      const entry = screen.getByRole("link", { name });
+      for (const cls of [
+        "type-navbar-item",
+        "h-16",
+        "items-center",
+        "justify-center",
+        "px-6",
+        "focus-visible:focus-ring",
+      ]) {
+        expect(entry.classList.contains(cls)).toBe(true);
+      }
+      expect(entry.className).not.toMatch(/(^|\s|:)underline(\s|$)/);
+    }
+    expect(screen.getByRole("navigation").classList.contains("md:ml-4")).toBe(true);
+  });
+
+  it("takes the hover fill on entries that are not the current page (spec: Navigation entry hover)", () => {
+    renderNav();
+    for (const name of [TEXTS.topRated, TEXTS.aboutUs]) {
+      const entry = screen.getByRole("link", { name });
+      expect(entry.classList.contains("hover:bg-nav-hover")).toBe(true);
+      expect(entry.classList.contains("hover:text-nav-text-hover")).toBe(true);
+      expect(entry.getAttribute("aria-current")).toBeNull();
+    }
+  });
+
+  it("marks the entry of the current route as the current page (spec: Current page entry)", () => {
+    render(
+      <PrimaryNav
+        locale="es"
+        currentPath="/es/about"
+        texts={{ topRated: TEXTS.topRated, aboutUs: TEXTS.aboutUs }}
+      />,
+    );
+    const about = screen.getByRole("link", { name: TEXTS.aboutUs });
+    expect(about.getAttribute("aria-current")).toBe("page");
+    expect(about.classList.contains("border-b-2")).toBe(true);
+    expect(about.classList.contains("border-nav-indicator")).toBe(true);
+    expect(about.classList.contains("hover:bg-nav-hover")).toBe(false);
+    expect(about.classList.contains("hover:text-nav-text-hover")).toBe(false);
+    const topRated = screen.getByRole("link", { name: TEXTS.topRated });
+    expect(topRated.getAttribute("aria-current")).toBeNull();
+    expect(topRated.classList.contains("hover:bg-nav-hover")).toBe(true);
+  });
+
+  it("matches the current page by path, ignoring the query", () => {
+    render(
+      <PrimaryNav
+        locale="es"
+        currentPath="/es/offerings"
+        texts={{ topRated: TEXTS.topRated, aboutUs: TEXTS.aboutUs }}
+      />,
+    );
+    expect(
+      screen.getByRole("link", { name: TEXTS.topRated }).getAttribute("aria-current"),
+    ).toBe("page");
+    expect(
+      screen.getByRole("link", { name: TEXTS.aboutUs }).getAttribute("aria-current"),
+    ).toBeNull();
   });
 });
 

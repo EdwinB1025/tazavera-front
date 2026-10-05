@@ -349,6 +349,8 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "border-strong", bg: "surface-form", kind: "bound" },
   // refine-app-header D13: the header menu panel and in-menu select boundary
   { fg: "border-strong", bg: "nav-surface", kind: "bound" },
+  // refine-app-header D14: the current navigation entry's bar
+  { fg: "nav-indicator", bg: "nav-surface", kind: "bound" },
   { fg: "border-muted", bg: "surface-textarea", kind: "bound" },
   { fg: "border-accent", bg: "surface-card", kind: "bound" },
   { fg: "focus-ring", bg: "surface-page", kind: "bound" },
@@ -611,6 +613,8 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "border-strong", bg: "surface-form", kind: "bound" },
   // refine-app-header D13: the header menu panel and in-menu select boundary
   { fg: "border-strong", bg: "nav-surface", kind: "bound" },
+  // refine-app-header D14: the current navigation entry's bar
+  { fg: "nav-indicator", bg: "nav-surface", kind: "bound" },
   { fg: "border-muted", bg: "surface-textarea", kind: "bound" },
   { fg: "border-accent", bg: "surface-card", kind: "bound" },
   { fg: "focus-ring", bg: "surface-page", kind: "bound" },
