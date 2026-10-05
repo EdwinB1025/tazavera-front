@@ -380,4 +380,34 @@ describe("sign out (spec: Sign out)", () => {
     expect(pushMock).toHaveBeenCalledTimes(1);
     expect(pushMock).toHaveBeenCalledWith(null, "", "/en");
   });
+
+  it("starts no refresh, no silent re-authentication and no authorization request and still completes the local sign out when POST /logout answers 401 (design.md D5: POST /logout; spec: Sign out)", async () => {
+    const loaded = await load();
+    const seen = consume(loaded);
+    await completeSignIn(loaded);
+    fetchMock.mockReset();
+    // The `401` of design.md D5 ("the token is already dead").
+    fetchMock.mockResolvedValue(jsonResponse({}, 401));
+    pushMock.mockClear();
+    const openSpy = vi
+      .spyOn(window, "open")
+      .mockReturnValue(null as unknown as Window);
+
+    loaded.signOut();
+
+    // The answer is never consulted and no recovery runs: `POST /logout` is
+    // the only request (no refresh grant), and neither a silent
+    // re-authentication nor any authorization request revives the session.
+    await vi.waitFor(() => {
+      expect(seen.current()).toEqual({ state: "anonymous" });
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(String(fetchMock.mock.calls[0]![0])).toBe(`${API_URL}/logout`);
+    expect(locationMock.assign).not.toHaveBeenCalled();
+    expect(openSpy).not.toHaveBeenCalled();
+    expect(loaded.getTokens()).toBeNull();
+    expect(loaded.flow.hasMarker()).toBe(false);
+    expect(pushMock).toHaveBeenCalledTimes(1);
+    expect(pushMock).toHaveBeenCalledWith(null, "", "/en");
+  });
 });
