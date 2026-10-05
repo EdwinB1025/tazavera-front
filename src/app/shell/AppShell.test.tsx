@@ -122,9 +122,15 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
     // retry affordance.
     renderShell({ state: "anonymous" });
     expect(screen.getByRole("button", { name: texts.signIn })).toBeDefined();
+    // spec "Language selection": the language control is a button trigger,
+    // named with the composed name the shell passes (design.md D6)
+    expect(
+      screen.getByRole("button", { name: `${texts.languageSelector}: Español` }),
+    ).toBeDefined();
     expect(screen.queryByRole("alert")).toBeNull();
     expect(screen.queryByRole("status")).toBeNull();
-    expect(screen.getAllByRole("button")).toHaveLength(1);
+    // exactly these two buttons: a third one would be a retry affordance
+    expect(screen.getAllByRole("button")).toHaveLength(2);
   });
 
   it("shows the user menu when the session is authenticated", () => {

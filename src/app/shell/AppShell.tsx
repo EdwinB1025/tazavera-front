@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { Session } from "@/shared/api";
-import { LOCALES } from "@/shared/config/locales";
+import { LOCALES, type Locale } from "@/shared/config/locales";
+import { LOCALE_NAMES } from "@/shared/config/locale-names";
 import { getMessages } from "@/shared/lib/i18n";
 import { AppSidebar } from "@/widgets/app-sidebar";
 import { ShellChrome } from "./ShellChrome";
@@ -68,7 +69,13 @@ export function AppShell({
           topRated: texts.topRated!,
           aboutUs: texts.aboutUs!,
           signIn: texts.signIn!,
-          languageSelector: texts.languageSelector!,
+          // design.md D6: the shell composes one name — the catalog word with
+          // the current language's own name, e.g. "Idioma: Español" — and
+          // passes it as one string (spec: "Selector is named"). The shell
+          // renders only on a supported-locale root (`proxy.ts` resolves any
+          // other prefix to not-found), so the active locale indexes the
+          // names.
+          languageSelector: `${texts.languageSelector!}: ${LOCALE_NAMES[locale as Locale].name}`,
           brandLink: texts.brandLink!,
           profile: texts.profile!,
           editProfile: texts.editProfile!,
