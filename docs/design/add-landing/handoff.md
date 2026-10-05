@@ -218,3 +218,34 @@ Summary: Product owner chose option 1 for Q11 and told me to apply it without st
 
 ### Final checks
 My own `npm run test:run` after `3e776c5`: Test Files 44 passed (44), Tests 858 passed (858). The loop's post-8.1 test run failed only with vitest workers dying on start (exit 3221225794) under memory pressure. This was environment, not a test failure; the rerun above is green.
+
+## Session 2026-10-05 (night, continued) — browser check, round 3, done by the orchestrator
+Summary: Product owner's browser check (1280px, mock data) found the pages without margins, spacing or card gaps. I had not looked at the rendered page before; tests in jsdom cannot see layout, and the artifacts never settled layout. Product owner chose a card grid with the score on top, and sent the header items to `refine-app-header`. I wrote round 3 (10 items). Product owner then told me to stop the agents and follow the process myself, so I did the architect's and the build's work for round 3 under AGENTS.md's rules. Stopped because: completed. Verify and archive were not run. MVC reachable: yes (`layouts/offerings/index.blade.php`: `mx-[5%]`, `gap-2` list).
+
+### Environment for the check (not committed)
+- API: `php artisan serve` on `http://localhost:8000` (`FRONT_URL` was already `http://localhost:3000`). The database holds no offerings (`total: 0`).
+- Mock: `scratchpad/mock-api.mjs` on port 8001 serves 6 fake verified offerings on `/offerings` (scores 92.50, 89.99, 87.25, 82.00, 78.75 and none; null region/process/variety cases) and proxies `/taxonomies` to the real API.
+- `.env.local` (git-ignored) currently holds `NEXT_PUBLIC_API_URL=http://localhost:8001`. Point it back to `:8000` when the mock is no longer needed.
+- Captures: headless Chrome. A plain 375px window is clipped by Chrome's minimum window width, so the 375px captures use device emulation over the DevTools protocol (`scratchpad/capture.mjs`).
+
+### Commits
+- `61bf20c` docs: apply review round 3 (specs `landing`, `content-structure`, `feedback`; design.md D14; tasks 11–13).
+- `d86807e` docs: fix artifacts (task 11.1). The full-height column applies to the stacked layout only, because the default layout's `lg` floats do not work inside flex.
+- 11.1 `05dc703` / 11.2 `dc7ff21`: `Card` `layout="stacked"` through a context, so `Card.tsx` becomes `"use client"`, like `Button`.
+- 12.1 `7026dd8` / 12.2 `f0c904f`: badge inline row with padding. This also fixes the verified/provisional icon rendering above the label (planned as an unplanned fix; folded into round 3 item 9).
+- 13.1 `0ee724d` / `4cae388` docs (task 13.2: rows and pagination spacing found in the browser, and the rescoped "Rows by level" case) / 13.2 `03129d7` / 13.3 `6f9ba86`.
+
+### Decisions taken
+#### D7 — Shared grid constant
+- `OFFERING_GRID_CLASSES` lives in `src/widgets/offering-list/lib/grid.ts` and is exported from the widget. The list and the home screen's skeleton fallback use it, so both lay out alike.
+#### D8 — Duplicated section/container classes (backlog candidate)
+- `HomeScreen.tsx` and `AboutContent.tsx` each hold `SECTION_CLASSES` and `CONTAINER_CLASSES`, because FSD forbids imports between `pages` slices. Candidate for `docs/backlog.md`: a shared section primitive in `src/shared/ui`. It will pay off on the next public page.
+
+### Deferred to Product owner
+#### Q17 — D4 still open
+- The score still shows twice on each card: as the large number and as the rating chip. It is visible in the captures. Your call.
+#### Q15, Q16 — sent to `refine-app-header`'s handoff, uncommitted there
+- Header primary nav spacing and treatment, and the white area below short pages.
+
+### Final checks
+`npm run test:run`: Test Files 44 passed (44), Tests 879 passed (879). `npm run lint` exit 0, `npx tsc --noEmit` exit 0, `npm run build` exit 0 (my runs after `03129d7`).
