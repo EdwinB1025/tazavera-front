@@ -75,3 +75,66 @@ Summary: precondition checked (`44faa59` "report review round 1 for add-landing"
 
 ### Final checks
 Not run: no agent ran and no code changed.
+
+## Session 2026-10-05 (continued) — correction round 1, then apply
+Summary: Product owner told me to run the architect with the round 1 text on disk. The text was then committed as `1ca87d1`. The architect committed `553aabc` "docs(landing): apply review round 1 for add-landing" with `openspec validate add-landing --strict` valid. It updated design.md D2 to the NonNullable form and added task 9.1, which is a no-op once 1.1 runs. spec.md is unchanged. Build task 1.1 was committed as `55f0f5d` "feat(landing): add types for offerings and taxonomies". The build reported `npx tsc --noEmit` exit 0 and no commit after `bff523c` touching the contract or the schema. Stopped because: after 1.1 a `git merge develop` was started in this worktree (not by me or an agent). It is left unfinished, with conflicts in `contracts/openapi.yaml` and `src/shared/api/schema.ts` from develop's `a2de7cb chore(api): update contract and generated types`, and `AGENTS.md` is staged. MVC reachable: not checked.
+
+### Agent feedback
+- Architect: task 9.1 overlaps 1.1. It is kept because the rules require a task per correction, and it is checked off as "changes no files" when its turn comes.
+- Build (1.1): the commit scope is `landing`, while earlier tasks used `content-structure` and `feedback`. The build asks whether to keep `landing` for the remaining tasks.
+
+### Deferred to Product owner
+#### Q7 — ANSWERED 2026-10-05: the merge was run by mistake and undone, the branch is at 55f0f5d, the bff523c check holds, no correction round, do not merge develop — Unfinished merge of develop in the worktree
+- Question: finish the merge (resolve the contract and schema conflicts) or abort it? A contract change after `bff523c` also invalidates the 1.1 and 8.1 check "not modified by any commit after `bff523c`", and it is an API or contract change.
+- Why deferred: I never resolve conflicts or touch the contract. Aborting would undo your action.
+- Blocks: the apply loop (4.1 onward).
+
+#### Q8 — ANSWERED 2026-10-05: from 4.1 on use the affected capability, leave 55f0f5d as is — Commit scope for the remaining tasks
+- Question: should the build keep `feat(landing)` (the change's scope) or use the affected capability (`content-structure`, `feedback`, …)?
+- Recommendation: the affected capability per task, matching tasks 2.x and 3.x. But AGENTS.md says "the capability of the change being implemented", so either reading fits. Your call.
+
+### Final checks
+`npm run test:run` after `55f0f5d`, before the merge was noticed: Test Files 32 passed (32), Tests 787 passed (787).
+
+### Decisions taken
+#### D3 — Commit scope for tasks 4.x to 7.x
+- Context: my apply prompt, written after Q8, said "the affected capability … not landing". The 4.1 build then held its test commit and asked which capability `src/entities/offering/**` belongs to (landing, feedback or offering-catalog).
+- Decision: the scope is the capability in the task's tasks.md section header. Sections 4 to 7 are "(landing)", so `landing`. "Not landing" was my wording error, not part of your Q8 answer. 2.x and 3.x used their headers' `content-structure` and `feedback`.
+- Why: Q8 ("as 2.x and 3.x do"). Every scenario 4.1 cites is in `specs/landing/spec.md`. The change has no spec delta for offering-catalog.
+- Result: the build prompt was corrected. The 4.1 test files written in the held run were left on disk for the next run to commit.
+
+### Apply progress
+- 4.1: `7171692 test(landing): verify the offering card field mapping and the rating tiers`. The first run held the commit over the scope question (D3). The second run committed it and extended the View-link case to all three `Session` fixtures. Its two test files fail only on the modules 4.2 adds. Lint is 0, and tsc reports only TS2307 for `@/entities/offering`.
+- 4.2: the run was killed by Claude Code for low system memory. Per the stop notice I did not restart it. The log ends right after the skill loaded. No files were written, and the tree shows only handoff.md modified.
+
+#### Q9 — Restart the apply loop at 4.2
+- Question: restart when memory allows. Claude Code says not to restart it on its own.
+- Blocks: 4.2 and everything after it. Remaining tasks: 4.2, 5.1, 5.2, 6.1, 6.2, 6.3, 7.1, 7.2, 8.1, 9.1.
+
+### Final checks
+`npm run test:run` after `7171692`: 2 files fail as allowed (the 4.1 tests, which need 4.2), 32 files and 787 tests pass.
+
+### Correction to the entry above (2026-10-05 15:30)
+The 4.2 run was not killed. Only my wrapper shell was stopped. opencode kept running, wrote `src/entities/offering/{index.ts,lib/rating.ts,ui/OfferingCard.tsx}`, and stopped at 14:46 with a question. Q9 is superseded by F2 below.
+
+### Fixes and coverage sent to the Build
+#### F2 — 4.1 texts case requires the provisional label on a verified card
+- Type: unplanned fix (spec feedback "Verification status badge", landing offering card requirement, design.md D11).
+- Message sent: in `OfferingCard.test.tsx`, change only the case "renders every label and caption from the texts props". Render a verified card and a provisional card (specialist session). Every TEXTS value except `provisionalLabel` must be on the verified card, and `provisionalLabel` on the provisional card. The case must fail if any value is never rendered. Commit `fix(landing): …` with the test file only, then task 4.2 from the files on disk.
+- Result: `567828a` (fix) and `5decbce` (task 4.2, checkbox checked). `npm run test:run`: 34 files, 811 tests pass. Lint and tsc exit 0 (reported by the build).
+
+### Decisions taken
+#### D4 — Rating badge label is the score value
+- Context: the build noted that the artifacts fix the rating badge's variant but not its visible text, and the D11 catalog has no rating label. It chose `cuppingAvg` as the label.
+- Decision: accepted as a free detail. No catalog key, token or behaviour is added.
+- Why: design.md D4 and D8 leave the text open, and a tier word would add catalog keys (scope).
+- Result: told to the build in the F2 message. Check it in the browser before archiving: the score then appears twice, as `type-score` and as the chip.
+
+### Apply progress (16:10)
+- 5.1: `329de9d test(landing): verify the offering list fetches, taxonomy resolution and states`. 5 files fail as allowed, the rest pass.
+- 5.2: `070a4a9 feat(landing): implement the verified offerings list`. The build's free choices: `page: number`; empty is `items.length === 0`; the pagination normalises the optional `meta.current_page` and `meta.last_page` with `?? 1` and `?? currentPage`.
+- Claude Code stopped the loop's shell for low memory a second time, during 5.2. The opencode run finished on its own. Per the stop notice I did not restart the loop.
+- Remaining: 6.1, 6.2, 6.3, 7.1, 7.2, 8.1, 9.1.
+
+### Final checks
+`npm run test:run` after `070a4a9`: Test Files 39 passed (39), Tests 835 passed (835).
