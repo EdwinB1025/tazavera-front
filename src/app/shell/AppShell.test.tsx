@@ -123,9 +123,12 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
     renderShell({ state: "anonymous" });
     expect(screen.getByRole("button", { name: texts.signIn })).toBeDefined();
     // spec "Language selection": the language control is a button trigger,
-    // named with the composed name the shell passes (design.md D6)
+    // named with the composed name the shell passes (design.md D6, correction
+    // 1 of round 1 — code first)
     expect(
-      screen.getByRole("button", { name: `${texts.languageSelector}: Español` }),
+      screen.getByRole("button", {
+        name: `ES — ${texts.languageSelector}: Español`,
+      }),
     ).toBeDefined();
     expect(screen.queryByRole("alert")).toBeNull();
     expect(screen.queryByRole("status")).toBeNull();
@@ -174,10 +177,11 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
 describe("AppShell language control name (refine-app-header design.md D6)", () => {
   it("passes the language control one composed name, never two parts (spec: Selector is named)", () => {
     renderShell();
-    // The shell composes "<catalog word>: <own name>" — "Idioma: Español"
-    // for es — and passes it down as one string, so the trigger's accessible
-    // name is that composed name.
-    const composed = `${texts.languageSelector}: Español`;
+    // The shell composes "<CODE uppercase> — <catalog word>: <own name>" —
+    // "ES — Idioma: Español" for es (design.md D6, correction 1 of round 1) —
+    // and passes it down as one string, so the trigger's accessible name is
+    // that composed name.
+    const composed = `ES — ${texts.languageSelector}: Español`;
     expect(screen.getByRole("button", { name: composed })).toBeDefined();
     // one composed name: never the catalog word and the own name as two parts
     expect(
