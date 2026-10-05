@@ -21,7 +21,7 @@ See `proposal.md` — Why. The constraints that shape the approach:
 
 **Non-Goals:**
 
-- Any change to the traditional theme's rendering, or to any token outside the avatar tokens of D5 and their one new boundary token.
+- Any change to the traditional theme's rendering, or to any token outside the avatar tokens of D5 with their one new boundary token and the destructive text token of D2 with its two primitives (correction 4 of round 1).
 - Any change to the shared menu's default rendering (the card surface other screens will use).
 - Making the header's primary navigation links part of this refinement (out of scope per design summary §1).
 
@@ -37,6 +37,10 @@ The `app-shell` delta states the rule (spec: "Header menu triggers") and `base-c
 
 - **Card (default):** exactly today's classes.
 - **Nav:** the panel takes `bg-nav-surface` and `text-nav-text` in place of `bg-surface-card` and `text-text-primary`, and `rounded-field` in place of `rounded-container` (design summary §8: `radius-field` in the nav variant only). Its boundary (`border-border-strong`), shadow, `min-w-48`, `p-1` and `z-50` are unchanged. The rows take the typographic role `type-navlist-item` — which binds `nav-text`, so one class owns the colour — with `nav-text-hover` text over `nav-hover` on hover and focus, and keep `rounded-field`.
+
+The destructive arm follows the surface (correction 4 of round 1): an entry with `variant="destructive"` on the **nav** surface carries `text-nav-text-destructive` at rest and keeps `nav-text-destructive` on hover and on focus — the row's `nav-text-hover` hover and focus classes would otherwise turn a destructive entry into the normal hover colour — while its row keeps `nav-hover` under the pointer and on focus. The **card** set is unchanged and keeps `data-[variant=destructive]:text-feedback-error`. The token and the three states are the decision; how the state classes wire them is the build's choice.
+
+The destructive token rides on three declarations, the round's only token additions: primitive `--color-oxblood-850: #600108` (oxblood-700 darkened) in the traditional primitive layer, primitive `--color-night-oxblood-450: #f27f76` (night-oxblood-500 lightened) in the night primitive layer, and semantic `--color-nav-text-destructive` — `var(--color-oxblood-850)` in `@theme`, `var(--color-night-oxblood-450)` under `[data-theme="dark"]`. The error hue is kept and `--color-feedback-error` with every existing token keeps its value. Design summary §4's rule fires for it: `feedback-error` fails the 4.5:1 text gate on the nav backgrounds (traditional 3.59:1 on `nav-surface`, 2.71:1 on `nav-hover`; dark 3.89:1 on `nav-hover`) and the new pairs pass at 6.12:1 and 4.62:1 traditional, 5.74:1 and 4.64:1 dark (D13).
 
 `type-control` is deliberately not reused for nav rows: it binds `text-strong`, and pairing it with an explicit `text-nav-text` would put two colour declarations on one element with the cascade deciding. `type-navlist-item` is `theming`'s nav-row role and binds the token the design summary names. Label, shortcut and separator keep their current treatment; the header menus do not use them.
 
@@ -88,11 +92,13 @@ export const LOCALE_NAMES: Record<Locale, LocaleName> = {
 
 The `lang` values are each language's own BCP 47 tag, identical to the locale codes today; keeping them as data keeps routing codes and language identity separate.
 
-The shell composes the trigger's accessible name as `"<catalog word>: <own name>"` — the example of design summary §3, "Language: Español" — in `src/app/shell/AppShell.tsx`, where the catalog and the active locale already meet, and passes one string down in the existing `languageSelector` slot of `AppHeaderTexts`. The widget never joins text, so "Localized interface texts" keeps holding. No message key changes.
+The shell composes the trigger's accessible name as `"<CODE> — <catalog word>: <own name>"` — the current locale's code in uppercase, then ` — `, then the composed name of design summary §3 (correction 1 of round 1, WCAG 2.5.3 Label in Name: the name leads with the code the trigger shows). `es` reads `ES — Idioma: Español`, `en` reads `EN — <catalog word>: English` and `ca` reads `CA — <catalog word>: Català`. It is composed in `src/app/shell/AppShell.tsx`, where the catalog and the active locale already meet, and passed as one string down in the existing `languageSelector` slot of `AppHeaderTexts`. The widget never joins text and the trigger's visible content (globe, code, chevron) is unchanged, so "Localized interface texts" keeps holding. No message key changes.
+
+The shell never casts the locale (correction 3 of round 1): it resolves it with `isSupportedLocale`, and an unsupported locale resolves to `DEFAULT_LOCALE` (`es`) for the whole composition — catalog word, code and own name — so the name reads `ES — Idioma: Español` and the shell renders without throwing (the catalog included, since `getMessages` rejects an unsupported locale). Every supported locale composes exactly as above, and no `as Locale` cast remains.
 
 ### D7 — The language menu is a single-choice radio group
 
-Each supported locale is one entry of a radio group (design summary §7): the current language is `aria-checked` and shows the check indicator, and no other entry is marked (spec: "Current language is marked"). The indicator takes the entry's text colour (`nav-text`, `nav-text-hover` on hover) through `currentColor` — no row background, no `nav-current`, no `nav-indicator`, no new tokens (design summary §8). Each entry shows its language's own name with its own `lang` attribute. Choosing an entry calls back with the locale; `src/app/shell/ShellChrome.tsx` keeps today's behaviour (same route under the new locale prefix). No flags (design summary §3).
+Each supported locale is one entry of a radio group (design summary §7): the current language is `aria-checked` and shows the check indicator, and no other entry is marked (spec: "Current language is marked"). The indicator takes the entry's text colour (`nav-text`, `nav-text-hover` on hover) through `currentColor` — no row background, no `nav-current`, no `nav-indicator`, no new tokens (design summary §8). Each entry shows its language's own name with its own `lang` attribute. Choosing an entry calls back with the locale, except the entry of the language that is already active: choosing it closes the menu and does not call `onLocaleChange` (correction 2 of round 1), so nothing navigates and no history entry is added — Radix calls `onValueChange` even when the checked entry is chosen again, so the widget suppresses that call. For any other supported locale `src/app/shell/ShellChrome.tsx` keeps today's behaviour (same route under the new locale prefix). No flags (design summary §3).
 
 ### D8 — Icons
 
@@ -106,7 +112,7 @@ It keeps its geometry (`h-10`, `w-full`, `px-3`, `rounded-field`, `focus-visible
 
 ### D10 — Types: data and UI-specific, defined before any component
 
-`src/shared/api/schema.ts` is untouched and no derived API type is added: `Session`, `SessionUser` and `UserRole` from `src/shared/api` already carry everything the header reads. The change adds one data type (`LocaleName`, D6) and revises UI-specific prop types only — `LanguageSelectProps` (its `label` becomes the composed accessible name; the widget reads `LOCALE_NAMES` itself for the entries) and the `AppHeaderTexts` comment on `languageSelector`. Types are declared before the components that use them, in their modules.
+`src/shared/api/schema.ts` is untouched and no derived API type is added: `Session`, `SessionUser` and `UserRole` from `src/shared/api` already carry everything the header reads. The change adds one data type (`LocaleName`, D6) and revises UI-specific prop types only — `LanguageSelectProps` (its `label` becomes the composed accessible name of D6, code first — `ES — Idioma: Español` for `es` (correction 1 of round 1); the widget reads `LOCALE_NAMES` itself for the entries) and the `AppHeaderTexts` comment on `languageSelector`. Types are declared before the components that use them, in their modules.
 
 ### D11 — API endpoints consumed, and how errors reach the user
 
@@ -145,12 +151,12 @@ The shared card is not used by this change, so the card field-mapping rule does 
 |---|---|---|
 | `src/shared/config/locale-names.ts` | shared (segment `config`) | created — `LocaleName` and `LOCALE_NAMES` (D6) |
 | `src/shared/ui/DropdownMenu.tsx` | shared (segment `ui`) | modified — `surface` variant and its two class sets (D2) |
-| `src/shared/ui/DropdownMenu.test.tsx` | shared (segment `ui`) | modified — nav-surface cases; the existing cases stay |
+| `src/shared/ui/DropdownMenu.test.tsx` | shared (segment `ui`) | modified — nav-surface and destructive-entry cases; the existing cases stay |
 | `src/shared/ui/icons.ts` | shared (segment `ui`) | modified — re-export `Globe` (D8) |
 | `src/shared/ui/icons.test.ts` | shared (segment `ui`) | modified — assert `Globe` beside the existing icons |
-| `src/app/shell/AppShell.tsx` | app | modified — compose the language trigger's name (D6) |
+| `src/app/shell/AppShell.tsx` | app | modified — compose the language trigger's name and resolve the locale fallback (D6) |
 | `src/app/shell/AppShell.test.tsx` | app | modified — assert the composed name passes down |
-| `src/app/styles/globals.css` | app | modified — the dark values of `nav-avatar`, `nav-avatar-hover` and `nav-text-dark`, and `nav-avatar-border` defined in both themes (D5) |
+| `src/app/styles/globals.css` | app | modified — the dark values of `nav-avatar`, `nav-avatar-hover` and `nav-text-dark`, `nav-avatar-border` defined in both themes (D5), and the three destructive-token declarations of D2 |
 | `src/app/styles/theme-tokens.test.ts` | app | modified — the contrast pairs this change introduces (D13) |
 | `src/widgets/app-header/ui/AppHeader.tsx` | widgets (slice `app-header`) | modified — ghost triggers, circle content and breakpoints (D3, D4) |
 | `src/widgets/app-header/ui/AppHeader.test.tsx` | widgets (slice `app-header`) | modified — rewritten language cases, new user-control and menu cases |
@@ -163,7 +169,7 @@ No route file changes; the root `app/` folder keeps routing only. `src/shared/ui
 
 ### D13 — Contrast evidence (design summary §4: token names mapped, contrasts recorded; artifact review of 2026-10-05: every pair in both themes)
 
-Every colour resolves through a semantic token. Design summary §4's "new token only when a pair on the header surface fails" rule fires exactly once: the circle fill `nav-avatar` measures ≈2.3:1 against `nav-surface` in the dark theme, so the avatar boundary gets the one new token, `nav-avatar-border` (D5). The failing pairs the explore found stay unused — `nav-indicator` on `nav-hover` (2.75:1 traditional), `nav-current` (1:1 traditional, 1.47:1 dark) and `nav-icon` on `nav-hover` (2.57:1 traditional) are not rendered by any settled choice — so no further token is added or changed; only the three dark values of D5 move.
+Every colour resolves through a semantic token. Design summary §4's "new token only when a pair on the header surface fails" rule fires twice: the circle fill `nav-avatar` measures ≈2.3:1 against `nav-surface` in the dark theme, so the avatar boundary gets its token `nav-avatar-border` (D5); and `feedback-error` fails the 4.5:1 text gate on the nav backgrounds (traditional 3.59:1 on `nav-surface`, 2.71:1 on `nav-hover`; dark 3.89:1 on `nav-hover`), so the nav surface's destructive text gets its token `nav-text-destructive` with its two primitives (D2, correction 4 of round 1). The failing pairs the explore found stay unused — `nav-indicator` on `nav-hover` (2.75:1 traditional), `nav-current` (1:1 traditional, 1.47:1 dark) and `nav-icon` on `nav-hover` (2.57:1 traditional) are not rendered by any settled choice — so no further token is added or changed; the token changes are the three dark values of D5 and the three declarations of D2.
 
 | Pair (foreground on background) | Kind | Min | Traditional | Dark | Status |
 |---|---|---|---|---|---|
@@ -176,6 +182,8 @@ Every colour resolves through a semantic token. Design summary §4's "new token 
 | `nav-text` on `nav-surface` — trigger content, panel text | text | 4.5 | asserted | asserted | both matrices |
 | `nav-text-hover` on `nav-surface` — trigger content on hover | text | 4.5 | ≈6.1:1 | ≈5.8:1 | registered in both matrices by the tasks |
 | `nav-text-hover` on `nav-hover` — row hover text | text | 4.5 | asserted | asserted | both matrices |
+| `nav-text-destructive` on `nav-surface` — destructive entry at rest | text | 4.5 | ≈6.12:1 (`oxblood-850` #600108 on `sage-400` #85b5ad) | ≈5.74:1 (`night-oxblood-450` #f27f76 on `night-sage-900` #142b28) | registered in both matrices by the tasks |
+| `nav-text-destructive` on `nav-hover` — destructive entry on hover and focus | text | 4.5 | ≈4.62:1 (#600108 on `sage-500` #6B9E95) | ≈4.64:1 (#f27f76 on `night-sage-800` #1f3b37) | registered in both matrices by the tasks |
 | `border-strong` on `nav-surface` — menu panel and in-menu select boundary | boundary | 3 | ≈6.1:1 | ≈3.8:1 | registered in both matrices by the tasks |
 
 The marked `≈` values are the recorded measurements. The tasks register the undocumented pairs in `theme-tokens.test.ts` so the thresholds are enforced from then on, assert the traditional fill gate beside the existing `nav-button-bg` gate, and assert that `--color-nav-avatar-border` is defined in both theme blocks — its `transparent` traditional value falls outside the relational completeness check's `var()`/`color-mix()` filter, so its completeness is asserted explicitly.

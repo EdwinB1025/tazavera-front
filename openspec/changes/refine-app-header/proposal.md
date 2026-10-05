@@ -10,7 +10,7 @@ The header's two controls are the roughest part of the shell the previous change
 - **Language control.** The native select becomes a menu: a ghost trigger with a globe icon, the current locale code and a chevron on every viewport, named from the message catalog with the current language's own name. Each entry shows the language in its own name with its own `lang` attribute, the current one is marked as the single choice, and choosing one keeps today's behaviour (the same route under the new locale prefix).
 - **Header menus.** Both menus extend the header: the navigation surface, text and hover colours instead of the cream panel treatment, the field corner radius on the panel, and the current choice marked with an indicator that follows the entry's text colour. The theme selector inside the user menu is restyled with the menu; its behaviour is untouched.
 - **Header menu triggers.** The delta states that the user and language controls are menu triggers and not action controls, so `base-controls` needs no delta.
-- No route, session or API change. One new color token — the avatar circle's boundary, `nav-avatar-border`, transparent in the traditional theme and the `nav-button-border` value in the dark theme — and no new radius token.
+- No route, session or API change. New color tokens — the avatar circle's boundary, `nav-avatar-border`, transparent in the traditional theme and the `nav-button-border` value in the dark theme, and the nav surface's destructive text, `nav-text-destructive`, built on two new primitives (correction round 1) — and no new radius token.
 
 ## Capabilities
 
@@ -29,7 +29,7 @@ The header's two controls are the roughest part of the shell the previous change
 - **The management sidebar.** Untouched.
 - **The theme selector's behaviour.** Choosing and keeping a theme is unchanged; only its appearance inside the menu is in scope.
 - **Any `base-controls` or `theming` requirement change.** Header menu triggers are declared not action controls in the `app-shell` delta instead.
-- **New tokens beyond the avatar boundary.** Every colour comes from the existing semantic tokens and the dark avatar reuses the pairs "Sign in" already renders — as the dark values of the avatar tokens; the single new token is the avatar circle's boundary, which the "new token only when a pair fails" rule allows because the circle fill measures about 2.3:1 against the header surface in the dark theme.
+- **New tokens beyond the avatar boundary and the nav surface's destructive text.** Every colour comes from the existing semantic tokens and the dark avatar reuses the pairs "Sign in" already renders — as the dark values of the avatar tokens; the new tokens are the avatar circle's boundary, which the "new token only when a pair fails" rule allows because the circle fill measures about 2.3:1 against the header surface in the dark theme, and `nav-text-destructive` on its two primitives, which the same rule allows because `feedback-error` fails the 4.5:1 text gate on the nav backgrounds (correction round 1).
 - **End-to-end verification of the locale swap** (backlog R1, stays deferred) and the MVC dropdown check Augusto performs before the archive.
 - **Any change to `contracts/openapi.yaml` or `src/shared/api/schema.ts`.**
 

@@ -28,6 +28,10 @@ The menus opened from the header SHALL extend the header surface: their panel SH
 - **WHEN** the pointer or the keyboard focus reaches an entry of a header menu
 - **THEN** the entry renders `nav-hover` with `nav-text-hover`
 
+#### Scenario: Destructive entry keeps its error colour
+- **WHEN** an entry in the destructive variant renders in a header menu, at rest, hovered or focused
+- **THEN** its text takes `nav-text-destructive` in all three states and never the entry hover text colour
+
 #### Scenario: Menu panel corner radius
 - **WHEN** a header menu opens in either theme
 - **THEN** its panel corner radius comes from `radius-field`, while the panels of menus outside the header keep the container radius
@@ -96,13 +100,17 @@ The header SHALL offer a language selector that opens a menu listing exactly the
 - **WHEN** the user chooses a locale in the language selector
 - **THEN** the application opens the same route in the chosen locale and its texts change accordingly
 
+#### Scenario: Choosing the current language changes nothing
+- **WHEN** the user chooses the entry of the language that is already active
+- **THEN** the menu closes and the application navigates nowhere, adding no history entry
+
 #### Scenario: Only supported locales are offered
 - **WHEN** the language selector renders
 - **THEN** it lists exactly the supported locales and offers no locale the application does not support
 
 #### Scenario: Selector is named
 - **WHEN** assistive technology reaches the language selector
-- **THEN** its accessible name identifies what it selects and carries the current language in its own name
+- **THEN** its accessible name is the code of the current locale in uppercase, then ` — `, then what it selects and the current language in its own name — `ES — Idioma: Español` when the current language is `es`
 
 #### Scenario: Trigger content on every viewport
 - **WHEN** the header renders on any viewport
