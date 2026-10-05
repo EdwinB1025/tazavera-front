@@ -189,6 +189,23 @@ describe("AppShell language control name (refine-app-header design.md D6)", () =
     ).toBeNull();
     expect(screen.queryByRole("button", { name: "Español" })).toBeNull();
   });
+
+  it("composes the default locale's name for an unsupported locale", () => {
+    // design.md D6 (correction 3 of round 1): the shell resolves the locale
+    // with `isSupportedLocale`, and an unsupported locale resolves to
+    // DEFAULT_LOCALE (es) for the whole composition — catalog word, code and
+    // own name — so the shell renders without throwing and the name reads
+    // "ES — Idioma: Español".
+    expect(() =>
+      render(
+        <AppShell locale="fr">
+          <HomeScreen />
+        </AppShell>,
+      ),
+    ).not.toThrow();
+    const composed = `ES — ${texts.languageSelector}: Español`;
+    expect(screen.getByRole("button", { name: composed })).toBeDefined();
+  });
 });
 
 describe("route files (architecture rule: routing only)", () => {
