@@ -280,3 +280,30 @@ Summary: Product owner: "apply changes on the last round with build". Ran the Bu
 ### Final checks
 - After 4.1b: `npm run test:run`: Test Files 2 failed | 35 passed (37); Tests 1 failed | 787 passed (788). The only failures are the `session.test.ts` import of `./session` and `AppShell.test.tsx > Session resolving`, both of which 4.2 adds (allowed for a test-only commit).
 - `git log -1` before this commit: `61de29d`. Next task: 4.2.
+
+## Session 2026-10-05 — apply, review round 2 (task 4.2, resumed)
+Summary: Product owner: "resume". About 4.2 GB was free and the only other agent run was the `refine-app-header` Build. Reran the Build on 4.2 from scratch. Stopped because: completed (review round 2's tasks 4.1b and 4.2 are both checked). MVC reachable: not needed.
+
+### Agent feedback
+- Commit `7bedf87 feat(auth): implement the session store and the shell seam` (checkbox included). New: `src/features/auth/model/session.ts`, `src/app/shell/SessionShell.tsx`. Modified: `src/features/auth/api/authorize.ts`, `src/features/auth/index.ts`, `src/app/shell/AppShell.tsx`. Unchanged: `ShellChrome.tsx`, `src/widgets/app-sidebar`, `AppShell`'s props, and both test files.
+- Build's choices: `session.ts` fills a seam in `api/authorize.ts` when it loads (D2 inversion), so `authorize.test.ts` keeps its single-request assertions. A completion that leaves the user on their route resolves the session in place. A redirect-mode handover leaves that to the return route's session start (`GET /user`, D5). A silent request that cannot start takes the error path: anonymous, marker removed, no text (spec "Silent re-authentication").
+- First commit attempt was denied by the shell profile (escaped quotes); the retry passed. Expected.
+- Noticed, not fixed: (1) `startInteractive` (task 3.2 code) leaks an unhandled rejection when the PKCE challenge or URL build fails; (2) no task wires the header actions — see Q15; (3) the `session.test.ts` header comment is stale (reported before).
+
+### Deferred to Product owner
+#### Q15 — Who wires the header's Sign in / Sign out to `@/features/auth`?
+- Question: `src/app/shell/ShellChrome.tsx:41-49` has empty `handleSignIn` and `handleSignOut`. Their comments say `add-auth` "supplies the session's sign in/out when it lands", but no `add-auth` task does it: 4.2 forbade touching `ShellChrome.tsx`, and 5.2/6.2 only export `signOut`/`requestProfileWrite`. No `refine-app-header` task covers it either. Without it, the header's Sign in does nothing, which also blocks the real-browser check 8.17.
+- Why deferred: it adds scope (a task) and touches a shared `app-shell` component.
+- Options: (1) a correction round in `add-auth` adding a test-first pair that wires `ShellChrome`'s handlers (or passes them from `SessionShell`) to `signIn()`/`signOut()` after 5.2; (2) leave it to a later change.
+- Recommendation: option 1. `add-app-shell`'s comments already assign it to `add-auth`, and 8.17 needs it.
+- Blocks: nothing until 8.17.
+
+#### Q16 — `startInteractive` unhandled rejection
+- Question: a failed PKCE challenge or URL build in `startInteractive` (`src/features/auth/api/authorize.ts`, task 3.2) rejects with no error path. Should the Build fix it now as an unplanned fix, or leave it to 8.3, which rewrites the interactive start?
+- Why deferred: I am not sure the specs state the interactive-start failure outcome. "The write sign in is declined or fails" covers step-up only, so it is unclear whether this is an unplanned fix or a spec gap.
+- Recommendation: leave it to 8.3 and check it there. If the gap remains after 8.3, it becomes a correction.
+- Blocks: nothing.
+
+### Final checks
+- `npm run test:run` (re-run by me): Test Files 37 passed (37); Tests 796 passed (796). `npm run lint` exit 0; `npx tsc --noEmit` exit 0 (both re-run by me).
+- `git log -1` before this commit: `7bedf87`. Next unchecked task: 5.1 (not started, outside review round 2).
