@@ -16,7 +16,7 @@ See `proposal.md` — Why, and `docs/design/add-auth/design-summary.md`, which s
 - The session contract `add-app-shell`, `add-landing` and `add-user-account` consume, with its three states and the profile.
 - One Authorization Code + PKCE flow with silent re-authentication and refresh, implemented to OAuth 2.0 Security BCP.
 - The security posture of the design summary: no credential in browser storage, flow data only while a flow is pending.
-- The smallest possible seam into `add-app-shell`: one expression in `src/app/shell/AppShell.tsx` changes.
+- The smallest possible seam into `add-app-shell`: `src/app/shell/AppShell.tsx` keeps resolving the catalog texts and delegates the session to one `"use client"` component beside it (review round 2, correction 1).
 
 **Non-Goals:**
 
@@ -49,11 +49,11 @@ requestProfileWrite(returnRoute: string): void;
 
 The public entry also exports `completeCallback` — the one function `/callback` calls to complete or forward the authorization result (D4 and D10), taking the callback's query parameters — so `src/pages/callback` imports only through `@/features/auth` and never deep-imports (review round 1, correction 6). Sign in and step-up open a popup window (D10); silent re-authentication stays a full-page flow.
 
-`Session`, `SessionUser` and `UserRole` are the types `add-app-shell` defines in `src/shared/api/index.ts` (its design.md D4); this change imports them from `@/shared/api` and never redefines them. The session state is browser state, so the hook and its store sit behind a `"use client"` boundary. `AppShell.tsx`'s single session expression — `add-app-shell`'s D3 seam, today the anonymous constant — calls `useSession()`, and the header and sidebar keep receiving the session as input exactly as `add-app-shell` designed them.
+`Session`, `SessionUser` and `UserRole` are the types `add-app-shell` defines in `src/shared/api/index.ts` (its design.md D4); this change imports them from `@/shared/api` and never redefines them. The session state is browser state, so the hook and its store sit behind a `"use client"` boundary — and `AppShell.tsx` is a Server Component (it resolves the catalog through `getMessages`, which reads `node:fs`), so the seam is one `"use client"` component beside it in `src/app/shell`: `SessionShell` in `src/app/shell/SessionShell.tsx`, the name the round leaves to the architect and settled here (review round 2, correction 1). `AppShell.tsx` stays a Server Component: it resolves the catalog texts and passes them to `SessionShell`, which calls `useSession()` and renders `ShellChrome` and the sidebar region — the sidebar region choice moves with the session into `SessionShell` — while `ShellChrome.tsx` and `AppSidebar.tsx` keep receiving the session as input, unchanged, exactly as `add-app-shell` designed them. The rendered layout is unchanged (spec "Shell layout and main area"). These `app-shell` files are changed by this change under the commit scope `auth`, as `proxy.ts` is (handoff Q6). The `session?` prop of `AppShell` stays as an explicit override (review round 2, correction 2): `SessionShell` calls `useSession()` unconditionally and uses `session ?? <hook value>`, `AppShell`'s props are unchanged, and the `AppShell.test.tsx` cases that pass a literal session keep passing it unchanged.
 
 Session start is idempotent: a module-level guard makes the startup silent check run at most once per page load, so effects running twice — Strict Mode is on by default in the App Router and remounts in development (`01-app/03-api-reference/05-config/01-next-config-js/reactStrictMode.md`) — never start two authorization requests.
 
-Alternative considered: a React context provider wrapping the shell. Rejected: the session has exactly one consumer (`AppShell.tsx`) and the callback screen; a module store and a hook are enough, and no provider has to be mounted anywhere.
+Alternative considered: a React context provider wrapping the shell. Rejected: the session has exactly one consumer (`SessionShell`) and the callback screen; a module store and a hook are enough, and no provider has to be mounted anywhere.
 
 ### D2 — The seam between the session module and the API client
 
@@ -185,6 +185,7 @@ Next.js route files go in the root `app/` folder and import their view from `src
 
 | Path | FSD layer | Holds |
 |---|---|---|
+| `src/app/shell/SessionShell.tsx` | `app` | `"use client"` (D1, review round 2): calls `useSession()`, uses `session ?? <hook value>`, renders `ShellChrome` and the sidebar region; covered through `src/app/shell/AppShell.test.tsx`, so it gets no test file of its own |
 | `app/callback/page.tsx` | `app` | Route file: reads `searchParams`, renders the callback screen |
 | `src/pages/callback/index.ts` | `pages` | Public API of the callback screen |
 | `src/pages/callback/ui/CallbackScreen.tsx` | `pages` | `"use client"`: completes or forwards the outcome's two modes (D4), renders no text |
@@ -206,7 +207,7 @@ Next.js route files go in the root `app/` folder and import their view from `src
 | Path | FSD layer | Change |
 |---|---|---|
 | `src/shared/api/index.ts` | `shared` | Export the request client and token functions; `Session`, `SessionUser` and `UserRole` keep being defined here by `add-app-shell` and are only imported by this change |
-| `src/app/shell/AppShell.tsx` | `app` | The single expression that supplies the session now reads `useSession()` from `@/features/auth`; no other line changes |
+| `src/app/shell/AppShell.tsx` | `app` | Stays a Server Component (D1, review round 2): it resolves the catalog texts and passes them, the `session?` override and the `sidebar` region to `SessionShell`; the session expression and the sidebar region choice move there, and its props are unchanged |
 | `proxy.ts` | `app` | D11 (owned by `add-app-shell`, changed here with the product owner's approval): `/callback` joins the per-request nonce CSP of its D9 with the API origin in `connect-src` and no COOP, and every response the proxy handles gains COOP `same-origin-allow-popups`; the locale redirect keeps leaving `/callback` alone |
 | `proxy.test.ts` | `app` | The `/callback` CSP and COOP cases of D11 (tasks 8.13 and 8.15) |
 
@@ -241,7 +242,7 @@ Alternatives considered: `next.config.ts` `headers()` for both headers — rejec
 - **A declined step-up drops the session to anonymous.** The design summary §3 sends every callback error to §4, which returns "as anonymous" and removes the marker — so a user who declines the write sign in loses the read session too and must sign in again. → Implemented exactly as written and flagged to the product owner in `## Propose status` and the handoff, in case §4 was meant to cover silent re-authentication only.
 - **The sign-in marker in `localStorage` outlives the browser session.** On a shared machine, the marker survives the browser closing until a sign-out or a failed silent restore removes it. → It carries no credential (design summary §4); its worst case is one silent `prompt=none` round trip that lands anonymous and removes it.
 - **An access token can expire between the check and its use.** → The settled `401` recovery chain (refresh → silent re-authentication → anonymous) turns the race into one retried request; no user-visible effect.
-- **`AppShell.tsx` is touched by both changes.** → Confined to the single expression `add-app-shell`'s D3 already reserved for it.
+- **`AppShell.tsx` is touched by both changes.** → Confined to the session seam `add-app-shell`'s D3 reserved: it stays a Server Component resolving the catalog texts and delegates the session and the sidebar region to the new `SessionShell` beside it (review round 2), and `ShellChrome.tsx` and `AppSidebar.tsx` are not modified.
 - **The popup flow depends on the API not severing the window relationship.** If `{NEXT_PUBLIC_API_URL}/oauth/authorize` or `/login` answers with `Cross-Origin-Opener-Policy: same-origin`, the popup is cut off from its opener and the flow of D10 cannot complete. → The string `Cross-Origin-Opener-Policy` appears nowhere in the API codebase (checked in its `app`, `config`, `routes`, `public` and `vendor` folders) and the API is not running locally, so the header could not be confirmed live; the real-browser check (task 8.17) confirms it before archive (review round 1).
 
 ## Migration Plan
