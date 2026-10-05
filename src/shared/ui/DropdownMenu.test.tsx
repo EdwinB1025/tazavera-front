@@ -150,6 +150,66 @@ describe("DropdownMenu (design.md D6)", () => {
     }
   });
 
+  // ─── The destructive arm on the nav surface (refine-app-header design.md D2;
+  // corrections.md round 1, correction 4) ───
+  // On the nav surface a destructive entry keeps `nav-text-destructive` at
+  // rest, on hover and on focus, so the row's `nav-text-hover` classes never
+  // turn it into the normal hover colour (spec "Header menu presentation",
+  // "Destructive entry keeps its error colour"). The card set is unchanged and
+  // keeps `data-[variant=destructive]:text-feedback-error`. The state wiring is
+  // the build's choice (design.md D2) and the case asserts the classes chosen
+  // here: per-variant overrides of the row's rest, hover and focus text. The
+  // token and the classes do not exist yet (task 8.2), so the case runs and
+  // fails until then.
+
+  it("renders a destructive entry with the nav destructive text on the nav surface", () => {
+    render(
+      <DropdownMenu>
+        <DropdownMenuTrigger>Open</DropdownMenuTrigger>
+        <DropdownMenuContent surface="nav">
+          <DropdownMenuItem>Entry</DropdownMenuItem>
+          <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>,
+    );
+    fireEvent.pointerDown(screen.getByRole("button", { name: "Open" }));
+    // the destructive entry: the same token in all three states
+    const destructive = screen.getByRole("menuitem", { name: "Delete" });
+    for (const cls of [
+      "data-[variant=destructive]:text-nav-text-destructive",
+      "data-[variant=destructive]:hover:text-nav-text-destructive",
+      "data-[variant=destructive]:focus:text-nav-text-destructive",
+    ]) {
+      expect(destructive.classList.contains(cls), cls).toBe(true);
+    }
+    // a default entry keeps `nav-text` (type-navlist-item) with `nav-text-hover`
+    // on hover and focus
+    const row = screen.getByRole("menuitem", { name: "Entry" });
+    for (const cls of [
+      "type-navlist-item",
+      "hover:text-nav-text-hover",
+      "focus:text-nav-text-hover",
+    ]) {
+      expect(row.classList.contains(cls), cls).toBe(true);
+    }
+    // the card surface keeps its error text
+    cleanup();
+    render(
+      <DropdownMenu>
+        <DropdownMenuTrigger>Open</DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>,
+    );
+    fireEvent.pointerDown(screen.getByRole("button", { name: "Open" }));
+    const cardEntry = screen.getByRole("menuitem", { name: "Delete" });
+    expect(
+      cardEntry.classList.contains("data-[variant=destructive]:text-feedback-error"),
+      "data-[variant=destructive]:text-feedback-error",
+    ).toBe(true);
+  });
+
   it("is remapped to semantic and radius tokens only", () => {
     const source = readFileSync(
       pathResolve(process.cwd(), "src/shared/ui/DropdownMenu.tsx"),

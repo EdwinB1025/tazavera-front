@@ -323,6 +323,10 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   // while the pointer is on the trigger
   { fg: "nav-text-dark", bg: "nav-avatar", kind: "text" },
   { fg: "nav-text-dark", bg: "nav-avatar-hover", kind: "text" },
+  // refine-app-header D13 (corrections.md round 1, correction 4): the
+  // destructive entry on the nav surface, at rest and on hover and focus
+  { fg: "nav-text-destructive", bg: "nav-surface", kind: "text" },
+  { fg: "nav-text-destructive", bg: "nav-hover", kind: "text" },
   // Icon pair: measured over two documented bases (Decision 14)
   { fg: "nav-toggle-icon", bg: "nav-toggle-bg", kind: "icon" },
   // Text on translucent hover bg: composited over nav-button-bg (Decision 10)
@@ -584,6 +588,10 @@ const DARK_PAIRS: ContrastPair[] = [
   // while the pointer is on the trigger
   { fg: "nav-text-dark", bg: "nav-avatar", kind: "text" },
   { fg: "nav-text-dark", bg: "nav-avatar-hover", kind: "text" },
+  // refine-app-header D13 (corrections.md round 1, correction 4): the
+  // destructive entry on the nav surface, at rest and on hover and focus
+  { fg: "nav-text-destructive", bg: "nav-surface", kind: "text" },
+  { fg: "nav-text-destructive", bg: "nav-hover", kind: "text" },
   { fg: "nav-toggle-icon", bg: "nav-toggle-bg", kind: "icon" },
   { fg: "nav-button-text", bg: "nav-button-bg", kind: "text" },
   { fg: "nav-button-text-hover", bg: "nav-button-bg-hover", kind: "text" },
