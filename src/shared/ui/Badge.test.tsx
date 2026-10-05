@@ -1,6 +1,8 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { render, cleanup } from "@testing-library/react";
-import { Badge } from "@/shared/ui/Badge";
+import { readFileSync } from "node:fs";
+import { resolve as pathResolve } from "node:path";
+import { Badge, TAXONOMY_CARD_SURFACES } from "@/shared/ui/Badge";
 
 // This project has no global test setup, so RTL's auto-cleanup (which relies
 // on a framework-provided afterEach) does not run. Clean up manually between
@@ -49,11 +51,20 @@ const VARIANTS: Variant[] = [
  * The base classes of every variant: the settled treatment of design.md D7
  * followed by the inline row and padding of D14.
  */
-const BASE = "type-badge rounded-field inline-flex items-center gap-1 px-2 py-0.5";
+const BASE =
+  "type-badge rounded-field inline-flex items-center gap-1 px-2 py-0.5";
 
 /** The class tokens of an element, as exact names (no substring matching). */
 function classTokens(element: Element): string[] {
   return (element.getAttribute("class") ?? "").split(/\s+/).filter(Boolean);
+}
+
+/** A taxonomy badge's label per theme, from its two custom properties. */
+function labels(badge: HTMLElement): { traditional: string; dark: string } {
+  return {
+    traditional: badge.style.getPropertyValue("--taxonomy-label"),
+    dark: badge.style.getPropertyValue("--taxonomy-label-dark"),
+  };
 }
 
 /** The badge element rendered into the container. */
@@ -121,9 +132,7 @@ describe("Badge", () => {
       "renders %s in %s with the badge text color",
       (variant, background) => {
         const badge = renderBadge(variant);
-        expect(badge.className).toBe(
-          `${BASE} ${background} text-badge-text`,
-        );
+        expect(badge.className).toBe(`${BASE} ${background} text-badge-text`);
       },
     );
   });
@@ -175,16 +184,69 @@ describe("Badge", () => {
       expect(badge.style.backgroundColor).toBe("rgb(51, 102, 153)");
     });
 
-    it("renders white text on a dark color (#000000, L = 0 ≤ 0.179)", () => {
+    it("renders white text on a dark color in both themes (#000000, L = 0 ≤ 0.179)", () => {
       const badge = renderTaxonomy("#000000", 0);
       expect(badge.style.backgroundColor).toBe("rgb(0, 0, 0)");
-      expect(badge.style.color).toBe("white");
+      expect(labels(badge)).toEqual({ traditional: "white", dark: "white" });
     });
 
-    it("renders black text on a light color (#FFFFFF, L = 1 > 0.179)", () => {
+    it("renders black text on a light color in both themes (#FFFFFF, L = 1 > 0.179)", () => {
       const badge = renderTaxonomy("#FFFFFF", 0);
       expect(badge.style.backgroundColor).toBe("rgb(255, 255, 255)");
-      expect(badge.style.color).toBe("black");
+      expect(labels(badge)).toEqual({ traditional: "black", dark: "black" });
+    });
+
+    it("marks itself for the theme rule and sets no fixed label colour", () => {
+      const badge = renderTaxonomy("#336699", 0);
+      expect(badge.hasAttribute("data-taxonomy")).toBe(true);
+      expect(badge.style.color).toBe("");
+    });
+  });
+
+  describe("Label per theme from the rendered background (spec: 'White text on dark colors', 'Black text on light colors', 'Taxonomy pairs'; design.md D7 round 4)", () => {
+    it("takes white in dark and black in traditional when only the dark blend is dark (#af5e70, raw L picks black)", () => {
+      for (const level of [1, 2] as const) {
+        expect(
+          labels(renderTaxonomy("#af5e70", level)),
+          `level ${level}`,
+        ).toEqual({
+          traditional: "black",
+          dark: "white",
+        });
+      }
+    });
+
+    it("takes black in traditional when the cream blend is light (#8a705a, raw L picks white)", () => {
+      expect(labels(renderTaxonomy("#8a705a", 0))).toEqual({
+        traditional: "white",
+        dark: "white",
+      });
+      for (const level of [1, 2] as const) {
+        expect(
+          labels(renderTaxonomy("#8a705a", level)),
+          `level ${level}`,
+        ).toEqual({
+          traditional: "black",
+          dark: "white",
+        });
+      }
+    });
+
+    it("blends over the card surface that globals.css resolves in each theme", () => {
+      const css = readFileSync(
+        pathResolve(process.cwd(), "src/app/styles/globals.css"),
+        "utf8",
+      );
+      const primitive = (name: string): string =>
+        new RegExp(`--color-${name}:\\s*(#[0-9a-fA-F]{6})\\s*;`).exec(css)![1];
+      const cards = [
+        ...css.matchAll(/--color-surface-card:\s*var\(--color-([a-z0-9-]+)\)/g),
+      ].map((match) => primitive(match[1]).toLowerCase());
+      expect(cards).toHaveLength(2);
+      expect(TAXONOMY_CARD_SURFACES).toEqual({
+        traditional: cards[0],
+        dark: cards[1],
+      });
     });
   });
 
@@ -212,10 +274,14 @@ describe("Badge", () => {
       for (const level of [0, 1, 2] as const) {
         const badge = renderTaxonomy("#336699", level);
         // The depth opacity is confined to the background (the color-mix
-        // above); nothing dims the badge and the label text is the opaque
-        // white the luminance rule chose for #336699.
+        // above); nothing dims the badge and each label is an opaque white or
+        // black, as the rule chose for #336699 over each card surface.
         expect(badge.style.opacity, `level ${level}`).toBe("");
-        expect(badge.style.color, `level ${level}`).toBe("white");
+        expect(labels(badge), `level ${level}`).toEqual(
+          level === 2
+            ? { traditional: "black", dark: "white" }
+            : { traditional: "white", dark: "white" },
+        );
       }
     });
   });
