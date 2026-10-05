@@ -50,6 +50,33 @@ When the OpenCode provider stalls or has no balance, ask Product owner before mo
 - Update a change's row when its phase or its assignee changes, and when a session ends.
 - Its commit follows open point 4.4 of `docs/design/define-agent-roles/design-summary.md`, once Product owner settles it.
 
+### Priority, executors and plan limits
+
+You decide the work, its priority and the order of assignment. Goal: finish the delivery soon without exhausting the Pro plan's daily (5-hour) or weekly (7-day) limits.
+
+**Priority:**
+1. Unblock: answer questions and integrate finished branches.
+2. The delivery minimum: every contract operation consumed (the board's coverage table).
+3. Dependency order (the rules above).
+4. Fill every idle executor with the next independent work.
+
+**Executors:**
+- **OpenCode architect and build:** available at any time, and they do not use the Claude plan. Run them in parallel across different worktrees (one executor per branch; simulate the merge first).
+- **Claude cloud:** for heavy changes, meaning correction rounds, refactor changes and long applies. Run several sessions in parallel on different changes. Product owner launches each one.
+- **Local Claude (you and the design lead subagent):**
+  - only orchestration, and what needs this machine: visual review with the API or the mock, captures, integration, merges;
+  - never develop code or artifacts locally: that work goes to OpenCode or the cloud;
+  - keep sessions lean: short reads, no captures outside visual reviews, `/compact` when the context grows.
+
+**Plan limits:** before each assignment, read `~/.claude/usage-snapshot.json`. The status line writes it with `five_hour` and `seven_day` (`used_percentage`, `resets_at`).
+- **Both windows below 80%:** as above. The design lead runs as the local subagent.
+- **Either window at 80% or above:**
+  - the cloud takes the design lead's role. Write a cloud prompt with the content of `.claude/agents/design-lead.md` and the task, and do not invoke the subagent;
+  - you only orchestrate;
+  - OpenCode takes everything else.
+- **A cloud session refused or stopped for limits:** its work goes to OpenCode. Tell Product owner when the window resets (`resets_at`).
+- **Snapshot missing or older than 30 minutes:** treat usage as unknown. Assign to OpenCode and the cloud, and ask Product owner for the current usage before any local design lead run.
+
 ### Design pipeline (before propose)
 
 Keep a design summary ready for every change that has none, and have every summary not yet proposed reviewed:
