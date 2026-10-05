@@ -256,3 +256,7 @@ Summary: Product owner: "let the architect always apply status changes". Queued 
 ### Final checks
 - `git log -1` before this commit: `ec44af1 docs(auth): update artifacts for add-auth`.
 - `npm run test:run` not run: no code changed.
+
+## Session 2026-10-05 — Product owner's answers before the apply
+- Task 4.1b: Product owner accepts the recommendation. 4.1b keeps driving the session through `completeCallback`, and the popup check that the opener does not navigate stays in task 8.2. No artifact change.
+- `corrections.md` layout (Round 1's `### Status` sections under the `## Round 2` heading): Product owner fixes it before the apply. CLAUDE.md §3 now lets the orchestrator settle formatting issues and resolve conflicts from the design artifacts and the OpenSpec rules, so a case like this is no longer deferred. `corrections.md` stays Product owner's file to commit (§5).
