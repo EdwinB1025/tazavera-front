@@ -339,9 +339,22 @@ describe("OfferingCard", () => {
 
   describe("Texts (design.md D11)", () => {
     it("renders every label and caption from the texts props", () => {
-      const { container } = renderCard();
-      const rendered = container.textContent ?? "";
-      for (const text of Object.values(TEXTS)) {
+      // One status label per card state (specs/feedback "Verification status
+      // badge"): the verified card renders every text but the provisional
+      // label, and the provisional card renders that one — the union of both
+      // cards covers all eight texts, so the case fails whenever a text is
+      // never rendered. Both cards carry the specialist session so the
+      // Evaluate label renders on each of them.
+      const { container: verifiedCard } = renderCard({ session: SPECIALIST });
+      const { container: provisionalCard } = renderCard({
+        session: SPECIALIST,
+        offering: { ...OFFERING, verificationStatus: "provisional" },
+      });
+      const verifiedRendered = verifiedCard.textContent ?? "";
+      const provisionalRendered = provisionalCard.textContent ?? "";
+      for (const [key, text] of Object.entries(TEXTS)) {
+        const rendered =
+          key === "provisionalLabel" ? provisionalRendered : verifiedRendered;
         expect(rendered.includes(text), text).toBe(true);
       }
     });
