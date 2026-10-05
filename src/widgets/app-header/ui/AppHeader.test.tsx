@@ -434,6 +434,13 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
     expect(tokens.filter((cls) => /(^|:)border/.test(cls))).toEqual([]);
   });
 
+  it("carries the trigger content colours `text-nav-text` with `hover:text-nav-text-hover` (spec: Trigger content follows the navigation text colours)", () => {
+    renderSignedIn("specialist");
+    const trigger = screen.getByRole("button", { name: "Andrés Gómez" });
+    expect(trigger.classList.contains("text-nav-text")).toBe(true);
+    expect(trigger.classList.contains("hover:text-nav-text-hover")).toBe(true);
+  });
+
   it("shows the circle, the name and a chevron from md (spec: Name and chevron on a medium or larger viewport)", () => {
     renderSignedIn("specialist");
     const trigger = screen.getByRole("button", { name: "Andrés Gómez" });
