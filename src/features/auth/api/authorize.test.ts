@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { renderHook, cleanup } from "@testing-library/react";
 import { DEFAULT_LOCALE } from "@/shared/config/locales";
 
 /**
@@ -339,5 +340,239 @@ describe("completeCallback — the outcomes of design.md D4 (spec: Return throug
     expect(flow.readFlow()).toBeNull();
     expect(flow.hasMarker()).toBe(true);
     expect(openedRoute()).toBe(route);
+  });
+});
+
+describe("requestProfileWrite — step-up in the popup of design.md D10 (spec: Step-up to the write scope)", () => {
+  const route = "/en/profile/edit";
+
+  const PROFILE = {
+    ulid: "user-ulid-1",
+    name: "Andrés",
+    surname: "Gómez",
+    email: "andres@example.test",
+    role: "specialist",
+  };
+
+  const WRITE_GRANT = {
+    access_token: "access-2",
+    token_type: "Bearer",
+    refresh_token: "refresh-2",
+    expires_in: 3600,
+  };
+
+  /**
+   * A popup window of this test's own: a message listener left behind by an
+   * earlier test's page load answers only its own popup, never this one.
+   */
+  let popup: { location: { assign: ReturnType<typeof vi.fn> }; closed: boolean };
+  /** The grant `POST /oauth/token` answers with; a failure body when `null`. */
+  let tokenAnswer: typeof GRANT | null;
+  const reloadMock = vi.fn<() => void>();
+
+  /**
+   * One page load through the slice's public entry (design.md D1), with the
+   * session module it brings in, the flow record and the token memory (D3).
+   */
+  async function loadWithSession() {
+    const auth = await import("@/features/auth");
+    const flow = await import("../model/flow");
+    const api = await import("@/shared/api");
+    return { ...auth, flow, getTokens: api.getTokens, exchangeCode: api.exchangeCode };
+  }
+
+  type Loaded = Awaited<ReturnType<typeof loadWithSession>>;
+
+  /** The `GET /user` requests so far, with the Bearer token each carried. */
+  function profileRequests(): string[] {
+    return fetchMock.mock.calls
+      .filter(([input]) => String(input).endsWith("/user"))
+      .map(([, init]) => new Headers(init?.headers).get("authorization") ?? "");
+  }
+
+  /** The token requests so far, as plain key/value pairs. */
+  function tokenForms(): Record<string, string>[] {
+    return fetchMock.mock.calls
+      .filter(([input]) => String(input).includes("/oauth/token"))
+      .map(([, init]) => Object.fromEntries(new URLSearchParams(String(init?.body))));
+  }
+
+  /**
+   * An authenticated session holding the read grant: the tokens settled in
+   * this page load and a mounted consumer resolved the profile (design.md D5).
+   */
+  async function signedIn(loaded: Loaded) {
+    tokenAnswer = GRANT;
+    await loaded.exchangeCode("code-1", "verifier-1");
+    loaded.flow.setMarker();
+    const { result } = renderHook(() => loaded.useSession());
+    await vi.waitFor(() => {
+      expect(result.current.state).toBe("authenticated");
+    });
+    return result;
+  }
+
+  /** Starts the step-up and waits for the popup to reach the authorization page. */
+  async function stepUp(loaded: Loaded): Promise<URL> {
+    loaded.requestProfileWrite(route);
+    await vi.waitFor(() => {
+      expect(popup.location.assign).toHaveBeenCalledTimes(1);
+    });
+    return new URL(String(popup.location.assign.mock.calls[0]![0]));
+  }
+
+  /** The popup's `postMessage` to the opener (design.md D4, popup mode). */
+  function answer(data: unknown): void {
+    const event = new MessageEvent("message", { data, origin: APP_URL });
+    Object.defineProperty(event, "source", { value: popup });
+    window.dispatchEvent(event);
+  }
+
+  beforeEach(() => {
+    popup = { location: { assign: vi.fn<(url: string) => void>() }, closed: false };
+    openMock.mockReturnValue(popup as unknown as Window);
+    reloadMock.mockReset();
+    Object.assign(locationMock, { reload: reloadMock });
+    locationMock.pathname = route;
+    tokenAnswer = null;
+    fetchMock.mockImplementation((input) => {
+      const url = String(input);
+      if (url.includes("/oauth/token")) {
+        return Promise.resolve(
+          tokenAnswer === null
+            ? jsonResponse(
+                { error: "invalid_grant", error_description: "The code is invalid" },
+                400,
+              )
+            : jsonResponse(tokenAnswer),
+        );
+      }
+      return Promise.resolve(jsonResponse({ data: PROFILE }));
+    });
+  });
+
+  afterEach(() => {
+    cleanup();
+    document.body.innerHTML = "";
+  });
+
+  it("opens {NEXT_PUBLIC_API_URL}/oauth/authorize in a popup with scope=profile:write and no prompt parameter, leaving the route that asked and its typed input as they are (spec: Requesting the write scope)", async () => {
+    const loaded = await loadWithSession();
+    await signedIn(loaded);
+    const input = document.createElement("input");
+    document.body.append(input);
+    input.value = "typed before the step-up";
+
+    const url = await stepUp(loaded);
+
+    expect(openMock).toHaveBeenCalledTimes(1);
+    expect(url.origin).toBe(API_URL);
+    expect(url.pathname).toBe("/oauth/authorize");
+    const params = Object.fromEntries(url.searchParams);
+    expect(Object.keys(params).sort()).toEqual(
+      [
+        "response_type",
+        "client_id",
+        "redirect_uri",
+        "scope",
+        "state",
+        "code_challenge",
+        "code_challenge_method",
+        "theme",
+        "lang",
+      ].sort(),
+    );
+    expect(params.scope).toBe("profile:write");
+    expect(url.searchParams.has("prompt")).toBe(false);
+    expect(params.response_type).toBe("code");
+    expect(params.client_id).toBe(CLIENT_ID);
+    expect(params.redirect_uri).toBe(`${APP_URL}/callback`);
+    expect(params.code_challenge_method).toBe("S256");
+    expect(params.lang).toBe("en");
+
+    const pending = loaded.flow.readHeldFlow()!;
+    expect(pending.returnRoute).toBe(route);
+    expect(params.state).toBe(pending.state);
+    expect(params.code_challenge).toBe(await s256(pending.verifier));
+
+    expect(locationMock.assign).not.toHaveBeenCalled();
+    expect(reloadMock).not.toHaveBeenCalled();
+    expect(pushMock).not.toHaveBeenCalled();
+    expect(replaceMock).not.toHaveBeenCalled();
+    expect(input.isConnected).toBe(true);
+    expect(input.value).toBe("typed before the step-up");
+  });
+
+  it("ends authenticated with the new token replacing the previous one when a matching message arrives, the opener neither navigating nor reloading (spec: Requesting the write scope; design.md D10)", async () => {
+    const loaded = await loadWithSession();
+    const session = await signedIn(loaded);
+    expect(loaded.getTokens()?.access_token).toBe(GRANT.access_token);
+    await stepUp(loaded);
+    const pending = loaded.flow.readHeldFlow()!;
+    tokenAnswer = WRITE_GRANT;
+
+    answer({ code: "code-2", state: pending.state });
+
+    await vi.waitFor(() => {
+      expect(profileRequests()).toEqual([
+        `Bearer ${GRANT.access_token}`,
+        `Bearer ${WRITE_GRANT.access_token}`,
+      ]);
+    });
+    await vi.waitFor(() => {
+      expect(session.current).toEqual({ state: "authenticated", user: PROFILE });
+    });
+    const forms = tokenForms();
+    expect(forms).toHaveLength(2);
+    expect(forms[1]!.code).toBe("code-2");
+    expect(forms[1]!.code_verifier).toBe(pending.verifier);
+    expect(loaded.getTokens()?.access_token).toBe(WRITE_GRANT.access_token);
+    expect(loaded.getTokens()?.refresh_token).toBe(WRITE_GRANT.refresh_token);
+    expect(loaded.flow.hasMarker()).toBe(true);
+    expect(sessionStorage.length).toBe(0);
+
+    expect(locationMock.assign).not.toHaveBeenCalled();
+    expect(reloadMock).not.toHaveBeenCalled();
+    expect(pushMock).not.toHaveBeenCalled();
+    expect(replaceMock).not.toHaveBeenCalled();
+  });
+
+  it("ends anonymous with the marker removed and no text when the write sign in is declined (spec: The write sign in is declined or fails)", async () => {
+    const loaded = await loadWithSession();
+    const session = await signedIn(loaded);
+    await stepUp(loaded);
+    const pending = loaded.flow.readHeldFlow()!;
+
+    answer({ error: "access_denied", state: pending.state });
+
+    await vi.waitFor(() => {
+      expect(session.current).toEqual({ state: "anonymous" });
+    });
+    expect(loaded.flow.hasMarker()).toBe(false);
+    expect(tokenForms()).toHaveLength(1);
+    expect(document.body.textContent).toBe("");
+    expect(locationMock.assign).not.toHaveBeenCalled();
+    expect(reloadMock).not.toHaveBeenCalled();
+    expect(pushMock).not.toHaveBeenCalled();
+  });
+
+  it("ends anonymous with the marker removed and no text when the write sign in fails at the exchange (spec: The write sign in is declined or fails)", async () => {
+    const loaded = await loadWithSession();
+    const session = await signedIn(loaded);
+    await stepUp(loaded);
+    const pending = loaded.flow.readHeldFlow()!;
+    tokenAnswer = null;
+
+    answer({ code: "code-2", state: pending.state });
+
+    await vi.waitFor(() => {
+      expect(session.current).toEqual({ state: "anonymous" });
+    });
+    expect(tokenForms()).toHaveLength(2);
+    expect(loaded.flow.hasMarker()).toBe(false);
+    expect(document.body.textContent).toBe("");
+    expect(locationMock.assign).not.toHaveBeenCalled();
+    expect(reloadMock).not.toHaveBeenCalled();
+    expect(pushMock).not.toHaveBeenCalled();
   });
 });
