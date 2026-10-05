@@ -26,7 +26,7 @@
 ## 6. Correction round 1, 2 — choosing the current language changes nothing
 
 - [x] 6.1 Write the test first (corrections.md round 1, correction 2). In `src/widgets/app-header/ui/AppHeader.test.tsx`, in `describe("LanguageSelect (spec: Language selection)")`, add the case "choosing the current language changes nothing (spec: Choosing the current language changes nothing)": with `value="es"`, choosing the `Español` entry closes the menu and `onLocaleChange` is never called. The existing "calls back with the chosen locale" case keeps passing unchanged. Verify the new case runs and fails only because `onLocaleChange` is called.
-- [ ] 6.2 Implement the contract of design.md D7 in `src/widgets/app-header/ui/LanguageSelect.tsx`: choosing the entry of the current locale closes the menu without calling `onLocaleChange`, and any other supported locale calls back as today. Verify the cases of 6.1 pass, the other `LanguageSelect` cases keep passing, and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0.
+- [x] 6.2 Implement the contract of design.md D7 in `src/widgets/app-header/ui/LanguageSelect.tsx`: choosing the entry of the current locale closes the menu without calling `onLocaleChange`, and any other supported locale calls back as today. Verify the cases of 6.1 pass, the other `LanguageSelect` cases keep passing, and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0.
 
 ## 7. Correction round 1, 3 — the shell does not cast the locale
 

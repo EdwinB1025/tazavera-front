@@ -65,6 +65,16 @@ export function LanguageSelect({
   value,
   onLocaleChange,
 }: LanguageSelectProps): ReactNode {
+  // Radix calls onValueChange even when the checked entry is chosen again, so
+  // the entry of the language already active closes the menu and calls back
+  // nothing (design.md D7; spec: "Choosing the current language changes
+  // nothing"). Any other supported locale calls back as usual.
+  function handleValueChange(next: string): void {
+    if (next !== value) {
+      onLocaleChange(next);
+    }
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className={TRIGGER_CLASSES} aria-label={label}>
@@ -73,7 +83,7 @@ export function LanguageSelect({
         <ChevronDown className="size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent surface="nav">
-        <DropdownMenuRadioGroup value={value} onValueChange={onLocaleChange}>
+        <DropdownMenuRadioGroup value={value} onValueChange={handleValueChange}>
           {locales.filter(isSupportedLocale).map((code) => (
             <DropdownMenuRadioItem
               key={code}
