@@ -236,3 +236,23 @@ Summary: checked Round 2 is in Product owner's commit `53ac2d1`; the only other 
 - `git log -1`: `dd8b126 docs(auth): apply review round 2 for add-auth`.
 - `openspec validate add-auth --strict` (re-run by me): `Change 'add-auth' is valid`.
 - `npm run test:run` not run: no code changed in this session.
+
+## Session 2026-10-05 — status record and duplicate check
+Summary: Product owner: "let the architect always apply status changes". Queued the architect behind the `refine-app-header` architect run (PID 28296) and ran it once it exited; it recorded the artifact updates of `892e407` (`token_type`) and `54e90b1` (`oauth4webapi` Impact wording) in `design-summary.md`'s `## Propose status`. Then ran the duplicate check of CLAUDE.md §4 over `dd8b126` and `ec44af1`. Stopped because: completed. MVC reachable: not needed.
+
+### Agent feedback
+- Commit `ec44af1 docs(auth): update artifacts for add-auth` (only `design-summary.md`, `## Propose status`, 3 lines). No questions.
+- Noticed, not fixed: the cosmetic `tokens.test.ts` note (header comment and one test title list three token fields) still stands; the `probe-impl.ts` / `probe.test.ts` note is stale (the files are gone).
+
+### Decisions taken
+#### D8 — Decisions log entry for the `SessionShell` seam
+- Context: `refine-app-header` (design.md D6) also changes `src/app/shell/AppShell.tsx`. / Decision: appended an entry to `tazavera-front/docs/orchestrator-decisions.md` (uncommitted; Product owner commits it). / Why: CLAUDE.md §8, Product owner's answer to Q12–Q14 affects another change.
+
+#### D9 — Duplicate check: nothing removed
+- Context: CLAUDE.md §4 "Duplicates", after `dd8b126` and `ec44af1`, before the next Build run.
+- Decision: no removal. The 28 `auth` and 1 `app-shell` scenario names are unique and no two scenarios require the same behaviour. The task overlaps (6.1 and 8.2 on the popup message; 3.2/6.2 and 8.3; 3.2 and 8.9) differ in detail, so they are not duplicates, and Product owner already accepted them in Q9 ("leave section 8 as is"); not deferred again. 4.1b (session store, `completeCallback`) and 8.2 (popup message in `authorize.test.ts`) name different files and flows.
+- Result: no artifact edited; `openspec validate add-auth --strict`: `Change 'add-auth' is valid`.
+
+### Final checks
+- `git log -1` before this commit: `ec44af1 docs(auth): update artifacts for add-auth`.
+- `npm run test:run` not run: no code changed.
