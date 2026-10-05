@@ -330,3 +330,33 @@ Summary: Product owner answered Q15 and Q16 and handed `corrections.md`'s layout
 3. When `corrections.md` is committed: between two Build runs (never during one), run the architect on Round 3, check `docs(auth): apply review round 3 for add-auth` and `openspec validate add-auth --strict`, run the duplicate check (§4), then continue the Build.
 4. At 8.3: check that a failed PKCE challenge or URL build in the interactive start no longer leaks an unhandled rejection (Q16). If the gap remains, report it to Product owner as a correction candidate.
 5. Watch memory: the earlier 4.2 run was killed for low memory; check free memory and other `opencode.exe` runs before each Build run.
+
+## Session 2026-10-05 — review round 3 and apply from 5.1
+Summary: committed `corrections.md` (A1 + Round 3) under CLAUDE.md §5's new clause, ran the architect on Round 3, ran the duplicate check, then started the Build at 5.1. MVC reachable: not needed.
+Memory before the runs: 4.67 GB free; the only other agent was the `refine-app-header` Build (unplanned coverage W2) in its own worktree, left alone.
+
+### Agent feedback
+- Architect, Round 3: commit `70ae5ef docs(auth): apply review round 3 for add-auth` (design.md, proposal.md, tasks.md, corrections.md `### Status`). No spec change, because the app-shell scenarios "Sign in starts from the current route" and "Sign out" already state the behaviour. The architect chose to call `signIn`/`signOut` in `ShellChrome` rather than pass them down from `SessionShell`; D1, the Non-Goals line, D9's Modified table and the proposal's Out of Scope and Impact follow. New tasks 5.2b (tests, `AppShell.test.tsx`) and 5.2c (`ShellChrome.tsx` handlers only), placed after 5.2.
+- Architect note, no decision needed: "calls `signIn()` with the current route" is recorded as passing the route explicitly. With no argument, D1's `returnRoute?` default reaches the same end state.
+- Noticed, not fixed: `design-summary.md` §6 (Out of scope) still lists "Header and menus (`add-app-shell`)". Corrections take precedence, and the header's rendering is still `add-app-shell`'s, so I left it.
+
+### Decisions taken
+#### D12 — Committed `corrections.md` for Round 3
+- Context: Round 3 (from Product owner's answer to Q15) and the A1 layout fix were uncommitted. / Decision: committed `6247418 docs(auth): report review round 3 for add-auth`. / Why: CLAUDE.md §5 now lets me commit `corrections.md` when it does not contradict `design-summary.md` and follows the agreed design; Round 3 only carries out Q15's answer.
+
+#### D13 — Duplicate check after `70ae5ef`: nothing removed
+- 5.2b/5.2c are the only tasks that click the header actions; the existing `AppShell.test.tsx` cases only check whether the Sign in button is present. `openspec validate add-auth --strict`: `Change 'add-auth' is valid` (my re-run).
+
+### Agent feedback — 5.1
+- Commit `341e813 test(auth): verify the sign out completes locally and stops the silent restore` (checkbox included). `session.test.ts` gains the three spec "Sign out" cases; `client.test.ts` gains `POST /logout` with the Bearer token and no body, plus a failing request rejecting with no refresh. Build's choices: the root of the locale opens through client-side navigation (`history.pushState`), as D4 does elsewhere; "the request failing" is mocked as a transport failure.
+- Build's question: the two `client.test.ts` cases already pass, because driving `signOut` from `shared` would import upwards.
+- Noticed by the Build: a `401` on `POST /logout` sent through `request()` would enter the recovery chain (refresh → silent re-authentication → authorize navigation).
+
+### Decisions taken — 5.1
+#### D14 — `client.test.ts` keeps the legal import direction
+- Answer: correct as built. The Verify line's "the files fail" is satisfied by `session.test.ts`; FSD forbids `shared` → `features`. No artifact change.
+#### D15 — `401` on `POST /logout` given to 5.2 as context
+- Context: design.md D5's `/logout` table lists `401` among the errors and says "The local sign-out completes regardless". / Decision: quoted it in the 5.2 prompt; after 5.2, send unplanned coverage for the `401` case (behaviour stated in D5, no test names it). / Why: CLAUDE.md §3, the answer follows from design.md.
+
+### Final checks — 5.1
+`npm run test:run` (my re-run): Test Files 1 failed | 36 passed (37); Tests 3 failed | 798 passed (801). The 3 failures are `signOut` not exported, which 5.2 adds.
