@@ -93,7 +93,11 @@ const PART_CLASSES = {
       "focus:bg-nav-hover",
       "focus:text-nav-text-hover",
       "focus-visible:focus-ring",
-      "data-[variant=destructive]:text-feedback-error",
+      // the destructive arm keeps `nav-text-destructive` in all three states,
+      // out-gunning the row's `nav-text-hover` (design.md D2)
+      "data-[variant=destructive]:text-nav-text-destructive",
+      "data-[variant=destructive]:hover:text-nav-text-destructive",
+      "data-[variant=destructive]:focus:text-nav-text-destructive",
       "data-disabled:pointer-events-none",
       "data-disabled:opacity-50",
       "[&_svg]:pointer-events-none",
