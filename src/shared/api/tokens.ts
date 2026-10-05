@@ -36,6 +36,11 @@ export function getTokens(): TokenGrant | null {
   return tokens;
 }
 
+/** Clears the token memory (spec: "After sign out": no trace of the session). */
+export function clearTokens(): void {
+  tokens = null;
+}
+
 /**
  * Exchanges the code of a completed authorization for the first grant
  * (design.md D5). The `state` of the response belongs to `src/features/auth`

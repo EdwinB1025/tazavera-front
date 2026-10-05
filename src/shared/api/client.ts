@@ -28,16 +28,26 @@ export function configureClient(next: ClientSeam): void {
 }
 
 /**
+ * The sign-out request of design.md D5 (`POST /logout`): it is sent with the
+ * token, but its `401` — "the token is already dead" — and any transport
+ * failure end at the caller. The local sign-out completes regardless of the
+ * response, and a refresh or silent re-authentication here would revive the
+ * very session the request is ending.
+ */
+const SIGN_OUT_PATH = "/logout";
+
+/**
  * An authenticated request to `GET /user` and the like: it carries
  * `Authorization: Bearer <access token>` (design.md D5). A `401` provokes
- * exactly one refresh and one retry before the injected recovery is called.
+ * exactly one refresh and one retry before the injected recovery is called —
+ * except on the sign-out request, which is never recovered (design.md D5).
  */
 export async function request(
   path: string,
   init?: RequestInit,
 ): Promise<Response> {
   let response = await send(path, init);
-  if (response.status !== 401) {
+  if (response.status !== 401 || path === SIGN_OUT_PATH) {
     return response;
   }
   try {

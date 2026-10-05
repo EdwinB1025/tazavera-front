@@ -12,7 +12,7 @@
 import type { operations } from "./schema";
 
 export { configureClient, publicRequest, request } from "./client";
-export { exchangeCode, getTokens, refreshTokens } from "./tokens";
+export { clearTokens, exchangeCode, getTokens, refreshTokens } from "./tokens";
 
 type UserResponse =
   operations["getTheAuthenticatedUser"]["responses"][200]["content"]["application/json"];

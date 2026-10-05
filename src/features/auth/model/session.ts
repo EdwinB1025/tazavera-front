@@ -1,7 +1,7 @@
 /**
- * The session store and `useSession` (design.md D1, D2 and D5; specs "Session
- * states and profile", "Silent re-authentication" and "Keeping the session
- * alive").
+ * The session store, `useSession` and `signOut` (design.md D1, D2 and D5;
+ * specs "Session states and profile", "Silent re-authentication", "Keeping the
+ * session alive" and "Sign out").
  *
  * The store starts `loading` and settles to `anonymous` or to `authenticated`
  * with the profile of `GET /user`, which is the only source of user data
@@ -23,13 +23,15 @@
 import { useEffect, useSyncExternalStore } from "react";
 import type { Session, SessionUser } from "@/shared/api";
 import {
+  clearTokens,
   configureClient,
   getTokens,
   refreshTokens,
   request,
 } from "@/shared/api";
+import { DEFAULT_LOCALE, isSupportedLocale } from "@/shared/config/locales";
 import { configureSession, startSilent } from "../api/authorize";
-import { hasMarker } from "./flow";
+import { hasMarker, removeMarker } from "./flow";
 
 const LOADING: Session = { state: "loading" };
 const ANONYMOUS: Session = { state: "anonymous" };
@@ -72,6 +74,33 @@ export function useSession(): Session {
     start();
   }, []);
   return useSyncExternalStore(subscribe, snapshot, snapshot);
+}
+
+/**
+ * Signs out; lands on the root of the active locale (design.md D1 and D5).
+ * `POST /logout` carries the Bearer token and its answer is never consulted:
+ * a `200`, a `401` when the token is already dead and any transport failure
+ * all leave the local sign-out completed — tokens and marker cleared, the
+ * session `anonymous`, the root of the active locale open — with no error
+ * shown (spec: "Sign out").
+ */
+export function signOut(): void {
+  void request("/logout", { method: "POST" })
+    .catch(() => {
+      // The server cannot be reached (spec: "The server cannot be reached").
+    })
+    .finally(() => {
+      clearTokens();
+      removeMarker();
+      settle(ANONYMOUS);
+      window.history.pushState(null, "", localeRoot());
+    });
+}
+
+/** The root of the active locale (design.md D5: where the user lands). */
+function localeRoot(): string {
+  const segment = window.location.pathname.split("/")[1] ?? "";
+  return `/${isSupportedLocale(segment) ? segment : DEFAULT_LOCALE}`;
 }
 
 /** The session start of design.md D1, run at every consumer's mount. */
