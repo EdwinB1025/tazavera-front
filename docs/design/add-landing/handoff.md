@@ -249,3 +249,23 @@ Summary: Product owner's browser check (1280px, mock data) found the pages witho
 
 ### Final checks
 `npm run test:run`: Test Files 44 passed (44), Tests 879 passed (879). `npm run lint` exit 0, `npx tsc --noEmit` exit 0, `npm run build` exit 0 (my runs after `03129d7`).
+
+## Session 2026-10-05 (late) — verify and archive, done by the orchestrator
+Summary: Product owner confirmed the browser check, accepted the two extra test changes in `2779d16`, and asked to archive now. I closed the round 4 verify coverage, re-ran the verify checks myself and archived. Stopped because: completed. MVC reachable: not needed.
+
+### Decisions taken
+#### D9 — Extra tests in `2779d16` accepted
+- `HomeHero.test.tsx` "Intrinsic photograph size (design.md D12)" and the `HomeScreen.test.tsx` rewrite for the filled screen (D13) stay as committed; no split. Product owner's answer.
+#### D10 — Round 4 verify coverage
+- Rating pairs: already registered in both matrices of `theme-tokens.test.ts` (composited over `surface-card`); no change.
+- Taxonomy pairs: `1b4817a` adds a sweep over a 6-step sRGB cube, levels 0–2, both card surfaces, asserting every chosen label ≥ 4.5:1 on the blended background. A probe with a wrong threshold (0.5) fails it.
+#### D11 — Q17 (score shown twice, D4)
+- Product owner asked to archive with the cards as checked in the browser, so the current presentation is kept; reopen as a new change if wanted.
+
+### Verify (my run)
+- Tasks: 0 open. `openspec validate add-landing --strict`: valid. `npm run test:run`: Test Files 44 passed (44), Tests 884 passed (884). `npm run lint` exit 0, `npx tsc --noEmit` exit 0, `npm run build` exit 0. Contract: only `bff523c` (Product owner's contract update, cleared in Q7). No CRITICAL; no open WARNING.
+
+### For Product owner
+- Backlog candidate from D8 (shared section/container primitive) is still not in `docs/backlog.md`.
+- `.env.local` still points `NEXT_PUBLIC_API_URL` at the mock on `:8001`.
+- At merge: `refine-app-header` (already in `develop`) also edited `AppShell.test.tsx`; expect an overlap there.
