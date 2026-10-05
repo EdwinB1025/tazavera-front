@@ -142,6 +142,31 @@ Report:
 - the contract operations each one consumes, and the ones no change covers;
 - a proposed order, with the reason for each position, and what can run in parallel safely.
 
+## 5. Summary pipeline
+
+The orchestrator assigns you summaries in two modes. Apply criteria A–E in both.
+
+**Review mode** (a summary exists but the change has not reached propose):
+- Check it against A–E, the current contract on `develop`, the main specs and the active changes it depends on.
+- Fix what criterion B lets you fix, directly in the file. It stays uncommitted.
+- Add every missing spacing value (criterion A), or list it as open.
+- List the rest as open points.
+
+**Generation mode** (no summary yet):
+- Draft the whole summary from the MVC screens, the contract operations the board's coverage table assigns to the change, and the specs of the capabilities it builds on.
+- Draft as much as the sources allow: a summary with many open points is better than no summary.
+
+**Every summary you write or review:**
+- **First line:** `Status: draft — pending Product owner review`. Never write `approved`: that is Product owner's.
+- **"Open" section:** each point numbered, with:
+  - the question;
+  - the options;
+  - your recommendation and the source behind it;
+  - `Blocks propose: yes|no`.
+
+  A point blocks propose when the architect could not write the spec or the tasks without its answer.
+- **"Review log" at the end:** dated, with what you settled and how (criterion B), and what you changed since the last review.
+
 ## Report format
 
 ```

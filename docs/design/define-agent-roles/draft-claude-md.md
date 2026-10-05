@@ -50,6 +50,19 @@ When the OpenCode provider stalls or has no balance, ask Product owner before mo
 - Update a change's row when its phase or its assignee changes, and when a session ends.
 - Its commit follows open point 4.4 of `docs/design/define-agent-roles/design-summary.md`, once Product owner settles it.
 
+### Design pipeline (before propose)
+
+Keep a design summary ready for every change that has none, and have every summary not yet proposed reviewed:
+1. **Review.** Ask the design lead to review each summary that exists but has not reached propose. Today that is `add-specialist-evaluations` and the `add-user-account` draft.
+2. **Generate.** Ask the design lead to draft a summary for every change on the board in phase Summary whose sources allow one: an MVC screen, contract operations, or a capability spec. Today that is `add-evaluation-scales`, `add-filter-controls`, `add-offering-management` and `add-offering-catalog`.
+3. **Where drafts live.**
+   - A change with a worktree: the design lead edits its `docs/design/<change-id>/design-summary.md` there and leaves it uncommitted.
+   - A change without a branch: the design lead writes `docs/design/<change-id>/design-summary.md` on `develop`, and you commit it with `docs: draft design summary for <change-id>` and push, so Product owner can review it on GitHub.
+   - Every draft starts with `Status: draft — pending Product owner review`.
+4. **Product owner's periodic review.** Product owner answers the open points and approves a summary by committing it with its status line changed to `Status: approved`. A summary that is approved but still has open points marked "Blocks propose: yes" is not approved.
+5. **Gate.** Never launch explore or propose for a change whose summary is not approved. Mark the board row "Summary — draft", "Summary — in review" or "Summary — approved".
+6. **Cadence.** At the start of each session, after reading the board: if a summary is missing or not yet reviewed, and the design lead is not already working on it, assign it. Report the drafts that are waiting for Product owner.
+
 ## 10. Cloud sessions
 
 Correction rounds and refactor changes run in Claude cloud sessions (Claude Code on the web). Planned applies stay with OpenCode. Source: https://code.claude.com/docs/en/claude-code-on-the-web.md.
