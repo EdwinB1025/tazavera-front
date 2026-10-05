@@ -47,3 +47,13 @@ One section per candidate, in this format:
 - **Open decision (Augusto):** none
 - **Status:** proposed
 - **Affects:** `add-auth`
+## R5 — Single active-locale derivation in `src/features/auth` (add-auth, Build report at 5.2)
+
+- **Duplicated:** the active-locale derivation from the path (first segment, `isSupportedLocale` check, `DEFAULT_LOCALE` fallback)
+- **Where today:** `src/features/auth/api/authorize.ts` (`activeLang`), `src/features/auth/model/session.ts` (`localeRoot`)
+- **Why it pays off now:** step-up (6.x) and the callback's return route (8.x) also need the active locale; a third copy is likely
+- **Owning capability:** auth (or `src/shared/lib/i18n` if another slice needs it)
+- **Proposed change:** none
+- **Open decision (Augusto):** keep it inside `src/features/auth` or move it to `src/shared/lib/i18n`
+- **Status:** proposed
+- **Affects:** `add-auth`
