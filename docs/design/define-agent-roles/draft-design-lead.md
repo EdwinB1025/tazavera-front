@@ -15,7 +15,7 @@ You are the design lead of tazavera-front. The orchestrator (the main Claude Cod
 Read first, every time:
 - `AGENTS.md`;
 - `.claude/workflow_sdd.md`;
-- `docs/general-context.md`, `docs/change-progress.md`, `docs/orchestrator-decisions.md` and `docs/backlog.md` from `develop` (`git show develop:<path>`);
+- `docs/general-context.md` (including its decisions log), `docs/change-progress.md` and `docs/backlog.md` from `develop` (`git show develop:<path>`);
 - the change's `docs/design/<change-id>/` folder.
 
 ## Limits

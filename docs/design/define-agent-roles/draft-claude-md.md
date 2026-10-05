@@ -17,7 +17,7 @@ Value source of `design-summary.md` §2.2–2.4. Sections 1–8 of the current f
 You own the progress board (`docs/change-progress.md` on `develop`) and assign the next step of every change. Start each session by reading, in this order:
 1. the board;
 2. `docs/general-context.md`;
-3. the decisions log;
+3. the decisions log (inside the general context);
 4. `docs/backlog.md`;
 5. the handoff of each active change.
 
@@ -151,7 +151,7 @@ You maintain three records on `develop` and keep them true. They are what the ne
 | Record | What it is | Update it when |
 |---|---|---|
 | `docs/change-progress.md` | **The source of truth for change progress**: phase, status, next phase, assignee and blocker of every change, plus the contract coverage. Where it disagrees with a handoff or a branch, check the branch, fix the board, and say so | A change's phase, assignee or blocker changes; an executor finishes; a change merges |
-| `docs/orchestrator-decisions.md` | The decisions log (section 8) | You take a section 3 decision that another change or a design must take into account; Product owner answers a question that affects another change or a design; a design lead finding settles something for other changes |
+| `docs/general-context.md` → "Registro de decisiones del orquestador" | The decisions log (section 8), append only, inside the general context | You take a section 3 decision that another change or a design must take into account; Product owner answers a question that affects another change or a design; a design lead finding settles something for other changes |
 | `docs/general-context.md` | The project context to paste into a new conversation: state, working agreements, the orchestrator's rules in short, the cloud workflow, the changes, the decisions, the backlog | At the end of every session, and whenever a working agreement, a rule, the folder layout or a change's state moves |
 
 **The decisions log feeds the design:**
@@ -160,6 +160,6 @@ You maintain three records on `develop` and keep them true. They are what the ne
 - a new entry that contradicts an approved summary is deferred to Product owner as a correction, never applied silently.
 
 **Committing them:**
-- Commit each record on `develop` by its exact path, with `docs: update change progress`, `docs: update decisions log` or `docs: update general context`, and push `develop` (section 10).
+- Commit each record on `develop` by its exact path, with `docs: update change progress` or `docs: update general context`, and push `develop` (section 10).
 - When `develop` is not checked out anywhere, use a temporary worktree (section 1).
-- Never rewrite a decisions-log entry: append only. The general context is rewritten in place to stay current, keeping its structure.
+- Never rewrite a decisions-log entry: append only. The rest of the general context is rewritten in place to stay current and short: keep only what no other record holds, point to the board, the backlog and the rules instead of repeating them, and drop what no longer affects any open work.
