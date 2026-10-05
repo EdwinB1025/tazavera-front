@@ -167,6 +167,7 @@
     --color-nav-toggle-icon: var(--color-cream-100);
     --color-nav-avatar: var(--color-sage-800);
     --color-nav-avatar-hover: var(--color-oxblood-800);
+    --color-nav-avatar-border: transparent;
     --color-nav-hover-shadow: color-mix(in srgb, rgb(0 0 0) 18%, transparent);
 
     /* ─── NAVIGATION — TABS ─── */
@@ -371,7 +372,7 @@
         --color-nav-surface: var(--color-night-sage-900);
         --color-nav-surface-dark: var(--color-night-sage-950);
         --color-nav-text: var(--color-night-sage-100);
-        --color-nav-text-dark: var(--color-night-sage-100);
+        --color-nav-text-dark: var(--color-night-cream-100);
         --color-nav-text-hover: var(--color-night-oxblood-400);
         --color-nav-icon: var(--color-night-sage-100);
         --color-nav-hover: var(--color-night-sage-800);
@@ -381,8 +382,9 @@
         --color-nav-underline: var(--color-night-moss-300);
         --color-nav-toggle-bg: color-mix(in srgb, var(--color-night-sage-100) 15%, transparent);
         --color-nav-toggle-icon: var(--color-night-sage-100);
-        --color-nav-avatar: var(--color-night-sage-600);
-        --color-nav-avatar-hover: var(--color-night-oxblood-600);
+        --color-nav-avatar: var(--color-night-oxblood-700);
+        --color-nav-avatar-hover: var(--color-night-oxblood-800);
+        --color-nav-avatar-border: var(--color-night-cream-100);
         --color-nav-hover-shadow: color-mix(in srgb, rgb(0 0 0) 18%, transparent);
 
         /* ─── NAVIGATION — TABS ─── */
