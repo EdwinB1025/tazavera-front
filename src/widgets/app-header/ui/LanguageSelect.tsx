@@ -9,7 +9,10 @@ import type { ChangeEvent, ReactNode } from "react";
 // offered").
 
 export type LanguageSelectProps = {
-  /** Accessible name (spec: "Selector is named"). */
+  /**
+   * The composed accessible name the shell passes (design.md D6), e.g.
+   * "Idioma: Español" (spec: "Selector is named").
+   */
   label: string;
   /** Exactly the supported locales. */
   locales: string[];

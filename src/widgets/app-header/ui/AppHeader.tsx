@@ -17,6 +17,11 @@ export type AppHeaderTexts = {
   topRated: string;
   aboutUs: string;
   signIn: string;
+  /**
+   * The composed accessible name of the language control the shell passes
+   * (design.md D6): one string, composed in the shell as the catalog word
+   * with the current language's own name, e.g. "Idioma: Español".
+   */
   languageSelector: string;
   brandLink: string;
   // the user menu (spec: "Menu content")

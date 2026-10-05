@@ -2,7 +2,7 @@
 
 ## 1. Language data and UI types
 
-- [ ] 1.1 Create `src/shared/config/locale-names.ts` with exactly the design.md D6 content — `LocaleName` (`{ name: string; lang: string }`) and `LOCALE_NAMES: Record<Locale, LocaleName>` mapping `es` to `Español`/`es`, `en` to `English`/`en` and `ca` to `Català`/`ca`, importing `Locale` from `./locales` — and update the UI-specific prop types of design.md D10 where they name the language control's text (`AppHeaderTexts.languageSelector` and `LanguageSelectProps.label` documented as the composed accessible name the shell passes). `src/shared/api/schema.ts` stays untouched and no generated or derived API type is edited, redefined or widened. Verify `npx tsc --noEmit` exits 0 and `LocaleName` and `LOCALE_NAMES` resolve from `@/shared/config/locale-names`
+- [x] 1.1 Create `src/shared/config/locale-names.ts` with exactly the design.md D6 content — `LocaleName` (`{ name: string; lang: string }`) and `LOCALE_NAMES: Record<Locale, LocaleName>` mapping `es` to `Español`/`es`, `en` to `English`/`en` and `ca` to `Català`/`ca`, importing `Locale` from `./locales` — and update the UI-specific prop types of design.md D10 where they name the language control's text (`AppHeaderTexts.languageSelector` and `LanguageSelectProps.label` documented as the composed accessible name the shell passes). `src/shared/api/schema.ts` stays untouched and no generated or derived API type is edited, redefined or widened. Verify `npx tsc --noEmit` exits 0 and `LocaleName` and `LOCALE_NAMES` resolve from `@/shared/config/locale-names`
 
 ## 2. Language control slice (data to screen)
 
