@@ -76,3 +76,11 @@ Product owner, 2026-10-05 (option 1 of the contrast finding). An executed measur
 2. **Measured ranges in the spec.** The "Rating and status pairs" scenario quotes 4.7–4.9:1 (traditional) and 6.6–7.1:1 (dark). The measured rating pairs are 4.68–5.13:1 and 6.42–7.12:1. The scenario states the gate (at least 4.5:1) and the measured ranges.
    Existing tests affected: the taxonomy cases of `src/shared/ui/Badge.test.tsx` that assert `style.color` white/black from the raw colour.
    Coverage afterwards: the build adds the measured-contrast tests that verify asked for (rating pairs in `theme-tokens.test.ts`; taxonomy pairs over the luminance rule) as unplanned coverage.
+
+### Status
+
+2026-10-05. `openspec validate add-landing --strict`: valid. Processed by the orchestrator on Product owner's instruction.
+
+1. Taxonomy label per theme: spec `feedback` "Taxonomy badge" (requirement text and the white/black scenarios) and "Taxonomy pairs"; design.md D7, round 4 paragraph (the earlier 4.58:1 claim marked superseded). Tasks 14.1 (`91cb807`) and 14.2 (`893f3df`).
+2. Measured ranges: spec `feedback` "Rating and status pairs" now quotes 4.68–5.13:1 and 6.42–7.12:1. Artifact only, no task.
+Coverage: the measured-contrast tests from verify go to the build as unplanned coverage.
