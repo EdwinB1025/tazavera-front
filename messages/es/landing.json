@@ -21,5 +21,17 @@
   "listEmptyMessage": "Aún no hay ofertas verificadas.",
   "listErrorMessage": "No se pudieron cargar las ofertas verificadas.",
   "listRetryLabel": "Reintentar",
+  "aboutEyebrow": "Nuestra historia",
+  "aboutHeadingBefore": "El café, ",
+  "aboutHeadingAccent": "contado",
+  "aboutHeadingAfter": " como es",
+  "aboutStoryText": "Una etiqueta promete origen, proceso y calidad, pero solo la taza puede confirmarlo. Tazavera existe para cerrar esa brecha: una guía construida sobre evaluaciones objetivas, con el protocolo de cata de la SCA, para que lo verificado diga qué hay en cada taza.",
+  "aboutStepProvisional": "La cafetería registra su oferta como provisional: origen, tostador y lote, antes de cualquier evaluación.",
+  "aboutStepCupping": "Especialistas la catan a ciegas con el protocolo de cata de la SCA y registran su puntuación.",
+  "aboutStepConsensus": "El consenso de las evaluaciones decide: solo lo que varias catas respaldan recibe la marca de verificado.",
+  "aboutAudienceText": "Tazavera es para cafeterías que quieren mostrar con pruebas lo que sirven, y para especialistas que quieren evaluarlo con rigor.",
+  "aboutCoffeeshopRegisterLabel": "Registra tu cafetería",
+  "aboutSpecialistRegisterLabel": "Regístrate como especialista",
+  "aboutClosingLabel": "Explorar cafés",
   "metaDescription": "Tazavera, la guía del buen café: evaluaciones objetivas con el protocolo de cata de la SCA que descubren qué hay en cada taza."
 }

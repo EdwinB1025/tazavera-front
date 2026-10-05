@@ -21,5 +21,17 @@
   "listEmptyMessage": "No verified offerings yet.",
   "listErrorMessage": "The verified offerings could not be loaded.",
   "listRetryLabel": "Retry",
+  "aboutEyebrow": "Our story",
+  "aboutHeadingBefore": "Coffee, ",
+  "aboutHeadingAccent": "told",
+  "aboutHeadingAfter": " as it is",
+  "aboutStoryText": "A label promises origin, process and quality, but only the cup can confirm it. Tazavera exists to close that gap: a guide built on objective evaluations, with the SCA cupping protocol, so that what is verified says what is in every cup.",
+  "aboutStepProvisional": "The coffeeshop registers its offering as provisional: origin, roaster and lot, before any evaluation.",
+  "aboutStepCupping": "Specialists cup it blind with the SCA cupping protocol and record their score.",
+  "aboutStepConsensus": "The consensus of the evaluations decides: only what several cuppings back earns the verified mark.",
+  "aboutAudienceText": "Tazavera is for coffeeshops that want to show with evidence what they serve, and for specialists who want to evaluate it with rigor.",
+  "aboutCoffeeshopRegisterLabel": "Register your coffeeshop",
+  "aboutSpecialistRegisterLabel": "Register as a specialist",
+  "aboutClosingLabel": "Explore coffees",
   "metaDescription": "Tazavera, the guide to good coffee: objective evaluations with the SCA cupping protocol that discover what is in every cup."
 }

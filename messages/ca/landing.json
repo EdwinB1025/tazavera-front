@@ -21,5 +21,17 @@
   "listEmptyMessage": "Encara no hi ha ofertes verificades.",
   "listErrorMessage": "No s'han pogut carregar les ofertes verificades.",
   "listRetryLabel": "Tornar-ho a provar",
+  "aboutEyebrow": "La nostra història",
+  "aboutHeadingBefore": "El cafè, ",
+  "aboutHeadingAccent": "explicat",
+  "aboutHeadingAfter": " com és",
+  "aboutStoryText": "Una etiqueta promet origen, procés i qualitat, però només la tassa ho pot confirmar. Tazavera existeix per tancar aquesta bretxa: una guia construïda sobre avaluacions objectives, amb el protocol de tast de l'SCA, perquè allò verificat digui què hi ha a cada tassa.",
+  "aboutStepProvisional": "La cafeteria registra la seva oferta com a provisional: origen, torrador i lot, abans de qualsevol avaluació.",
+  "aboutStepCupping": "Especialistes la tasten a cegues amb el protocol de tast de l'SCA i hi registren la seva puntuació.",
+  "aboutStepConsensus": "El consens de les avaluacions decideix: només el que diversos tasts recolzen rep la marca de verificat.",
+  "aboutAudienceText": "Tazavera és per a cafeteries que volen mostrar amb proves el que serveixen, i per a especialistes que volen avaluar-ho amb rigor.",
+  "aboutCoffeeshopRegisterLabel": "Registra la teva cafeteria",
+  "aboutSpecialistRegisterLabel": "Registra't com a especialista",
+  "aboutClosingLabel": "Explorar cafès",
   "metaDescription": "Tazavera, la guia del bon cafè: avaluacions objectives amb el protocol de tast de l'SCA que descobreixen què hi ha a cada tassa."
 }
