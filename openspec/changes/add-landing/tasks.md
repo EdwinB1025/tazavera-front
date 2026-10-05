@@ -39,3 +39,9 @@
 ## 8. Integration verification
 
 - [ ] 8.1 Verify the complete change with `npm run test:run`, `npm run lint`, `npx tsc --noEmit` and `npm run build`, verifying all four exit 0; every guard (color, radius, focus, client-boundary, icons, xss and the message-catalog guard) is green over the new files; no literal interface text renders outside the `landing` catalog texts (design.md D11); the only inline colors under `src/` are the badge taxonomy variant's data colors (design.md D7); no file of this change imports `@/features/auth` or an `add-auth` client (design.md D1, D8); `HomeScreen` wraps `VerifiedOfferings` in `Suspense` with the skeleton cards as fallback (design.md D9); `contracts/openapi.yaml` and `src/shared/api/schema.ts` are not modified by any commit after `bff523c`; and both route files hold no logic beyond awaiting `params` (and `searchParams` on `app/[locale]/page.tsx`) and rendering their screens
+
+## 9. Review round 1: derived type forms (design.md D2)
+
+Task 1.1 is still open and adds the derived types "exactly as defined" in design.md D2, which review round 1 amended; 9.1 states that form and its verification. No test comes first: the round creates no test.
+
+- [ ] 9.1 Add the derived types of design.md D2 to `src/shared/api/index.ts` in the form settled by review round 1 — `OfferingSummary` as `NonNullable<ListOfferingsResponse["data"]>[number]`, `TaxonomyNode` as `NonNullable<ListTaxonomiesResponse["data"]>[number]` and `OfferingsPageMeta` as `NonNullable<ListOfferingsResponse["meta"]>` — with the meanings of D2's doc comments unchanged and no generated type edited or redefined. Verification: `npx tsc --noEmit` exits 0, failing with TS2537 on the pre-round literal indexing and passing on this form. When task 1.1 runs first and copies the amended D2, this task finds the form already in place and changes no files

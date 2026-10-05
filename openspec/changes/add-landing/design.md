@@ -52,10 +52,10 @@ type ListTaxonomiesResponse =
   operations["listOlfactoryTaxonomies"]["responses"][200]["content"]["application/json"];
 
 /** One item of `GET /offerings` `data`; every field is optional in the contract. */
-export type OfferingSummary = ListOfferingsResponse["data"][number];
+export type OfferingSummary = NonNullable<ListOfferingsResponse["data"]>[number];
 
 /** `meta` of the offerings pagination; the list reads `current_page` and `last_page`. */
-export type OfferingsPageMeta = ListOfferingsResponse["meta"];
+export type OfferingsPageMeta = NonNullable<ListOfferingsResponse["meta"]>;
 
 /** One node of an offering's `sensoryTaxonomy` tree: `ref`, `type`, `level`, `count`, `children`. */
 export type OfferingTaxonomyNode = NonNullable<
@@ -63,8 +63,10 @@ export type OfferingTaxonomyNode = NonNullable<
 >[number];
 
 /** One node of `GET /taxonomies` `data`: `ulid`, `level`, `nameEs`, `nameEn`, `nameCa`, `color`, `children`. */
-export type TaxonomyNode = ListTaxonomiesResponse["data"][number];
+export type TaxonomyNode = NonNullable<ListTaxonomiesResponse["data"]>[number];
 ```
+
+The generated responses mark `data` and `meta` optional, so every type D2 derives from an optional field wraps its indexed access in `NonNullable<…>` before indexing (review round 1): the meanings of the comments above are unchanged and `src/shared/api/schema.ts` is not edited.
 
 UI-specific types live beside their component, declared before it, exactly as `Button` does: `RatingTier` and the score rule in `src/entities/offering/lib/rating.ts`, `OfferingCardProps` (with its resolved taxonomy badge data) in the entity's card module, `BadgeProps` and `CardProps` in `src/shared/ui`. `src/shared/api/schema.ts` is left byte-for-byte untouched.
 
