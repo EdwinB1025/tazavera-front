@@ -33,6 +33,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/coffees": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List coffees
+         * @description Returns the coffee catalog, each coffee with its currently valid
+         *     certifications. Supports filtering by name via query parameters.
+         *
+         *     Only non-expired certifications are included (those with no expiry, or an
+         *     expiry date in the future).
+         */
+        get: operations["listCoffees"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/evaluations/{evaluation_ulid}": {
         parameters: {
             query?: never;
@@ -257,6 +281,27 @@ export interface paths {
          *     (`owns.offering`).
          */
         delete: operations["deleteMultipleOfferings"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/roasteries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List roasteries
+         * @description Returns the roastery catalog. Supports filtering by name via query
+         *     parameters.
+         */
+        get: operations["listRoasteries"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -618,6 +663,103 @@ export interface operations {
                                 /** @example Tostador de especialidad en Barcelona. */
                                 description?: string;
                             };
+                        }[];
+                    };
+                };
+            };
+        };
+    };
+    listCoffees: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Filter by coffee name (partial match, max 150 chars). Must not be greater than 150 characters.
+                 * @example Huila
+                 */
+                name?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @example [
+                         *       {
+                         *         "ulid": "01K5X2B8P4F7J3N9R6T1W5Y0ZG",
+                         *         "name": "Huila El Mirador",
+                         *         "roastLevel": "medium",
+                         *         "process": "washed",
+                         *         "variety": "Caturra",
+                         *         "producer": null,
+                         *         "country": "Colombia",
+                         *         "region": "Huila",
+                         *         "altitude": 1800,
+                         *         "lot": "HM-07",
+                         *         "certifications": [
+                         *           {
+                         *             "code": "organic",
+                         *             "description": "Certified organic production."
+                         *           }
+                         *         ]
+                         *       },
+                         *       {
+                         *         "ulid": "01K5X2B8P4F7J3N9R6T1W5Y0ZH",
+                         *         "name": "Sidama Bensa",
+                         *         "roastLevel": "light",
+                         *         "process": "natural",
+                         *         "variety": "Heirloom",
+                         *         "producer": "Bensa Cooperative",
+                         *         "country": "Ethiopia",
+                         *         "region": "Sidama",
+                         *         "altitude": 2100,
+                         *         "lot": "SB-12",
+                         *         "certifications": []
+                         *       }
+                         *     ]
+                         */
+                        data?: {
+                            /** @example 01K5X2B8P4F7J3N9R6T1W5Y0ZG */
+                            ulid?: string;
+                            /** @example Huila El Mirador */
+                            name?: string;
+                            /** @example medium */
+                            roastLevel?: string;
+                            /** @example washed */
+                            process?: string;
+                            /** @example Caturra */
+                            variety?: string;
+                            /** @example null */
+                            producer?: string | null;
+                            /** @example Colombia */
+                            country?: string;
+                            /** @example Huila */
+                            region?: string;
+                            /** @example 1800 */
+                            altitude?: number;
+                            /** @example HM-07 */
+                            lot?: string;
+                            /**
+                             * @example [
+                             *       {
+                             *         "code": "organic",
+                             *         "description": "Certified organic production."
+                             *       }
+                             *     ]
+                             */
+                            certifications?: {
+                                /** @example organic */
+                                code?: string;
+                                /** @example Certified organic production. */
+                                description?: string;
+                            }[];
                         }[];
                     };
                 };
@@ -2851,6 +2993,11 @@ export interface operations {
                  */
                 coffeeName?: string;
                 /**
+                 * @description Filter by roastery name (partial match). Must not be greater than 150 characters.
+                 * @example Nómada
+                 */
+                roasteryName?: string;
+                /**
                  * @description Filter by country of origin. Must not be greater than 90 characters.
                  * @example Colombia
                  */
@@ -2890,6 +3037,11 @@ export interface operations {
                  * @example 01J8ZK...
                  */
                 locationUlid?: string;
+                /**
+                 * @description Filter by verification status: 1 returns only verified offerings, 0 only provisional ones. Omit it to return both.
+                 * @example true
+                 */
+                verified?: boolean;
                 /**
                  * @description Minimum average cupping score (0–100). Must be at least 0. Must not be greater than 100.
                  * @example 80
@@ -3976,6 +4128,49 @@ export interface operations {
             };
         };
     };
+    listRoasteries: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Filter by roastery name (partial match, max 150 chars). Must not be greater than 150 characters.
+                 * @example Nómada
+                 */
+                name?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @example [
+                         *       {
+                         *         "ulid": "01K5W7H3M9Q2T6X4B8N1R5V0CE",
+                         *         "name": "Nómada Roasters",
+                         *         "description": "Tostador de especialidad en Barcelona."
+                         *       }
+                         *     ]
+                         */
+                        data?: {
+                            /** @example 01K5W7H3M9Q2T6X4B8N1R5V0CE */
+                            ulid?: string;
+                            /** @example Nómada Roasters */
+                            name?: string;
+                            /** @example Tostador de especialidad en Barcelona. */
+                            description?: string;
+                        }[];
+                    };
+                };
+            };
+        };
+    };
     listOlfactoryTaxonomies: {
         parameters: {
             query?: never;
@@ -3998,8 +4193,10 @@ export interface operations {
                          *         "level": 0,
                          *         "nameEn": "Fruity",
                          *         "nameEs": "Frutal",
+                         *         "nameCa": "Fruitat",
                          *         "descriptionEn": "Aromas reminiscent of fresh, dried, or cooked fruit.",
                          *         "descriptionEs": "Aromas que recuerdan a fruta fresca, seca o cocida.",
+                         *         "descriptionCa": "Aromes que recorden la fruita fresca, seca o cuita.",
                          *         "color": "#D9345A",
                          *         "categories": [
                          *           "aromatics"
@@ -4010,8 +4207,10 @@ export interface operations {
                          *             "level": 1,
                          *             "nameEn": "Berry",
                          *             "nameEs": "Baya",
+                         *             "nameCa": "Baia",
                          *             "descriptionEn": "Notes of berry fruits.",
                          *             "descriptionEs": "Notas de frutos del bosque.",
+                         *             "descriptionCa": "Notes de fruits del bosc.",
                          *             "color": "#B02A4A",
                          *             "categories": [
                          *               "aromatics"
@@ -4022,8 +4221,10 @@ export interface operations {
                          *                 "level": 2,
                          *                 "nameEn": "Blackberry",
                          *                 "nameEs": "Mora",
+                         *                 "nameCa": "Móra",
                          *                 "descriptionEn": "Specific note of blackberry.",
                          *                 "descriptionEs": "Nota específica de mora.",
+                         *                 "descriptionCa": "Nota específica de móra.",
                          *                 "color": "#7A1F35",
                          *                 "categories": [
                          *                   "aromatics"
@@ -4036,8 +4237,10 @@ export interface operations {
                          *             "level": 1,
                          *             "nameEn": "Dried fruit",
                          *             "nameEs": "Fruta seca",
+                         *             "nameCa": "Fruita seca",
                          *             "descriptionEn": "Notes of dried or dehydrated fruit.",
                          *             "descriptionEs": "Notas de fruta seca o deshidratada.",
+                         *             "descriptionCa": "Notes de fruita seca o deshidratada.",
                          *             "color": "#C4562F",
                          *             "categories": [
                          *               "aromatics"
@@ -4057,10 +4260,14 @@ export interface operations {
                             nameEn?: string;
                             /** @example Frutal */
                             nameEs?: string;
+                            /** @example Fruitat */
+                            nameCa?: string;
                             /** @example Aromas reminiscent of fresh, dried, or cooked fruit. */
                             descriptionEn?: string;
                             /** @example Aromas que recuerdan a fruta fresca, seca o cocida. */
                             descriptionEs?: string;
+                            /** @example Aromes que recorden la fruita fresca, seca o cuita. */
+                            descriptionCa?: string;
                             /** @example #D9345A */
                             color?: string;
                             /**
@@ -4076,8 +4283,10 @@ export interface operations {
                              *         "level": 1,
                              *         "nameEn": "Berry",
                              *         "nameEs": "Baya",
+                             *         "nameCa": "Baia",
                              *         "descriptionEn": "Notes of berry fruits.",
                              *         "descriptionEs": "Notas de frutos del bosque.",
+                             *         "descriptionCa": "Notes de fruits del bosc.",
                              *         "color": "#B02A4A",
                              *         "categories": [
                              *           "aromatics"
@@ -4088,8 +4297,10 @@ export interface operations {
                              *             "level": 2,
                              *             "nameEn": "Blackberry",
                              *             "nameEs": "Mora",
+                             *             "nameCa": "Móra",
                              *             "descriptionEn": "Specific note of blackberry.",
                              *             "descriptionEs": "Nota específica de mora.",
+                             *             "descriptionCa": "Nota específica de móra.",
                              *             "color": "#7A1F35",
                              *             "categories": [
                              *               "aromatics"
@@ -4102,8 +4313,10 @@ export interface operations {
                              *         "level": 1,
                              *         "nameEn": "Dried fruit",
                              *         "nameEs": "Fruta seca",
+                             *         "nameCa": "Fruita seca",
                              *         "descriptionEn": "Notes of dried or dehydrated fruit.",
                              *         "descriptionEs": "Notas de fruta seca o deshidratada.",
+                             *         "descriptionCa": "Notes de fruita seca o deshidratada.",
                              *         "color": "#C4562F",
                              *         "categories": [
                              *           "aromatics"
@@ -4121,10 +4334,14 @@ export interface operations {
                                 nameEn?: string;
                                 /** @example Baya */
                                 nameEs?: string;
+                                /** @example Baia */
+                                nameCa?: string;
                                 /** @example Notes of berry fruits. */
                                 descriptionEn?: string;
                                 /** @example Notas de frutos del bosque. */
                                 descriptionEs?: string;
+                                /** @example Notes de fruits del bosc. */
+                                descriptionCa?: string;
                                 /** @example #B02A4A */
                                 color?: string;
                                 /**
@@ -4140,8 +4357,10 @@ export interface operations {
                                  *         "level": 2,
                                  *         "nameEn": "Blackberry",
                                  *         "nameEs": "Mora",
+                                 *         "nameCa": "Móra",
                                  *         "descriptionEn": "Specific note of blackberry.",
                                  *         "descriptionEs": "Nota específica de mora.",
+                                 *         "descriptionCa": "Nota específica de móra.",
                                  *         "color": "#7A1F35",
                                  *         "categories": [
                                  *           "aromatics"
@@ -4158,10 +4377,14 @@ export interface operations {
                                     nameEn?: string;
                                     /** @example Mora */
                                     nameEs?: string;
+                                    /** @example Móra */
+                                    nameCa?: string;
                                     /** @example Specific note of blackberry. */
                                     descriptionEn?: string;
                                     /** @example Nota específica de mora. */
                                     descriptionEs?: string;
+                                    /** @example Nota específica de móra. */
+                                    descriptionCa?: string;
                                     /** @example #7A1F35 */
                                     color?: string;
                                     /**
