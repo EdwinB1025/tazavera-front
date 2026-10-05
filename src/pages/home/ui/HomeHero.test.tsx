@@ -1,4 +1,6 @@
 import { describe, it, expect, afterEach } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve as pathResolve } from "node:path";
 import { render, cleanup, screen } from "@testing-library/react";
 import { getMessages } from "@/shared/lib/i18n";
 import { HomeHero } from "./HomeHero";
@@ -133,6 +135,24 @@ describe("HomeHero", () => {
       const tokens = classTokens(photograph);
       expect(tokens).toContain("hidden");
       expect(tokens).toContain("md:block");
+    });
+  });
+
+  describe("Intrinsic photograph size (design.md D12)", () => {
+    it("renders the photograph at the intrinsic width and height of the image file", () => {
+      // The PNG header stores the intrinsic size: the IHDR chunk holds the
+      // width and the height as big-endian uint32 at byte 16 and byte 20.
+      const png = readFileSync(
+        pathResolve(process.cwd(), "public/images/coffee-beans.png"),
+      );
+      render(<HomeHero locale="es" texts={TEXTS} />);
+      const photograph = screen.getByRole("img", { name: TEXTS.photoAlt });
+      expect(photograph.getAttribute("width")).toBe(
+        String(png.readUInt32BE(16)),
+      );
+      expect(photograph.getAttribute("height")).toBe(
+        String(png.readUInt32BE(20)),
+      );
     });
   });
 });
