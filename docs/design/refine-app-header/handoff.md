@@ -327,3 +327,45 @@ Summary: reran the same architect command. It exited 0 but stopped before editin
 
 ### Final checks
 Not run; nothing changed in the code.
+
+## Session 2026-10-05 — correction round 1 (processed) and its apply
+Summary: Q13 was answered by your commit `59e91fe`, which adds the approved tokens to correction 4. I reran the architect for Round 1, then ran the Build once per task for 5.1–8.2. Mid-session you told me to proceed on my recommendations and not stop on issues the design can solve. Stopped because: completed; every task in tasks.md is checked. MVC reachable: not needed.
+
+### Agent feedback
+- Architect: `8413f12 docs(app-shell): apply review round 1 for refine-app-header`. `openspec validate refine-app-header --strict` → valid (the architect's run). All four corrections got artifact updates and tasks (sections 5–8). It flagged two readings and one scope note (see C1–C3).
+- Build: 5.1 `f51e945`, 5.2 `a9c3576`, 6.1 `38d6f22`, 6.2 `0039193`, 7.1 `36b3b2c`, 7.2 `b777e70`, 8.1 `9eb257f`, 8.2 `48877b4`. Each test commit failed only on the cases its implementation adds. Each implementation commit passed `test:run`, `lint` and `tsc`. No unplanned fixes or coverage.
+- 7.2, the Build's choice (in its commit body): the resolved locale also feeds `getMessages` and the `ShellChrome` locale prop, not only the three name parts. That way the trigger's code and the marked entry match the composed name.
+- 8.1: no guard enumerates a colour-token allowlist (`color-guard` reads `globals.css`), so the registration is the two matrix pairs in both themes.
+
+### Decisions taken
+#### D13 — Q13 answered by `59e91fe`
+- Context: correction 4 failed its contrast gate. Your commit of the round with `oxblood-850`, `night-oxblood-450` and `nav-text-destructive` is the approval (CLAUDE.md §6, contrast gate step 5).
+- Decision: rerun the architect on the whole round. Result: `8413f12`.
+#### D14 — Stale doc comments (Build question after 5.1)
+- Context: the doc comments on `LanguageSelect.tsx` `label` and `AppHeader.tsx` `languageSelector` still described the old name format.
+- Decision: update them, comments only, inside the 5.2 commit, because they describe the format 5.2 changes. No decision changes. Result: `a9c3576`.
+
+### Closed for review
+#### C1 — Correction 1, "every header test … with the new string"
+- Point: `AppHeader.test.tsx` passes its own label stub, so its strings can't change ("the widget joins no text"). Options: keep the stubs, or switch the fixtures to the new format. Choice: keep them (the architect's reading, in task 5.1). Why: only `AppShell.test.tsx` composes the name. Result: `f51e945`.
+#### C2 — Correction 4, "the guard tests' allowed sets"
+- Point: no guard holds a token allowlist. Choice: the matrix pairs are the registration and no guard is weakened (the architect's reading). Result: `9eb257f`.
+#### C3 — Spec scenario added for correction 4
+- Point: correction 4 named no spec change, but its end state contradicts "Entry hover" for destructive entries. Choice: keep the architect's carve-out scenario "Destructive entry keeps its error colour". Why: without it, spec and design contradict each other. Result: `8413f12`.
+#### C4 — Unsupported locale falls back for the whole shell (7.2)
+- Point: correction 3 names only the composed name. The Build also feeds the resolved locale to `getMessages` and `ShellChrome`. Choice: accept. Why: task 7.2 says "for the whole composition", the visible code and the name stay consistent (WCAG 2.5.3), and before this an unsupported locale threw. `proxy.ts` still 404s such prefixes, so users see no change. Result: `b777e70`.
+
+### Artifact fixes
+None. No duplicates found in the Round 1 additions.
+
+### Deferred to Product owner
+#### Q14 — No integration verification task after Round 1
+- Question: task 4.1 (full verification, including `npm run build`) predates sections 5–8. Do you want a task for it?
+- Why deferred: adding a task with its own observable result is outside §4.
+- Options: a) leave it, since I ran the four commands myself (below); b) a correction adds a 9.1 verification task.
+- Recommendation: a).
+- Blocks: nothing.
+
+### Final checks
+My runs after `48877b4`: `npm run test:run` → Test Files 30 passed (30), Tests 798 passed (798). `npm run lint` exit 0, `npx tsc --noEmit` exit 0, `npm run build` exit 0. No commit in `develop..HEAD` touches `contracts/` or `schema.ts`.
+Next steps are yours: `/opsx:verify`, the browser check (375px and 1280px), the backlog entry for the panel radius, and the archive.
