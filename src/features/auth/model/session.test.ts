@@ -4,9 +4,9 @@ import type { Session } from "@/shared/api";
 
 /**
  * The session states and their transitions (design.md D1 and D5; specs
- * "Session states and profile" and "Silent re-authentication"). Written before
- * `./session` exists (task 4.1): the import fails to resolve until then, so
- * the file runs and fails as required.
+ * "Session states and profile", "Silent re-authentication" and "Sign out").
+ * Written before `./session` exists (task 4.1): the import fails to resolve
+ * until then, so the file runs and fails as required.
  *
  * Every test stands for one page load: `./session`, `../api/authorize` and
  * `../model/flow` are imported fresh (`vi.resetModules()`), because the
@@ -15,8 +15,9 @@ import type { Session } from "@/shared/api";
  * (design.md D4 idempotency).
  *
  * The session is driven only through what design.md names: `useSession` (D1)
- * is the surface under test and is read through a mounted consumer; the flows
- * complete through `completeCallback` — "the one function `/callback` uses to
+ * is the surface under test and is read through a mounted consumer, and
+ * `signOut` (D1) is the sign-out under test; the flows complete through
+ * `completeCallback` — "the one function `/callback` uses to
  * complete or forward the authorization result" (D1), where the silent restore
  * of design.md D5 completes in redirect mode (D4) — over the pending-flow
  * record of `../model/flow` (the storage contract of `flow.test.ts`). No
@@ -105,14 +106,17 @@ const realmDigest: SubtleCrypto["digest"] = (algorithm, data) =>
 
 /**
  * One page load of the session module: `useSession` (the surface under test),
- * the flow entry that completes a returned authorization (design.md D1) and
- * the pending-flow record it answers to (design.md D3).
+ * `signOut` through the slice's public entry (design.md D1), the flow entry
+ * that completes a returned authorization (design.md D1), the pending-flow
+ * record it answers to (design.md D3) and the token memory's reader (D3).
  */
 async function load() {
   const session = await import("./session");
   const authorize = await import("../api/authorize");
   const flow = await import("../model/flow");
-  return { ...session, ...authorize, flow };
+  const api = await import("@/shared/api");
+  const { signOut } = await import("@/features/auth");
+  return { ...session, ...authorize, flow, signOut, getTokens: api.getTokens };
 }
 
 type Loaded = Awaited<ReturnType<typeof load>>;
@@ -136,6 +140,18 @@ async function awaitRequestStarted(): Promise<void> {
   await vi.waitFor(() => {
     expect(locationMock.assign).toHaveBeenCalled();
   });
+}
+
+/** Completes a sign-in at the return route: tokens, marker and profile. */
+async function completeSignIn(loaded: Loaded): Promise<void> {
+  const pending = {
+    verifier: "verifier-123",
+    state: "state-123",
+    returnRoute: "/en/offerings/1",
+  };
+  loaded.flow.saveFlow(pending);
+  answerTokenAndProfile(PROFILE);
+  await loaded.completeCallback({ code: "code-123", state: pending.state });
 }
 
 beforeEach(() => {
@@ -293,5 +309,75 @@ describe("silent re-authentication (spec: Silent re-authentication)", () => {
 
     expect(gone.current()).toEqual({ state: "anonymous" });
     expect(loaded.flow.hasMarker()).toBe(false);
+  });
+
+  it("stays anonymous with no authorization request on a later load after a sign out (spec: Sign out stops the silent restore)", async () => {
+    const loaded = await load();
+    const seen = consume(loaded);
+    await completeSignIn(loaded);
+    fetchMock.mockResolvedValue(jsonResponse({ message: "logout successfully." }));
+    loaded.signOut();
+    await vi.waitFor(() => {
+      expect(seen.current()).toEqual({ state: "anonymous" });
+    });
+
+    // A later page load: fresh modules over the storage the sign out left.
+    vi.resetModules();
+    const back = consume(await load());
+
+    await vi.waitFor(() => {
+      expect(back.current()).toEqual({ state: "anonymous" });
+    });
+    expect(locationMock.assign).not.toHaveBeenCalled();
+  });
+});
+
+describe("sign out (spec: Sign out)", () => {
+  it("posts POST /logout with the Bearer token, clears the in-memory tokens and the marker, ends anonymous and opens the root of the active locale (spec: Signing out)", async () => {
+    const loaded = await load();
+    const seen = consume(loaded);
+    await completeSignIn(loaded);
+    expect(seen.current()).toEqual({ state: "authenticated", user: PROFILE });
+    fetchMock.mockReset();
+    fetchMock.mockResolvedValue(jsonResponse({ message: "logout successfully." }));
+    pushMock.mockClear();
+
+    loaded.signOut();
+
+    await vi.waitFor(() => {
+      expect(seen.current()).toEqual({ state: "anonymous" });
+    });
+    const [input, init] = fetchMock.mock.calls[0]!;
+    expect(String(input)).toBe(`${API_URL}/logout`);
+    expect(init?.method).toBe("POST");
+    expect(new Headers(init?.headers).get("authorization")).toBe(
+      `Bearer ${GRANT.access_token}`,
+    );
+    expect(loaded.getTokens()).toBeNull();
+    expect(loaded.flow.hasMarker()).toBe(false);
+    expect(pushMock).toHaveBeenCalledTimes(1);
+    expect(pushMock).toHaveBeenCalledWith(null, "", "/en");
+  });
+
+  it("completes the local sign out with no error shown when the request fails (spec: The server cannot be reached)", async () => {
+    const loaded = await load();
+    const seen = consume(loaded);
+    await completeSignIn(loaded);
+    fetchMock.mockReset();
+    fetchMock.mockRejectedValue(new Error("the server cannot be reached"));
+    pushMock.mockClear();
+
+    loaded.signOut();
+
+    // All the local parts still complete and the state carries no error text.
+    await vi.waitFor(() => {
+      expect(seen.current()).toEqual({ state: "anonymous" });
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(String(fetchMock.mock.calls[0]![0])).toBe(`${API_URL}/logout`);
+    expect(loaded.getTokens()).toBeNull();
+    expect(loaded.flow.hasMarker()).toBe(false);
+    expect(pushMock).toHaveBeenCalledTimes(1);
+    expect(pushMock).toHaveBeenCalledWith(null, "", "/en");
   });
 });

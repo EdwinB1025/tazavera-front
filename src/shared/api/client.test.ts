@@ -4,9 +4,9 @@ import type { TokenGrant } from "./tokens";
 
 /**
  * The request client and its `401` recovery chain (design.md D2, D3 and D5;
- * spec "Keeping the session alive"). Written before the client exists (task
- * 2.2): `./client` exports no request client yet, so the file runs and fails
- * as required.
+ * specs "Keeping the session alive" and "Sign out"). Written before the client
+ * exists (task 2.2): `./client` exports no request client yet, so the file
+ * runs and fails as required.
  *
  * The dependency is inverted (design.md D2): the client receives the current
  * tokens, a refresh call and what to do when nothing can recover the session,
@@ -174,6 +174,34 @@ describe("the request client (design.md D2, D3 and D5)", () => {
     expect(retried).toEqual([`${API_URL}/a`, `${API_URL}/b`].sort());
     expect(authorizationOf(2)).toBe(`Bearer ${NEXT_GRANT.access_token}`);
     expect(authorizationOf(3)).toBe(`Bearer ${NEXT_GRANT.access_token}`);
+    expect(onUnrecoverable).not.toHaveBeenCalled();
+  });
+
+  it("sends POST /logout with the Bearer token and no body (design.md D5: POST /logout)", async () => {
+    fillSeam();
+    fetchMock.mockResolvedValue(jsonResponse({ message: "logout successfully." }));
+
+    const response = await request("/logout", { method: "POST" });
+
+    expect(response.status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(calledUrl(0)).toBe(`${API_URL}/logout`);
+    const [, init] = fetchMock.mock.calls[0]!;
+    expect(init?.method).toBe("POST");
+    expect(init?.body).toBeUndefined();
+    expect(authorizationOf(0)).toBe(`Bearer ${GRANT.access_token}`);
+  });
+
+  it("rejects at the caller and starts no recovery when the sign-out request fails (spec: The server cannot be reached)", async () => {
+    const { refresh, onUnrecoverable } = fillSeam();
+    fetchMock.mockRejectedValue(new Error("the server cannot be reached"));
+
+    await expect(request("/logout", { method: "POST" })).rejects.toThrow(
+      "the server cannot be reached",
+    );
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(refresh).not.toHaveBeenCalled();
     expect(onUnrecoverable).not.toHaveBeenCalled();
   });
 });
