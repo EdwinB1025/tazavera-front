@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { AppHeader } from "@/widgets/app-header";
 import type { AppHeaderTexts } from "@/widgets/app-header";
 import type { Session } from "@/shared/api";
+import { signIn, signOut } from "@/features/auth";
 
 /**
  * Client chrome of the shell wiring (design.md D1, D3).
@@ -39,13 +40,16 @@ export function ShellChrome({
   };
 
   const handleSignIn = () => {
-    // design.md D3/D5: signing in is the flow `add-auth` owns; the session
-    // owner supplies the session's sign in when it lands.
+    // Sign in starts from the route the user is on (spec: "Sign in starts
+    // from the current route"); the popup opens within this click (design.md
+    // D10).
+    signIn(pathname ?? `/${locale}`);
   };
 
   const handleSignOut = () => {
-    // design.md D3/D5: signing out is the flow `add-auth` owns; the session
-    // owner supplies the session's sign out when it lands.
+    // Sign out completes locally and lands on the root of the active locale
+    // (spec: "Sign out").
+    signOut();
   };
 
   return (
