@@ -369,3 +369,46 @@ None. No duplicates found in the Round 1 additions.
 ### Final checks
 My runs after `48877b4`: `npm run test:run` → Test Files 30 passed (30), Tests 798 passed (798). `npm run lint` exit 0, `npx tsc --noEmit` exit 0, `npm run build` exit 0. No commit in `develop..HEAD` touches `contracts/` or `schema.ts`.
 Next steps are yours: `/opsx:verify`, the browser check (375px and 1280px), the backlog entry for the panel radius, and the archive.
+
+## Note from the add-landing orchestrator — 2026-10-05
+Product owner checked `add-landing` in a browser at 1280px and found two `app-shell` problems. He decided they belong to this change's handoff, not to `add-landing`. Neither is in this change's current scope, which covers the user control, the language control and the menus; `PrimaryNav.tsx` is untouched here.
+
+### Deferred to Product owner
+#### Q15 — Header primary navigation does not read as navigation
+- Observed (screenshot at 1280px, `add-landing` worktree): "Mejor valorados" and "Sobre nosotros" sit 1rem from the logo (`PrimaryNav` `gap-4` inside a `gap-4` left group). They are underlined like inline text links and have no nav-item treatment, so they look merged into the header rather than like options.
+- Needed: a correction round here (or a new change) that settles the primary nav treatment: separation from the logo, spacing between items, no inline-link underline, and a hover/current state using the existing `nav-*` tokens.
+- Blocks: nothing in `add-landing`.
+
+#### Q16 — Main area does not fill the viewport background
+- Observed: on `/es/about` (short content) the area below the content is white, not `bg-surface-page`. `AppShell`'s main has `bg-surface-page flex-1`, but the page below it still shows the body's default background.
+- Needed: the shell fills the viewport height with the page surface. This is an `app-shell` layout fix.
+- Blocks: nothing in `add-landing`.
+
+## Session 2026-10-05 (evening) — verify, correction round 2, archive
+Summary: ran the architect's `/opsx:verify` (0 critical, 3 warnings, 1 suggestion). Then Product owner assigned Q15/Q16 to this change and told me to run the whole flow myself, taking the architect and Build roles (task prompt overrides the base prompt for this task). I wrote and committed round 2, processed it as architect, implemented it and the verify warnings as Build, re-verified and archived. Stopped because: completed. MVC reachable: yes (`resources/css/app.css`, `[data-flux-navbar-items]`).
+
+### Agent feedback
+- Architect verify: no CRITICAL. W1 `ShellChrome` locale swap untested; W2 check indicator unasserted; W3 user trigger content colours unasserted; S1 ambiguous `design.md D…` references in doc comments. Evidence: test:run 798/798, lint, tsc, build exit 0, validate --strict valid.
+- The W2 Build run (opencode) produced nothing after more than 40 minutes; I stopped it (`taskkill` of its process tree) before taking the Build role myself.
+
+### Decisions taken
+#### D15 — Verify warnings routed
+- W1: already deferred by Product owner as backlog R1 (same gap, same file lines); closed as deferred. W2, W3: unplanned coverage, done in `529a866`, `47274f5`. S1: suggestion, not acted on.
+#### D16 — Panel-radius backlog entry
+- Added as R4 in `tazavera-front/docs/backlog.md` (develop checkout), uncommitted, for Product owner to commit with the decisions log.
+#### D17 — Round 2 written and processed by me
+- Round report `1b8c434`, architect round `4ea85a2` (spec delta: "Shell layout and main area" and "Header brand and primary navigation" as MODIFIED; design D14, D15; tasks 9–11). validate --strict valid.
+- Design choices (mine, as architect): entries on `next/link` instead of the shared always-underlined `Link` (base-controls unchanged); current entry = `aria-current="page"` + `border-b-2 border-nav-indicator` with no hover fill, because `nav-current` equals `nav-surface` in traditional and `nav-indicator` on `nav-hover` is 2.75:1; `currentPath` passed from `ShellChrome` (already reads `usePathname`) through `AppHeader`; shell root `flex flex-1 flex-col` instead of `min-h-full`.
+- Contrast (mine, scripted): `nav-indicator` on `nav-surface` 3.64:1 traditional, 3.84:1 dark (registered); `nav-text-hover` on `nav-hover` 4.63 / 4.68 (already registered).
+
+### Apply
+- 9.1 `11d5d4c`, 9.2 `a3229e1`, 10.1 `2d0da3f`, 10.2 `cd536d2`, 11.1 `9c5015f` (see `git log`). Each test commit failed only on what the next commit adds.
+
+### For Product owner's review
+- `/es/about` and `/es/offerings` are not routed on this branch, so the current-page mark could not be seen on a real route; it was previewed on `/es` by applying the exact class string `PrimaryNav` renders. Check it after `add-landing` is merged.
+- Captures (375px, 1280px, both themes, plus hover/current previews) are in this session's scratchpad `shots/`, not committed (agents do not write `docs/`).
+- Q14 treated as option a) (no extra verification task for round 1; round 2 added 11.1 anyway).
+- `add-landing` also changes `app-shell` ("Root of a supported locale") and `AppShell.test.tsx`; expect an overlap in that test file at merge.
+
+### Final checks
+My runs after `cd536d2`: `npm run test:run` → Test Files 30 passed (30), Tests 808 passed (808); `npm run lint` exit 0; `npx tsc --noEmit` exit 0; `npm run build` exit 0. No commit in `develop..HEAD` touches `contracts/` or `schema.ts`.
