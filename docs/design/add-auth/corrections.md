@@ -45,26 +45,6 @@ Product owner, 2026-10-05. Resolves handoff Q2–Q5 and changes the interactive 
 
 Verification: in addition to the unit tests, the task list ends with a real-browser check by Product owner before archive: sign in through the popup, step-up from a filled form keeping its input, and a reload restoring the session silently.
 
-## Round 2 — 2026-10-05
-
-Context: task 4.2 is blocked. design.md D1 has `AppShell.tsx` call `useSession()`, but `AppShell.tsx` is a Server Component (it reads the catalogs through `getMessages`, which uses `node:fs`).
-
-1. **Session seam (D1).** Add a `"use client"` component in `src/app/shell` (name left to the architect) that calls `useSession()` and renders `ShellChrome` and the sidebar region. `AppShell.tsx` stays a Server Component: it resolves the catalog texts and passes them to the new component. The sidebar region choice moves with the session into the new component. `ShellChrome.tsx` and `AppSidebar.tsx` keep receiving the session as input, unchanged. Changes to `app-shell` files go under scope `auth`, as in Q6.
-2. **`session` prop of `AppShell`.** Keep `session?` as an explicit override. The new component calls `useSession()` unconditionally and uses `session ?? <hook value>`. The three `AppShell.test.tsx` cases that pass literal sessions stay unchanged.
-3. **Already-mounted consumers.** When the popup completes, a `useSession()` consumer mounted before sign-in ends `authenticated` without remounting or navigating (D10: the opener never navigates). Add a test-only task before 4.2 that changes the "ends `authenticated`" case in `session.test.ts` so the consumer is mounted before the flow starts.
-
-Tasks: add the task of item 3 before 4.2; rewrite 4.2 and any later unchecked task that contradicts items 1–3. Checked tasks stay as they are.
-
-### Status
-
-2026-10-05. `openspec validate add-auth --strict`: `Change 'add-auth' is valid`. The document is processed as review round 2. No `app-shell` spec delta is needed or touched: the round changes no specified behaviour of that capability — the shell still follows the session state and the sidebar rule and the catalog-driven texts are exactly as specified — so this change's `specs/app-shell/spec.md` delta of review round 1 stands unchanged.
-
-1. **Session seam (D1).** `design.md` — D1 now records the seam as the round settles it, with the name the round leaves to the architect: the `"use client"` component `SessionShell` (`src/app/shell/SessionShell.tsx`) calls `useSession()` and renders `ShellChrome` and the sidebar region, `AppShell.tsx` stays a Server Component that resolves the catalog texts and passes them to it, the sidebar region choice moves with the session into it, `ShellChrome.tsx` and `AppSidebar.tsx` keep receiving the session as input unchanged, and these `app-shell` files are changed under the commit scope `auth` (handoff Q6); the Goals seam bullet, D9's file tables (new `SessionShell.tsx` row, rewritten `AppShell.tsx` row) and the `AppShell.tsx` risk follow. `proposal.md` — the Out of Scope seam wording and the Impact "New" and "Modified" lists follow. `specs/auth/spec.md` unchanged: the rendered layout and the shell's session behaviour are exactly as specified. Task **4.2** rewritten in place; no separate task for the component, which lands in 4.2 and is verified through the existing `AppShell.test.tsx` cases (D9 records that it gets no test file of its own).
-2. **`session` prop of `AppShell`.** `design.md` D1 records the settled override: `SessionShell` calls `useSession()` unconditionally and uses `session ?? <hook value>`, `AppShell`'s props are unchanged, and the three `AppShell.test.tsx` cases that pass a literal session stay as they are. No specified behaviour change and no further artifact update. Task **4.2** (rewritten together with item 1) verifies it over those three unchanged cases.
-3. **Already-mounted consumers.** No specified behaviour change and no design decision beyond what `design.md` D1 and D10 already state (the opener completes the flow without navigating and ends `authenticated`), so the specs and `design.md` are unchanged. Task **4.1b** created before 4.2 — test-only, as the round directs — changing the "ends `authenticated`" case of `src/features/auth/model/session.test.ts` so its consumer is mounted before the flow starts. Checked tasks are untouched, and no later unchecked task contradicts items 1–3 (5.1–5.2, 6.1–6.2, 7.1 and 8.1–8.17 already match the popup flow and the two `/callback` modes), so 4.2 is the only rewrite.
-
-The task list keeps its order and gains no new section: the round's Tasks line places the new task before 4.2 and rewrites 4.2 in place, following the `2.2b` and handoff Q8 precedents. This round lands in one `docs(auth)` commit: no `app-shell` artifact under `openspec/` changes.
-
 ### Status
 
 2026-10-05. `openspec validate add-auth --strict`: `Change 'add-auth' is valid`. The document is processed as review round 1.
@@ -100,3 +80,31 @@ Note for the product owner: corrections 1–6 and 9 leave parts of the unchecked
 9. **Token holder exposure.** Unchanged in this pass; tasks 8.11 and 8.12 stand as recorded above. As part of handoff Q8's rewrite, task 7.1 now checks the exposure against `window` and React state as well.
 
 Handoff Q8 additionally rewrites tasks 3.2, 6.1 and 7.1 in place to the updated design (popup flow and its full-page fallback, two modes of `/callback`, no-text rule with no `auth` catalogs, token exposure of correction 9), and `proposal.md`'s "What Changes" now describes the popup flow. The real-browser check moves from 8.13 to **8.17** and stays the list's last task, as the round's Verification line requires.
+
+## Round 2 — 2026-10-05
+
+Context: task 4.2 is blocked. design.md D1 has `AppShell.tsx` call `useSession()`, but `AppShell.tsx` is a Server Component (it reads the catalogs through `getMessages`, which uses `node:fs`).
+
+1. **Session seam (D1).** Add a `"use client"` component in `src/app/shell` (name left to the architect) that calls `useSession()` and renders `ShellChrome` and the sidebar region. `AppShell.tsx` stays a Server Component: it resolves the catalog texts and passes them to the new component. The sidebar region choice moves with the session into the new component. `ShellChrome.tsx` and `AppSidebar.tsx` keep receiving the session as input, unchanged. Changes to `app-shell` files go under scope `auth`, as in Q6.
+2. **`session` prop of `AppShell`.** Keep `session?` as an explicit override. The new component calls `useSession()` unconditionally and uses `session ?? <hook value>`. The three `AppShell.test.tsx` cases that pass literal sessions stay unchanged.
+3. **Already-mounted consumers.** When the popup completes, a `useSession()` consumer mounted before sign-in ends `authenticated` without remounting or navigating (D10: the opener never navigates). Add a test-only task before 4.2 that changes the "ends `authenticated`" case in `session.test.ts` so the consumer is mounted before the flow starts.
+
+Tasks: add the task of item 3 before 4.2; rewrite 4.2 and any later unchecked task that contradicts items 1–3. Checked tasks stay as they are.
+
+### Status
+
+2026-10-05. `openspec validate add-auth --strict`: `Change 'add-auth' is valid`. The document is processed as review round 2. No `app-shell` spec delta is needed or touched: the round changes no specified behaviour of that capability — the shell still follows the session state and the sidebar rule and the catalog-driven texts are exactly as specified — so this change's `specs/app-shell/spec.md` delta of review round 1 stands unchanged.
+
+1. **Session seam (D1).** `design.md` — D1 now records the seam as the round settles it, with the name the round leaves to the architect: the `"use client"` component `SessionShell` (`src/app/shell/SessionShell.tsx`) calls `useSession()` and renders `ShellChrome` and the sidebar region, `AppShell.tsx` stays a Server Component that resolves the catalog texts and passes them to it, the sidebar region choice moves with the session into it, `ShellChrome.tsx` and `AppSidebar.tsx` keep receiving the session as input unchanged, and these `app-shell` files are changed under the commit scope `auth` (handoff Q6); the Goals seam bullet, D9's file tables (new `SessionShell.tsx` row, rewritten `AppShell.tsx` row) and the `AppShell.tsx` risk follow. `proposal.md` — the Out of Scope seam wording and the Impact "New" and "Modified" lists follow. `specs/auth/spec.md` unchanged: the rendered layout and the shell's session behaviour are exactly as specified. Task **4.2** rewritten in place; no separate task for the component, which lands in 4.2 and is verified through the existing `AppShell.test.tsx` cases (D9 records that it gets no test file of its own).
+2. **`session` prop of `AppShell`.** `design.md` D1 records the settled override: `SessionShell` calls `useSession()` unconditionally and uses `session ?? <hook value>`, `AppShell`'s props are unchanged, and the three `AppShell.test.tsx` cases that pass a literal session stay as they are. No specified behaviour change and no further artifact update. Task **4.2** (rewritten together with item 1) verifies it over those three unchanged cases.
+3. **Already-mounted consumers.** No specified behaviour change and no design decision beyond what `design.md` D1 and D10 already state (the opener completes the flow without navigating and ends `authenticated`), so the specs and `design.md` are unchanged. Task **4.1b** created before 4.2 — test-only, as the round directs — changing the "ends `authenticated`" case of `src/features/auth/model/session.test.ts` so its consumer is mounted before the flow starts. Checked tasks are untouched, and no later unchecked task contradicts items 1–3 (5.1–5.2, 6.1–6.2, 7.1 and 8.1–8.17 already match the popup flow and the two `/callback` modes), so 4.2 is the only rewrite.
+
+The task list keeps its order and gains no new section: the round's Tasks line places the new task before 4.2 and rewrites 4.2 in place, following the `2.2b` and handoff Q8 precedents. This round lands in one `docs(auth)` commit: no `app-shell` artifact under `openspec/` changes.
+
+## Round 3 — 2026-10-05
+
+Context: handoff Q15. `src/app/shell/ShellChrome.tsx` holds empty `handleSignIn` and `handleSignOut`; their comments assign the wiring to `add-auth`, but design.md "Out of scope" gives the header to `add-app-shell`, so no task wires them and the header's Sign in and Sign out do nothing.
+
+1. **Header actions.** The header's Sign in action calls `signIn()` with the current route, and the user menu's Sign out calls `signOut()`, both from `@/features/auth`. How they reach `ShellChrome` (passed from `SessionShell`, or called in `ShellChrome`) is left to the architect, within FSD import rules. Changes to `app-shell` files go under scope `auth`, as in Q6. Update design.md's out-of-scope line to match.
+
+Tasks: one test-first pair after 5.2 (sign out must exist first). Checked tasks stay as they are.
