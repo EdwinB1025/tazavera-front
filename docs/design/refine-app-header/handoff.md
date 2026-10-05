@@ -282,3 +282,24 @@ None new. Next steps are yours: `/opsx:verify`, the browser check (375px and 128
 
 ### Final checks
 `npm run test:run` (my run, after `397450a`): Test Files 30 passed (30), Tests 790 passed (790).
+
+## Session 2026-10-05 — correction round 1
+Summary: ran the architect once to process Round 1 of corrections.md. Stopped because: the run exited with code 1 before doing any work. MVC reachable: not needed.
+
+### Agent feedback
+The architect's last message, verbatim: `Error: Insufficient account balance` (provider of `xiaomi/mimo-v2.6-pro`). The run wrote nothing. There are no file changes and no commit; `git log -1` is still `34c1bd8`.
+
+### Decisions taken
+None.
+
+### Deferred to Augusto
+#### Q12 — Architect run blocked by the provider balance
+- Question: rerun the same architect command for Round 1 once the account balance is topped up?
+- Why deferred: CLAUDE.md §6 says not to rerun after a non-zero exit until the issue is answered. The cause is outside the project.
+- Options: a) top up the balance and rerun the same command; b) use another model you name.
+- Recommendation: a). The restricted profiles and the commands are set up for this model.
+- Blocks: Round 1 (artifacts, tasks, `### Status`, round commit) and the apply that follows.
+- Also noted: `docs/workflow_sdd.md` is not on `develop` (`git show develop:docs/workflow_sdd.md` fails), so I could not read it at session start.
+
+### Final checks
+Not run; nothing changed in the code.
