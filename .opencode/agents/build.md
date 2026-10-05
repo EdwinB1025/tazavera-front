@@ -1,6 +1,9 @@
 ---
 model: xiaomi/mimo-v2.6-pro
 permissions:
+  # ─── OVERNIGHT VERSION (opencode run --auto): nothing may stay on "ask".
+  # ─── Restore in the morning: git restore .opencode/agents/
+
   # ─── Edit: everything except OpenSpec, docs, contract and generated files ───
   - action: edit
     resource: "*openspec/*"
@@ -23,13 +26,20 @@ permissions:
   - action: edit
     resource: "*src/shared/api/schema.ts"
     effect: deny
-  # Dependencies need approval
+  # Overnight: agent and Claude configuration are off limits
+  - action: edit
+    resource: "*.opencode/*"
+    effect: deny
+  - action: edit
+    resource: "*.claude/*"
+    effect: deny
+  # Dependencies: no manual edits overnight (the approved install updates them)
   - action: edit
     resource: "*package.json"
-    effect: ask
+    effect: deny
   - action: edit
     resource: "*package-lock.json"
-    effect: ask
+    effect: deny
 
   # ─── Skills: cannot load the architect's workflows ───
   - action: skill
@@ -51,10 +61,10 @@ permissions:
     resource: "openspec-archive*"
     effect: deny
 
-  # ─── Shell: ask for anything not listed below ───
+  # ─── Shell: overnight, deny anything not listed below ───
   - action: shell
     resource: "*"
-    effect: ask
+    effect: deny
   # Project checks and scripts
   - action: shell
     resource: "npm run *"
@@ -65,9 +75,35 @@ permissions:
   - action: shell
     resource: "npx vitest *"
     effect: allow
+  # Overnight: read-only checks and type generation the apply needs
+  - action: shell
+    resource: "npx next typegen*"
+    effect: allow
+  - action: shell
+    resource: "npm ls*"
+    effect: allow
+  - action: shell
+    resource: "git check-ignore*"
+    effect: allow
+  - action: shell
+    resource: "git hash-object*"
+    effect: allow
+  - action: shell
+    resource: "mkdir src/*"
+    effect: allow
+  - action: shell
+    resource: "mkdir -p src/*"
+    effect: allow
+  # Overnight: servers never return, and node -e can write past the edit rules
+  - action: shell
+    resource: "npm run dev*"
+    effect: deny
+  - action: shell
+    resource: "npm run start*"
+    effect: deny
   - action: shell
     resource: "node -e *"
-    effect: allow
+    effect: deny
   # Read-only file inspection
   - action: shell
     resource: "ls *"
@@ -93,16 +129,55 @@ permissions:
   - action: shell
     resource: "sed -n *"
     effect: allow
-  # Dependencies need approval
+  # Overnight: no writes through the shell (redirects, heredocs, find actions), no chaining
+  - action: shell
+    resource: "*>*"
+    effect: deny
+  - action: shell
+    resource: "*<<*"
+    effect: deny
+  - action: shell
+    resource: "*-delete*"
+    effect: deny
+  - action: shell
+    resource: "*-exec*"
+    effect: deny
+  - action: shell
+    resource: "*&&*"
+    effect: deny
+  - action: shell
+    resource: "*;*"
+    effect: deny
+  - action: shell
+    resource: "*|*"
+    effect: deny
+  # Overnight: delete throwaway files inside src/ only
+  - action: shell
+    resource: "rm src/*"
+    effect: allow
+  - action: shell
+    resource: "rm -f src/*"
+    effect: allow
+  - action: shell
+    resource: "rm -r*"
+    effect: deny
+  # Dependencies: denied overnight (add-landing adds none)
   - action: shell
     resource: "npm install*"
-    effect: ask
+    effect: deny
   - action: shell
     resource: "npm i *"
-    effect: ask
+    effect: deny
   - action: shell
     resource: "npm uninstall*"
-    effect: ask
+    effect: deny
+  # Task 6.2: the hero photograph (binary, cannot go through the edit tool)
+  - action: shell
+    resource: "mkdir -p public/images"
+    effect: allow
+  - action: shell
+    resource: "cp docs/design/add-landing/coffee-beans.png public/images/coffee-beans.png"
+    effect: allow
   # OpenSpec CLI: read-only commands only
   - action: shell
     resource: "openspec *"
@@ -192,12 +267,6 @@ permissions:
   - action: shell
     resource: "git -C * ls-tree*"
     effect: allow
-  - action: shell
-    resource: "git ls-tree*"
-    effect: allow
-  - action: shell
-    resource: "git -C * ls-tree*"
-    effect: allow
   # Git: stage and commit (current worktree only)
   - action: shell
     resource: "git add *"
@@ -212,6 +281,13 @@ permissions:
   - action: shell
     resource: "git add openspec/changes/*/tasks.md"
     effect: allow
+  # Overnight: never stage agent or Claude configuration
+  - action: shell
+    resource: "git add .opencode*"
+    effect: deny
+  - action: shell
+    resource: "git add .claude*"
+    effect: deny
   # Git: hard limits (after the allows, so they win)
   - action: shell
     resource: "git add -A*"
@@ -246,8 +322,8 @@ permissions:
   - action: shell
     resource: "git switch*"
     effect: deny
-  # ─── Other worktrees of this project ───
+  # ─── Overnight: stay inside this worktree ───
   - action: external_directory
-    resource: "*tazavera-front*"
-    effect: allow
+    resource: "*"
+    effect: deny
 ---

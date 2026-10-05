@@ -28,14 +28,14 @@ State left in the worktree: task 2.2 is half done and uncommitted. `src/shared/u
 - Note from the build, not decided: the older numeric-name skip (for `ring-2`) also exempts `border-2`/`border-4` without a side. Left as it was.
 
 ## Deferred to Augusto
-### Q1 — Form of the two derived types in task 1.1 (design.md D2)
+### Q1 — ANSWERED 2026-10-05 (answer in corrections.md round 1) — Form of the two derived types in task 1.1 (design.md D2)
 - Question: the type lines D2 defines (indexing `data` on `listOfferings` and `listOlfactoryTaxonomies` responses) make `npx tsc --noEmit` fail with TS2537, because `data` is optional in the generated schema. Which form should the two lines take? Build recommends `NonNullable<ListOfferingsResponse["data"]>[number]` and `NonNullable<ListTaxonomiesResponse["data"]>[number]`, which is tsc-clean with exit 0.
 - Why deferred: it changes the source text design.md D2 defines, and the task says "exactly as defined there" (correction round).
 - Options: (a) update D2 to the NonNullable form; (b) keep the literal text, which cannot pass typecheck; (c) another form, for example `extends (infer T)[] ? T : never`.
 - Recommendation: (a). It keeps the meaning of D2's doc comment and does not edit generated types. Settle `OfferingsPageMeta` in the same answer, since `meta` is also optional (`meta?: …`) and tasks 5.x will hit the same TS2537.
 - Blocks: 1.1, then 4.x, 5.x, 6.x, 7.x, 8.1 once they need the types.
 
-### Q2 — `tsc` fails in a fresh worktree until `npx next typegen` has run
+### Q2 — ANSWERED 2026-10-05: (a) leave as is — `tsc` fails in a fresh worktree until `npx next typegen` has run
 - Question: `LayoutProps` is not found until typegen has run. The build ran it. Should a `typegen` npm script or a note be added?
 - Why deferred: it would add a script to `package.json`, which means a dependency or config change that is not mine to make. Brief section 5 already lists this as environment, not a finding.
 - Options: (a) leave as is; (b) add a script.
@@ -61,3 +61,17 @@ State left in the worktree: task 2.2 is half done and uncommitted. `src/shared/u
 
 ## Final checks
 `npm run test:run` after `c6f0e2e`: Test Files 32 passed (32), Tests 787 passed (787). The build also reported `npm run lint` and `npx tsc --noEmit` exit 0.
+
+## Session 2026-10-05 — correction round 1, then apply
+Summary: precondition checked (`44faa59` "report review round 1 for add-landing" is in the log). Nothing ran. Stopped because: `docs/design/add-landing/corrections.md` is empty (0 bytes) in `44faa59` and on disk, so there is no `## Round 1` for the architect to process. The architect and the build were not started. MVC reachable: not checked.
+
+### Deferred to Product owner
+#### Q6 — corrections.md round 1 is empty
+- Question: commit `44faa59` adds `corrections.md` with no content. Please write `## Round 1` (presumably including the Q1 answer: the form of the derived types and of `OfferingsPageMeta` in design.md D2) and commit it.
+- Why deferred: corrections are written only by Product owner; the architect cannot process an empty round.
+- Options: (a) write round 1 and commit it, then rerun this task; (b) if Q1 needs no correction, say so and the apply can start from 1.1 as is.
+- Recommendation: (a). Task 1.1 cannot pass `npx tsc --noEmit` with D2's current text (Q1).
+- Blocks: the whole session (round 1 processing and the apply loop).
+
+### Final checks
+Not run: no agent ran and no code changed.
