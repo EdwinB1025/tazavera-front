@@ -182,3 +182,39 @@ Summary: after the provider balance was restored (Q10), task 6.2 was rerun. The 
 
 ### Final checks
 `npm run test:run` (build's run on the uncommitted 6.2 tree): 40 of 41 files, 838 of 847 tests pass; the only failures are in `src/app/shell/AppShell.test.tsx`. Last committed green state: `070a4a9` (39 files, 835 tests).
+
+## Session 2026-10-05 (night) — correction round 2, then apply to the end
+Summary: Product owner chose option 1 for Q11 and told me to apply it without stopping. I wrote `## Round 2` in `corrections.md` from that option. The architect processed it in `1580306` "docs(landing): apply review round 2 for add-landing" (`openspec validate add-landing --strict` valid). That commit adds an `app-shell` MODIFIED delta for "Root of a supported locale", lists `app-shell` under Modified Capabilities, adds `AppShell.test.tsx` to D13 and adds task 10.1, placed before section 6. The build loop then ran 10.1, 6.2, 6.3, 7.1, 7.2, 8.1 and 9.1. Claude Code killed the loop's wrapper shell for low memory during 9.1. The 9.1 opencode run finished on its own, and I waited for it without restarting anything. Stopped because: completed, all 17 tasks are checked. Verify and archive were not run (not asked). MVC reachable: not checked.
+
+### Q11 — ANSWERED 2026-10-05: option 1 (correction round 2), applied in `1580306` and `7e449b2`
+
+### Apply progress
+- 10.1: `7e449b2 test(app-shell): restate the main-area case on the placeholder child`. Both `<HomeScreen />` renders are now a placeholder `<p>`. The main-area case asserts that main holds exactly that child; a probe showed it fails without the child. The single-button case is unchanged.
+- 6.2: `2779d16 feat(landing): implement the entry hero and fill the home screen`. The build confirmed the copied PNG is byte-identical.
+- 6.3: `d7c2c74 feat(landing): replace the create-next-app metadata with the localized page metadata`.
+- 7.1: `3b56c96 test(landing): verify the about sections, evaluation cards, links and closing action`. Only its 2 files fail, as allowed.
+- 7.2: `e069679 feat(landing): implement the about screen with its five sections and the closing action`.
+- 8.1: `e59c432 chore(landing): complete tasks for add-landing`, checkbox only. The build reports `npm run test:run`, `npm run lint`, `npx tsc --noEmit` and `npm run build` all exit 0, with every check in the task text met.
+- 9.1: `3e776c5 chore(landing): complete tasks for add-landing`, checkbox only. 1.1 had already applied the round 1 form.
+
+### Decisions taken
+#### D5 — Commit scope for sections 8 and 9
+- Context: the headers of sections 8 and 9 name no capability, so the D3 rule gives nothing. The build used `landing` for both.
+- Decision: accepted.
+- Why: AGENTS.md ("the capability of the change being implemented"), and the precedent `55f0f5d` you accepted in Q8.
+- Result: `e59c432`, `3e776c5`.
+
+#### D6 — Free details the build chose, accepted
+- 6.3: the catalog key is `metaDescription`. The "no create-next-app text remains" case asserts `app/layout.tsx`'s source text, while the title and description cases assert the `generateMetadata` output. The test mocks `next/headers` and `@/app/fonts`.
+- 7.1/7.2: the about tests import through `@/pages/about`, the slice entry, following the 4.1 pattern. `AboutContentTexts` has 12 flat keys. The about registration and closing labels have their own `about*` keys, although their wording matches the hero's.
+- Why: each is left open by the artifacts and adds no scope, token or mechanism.
+
+### For Product owner's review before the archive
+- Browser checks (prompt item 4, not run): captures at 375px and 1280px of `/es` and `/es/about`; D4 (the score shown both as `type-score` and as the rating chip).
+- About heading copy (build's wording, as the summary leaves it to the developer): `El café, ` / `contado` / ` como es` (accent `contado`), with en `Coffee, told as it is` and ca `El cafè, explicat com és`. It can be changed in review as copy.
+- `2779d16` also carries two test changes from the earlier 6.2 run that 6.2's text does not name. `HomeScreen.test.tsx` was rewritten for the filled screen, replacing its old empty-main-area case. `HomeHero.test.tsx` gained an "Intrinsic photograph size (design.md D12)" case. Both match D12 and D13; the build offered to split the D12 case out as unplanned coverage if you prefer.
+- Stale wording: tasks.md section 9's intro still says "Task 1.1 is still open". I left it, because 9.1 is checked and the text changes nothing.
+- The build noted `src/shared/ui/Logo.tsx`'s inline `style={{ fill: url(#…) }}`. It is a paint reference, outside this change, and does not break D7.
+
+### Final checks
+My own `npm run test:run` after `3e776c5`: Test Files 44 passed (44), Tests 858 passed (858). The loop's post-8.1 test run failed only with vitest workers dying on start (exit 3221225794) under memory pressure. This was environment, not a test failure; the rerun above is green.
