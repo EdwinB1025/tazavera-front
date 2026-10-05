@@ -44,18 +44,18 @@ A verification status badge SHALL report an offering's verification state — ve
 - **THEN** it renders a clock icon and the provisional label in the provisional status treatment
 
 ### Requirement: Taxonomy badge
-A taxonomy badge SHALL render its label on the taxonomy's data color as its background, with white text when the color's relative luminance is at most 0.179 and black text above it. A badge at taxonomy level 1 SHALL render its background at 92% opacity and one at level 2 at 85% opacity.
+A taxonomy badge SHALL render its label on the taxonomy's data color as its background. In each theme, its label SHALL be white when the relative luminance of the rendered background (the data color at its depth opacity over that theme's card surface) is at most 0.179, and black above it. A badge at taxonomy level 1 SHALL render its background at 92% opacity and one at level 2 at 85% opacity.
 
 #### Scenario: Data color background
 - **WHEN** a taxonomy badge renders for a taxonomy
 - **THEN** its background is that taxonomy's color
 
 #### Scenario: White text on dark colors
-- **WHEN** the taxonomy color's relative luminance is at most 0.179
+- **WHEN** in the active theme the rendered background's relative luminance is at most 0.179
 - **THEN** the badge label renders white
 
 #### Scenario: Black text on light colors
-- **WHEN** the taxonomy color's relative luminance is above 0.179
+- **WHEN** in the active theme the rendered background's relative luminance is above 0.179
 - **THEN** the badge label renders black
 
 #### Scenario: Depth reduces the background
@@ -67,8 +67,8 @@ Every badge label SHALL keep a contrast ratio of at least 4.5:1 against its rend
 
 #### Scenario: Rating and status pairs
 - **WHEN** a rating or verification status badge renders in either theme
-- **THEN** its label measures at least 4.5:1 against its background — the rating pairs measure 4.7–4.9:1 in the traditional theme and 6.6–7.1:1 in the dark theme
+- **THEN** its label measures at least 4.5:1 against its background — the rating pairs measure 4.68–5.13:1 in the traditional theme and 6.42–7.12:1 in the dark theme
 
 #### Scenario: Taxonomy pairs
-- **WHEN** a taxonomy badge renders for any data color in either theme
-- **THEN** its label measures at least 4.5:1 against the rendered background, whatever the luminance rule chose
+- **WHEN** a taxonomy badge renders for any data color, at any level, in either theme
+- **THEN** its label measures at least 4.5:1 against the rendered background

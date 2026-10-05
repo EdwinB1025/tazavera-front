@@ -67,3 +67,12 @@ Product owner, 2026-10-05. From the browser check at 1280px on mock data: the pa
 9. Badge padding → spec `feedback` "Badge presentation" (icon and label on one line, inner padding); D7, D14. Tasks 12.1, 12.2. This also covers the verified badge's icon rendering above its label, which was planned as an unplanned fix.
 10. Content distribution → spec "Responsive hero" (two equal, vertically centered columns) and "How we evaluate" (cards share the width); D14. Tasks 13.1, 13.2.
 End-to-end verification with captures: task 13.3.
+
+## Round 4
+
+Product owner, 2026-10-05 (option 1 of the contrast finding). An executed measurement over the 120 API taxonomy colours, at the three levels and in both themes, found 44 level-1/level-2 pairs below 4.5:1 (worst 3.63:1). The cause: the label is chosen from the raw colour, but at depth the rendered background is that colour blended over the card surface.
+
+1. **Taxonomy label per theme.** In each theme, the label (white or black) is chosen by the WCAG relative luminance of the rendered background: the taxonomy colour at its depth opacity over that theme's card surface. White when L ≤ 0.179, black above. The badge carries both labels and the active theme selects one. No single label passes both themes for 44 of the 360 colour-and-level combinations, so the switch must follow the theme. End state: every taxonomy label measures at least 4.5:1 against its rendered background, at every level, in both themes.
+2. **Measured ranges in the spec.** The "Rating and status pairs" scenario quotes 4.7–4.9:1 (traditional) and 6.6–7.1:1 (dark). The measured rating pairs are 4.68–5.13:1 and 6.42–7.12:1. The scenario states the gate (at least 4.5:1) and the measured ranges.
+   Existing tests affected: the taxonomy cases of `src/shared/ui/Badge.test.tsx` that assert `style.color` white/black from the raw colour.
+   Coverage afterwards: the build adds the measured-contrast tests that verify asked for (rating pairs in `theme-tokens.test.ts`; taxonomy pairs over the luminance rule) as unplanned coverage.
