@@ -2,7 +2,7 @@
 
 Para pegar al inicio de la próxima conversación. Adjuntar según el tema: `handoff.md` y `corrections.md` del cambio, `.claude/CLAUDE.md` y `.claude/settings.local.json` del orquestador, `AGENTS.md`, `docs/workflow_sdd.md`, `contracts/openapi.yaml`.
 
-**Estado (madrugada del 6 oct 2026).** Entrega del bootcamp esta semana; mínimo: que el front consuma todas las operaciones del contrato. El contrato de `develop` tiene **23 operaciones (`operationId`), no 24**: aclarar qué cuenta el 24. El alcance no se reduce.
+**Estado (6 oct 2026, actualizado por el orquestador).** Entrega del bootcamp esta semana; mínimo: que el front consuma todas las operaciones del contrato. El contrato de `develop` tiene **23 operaciones (`operationId`), no 24**: aclarar qué cuenta el 24. El alcance no se reduce.
 - **Mergeados en `develop`:** `add-form-fields`, `add-app-shell`, `refine-app-header` (`124c048`) y `add-landing` (`2284399`, HEAD de `develop`).
 - **En Build:** `add-auth`, 6.1–6.2 hechas en la nube (piloto).
 - **Pendiente de propose:** `add-specialist-evaluations`.
@@ -41,14 +41,24 @@ Para pegar al inicio de la próxima conversación. Adjuntar según el tema: `han
 
 ## 3. Orquestador (Claude Code)
 
-- Prompt base en `.claude/CLAUDE.md` + un prompt de tarea por sesión. Copiado con `settings.local.json` a los worktrees.
+- Prompt base en `.claude/CLAUDE.md` + un prompt de tarea por sesión. Copiado con `settings.local.json` y `.claude/agents/` a los worktrees. Diseño y borradores en `docs/design/define-agent-roles/`.
+- **Dos agentes Claude (6 oct):**
+  - **Orquestador:** la sesión principal. Asigna cada fase del tablero (§9) a OpenCode, a la nube o al design lead, según las dependencias, la prioridad y los límites del plan.
+  - **Design lead:** subagente `.claude/agents/design-lead.md`. Se ocupa de los resúmenes (pipeline: borrador, revisión, aprobado por Product owner antes de propose), la revisión visual, los prompts de la nube y las dependencias. Sus criterios: espaciado primero, los mismos criterios de resolución que el orquestador, reutilizar antes de añadir, contraste sin dilatación, y como fuentes el MVC, la API y las specs.
+- **Límites del plan Pro:**
+  - La barra de estado guarda el uso en `~/.claude/usage-snapshot.json` (5 h y 7 días).
+  - OpenCode se usa en cualquier momento y en paralelo. La nube hace los cambios pesados. Claude local solo orquesta y verifica.
+  - Con un 80 % o más de uso, la nube asume el rol de design lead.
 - Arrancar siempre desde una carpeta con `.claude/`. `--permission-mode dontAsk` para sesiones desatendidas; modo normal para merges. Antes de `claude`: `unset ANTHROPIC_API_KEY`; `/status` debe mostrar la suscripción.
 - **Ejecuciones en paralelo permitidas.** OpenCode Desktop deja huérfano `opencode-cli serve --service` al cerrarse: terminarlo a mano y mantener la app cerrada durante las sesiones.
 - **Proveedor de OpenCode (`xiaomi/mimo-v2.6-pro`):** se quedó sin saldo una vez ("Insufficient account balance") y a veces el stream se queda colgado sin error (CPU a cero, log vacío). OpenCode no tiene timeout. Si una ejecución no escribe nada en unos 15–20 min, pararla y relanzar (diagnóstico en el handoff de auth, D17–D18).
 - **Autoridad del orquestador:** cierra puntos bloqueantes sin ronda cuando lo acordado no se puede construir tal cual o dos artefactos se contradicen (sin alcance, dependencias, colores ni cambios visibles; sin seguridad ni API), y lo registra como "Closed for review". Arregla redacción y orden de artefactos sin cambiar lo que exigen. Elimina duplicados exactos. En fallos de contraste, prepara el arreglo medido por script.
 - **Nunca** edita sus propias reglas ni se amplía permisos: los cambios a `.claude/CLAUDE.md` se le pasan a Product owner como texto para revisar. Nunca resuelve un conflicto de merge sin autorización expresa para esa resolución concreta.
 - Commits del orquestador: el handoff tras cada actualización; arreglos de artefactos durante el apply; eliminación de duplicados. Siempre `git add <ruta exacta>`.
-- Registro de decisiones: `docs/orchestrator-decisions.md` en `develop`, solo añadir; Product owner lo commitea antes de cada merge.
+- **Registros que mantiene el orquestador** (`.claude/CLAUDE.md` §12, en `develop`, commit y push propios):
+  - `docs/change-progress.md`, la fuente de verdad del progreso de los cambios;
+  - `docs/orchestrator-decisions.md`, solo añadir; alimenta los diseños;
+  - este `docs/general-context.md`, al final de cada sesión.
 - **Permisos:** Product owner los cambió el 6 oct para permitir los push del flujo con la nube (detalle en `.claude/settings.local.json`). Merges a `develop` siempre con confirmación de Product owner.
 - Reglas con agentes: no preguntan en la sesión (escriben la pregunta en su informe y paran); sin pipes en shell; las definiciones de `.opencode/agents/` nunca se tocan; no se commitean `.claude/` ni los perfiles restringidos.
 

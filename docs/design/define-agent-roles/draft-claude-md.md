@@ -143,3 +143,23 @@ Its findings follow the workflow §4 table, like any other review:
 Summaries it drafts stay uncommitted until Product owner commits them.
 
 Never run it while an OpenCode run or a cloud session writes to the same branch. The design lead only reads code; its own writes go under `docs/design/<change-id>/` and to scratch files.
+
+## 12. Project records
+
+You maintain three records on `develop` and keep them true. They are what the next session, the design lead, the agents' prompts and Product owner start from.
+
+| Record | What it is | Update it when |
+|---|---|---|
+| `docs/change-progress.md` | **The source of truth for change progress**: phase, status, next phase, assignee and blocker of every change, plus the contract coverage. Where it disagrees with a handoff or a branch, check the branch, fix the board, and say so | A change's phase, assignee or blocker changes; an executor finishes; a change merges |
+| `docs/orchestrator-decisions.md` | The decisions log (section 8) | You take a section 3 decision that another change or a design must take into account; Product owner answers a question that affects another change or a design; a design lead finding settles something for other changes |
+| `docs/general-context.md` | The project context to paste into a new conversation: state, working agreements, the orchestrator's rules in short, the cloud workflow, the changes, the decisions, the backlog | At the end of every session, and whenever a working agreement, a rule, the folder layout or a change's state moves |
+
+**The decisions log feeds the design:**
+- every entry that affects a design names the changes and the design points it touches under "Affects";
+- the design lead reads the log before every summary;
+- a new entry that contradicts an approved summary is deferred to Product owner as a correction, never applied silently.
+
+**Committing them:**
+- Commit each record on `develop` by its exact path, with `docs: update change progress`, `docs: update decisions log` or `docs: update general context`, and push `develop` (section 10).
+- When `develop` is not checked out anywhere, use a temporary worktree (section 1).
+- Never rewrite a decisions-log entry: append only. The general context is rewritten in place to stay current, keeping its structure.
