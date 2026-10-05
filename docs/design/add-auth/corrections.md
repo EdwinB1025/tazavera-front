@@ -45,6 +45,16 @@ Product owner, 2026-10-05. Resolves handoff Q2–Q5 and changes the interactive 
 
 Verification: in addition to the unit tests, the task list ends with a real-browser check by Product owner before archive: sign in through the popup, step-up from a filled form keeping its input, and a reload restoring the session silently.
 
+## Round 2 — 2026-10-05
+
+Context: task 4.2 is blocked. design.md D1 has `AppShell.tsx` call `useSession()`, but `AppShell.tsx` is a Server Component (it reads the catalogs through `getMessages`, which uses `node:fs`).
+
+1. **Session seam (D1).** Add a `"use client"` component in `src/app/shell` (name left to the architect) that calls `useSession()` and renders `ShellChrome` and the sidebar region. `AppShell.tsx` stays a Server Component: it resolves the catalog texts and passes them to the new component. The sidebar region choice moves with the session into the new component. `ShellChrome.tsx` and `AppSidebar.tsx` keep receiving the session as input, unchanged. Changes to `app-shell` files go under scope `auth`, as in Q6.
+2. **`session` prop of `AppShell`.** Keep `session?` as an explicit override. The new component calls `useSession()` unconditionally and uses `session ?? <hook value>`. The three `AppShell.test.tsx` cases that pass literal sessions stay unchanged.
+3. **Already-mounted consumers.** When the popup completes, a `useSession()` consumer mounted before sign-in ends `authenticated` without remounting or navigating (D10: the opener never navigates). Add a test-only task before 4.2 that changes the "ends `authenticated`" case in `session.test.ts` so the consumer is mounted before the flow starts.
+
+Tasks: add the task of item 3 before 4.2; rewrite 4.2 and any later unchecked task that contradicts items 1–3. Checked tasks stay as they are.
+
 ### Status
 
 2026-10-05. `openspec validate add-auth --strict`: `Change 'add-auth' is valid`. The document is processed as review round 1.

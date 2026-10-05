@@ -82,20 +82,23 @@ Summary: precondition met (`9009729 docs(auth): report review round 1 for add-au
 None. The apply was not run, as the task prompt asked.
 
 ### Deferred to Product owner
-#### Q6 — May `add-auth` change `proxy.ts` / `proxy.test.ts` for corrections 7 and 8? (round stop condition)
+#### Q6 — ANSWERED 2026-10-05: yes, add-auth may change `proxy.ts` and `proxy.test.ts` to extend the per-request nonce to `/callback` and send the COOP header
+##### Q6 (original) — May `add-auth` change `proxy.ts` / `proxy.test.ts` for corrections 7 and 8? (round stop condition)
 - Question: D11 needs `proxy.ts` (owned by `app-shell`) to issue the nonce CSP on `/callback`, with the API origin in `connect-src`, and to send COOP `same-origin-allow-popups` on every other document. `/callback` stays outside the locale redirect.
 - Why deferred: the round says to stop and ask; it is a security mechanism shared across capabilities.
 - Options: 1. allow `add-auth` to change them in its own tasks (commit scope `auth`, as AGENTS.md allows for files owned by another capability); 2. a separate `app-shell` change delivers the headers first, and `add-auth` waits for it; 3. another mechanism.
 - Recommendation: option 1. Only the popup flow needs the headers, and doing them separately would hold back the real-browser check (8.13). Option 2 is cleaner if you want `proxy.ts` changes to stay with `app-shell`.
 - Blocks: the round 1 commit and the tasks for corrections 7 and 8. The architect must be rerun to add them, then commit `docs(auth): apply review round 1 for add-auth`.
 
-#### Q7 — Spec placement of correction 8 (COOP)
+#### Q7 — ANSWERED 2026-10-05: the every-page COOP requirement goes in an `app-shell` delta inside this change (`specs/app-shell/spec.md`); `proposal.md` lists `app-shell`; D11 no longer open
+##### Q7 (original) — Spec placement of correction 8 (COOP)
 - Question: the architect put "Cross-Origin-Opener-Policy" (front-wide) in `specs/auth/spec.md`, because `proposal.md` says "Modified Capabilities: None". Should it move to a `specs/app-shell/spec.md` delta, with `proposal.md` updated?
 - Why deferred: it changes the change's capability scope.
 - Recommendation: settle it together with Q6. If option 2 of Q6, it goes with the `app-shell` change. If option 1, move it to an `app-shell` delta, because `app-shell` already owns the front's CSP requirement.
 - Blocks: the same commit as Q6.
 
-#### Q8 — Superseded unchecked tasks 3.2, 6.1 and 7.1
+#### Q8 — ANSWERED 2026-10-05: yes, rewrite tasks 3.2, 6.1 and 7.1 to match the updated design in the same round
+##### Q8 (original) — Superseded unchecked tasks 3.2, 6.1 and 7.1
 - Question: these tasks still describe the earlier design (the D6 status region and `auth` catalogs, navigation and `sessionStorage` assertions, `auth` catalog texts). The new section 8 comes after them, so 3.2 cannot pass as written. Should the architect rewrite or reorder 3.2, 6.1 and 7.1 in this round, or should the Build run section 8 first?
 - Why deferred: it decides the order and content of the tasks.
 - Recommendation: rewrite 3.2, 6.1 and 7.1 in place in the same round commit, as in the `add-app-shell` C1 precedent, so no unchecked task contradicts design.md. Reordering alone would leave 7.1 checking catalog texts that no longer exist.
@@ -104,3 +107,106 @@ None. The apply was not run, as the task prompt asked.
 ### Final checks
 `npm run test:run` was not run (nothing implemented in this session). `openspec validate add-auth --strict`: valid (my re-run). `git log -1`: still `d682750 docs(auth): commiting hadoff`. No round commit (stop condition (b)).
 Working tree: the four architect files above are uncommitted; `.opencode/agents/build.md` is modified; `probe-impl.ts` and `probe.test.ts` are still untracked (please delete).
+
+## Session 2026-10-05 — round 1 (continued)
+Summary: marked Q6–Q8 as ANSWERED and ran the architect once with Product owner's message. Stopped because: completed. Round 1 is committed in two commits, one per capability. MVC reachable: not needed.
+
+### Agent feedback
+- Q6: design.md D11 is settled. `add-auth` changes `proxy.ts` and `proxy.test.ts` in its own tasks (scope `auth`). D9's Modified table lists both files, and the Open Question is marked answered.
+- Q7: the front-wide `Cross-Origin-Opener-Policy` requirement moved unchanged from `specs/auth/spec.md` to the new `openspec/changes/add-auth/specs/app-shell/spec.md` (ADDED, one scenario). The "`/callback` carries no COOP" half stays in the auth CSP requirement. `proposal.md` lists `app-shell` under Modified Capabilities and records the `proxy.ts` seam in Impact.
+- Q8: tasks 3.2, 6.1 and 7.1 are rewritten in place for the updated design (popup flow with full-page fallback, two `/callback` modes, no text and no `auth` catalogs, no token exposure). `proposal.md` "What Changes" now describes the popup sign-in and step-up, plus a bullet for the response headers.
+- Corrections 7 and 8: tasks 8.13 (CSP tests) → 8.14, and 8.15 (COOP tests) → 8.16. The real-browser check moved from 8.13 to **8.17** and is still last. A second dated `### Status` was appended to Round 1 in corrections.md.
+- The architect's choice: files shared by both capabilities (`proposal.md`, `design.md`, `tasks.md`, the corrections Status) went into the `auth` commit; the `app-shell` commit holds only its delta.
+
+### Decisions taken
+#### D4 — Architect told to continue from HEAD instead of "uncommitted edits"
+- Context: the task prompt said the round edits were uncommitted. Product owner's commit `444a9b6` had already committed them, together with `.opencode/agents/build.md` and this handoff. The probe files were also gone.
+- Decision: I sent Product owner's message unchanged and added one note: the edits are in `444a9b6`, continue from HEAD, and leave `handoff.md` and `.opencode/` unstaged.
+- Why: it changes nothing the architect has to do and avoids a contradictory instruction.
+- Result: commits `20c5826` and `fe6bc2b`.
+
+### Deferred to Augusto
+Nothing blocks the next step. The architect raised two optional points:
+#### Q9 — ANSWERED 2026-10-05: recommendation accepted, leave section 8 as is
+##### Q9 (original) — Overlap between the rewritten 3.2/6.1 and section 8
+- The rewritten 3.2 and 6.1 describe the same behaviour that tasks 8.1–8.12 add test first. The architect left 8.1–8.12 as they are, because they were not in Product owner's list; 8.3's "align it only where it deviates" lets the Build run them in either order. Option: have the architect trim the supersession notes in section 8. Recommendation: leave it; it does not block the apply.
+#### Q10 — ANSWERED 2026-10-05: recommendation accepted, the architect rewords it before the apply
+##### Q10 (original) — `proposal.md` Impact wording on `oauth4webapi`
+- Impact still calls the dependency "one open decision", although D8 records your approval. Recommendation: reword it in the next artifact update; not urgent.
+#### Note — ANSWERED 2026-10-05: the commit rules do not apply to Product owner's own commits
+##### Note (original) — `.opencode/agents/build.md` is in commit `444a9b6`
+- The task prompt said this file must be in no commit. It entered through Product owner's own commit `444a9b6`, not an agent commit. I cannot undo it (no reset or amend). Settle it before the merge (CLAUDE.md §5.7 restores `.opencode/agents/`).
+
+### Final checks
+- Commits: `20c5826 docs(auth): apply review round 1 for add-auth` (corrections.md, design.md, proposal.md, specs/auth/spec.md, tasks.md); `fe6bc2b docs(app-shell): apply review round 1 for add-auth` (specs/app-shell/spec.md).
+- `openspec validate add-auth --strict`: `Change 'add-auth' is valid` (the architect's run, and my re-run after the commits).
+- `git status --short`: ` M docs/design/add-auth/handoff.md` only.
+- `npm run test:run`: not run (no apply in this round).
+
+## Session 2026-10-05 — artifact update and apply
+Summary: Product owner accepted the recommendations for Q9, Q10 and the `build.md` note. I ran the architect once to reword `proposal.md`, then started the apply with task 3.2. Stopped because: Claude Code killed the Build run for 3.2 because the system was low on memory (not a task failure). Per the session rules, I have not restarted it. MVC reachable: not needed.
+
+### Agent feedback
+- Architect: changed only the Impact "Dependencies" bullet of `proposal.md` to "`oauth4webapi` v3.8.x (MIT, zero dependencies) as the OAuth client, approved by the product owner (`design.md` D8)…". Validate: `Change 'add-auth' is valid`. Commit `54e90b1 docs(auth): update proposal for add-auth`. The architect also noted that AGENTS.md names this commit `docs(<capability>): update artifacts for <change-id>` and asks for the review to be recorded in `## Propose status`; my prompt overrode both. Say whether you want the `## Propose status` entry added.
+- Build (3.2, killed): its last steps were tidying mock types in `authorize.test.ts`; `npx tsc --noEmit` exited 0, and it was re-running tests and lint when it was killed. Nothing was committed.
+
+### Decisions taken
+#### D5 — Build profile accepted as committed
+- Context: CLAUDE.md §4 says to check that `git status` shows the restricted profiles as modified. `build.md` is committed in `444a9b6`, so status shows it clean.
+- Decision: I read `.opencode/agents/build.md` at HEAD instead. It is the restricted overnight profile (model `xiaomi/mimo-v2.6-pro`, edits to `openspec/` and `docs/` denied except `tasks.md`), so I went ahead.
+- Why: Product owner said the commit rules do not apply to his own commits.
+
+### Deferred to Augusto
+#### Q11 — ANSWERED 2026-10-05: "resume". The 3.2 Build process had survived the kill and committed `c77945d` by itself; nothing was restarted
+##### Q11 (original) — Restart task 3.2 after the memory kill
+- State left in the worktree (uncommitted): ` M src/features/auth/api/authorize.test.ts`, ` M src/pages/callback/ui/CallbackScreen.test.tsx`; untracked `app/callback/`, `src/features/auth/api/authorize.ts`, `src/features/auth/index.ts`, `src/features/auth/model/flow.ts`, `src/pages/callback/index.ts`, `src/pages/callback/ui/CallbackScreen.tsx`.
+- Options: 1. restart the Build on 3.2 and let it continue from the work in the tree; 2. discard the partial work and restart 3.2 from scratch.
+- Recommendation: option 1, once memory is free (close other sessions or dev servers first). The work typechecked, and the Build only needed to re-run tests and lint and commit. I may not discard files myself.
+- Blocks: the whole apply (3.2 is next, and 4.x onwards depend on it).
+
+### Final checks
+- `git log -1`: `54e90b1 docs(auth): update proposal for add-auth`.
+- `npm run test:run` before the apply: Test Files 3 failed | 33 passed (36); Tests 772 passed (772). The 3 failing files are the 3.1 tests waiting for 3.2. Not re-run after the kill.
+- Build log: scratchpad `build-3.2.log`.
+
+## Session 2026-10-05 — apply (resumed)
+Summary: on "resume", found that the Build process for 3.2 (PID 19564) had survived its shell being killed and had committed task 3.2. It then sat idle (no CPU use over 15 s), so I ended it. Verified 3.2, then ran the Build on 4.1. That shell was also killed for low memory, but its process (PID 33484) finished and committed 4.1. Stopped because: the Build's report for 4.1 raises a design conflict that blocks 4.2 (Q12, Q13). MVC reachable: not needed.
+Memory: two other Build runs (`refine-app-header apply 1.1`, `add-landing task 5.2`, about 420 MB each) and OpenCode Desktop were running at the same time. That pressure is why Claude Code kills background shells. I did not touch those processes.
+
+### Agent feedback
+- 3.2 (`c77945d feat(auth): implement the flow start and the callback completion`): flow.ts, authorize.ts, `features/auth/index.ts`, CallbackScreen.tsx, `pages/callback/index.ts`, `app/callback/page.tsx`; the 3.1 tests updated for the popup flow, the two `/callback` modes and no text. Its report was lost with the killed shell. Cosmetic: the commit body repeats `Refs: add-auth`.
+- 4.1 (`1e01a2b test(auth): verify the session states and the silent re-authentication`): new `session.test.ts` with the seven cases of D1/D5; in `AppShell.test.tsx`, only "Session resolving" and "Session unresolvable" are rewired to drive the real session. As a test-only commit should, it fails only on `./session`, which 4.2 adds (in `session.test.ts`, the "Session resolving" case and `tsc`). Lint exits 0.
+- Build's questions for 4.2 (verbatim intent):
+  1. Does the `session` prop of `AppShell.tsx` survive? If the expression only calls `useSession()`, the prop is dead, and three untouched shell cases that pass literal sessions fail. `session ?? useSession()` is a conditional hook call that `react-hooks` lint is expected to flag.
+  2. `AppShell.tsx` has no `"use client"` and imports `getMessages` (`node:fs`), so it is a Server Component; D1 has its expression call the hook `useSession()`. This would surface only at `npm run build` (7.1).
+  3. Minor: the "ends `authenticated`" case reads the state from a consumer mounted after the flow completes, so 4.2 may either push the outcome from `completeCallback` or resolve the profile at session start. Say so if the already-mounted consumer must end `authenticated`.
+
+### Decisions taken
+#### D6 — Ended the idle 3.2 Build process
+- Context: after committing 3.2, PID 19564 stayed alive with no CPU use, holding about 177 MB on a machine short of memory.
+- Decision: `taskkill` on that one PID only (my own run). Then I checked 3.2: `npm run test:run` 36 files / 788 tests passed, `npm run lint` and `npx tsc --noEmit` exit 0.
+- Why: the task was committed and verified; no work was lost.
+
+### Deferred to Augusto
+#### Q12 — `AppShell.tsx` is a Server Component, but D1 has it call `useSession()`
+- Question: D1 says "`AppShell.tsx`'s single session expression … calls `useSession()`" and puts the hook behind `"use client"`. `AppShell.tsx` (owned by `app-shell`) is a Server Component: it calls `getMessages`, which reads `node:fs`, and it chooses the sidebar region from the session. A hook cannot run there. `ShellChrome.tsx` and `AppSidebar.tsx` are already `"use client"`.
+- Why deferred: it changes a design decision (D1's seam) and a shared `app-shell` component; that is a correction round.
+- Options:
+  1. Add a small `"use client"` component in `src/app/shell` (for example `SessionShell`) that calls `useSession()` and renders `ShellChrome` and the sidebar region. `AppShell.tsx` stays a Server Component, resolves the texts, and passes them in. This rewords D1's "single expression" seam.
+  2. Make `AppShell.tsx` a client component and move `getMessages` up to `app/[locale]/layout.tsx`, which passes the texts down. This changes more of `app-shell`.
+  3. Read the session inside `ShellChrome` and `AppSidebar` instead of `AppShell`. This touches two shared components.
+- Recommendation: option 1. It keeps the catalog read on the server, keeps the header and sidebar receiving the session as input as `add-app-shell` designed, and adds only one client boundary.
+- Blocks: 4.2, and through it 5.x, 7.1 and probably 8.x (all later tasks run in order).
+
+#### Q13 — Does the `session` prop of `AppShell` stay?
+- Question: the Build's question 1 above. Three existing `AppShell.test.tsx` cases pass literal sessions through the prop.
+- Recommendation: settle it with Q12. With option 1, `AppShell` can keep `session?` as an explicit override passed to the client component (`session ?? hook value` computed after an unconditional hook call), so the three cases stay as they are.
+- Blocks: 4.2.
+
+#### Q14 — Build's question 3 (already-mounted consumer)
+- Recommendation: require it. The header is mounted when the popup completes (D10: the opener never navigates), so the mounted consumer must see `authenticated`. Settle it in the same round as Q12.
+
+### Final checks
+- `git log -3`: `1e01a2b` (4.1), `c77945d` (3.2), `54e90b1` (proposal).
+- `npm run test:run` after 3.2: Test Files 36 passed (36); Tests 788 passed (788). After 4.1, the Build reports 787 passing, with failures only in `session.test.ts` and `AppShell.test.tsx > Session resolving`, as allowed for a test-only commit (I did not re-run it).
+- `git status --short`: ` M docs/design/add-auth/handoff.md` only.
