@@ -20,5 +20,6 @@
   "paginationNextLabel": "Següent",
   "listEmptyMessage": "Encara no hi ha ofertes verificades.",
   "listErrorMessage": "No s'han pogut carregar les ofertes verificades.",
-  "listRetryLabel": "Tornar-ho a provar"
+  "listRetryLabel": "Tornar-ho a provar",
+  "metaDescription": "Tazavera, la guia del bon cafè: avaluacions objectives amb el protocol de tast de l'SCA que descobreixen què hi ha a cada tassa."
 }

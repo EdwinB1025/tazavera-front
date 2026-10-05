@@ -20,5 +20,6 @@
   "paginationNextLabel": "Next",
   "listEmptyMessage": "No verified offerings yet.",
   "listErrorMessage": "The verified offerings could not be loaded.",
-  "listRetryLabel": "Retry"
+  "listRetryLabel": "Retry",
+  "metaDescription": "Tazavera, the guide to good coffee: objective evaluations with the SCA cupping protocol that discover what is in every cup."
 }

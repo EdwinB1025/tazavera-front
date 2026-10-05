@@ -20,5 +20,6 @@
   "paginationNextLabel": "Siguiente",
   "listEmptyMessage": "Aún no hay ofertas verificadas.",
   "listErrorMessage": "No se pudieron cargar las ofertas verificadas.",
-  "listRetryLabel": "Reintentar"
+  "listRetryLabel": "Reintentar",
+  "metaDescription": "Tazavera, la guía del buen café: evaluaciones objetivas con el protocolo de cata de la SCA que descubren qué hay en cada taza."
 }
