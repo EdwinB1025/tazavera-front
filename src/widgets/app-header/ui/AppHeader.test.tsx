@@ -384,6 +384,105 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
     expect(trigger.textContent).toContain("AG");
   });
 
+  // ─── The user control as a header menu trigger (spec: "Header menu
+  // triggers" and "Signed-in header and user menu"; design.md D3, D4, D5) ───
+  // Written before task 3.2 restyles the trigger, so the cases below run and
+  // fail until then. The circle and the name are found through their own
+  // text, the chevron through its icon class, so every assertion stays about
+  // classes. The name and the chevron carry the build's chosen breakpoint
+  // pair — `hidden md:inline` and `hidden md:block` — asserted as chosen.
+
+  it("renders as a ghost trigger with no fill and no border (spec: Triggers are not action controls)", () => {
+    renderSignedIn("specialist");
+    const trigger = screen.getByRole("button", { name: "Andrés Gómez" });
+    // no fill and no border at rest (design.md D3)
+    const tokens = trigger.className.split(/\s+/).filter(Boolean);
+    expect(tokens.filter((cls) => /(^|:)bg-/.test(cls))).toEqual([]);
+    expect(tokens.filter((cls) => /(^|:)border/.test(cls))).toEqual([]);
+  });
+
+  it("shows the circle, the name and a chevron from md (spec: Name and chevron on a medium or larger viewport)", () => {
+    renderSignedIn("specialist");
+    const trigger = screen.getByRole("button", { name: "Andrés Gómez" });
+    expect(within(trigger).getByText("AG")).toBeDefined();
+    // the name and the chevron show from md up (the build's chosen classes)
+    const name = within(trigger).getByText("Andrés Gómez");
+    expect(name.classList.contains("hidden")).toBe(true);
+    expect(name.classList.contains("md:inline")).toBe(true);
+    const chevron = trigger.querySelector("svg.lucide-chevron-down");
+    expect(chevron).not.toBeNull();
+    expect(chevron!.classList.contains("hidden")).toBe(true);
+    expect(chevron!.classList.contains("md:block")).toBe(true);
+  });
+
+  it("shows the initials circle alone below md (spec: Initials circle alone on a small viewport)", () => {
+    renderSignedIn("specialist");
+    const trigger = screen.getByRole("button", { name: "Andrés Gómez" });
+    // the name and the chevron hide below md and show from md up ...
+    const name = within(trigger).getByText("Andrés Gómez");
+    expect(name.classList.contains("hidden")).toBe(true);
+    expect(name.classList.contains("md:inline")).toBe(true);
+    const chevron = trigger.querySelector("svg.lucide-chevron-down");
+    expect(chevron).not.toBeNull();
+    expect(chevron!.classList.contains("hidden")).toBe(true);
+    expect(chevron!.classList.contains("md:block")).toBe(true);
+    // ... while the circle is never breakpoint-gated
+    const circle = within(trigger).getByText("AG");
+    expect(circle.className).not.toContain("hidden");
+    expect(circle.className).not.toContain("md:");
+  });
+
+  it("keeps the visible focus ring on keyboard focus (spec: Trigger keeps the focus ring on keyboard focus)", () => {
+    renderSignedIn("specialist");
+    const trigger = screen.getByRole("button", { name: "Andrés Gómez" });
+    // the shared focus indicator, and no focus treatment of its own
+    expect(trigger.classList.contains("focus-visible:focus-ring")).toBe(true);
+    expect(trigger.classList.contains("outline-none")).toBe(false);
+    expect(
+      trigger.className.split(/\s+/).filter((cls) => /(^|:)ring-/.test(cls)),
+    ).toEqual([]);
+  });
+
+  it("renders one circle class list in both themes (spec: Initials circle in the traditional theme, Initials circle in the dark theme, Circle boundary in the dark theme)", () => {
+    renderSignedIn("specialist");
+    const trigger = screen.getByRole("button", { name: "Andrés Gómez" });
+    const circle = within(trigger).getByText("AG");
+    // design.md D5: one class list; the theme difference lives entirely in
+    // the token values, so no class is chosen at render per theme
+    for (const cls of [
+      "bg-nav-avatar",
+      "text-nav-text-dark",
+      "border",
+      "border-nav-avatar-border",
+    ]) {
+      expect(circle.classList.contains(cls), cls).toBe(true);
+    }
+    // the circle takes the hover pair while the pointer is anywhere on the
+    // trigger (design.md D4): `group` on the trigger and the hover class on
+    // the circle — the build's chosen wiring, asserted as chosen
+    expect(trigger.classList.contains("group")).toBe(true);
+    expect(
+      circle.classList.contains("group-hover:bg-nav-avatar-hover"),
+    ).toBe(true);
+    // no theme-scoped class and no foreign treatment on the circle
+    expect(circle.className).not.toContain("theme-dark:");
+    const tokens = circle.className.split(/\s+/).filter(Boolean);
+    expect(tokens.filter((cls) => /(^|:)nav-button-/.test(cls))).toEqual([]);
+    expect(tokens.filter((cls) => /(^|:)action-primary-/.test(cls))).toEqual([]);
+  });
+
+  it("renders the user menu with the nav treatment (spec: Menu surface extends the header)", () => {
+    renderSignedIn("specialist");
+    openMenu();
+    const panel = screen.getByRole("menu");
+    expect(panel.classList.contains("bg-nav-surface")).toBe(true);
+    expect(panel.classList.contains("text-nav-text")).toBe(true);
+    expect(panel.classList.contains("rounded-field")).toBe(true);
+    expect(panel.classList.contains("bg-surface-card")).toBe(false);
+    expect(panel.classList.contains("text-text-primary")).toBe(false);
+    expect(panel.classList.contains("rounded-container")).toBe(false);
+  });
+
   it("groups the avatar with the language selector on the right (corrections.md round 3)", () => {
     renderSignedIn("specialist");
     const header = screen.getByRole("banner");
