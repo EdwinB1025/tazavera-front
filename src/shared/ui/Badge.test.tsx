@@ -286,3 +286,43 @@ describe("Badge", () => {
     });
   });
 });
+
+describe("Taxonomy pairs measured (spec: 'Taxonomy pairs'; verify coverage, review round 4)", () => {
+  // Measures what the spec states: for data colours across the sRGB cube, at
+  // every level and over each theme's card surface, the label the badge
+  // chooses reaches 4.5:1 against the rendered (blended) background.
+  const lum = (rgb: number[]): number => {
+    const c = rgb.map((v) => {
+      const s = v / 255;
+      return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  };
+  const hex = (h: string): number[] =>
+    [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const ratio = (a: number, b: number): number =>
+    (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+  const STEPS = [0, 51, 102, 153, 204, 255];
+  const OPACITY = { 0: 1, 1: 0.92, 2: 0.85 } as const;
+
+  it("every label measures at least 4.5:1 against its rendered background, at every level, in both themes", () => {
+    const failures: string[] = [];
+    for (const r of STEPS) for (const g of STEPS) for (const b of STEPS) {
+      const color = "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("");
+      for (const level of [0, 1, 2] as const) {
+        const badge = renderTaxonomy(color, level);
+        const chosen = labels(badge);
+        cleanup();
+        for (const theme of ["traditional", "dark"] as const) {
+          const back = hex(TAXONOMY_CARD_SURFACES[theme]);
+          const o = OPACITY[level];
+          const bg = [r, g, b].map((v, i) => Math.round(v * o + back[i] * (1 - o)));
+          const label = chosen[theme] === "white" ? 1 : 0;
+          const measured = ratio(lum(bg), label);
+          if (measured < 4.5) failures.push(`${color} L${level} ${theme} ${measured.toFixed(2)}`);
+        }
+      }
+    }
+    expect(failures).toEqual([]);
+  });
+});
