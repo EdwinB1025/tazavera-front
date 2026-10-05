@@ -260,3 +260,23 @@ Summary: Product owner: "let the architect always apply status changes". Queued 
 ## Session 2026-10-05 — Product owner's answers before the apply
 - Task 4.1b: Product owner accepts the recommendation. 4.1b keeps driving the session through `completeCallback`, and the popup check that the opener does not navigate stays in task 8.2. No artifact change.
 - `corrections.md` layout (Round 1's `### Status` sections under the `## Round 2` heading): Product owner fixes it before the apply. CLAUDE.md §3 now lets the orchestrator settle formatting issues and resolve conflicts from the design artifacts and the OpenSpec rules, so a case like this is no longer deferred. `corrections.md` stays Product owner's file to commit (§5).
+
+## Session 2026-10-05 — apply, review round 2 (tasks 4.1b and 4.2)
+Summary: Product owner: "apply changes on the last round with build". Ran the Build on 4.1b (done) and on 4.2 (stopped). Stopped because: the 4.2 run was killed by Claude Code because the system was critically low on memory; per that notice it is not restarted without Product owner's go-ahead. MVC reachable: not needed.
+
+### Agent feedback
+- 4.1b: commit `61de29d test(auth): verify the mounted session consumer ends authenticated` (checkbox included). Only the "ends authenticated" case of `session.test.ts` changed: the consumer mounts before the flow starts, the same consumer is awaited until `authenticated`, and the case asserts no `location.assign` and an unchanged `pathname`. The Build checked all three directions with a throwaway `session.ts` that was never staged (later-mount-only store fails, navigating store fails, mounted-consumer store passes).
+- 4.1b decisions (Build): keeps driving the flow through `completeCallback` (accepted by Product owner earlier); does not assert `history.pushState`, because D4's redirect mode uses client-side navigation.
+- 4.1b noticed, not fixed: the header comment of `session.test.ts` still describes a consumer mounted on the return route ("no other change to the file").
+- opencode exited with code 1 after its final report; the commit and the clean tree were fine.
+- 4.2: the run was killed while still reading files (FSD skill, guards, `authorize.test.ts`, `eslint.config.mjs`). It made no edits and no commit.
+
+### Decisions taken
+#### D10 — Ended the orphaned 4.2 process
+- Context: after the shell wrapper was killed, opencode PID 9172 (title "add-auth 4.2") stayed alive, and its log did not grow for 90 s. The working tree was clean.
+- Decision: `taskkill /T` on that PID only (my own run, plus its `serve` child), as in D6. The `refine-app-header` Build run (PID 16808) was left alone.
+- Why: an orphaned agent could edit the worktree unobserved, and memory was short.
+
+### Final checks
+- After 4.1b: `npm run test:run`: Test Files 2 failed | 35 passed (37); Tests 1 failed | 787 passed (788). The only failures are the `session.test.ts` import of `./session` and `AppShell.test.tsx > Session resolving`, both of which 4.2 adds (allowed for a test-only commit).
+- `git log -1` before this commit: `61de29d`. Next task: 4.2.
