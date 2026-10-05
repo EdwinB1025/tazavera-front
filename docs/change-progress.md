@@ -30,10 +30,11 @@ Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, 
 
 | Agente | Quién | Dónde |
 |---|---|---|
-| Arquitecto (OpenCode) | `opencode run --agent architect`, MiMo | Worktree local |
-| Build (OpenCode) | `opencode run --agent build`, MiMo | Worktree local |
+| Arquitecto (OpenCode) | `opencode run --agent architect`, `xiaomi/mimo-v2.6-pro` | Worktree local |
+| Build (OpenCode) | `opencode run --agent build`, `xiaomi/mimo-v2.6-pro` | Worktree local |
 | Claude nube | Sesión `claude --cloud` como arquitecto o build | Rama `claude/<change-id>-<tarea>` en GitHub |
-| Orquestador | Claude Code local: decide dentro de su autoridad, verifica, integra, handoff | Worktree local |
+| Orquestador | Claude Code local (`.claude/CLAUDE.md`): asigna cada fase (§9), decide dentro de su autoridad, verifica, integra, handoff, tablero | Worktree local |
+| Design lead | Subagente de Claude Code (`.claude/agents/design-lead.md`), invocado por el orquestador: resúmenes de diseño, revisión visual, prompts de la nube, análisis de dependencias. Nunca decide | Local |
 | Product owner | Decisiones, revisión de artefactos, navegador, lanza sesiones en la nube, merges | — |
 
 ### Fila vacía (copiar)
@@ -48,7 +49,7 @@ Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, 
 |---|---|---|---|---|---|---|---|---|
 | `add-auth` | auth, app-shell | `feature/add-auth` / `tazavera-front` (y `tazavera-front-auth` en detached HEAD) | Apply | 1.1–6.2 hechas (6.1–6.2 en la nube). Rondas 1–3 procesadas | Apply: 7.1, luego 8.1–8.16; 8.17 de Product owner | Claude nube o Build (OpenCode), a decidir | Elegir ejecutor del resto del apply. Q-merge al mergear `develop` | `2cbb293` |
 | `add-specialist-evaluations` | evaluations | `feature/add-specialist-evaluations` / `tazavera-front-evaluations` | Resumen | Resumen revisado ("ready to repropose"); falta aplicar los cambios del 6 oct | Propose | Product owner (resumen), luego Arquitecto | — | `08c62a9` |
-| `add-evaluation-scales` | form-fields | — | Resumen | Sin resumen | Resumen | Orquestador (redacta desde el MVC) | Diálogo: shadcn AlertDialog o propio | — |
+| `add-evaluation-scales` | form-fields | — | Resumen | Sin resumen | Resumen | Design lead (redacta desde el MVC) | Diálogo: shadcn AlertDialog o propio | — |
 | `add-user-account` | user-account | — | Resumen | Borrador de `design-summary.md` sin commitear | Revisión del resumen | Product owner | 9.5, 9.7 (`tokensExpireIn`), 9.8 | — |
 | `add-filter-controls` | filtering | — | Resumen | Por escribir; incluye el filtro de evaluaciones | Resumen | Product owner | — | — |
 | `add-offering-management` | offering-management | — | Resumen | Por escribir | Resumen | Product owner | — | — |
