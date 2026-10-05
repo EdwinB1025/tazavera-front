@@ -101,6 +101,20 @@ describe("AppShell (spec: Shell layout and main area)", () => {
     expect(screen.getByRole("banner")).toBeDefined();
     expect(screen.getByRole("main").textContent).toBe("");
   });
+
+  it("grows to the body's height so the main area reaches the bottom (spec: Main area fills the viewport)", () => {
+    const { container } = renderShell();
+    // refine-app-header design.md D15: the root is a flex child of the body's
+    // column, so it grows instead of relying on an unresolvable min-h-full
+    const root = container.firstElementChild as HTMLElement;
+    for (const cls of ["flex", "flex-1", "flex-col"]) {
+      expect(root.classList.contains(cls)).toBe(true);
+    }
+    expect(root.classList.contains("min-h-full")).toBe(false);
+    const main = screen.getByRole("main");
+    expect(main.classList.contains("bg-surface-page")).toBe(true);
+    expect(main.classList.contains("flex-1")).toBe(true);
+  });
 });
 
 describe("AppShell session states (spec: Session states in the shell)", () => {
