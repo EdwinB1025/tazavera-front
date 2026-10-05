@@ -45,6 +45,12 @@ const VARIANTS: Variant[] = [
   "taxonomy",
 ];
 
+/**
+ * The base classes of every variant: the settled treatment of design.md D7
+ * followed by the inline row and padding of D14.
+ */
+const BASE = "type-badge rounded-field inline-flex items-center gap-1 px-2 py-0.5";
+
 /** The class tokens of an element, as exact names (no substring matching). */
 function classTokens(element: Element): string[] {
   return (element.getAttribute("class") ?? "").split(/\s+/).filter(Boolean);
@@ -80,18 +86,29 @@ function renderTaxonomy(color: string, level: 0 | 1 | 2): HTMLElement {
 }
 
 describe("Badge", () => {
-  describe("Base classes (every variant renders exactly `type-badge rounded-field` as its base)", () => {
+  describe("Base classes (every variant renders exactly the D7 treatment and the D14 layout as its base)", () => {
     it("renders the base classes first on every variant", () => {
       // The base is exactly these two classes; each variant's complete class
       // list is pinned exactly in its own describe block below.
       for (const variant of VARIANTS) {
         const badge = renderBadge(variant);
-        expect(classTokens(badge).slice(0, 2), variant).toEqual([
-          "type-badge",
-          "rounded-field",
-        ]);
+        expect(classTokens(badge).slice(0, 7), variant).toEqual(
+          BASE.split(" "),
+        );
       }
     });
+  });
+
+  describe("Icon and label on one line (spec: 'Badge presentation'; design.md D14)", () => {
+    it.each(["verified", "provisional"] as const)(
+      "lays out the %s icon and label as one centered row",
+      (variant) => {
+        const tokens = classTokens(renderBadge(variant));
+        expect(tokens).toContain("inline-flex");
+        expect(tokens).toContain("items-center");
+        expect(tokens).toContain("gap-1");
+      },
+    );
   });
 
   describe("Rating variants (spec: each tier in its own rating treatment)", () => {
@@ -105,7 +122,7 @@ describe("Badge", () => {
       (variant, background) => {
         const badge = renderBadge(variant);
         expect(badge.className).toBe(
-          `type-badge rounded-field ${background} text-badge-text`,
+          `${BASE} ${background} text-badge-text`,
         );
       },
     );
@@ -115,7 +132,7 @@ describe("Badge", () => {
     it("renders the verified status treatment", () => {
       const badge = renderBadge("verified");
       expect(badge.className).toBe(
-        "type-badge rounded-field bg-badge-verified-bg text-badge-verified-text",
+        `${BASE} bg-badge-verified-bg text-badge-verified-text`,
       );
     });
 
@@ -135,7 +152,7 @@ describe("Badge", () => {
     it("renders the provisional status treatment", () => {
       const badge = renderBadge("provisional");
       expect(badge.className).toBe(
-        "type-badge rounded-field bg-badge-provisional-bg text-badge-provisional-text",
+        `${BASE} bg-badge-provisional-bg text-badge-provisional-text`,
       );
     });
 
@@ -154,7 +171,7 @@ describe("Badge", () => {
   describe("Taxonomy variant (spec: 'Data color background', 'White text on dark colors', 'Black text on light colors')", () => {
     it("takes the data color as its background inline style and renders no treatment class", () => {
       const badge = renderTaxonomy("#336699", 0);
-      expect(badge.className).toBe("type-badge rounded-field");
+      expect(badge.className).toBe(BASE);
       expect(badge.style.backgroundColor).toBe("rgb(51, 102, 153)");
     });
 
