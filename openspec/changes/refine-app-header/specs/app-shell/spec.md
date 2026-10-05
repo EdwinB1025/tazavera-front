@@ -46,6 +46,56 @@ The menus opened from the header SHALL extend the header surface: their panel SH
 
 ## MODIFIED Requirements
 
+### Requirement: Shell layout and main area
+The shell SHALL present the header above a main area that holds the content of the current route. The main area SHALL be a single column when no sidebar is present, and SHALL give the sidebar its own column beside the content when the sidebar is present. The shell SHALL occupy at least the viewport height, and the main area SHALL extend from the header to the bottom of the viewport whatever the height of its content.
+
+#### Scenario: Single column
+- **WHEN** a route renders with no sidebar
+- **THEN** the main area holds the content in one column below the header
+
+#### Scenario: Sidebar column
+- **WHEN** a route renders with the management sidebar present on a medium or larger viewport
+- **THEN** the sidebar occupies its own column beside the content and the content region keeps the remaining width
+
+#### Scenario: Main area fills the viewport
+- **WHEN** a route renders content shorter than the viewport, in either theme
+- **THEN** the main area, with the page surface, reaches from the header to the bottom of the viewport and no other background shows below it
+
+### Requirement: Header brand and primary navigation
+The header SHALL show the brand logotype, linking to the root of the active locale. The brand logotype and the primary navigation SHALL sit in one group on the left, and the language selector and the session control SHALL sit in one group on the right, on every viewport. On medium and larger viewports it SHALL also show the "Top rated" and "About us" entries; on small viewports those two entries SHALL NOT be shown. The primary navigation entries SHALL be presented as navigation items of the header, not as inline text links, and the entry of the current route SHALL be marked as the current page.
+
+#### Scenario: Brand link
+- **WHEN** the user activates the brand logotype in the header
+- **THEN** the application opens the root of the active locale
+
+#### Scenario: Primary navigation on a medium or larger viewport
+- **WHEN** the header renders on a medium or larger viewport
+- **THEN** it shows "Top rated", pointing at the verified offerings ordered by cupping average descending, and "About us", pointing at the About us page
+
+#### Scenario: Primary navigation on a small viewport
+- **WHEN** the header renders on a small viewport
+- **THEN** the "Top rated" and "About us" entries are not shown while the brand logotype, the language selector and the session control stay visible
+
+#### Scenario: Header grouping on every viewport
+- **WHEN** the header renders on any viewport
+- **THEN** the brand logotype and the primary navigation form one group on the left, the language selector and the session control form one group on the right after it, and no viewport changes that grouping
+
+#### Scenario: Navigation entries are navigation items
+- **WHEN** the primary navigation renders on a medium or larger viewport
+- **THEN** each entry fills the header's height with its label centred in the navigation item typography, shows no underline in any state, and the navigation sits visibly apart from the brand logotype
+
+#### Scenario: Navigation entry hover
+- **WHEN** the pointer rests on an entry that is not the current page
+- **THEN** the entry takes the navigation hover fill and the navigation hover text colour
+
+#### Scenario: Navigation entry keyboard focus
+- **WHEN** an entry receives keyboard focus
+- **THEN** it shows the shared visible focus ring
+
+#### Scenario: Current page entry
+- **WHEN** the current route's path equals an entry's path, ignoring the query
+- **THEN** that entry carries `aria-current="page"` and a bottom bar in the navigation indicator colour, takes no hover fill, and no other entry is marked
+
 ### Requirement: Signed-in header and user menu
 While the session is authenticated, the header SHALL show the brand logotype, the language selector and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The control SHALL show an initials circle and, on a medium or larger viewport, the user's name and a chevron after the circle; below that viewport it SHALL show the circle alone. The menu SHALL offer the profile settings entries, the security entry as an external link to the API's security page, a theme selector, the management entry for the user's role, and sign out.
 

@@ -23,7 +23,7 @@ See `proposal.md` — Why. The constraints that shape the approach:
 
 - Any change to the traditional theme's rendering, or to any token outside the avatar tokens of D5 with their one new boundary token and the destructive text token of D2 with its two primitives (correction 4 of round 1).
 - Any change to the shared menu's default rendering (the card surface other screens will use).
-- Making the header's primary navigation links part of this refinement (out of scope per design summary §1).
+- Any change to the primary navigation beyond its presentation as header navigation items and the current-page mark (D14, correction 1 of round 2); its entries and destinations stay as `add-app-shell` defined them.
 
 ## Decisions
 
@@ -145,6 +145,20 @@ The language entries' names and `lang` codes are data of the front end (D6), not
 
 The shared card is not used by this change, so the card field-mapping rule does not apply.
 
+### D14 — Primary navigation entries are header navigation items (correction 1 of round 2)
+
+`src/widgets/app-header/ui/PrimaryNav.tsx` stops rendering the shared `Link`: that control is underlined in every state by its `base-controls` definition and `cn` cannot strip a baked-in class (explore finding F3), so the entries render `next/link` directly, keeping client-side navigation and today's destinations. The shared `Link` and `base-controls` are unchanged.
+
+- **Navigation group:** `hidden md:flex items-center` plus `md:ml-4`, so with the left group's `gap-4` the navigation sits 2rem from the logotype; the entries carry no gap of their own (their padding separates them).
+- **Every entry:** `type-navbar-item` (the existing utility, italic, `nav-text`), `flex h-16 items-center justify-center px-6`, and `focus-visible:focus-ring`. No `underline` class in any state.
+- **Hover (non-current entries only):** `hover:bg-nav-hover` and `hover:text-nav-text-hover`.
+- **Current entry:** `aria-current="page"`, `border-b-2 border-nav-indicator`, and none of the hover classes, so the bar never sits on the hover fill (`nav-indicator` on `nav-hover` measures 2.75:1 in the traditional theme). An entry is current when the current route's path equals its path (`/<locale>/offerings` for "Top rated", `/<locale>/about` for "About us"); the query is ignored. When no path is known, no entry is marked.
+- **Where the path comes from:** `PrimaryNavProps` and `AppHeaderProps` gain an optional `currentPath?: string`; `src/app/shell/ShellChrome.tsx`, already a Client Component that reads `usePathname()` (`node_modules/next/dist/docs/01-app/03-api-reference/04-functions/use-pathname.md`), passes the path through `AppHeader` to `PrimaryNav`. `PrimaryNav` stays a plain component with no hook and no `"use client"` of its own, so it remains testable with a prop. The docs warn of hydration mismatches only for rewrites; `proxy.ts` only redirects, so the server and browser paths agree.
+
+### D15 — The shell fills the viewport height (correction 2 of round 2)
+
+`app/layout.tsx` gives `html` `h-full` and the body `min-h-full flex flex-col`; the shell's root `div` uses `min-h-full`, a percentage of a parent whose height is only a minimum, so it does not resolve and the root collapses to its content. The shell's root becomes `flex flex-1 flex-col` (it grows to the body's height as a flex child), and the main area keeps `bg-surface-page flex-1`, so it reaches the bottom of the viewport. `app/layout.tsx`, the body and every token stay unchanged.
+
 ### D12 — Files created and modified
 
 | Path | FSD layer | Action |
@@ -154,11 +168,13 @@ The shared card is not used by this change, so the card field-mapping rule does 
 | `src/shared/ui/DropdownMenu.test.tsx` | shared (segment `ui`) | modified — nav-surface and destructive-entry cases; the existing cases stay |
 | `src/shared/ui/icons.ts` | shared (segment `ui`) | modified — re-export `Globe` (D8) |
 | `src/shared/ui/icons.test.ts` | shared (segment `ui`) | modified — assert `Globe` beside the existing icons |
-| `src/app/shell/AppShell.tsx` | app | modified — compose the language trigger's name and resolve the locale fallback (D6) |
-| `src/app/shell/AppShell.test.tsx` | app | modified — assert the composed name passes down |
+| `src/app/shell/AppShell.tsx` | app | modified — compose the language trigger's name and resolve the locale fallback (D6); the root grows to the body's height (D15) |
+| `src/app/shell/AppShell.test.tsx` | app | modified — assert the composed name passes down; the root's height classes (D15) |
+| `src/app/shell/ShellChrome.tsx` | app | modified — passes the current path to the header (D14) |
+| `src/widgets/app-header/ui/PrimaryNav.tsx` | widgets (slice `app-header`) | modified — navigation items rendered with `next/link`, hover and current entry (D14) |
 | `src/app/styles/globals.css` | app | modified — the dark values of `nav-avatar`, `nav-avatar-hover` and `nav-text-dark`, `nav-avatar-border` defined in both themes (D5), and the three destructive-token declarations of D2 |
 | `src/app/styles/theme-tokens.test.ts` | app | modified — the contrast pairs this change introduces (D13) |
-| `src/widgets/app-header/ui/AppHeader.tsx` | widgets (slice `app-header`) | modified — ghost triggers, circle content and breakpoints (D3, D4) |
+| `src/widgets/app-header/ui/AppHeader.tsx` | widgets (slice `app-header`) | modified — ghost triggers, circle content and breakpoints (D3, D4); `currentPath` passed to the navigation (D14) |
 | `src/widgets/app-header/ui/AppHeader.test.tsx` | widgets (slice `app-header`) | modified — rewritten language cases, new user-control and menu cases |
 | `src/widgets/app-header/ui/LanguageSelect.tsx` | widgets (slice `app-header`) | modified — menu control (D7) |
 | `src/widgets/app-header/ui/UserMenu.tsx` | widgets (slice `app-header`) | modified — trigger with the circle class list (D4, D5), nav surface (D2) |
@@ -169,7 +185,7 @@ No route file changes; the root `app/` folder keeps routing only. `src/shared/ui
 
 ### D13 — Contrast evidence (design summary §4: token names mapped, contrasts recorded; artifact review of 2026-10-05: every pair in both themes)
 
-Every colour resolves through a semantic token. Design summary §4's "new token only when a pair on the header surface fails" rule fires twice: the circle fill `nav-avatar` measures ≈2.3:1 against `nav-surface` in the dark theme, so the avatar boundary gets its token `nav-avatar-border` (D5); and `feedback-error` fails the 4.5:1 text gate on the nav backgrounds (traditional 3.59:1 on `nav-surface`, 2.71:1 on `nav-hover`; dark 3.89:1 on `nav-hover`), so the nav surface's destructive text gets its token `nav-text-destructive` with its two primitives (D2, correction 4 of round 1). The failing pairs the explore found stay unused — `nav-indicator` on `nav-hover` (2.75:1 traditional), `nav-current` (1:1 traditional, 1.47:1 dark) and `nav-icon` on `nav-hover` (2.57:1 traditional) are not rendered by any settled choice — so no further token is added or changed; the token changes are the three dark values of D5 and the three declarations of D2.
+Every colour resolves through a semantic token. Design summary §4's "new token only when a pair on the header surface fails" rule fires twice: the circle fill `nav-avatar` measures ≈2.3:1 against `nav-surface` in the dark theme, so the avatar boundary gets its token `nav-avatar-border` (D5); and `feedback-error` fails the 4.5:1 text gate on the nav backgrounds (traditional 3.59:1 on `nav-surface`, 2.71:1 on `nav-hover`; dark 3.89:1 on `nav-hover`), so the nav surface's destructive text gets its token `nav-text-destructive` with its two primitives (D2, correction 4 of round 1). The failing pairs the explore found stay unused — `nav-indicator` on `nav-hover` (2.75:1 traditional; the current navigation entry takes no hover fill, D14), `nav-current` (1:1 traditional, 1.47:1 dark) and `nav-icon` on `nav-hover` (2.57:1 traditional) are not rendered by any settled choice — so no further token is added or changed; the token changes are the three dark values of D5 and the three declarations of D2.
 
 | Pair (foreground on background) | Kind | Min | Traditional | Dark | Status |
 |---|---|---|---|---|---|
@@ -185,6 +201,8 @@ Every colour resolves through a semantic token. Design summary §4's "new token 
 | `nav-text-destructive` on `nav-surface` — destructive entry at rest | text | 4.5 | ≈6.12:1 (`oxblood-850` #600108 on `sage-400` #85b5ad) | ≈5.74:1 (`night-oxblood-450` #f27f76 on `night-sage-900` #142b28) | registered in both matrices by the tasks |
 | `nav-text-destructive` on `nav-hover` — destructive entry on hover and focus | text | 4.5 | ≈4.62:1 (#600108 on `sage-500` #6B9E95) | ≈4.64:1 (#f27f76 on `night-sage-800` #1f3b37) | registered in both matrices by the tasks |
 | `border-strong` on `nav-surface` — menu panel and in-menu select boundary | boundary | 3 | ≈6.1:1 | ≈3.8:1 | registered in both matrices by the tasks |
+| `nav-indicator` on `nav-surface` — current navigation entry's bar (D14) | boundary | 3 | ≈3.64:1 (`oxblood-800` #8b2e2e on `sage-400`) | ≈3.84:1 (`night-oxblood-600` #c8635d on `night-sage-900`) | registered in both matrices by the tasks |
+| `nav-text-hover` on `nav-hover` — navigation entry on hover (D14) | text | 4.5 | ≈4.63:1 | ≈4.68:1 | already asserted in both matrices |
 
 The marked `≈` values are the recorded measurements. The tasks register the undocumented pairs in `theme-tokens.test.ts` so the thresholds are enforced from then on, assert the traditional fill gate beside the existing `nav-button-bg` gate, and assert that `--color-nav-avatar-border` is defined in both theme blocks — its `transparent` traditional value falls outside the relational completeness check's `var()`/`color-mix()` filter, so its completeness is asserted explicitly.
 
