@@ -165,6 +165,22 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
   });
 });
 
+describe("AppShell language control name (refine-app-header design.md D6)", () => {
+  it("passes the language control one composed name, never two parts (spec: Selector is named)", () => {
+    renderShell();
+    // The shell composes "<catalog word>: <own name>" — "Idioma: Español"
+    // for es — and passes it down as one string, so the trigger's accessible
+    // name is that composed name.
+    const composed = `${texts.languageSelector}: Español`;
+    expect(screen.getByRole("button", { name: composed })).toBeDefined();
+    // one composed name: never the catalog word and the own name as two parts
+    expect(
+      screen.queryByRole("button", { name: texts.languageSelector! }),
+    ).toBeNull();
+    expect(screen.queryByRole("button", { name: "Español" })).toBeNull();
+  });
+});
+
 describe("route files (architecture rule: routing only)", () => {
   function collectPages(dir: string): string[] {
     const files: string[] = [];

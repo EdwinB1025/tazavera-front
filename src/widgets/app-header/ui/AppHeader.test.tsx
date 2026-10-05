@@ -105,7 +105,7 @@ describe("AppHeader, signed-out state", () => {
     ).toBe(true);
     // the selector and the session control are never gated by a breakpoint
     expect(
-      screen.getByRole("combobox", { name: TEXTS.languageSelector }).className,
+      screen.getByRole("button", { name: TEXTS.languageSelector }).className,
     ).not.toContain("hidden");
     expect(screen.getByRole("button", { name: TEXTS.signIn }).className).not.toContain(
       "hidden",
@@ -128,7 +128,9 @@ describe("AppHeader, signed-out state", () => {
     expect(within(left).getByText(TEXTS.topRated)).toBeDefined();
     expect(within(left).getByText(TEXTS.aboutUs)).toBeDefined();
     // and nothing of the right-hand controls
-    expect(within(left).queryByRole("combobox")).toBeNull();
+    expect(
+      within(left).queryByRole("button", { name: TEXTS.languageSelector }),
+    ).toBeNull();
     expect(within(left).queryByRole("button", { name: TEXTS.signIn })).toBeNull();
     // the group itself is never gated by a breakpoint (design.md D14: only
     // the navigation and the logotype form change at `md`)
@@ -144,7 +146,7 @@ describe("AppHeader, signed-out state", () => {
     const right = header.children[1] as HTMLElement;
     // one group holding both right-hand controls
     expect(
-      within(right).getByRole("combobox", { name: TEXTS.languageSelector }),
+      within(right).getByRole("button", { name: TEXTS.languageSelector }),
     ).toBeDefined();
     expect(within(right).getByRole("button", { name: TEXTS.signIn })).toBeDefined();
     // in DOM order after the left group
@@ -194,7 +196,7 @@ describe("AppHeader, signed-out state", () => {
     expect(screen.getByText(TEXTS.aboutUs)).toBeDefined();
     expect(screen.getByText(TEXTS.signIn)).toBeDefined();
     expect(
-      screen.getByRole("combobox", { name: TEXTS.languageSelector }),
+      screen.getByRole("button", { name: TEXTS.languageSelector }),
     ).toBeDefined();
   });
 });
@@ -232,7 +234,12 @@ describe("PrimaryNav", () => {
   });
 });
 
-describe("LanguageSelect", () => {
+describe("LanguageSelect (spec: Language selection)", () => {
+  // design.md D7: the language control is a menu — a ghost trigger carrying
+  // the globe, the uppercased locale code and a chevron on every viewport,
+  // and one single-choice entry per supported locale, each in its own name
+  // with its own `lang` attribute. Written before the menu control exists
+  // (task 2.2), so every case below runs and fails until then.
   function renderSelect() {
     const onLocaleChange = vi.fn();
     const utils = render(
@@ -246,26 +253,102 @@ describe("LanguageSelect", () => {
     return { ...utils, onLocaleChange };
   }
 
-  it("carries an accessible name (spec: Selector is named)", () => {
+  function openMenu() {
+    fireEvent.pointerDown(
+      screen.getByRole("button", { name: TEXTS.languageSelector }),
+    );
+  }
+
+  it("carries an accessible name naming the current language (spec: Selector is named)", () => {
+    // the composed string passed as its label is the trigger's accessible name
     renderSelect();
-    expect(screen.getByRole("combobox", { name: TEXTS.languageSelector })).toBeDefined();
+    expect(
+      screen.getByRole("button", { name: TEXTS.languageSelector }),
+    ).toBeDefined();
   });
 
-  it("lists exactly the supported locales (spec: Only supported locales are offered)", () => {
+  it("lists exactly the supported locales as menu entries (spec: Only supported locales are offered)", () => {
     renderSelect();
-    const select = screen.getByRole("combobox", { name: TEXTS.languageSelector });
-    const values = Array.from(select.querySelectorAll("option")).map(
-      (option) => option.value,
-    );
-    expect(values).toEqual(LOCALES);
+    openMenu();
+    const entries = screen.getAllByRole("menuitemradio");
+    expect(entries.map((entry) => entry.textContent)).toEqual([
+      "Español",
+      "English",
+      "Català",
+    ]);
   });
 
   it("calls back with the chosen locale (spec: Choosing a locale)", () => {
     const { onLocaleChange } = renderSelect();
-    fireEvent.change(screen.getByRole("combobox", { name: TEXTS.languageSelector }), {
-      target: { value: "en" },
-    });
+    openMenu();
+    fireEvent.click(screen.getByRole("menuitemradio", { name: "English" }));
     expect(onLocaleChange).toHaveBeenCalledWith("en");
+  });
+
+  it("shows globe, code and chevron on every viewport (spec: Trigger content on every viewport)", () => {
+    renderSelect();
+    const trigger = screen.getByRole("button", { name: TEXTS.languageSelector });
+    expect(trigger.querySelector("svg.lucide-globe")).not.toBeNull();
+    expect(trigger.textContent).toContain("ES");
+    expect(trigger.querySelector("svg.lucide-chevron-down")).not.toBeNull();
+    // the trigger itself is gated by no breakpoint
+    expect(trigger.className).not.toContain("hidden");
+    expect(trigger.className).not.toContain("md:");
+  });
+
+  it("renders each language in its own name with its own lang attribute (spec: Each language in its own name)", () => {
+    renderSelect();
+    openMenu();
+    const entries: Array<[string, string]> = [
+      ["Español", "es"],
+      ["English", "en"],
+      ["Català", "ca"],
+    ];
+    for (const [name, lang] of entries) {
+      expect(
+        screen.getByRole("menuitemradio", { name }).getAttribute("lang"),
+      ).toBe(lang);
+    }
+  });
+
+  it("marks the current language as the single choice (spec: Current language is marked)", () => {
+    renderSelect();
+    openMenu();
+    const current = screen.getByRole("menuitemradio", { name: "Español" });
+    expect(current.getAttribute("aria-checked")).toBe("true");
+    const others = screen
+      .getAllByRole("menuitemradio")
+      .filter((entry) => entry !== current);
+    for (const other of others) {
+      expect(other.getAttribute("aria-checked")).not.toBe("true");
+    }
+  });
+
+  it("renders as a ghost trigger with no fill and no border (spec: Triggers are not action controls)", () => {
+    renderSelect();
+    const trigger = screen.getByRole("button", { name: TEXTS.languageSelector });
+    // no fill and no border, at rest or in any state (design.md D3)
+    expect(trigger.className).not.toMatch(/(^|:)bg-/);
+    expect(trigger.className).not.toMatch(/(^|:)border/);
+  });
+
+  it("carries the trigger content colours `text-nav-text` with `hover:text-nav-text-hover` (spec: Trigger content follows the navigation text colours)", () => {
+    renderSelect();
+    const trigger = screen.getByRole("button", { name: TEXTS.languageSelector });
+    expect(trigger.classList.contains("text-nav-text")).toBe(true);
+    expect(trigger.classList.contains("hover:text-nav-text-hover")).toBe(true);
+  });
+
+  it("renders its menu with the nav treatment (spec: Menu surface extends the header)", () => {
+    renderSelect();
+    openMenu();
+    const panel = screen.getByRole("menu");
+    expect(panel.classList.contains("bg-nav-surface")).toBe(true);
+    expect(panel.classList.contains("text-nav-text")).toBe(true);
+    expect(panel.classList.contains("rounded-field")).toBe(true);
+    expect(panel.classList.contains("bg-surface-card")).toBe(false);
+    expect(panel.classList.contains("text-text-primary")).toBe(false);
+    expect(panel.classList.contains("rounded-container")).toBe(false);
   });
 });
 
@@ -310,11 +393,11 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
     // the left group keeps both logotype forms and the navigation, with none
     // of the right-hand controls
     expect(left.querySelectorAll('a[href="/es"]')).toHaveLength(2);
-    expect(within(left).queryByRole("combobox")).toBeNull();
+    expect(within(left).queryByRole("button", { name: TEXTS.languageSelector })).toBeNull();
     expect(within(left).queryByRole("button", { name: "Andrés Gómez" })).toBeNull();
     // the session control is the avatar, in the same right-hand group
     expect(
-      within(right).getByRole("combobox", { name: TEXTS.languageSelector }),
+      within(right).getByRole("button", { name: TEXTS.languageSelector }),
     ).toBeDefined();
     expect(within(right).getByRole("button", { name: "Andrés Gómez" })).toBeDefined();
     // in DOM order after the left group, at the right edge, and never gated

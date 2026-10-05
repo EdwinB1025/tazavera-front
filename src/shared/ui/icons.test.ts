@@ -11,6 +11,7 @@ import {
   EyeOff,
   ChevronDown,
   Check,
+  Globe,
   type LucideIcon,
 } from "@/shared/ui/icons";
 
@@ -32,6 +33,12 @@ describe("icon entry point (src/shared/ui/icons.ts)", () => {
     expect(EyeOff).toBeDefined();
     expect(ChevronDown).toBeDefined();
     expect(Check).toBeDefined();
+  });
+
+  it("exports Globe beside ChevronDown (refine-app-header design.md D8)", () => {
+    // The language control's globe icon. It is not exported yet, so this test
+    // runs and fails until task 2.2 re-exports it beside `ChevronDown`.
+    expect(Globe).toBeDefined();
   });
 
   it("is the only module under src/ that imports lucide-react", () => {
