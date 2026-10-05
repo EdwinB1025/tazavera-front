@@ -31,7 +31,7 @@
 ## 7. Correction round 1, 3 — the shell does not cast the locale
 
 - [x] 7.1 Write the test first (corrections.md round 1, correction 3). In `src/app/shell/AppShell.test.tsx`, add the case "composes the default locale's name for an unsupported locale": rendering the shell with an unsupported locale (for example `locale="fr"`) does not throw and the language trigger's accessible name is `ES — Idioma: Español`. Verify the case runs and fails (today the render throws on the unsupported locale).
-- [ ] 7.2 Implement the fallback of design.md D6 in `src/app/shell/AppShell.tsx`: the locale is resolved with `isSupportedLocale`, an unsupported one resolves to `DEFAULT_LOCALE` (`es`) for the whole composition — catalog word, code and own name — and no cast remains, while every supported locale composes exactly as in task 5.2. Verify the case of 7.1 passes, the cases of 5.1 still pass, and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0.
+- [x] 7.2 Implement the fallback of design.md D6 in `src/app/shell/AppShell.tsx`: the locale is resolved with `isSupportedLocale`, an unsupported one resolves to `DEFAULT_LOCALE` (`es`) for the whole composition — catalog word, code and own name — and no cast remains, while every supported locale composes exactly as in task 5.2. Verify the case of 7.1 passes, the cases of 5.1 still pass, and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0.
 
 ## 8. Correction round 1, 4 — the destructive entry keeps its error colour on the nav surface
 
