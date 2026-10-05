@@ -7,7 +7,7 @@ Defines Tazavera's status and messaging components: how the interface reports st
 ## ADDED Requirements
 
 ### Requirement: Badge presentation
-A badge SHALL render as a compact chip carrying its label in the badge text treatment with the field corner radius of the active theme, and SHALL convey meaning through its label and icon as well as its colors.
+A badge SHALL render as a compact chip carrying its label, and its icon when it has one, on one line, with inner padding around them, in the badge text treatment with the field corner radius of the active theme, and SHALL convey meaning through its label and icon as well as its colors.
 
 #### Scenario: Chip presentation
 - **WHEN** a badge renders in either theme

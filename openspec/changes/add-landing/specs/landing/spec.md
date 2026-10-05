@@ -13,6 +13,25 @@ Both public pages SHALL render completely for an anonymous visitor, in the local
 - **WHEN** an anonymous visitor opens the entry route or the about route in a supported locale
 - **THEN** the page renders its full content in that locale with no sign-in prompt
 
+### Requirement: Page layout
+Both public pages SHALL be built from full-width sections. Each section's content SHALL sit in a horizontally centered container at most 72rem wide, with side padding (1rem below the medium breakpoint of 768px, 2rem from it). Each section SHALL have vertical padding (3rem below 768px, 4rem from it). On the entry page, the hero and the verified offerings list SHALL be separate sections, the hero on the page background and the list on the section background. Groups of navigation links SHALL keep a visible gap between their links and wrap when there is no room.
+
+#### Scenario: Centered content
+- **WHEN** either page renders on a viewport wider than 72rem plus its side padding
+- **THEN** the content of every section is centered with equal space on both sides, while the section backgrounds span the full viewport width
+
+#### Scenario: Side and section spacing
+- **WHEN** either page renders at any viewport width
+- **THEN** no section content touches the viewport's side edges, and consecutive sections are separated by their vertical padding
+
+#### Scenario: Entry page sections
+- **WHEN** the entry page renders
+- **THEN** the hero renders on the page background and the verified offerings list renders below it, in its own section on the section background
+
+#### Scenario: Link groups
+- **WHEN** the two registration links render on either page
+- **THEN** a visible gap separates them, and they wrap onto separate lines when the row has no room
+
 ### Requirement: Entry page hero
 The entry page SHALL render, in the main content area, an eyebrow label, the entry heading with exactly one emphasized word in the accent text color (in Spanish the settled copy `Tu café, el que merece cada sorbo`), an introduction paragraph, a primary action that scrolls the verified offerings list into view on the same page, and two navigation links: one registering a coffeeshop and one registering as a specialist. The coffee-beans photograph SHALL accompany the hero from the medium breakpoint (768px) up and be hidden below it.
 
@@ -34,14 +53,18 @@ The entry page SHALL render, in the main content area, an eyebrow label, the ent
 
 #### Scenario: Responsive hero
 - **WHEN** the viewport is below 768px
-- **THEN** the hero renders in one column with the photograph hidden, and from 768px up it renders in two columns with the photograph beside the text
+- **THEN** the hero renders in one column with the photograph hidden, and from 768px up it renders in two equal columns, vertically centered, with the photograph beside the text
 
 ### Requirement: Verified offerings list
-The entry page SHALL list the verified offerings of the API, one offering card per offering, with Previous and Next pagination driven by the API's current and last page, and SHALL cover loading, empty, success and error states.
+The entry page SHALL list the verified offerings of the API, one offering card per offering, in a grid of one column below the medium breakpoint (768px), two from 768px and three from the extra-large breakpoint (1280px), with Previous and Next pagination driven by the API's current and last page, and SHALL cover loading, empty, success and error states.
 
 #### Scenario: Success
 - **WHEN** the verified offerings load and the API returns offerings
 - **THEN** one offering card renders per offering of the current page and the pagination reflects the API's current and last page
+
+#### Scenario: Grid by viewport
+- **WHEN** the list renders offering cards
+- **THEN** the cards fill one column below 768px, two from 768px and three from 1280px, separated by a gap, and the cards of one row share the same height
 
 #### Scenario: Loading
 - **WHEN** the list is loading its data
@@ -74,6 +97,10 @@ Each offering card SHALL show the offering's data as mapped from the API: the cu
 - **WHEN** an offering carries a cupping average
 - **THEN** the card shows the score out of 100 with the rating badge of its range: exceptional at 90 or above, excellent from 85 to below 90, good from 80 to below 85, commercial below 80
 
+#### Scenario: Score row above the content
+- **WHEN** an offering card renders at any viewport width
+- **THEN** the score, the `/100` scale and the rating badge sit on one row above the card's main content
+
 #### Scenario: No score
 - **WHEN** an offering carries no cupping average
 - **THEN** the card shows no score and no rating badge and the rest of its content renders normally
@@ -84,7 +111,7 @@ Each offering card SHALL show the offering's data as mapped from the API: the cu
 
 #### Scenario: Footer counts
 - **WHEN** an offering card renders
-- **THEN** its footer shows the offering's evaluation count and defective evaluation count
+- **THEN** its footer shows the offering's evaluation count and defective evaluation count, separated by a visible gap, with the card's links grouped apart from the counts at the end of the footer
 
 #### Scenario: View link for everyone
 - **WHEN** any viewer sees an offering card
@@ -122,7 +149,7 @@ The about route SHALL render five sections with alternating page and section bac
 
 #### Scenario: How we evaluate
 - **WHEN** the evaluation section renders
-- **THEN** three cards present the provisional registration, the SCA cupping by specialists and the consensus verification
+- **THEN** three cards present the provisional registration, the SCA cupping by specialists and the consensus verification, sharing the container width equally from the medium breakpoint (768px) up
 
 #### Scenario: Registration links
 - **WHEN** the visitor activates the coffeeshop or the specialist registration link of the about page

@@ -34,3 +34,36 @@ Product owner, 2026-10-05. Resolves handoff Q11 (option 1).
 2026-10-05. `openspec validate add-landing --strict` passes.
 
 1. The `app-shell` MODIFIED delta and the named test update — artifacts updated: new `specs/app-shell/spec.md` (requirement "Locale routing" modified: the scenario "Root of a supported locale" has THEN "the shell renders the entry page in its main area instead of reporting the page as not found"; the rest of the requirement unchanged), proposal.md Modified Capabilities (lists `app-shell` with that modification), design.md D13 (`src/app/shell/AppShell.test.tsx` among the modified files). Tasks created: tasks.md section 10, task 10.1 — the `src/app/shell/AppShell.test.tsx` update (plain placeholder child in both former `<HomeScreen />` renders, the main-area case restated to the child the main area holds and failing if it does not hold it, the single-button assertion unchanged, no other assertion removed or weakened), placed before task 6.2 in list order with commit scope `app-shell` and the `npm run test:run`, `npm run lint`, `npx tsc --noEmit` verification. No test comes first and no implementation task follows: the round changes no implementation.
+
+## Round 3
+
+Product owner, 2026-10-05. From the browser check at 1280px on mock data: the pages have no margins, no spacing and no card gaps. The artifacts never settled page layout, so this round settles it. Spacing values are end states; the build picks the utilities and the tests assert its choice.
+
+1. **Page container.** On both the entry page and the About page, every section's content sits in a horizontally centered container, at most 72rem wide, with 1rem side padding below `md` and 2rem from `md` up. Section backgrounds still span the full viewport width; only the content is constrained.
+2. **Section spacing.** Every section of both pages has 3rem vertical padding below `md` and 4rem from `md` up. On the entry page, the hero and the offerings list are two separate sections.
+3. **Entry page backgrounds.** The hero section keeps `bg-surface-page`, and the offerings list section takes `bg-surface-section`, alternating as the About page does.
+4. **Hero rhythm.** Inside the hero text column, the eyebrow, heading, paragraph and actions are separated vertically: 1rem between eyebrow, heading and paragraph, and 1.5rem before the actions.
+5. **Registration links.** On both pages, the two registration links sit in a row with a 1.5rem gap and wrap onto separate lines with a 0.5rem gap when there is no room. They never touch.
+6. **Offerings grid.** The verified list renders its cards in a grid: one column below `md`, two from `md`, three from `xl`, with a 1.5rem gap in both directions. Cards in a row stretch to the same height, with the footer at the bottom of each card.
+7. **Offering card stacked layout.** The offering card renders its side column (score, `/100` and rating chip on one compact row) above the content at every width, separated from it by the `border-border-subtle` separator on the boundary between them. The shared Card keeps its current behaviour by default (side column beside the content from `lg`) and gains an option for this stacked layout at every width. The offering card uses that option.
+8. **Card footer.** The two counts are separated by a 1rem gap. The View link, and the Evaluate link when shown, are grouped at the end of the footer, separated from the counts. The footer wraps on narrow cards.
+9. **Badge padding.** Every badge variant has 0.5rem horizontal and 0.125rem vertical inner padding.
+10. **Content distribution.** Inside the centered container, content spreads across the available width instead of gathering on the left. From `md` up, the hero text and the photograph split the container into two equal columns, vertically centered. The About sections use the full container width, with the three evaluation cards sharing it equally. Text stays left-aligned; it is the content block that is centered on the page.
+   Existing tests affected: the assertions that pin the replaced classes. `src/shared/ui/Badge.test.tsx` checks that the base classes are exactly `type-badge rounded-field`; `src/shared/ui/Card.test.tsx` checks the stacking classes; and the class assertions in `OfferingCard.test.tsx`, `OfferingList.test.tsx`, `HomeHero.test.tsx`, `HomeScreen.test.tsx` and `AboutContent.test.tsx`. The tasks name each one. No assertion is removed without a replacement for the new end state.
+   Not in this round: the rating chip label (D4, still pending my browser check); the header's primary navigation spacing and the About page's white area below the content (`app-shell`, sent to `refine-app-header`); the verified badge's icon above its label (unplanned fix, behaviour already in spec).
+
+### Status
+
+2026-10-05. `openspec validate add-landing --strict`: valid. Processed by the orchestrator on Product owner's instruction ("follow the process yourself"), in place of the architect agent.
+
+1. Page container → spec `landing` "Page layout" (scenario "Centered content"); design.md D14. Tasks 13.1, 13.2.
+2. Section spacing → spec "Page layout" ("Side and section spacing"); D14. Tasks 13.1, 13.2.
+3. Entry page backgrounds → spec "Page layout" ("Entry page sections"); D14. Tasks 13.1, 13.2.
+4. Hero rhythm → D14; spec unchanged (layout detail only). Tasks 13.1, 13.2.
+5. Registration links → spec "Page layout" ("Link groups"); D14. Tasks 13.1, 13.2.
+6. Offerings grid → spec "Verified offerings list" (text and new scenario "Grid by viewport"); D14. Tasks 13.1, 13.2.
+7. Offering card stacked layout → spec `content-structure`: new requirement "Stacked card layout", "Card stacking on narrow viewports" now scoped to the default layout; spec `landing` adds the "Score row above the content" scenario; D6, D14. Tasks 11.1, 11.2 and 13.1, 13.2.
+8. Card footer → spec "Footer counts" scenario; D14. Tasks 13.1, 13.2.
+9. Badge padding → spec `feedback` "Badge presentation" (icon and label on one line, inner padding); D7, D14. Tasks 12.1, 12.2. This also covers the verified badge's icon rendering above its label, which was planned as an unplanned fix.
+10. Content distribution → spec "Responsive hero" (two equal, vertically centered columns) and "How we evaluate" (cards share the width); D14. Tasks 13.1, 13.2.
+End-to-end verification with captures: task 13.3.

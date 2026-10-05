@@ -130,13 +130,13 @@ Rejected: requesting taxonomies per card or per page — the summary settles "on
 
 ### D6 — Card (`src/shared/ui`, shadcn base)
 
-Four generic parts — `Card`, `CardAside`, `CardContent`, `CardFooter` — with exactly the settled look: `bg-surface-card`, `rounded-container`, `border-l-4 border-border-accent`, `shadow-lg` on the card; `border-border-subtle` as the side column's separator. The parts render in the summary §2's order — side column, content, footer: beside the content the side column sits first (left in the row layout) and below `lg` (1024px) the parts stack in that same order. The separator border lies on the boundary between the side column and the content in both layouts, so it follows the layout edge (the build picks the border classes and its tests assert its choice). The parts compose with `cn`; the consumer fills them. The part order is this design's reading of the summary, which lists `CardAside` before `CardContent` in §2 and §4 and fixes the footer last; recorded in `## Propose status` as an assumption.
+Four generic parts — `Card`, `CardAside`, `CardContent`, `CardFooter` — with exactly the settled look: `bg-surface-card`, `rounded-container`, `border-l-4 border-border-accent`, `shadow-lg` on the card; `border-border-subtle` as the side column's separator. The parts render in the summary §2's order — side column, content, footer: beside the content the side column sits first (left in the row layout) and below `lg` (1024px) the parts stack in that same order. The separator border lies on the boundary between the side column and the content in both layouts, so it follows the layout edge (the build picks the border classes and its tests assert its choice). The parts compose with `cn`; the consumer fills them. Review round 3 adds the opt-in stacked layout and the full-height column with the footer at the bottom (D14). The part order is this design's reading of the summary, which lists `CardAside` before `CardContent` in §2 and §4 and fixes the footer last; recorded in `## Propose status` as an assumption.
 
 The shadcn card is the base and is rewired in the `add-app-shell` D6 manner: its classes are remapped to the settled tokens and it is re-exported from `src/shared/ui/index.ts`. Rejected: shipping the generated template untouched (its classes name primitives and default scales, which the guard tests refuse) and designing a container from scratch (the summary settles "shadcn base").
 
 ### D7 — Badge (`src/shared/ui`, shadcn base)
 
-One `Badge` with the variant union `rating-exceptional | rating-excellent | rating-good | rating-commercial | verified | provisional | taxonomy`. All variants render `type-badge` and `rounded-field`:
+One `Badge` with the variant union `rating-exceptional | rating-excellent | rating-good | rating-commercial | verified | provisional | taxonomy`. All variants render `type-badge` and `rounded-field`, plus the inline layout and padding of D14:
 
 | Variant | Treatment |
 |---|---|
@@ -257,7 +257,23 @@ Next.js route files are in the root `app/` folder and only import their screen f
 | `src/shared/api/index.ts` | `shared` | The derived types of D2 join `add-app-shell`'s session types |
 | `src/app/shell/AppShell.test.tsx` | `app` | The shell tests take a plain placeholder child instead of the home screen, and the main-area case asserts the child the main area holds |
 
+Review round 3 (D14) creates no file. It changes files already listed above: `Card.tsx`, `Badge.tsx`, `OfferingCard.tsx`, `OfferingList.tsx`, `OfferingSkeletonCard.tsx`, `HomeScreen.tsx`, `HomeHero.tsx`, `AboutContent.tsx` and their tests.
+
 `src/shared/api/schema.ts` is generated and is **not** modified. `contracts/openapi.yaml` is not touched. No other change's message catalog is touched.
+
+### D14 — Page layout (review round 3)
+
+The browser check showed the pages edge to edge, with no spacing and full-width cards: the earlier decisions never settled layout. Round 3 settles it. The values are end states, and the build picks the utilities; the default Tailwind spacing and container scales are allowed, since the guards cover only colours and radii.
+
+- **Sections and container.** Every section of both screens spans the viewport with its background. Its content sits in a centered container at most 72rem wide (`max-w-6xl`), with 1rem side padding below `md` and 2rem from `md` up, and 3rem vertical padding below `md` and 4rem from `md` up. The container and section classes are one constant per screen file (`HomeScreen.tsx`, `AboutContent.tsx`). FSD forbids importing between `pages` slices, so the two files each hold their own copy. This duplication is the build's candidate for `docs/backlog.md` (a shared section primitive), not part of this change.
+- **Entry page sections.** `HomeScreen` renders two sections: the hero on `bg-surface-page`, and the offerings block (the `Suspense` boundary and its fallback) on `bg-surface-section`. The block keeps `id="offerings"` as the scroll target.
+- **Hero.** From `md` up, the hero is a two-column grid of equal columns with both columns vertically centered. In the text column, eyebrow, heading and paragraph are 1rem apart, with 1.5rem before the actions.
+- **Link groups.** The two registration links (hero and About) form a wrapping row with a 1.5rem column gap and a 0.5rem row gap.
+- **Offerings grid.** `OfferingList` renders its cards (and the skeleton fallback its cards) in a grid of one column, two from `md` and three from `xl`, with a 1.5rem gap. Grid items stretch, so the cards of a row share one height.
+- **Card stacked layout.** `Card` gains a `layout` prop, `"default" | "stacked"`, defaulting to `"default"`, so existing consumers do not change. `"stacked"` keeps the parts stacked at every width: the side column's separator stays on its bottom edge, with none of the `lg` float or right border. The card is a full-height column with the footer pushed to the bottom in both layouts. `CardAside`, `CardContent` and `CardFooter` read the layout from the card: a React context provided by `Card`, since the parts are siblings that the consumer composes. `OfferingCard` uses `layout="stacked"`, and its side column puts score, `/100` and rating badge on one row.
+- **Card footer.** Counts are 1rem apart. The View link, and Evaluate when shown, form a group at the end of the footer. The footer wraps.
+- **Badge.** All variants are inline flex rows with the icon before the label, 0.25rem apart, with 0.5rem horizontal and 0.125rem vertical padding. The badge's base classes therefore grow beyond `type-badge rounded-field`.
+- **About.** The three evaluation cards share the container width equally from `md` up.
 
 ## Risks / Trade-offs
 

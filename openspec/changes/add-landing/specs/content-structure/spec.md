@@ -22,12 +22,23 @@ A card SHALL present, in order, an optional side column set apart by a separator
 - **THEN** the rendered text and data are exactly what the consumer supplied
 
 ### Requirement: Card stacking on narrow viewports
-Below the large breakpoint (1024px) the card's parts SHALL stack in their order — side column, main content, footer — with the separator border staying on the boundary between the side column and the main content.
+By default, below the large breakpoint (1024px), the card's parts SHALL stack in their order — side column, main content, footer — with the separator border staying on the boundary between the side column and the main content.
 
 #### Scenario: Stacked regions
 - **WHEN** the viewport is narrower than 1024px
 - **THEN** the side column renders above the main content with their boundary kept between them, and the footer renders below both
 
 #### Scenario: Side-by-side side column
-- **WHEN** the viewport is 1024px or wider
+- **WHEN** a card in the default layout renders at a viewport 1024px or wider
 - **THEN** the side column renders beside the main content with its separator border between them
+
+### Requirement: Stacked card layout
+A card SHALL offer a stacked layout that its consumer opts into. In that layout the parts stack in their order (side column, main content, footer) at every viewport width, with the separator border on the boundary between the side column and the main content. A card SHALL fill the height its container gives it, with the footer at the bottom of the card.
+
+#### Scenario: Stacked at every width
+- **WHEN** a card renders in the stacked layout at a viewport 1024px or wider
+- **THEN** the side column renders above the main content with the separator border between them, and the footer renders below both
+
+#### Scenario: Footer at the bottom
+- **WHEN** a card is taller than its content, because its container stretches it
+- **THEN** its footer renders at the bottom edge of the card
