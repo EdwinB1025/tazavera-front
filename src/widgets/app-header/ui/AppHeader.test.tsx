@@ -334,6 +334,29 @@ describe("LanguageSelect (spec: Language selection)", () => {
     }
   });
 
+  it("shows the check indicator on the current language only, in the entry's text colour (spec: Current choice is marked with an indicator)", () => {
+    renderSelect();
+    openMenu();
+    const current = screen.getByRole("menuitemradio", { name: "Español" });
+    const check = current.querySelector("svg.lucide-check");
+    expect(check).not.toBeNull();
+    // design.md D7: the indicator follows the entry's text through
+    // currentColor, so neither it nor its wrapper carries a colour of its own
+    const wrapper = current.querySelector(
+      '[data-slot="dropdown-menu-radio-item-indicator"]',
+    )!;
+    for (const el of [check!, wrapper]) {
+      const tokens = (el.getAttribute("class") ?? "").split(/\s+/);
+      expect(tokens.filter((cls) => /(^|:)text-/.test(cls))).toEqual([]);
+    }
+    const others = screen
+      .getAllByRole("menuitemradio")
+      .filter((entry) => entry !== current);
+    for (const other of others) {
+      expect(other.querySelector("svg.lucide-check")).toBeNull();
+    }
+  });
+
   it("renders as a ghost trigger with no fill and no border (spec: Triggers are not action controls)", () => {
     renderSelect();
     const trigger = screen.getByRole("button", { name: TEXTS.languageSelector });
