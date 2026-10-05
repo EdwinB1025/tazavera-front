@@ -427,3 +427,21 @@ Summary: OpenCode answered the `--auto` health check. The Build ran the pending 
 
 ### Final checks
 `npm run test:run` (my re-run after 5.2c): Test Files 37 passed (37); Tests 804 passed (804). Not re-run after the partial 6.1 edit.
+
+## Session 2026-10-06 — cloud pilot: tasks 6.1–6.2 (by the add-landing orchestrator, on Product owner's instruction)
+Summary: Product owner chose the add-auth apply as the first Claude cloud session. The repository is on GitHub (`EdwinB1025/tazavera-front`, private). Product owner started the session from this worktree with `claude --cloud`, as the build agent for tasks 6.1 and 6.2 only, working on its own branch. Stopped because: completed. MVC reachable: not checked.
+
+### Q17 — ANSWERED 2026-10-06: discard
+- The partial 6.1 edit was saved as a patch (add-landing orchestrator's scratchpad, `q17-6.1-partial.patch`) and discarded with `git restore`. The cloud redid 6.1 from a clean clone.
+
+### Cloud session
+- Environment: Default. Its setup script `npm ci && npx next typegen` failed: setup scripts run outside the repository, so there is no `package-lock.json` there. Product owner emptied it; the prompt now runs `npm ci` and `npx next typegen` inside the session.
+- Branch pushed by the cloud: `claude/add-auth-6.1-6.2-55prgc`, with two commits:
+  - `3f433ec test(auth): verify the step-up opens the write sign in in a popup and settles the session`
+  - `68130c9 feat(auth): export the step-up and complete popup flows in the opener`
+- Review: test before implementation; `tasks.md` changes only the 6.1 and 6.2 checkboxes; every other change is in `src/features/auth` (`authorize.ts`, `authorize.test.ts`, `index.ts`, `model/flow.ts`); `Refs: add-auth` on both. The commits are authored by "Claude", without a Co-Authored-By trailer.
+- Local checks (temporary detached worktree at `68130c9`, after `npm ci` and `npx next typegen`): `npm run test:run` 37 files and 808 tests pass; `npm run lint` exit 0; `npx tsc --noEmit` exit 0.
+- Integrated with `git merge --ff-only` (`2afc24e..68130c9`) and pushed.
+
+### Next
+- Remaining: 7.1 and 8.1–8.16 (8.17 is Product owner's). Q-merge is still open; it applies when auth merges develop.
