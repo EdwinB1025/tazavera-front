@@ -32,7 +32,7 @@
 ## 6. Step-up slice
 
 - [x] 6.1 Extend `src/features/auth/api/authorize.test.ts` covering the spec "Step-up to the write scope" and design.md D4, D5 and D10: `requestProfileWrite(returnRoute)` opening `{NEXT_PUBLIC_API_URL}/oauth/authorize` in a popup with `scope=profile:write` and no `prompt` parameter so the API forces its login, the route that asked and any input typed on it left as they are (spec scenario "Requesting the write scope"); a matching message ending `authenticated` with the new token replacing the previous one and the opener neither navigating nor reloading; and a declined or failed one ending `anonymous` with the marker removed and no text (spec scenario "The write sign in is declined or fails"). Verify `npm run test:run` runs the file and it fails because `requestProfileWrite` is not exported from `@/features/auth`.
-- [ ] 6.2 Implement `requestProfileWrite` in `src/features/auth`, exported through `src/features/auth/index.ts`, exactly as design.md D4 and D5, verifying the tests pass and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0.
+- [x] 6.2 Implement `requestProfileWrite` in `src/features/auth`, exported through `src/features/auth/index.ts`, exactly as design.md D4 and D5, verifying the tests pass and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0.
 
 ## 7. Integration verification
 

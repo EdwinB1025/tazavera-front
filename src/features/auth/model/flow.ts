@@ -33,6 +33,11 @@ export function readHeldFlow(): PendingFlow | null {
   return held;
 }
 
+/** Discards the popup flow's record once its result arrives (design.md D3). */
+export function releaseFlow(): void {
+  held = null;
+}
+
 /** Writes a full-page flow's record to `sessionStorage` (design.md D3). */
 export function saveFlow(pending: PendingFlow): void {
   sessionStorage.setItem(FLOW_KEY, JSON.stringify(pending));

@@ -20,7 +20,16 @@ import {
   type Locale,
 } from "@/shared/config/locales";
 import { readTheme } from "@/shared/lib/theme";
-import { clearFlow, holdFlow, readFlow, removeMarker, saveFlow, setMarker } from "../model/flow";
+import {
+  clearFlow,
+  holdFlow,
+  readFlow,
+  releaseFlow,
+  removeMarker,
+  saveFlow,
+  setMarker,
+  type PendingFlow,
+} from "../model/flow";
 
 /** The scopes the authorization page is asked for (design.md D5). */
 type Scope = "profile:read" | "profile:write";
@@ -129,6 +138,7 @@ function startInteractive(scope: Scope, returnRoute: string): void {
   const popup = window.open("", "tazavera-auth", "popup");
   if (popup) {
     holdFlow(pending);
+    listenToPopup(popup, pending);
   } else {
     saveFlow(pending);
   }
@@ -140,6 +150,44 @@ function startInteractive(scope: Scope, returnRoute: string): void {
       window.location.assign(url);
     }
   });
+}
+
+/**
+ * The opener's half of design.md D10: it accepts one message, only from the
+ * front's origin and from the popup it opened, and completes the flow there
+ * without navigating or reloading — the code exchanged with the verifier held
+ * in memory, the marker set and the session settled, so after a step-up the
+ * new token replaces the previous one. An error or a `state` mismatch takes the
+ * D4 error path: marker removed and the session `anonymous`, with no text.
+ */
+function listenToPopup(popup: Window, pending: PendingFlow): void {
+  const onMessage = (event: MessageEvent) => {
+    if (event.origin !== appUrl() || event.source !== popup) return;
+    window.removeEventListener("message", onMessage);
+    void completePopup(event.data, pending);
+  };
+  window.addEventListener("message", onMessage);
+}
+
+async function completePopup(data: unknown, pending: PendingFlow): Promise<void> {
+  releaseFlow();
+  const { code, state, error } = (data ?? {}) as {
+    code?: unknown;
+    state?: unknown;
+    error?: unknown;
+  };
+  if (typeof code === "string" && error === undefined && state === pending.state) {
+    try {
+      await exchangeCode(code, pending.verifier);
+      setMarker();
+      await seam?.authenticated();
+      return;
+    } catch {
+      // A failed exchange takes the error path (design.md D5).
+    }
+  }
+  removeMarker();
+  seam?.anonymous();
 }
 
 /**
