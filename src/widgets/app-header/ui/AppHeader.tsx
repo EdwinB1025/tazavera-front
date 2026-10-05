@@ -19,8 +19,9 @@ export type AppHeaderTexts = {
   signIn: string;
   /**
    * The composed accessible name of the language control the shell passes
-   * (design.md D6): one string, composed in the shell as the catalog word
-   * with the current language's own name, e.g. "Idioma: Español".
+   * (design.md D6), one string composed in the shell as the current locale's
+   * code in uppercase, then " — ", then the catalog word with the current
+   * language's own name — "ES — Idioma: Español" for `es`.
    */
   languageSelector: string;
   brandLink: string;

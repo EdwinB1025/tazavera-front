@@ -69,13 +69,14 @@ export function AppShell({
           topRated: texts.topRated!,
           aboutUs: texts.aboutUs!,
           signIn: texts.signIn!,
-          // design.md D6: the shell composes one name — the catalog word with
-          // the current language's own name, e.g. "Idioma: Español" — and
-          // passes it as one string (spec: "Selector is named"). The shell
+          // design.md D6: the shell composes one name — the current locale's
+          // code in uppercase, then " — ", then the catalog word with the
+          // current language's own name, e.g. "ES — Idioma: Español" for es —
+          // and passes it as one string (spec: "Selector is named"). The shell
           // renders only on a supported-locale root (`proxy.ts` resolves any
           // other prefix to not-found), so the active locale indexes the
           // names.
-          languageSelector: `${texts.languageSelector!}: ${LOCALE_NAMES[locale as Locale].name}`,
+          languageSelector: `${locale.toUpperCase()} — ${texts.languageSelector!}: ${LOCALE_NAMES[locale as Locale].name}`,
           brandLink: texts.brandLink!,
           profile: texts.profile!,
           editProfile: texts.editProfile!,

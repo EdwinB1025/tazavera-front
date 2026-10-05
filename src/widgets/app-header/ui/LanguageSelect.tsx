@@ -20,8 +20,8 @@ import { isSupportedLocale } from "@/shared/config/locales";
 
 export type LanguageSelectProps = {
   /**
-   * The composed accessible name the shell passes (design.md D6), e.g.
-   * "Idioma: Español" (spec: "Selector is named").
+   * The composed accessible name the shell passes (design.md D6), code first —
+   * "ES — Idioma: Español" for `es` (spec: "Selector is named").
    */
   label: string;
   /** Exactly the supported locales. */
