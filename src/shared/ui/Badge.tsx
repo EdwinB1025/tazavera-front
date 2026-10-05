@@ -41,7 +41,16 @@ const VARIANT_CLASSES: Record<BadgeVariant, string[]> = {
   taxonomy: [],
 };
 
-const BASE_CLASSES = ["type-badge", "rounded-field"].join(" ");
+const BASE_CLASSES = [
+  "type-badge",
+  "rounded-field",
+  // Icon and label on one row, padded (design.md D14).
+  "inline-flex",
+  "items-center",
+  "gap-1",
+  "px-2",
+  "py-0.5",
+].join(" ");
 
 // ─── Taxonomy data colors (design.md D7) ───
 // The two inline colors of this variant are the only inline colors under
