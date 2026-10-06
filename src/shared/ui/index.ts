@@ -87,3 +87,5 @@ export type {
 } from "./Card";
 export { Badge } from "./Badge";
 export type { BadgeProps, BadgeVariant } from "./Badge";
+export { Pagination } from "./Pagination";
+export type { PaginationProps, PaginationTexts } from "./Pagination";
