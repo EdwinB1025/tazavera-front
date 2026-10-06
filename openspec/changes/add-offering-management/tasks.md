@@ -4,7 +4,7 @@ The apply of this change waits for `add-evaluation-scales` (ConfirmDialog), `rep
 
 ## 1. Derived API types
 
-- [ ] 1.1 Add the derived type aliases of design.md to `src/shared/api/index.ts`, built from `operations` of the generated `src/shared/api/schema.ts` exactly like the existing aliases and without editing or redefining any generated type: `LocationItem` (one item of `listMyLocations` `data`) with `LocationsPayload` (its 200 body), `CoffeeInventoryItem` (one item of `listCoffeeInventory` `data`) with `CoffeeInventoryPayload` (its 200 body), and `CreateOfferingsPayload` (the 201 body of `createOfferings`). Verify: `npx tsc --noEmit` exits 0, `npm run test:run` and `npm run lint` pass completely, and `git diff` shows no change to `src/shared/api/schema.ts`.
+- [x] 1.1 Add the derived type aliases of design.md to `src/shared/api/index.ts`, built from `operations` of the generated `src/shared/api/schema.ts` exactly like the existing aliases and without editing or redefining any generated type: `LocationItem` (one item of `listMyLocations` `data`) with `LocationsPayload` (its 200 body), `CoffeeInventoryItem` (one item of `listCoffeeInventory` `data`) with `CoffeeInventoryPayload` (its 200 body), and `CreateOfferingsPayload` (the 201 body of `createOfferings`). Verify: `npx tsc --noEmit` exits 0, `npm run test:run` and `npm run lint` pass completely, and `git diff` shows no change to `src/shared/api/schema.ts`.
 
 ## 2. Message catalog `offering-management`
 

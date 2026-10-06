@@ -20,6 +20,12 @@ type ListOfferingsResponse =
   operations["listOfferings"]["responses"][200]["content"]["application/json"];
 type ListTaxonomiesResponse =
   operations["listOlfactoryTaxonomies"]["responses"][200]["content"]["application/json"];
+type ListMyLocationsResponse =
+  operations["listMyLocations"]["responses"][200]["content"]["application/json"];
+type ListCoffeeInventoryResponse =
+  operations["listCoffeeInventory"]["responses"][200]["content"]["application/json"];
+type CreateOfferingsResponse =
+  operations["createOfferings"]["responses"][201]["content"]["application/json"];
 
 /** `data` of `GET /user`. All fields are optional in the contract. */
 export type SessionUser = NonNullable<UserResponse["data"]>;
@@ -51,3 +57,18 @@ export type TaxonomyNode = NonNullable<ListTaxonomiesResponse["data"]>[number];
 export type TaxonomiesPayload = {
   data: TaxonomyNode[];
 };
+
+/** What `GET /locations` returns: `data` of the coffeeshop's locations. */
+export type LocationsPayload = ListMyLocationsResponse;
+
+/** One item of `GET /locations` `data`: `ulid`, `name`, `description`, `latitud`, `longitud`, `contacts`. */
+export type LocationItem = NonNullable<LocationsPayload["data"]>[number];
+
+/** What `GET /coffeeInventory` returns: `data` of inventory items. */
+export type CoffeeInventoryPayload = ListCoffeeInventoryResponse;
+
+/** One item of `GET /coffeeInventory` `data`: `ulid`, `roastLot`, `productionDate`, `coffee`, `roastery`. */
+export type CoffeeInventoryItem = NonNullable<CoffeeInventoryPayload["data"]>[number];
+
+/** What `POST /offerings` returns on 201: `data` of the created offerings and `message`. */
+export type CreateOfferingsPayload = CreateOfferingsResponse;
