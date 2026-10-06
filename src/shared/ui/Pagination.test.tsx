@@ -12,9 +12,9 @@ afterEach(() => {
 
 /**
  * Pagination tests (design.md D3–D6, D9; the content-structure spec
- * "Pagination"). The five cases of the former `OfferingPagination.test.tsx`
- * move here with the same expectations, rewritten for the props of D3, plus
- * the two query cases of D9.
+ * "Pagination"). The five cases of the landing's former widget pagination
+ * test keep their expectations, rewritten for the props of D3, plus the two
+ * query cases of D9.
  *
  * Previous and Next push `path` with the query and `page` set to the
  * preceding or following page of `currentPage` through `useRouter`; `page`
