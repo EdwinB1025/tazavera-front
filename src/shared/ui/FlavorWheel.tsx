@@ -46,9 +46,9 @@ export type FlavorWheelProps = {
 // ─── Treatment classes (design.md D8; design-summary §6) ───
 
 const LAYOUT_CLASSES =
-  "flex flex-col gap-6 @2xl:grid @2xl:grid-cols-[minmax(0,25rem)_minmax(0,1fr)] @2xl:grid-rows-[auto_auto_1fr] @2xl:gap-x-8 @2xl:gap-y-6";
+  "flex flex-col gap-6 @2xl:grid @2xl:grid-cols-[minmax(0,32rem)_minmax(16rem,1fr)] @2xl:grid-rows-[auto_auto_1fr] @2xl:gap-x-8 @2xl:gap-y-6";
 const WHEEL_CLASSES =
-  "mx-auto aspect-square w-full max-w-100 @2xl:row-span-3 @2xl:mx-0 @2xl:self-start";
+  "mx-auto aspect-square w-full max-w-128 @2xl:row-span-3 @2xl:mx-0 @2xl:self-start";
 const PANEL_CLASSES =
   "flex min-h-24 flex-col gap-2 rounded-field border border-border-subtle p-4";
 const ROW_CLASSES =

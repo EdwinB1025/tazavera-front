@@ -60,7 +60,7 @@ Spec "Flavor wheel note list disclosure" (scenarios "Note list collapsed at firs
 design.md D8 (cap 32rem; column 1 `minmax(0, 32rem)`, column 2 `minmax(16rem, 1fr)`; breakpoint stays 42rem).
 
 - [x] 9.1 Update "lays out by container width: stacked, then two columns from 42rem" in `src/shared/ui/FlavorWheel.test.tsx`: the layout's grid columns become a first column of `minmax(0,32rem)` and a second of `minmax(16rem,1fr)` (replacing `minmax(0,25rem)_minmax(0,1fr)`), and the wheel's 25rem cap `max-w-100` becomes a 32rem cap (the build chooses the class and asserts it); every other class in that case stays. Verifying: `npm run test:run` fails only on this case, and `npx tsc --noEmit` is clean
-- [ ] 9.2 Implement the new size (design.md D8) in `LAYOUT_CLASSES` and `WHEEL_CLASSES` of `src/shared/ui/FlavorWheel.tsx`. Verifying: 9.1 passes, the generated utilities exist in the build (`npm run build` succeeds and the compiled CSS contains the chosen cap and grid-column utilities), and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` all exit 0
+- [x] 9.2 Implement the new size (design.md D8) in `LAYOUT_CLASSES` and `WHEEL_CLASSES` of `src/shared/ui/FlavorWheel.tsx`. Verifying: 9.1 passes, the generated utilities exist in the build (`npm run build` succeeds and the compiled CSS contains the chosen cap and grid-column utilities), and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` all exit 0
 
 ## 10. Review round 1, corrections 3 and 6: every segment carries an arched label
 
