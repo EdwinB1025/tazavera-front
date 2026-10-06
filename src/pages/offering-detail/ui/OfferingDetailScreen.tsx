@@ -71,6 +71,19 @@ export function OfferingDetailScreen({
     coffeeshopCaption: landing.cardCoffeeshopCaption,
     roasterCaption: landing.cardRoasterCaption,
     evaluateLabel: landing.cardEvaluateLabel,
+    detailInventoryHeading: catalog.detailInventoryHeading,
+    fieldRoastLot: catalog.fieldRoastLot,
+    fieldProductionDate: catalog.fieldProductionDate,
+    fieldCountry: catalog.fieldCountry,
+    fieldRegion: catalog.fieldRegion,
+    fieldProducer: catalog.fieldProducer,
+    fieldVariety: catalog.fieldVariety,
+    fieldProcess: catalog.fieldProcess,
+    fieldAltitude: catalog.fieldAltitude,
+    fieldCoffeeLot: catalog.fieldCoffeeLot,
+    fieldRoastLevel: catalog.fieldRoastLevel,
+    fieldRoastery: catalog.fieldRoastery,
+    fieldCoffeeshop: catalog.fieldCoffeeshop,
   };
 
   return (

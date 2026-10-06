@@ -7,5 +7,18 @@
   "detailBackLabel": "Back",
   "detailErrorMessage": "The offering could not be loaded.",
   "detailTabInventory": "Inventory data",
-  "detailTabConsensus": "Consensus"
+  "detailTabConsensus": "Consensus",
+  "detailInventoryHeading": "Inventory",
+  "fieldRoastLot": "Roast lot",
+  "fieldProductionDate": "Production date",
+  "fieldCountry": "Country",
+  "fieldRegion": "Region",
+  "fieldProducer": "Producer",
+  "fieldVariety": "Variety",
+  "fieldProcess": "Process",
+  "fieldAltitude": "Altitude",
+  "fieldCoffeeLot": "Lot",
+  "fieldRoastLevel": "Roast level",
+  "fieldRoastery": "Roastery",
+  "fieldCoffeeshop": "Coffeeshop"
 }

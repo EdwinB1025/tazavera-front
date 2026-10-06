@@ -5,17 +5,20 @@ import type { DetailTab } from "../lib/tab";
 import { DetailHeader } from "./DetailHeader";
 import type { DetailHeaderTexts } from "./DetailHeader";
 import { DetailTabs } from "./DetailTabs";
+import { InventoryPanel } from "./InventoryPanel";
+import type { InventoryPanelTexts } from "./InventoryPanel";
 
 // ─── UI-specific types (declared before the component) ───
 
 /** Every text of the detail, as props (design.md D16). */
-export type OfferingDetailTexts = DetailHeaderTexts & {
-  backLabel: string;
-  errorMessage: string;
-  retryLabel: string;
-  tabInventory: string;
-  tabConsensus: string;
-};
+export type OfferingDetailTexts = DetailHeaderTexts &
+  InventoryPanelTexts & {
+    backLabel: string;
+    errorMessage: string;
+    retryLabel: string;
+    tabInventory: string;
+    tabConsensus: string;
+  };
 
 /** The fetch result, mapped before it reaches this view (design.md D8). */
 export type OfferingDetailResult =
@@ -92,7 +95,9 @@ export function OfferingDetailContent({
             inventory: texts.tabInventory,
             consensus: texts.tabConsensus,
           }}
-          inventory={<div data-panel="inventory" />}
+          inventory={
+            <InventoryPanel offering={result.offering} texts={texts} />
+          }
           consensus={<div data-panel="consensus" />}
         />
       </PageSection>

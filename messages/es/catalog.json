@@ -7,5 +7,18 @@
   "detailBackLabel": "Volver",
   "detailErrorMessage": "No se pudo cargar la oferta.",
   "detailTabInventory": "Datos del inventario",
-  "detailTabConsensus": "Consenso"
+  "detailTabConsensus": "Consenso",
+  "detailInventoryHeading": "Inventario",
+  "fieldRoastLot": "Lote de tueste",
+  "fieldProductionDate": "Fecha de producción",
+  "fieldCountry": "País",
+  "fieldRegion": "Región",
+  "fieldProducer": "Productor",
+  "fieldVariety": "Variedad",
+  "fieldProcess": "Proceso",
+  "fieldAltitude": "Altitud",
+  "fieldCoffeeLot": "Lote",
+  "fieldRoastLevel": "Nivel de tueste",
+  "fieldRoastery": "Tostadora",
+  "fieldCoffeeshop": "Cafetería"
 }

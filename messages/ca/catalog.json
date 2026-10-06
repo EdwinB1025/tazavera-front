@@ -7,5 +7,18 @@
   "detailBackLabel": "Tornar",
   "detailErrorMessage": "No s'ha pogut carregar l'oferta.",
   "detailTabInventory": "Dades de l'inventari",
-  "detailTabConsensus": "Consens"
+  "detailTabConsensus": "Consens",
+  "detailInventoryHeading": "Inventari",
+  "fieldRoastLot": "Lot de torrat",
+  "fieldProductionDate": "Data de producció",
+  "fieldCountry": "País",
+  "fieldRegion": "Regió",
+  "fieldProducer": "Productor",
+  "fieldVariety": "Varietat",
+  "fieldProcess": "Procés",
+  "fieldAltitude": "Altitud",
+  "fieldCoffeeLot": "Lot",
+  "fieldRoastLevel": "Nivell de torrat",
+  "fieldRoastery": "Torradora",
+  "fieldCoffeeshop": "Cafeteria"
 }
