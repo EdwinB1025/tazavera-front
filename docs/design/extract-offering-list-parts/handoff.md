@@ -1,0 +1,24 @@
+# Handoff — extract-offering-list-parts
+
+## Session 2026-10-06 — worktree, explore and propose
+Summary: worktree `tazavera-front-listparts` created on `feature/extract-offering-list-parts` from `develop` (`ee913ca`), with `npm ci`, `.claude/` and `npx next typegen`; the restricted agent profiles come from `develop`. No `.env.local` exists in any checkout (not needed for propose). The architect ran the explore (OpenCode, through the orchestrator's node launcher). MVC reachable: not needed.
+
+### Agent feedback (explore, condensed)
+- Verified against code: nothing outside the widget imports `OfferingPagination`; `HomeScreen` text keys match; `client-boundary` and `catalog-guard` need no edit; the §6 encoded URL is what `URLSearchParams` produces; the landing spec stays satisfied.
+- Tests: the `fetchTaxonomies` and `buildTaxonomyLookup` blocks move with copied fixtures (`TREE` and the fetch scaffolding are shared with cases that stay); the 5 `OfferingPagination` cases move to `Pagination.test.tsx`; +2 query cases; +1 `OfferingList` case; +1 `index.test.tsx` smoke render.
+- Wording: "moved unchanged" should read "same cases and assertions, fixtures copied"; §4 and §6 disagree on `index.test.tsx` ("unchanged" vs a new smoke render) and on one vs several `OfferingList` cases; the `ExploreButton.test.tsx:25` comment names the deleted file.
+- Questions: Q1 requirement shape vs the capability Purpose; Q2 whether the four-states rule applies to the control; Q3 where `TaxonomiesPayload` lives.
+
+### Decisions taken
+#### D1 — Q1: the requirement stays inside the current Purpose
+- Decision: phrase the new requirement as the pagination control's contract, without amending the content-structure Purpose. `config.yaml` already lists pagination under the capability.
+- Why: smallest spec change (architect rule "change spec.md only where observable behaviour changes, with the smallest wording change").
+#### D2 — Q2: the four-states rule applies, through the host
+- Decision: add one scenario stating that the paging actions render only with a successful, non-empty list; loading, empty and error states belong to the host (as today).
+- Why: `config.yaml` rules.specs ("every interaction covers loading, empty, success and error states"); it records existing behaviour, so no observable change.
+#### D3 — Q3: `TaxonomiesPayload` goes to `src/shared/api/index.ts`
+- Decision: the named API type alias is exported from `@/shared/api`, built on `schema.ts`; the entity imports it from there.
+- Why: AGENTS.md "Import API types only from `src/shared/api/`" and the FSD skill naming rule. `VerifiedOfferingsPayload` in the widget is a prior deviation, not a precedent to follow (not moved by this change).
+#### D4 — Wording fixes for the propose
+- "Same cases and assertions; fixtures copied" instead of "moved unchanged"; `index.test.tsx` gains one smoke render and its other cases stay; one new `OfferingList` case; the `ExploreButton.test.tsx` comment is updated to name `Pagination.test.tsx`.
+- Why: wording only (`.claude/CLAUDE.md` §4).
