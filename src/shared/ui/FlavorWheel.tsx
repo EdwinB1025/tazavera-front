@@ -384,7 +384,8 @@ export function FlavorWheel({
                   activeSegment.start,
                   activeSegment.end,
                 )}
-                className="pointer-events-none fill-none stroke-text-primary"
+                className="pointer-events-none stroke-text-primary"
+                fill="none"
                 strokeWidth={3}
               />
             ) : null}

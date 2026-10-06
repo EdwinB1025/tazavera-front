@@ -398,8 +398,9 @@ describe("FlavorWheel — active note", () => {
       segment(container, "floral")!.querySelector("path")!.getAttribute("d"),
     );
     expect(outline.getAttribute("class")).toBe(
-      "pointer-events-none fill-none stroke-text-primary",
+      "pointer-events-none stroke-text-primary",
     );
+    expect(outline.getAttribute("fill")).toBe("none");
     expect(outline.getAttribute("stroke-width")).toBe("3");
     // Drawn last, above every segment.
     expect(container.querySelector("svg")!.lastElementChild).toBe(outline);
