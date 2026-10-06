@@ -162,7 +162,7 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
   - el borde de `primary` en oscuro (F6) va a un cambio aparte de base-controls;
   - la retícula del catálogo con el sidebar abierto la decide `add-offering-catalog` (columnas según el ancho disponible).
   - el rango de puntuación admite, además del slider, escribir el mínimo y el máximo en dos campos "Desde / Hasta" sincronizados con él (punto 15, pendiente de detallar).
-  - los combobox con datos de la API buscan mientras se escribe (`?name=`), desde el navegador: excepción aceptada a la regla de carga en servidor de los endpoints públicos. Aplica a Tostador y al select de café de offering-management; Productor sigue cargándose una vez (punto 16). Hook propio (`fetch` + `AbortController` + espera de 300 ms), sin librería de datos; textos del combobox desde el catálogo es/en/ca.
+  - los combobox con datos de la API buscan mientras se escribe (`?name=`), desde el navegador: excepción aceptada a la regla de carga en servidor de los endpoints públicos. Aplica a Tostador y al alta de ofertas de offering-management (un solo combobox sobre `GET /coffeeInventory?coffeeName=` sustituye a los selects de tostador y café y a los radios del inventario; management deja de consumir `listCoffees` y `listRoasteries`). El combobox es genérico y reutilizable (`shared/ui`, lo construye filter-controls); cada consumidor le pasa la búsqueda y el contenido de la fila. Productor sigue cargándose una vez (punto 16). Hook propio (`fetch` + `AbortController` + espera de 300 ms), sin librería de datos; textos del combobox desde el catálogo es/en/ca.
 - **Por qué:** respuesta de Product owner a add-filter-controls Open 2–16.
 - **Afecta:** add-offering-management Open 1 (entradas del sidebar, misma ranura), add-offering-catalog (retícula, punto 14), add-specialist-evaluations (facetas de su lista), fix-button-boundaries (F6).
 
@@ -175,3 +175,33 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Decisión:** la lectura y el lookup de taxonomías viven en `src/entities/taxonomy` (`fetchTaxonomies`, `buildTaxonomyLookup`) y la paginación es `Pagination` de `@/shared/ui` (props `path`, `query`, `currentPage`, `lastPage`, textos). Los diseños nuevos los consumen; nadie vuelve a copiarlos desde `widgets/offering-list`.
 - **Por qué:** tareas 1.1–4.1 de extract-offering-list-parts hechas (`7e6b777`).
 - **Afecta:** add-filter-controls §9.2 (cascada de sabores), add-specialist-evaluations, add-offering-catalog, add-offering-management.
+
+### 2026-10-06 — rutas protegidas sin sesión: mensaje con botón (respuesta de Product owner)
+- **Decisión:** sustituye la parte "ruta protegida sin sesión" de la entrada "escrituras, rutas protegidas y 422". Con `loading` se espera; con `anonymous` la página muestra un mensaje y un botón "Iniciar sesión" que llama a `signIn(rutaActual)` dentro del clic (ventana emergente; el usuario se queda en la ruta). Sin redirección automática. Usuario sin el rol: página 404. Además, `/[locale]/register*` con sesión `authenticated` lleva al inicio con navegación interna.
+- **Por qué:** respuesta de Product owner: el mensaje le da al usuario idea de lo que está pasando.
+- **Afecta:** add-user-account Open 4 y 5, add-offering-management Open 5, add-specialist-evaluations punto 9.
+
+### 2026-10-06 — página única de cuenta (respuesta de Product owner)
+- **Decisión:** la cuenta es una sola página `/[locale]/account` con secciones (Perfil, Contraseña, Seguridad como enlace externo a `{API}/user/security`, y "Zona peligrosa" con Desactivar y Borrar). El menú de usuario sustituye sus cinco entradas de cuenta por una sola "Mi cuenta"; Seguridad sigue como entrada externa. Lo que vive en la API (seguridad, recuperar contraseña) se queda en la API.
+- **Por qué:** respuesta de Product owner a add-user-account Open 6.
+- **Afecta:** add-user-account (delta de app-shell sobre `UserMenu.tsx`); cualquier cambio que enlace a las rutas de cuenta.
+
+### 2026-10-06 — validación de formularios en el navegador (respuesta de Product owner)
+- **Decisión:** los formularios son `noValidate` y, antes de enviar, el front valida solo lo que documenta el `requestBody` de cada operación en el contrato (obligatorios, formato de email, confirmación igual, enums y longitudes máximas), con mensajes del catálogo bajo cada `Field`. Lo que el contrato no detalla (fortaleza de contraseña, unicidad, contraseña actual) lo valida la API, con el 422 genérico hasta que R8 documente el 422.
+- **Por qué:** respuesta de Product owner a add-user-account Open 9; Scribe documenta las reglas de los FormRequests en el `requestBody`, pero no la respuesta 422.
+- **Afecta:** add-user-account, add-offering-management, add-specialist-evaluations (todos sus formularios).
+
+### 2026-10-06 — entradas del sidebar de gestión (respuesta de Product owner)
+- **Decisión:** cada área de gestión pone sus entradas en el sidebar con la misma ranura `@sidebar` de add-filter-controls (un solo mecanismo para facetas y entradas). `SidebarMenuButton` gana forma de enlace (`asChild`), lo que arregla F5.
+- **Por qué:** respuesta de Product owner a add-offering-management Open 1.
+- **Afecta:** add-offering-management, add-specialist-evaluations punto 10, add-filter-controls (dueño de la ranura).
+
+### 2026-10-06 — petición de ofertas con query (respuesta de Product owner)
+- **Decisión:** `add-offering-catalog` generaliza la petición de ofertas para que acepte una query; landing la llama con `verified=1` sin cambiar su comportamiento y el catálogo con la query de la URL. Paginación y taxonomías ya están extraídas (extract-offering-list-parts), así que offering-management Open 3 queda cubierto.
+- **Por qué:** respuesta de Product owner a add-offering-catalog Open 1.
+- **Afecta:** add-offering-catalog, add-offering-management Open 3, add-filter-controls (la lista que filtra).
+
+### 2026-10-06 — tokens contra la API local por HTTP (respuesta de Product owner)
+- **Decisión:** `oauth4webapi` rechaza por defecto las peticiones que no van por HTTPS, así que el login no se completaba contra `http://localhost:8000`. Las dos peticiones de tokens (`exchangeCode`, `refreshTokens` en `src/shared/api/tokens.ts`) usan `allowInsecureRequests` solo cuando `NODE_ENV !== "production"`; en producción se sigue exigiendo HTTPS. Fix F3 de add-auth en la nube (`trig_01KCuPWQTXgQYqUshCkLMiPx`, rama `claude/add-auth-f3`).
+- **Por qué:** respuesta de Product owner (opción a) al WARNING W1 del verify de add-auth tras `4ac8129`.
+- **Afecta:** add-auth; todo cambio que pruebe el login en local (user-account, offering-management, specialist-evaluations).
