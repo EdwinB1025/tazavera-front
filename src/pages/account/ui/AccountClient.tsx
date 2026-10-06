@@ -1,24 +1,32 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { signIn, useSession } from "@/features/auth";
+import {
+  requestProfileWrite,
+  signIn,
+  signOut,
+  useSession,
+} from "@/features/auth";
 import {
   AccountSection,
+  DangerZone,
   ExternalLink,
   SessionGate,
+  type DangerZoneTexts,
   type SessionGateTexts,
 } from "@/features/user-account";
 
 // ─── UI-specific types (declared before the component) ───
 
-export type AccountClientTexts = SessionGateTexts & {
-  profileHeading: string;
-  passwordHeading: string;
-  securityHeading: string;
-  securityDescription: string;
-  securityLink: string;
-  dangerZoneHeading: string;
-};
+export type AccountClientTexts = SessionGateTexts &
+  DangerZoneTexts & {
+    profileHeading: string;
+    passwordHeading: string;
+    securityHeading: string;
+    securityDescription: string;
+    securityLink: string;
+    dangerZoneHeading: string;
+  };
 
 export type AccountClientProps = {
   locale: string;
@@ -32,13 +40,13 @@ export type AccountClientProps = {
  * passed to the user-account pieces as props. An authenticated session shows
  * the four sections in order; the page never redirects on its own.
  */
-export function AccountClient({ texts }: AccountClientProps): ReactNode {
+export function AccountClient({ locale, texts }: AccountClientProps): ReactNode {
   const session = useSession();
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   return (
     <SessionGate session={session} texts={texts} signIn={() => signIn()}>
-      {() => (
+      {(user) => (
         <>
           <AccountSection heading={texts.profileHeading}>{null}</AccountSection>
           <AccountSection heading={texts.passwordHeading}>{null}</AccountSection>
@@ -52,7 +60,15 @@ export function AccountClient({ texts }: AccountClientProps): ReactNode {
               </ExternalLink>
             </p>
           </AccountSection>
-          <AccountSection heading={texts.dangerZoneHeading}>{null}</AccountSection>
+          <AccountSection heading={texts.dangerZoneHeading}>
+            <DangerZone
+              ulid={user.ulid ?? ""}
+              locale={locale}
+              texts={texts}
+              signOut={signOut}
+              requestProfileWrite={requestProfileWrite}
+            />
+          </AccountSection>
         </>
       )}
     </SessionGate>

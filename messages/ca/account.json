@@ -27,5 +27,16 @@
   "securityDescription": "Autenticació en dos passos i claus d'accés.",
   "securityLink": "Gestiona la seguretat",
   "dangerZoneHeading": "Zona perillosa",
-  "signedOutText": "Inicia sessió per gestionar el teu compte."
+  "signedOutText": "Inicia sessió per gestionar el teu compte.",
+  "deactivateHeading": "Desactivar el compte",
+  "deactivateText": "El teu compte quedarà desactivat i es tancarà la sessió.",
+  "deleteHeading": "Eliminar el compte",
+  "deleteText": "El teu compte i totes les seves dades s'eliminaran de manera permanent.",
+  "deactivateConfirmTitle": "Desactivar el compte?",
+  "deleteConfirmTitle": "Segur que vols eliminar el compte?",
+  "confirmDeactivate": "Desactiva el compte",
+  "confirmDelete": "Elimina el compte",
+  "cancel": "Cancel·la",
+  "stepUpText": "Per continuar, confirma la teva identitat iniciant sessió de nou.",
+  "stepUpButton": "Confirma la identitat"
 }

@@ -28,6 +28,18 @@ export function AccountScreen({ locale }: AccountScreenProps): ReactNode {
     securityDescription: catalog.securityDescription,
     securityLink: catalog.securityLink,
     dangerZoneHeading: catalog.dangerZoneHeading,
+    deactivateHeading: catalog.deactivateHeading,
+    deactivateText: catalog.deactivateText,
+    deleteHeading: catalog.deleteHeading,
+    deleteText: catalog.deleteText,
+    deactivateConfirmTitle: catalog.deactivateConfirmTitle,
+    deleteConfirmTitle: catalog.deleteConfirmTitle,
+    confirmDeactivate: catalog.confirmDeactivate,
+    confirmDelete: catalog.confirmDelete,
+    cancel: catalog.cancel,
+    genericError: catalog.genericError,
+    stepUpText: catalog.stepUpText,
+    stepUpButton: catalog.stepUpButton,
   };
 
   return (

@@ -27,5 +27,16 @@
   "securityDescription": "Autenticación en dos pasos y llaves de acceso.",
   "securityLink": "Gestionar la seguridad",
   "dangerZoneHeading": "Zona peligrosa",
-  "signedOutText": "Inicia sesión para gestionar tu cuenta."
+  "signedOutText": "Inicia sesión para gestionar tu cuenta.",
+  "deactivateHeading": "Desactivar cuenta",
+  "deactivateText": "Tu cuenta quedará desactivada y se cerrará tu sesión.",
+  "deleteHeading": "Eliminar cuenta",
+  "deleteText": "Se eliminarán tu cuenta y todos sus datos de forma permanente.",
+  "deactivateConfirmTitle": "¿Desactivar tu cuenta?",
+  "deleteConfirmTitle": "¿Seguro que quieres eliminar tu cuenta?",
+  "confirmDeactivate": "Desactivar cuenta",
+  "confirmDelete": "Eliminar cuenta",
+  "cancel": "Cancelar",
+  "stepUpText": "Para continuar, confirma tu identidad iniciando sesión de nuevo.",
+  "stepUpButton": "Confirmar identidad"
 }

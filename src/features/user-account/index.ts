@@ -26,3 +26,7 @@ export { AccountSection } from "./ui/AccountSection";
 export type { AccountSectionProps } from "./ui/AccountSection";
 export { ExternalLink } from "./ui/ExternalLink";
 export type { ExternalLinkProps } from "./ui/ExternalLink";
+export { StepUpNotice } from "./ui/StepUpNotice";
+export type { StepUpNoticeProps, StepUpNoticeTexts } from "./ui/StepUpNotice";
+export { DangerZone } from "./ui/DangerZone";
+export type { DangerZoneProps, DangerZoneTexts } from "./ui/DangerZone";

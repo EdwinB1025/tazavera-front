@@ -27,5 +27,16 @@
   "securityDescription": "Two-factor authentication and passkeys.",
   "securityLink": "Manage security",
   "dangerZoneHeading": "Danger zone",
-  "signedOutText": "Sign in to manage your account."
+  "signedOutText": "Sign in to manage your account.",
+  "deactivateHeading": "Deactivate account",
+  "deactivateText": "Your account will be deactivated and you will be signed out.",
+  "deleteHeading": "Delete account",
+  "deleteText": "Your account and all of its data will be permanently deleted.",
+  "deactivateConfirmTitle": "Deactivate your account?",
+  "deleteConfirmTitle": "Are you sure you want to delete your account?",
+  "confirmDeactivate": "Deactivate account",
+  "confirmDelete": "Delete account",
+  "cancel": "Cancel",
+  "stepUpText": "To continue, confirm your identity by signing in again.",
+  "stepUpButton": "Confirm identity"
 }
