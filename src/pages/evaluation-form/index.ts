@@ -3,3 +3,4 @@
  */
 export { EvaluationForm } from "./ui/EvaluationForm";
 export { NewEvaluationScreen } from "./ui/NewEvaluationScreen";
+export { EvaluationScreen } from "./ui/EvaluationScreen";
