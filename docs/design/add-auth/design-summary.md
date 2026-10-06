@@ -5,6 +5,7 @@ Capability: `auth`. Built in parallel with `add-app-shell`; provides the session
 ## 1. Contracts provided
 
 - **Session module** (`src/features/auth`): state (anonymous, loading, authenticated); user from `GET /user` (ulid, name, surname, email, role); sign in (with an optional return route); sign out; request the `profile:write` scope (step-up) returning to a given route.
+- **Session types:** `Session`, `SessionUser` and `UserRole` are defined by `add-app-shell` in `src/shared/api/index.ts` (its `design.md` D4); `add-auth` imports them from `@/shared/api` and never redefines them.
 - **API client** (`src/shared/api`): base `NEXT_PUBLIC_API_URL`; adds the Bearer token when there is a session; on a 401 tries to refresh and, if that fails, starts re-authentication. Public endpoints work without a session.
 - **Configuration:** `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_OAUTH_CLIENT_ID`, `NEXT_PUBLIC_APP_URL` (the `redirect_uri` is `{NEXT_PUBLIC_APP_URL}/callback`).
 
@@ -12,7 +13,7 @@ Capability: `auth`. Built in parallel with `add-app-shell`; provides the session
 
 - **REST (in `openapi.yaml`):** `GET /user`, `POST /logout` (revokes all tokens and ends the user's web sessions on the server).
 - **OAuth (not in `openapi.yaml`, only described in the security scheme):** `/oauth/authorize` and `/oauth/token`. Their errors are documented in `design.md` following OAuth 2.0: authorize errors return as `error` (and `error_description`) in the redirect query; token errors as JSON with `error` and `error_description`.
-- **Web parameters of the API (not in `openapi.yaml`, intentionally):** `theme` and `lang` on `/oauth/authorize` (read by an API web middleware to style and translate its login pages), and `prompt` (standard OIDC, supported by Passport).
+- **Web parameters of the API (not in `openapi.yaml`, intentionally):** `theme` and `lang` on `/oauth/authorize` (read by an API web middleware to style and translate its login pages), and `prompt` (standard OIDC, supported by Passport). The `theme` value sent to `/oauth/authorize` comes from the theme cookie owned by `add-app-shell`, read through `src/shared/lib/theme.ts`; `add-auth` does not read or write the cookie itself. `lang` comes from the active route locale.
 
 ## 3. Flow (Authorization Code + PKCE)
 
@@ -37,3 +38,26 @@ Capability: `auth`. Built in parallel with `add-app-shell`; provides the session
 ## 6. Out of scope
 
 Header and menus (`add-app-shell`); registration and profile pages (`add-user-account`); the API's login, 2FA and security pages (already in the API).
+
+## Propose status
+
+- **Change:** `add-auth`
+- **Date:** 2026-10-04
+- **Validation:** `openspec validate add-auth --strict` — passed ("Change 'add-auth' is valid"); 4/4 artifacts complete (`proposal.md`, `specs/auth/spec.md`, `design.md`, `tasks.md`).
+- **Backlog:** no entry is resolved by this change; `docs/backlog.md` holds no candidates.
+- **Resolved during propose (with its decision):**
+  1. **Session types** (folded into §1 at the product owner's instruction): `Session`, `SessionUser` and `UserRole` are defined by `add-app-shell` in `src/shared/api/index.ts` (its `design.md` D4) and only imported from `@/shared/api`; a guard test fails on any redefinition under `src/`.
+  2. **Theme and language on the authorization request** (folded into §2 at the product owner's instruction): `theme` comes from the theme cookie through `src/shared/lib/theme.ts` (owned by `add-app-shell`); `lang` comes from the active route locale.
+  3. **OAuth client:** `oauth4webapi` v3.8.x (MIT, zero dependencies) — approved by the product owner. Alternatives (in-house Web Crypto, framework auth suites) are recorded in `design.md` D8.
+  4. **The `/callback` loading indicator carries text** — "Completing sign in…" as status text, in a new `auth` message area (`messages/{locale}/auth.json`, key `callback.status`; texts in `design.md` D6) — approved by the product owner. The text follows the locale of the pending flow's return route and falls back to the default locale, since `/callback` has no locale prefix.
+  5. **The sign-in marker lives in `localStorage`** (`design.md` D3), on §3/§4's wording distinction: the flow data stays in `sessionStorage` for the flow's duration and the tokens stay in memory only.
+  6. **Sign out completes locally even when `POST /logout` fails** (spec "Sign out", scenario "The server cannot be reached"), following §5's failure pattern.
+  7. **The seam to `src/shared/api`** (`design.md` D2): the request client is configured by `src/features/auth` at startup, so `shared` never imports `features`.
+- **Artifact review 2026-10-04 (applied to the artifacts; `openspec validate add-auth --strict` passed afterwards):**
+  1. **Single-flight refresh** — applied to `design.md` D2 and D3 and to task 2.2: concurrent `401`s share one in-flight refresh and all retry with its new token, and no second refresh starts while one is pending (the API is expected to rotate the refresh token on use; to be confirmed against its Passport version).
+  2. **Idempotent callback and session start** — applied to `design.md` D1 and D4 and to tasks 3.1 and 4.1: each runs at most once per page load behind a module-level guard, so Strict Mode's double effects never exchange a single-use code twice nor start two authorization requests. Strict Mode is verified on by default in the App Router (Next docs `reactStrictMode.md`: since Next.js 13.5.1, `true` by default with `app` router).
+- **Flagged item resolved as decided:** the `profile:write` step-up ending `anonymous` on decline is correct — the product owner verified that `prompt=login` closes the user's API web session (Passport logs the guard out), so there is nothing to restore. No correction to the specs or the design.
+- **Artifact review 2026-10-05 (applied to the artifacts in commits `892e407` and `54e90b1` before the apply and recorded here afterwards; `openspec validate add-auth --strict` passed afterwards):**
+  1. **`token_type` in the token response** (`892e407`, product-owner decision 2026-10-05): the `200` of `POST /oauth/token` includes `token_type` (`'Bearer'`, RFC 6749 section 5.1, verified against the API's `/oauth/token`), and `oauth4webapi` is kept with no manual response parsing. Applied to `design.md` D5 (response body) and D7 (the `TokenGrant` listing gains `token_type: string`); D8, `specs/auth/spec.md` and `proposal.md` state no token body and were unchanged. `tasks.md`: the `TokenGrant` descriptions of 1.1 and 2.2 gain `token_type` (checkboxes untouched) and new task 2.2b covers the test fixtures and the `tokens.ts` type.
+  2. **`proposal.md` Impact wording on `oauth4webapi`** (`54e90b1`, handoff Q10): the Impact "Dependencies" bullet no longer calls the dependency one open decision; it records `oauth4webapi` v3.8.x (MIT, zero dependencies) as the OAuth client approved by the product owner (`design.md` D8), installed by the build with nothing installed at propose time.
+- **Open:** nothing.

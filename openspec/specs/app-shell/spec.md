@@ -340,3 +340,10 @@ The menus opened from the header SHALL extend the header surface: their panel SH
 #### Scenario: Theme selector inside the menu
 - **WHEN** the user menu renders its theme selector
 - **THEN** the selector renders in the menu's own treatment and shows no panel-coloured block inside the menu
+
+### Requirement: Cross-Origin-Opener-Policy
+Every document response of the application except the callback route SHALL carry `Cross-Origin-Opener-Policy: same-origin-allow-popups`, so the application's pages stay isolated while a popup window keeps its opener.
+
+#### Scenario: Opener kept outside the callback
+- **WHEN** a page other than the callback route answers a request
+- **THEN** its response carries `Cross-Origin-Opener-Policy: same-origin-allow-popups`
