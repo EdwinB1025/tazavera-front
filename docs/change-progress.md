@@ -48,13 +48,13 @@ Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, 
 
 | Cambio | Capabilities | Rama / worktree | Fase | Estado | Siguiente fase | Agente | Bloqueo | Último commit |
 |---|---|---|---|---|---|---|---|---|
-| `add-auth` | auth, app-shell | `feature/add-auth` / `tazavera-front` (y `tazavera-front-auth` en detached HEAD) | Apply | 1.1–6.2 hechas (6.1–6.2 en la nube). Rondas 1–3 procesadas | Apply: 7.1, luego 8.1–8.16; 8.17 de Product owner | Claude nube o Build (OpenCode), a decidir | Elegir ejecutor del resto del apply. Q-merge al mergear `develop` | `2cbb293` |
-| `add-specialist-evaluations` | evaluations | `feature/add-specialist-evaluations` / `tazavera-front-evaluations` | Resumen — en revisión | Resumen revisado ("ready to repropose"); falta aplicar los cambios del 6 oct | Revisión del design lead, aprobación de Product owner, Propose | Design lead (revisión) | Aprobación de Product owner | `08c62a9` |
-| `add-evaluation-scales` | form-fields | — | Resumen | Sin resumen | Borrador del design lead | Design lead (genera desde el MVC) | Diálogo: shadcn AlertDialog o propio | — |
-| `add-user-account` | user-account | — | Resumen — borrador | Borrador de `design-summary.md` sin commitear | Revisión del design lead, aprobación de Product owner | Design lead (revisión) | 9.5, 9.7 (`tokensExpireIn`), 9.8 | — |
-| `add-filter-controls` | filtering | — | Resumen | Por escribir; incluye el filtro de evaluaciones | Borrador del design lead | Design lead (genera) | — | — |
-| `add-offering-management` | offering-management | — | Resumen | Por escribir | Borrador del design lead | Design lead (genera) | — | — |
-| `add-offering-catalog` | offering-catalog | — | Resumen | Por escribir | Borrador del design lead | Design lead (genera) | — | — |
+| `add-auth` | auth, app-shell | `feature/add-auth` / `tazavera-front-auth` | Apply | 1.1–6.2 hechas (6.1–6.2 en la nube). Rondas 1–3 procesadas | Apply: 7.1 en curso, luego 8.1–8.16; 8.17 de Product owner | Build (OpenCode) | Q-merge al mergear `develop` | `2cbb293` |
+| `add-specialist-evaluations` | evaluations | `feature/add-specialist-evaluations` / `tazavera-front-evaluations` | Resumen — en revisión | Cambios del 6 oct en `design-summary.md` sin commitear | Aprobación de Product owner, Propose | Design lead (revisión en curso) | Aprobación de Product owner; depende de `add-evaluation-scales` | `08c62a9` |
+| `add-evaluation-scales` | form-fields | `feature/add-evaluation-scales` / `tazavera-front-scales` | Resumen — borrador | Worktree creado; borrador en curso | Revisión de Product owner | Design lead (genera desde el MVC) | Diálogo: shadcn AlertDialog o propio | `78fc6e4` |
+| `add-user-account` | user-account | — | Resumen — borrador | Borrador guardado en `docs/design/add-user-account/` | Revisión del design lead (tras scales), aprobación de Product owner | Design lead (revisión) | 9.5, 9.7 (`tokensExpireIn`), 9.8 | — |
+| `add-filter-controls` | filtering | — | Resumen — borrador | Borrador en curso; incluye el filtro de evaluaciones y `GET /coffees`/`GET /roasteries` en los filtros de ofertas | Revisión de Product owner | Design lead (genera) | — | — |
+| `add-offering-management` | offering-management | — | Resumen | Por escribir; consume también `GET /coffees` y `GET /roasteries` | Borrador del design lead | Design lead (siguiente turno) | — | — |
+| `add-offering-catalog` | offering-catalog | — | Resumen — borrador | Borrador en curso | Revisión de Product owner | Design lead (genera) | D4 de landing si reutiliza la tarjeta | — |
 | `add-theme-tokens` | theming | — (rama borrada) | Merge | Archivado `e53c808`, mergeado `a3a96e2` | — | — | — | `a3a96e2` |
 | `add-base-control` | base-controls | — (rama borrada) | Merge | Archivado `d492481`, mergeado `c4f70ad` | — | — | — | `c4f70ad` |
 | `add-focus-ring-utility` | theming | — (rama borrada) | Merge | Archivado `fcc6e28`, mergeado `8d23918` | — | — | — | `8d23918` |
@@ -63,7 +63,7 @@ Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, 
 | `refine-app-header` | app-shell | — (rama borrada) | Merge | Archivado `27ca840`, mergeado `124c048`. Pendiente: R4 (radio del panel) en el backlog | — | — | — | `124c048` |
 | `add-landing` | landing, content-structure, feedback, app-shell | — (rama borrada; carpeta vacía `tazavera-front-landing` por borrar) | Merge | Archivado `f6bce3b`, mergeado `2284399`. Pendiente: D4 (puntuación dos veces en la tarjeta); candidato de backlog: primitivo de sección compartido | Decisión D4 | Product owner | D4 | `2284399` |
 
-Operaciones sin cambio asignado: `GET /coffees`, `GET /roasteries`.
+Todas las operaciones tienen cambio asignado.
 
 ## Cobertura del contrato
 
@@ -92,7 +92,7 @@ Las 23 operaciones de `contracts/openapi.yaml` (`develop`) y el cambio que las c
 | `DELETE /offerings` (varias) | `deleteMultipleOfferings` | `add-offering-management` *(supuesto)* | Por diseñar |
 | `GET /locations` | `listMyLocations` | `add-offering-management` *(supuesto)* | Por diseñar |
 | `GET /coffeeInventory` | `listCoffeeInventory` | `add-offering-management` *(supuesto)* | Por diseñar |
-| `GET /coffees` | `listCoffees` | **Sin cambio asignado** | — |
-| `GET /roasteries` | `listRoasteries` | **Sin cambio asignado** | — |
+| `GET /coffees` | `listCoffees` | `add-offering-management`; `add-filter-controls` (filtros de ofertas) | Por diseñar |
+| `GET /roasteries` | `listRoasteries` | `add-offering-management`; `add-filter-controls` (filtros de ofertas) | Por diseñar |
 
 Las rutas con `{id}` y los paréntesis son orientativos; la fuente es el `operationId` en el contrato. La entrada "Mejor valorados" de la cabecera tampoco tiene cambio asignado *(supuesto: `add-offering-catalog`)*.
