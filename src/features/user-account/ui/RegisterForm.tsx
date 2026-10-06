@@ -3,6 +3,7 @@
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import { publicRequest, type RegisterPayload } from "@/shared/api";
 import { Button, Field, Input, PasswordInput } from "@/shared/ui";
+import { isValidEmail } from "../model/email";
 import { FormStatus } from "./FormStatus";
 import {
   RegisterSuccessPanel,
@@ -68,9 +69,6 @@ const EMPTY_VALUES: RegisterValues = {
   passwordConfirmation: "",
 };
 
-/** A valid address: something, one `@`, a domain with a dot, no spaces. */
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 /** The checks `registerAUser` documents (design.md D2). */
 function check(
   values: RegisterValues,
@@ -80,7 +78,7 @@ function check(
   for (const field of FIELD_ORDER) {
     if (values[field].trim() === "") errors[field] = texts.requiredError;
   }
-  if (!errors.email && !EMAIL_PATTERN.test(values.email)) {
+  if (!errors.email && !isValidEmail(values.email)) {
     errors.email = texts.emailFormatError;
   }
   if (

@@ -38,5 +38,9 @@
   "confirmDelete": "Eliminar cuenta",
   "cancel": "Cancelar",
   "stepUpText": "Para continuar, confirma tu identidad iniciando sesión de nuevo.",
-  "stepUpButton": "Confirmar identidad"
+  "stepUpButton": "Confirmar identidad",
+  "profileDescription": "Actualiza tu información personal",
+  "roleLabel": "Rol",
+  "save": "Guardar",
+  "profileUpdated": "Perfil actualizado"
 }

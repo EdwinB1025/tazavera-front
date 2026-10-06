@@ -38,5 +38,9 @@
   "confirmDelete": "Elimina el compte",
   "cancel": "Cancel·la",
   "stepUpText": "Per continuar, confirma la teva identitat iniciant sessió de nou.",
-  "stepUpButton": "Confirma la identitat"
+  "stepUpButton": "Confirma la identitat",
+  "profileDescription": "Actualitza la teva informació personal",
+  "roleLabel": "Rol",
+  "save": "Desa",
+  "profileUpdated": "Perfil actualitzat"
 }

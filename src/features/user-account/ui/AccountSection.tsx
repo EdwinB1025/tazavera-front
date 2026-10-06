@@ -5,6 +5,8 @@ import { Card, CardContent } from "@/shared/ui";
 
 export type AccountSectionProps = {
   heading: string;
+  /** The heading's id, when the content needs it to name a form (design.md D9). */
+  headingId?: string;
   description?: string;
   children: ReactNode;
 };
@@ -16,10 +18,12 @@ export type AccountSectionProps = {
  */
 export function AccountSection({
   heading,
+  headingId: headingIdProp,
   description,
   children,
 }: AccountSectionProps): ReactNode {
-  const headingId = useId();
+  const generatedId = useId();
+  const headingId = headingIdProp ?? generatedId;
   return (
     <section aria-labelledby={headingId}>
       <Card>

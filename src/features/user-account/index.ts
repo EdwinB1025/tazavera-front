@@ -30,3 +30,7 @@ export { StepUpNotice } from "./ui/StepUpNotice";
 export type { StepUpNoticeProps, StepUpNoticeTexts } from "./ui/StepUpNotice";
 export { DangerZone } from "./ui/DangerZone";
 export type { DangerZoneProps, DangerZoneTexts } from "./ui/DangerZone";
+export { RoleRow } from "./ui/RoleRow";
+export type { RoleRowProps } from "./ui/RoleRow";
+export { ProfileForm } from "./ui/ProfileForm";
+export type { ProfileFormProps, ProfileFormTexts } from "./ui/ProfileForm";
