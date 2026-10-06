@@ -31,6 +31,8 @@ export const FORM_TEXTS: EvaluationFormTexts = {
     saveLabel: "Save draft",
     closeLabel: "Close evaluation",
     savedMessage: "Draft saved.",
+    closedMessage: "Evaluation closed.",
+    incompleteMessage: "Complete every group before closing.",
     notYoursMessage: "This evaluation is not yours.",
     alreadyClosedMessage: "This evaluation is already closed.",
     failureMessage: "Something went wrong.",
