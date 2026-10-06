@@ -500,11 +500,12 @@ Summary: the cloud session (`claude/add-auth-8.x`, session `session_01LBuAC9pQiR
 - Cause (mine, reproduced on the file alone): `windowPropertiesHolding` in `src/shared/api/tokens.test.ts` calls `JSON.stringify` on every own property of `window`, including Vitest's RPC proxy; its `toJSON` call rejects asynchronously outside the `try` ("[birpc] function "toJSON" not found"), so Vitest reports 4 unhandled errors and exits 1. Product code unaffected.
 - Message to send: fix the test so it does not serialise Vitest internals (for example compare only the window properties added during the grant) while every mutation probe of `e9685d2` still fails the case; one `fix(auth): …` commit, body "Unplanned fix: spec Credential handling, task 8.11"; `npm run test:run` exit 0 with no unhandled errors, lint and tsc exit 0.
 - Result: not launched yet (permissions). Blocks: 8.17 and the archive.
+- Update 2026-10-06: launched as a one-off cloud routine (`trig_01DiCLKQuNgntQLfSwuJHux2`, run `session_01DQqErmZsze6aLDN3KkudUp`; its scheduled fire disabled after the manual run). Branch `claude/add-auth-f1`, commit `4947bd8 fix(auth): stop the window exposure check from serialising vitest internals` (only `tokens.test.ts`; body names the unplanned fix and the re-run probes). My checks in a temporary worktree: `npm run test:run` Test Files 37 passed, Tests 820 passed, no errors; lint and `npx tsc --noEmit` exit 0. Integrated with `git merge --ff-only` (`7a683a8..4947bd8`).
 
 ### Deferred to Product owner
 #### Q18 — ANSWERED 2026-10-06: launched; integrated as above
 #### Q-merge — note: Product owner chose the final merge step (see the answer above). Orchestrator's caution recorded in the session: 8.17 will then check a shell without `refine-app-header`'s viewport fix and `add-landing`'s changes; a browser re-check after the merge is advised.
 
 ### Next
-1. Launch F1 (OpenCode build in this worktree, or a cloud session on `claude/add-auth-f1`).
+1. F1 done (above).
 2. 8.17 is Product owner's; then verify and archive on request.
