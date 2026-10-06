@@ -56,9 +56,10 @@ OpenCode architect, `/opsx:verify` (read-only, no edits):
 
 ### Fixes and coverage sent to the Build
 #### F1 — W2 and W3, unplanned coverage
-- Type: unplanned coverage (spec "Every note is reachable"; spec "Activation without moving focus"), sent to the OpenCode build with the workflow §4 template. Result: see the next session entry.
+- Type: unplanned coverage (spec "Every note is reachable"; spec "Activation without moving focus"), sent to the OpenCode build with the workflow §4 template. Result: `bb509f1` (W2) and `786f509` (W3), test-only. Re-run by the orchestrator: 58 files, 1172 tests passed.
 
 ### Deferred to Product owner
+#### Q2 — ANSWERED 2026-10-06: a) keep D7; the lint warning stays. Original entry below.
 #### Q2 — W1: `aria-selected` on the note rows
 - Question: should the rows carry `aria-selected` (amending design.md D7 and the test), or does the lint warning stay?
 - Why deferred: D7 settles the row attributes. Either answer changes a design decision or the lint configuration.
@@ -69,6 +70,7 @@ OpenCode architect, `/opsx:verify` (read-only, no edits):
 - Recommendation: a). It changes nothing and blocks nothing.
 - Blocks: the archive, only if Product owner picks b) or c).
 
+#### Q3 — ANSWERED 2026-10-06: keep the clamp; amend the summary §4.2 wording (Product owner commits the summary). Original entry below.
 #### Q3 — W4: fit bound above 180°
 - Question: keep the code's clamp (a span above 180° may use up to the diameter) and amend summary §4.2, or restore the literal chord formula?
 - Why deferred: the two readings differ in what the user sees: a single full-ring note gets a label, or gets none.
@@ -81,4 +83,4 @@ OpenCode architect, `/opsx:verify` (read-only, no edits):
 - Recommendation: fix it when the summary is next committed. It blocks nothing.
 
 ### Final checks
-`npm run test:run` (OpenCode architect, 19:27): 58 files, 1171 tests passed.
+`npm run test:run` (orchestrator, 19:47, after F1): 58 files, 1172 tests passed.
