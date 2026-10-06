@@ -348,4 +348,73 @@ describe("Combobox — search mode", () => {
     });
     expect(search).not.toHaveBeenCalled();
   });
+
+  describe("only typed text searches (refine-facet-controls design.md D3)", () => {
+    const UNO = { value: "1", label: "Café Uno" };
+
+    function withValue(search: ComboboxSearch, value: ComboboxOption | null) {
+      return <Combobox label="Roaster" search={search} value={value} onChange={() => {}} texts={TEXTS} />;
+    }
+
+    it("a first render with a value makes no call", () => {
+      vi.useFakeTimers();
+      const search = vi.fn<ComboboxSearch>(async () => []);
+      render(withValue(search, UNO));
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+      expect(search).not.toHaveBeenCalled();
+    });
+
+    it("choosing a result makes no call for its label", async () => {
+      vi.useFakeTimers();
+      let resolve!: (options: ComboboxOption[]) => void;
+      const search = vi.fn<ComboboxSearch>(
+        () => new Promise<ComboboxOption[]>((res) => (resolve = res)),
+      );
+      render(withValue(search, null));
+      fireEvent.change(searchInput(), { target: { value: "caf" } });
+      act(() => {
+        vi.advanceTimersByTime(300);
+      });
+      await act(async () => {
+        resolve([UNO, { value: "2", label: "Café Dos" }]);
+      });
+      fireEvent.keyDown(searchInput(), { key: "ArrowDown" });
+      fireEvent.keyDown(searchInput(), { key: "Enter" });
+      expect(searchInput().value).toBe("Café Uno");
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+      expect(search).toHaveBeenCalledTimes(1);
+      expect(search.mock.calls[0]![0]).toBe("caf");
+    });
+
+    it("restoring the label after Escape makes no call", () => {
+      vi.useFakeTimers();
+      const search = vi.fn<ComboboxSearch>(async () => []);
+      render(withValue(search, UNO));
+      fireEvent.change(searchInput(), { target: { value: "zz" } });
+      fireEvent.keyDown(searchInput(), { key: "Escape" });
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+      expect(search).not.toHaveBeenCalled();
+    });
+
+    it("after a restore, typed text searches again", () => {
+      vi.useFakeTimers();
+      const search = vi.fn<ComboboxSearch>(async () => []);
+      render(withValue(search, UNO));
+      fireEvent.change(searchInput(), { target: { value: "zz" } });
+      fireEvent.keyDown(searchInput(), { key: "Escape" });
+      search.mockClear();
+      fireEvent.change(searchInput(), { target: { value: "ca" } });
+      act(() => {
+        vi.advanceTimersByTime(300);
+      });
+      expect(search).toHaveBeenCalledTimes(1);
+      expect(search.mock.calls[0]![0]).toBe("ca");
+    });
+  });
 });
