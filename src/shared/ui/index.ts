@@ -119,3 +119,10 @@ export type {
   ScoreRangeFacetProps,
   ScoreRangeTexts,
 } from "./ScoreRangeFacet";
+export { Combobox } from "./Combobox";
+export type {
+  ComboboxOption,
+  ComboboxProps,
+  ComboboxSearch,
+  ComboboxTexts,
+} from "./Combobox";
