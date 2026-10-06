@@ -3,14 +3,22 @@ import type { NextRequest } from "next/server";
 import { DEFAULT_LOCALE, LOCALES } from "@/shared/config/locales";
 
 /**
+ * Cross-Origin-Opener-Policy (`add-auth` design.md D11): every response this
+ * proxy handles keeps its page isolated while the sign-in popup keeps its
+ * opener. `/callback` carries none — it would be severed from its opener after
+ * returning from the API origin.
+ */
+const COOP = "same-origin-allow-popups";
+
+/**
  * Front-wide proxy (Next 16 file convention; `middleware` is deprecated).
  *
  * Locale routing (design.md D2): a bare path is prefixed with the default
  * locale, the root URL redirects to it, and the matched locale is forwarded
  * upstream as `x-locale` so the root layout can set `<html lang>` (the proxy
- * passes information to the application through headers). `/callback` is
- * excluded by the matcher so `add-auth` owns its request entirely, and
- * framework and asset paths (`/_next/*`, any path with a file extension) are
+ * passes information to the application through headers). `/callback` sits
+ * outside the locale redirect (`add-auth` design.md D11): it gets the
+ * Content-Security-Policy below and nothing else, and framework and asset paths (`/_next/*`, any path with a file extension) are
  * excluded from the proxy itself so they are never prefixed with a locale.
  *
  * Content-Security-Policy (design.md D9): set on every response this proxy
@@ -57,6 +65,22 @@ export function proxy(request: NextRequest) {
     "frame-ancestors 'none'",
   ].join("; ");
 
+  // `/callback` (`add-auth` design.md D11): the same directive list with its
+  // own nonce — redirect mode hydrates for its client-side navigation and
+  // exchanges the code at the API origin in `connect-src` — and no locale.
+  if (pathname === "/callback") {
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-nonce", nonce);
+    requestHeaders.set("Content-Security-Policy", cspHeader);
+    const response = NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
+    response.headers.set("Content-Security-Policy", cspHeader);
+    return response;
+  }
+
   const locale = LOCALES.find(
     (candidate) =>
       pathname === `/${candidate}` || pathname.startsWith(`/${candidate}/`),
@@ -73,6 +97,7 @@ export function proxy(request: NextRequest) {
       new URL(`${target}${search}`, request.url),
     );
     response.headers.set("Content-Security-Policy", cspHeader);
+    response.headers.set("Cross-Origin-Opener-Policy", COOP);
     return response;
   }
 
@@ -87,12 +112,14 @@ export function proxy(request: NextRequest) {
     },
   });
   response.headers.set("Content-Security-Policy", cspHeader);
+  response.headers.set("Cross-Origin-Opener-Policy", COOP);
 
   return response;
 }
 
 export const config = {
-  // `/callback` is excluded so `add-auth` owns its request entirely
-  // (design.md D2).
-  matcher: ["/((?!callback).*)"],
+  // Every path: framework and asset paths return untouched inside the proxy
+  // (design.md D2) and `/callback` gets its own branch (`add-auth` design.md
+  // D11).
+  matcher: ["/:path*"],
 };

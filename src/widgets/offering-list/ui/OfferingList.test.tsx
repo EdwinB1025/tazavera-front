@@ -150,6 +150,16 @@ describe("OfferingList", () => {
           .hasAttribute("disabled"),
       ).toBe(true);
     });
+
+    it("pushes the landing address /{locale}?page={n} on Next (design.md D8)", () => {
+      renderList({
+        state: "success",
+        items: [ITEM_ONE],
+        meta: { current_page: 1, last_page: 2 },
+      });
+      fireEvent.click(screen.getByRole("button", { name: TEXTS.nextLabel }));
+      expect(router.push).toHaveBeenCalledWith("/es?page=2");
+    });
   });
 
   describe("Session (specs: 'Evaluate link for specialists', 'No Evaluate link for other viewers'; design.md D8)", () => {

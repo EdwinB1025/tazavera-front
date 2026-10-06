@@ -2,7 +2,11 @@ import { describe, it, expect, afterEach } from "vitest";
 import { render, cleanup } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { resolve as pathResolve } from "node:path";
-import { Badge, TAXONOMY_CARD_SURFACES } from "@/shared/ui/Badge";
+import {
+  Badge,
+  BADGE_GEOMETRY_CLASSES,
+  TAXONOMY_CARD_SURFACES,
+} from "@/shared/ui/Badge";
 
 // This project has no global test setup, so RTL's auto-cleanup (which relies
 // on a framework-provided afterEach) does not run. Clean up manually between
@@ -105,6 +109,18 @@ describe("Badge", () => {
         const badge = renderBadge(variant);
         expect(classTokens(badge).slice(0, 7), variant).toEqual(
           BASE.split(" "),
+        );
+      }
+    });
+
+    it("exports the geometry every badge renders", () => {
+      // The exported geometry other compact chips reuse (design.md D4) is
+      // exactly the base every badge renders, token by token and in order.
+      expect(BADGE_GEOMETRY_CLASSES.split(" ")).toEqual(BASE.split(" "));
+      for (const variant of VARIANTS) {
+        const badge = renderBadge(variant);
+        expect(classTokens(badge).slice(0, 7), variant).toEqual(
+          BADGE_GEOMETRY_CLASSES.split(" "),
         );
       }
     });

@@ -1,10 +1,8 @@
 import type { ReactNode } from "react";
 import type { Session } from "@/shared/api";
-import { fetchTaxonomies, fetchVerifiedOfferings } from "../api/offerings";
-import {
-  buildTaxonomyLookup,
-  resolveTaxonomies,
-} from "../lib/resolve-taxonomies";
+import { buildTaxonomyLookup, fetchTaxonomies } from "@/entities/taxonomy";
+import { fetchVerifiedOfferings } from "../api/offerings";
+import { resolveTaxonomies } from "../lib/resolve-taxonomies";
 import { OfferingList } from "./OfferingList";
 import type {
   OfferingListItem,

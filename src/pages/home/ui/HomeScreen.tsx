@@ -1,7 +1,7 @@
 import { Suspense, type ReactNode } from "react";
 import type { Session } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
-import { cn } from "@/shared/lib/utils";
+import { PageSection } from "@/shared/ui";
 import {
   OFFERING_GRID_CLASSES,
   OfferingSkeletonCard,
@@ -28,19 +28,6 @@ const ANONYMOUS_SESSION: Session = { state: "anonymous" };
 // Placeholder cards rendered while the list loads (spec "Loading"): several,
 // standing in for a page of offering cards (design.md D9).
 const SKELETON_CARD_KEYS = [0, 1, 2] as const;
-
-// ─── Page layout (design.md D14) ───
-// Each section spans the viewport with its background and pads its content
-// vertically; the content sits in a centered container at most 72rem wide.
-// The about screen holds its own copy: pages slices cannot import each other.
-const SECTION_CLASSES = ["py-12", "md:py-16"].join(" ");
-const CONTAINER_CLASSES = [
-  "mx-auto",
-  "w-full",
-  "max-w-6xl",
-  "px-4",
-  "md:px-8",
-].join(" ");
 
 /**
  * Entry screen (design.md D10, D13; the landing spec "Entry page hero" and
@@ -90,31 +77,27 @@ export function HomeScreen({ locale, page }: HomeScreenProps): ReactNode {
 
   return (
     <div className="flex-1">
-      <section className={cn(SECTION_CLASSES, "bg-surface-page")}>
-        <div className={CONTAINER_CLASSES}>
-          <HomeHero locale={locale} texts={heroTexts} />
-        </div>
-      </section>
-      <section className={cn(SECTION_CLASSES, "bg-surface-section")}>
-        <div className={CONTAINER_CLASSES}>
-          <Suspense
-            fallback={
-              <div className={OFFERING_GRID_CLASSES}>
-                {SKELETON_CARD_KEYS.map((key) => (
-                  <OfferingSkeletonCard key={key} />
-                ))}
-              </div>
-            }
-          >
-            <VerifiedOfferings
-              locale={locale}
-              page={currentPage}
-              session={ANONYMOUS_SESSION}
-              texts={listTexts}
-            />
-          </Suspense>
-        </div>
-      </section>
+      <PageSection surface="page">
+        <HomeHero locale={locale} texts={heroTexts} />
+      </PageSection>
+      <PageSection surface="section">
+        <Suspense
+          fallback={
+            <div className={OFFERING_GRID_CLASSES}>
+              {SKELETON_CARD_KEYS.map((key) => (
+                <OfferingSkeletonCard key={key} />
+              ))}
+            </div>
+          }
+        >
+          <VerifiedOfferings
+            locale={locale}
+            page={currentPage}
+            session={ANONYMOUS_SESSION}
+            texts={listTexts}
+          />
+        </Suspense>
+      </PageSection>
     </div>
   );
 }

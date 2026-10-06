@@ -1,10 +1,11 @@
-import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
-import { render, screen, cleanup, within } from "@testing-library/react";
+import { describe, it, expect, afterEach, beforeAll, beforeEach, vi } from "vitest";
+import { render, screen, cleanup, fireEvent, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { resolve as pathResolve } from "node:path";
 import type { Session } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
+import { completeCallback, signIn, signOut } from "@/features/auth";
 import { AppShell } from "@/app/shell";
 
 // The shell's client chrome drives navigation through the app router hooks,
@@ -16,6 +17,15 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: () => {} }),
   usePathname: () => shellPathname,
 }));
+
+// The header actions call the public entries of `@/features/auth` (design.md
+// D1) through `ShellChrome`'s handlers. Only those two entries are replaced
+// by spies: the session hook and `completeCallback` keep their real
+// behaviour for the cases above. Test infrastructure only.
+vi.mock("@/features/auth", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/features/auth")>();
+  return { ...actual, signIn: vi.fn(), signOut: vi.fn() };
+});
 
 // jsdom has no matchMedia; the sidebar reads the md breakpoint through it.
 // Test infrastructure only.
@@ -35,6 +45,35 @@ beforeAll(() => {
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
   cleanup();
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
+
+/** The sign-in marker of `src/features/auth/model/flow` (design.md D3). */
+const MARKER_KEY = "tazavera.signed-in";
+
+const locationMock = {
+  assign: vi.fn<(url: string) => void>(),
+  pathname: "/es",
+};
+
+/**
+ * `crypto.subtle.digest` as this realm offers it, copied into an
+ * `ArrayBuffer` of the test's own realm (`authorize.test.ts`: the jsdom
+ * worker's digest is rejected by `oauth4webapi`'s base64url encoder).
+ */
+const realDigest = crypto.subtle.digest.bind(crypto.subtle);
+const realmDigest: SubtleCrypto["digest"] = (algorithm, data) =>
+  realDigest(algorithm, data).then(
+    (value) => new Uint8Array(value).slice().buffer as ArrayBuffer,
+  );
+
+beforeEach(() => {
+  localStorage.clear();
+  locationMock.assign.mockReset();
+  locationMock.pathname = "/es";
+  vi.stubGlobal("location", locationMock);
+  vi.spyOn(crypto.subtle, "digest").mockImplementation(realmDigest);
 });
 
 /**
@@ -54,7 +93,22 @@ afterEach(() => {
  *   asserts loading, anonymous and unresolvable only.
  * - "Session unresolvable" has no state of its own (D4 is unchanged): it is
  *   represented by { state: "anonymous" } and named after the spec scenario.
- *   add-auth task 4.1 rewires this test to the real session later.
+ *
+ * add-auth task 4.1: the "Session resolving" and "Session unresolvable"
+ * expectations drive the real session instead of a supplied session — the
+ * sign-in marker of `src/features/auth/model/flow` (design.md D3) makes it
+ * resolve silently and stay `loading` while that request is pending, and a
+ * callback answer that resolves nothing settles it to `anonymous`. The silent
+ * request is the authorization request of design.md D5 (`prompt=none`),
+ * started as the full-page redirect of D3, so `location` and
+ * `crypto.subtle.digest` are stubbed like in
+ * `src/features/auth/api/authorize.test.ts`.
+ *
+ * add-auth task 5.2b (review round 3, item 1): the two header-action cases
+ * assert only the wiring review round 3 settles (design.md D1) — activating
+ * the header's "Sign in" and the user menu's "Sign out" reaches `signIn` and
+ * `signOut` of `@/features/auth` — so those two entries are the spies
+ * declared above and no case here asserts anything of the flows themselves.
  */
 
 const LOCALE = "es";
@@ -126,7 +180,11 @@ describe("AppShell (spec: Shell layout and main area)", () => {
 
 describe("AppShell session states (spec: Session states in the shell)", () => {
   it("Session resolving shows neither the Sign in action nor the user menu", () => {
-    renderShell({ state: "loading" });
+    // The real session (add-auth task 4.1): the marker records a previous
+    // sign in, so the session restores it silently (design.md D5) and stays
+    // `loading` while that request is pending.
+    localStorage.setItem(MARKER_KEY, "1");
+    renderShell();
     expect(screen.queryByRole("button", { name: texts.signIn })).toBeNull();
     expect(screen.queryByRole("menu")).toBeNull();
   });
@@ -137,12 +195,19 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
     expect(screen.queryByRole("menu")).toBeNull();
   });
 
-  it("Session unresolvable renders as anonymous with no error message and no retry affordance", () => {
+  it("Session unresolvable renders as anonymous with no error message and no retry affordance", async () => {
     // design.md D5: a session that cannot be resolved renders as the
     // anonymous shell — there is no error message, no error page and no
-    // retry affordance.
-    renderShell({ state: "anonymous" });
-    expect(screen.getByRole("button", { name: texts.signIn })).toBeDefined();
+    // retry affordance. The real session (add-auth task 4.1): the marker
+    // records a previous sign in, but the callback answers nothing that
+    // belongs to it, so the silent restore cannot resolve the session
+    // (design.md D4 outcome table) and the shell renders as anonymous.
+    localStorage.setItem(MARKER_KEY, "1");
+    await completeCallback({}, () => {});
+    renderShell();
+    await vi.waitFor(() => {
+      expect(screen.getByRole("button", { name: texts.signIn })).toBeDefined();
+    });
     // spec "Language selection": the language control is a button trigger,
     // named with the composed name the shell passes (design.md D6, correction
     // 1 of round 1 — code first)
@@ -192,6 +257,31 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
       ).toBeDefined();
       unmount();
     }
+  });
+});
+
+describe("AppShell header actions (spec: Sign in starts from the current route, Sign out)", () => {
+  // The two header-action cases of add-auth task 5.2b (review round 3,
+  // item 1): the actions call `signIn` and `signOut` of `@/features/auth`
+  // (design.md D1). They fail while `ShellChrome`'s handlers are empty and
+  // pass over the shell as task 5.2c leaves it.
+
+  it("starts sign in for the route the user is on (spec: Sign in starts from the current route)", () => {
+    shellPathname = "/es/manage/offerings";
+    renderShell({ state: "anonymous" });
+    fireEvent.click(screen.getByRole("button", { name: texts.signIn }));
+    expect(vi.mocked(signIn)).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(signIn)).toHaveBeenCalledWith("/es/manage/offerings");
+  });
+
+  it("signs the user out from the user menu (spec: Sign out)", () => {
+    renderShell({
+      state: "authenticated",
+      user: { name: "Andrés", surname: "Gómez", role: "specialist" },
+    });
+    fireEvent.pointerDown(screen.getByRole("button", { name: "Andrés Gómez" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: texts.signOut }));
+    expect(vi.mocked(signOut)).toHaveBeenCalledTimes(1);
   });
 });
 
