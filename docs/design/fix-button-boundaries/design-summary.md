@@ -241,3 +241,22 @@ Settled by the orchestrator, 2026-10-06 (Product owner may reopen it): Open 1 a)
   - Closed the former Open 1 (boundary mechanism) with a), as the orchestrator asked, on the numbers: an existing primitive passes as a border for every variant in both themes, at rest and on hover. The border keeps every existing value; b) would need new fill primitives and, for dark `primary`, a new label token (F1). No primitive is derived and no hover token is needed.
   - Settled from the §4 rule "the passing candidate with the highest minimum": `action-2` traditional takes brown-900 (6.02), not oxblood-800 (3.47); `action-4` traditional takes petrol-900 (7.87); `action-3` dark takes night-sage-100 (5.40). I added each variant's hover-label primitive to the dark candidates, and `text-secondary` for `action-4`, because §0's list had no candidate passing on hover for `action-1`, `action-3` or `action-4`. This follows the `nav-button` precedent and adds no token.
   - Wrote the tokens (§4.4), the class per variant (§4.5) and the exact guard pairs (§5); removed the conditional hover-token test from §6. Renumbered the Open list: border width is now Open 1, the visual reference Open 2. Neither blocks propose.
+
+## Propose status
+
+- Change-id: `fix-button-boundaries`
+- Date: 2026-10-06
+- `openspec validate fix-button-boundaries --strict`: passed ("Change 'fix-button-boundaries' is valid").
+- Resolved:
+  - **Q1 (spec delta for the border), by handoff D1.** The change carries a `base-controls` delta that amends the scenarios "Primary action" and "Positional actions" to name the border ("background, label, border and hover colors resolve to …"); the transparent traditional `primary` border is left to the theming exemption clause, so there is no theming delta. Applied in `openspec/changes/fix-button-boundaries/specs/base-controls/spec.md`.
+  - **Q2 (completeness of `--color-action-primary-border`), by handoff D2.** An explicit defined-in-both-themes test for `--color-action-primary-border` mirroring the avatar block of `theme-tokens.test.ts`; the shared completeness filter is unchanged. Applied in design.md D5, and D2 states that the `action-primary` fill pairs double as the exemption gate. (Explore A1, which corrected §5's "(the existing completeness test)", is covered by this decision.)
+  - **Open 1 (border width), settled 2026-10-06 as a).** 1px is written plainly in the artifacts (design.md D1), per explore A3; the "(width: Open 1)" wording is not carried over.
+  - **Explore A2 (border-box geometry).** The +2px width is noted in design.md D1 and is to be shown in the mock-up (Open 2).
+  - **§6's incomplete "must keep passing" list, by handoff D3.** The complete list (direct renderers, transitive renderers and style guards) is recorded in design.md D6.
+- Open: **Open 2 (visual reference).** The mock-up is rendered by the design lead before the apply (design.md Open Questions); it changes no spec, decision or task and does not block propose.
+- Backlog: none. No entry names this change (R4 touches `DropdownMenu.tsx`, not `Button`).
+- **Artifact review by Product owner, 2026-10-06 (applied 2026-10-06).** `openspec validate fix-button-boundaries --strict`: passed ("Change 'fix-button-boundaries' is valid").
+  - Open 1 a) (1px border) and Open 2 a) confirmed.
+  - Product owner reviewed the mock-up (`mockup/buttons-mockup.html`) and approves every border as rendered, including the border merging with the fill on the traditional hover of `action-1` and `action-3`, the dark-theme borders lighter than the label at rest, and the cream border on dark `primary`. Nothing blocks the apply on the visual side.
+  - Kept as edited by the orchestrator in `openspec/changes/fix-button-boundaries/design.md`: Risk 2 (the mock-up uses its own copy of the stylesheet; every rendered `Button` on the live landing computes `box-sizing: border-box` at 40px high) and Risk 3 (the transparent border makes the button 2px wider and, at the fixed height, its content area 2px shorter).
+  - Applied: design.md "Open Questions" records the visual reference as resolved. Open 2 is closed and supersedes the `Open` line above (it changes no spec, decision or task). Open: none.

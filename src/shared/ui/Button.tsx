@@ -43,11 +43,36 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 // Focus uses the focus-ring + focus-offset tokens everywhere (D6).
 
 const VARIANT_REST: Record<ButtonVariant, string> = {
-  primary: ["bg-action-primary", "text-action-primary-text"].join(" "),
-  "action-1": ["bg-action-1-bg", "text-action-1-text"].join(" "),
-  "action-2": ["bg-action-2-bg", "text-action-2-text"].join(" "),
-  "action-3": ["bg-action-3-bg", "text-action-3-text"].join(" "),
-  "action-4": ["bg-action-4-bg", "text-action-4-text"].join(" "),
+  primary: [
+    "border",
+    "bg-action-primary",
+    "text-action-primary-text",
+    "border-action-primary-border",
+  ].join(" "),
+  "action-1": [
+    "border",
+    "bg-action-1-bg",
+    "text-action-1-text",
+    "border-action-1-border",
+  ].join(" "),
+  "action-2": [
+    "border",
+    "bg-action-2-bg",
+    "text-action-2-text",
+    "border-action-2-border",
+  ].join(" "),
+  "action-3": [
+    "border",
+    "bg-action-3-bg",
+    "text-action-3-text",
+    "border-action-3-border",
+  ].join(" "),
+  "action-4": [
+    "border",
+    "bg-action-4-bg",
+    "text-action-4-text",
+    "border-action-4-border",
+  ].join(" "),
   "nav-button": [
     "border",
     "bg-nav-button-bg",

@@ -10,11 +10,11 @@ Action buttons SHALL render in one of the defined action treatments — primary 
 
 #### Scenario: Primary action
 - **WHEN** an action button with the primary treatment renders in either theme
-- **THEN** its background, label and hover colors resolve to the primary action values of the active theme
+- **THEN** its background, label, border and hover colors resolve to the primary action values of the active theme
 
 #### Scenario: Positional actions
 - **WHEN** an action button with positional treatment 1, 2, 3 or 4 renders in either theme
-- **THEN** its background, label and hover colors resolve to that position's action values of the active theme
+- **THEN** its background, label, border and hover colors resolve to that position's action values of the active theme
 
 #### Scenario: Navigation action in the header
 - **WHEN** an action button with the navigation treatment renders in the header
