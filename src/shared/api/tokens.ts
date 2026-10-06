@@ -65,6 +65,7 @@ export async function exchangeCode(
     callbackParameters,
     `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/callback`,
     codeVerifier,
+    requestOptions(),
   );
   tokens = await keepGrant(response, (sent) =>
     oauth.processAuthorizationCodeResponse(as, client, sent),
@@ -87,6 +88,7 @@ export async function refreshTokens(): Promise<void> {
     client,
     oauth.None(),
     current.refresh_token,
+    requestOptions(),
   );
   tokens = await keepGrant(response, (sent) =>
     oauth.processRefreshTokenResponse(as, client, sent),
@@ -97,6 +99,18 @@ export async function refreshTokens(): Promise<void> {
 function authorizationServer(): oauth.AuthorizationServer {
   const base = process.env.NEXT_PUBLIC_API_URL ?? "";
   return { issuer: base, token_endpoint: `${base}/oauth/token` };
+}
+
+/**
+ * The options of both grant requests (design.md D8). Outside production the
+ * library's `allowInsecureRequests` lets them reach an `http://` API (the local
+ * API on `http://localhost:8000`); a production build keeps the library's
+ * default and refuses any token endpoint that is not HTTPS.
+ */
+function requestOptions(): oauth.TokenEndpointRequestOptions {
+  return process.env.NODE_ENV === "production"
+    ? {}
+    : { [oauth.allowInsecureRequests]: true };
 }
 
 /** The public client (design.md D5: it identifies itself with `client_id`, no secret). */

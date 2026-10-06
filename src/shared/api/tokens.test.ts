@@ -121,6 +121,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
   vi.restoreAllMocks();
 });
 
@@ -222,5 +223,56 @@ describe("the refresh (design.md D2, D3 and D5)", () => {
     fetchMock.mockResolvedValueOnce(jsonResponse(REFRESH_ERROR, 400));
 
     await expect(refreshTokens()).rejects.toMatchObject(REFRESH_ERROR);
+  });
+});
+
+describe("token requests to an http API (design.md D8: insecure requests only outside production)", () => {
+  const HTTP_API_URL = "http://localhost:8000";
+
+  beforeEach(() => {
+    process.env.NEXT_PUBLIC_API_URL = HTTP_API_URL;
+  });
+
+  it("sends both grant requests to an http token endpoint and keeps each grant outside production", async () => {
+    vi.stubEnv("NODE_ENV", "development");
+    fetchMock.mockResolvedValueOnce(jsonResponse(GRANT));
+
+    await exchangeCode("code-123", "verifier-123");
+
+    expect(calledUrl(0)).toBe(`${HTTP_API_URL}/oauth/token`);
+    expect(getTokens()).toEqual(GRANT);
+
+    fetchMock.mockResolvedValueOnce(jsonResponse(NEXT_GRANT));
+
+    await refreshTokens();
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(calledUrl(1)).toBe(`${HTTP_API_URL}/oauth/token`);
+    expect(getTokens()).toEqual(NEXT_GRANT);
+  });
+
+  it("refuses the code exchange to an http token endpoint in production and sends no request", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    fetchMock.mockResolvedValue(jsonResponse(GRANT));
+
+    await expect(exchangeCode("code-123", "verifier-123")).rejects.toMatchObject({
+      code: "OAUTH_HTTP_REQUEST_FORBIDDEN",
+    });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("refuses the refresh to an http token endpoint in production and sends no request", async () => {
+    vi.stubEnv("NODE_ENV", "development");
+    fetchMock.mockResolvedValueOnce(jsonResponse(GRANT));
+    await exchangeCode("code-123", "verifier-123");
+    fetchMock.mockClear();
+    vi.stubEnv("NODE_ENV", "production");
+    fetchMock.mockResolvedValue(jsonResponse(NEXT_GRANT));
+
+    await expect(refreshTokens()).rejects.toMatchObject({
+      code: "OAUTH_HTTP_REQUEST_FORBIDDEN",
+    });
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(getTokens()).toEqual(GRANT);
   });
 });
