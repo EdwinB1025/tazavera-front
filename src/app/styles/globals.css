@@ -261,6 +261,17 @@
     --shadow-nav-hover: inset 0 2px 4px rgb(0 0 0 / 0.05);
 }
 
+/* Tailwind inlines a theme shadow's value into its shadow-* utility, so the
+   dark theme's reassignment would never apply. These two utilities read the
+   variables instead, keeping the class names and following the theme. */
+@utility shadow-nav-current {
+    box-shadow: var(--shadow-nav-current);
+}
+
+@utility shadow-nav-hover {
+    box-shadow: var(--shadow-nav-hover);
+}
+
 /* =========================================================
    TAZAVERA — NIGHT PRIMITIVES (dark theme)
    Dark zone (L < 0.40): numbered by order (950 darkest → 750).

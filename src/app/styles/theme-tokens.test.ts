@@ -1290,4 +1290,21 @@ describe("Facet-row shadow tokens (add-facet-controls design.md D10)", () => {
   it("dark theme defines --shadow-nav-hover as none", () => {
     expect(darkProps.get("--shadow-nav-hover")).toBe("none");
   });
+
+  // Tailwind 4 inlines a --shadow-* theme value into its shadow-* utility, so
+  // the dark reassignment only applies if the utility reads the variable.
+  for (const name of ["nav-current", "nav-hover"]) {
+    it(`@utility shadow-${name} is defined once and reads var(--shadow-${name})`, () => {
+      const regex = new RegExp(`@utility\\s+shadow-${name}\\s*\\{`, "g");
+      const blocks: string[] = [];
+      let match: RegExpExecArray | null;
+      while ((match = regex.exec(css)) !== null) {
+        blocks.push(extractBlock(css, match.index + match[0].length - 1));
+      }
+      expect(blocks).toHaveLength(1);
+      expect(blocks[0]).toMatch(
+        new RegExp(`box-shadow\\s*:\\s*var\\(--shadow-${name}\\)\\s*;`),
+      );
+    });
+  }
 });
