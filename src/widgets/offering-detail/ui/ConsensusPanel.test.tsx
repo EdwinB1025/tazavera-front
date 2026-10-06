@@ -37,9 +37,27 @@ const TEXT_KEYS = [
   "concordanceExcellent",
 ] as const;
 
-const TEXTS = Object.fromEntries(
-  TEXT_KEYS.map((key) => [key, `texts.${key}`]),
-) as unknown as ConsensusPanelTexts;
+const ATTRIBUTE_KEYS = [
+  "attrFragrance",
+  "attrAroma",
+  "attrFlavor",
+  "attrAftertaste",
+  "attrAcidity",
+  "attrSweetness",
+  "attrMouthfeel",
+  "attrOverall",
+] as const;
+
+const TEXTS = {
+  ...Object.fromEntries(
+    [...TEXT_KEYS, ...ATTRIBUTE_KEYS, "detailAttributesHeading"].map((key) => [
+      key,
+      `texts.${key}`,
+    ]),
+  ),
+  beanValue: "{value}/9",
+  beanValueLabel: "{value} de 9",
+} as unknown as ConsensusPanelTexts;
 
 const TAXONOMIES: TaxonomyNode[] = [];
 
@@ -53,12 +71,12 @@ const OFFERING: OfferingDetail = {
   concordanceDescriptive: "0.740",
 };
 
-function renderPanel(offering: OfferingDetail = OFFERING) {
+function renderPanel(offering: OfferingDetail = OFFERING, locale = "es") {
   return render(
     <ConsensusPanel
       offering={offering}
       taxonomies={TAXONOMIES}
-      locale="es"
+      locale={locale}
       texts={TEXTS}
     />,
   );
@@ -176,6 +194,96 @@ describe("ConsensusPanel texts in the catalog (design.md D16)", () => {
       for (const key of TEXT_KEYS.filter((key) => !key.startsWith("rating"))) {
         expect(catalog[key], `${locale}.${key}`).toEqual(expect.any(String));
       }
+    }
+  });
+});
+
+describe("ConsensusPanel — SCA attributes (spec: Consensus SCA attribute averages; design.md D12)", () => {
+  const AVERAGES: OfferingDetail = {
+    ...OFFERING,
+    fragranceAffectiveAvg: "7.2",
+    aromaAffectiveAvg: "7.8",
+    flavorAffectiveAvg: "7.5",
+    aftertasteAffectiveAvg: "7.1",
+    acidityAffectiveAvg: "7.4",
+    sweetnessAffectiveAvg: "7.6",
+    mouthfeelAffectiveAvg: "7.0",
+    overallAffectiveAvg: "8",
+  };
+
+  it("renders one read-only bean scale per attribute in the settled order, inside the attributes card", () => {
+    renderPanel(AVERAGES);
+    const card = screen
+      .getByRole("heading", { level: 2, name: TEXTS.detailAttributesHeading })
+      .closest(".bg-surface-card")!;
+    const meters = screen.getAllByRole("meter");
+    expect(meters).toHaveLength(8);
+    for (const meter of meters) {
+      expect(card.contains(meter)).toBe(true);
+    }
+    const names = meters.map((meter) => {
+      const labelId = meter.getAttribute("aria-labelledby")!;
+      return document.getElementById(labelId)!.textContent;
+    });
+    expect(names).toEqual(
+      ATTRIBUTE_KEYS.map((key) => TEXTS[key as keyof ConsensusPanelTexts]),
+    );
+    // The card spans both grid columns from `lg`.
+    expect(classTokens(card.parentElement!)).toContain("lg:col-span-2");
+  });
+
+  it("passes the parsed value with one decimal in the value text and label (the settled '7,2 de 9' reading)", () => {
+    renderPanel(AVERAGES);
+    const fragrance = screen.getAllByRole("meter")[0];
+    expect(fragrance.getAttribute("aria-valuenow")).toBe("7.2");
+    expect(fragrance.getAttribute("aria-valuetext")).toBe("7,2 de 9");
+    expect(screen.getByText("7,2/9")).toBeDefined();
+    // A whole value is still stated with its decimal.
+    const overall = screen.getAllByRole("meter")[7];
+    expect(overall.getAttribute("aria-valuenow")).toBe("8");
+    expect(overall.getAttribute("aria-valuetext")).toBe("8,0 de 9");
+  });
+
+  it("formats the value in the route's locale", () => {
+    renderPanel(AVERAGES, "en");
+    expect(screen.getAllByRole("meter")[0].getAttribute("aria-valuetext")).toBe(
+      "7.2 de 9",
+    );
+    expect(screen.getByText("7.2/9")).toBeDefined();
+  });
+
+  it("reaches the scale as a fraction for a fractional value (spec: Fractional value)", () => {
+    renderPanel(AVERAGES);
+    const fragrance = screen.getAllByRole("meter")[0];
+    // 7.2: seven full beans and the eighth cut at 20%.
+    const cut = fragrance.querySelectorAll('[data-slot="bean"]')[7]
+      .lastElementChild as HTMLElement;
+    expect(cut.style.clipPath).toBe("inset(0 80% 0 0)");
+  });
+
+  it("renders no scale for a missing average and keeps the rest (spec: Missing average)", () => {
+    renderPanel({ ...AVERAGES, aromaAffectiveAvg: undefined });
+    const meters = screen.getAllByRole("meter");
+    expect(meters).toHaveLength(7);
+    const names = meters.map(
+      (meter) =>
+        document.getElementById(meter.getAttribute("aria-labelledby")!)!
+          .textContent,
+    );
+    expect(names).not.toContain(TEXTS.attrAroma);
+  });
+
+  it("finds the attribute heading and labels in the catalog and the bean texts in the scales area of each locale (design.md D16)", () => {
+    for (const locale of ["es", "en", "ca"]) {
+      const catalog = getMessages("catalog", locale);
+      for (const key of ["detailAttributesHeading", ...ATTRIBUTE_KEYS]) {
+        expect(catalog[key], `${locale}.${key}`).toEqual(expect.any(String));
+      }
+      const scales = getMessages("scales", locale);
+      expect(scales.beanValue).toBe("{value}/9");
+      expect(scales.beanValueLabel).toBe(
+        locale === "en" ? "{value} of 9" : "{value} de 9",
+      );
     }
   });
 });
