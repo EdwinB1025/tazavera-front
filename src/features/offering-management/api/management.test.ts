@@ -9,7 +9,7 @@ const { publicRequest, request } = vi.hoisted(() => ({
 }));
 vi.mock("@/shared/api", () => ({ publicRequest, request }));
 
-import { fetchOwnOfferings } from "./management";
+import { createOfferings, fetchOwnOfferings, searchCoffeeInventory } from "./management";
 
 /**
  * The management requests (design.md D1; spec "My offerings list"). Written
@@ -78,5 +78,81 @@ describe("fetchOwnOfferings (design.md D1)", () => {
     await expect(fetchOwnOfferings("01USER", 1)).resolves.toEqual({
       state: "error",
     });
+  });
+});
+
+describe("searchCoffeeInventory (design.md D9)", () => {
+  it("builds GET /coffeeInventory?coffeeName={text} through request with the signal", async () => {
+    request.mockResolvedValue(jsonResponse(200, { data: [] }));
+    const controller = new AbortController();
+
+    await searchCoffeeInventory("huila mirador", controller.signal);
+
+    expect(request).toHaveBeenCalledTimes(1);
+    expect(request.mock.calls[0][0]).toBe("/coffeeInventory?coffeeName=huila%20mirador");
+    expect(request.mock.calls[0][1]).toMatchObject({ signal: controller.signal });
+    expect(publicRequest).not.toHaveBeenCalled();
+  });
+
+  it("resolves to the items of data", async () => {
+    const data = [{ ulid: "01I" }];
+    request.mockResolvedValue(jsonResponse(200, { data }));
+
+    await expect(searchCoffeeInventory("hu", new AbortController().signal)).resolves.toEqual(
+      data,
+    );
+  });
+
+  it.each([403, 422, 500])("rejects on a %i status", async (status) => {
+    request.mockResolvedValue(jsonResponse(status, { message: "nope" }));
+
+    await expect(
+      searchCoffeeInventory("hu", new AbortController().signal),
+    ).rejects.toBeInstanceOf(Error);
+  });
+});
+
+describe("createOfferings (design.md D10)", () => {
+  it("sends POST /offerings with { coffeeInventoryId, locations } through request", async () => {
+    request.mockResolvedValue(jsonResponse(201, { data: [{}, {}], message: "ok" }));
+
+    await createOfferings("01I", ["01L1", "01L2"]);
+
+    expect(request).toHaveBeenCalledTimes(1);
+    const [path, init] = request.mock.calls[0];
+    expect(path).toBe("/offerings");
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(init.body)).toEqual({
+      coffeeInventoryId: "01I",
+      locations: ["01L1", "01L2"],
+    });
+    expect(publicRequest).not.toHaveBeenCalled();
+  });
+
+  it("maps a 201 to ok with the number of created offerings", async () => {
+    request.mockResolvedValue(jsonResponse(201, { data: [{}, {}], message: "ok" }));
+
+    await expect(createOfferings("01I", ["01L1"])).resolves.toEqual({
+      outcome: "ok",
+      count: 2,
+    });
+  });
+
+  it("maps a 403 to forbidden", async () => {
+    request.mockResolvedValue(jsonResponse(403, { message: "nope" }));
+
+    await expect(createOfferings("01I", [])).resolves.toEqual({ outcome: "forbidden" });
+  });
+
+  it.each([422, 500])("maps a %i status to failed", async (status) => {
+    request.mockResolvedValue(jsonResponse(status, { message: "nope" }));
+
+    await expect(createOfferings("01I", [])).resolves.toEqual({ outcome: "failed" });
+  });
+
+  it("maps a transport failure to failed", async () => {
+    request.mockRejectedValue(new TypeError("Failed to fetch"));
+
+    await expect(createOfferings("01I", [])).resolves.toEqual({ outcome: "failed" });
   });
 });
