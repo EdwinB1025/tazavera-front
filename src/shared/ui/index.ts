@@ -7,7 +7,7 @@
  */
 export { Button } from "./Button";
 export type { ButtonProps, ButtonVariant, ButtonSize } from "./Button";
-export { Link } from "./Link";
+export { Link, LINK_CLASSES } from "./Link";
 export type { LinkProps } from "./Link";
 export { Field } from "./Field";
 export type { FieldProps } from "./Field";

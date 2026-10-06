@@ -18,5 +18,14 @@
   "passwordMismatchError": "Les contrasenyes no coincideixen.",
   "signIn": "Iniciar sessió",
   "loading": "Carregant…",
-  "genericError": "No s'ha pogut completar l'acció. Torna-ho a provar."
+  "genericError": "No s'ha pogut completar l'acció. Torna-ho a provar.",
+  "accountTitle": "El meu compte",
+  "accountIntro": "Gestiona les teves dades, la contrasenya i la seguretat del compte.",
+  "profileHeading": "Perfil",
+  "passwordHeading": "Contrasenya",
+  "securityHeading": "Seguretat",
+  "securityDescription": "Autenticació en dos passos i claus d'accés.",
+  "securityLink": "Gestiona la seguretat",
+  "dangerZoneHeading": "Zona perillosa",
+  "signedOutText": "Inicia sessió per gestionar el teu compte."
 }

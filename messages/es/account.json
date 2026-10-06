@@ -18,5 +18,14 @@
   "passwordMismatchError": "Las contraseñas no coinciden.",
   "signIn": "Iniciar sesión",
   "loading": "Cargando…",
-  "genericError": "No se pudo completar la acción. Inténtalo de nuevo."
+  "genericError": "No se pudo completar la acción. Inténtalo de nuevo.",
+  "accountTitle": "Mi cuenta",
+  "accountIntro": "Gestiona tus datos, tu contraseña y la seguridad de tu cuenta.",
+  "profileHeading": "Perfil",
+  "passwordHeading": "Contraseña",
+  "securityHeading": "Seguridad",
+  "securityDescription": "Autenticación en dos pasos y llaves de acceso.",
+  "securityLink": "Gestionar la seguridad",
+  "dangerZoneHeading": "Zona peligrosa",
+  "signedOutText": "Inicia sesión para gestionar tu cuenta."
 }

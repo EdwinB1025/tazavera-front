@@ -18,5 +18,14 @@
   "passwordMismatchError": "The passwords do not match.",
   "signIn": "Sign in",
   "loading": "Loading…",
-  "genericError": "The action could not be completed. Please try again."
+  "genericError": "The action could not be completed. Please try again.",
+  "accountTitle": "My account",
+  "accountIntro": "Manage your details, your password and your account security.",
+  "profileHeading": "Profile",
+  "passwordHeading": "Password",
+  "securityHeading": "Security",
+  "securityDescription": "Two-factor authentication and passkeys.",
+  "securityLink": "Manage security",
+  "dangerZoneHeading": "Danger zone",
+  "signedOutText": "Sign in to manage your account."
 }
