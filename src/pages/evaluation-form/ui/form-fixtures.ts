@@ -1,4 +1,4 @@
-import type { EvaluationItem, OfferingDetail } from "@/shared/api";
+import type { EvaluationItem, OfferingDetail, TaxonomyNode } from "@/shared/api";
 import type { EvaluationFormTexts } from "./EvaluationForm";
 
 /**
@@ -26,6 +26,15 @@ export const FORM_TEXTS: EvaluationFormTexts = {
     cold_brew: "Cold brew",
     siphon: "Siphon",
     kalita: "Kalita Wave",
+  },
+  actions: {
+    saveLabel: "Save draft",
+    closeLabel: "Close evaluation",
+    savedMessage: "Draft saved.",
+    notYoursMessage: "This evaluation is not yours.",
+    alreadyClosedMessage: "This evaluation is already closed.",
+    failureMessage: "Something went wrong.",
+    roastLevelRequired: "Choose the roast level.",
   },
   blockLabels: {
     aromatics: "Aromatics",
@@ -97,3 +106,17 @@ export const OPEN_EVALUATION: EvaluationItem = {
   createdAt: "2026-10-06T09:12:45.000000Z",
   closedAt: null,
 };
+
+function taxon(ulid: string, level: number, name: string, categories: string[], children: TaxonomyNode[] = []): TaxonomyNode {
+  return { ulid, level, nameEn: name, nameEs: name, nameCa: name, color: "#aa3355", categories, children: children as never };
+}
+
+/** One option per block: an aromatic, a main taste, a mouthfeel and a defect. */
+export const TAXONOMIES: TaxonomyNode[] = [
+  taxon("01JTAXFLORAL0000000000000A", 0, "Floral", ["aromatics"]),
+  taxon("01JTAXSWEET00000000000000C", 0, "Sweet", ["main_tastes"]),
+  taxon("01JTAXTEXTURE000000000000X", 0, "Texture", [], [
+    taxon("01JTAXSILKY00000000000000D", 1, "Silky", ["mouthfeel"]),
+  ]),
+  taxon("01JTAXMOULD00000000000000E", 0, "Mouldy", ["defects"]),
+];
