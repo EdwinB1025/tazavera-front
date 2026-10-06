@@ -1,0 +1,22 @@
+{
+  "registerSpecialistTitle": "Create your specialist account",
+  "registerCoffeeshopTitle": "Register your coffeeshop",
+  "registerIntro": "Enter your details below to create your account",
+  "registerSubmit": "Create account",
+  "registerSuccessTitle": "Account created",
+  "registerSuccessText": "You can now sign in with your email and your password.",
+  "nameLabel": "Name",
+  "surnameLabel": "Surname",
+  "emailLabel": "Email",
+  "passwordLabel": "Password",
+  "passwordConfirmationLabel": "Confirm password",
+  "passwordHelp": "At least 8 characters, with upper and lower case letters and numbers",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "requiredError": "This field is required.",
+  "emailFormatError": "Enter a valid email address.",
+  "passwordMismatchError": "The passwords do not match.",
+  "signIn": "Sign in",
+  "loading": "Loading…",
+  "genericError": "The action could not be completed. Please try again."
+}

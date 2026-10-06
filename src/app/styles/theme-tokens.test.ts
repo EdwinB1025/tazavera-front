@@ -303,6 +303,9 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "text-secondary", bg: "surface-section", kind: "text" },
   { fg: "text-accent", bg: "surface-card", kind: "text" },
   { fg: "text-label", bg: "surface-page", kind: "text" },
+  // add-user-account design.md D11: field labels and help on cards.
+  { fg: "text-label", bg: "surface-card", kind: "text" },
+  { fg: "text-secondary", bg: "surface-card", kind: "text" },
   { fg: "text-strong", bg: "surface-form", kind: "text" },
   { fg: "text-placeholder", bg: "surface-input", kind: "text" },
   { fg: "text-link", bg: "surface-card", kind: "text" },
@@ -675,6 +678,9 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "text-secondary", bg: "surface-section", kind: "text" },
   { fg: "text-accent", bg: "surface-card", kind: "text" },
   { fg: "text-label", bg: "surface-page", kind: "text" },
+  // add-user-account design.md D11: field labels and help on cards.
+  { fg: "text-label", bg: "surface-card", kind: "text" },
+  { fg: "text-secondary", bg: "surface-card", kind: "text" },
   { fg: "text-strong", bg: "surface-form", kind: "text" },
   { fg: "text-placeholder", bg: "surface-input", kind: "text" },
   { fg: "text-link", bg: "surface-card", kind: "text" },

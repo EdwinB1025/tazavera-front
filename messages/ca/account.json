@@ -1,0 +1,22 @@
+{
+  "registerSpecialistTitle": "Crea el teu compte d'especialista",
+  "registerCoffeeshopTitle": "Registra la teva cafeteria",
+  "registerIntro": "Introdueix les teves dades per crear el teu compte",
+  "registerSubmit": "Crea el compte",
+  "registerSuccessTitle": "Compte creat",
+  "registerSuccessText": "Ja pots iniciar sessió amb el teu correu i la contrasenya.",
+  "nameLabel": "Nom",
+  "surnameLabel": "Cognom",
+  "emailLabel": "Correu electrònic",
+  "passwordLabel": "Contrasenya",
+  "passwordConfirmationLabel": "Confirma la contrasenya",
+  "passwordHelp": "Almenys 8 caràcters, amb majúscules, minúscules i números",
+  "showPassword": "Mostra la contrasenya",
+  "hidePassword": "Amaga la contrasenya",
+  "requiredError": "Aquest camp és obligatori.",
+  "emailFormatError": "Introdueix un correu vàlid.",
+  "passwordMismatchError": "Les contrasenyes no coincideixen.",
+  "signIn": "Iniciar sessió",
+  "loading": "Carregant…",
+  "genericError": "No s'ha pogut completar l'acció. Torna-ho a provar."
+}
