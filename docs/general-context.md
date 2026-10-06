@@ -7,7 +7,7 @@ Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`.
 - `AGENTS.md` y `.claude/workflow_sdd.md`: reglas y flujo de los agentes OpenCode.
 - El `handoff.md` y el `corrections.md` de cada cambio.
 
-**Actualizado:** 2026-10-06 13:00.
+**Actualizado:** 2026-10-06 13:45.
 
 ## Estado
 
@@ -18,18 +18,15 @@ Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`.
 
 ## Al retomar
 
-1. **Sesiones en la nube lanzadas el 6 oct** (rutinas de un solo uso, entorno Default). Revisar cada rama al terminar (CLAUDE.md §10, pasos 4–8) e integrar con `--ff-only`:
-   - 12:52 `add-auth`: checkbox 8.17 + verify → `claude/add-auth-817` (rutina `trig_01Ly8m4mV8W8Ke1fsfH97UHV`).
-   - 12:52 `refactor-badge-geometry` 5.1 → `claude/refactor-badge-geometry-5.1` (`trig_01NjJk22gYhwn6ejUMWXNJpp`).
-   - 13:05 `extract-offering-list-parts` 2.1–4.1 → `claude/extract-offering-list-parts-apply` (`trig_01KfkPMix7hxh92zSFkeJfQs`).
-   - 13:08 `add-specialist-evaluations` explore + propose → `claude/add-specialist-evaluations-propose` (`trig_01R1Mkt5YAV8KfSN3txYtyAe`).
-   - Estado: `RemoteTrigger list_runs` con el id; ramas con `gh api repos/EdwinB1025/tazavera-front/branches`.
-2. **Capturas del orquestador** (en `docs/design/<change-id>/captures/`, acordado con Product owner el 6 oct): `refactor-badge-geometry` 5.2 y `extract-offering-list-parts` 4.2 (`/es` a 375 y 1280 en `develop` y en la rama). `.env.local` ya está en los worktrees `auth`, `listparts` y `badge`. La base local tiene pocas ofertas; si hace falta, una API simulada de lecturas.
-3. **Mock-up de `fix-button-boundaries`:** el design lead redactó el HTML, guardado sin commitear en el worktree `buttons` (`docs/design/fix-button-boundaries/mockup/buttons-mockup.html`); capturarlo y enseñarlo a Product owner antes del apply. Hallazgos a enseñar: borde que desaparece en hover tradicional de `action-1`/`action-3`; borde oscuro más claro que la etiqueta en reposo; borde crema en `primary` oscuro.
-4. **Revisar el propose de `add-evaluation-scales`** (`d3cce1e`, `706b99b`): commit, validate, duplicados.
-5. **Esperan a Product owner:** `add-filter-controls` (librería del combobox; ranura `@sidebar`; también resuelve offering-management Open 1); user-account y offering-management S1–S5 y U7 (propuestas en la sesión del 6 oct: step-up reactivo tras 403, mensaje con botón de inicio de sesión en rutas protegidas, 422 documentado en la API, refactor de sección compartida, refactor del slot de `OfferingCard`, `refreshProfile()`); evaluations Q9; landing D4; archive de `add-auth`.
+1. **Bucle del orquestador** cada 15 min en la sesión (CronCreate, muere al cerrarla): revisar rutinas, integrar con `--ff-only` tras re-ejecutar tests, lint y tsc, asignar lo siguiente. En modo don't ask el design lead local no puede usar Bash: las capturas van a la nube (Chromium + API simulada).
+   - Pendientes en la nube: `extract-offering-list-parts` 4.2 + verify (`trig_01JcQSWCXZMxRyahEB6NQEm8`, rama `claude/extract-offering-list-parts-4.2`); `add-auth` re-verify tras F2 (`trig_01RKwecou65A7MQbLASEifsM`, solo informe).
+   - Estado: `RemoteTrigger list_runs` con el id y `get_run_log` para el informe.
+2. **Listos para archivar cuando lo pida Product owner:** `refactor-badge-geometry` (8/8, verify sin CRITICAL; WARNING diferido, ver registro); `add-auth` tras el re-verify.
+3. **Mock-up de `fix-button-boundaries`:** capturado (`docs/design/fix-button-boundaries/mockup/buttons-mockup-{375,1280}-{light,dark}.png`, worktree `buttons`, sin trackear); espera la revisión visual de Product owner (Open 2). Redacción de Risk 2/3 y §2 corregida sin commitear: entra en el commit de revisión del arquitecto.
+4. **Revisar el propose de `add-evaluation-scales`** (`d3cce1e`, `706b99b`): Product owner.
+5. **Esperan a Product owner:** evaluations B1–B3 del explore (B1: la evaluación no trae dueño en el contrato; B2–B3 en la sesión `session_01GHJ6upeYKZUVm3GjFNC7YW`); user-account, offering-management y offering-catalog (puntos abiertos de sus resúmenes); landing D4; archives.
 6. **Servidor de desarrollo de auth** en `http://localhost:3000` desde el worktree `auth` (lanzado en la sesión del 6 oct; se cae al cerrarla).
-7. **Pendientes antiguos:** `remote.defaultEnvironmentId` (`env_01JQuvJM…`) no coincide con el Default (`env_01DTNNGR…`), corregir con `/remote-env`; revocar la clave de API expuesta si no está hecho; borrar las carpetas vacías `tazavera-front-header` y `tazavera-front-landing`; en `develop` hay cambios sin commitear de Product owner (`docs/design/add-filter-controls/design-summary.md` rehecho por el design lead, borrados de `docs/design/define-agent-roles/`).
+7. **Pendientes antiguos:** borrar las carpetas vacías `tazavera-front-header` y `tazavera-front-landing`; en `develop` hay cambios sin commitear de Product owner (`docs/design/add-filter-controls/design-summary.md` rehecho por el design lead, borrados de `docs/design/define-agent-roles/`).
 
 ## Forma de trabajar
 
@@ -127,3 +124,54 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Decisión:** tres cambios nuevos van antes que sus consumidores: `refactor-badge-geometry` (feedback, R6) expone la geometría del badge; `fix-button-boundaries` (base-controls) añade un borde de 1px con colores existentes a las variantes de Button que no llegan a 3:1; `extract-offering-list-parts` (content-structure, R7) mueve la lectura y el lookup de taxonomías a `entities/taxonomy` y la paginación a `shared/ui` con props `path` y `query`.
 - **Por qué:** respuestas de Product owner a scales Open 3 y 6 y a evaluations Open 13; nombre y puntos abiertos cerrados por el orquestador.
 - **Afecta:** add-evaluation-scales, add-specialist-evaluations, add-offering-catalog, add-filter-controls, add-offering-management (todos los que usan badges, botones, taxonomías o paginación).
+
+### 2026-10-06 — escrituras, rutas protegidas y 422 (respuestas de Product owner)
+- **Decisión:**
+  - Step-up reactivo: la escritura se envía con el token actual; ante un `403` se muestra el aviso de step-up y el usuario repite la acción tras confirmarse.
+  - Ruta protegida sin sesión: con `loading` se espera; con `anonymous` la página llama a `signIn(rutaActual)` sin clic, lo que termina en la redirección completa de add-auth (corrección 3) y vuelve a la ruta. Usuario sin el rol: página 404 (entrada anterior).
+  - Cualquier 422 muestra el error genérico del formulario; el mapeo por campo queda en el backlog (R8).
+- **Por qué:** respuestas de Product owner del 6 oct a las propuestas 1–3.
+- **Afecta:** add-user-account Open 1, 2 y 5; add-offering-management Open 5, 6 y 7; add-specialist-evaluations (punto 9 y entrada de las escrituras).
+
+### 2026-10-06 — primitivo compartido de sección (respuesta de Product owner)
+- **Decisión:** un cambio de refactor en `content-structure` extrae las clases de sección y contenedor de D14 (hoy copiadas en `HomeScreen.tsx` y `AboutContent.tsx`) a un primitivo compartido, y Home y About lo adoptan. Va antes que las features que añaden páginas.
+- **Por qué:** respuesta de Product owner a la propuesta 4.
+- **Afecta:** add-user-account Open 8, add-offering-management Open 4, add-offering-catalog Open 2.
+
+### 2026-10-06 — ranura de acción de `OfferingCard` (respuesta de Product owner)
+- **Decisión:** un cambio de refactor en `landing` sustituye la prop `session` de `OfferingCard` por una ranura de acción que rellena quien usa la tarjeta. Va antes que las features que la usan.
+- **Por qué:** respuesta de Product owner a la propuesta 5.
+- **Afecta:** add-offering-management Open 2 (checkbox y Borrar), add-specialist-evaluations §8 (solo aporta `EvaluateLink`), add-offering-catalog (las tarjetas del catálogo).
+
+### 2026-10-06 — refresco del perfil en la sesión (respuesta de Product owner)
+- **Decisión:** add-auth expone `refreshProfile()`: vuelve a pedir `GET /user` (única fuente de los datos del usuario, D5) y actualiza la sesión; la respuesta del `PUT` no se escribe en la sesión. Ante fallo de red o 5xx reintenta una vez tras una pausa corta; si vuelve a fallar, la sesión conserva el usuario anterior, sin mensaje. El `401` ya lo recupera el cliente de add-auth.
+- **Por qué:** respuesta de Product owner a la propuesta 6.
+- **Afecta:** add-user-account Open 7; add-auth (módulo de sesión, `src/features/auth`).
+
+### 2026-10-06 — librería del combobox (respuesta de Product owner)
+- **Decisión:** el combobox es el de shadcn/ui (Radix Popover + `cmdk`), con estilo propio por tokens; dependencia nueva aprobada. El arquitecto verifica mantenimiento y tamaño de `cmdk` al proponer.
+- **Por qué:** respuesta de Product owner a add-filter-controls Open 1.
+- **Afecta:** add-filter-controls (facetas Productor y Tostador); cualquier cambio futuro que necesite un combobox.
+
+### 2026-10-06 — add-filter-controls: resto de puntos (respuesta de Product owner)
+- **Decisión:** se aceptan todas las recomendaciones del resumen. Las que tocan a otros cambios:
+  - la ranura `@sidebar` (ruta paralela en `app/[locale]/`) es el mecanismo del shell para que una ruta ponga contenido en el sidebar;
+  - los defectos F1 y F2 del sidebar se arreglan en el delta de app-shell de este cambio;
+  - las filas de facetas añaden una presentación de fila a `Checkbox` y `RadioGroup` (delta de form-fields en este cambio);
+  - borde de checkbox y radio en filas seleccionadas con `nav-button-border`; hover sin cambio de fondo;
+  - el borde de `primary` en oscuro (F6) va a un cambio aparte de base-controls;
+  - la retícula del catálogo con el sidebar abierto la decide `add-offering-catalog` (columnas según el ancho disponible).
+  - el rango de puntuación admite, además del slider, escribir el mínimo y el máximo en dos campos "Desde / Hasta" sincronizados con él (punto 15, pendiente de detallar).
+  - los combobox con datos de la API buscan mientras se escribe (`?name=`), desde el navegador: excepción aceptada a la regla de carga en servidor de los endpoints públicos. Aplica a Tostador y al select de café de offering-management; Productor sigue cargándose una vez (punto 16). Hook propio (`fetch` + `AbortController` + espera de 300 ms), sin librería de datos; textos del combobox desde el catálogo es/en/ca.
+- **Por qué:** respuesta de Product owner a add-filter-controls Open 2–16.
+- **Afecta:** add-offering-management Open 1 (entradas del sidebar, misma ranura), add-offering-catalog (retícula, punto 14), add-specialist-evaluations (facetas de su lista), fix-button-boundaries (F6).
+
+### 2026-10-06 — geometría de chip compartida (respuesta de Product owner)
+- **Decisión:** `refactor-badge-geometry` no añade el test del escenario "Chip matches the badge geometry" (WARNING del verify): aún no hay ningún chip que lo consuma. El primer cambio que cree un chip parte de `BADGE_GEOMETRY_CLASSES` (`@/shared/ui`), añade el test de ese escenario y declara sus diferencias (radio, alto, padding, hueco, tipografía) como tratamientos encima de esas clases, nunca como una segunda geometría.
+- **Por qué:** respuesta de Product owner al WARNING del verify de refactor-badge-geometry.
+- **Afecta:** add-filter-controls §6.2 "Chip" y §9.2 (chips aplicados); add-evaluation-scales (chip de descriptor sin seleccionar).
+
+### 2026-10-06 — piezas extraídas disponibles (extract-offering-list-parts)
+- **Decisión:** la lectura y el lookup de taxonomías viven en `src/entities/taxonomy` (`fetchTaxonomies`, `buildTaxonomyLookup`) y la paginación es `Pagination` de `@/shared/ui` (props `path`, `query`, `currentPage`, `lastPage`, textos). Los diseños nuevos los consumen; nadie vuelve a copiarlos desde `widgets/offering-list`.
+- **Por qué:** tareas 1.1–4.1 de extract-offering-list-parts hechas (`7e6b777`).
+- **Afecta:** add-filter-controls §9.2 (cascada de sabores), add-specialist-evaluations, add-offering-catalog, add-offering-management.
