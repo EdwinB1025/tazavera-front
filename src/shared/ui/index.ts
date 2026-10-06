@@ -30,6 +30,7 @@ export type {
   RadioGroupVariant,
   RadioOption,
 } from "./RadioGroup";
+export type { ControlPresentation } from "./facet-row";
 export { Loader2, ArrowLeft, type LucideIcon } from "./icons";
 export { Logo } from "./Logo";
 export type { LogoProps, LogoVariant } from "./Logo";
