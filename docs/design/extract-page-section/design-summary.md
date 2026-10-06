@@ -1,4 +1,4 @@
-Status: draft — pending Product owner review
+Status: approved — by the orchestrator on 2026-10-06, under Product owner's delegation for refactor summaries without open points
 
 # Design summary — extract-page-section
 
