@@ -1,9 +1,13 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { NextRequest } from "next/server";
+// The installed Next.js exports the matcher check as
+// `unstable_doesMiddlewareMatch`; the bundled proxy guide names it
+// `unstable_doesProxyMatch`, which this version does not export.
+import { unstable_doesMiddlewareMatch } from "next/experimental/testing/server";
 // Top-level import: the whole file fails to load until `proxy.ts` exists at
 // the project root (task 2.3), which is the "verification fails" expectation
 // of task 2.2.
-import { proxy } from "./proxy";
+import { config, proxy } from "./proxy";
 
 /**
  * Content-Security-Policy contract of `proxy.ts` (design.md D9) and its
@@ -135,5 +139,53 @@ describe("proxy.ts locale routing (design.md D2)", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("location")).toBeNull();
     expect(response.headers.get("x-middleware-request-x-locale")).toBeNull();
+  });
+});
+
+// ─── `/callback` (design.md D11; spec "Content-Security-Policy on the callback") ───
+// `/callback` joins the proxy's handling with the D9 directive list and its
+// own fresh nonce — redirect mode hydrates for its client-side navigation and
+// exchanges the code at the API origin, named in `connect-src` — and stays
+// outside the locale redirect.
+
+describe("proxy.ts on /callback (design.md D11)", () => {
+  it("runs on /callback (the matcher no longer excludes it)", () => {
+    expect(
+      unstable_doesMiddlewareMatch({ config, nextConfig: {}, url: "/callback" }),
+    ).toBe(true);
+  });
+
+  it("sets Content-Security-Policy to exactly the design.md D9 directive list, the API origin in connect-src", () => {
+    vi.stubEnv("NEXT_PUBLIC_API_URL", API_URL);
+    const response = runProxyOn("https://tazavera.test/callback?code=c&state=s");
+    const csp = response.headers.get("Content-Security-Policy") ?? "";
+    const nonce = csp.match(/'nonce-([^']+)'/)?.[1] ?? "";
+    expect(nonce).not.toBe("");
+    expect(csp).toBe(expectedCsp(nonce, false));
+    expect(response.headers.get("x-middleware-request-x-nonce")).toBe(nonce);
+  });
+
+  it("generates a fresh nonce per /callback request", () => {
+    vi.stubEnv("NEXT_PUBLIC_API_URL", API_URL);
+    const nonceOf = () =>
+      runProxyOn("https://tazavera.test/callback")
+        .headers.get("Content-Security-Policy")
+        ?.match(/'nonce-([^']+)'/)?.[1] ?? "";
+    const first = nonceOf();
+    const second = nonceOf();
+    expect(first).not.toBe("");
+    expect(second).not.toBe("");
+    expect(second).not.toBe(first);
+  });
+
+  it("leaves /callback outside the locale redirect while a bare path still redirects", () => {
+    vi.stubEnv("NEXT_PUBLIC_API_URL", API_URL);
+    const callback = runProxyOn("https://tazavera.test/callback?code=c&state=s");
+    expect(callback.status).toBe(200);
+    expect(callback.headers.get("location")).toBeNull();
+
+    const bare = runProxyOn("https://tazavera.test/about");
+    expect(bare.status).toBe(307);
+    expect(bare.headers.get("location")).toBe("https://tazavera.test/es/about");
   });
 });
