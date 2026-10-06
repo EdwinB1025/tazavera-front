@@ -107,3 +107,24 @@ None.
 
 ## Final checks
 Not run: no code was changed in this folder (docs only). To resume: answer Q1–Q7, update `design-summary.md` (Open list and §7), then run `opencode run --standalone --agent architect --model xiaomi/mimo-v2.6-pro --auto --title "add-specialist-evaluations propose" "Use the openspec-propose skill for change add-specialist-evaluations. Propose only: do not apply, verify or archive."`
+
+## Session 2026-10-06 — summary review (design lead, orchestrated)
+Summary: the design lead reviewed `design-summary.md` against the contract, the MVC and the 6 Oct decisions, and rewrote it in place (uncommitted, `Status: draft — pending Product owner review`). Stopped because: completed. Not ready for approval: 8 open points block propose.
+
+### Agent feedback (condensed)
+- Edits: main tastes limit removed (6 Oct: unlimited); "Overall (required)" replaced by the contract's close rule (`closeAnEvaluation`: 15 scores > 0 plus one descriptor in main tastes, mouthfeel and aromatics; on save only `descriptive.roastLevel`); list "date" removed (no date field in the resource; only `orderBy=created_at`); `isDefective` read-only; operationIds and pagination (15 per page) added; list fetched on the client (needs `evaluatorId` from the session); Evaluate-link slot described against develop (`OfferingCard` `session` prop, `VerifiedOfferings` is an async Server Component); routes note (`/{locale}/manage/evaluations` already in the user menu); new sections: response states, §9 layout and spacing, §10 texts (area `evaluations`), §11 visual reference, §12 contrast (no new token; all text pairs pass, closest dark `feedback-error` on `surface-section-hover` 4.52, design lead's measurement).
+- Needs from add-evaluation-scales: bean scale (radio group, readOnly, sizes md/lg), intensity slider 0–15 (readOnly, marks, labels by props, start value per Open 4), descriptor chip group (rows of level 0/1 plus shared row, unlimited multiple, value = taxonomy ULIDs, readOnly), confirmation dialog (props, pending confirm).
+- Unverified: MVC `EXTRACTION_METHODS` list; add-auth's behaviour on protected routes; 422 keys for `POST /evaluations`.
+
+### Deferred to Product owner
+#### Q8 — Open points that block propose (summary's Open list)
+- 1 list row without date → recommend drop it and order by `created_at desc`; backend `createdAt` as backlog.
+- 3 extraction method → `Select` with the MVC list (to verify).
+- 4 unscored score → sliders start at 0, completeness indicator explains it (shared with add-evaluation-scales).
+- 6 edit page load and visibility → server load; non-owner gets read-only; unknown ulid → 404.
+- 7 loading/empty/error → landing pattern (skeletons, empty message, error with retry).
+- 8 after save/close/delete → replace URL with `/manage/evaluations/{ulid}` after first save, `role="status"` region; read-only after close; list refresh after delete.
+- 9 anonymous or non-specialist on `/manage/evaluations*` → anonymous `signIn`, non-specialist 404 (touches auth: Product owner's).
+- 13 reuse of `fetchTaxonomies`, `buildTaxonomyLookup` and `OfferingPagination` from the `offering-list` widget breaks FSD → refactor change first (move to `entities/taxonomy` or `shared`); also needed by add-offering-catalog and add-filter-controls. Backlog candidate for Product owner to add.
+- Non-blocking (2, 5, 10, 11, 12): recommendations are in the summary.
+- Blocks: propose.
