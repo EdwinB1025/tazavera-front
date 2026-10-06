@@ -592,7 +592,7 @@ describe("FlavorWheel — keyboard on the note list", () => {
     press("ArrowRight");
     press("ArrowRight");
     expect(focused()).toBe("Strawberry, 2 of 5 evaluators");
-    row("Floral").click();
+    fireEvent.click(row("Floral"));
     expect(segmentIds(container)).toContain("jasmine");
     row("Strawberry").focus();
     press("Escape");

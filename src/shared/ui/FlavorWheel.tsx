@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import type { CSSProperties, ReactNode } from "react";
+import { useRef, useState } from "react";
+import type { CSSProperties, KeyboardEvent, ReactNode } from "react";
 import { ChevronDown, ChevronRight } from "@/shared/ui/icons";
 import { cn } from "@/shared/lib/utils";
 import {
@@ -153,6 +153,7 @@ export function FlavorWheel({
 }: FlavorWheelProps): ReactNode {
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
   const [activeId, setActiveId] = useState<string | null>(null);
+  const rowElements = useRef(new Map<string, HTMLLIElement>());
 
   if (total === 0 || nodes.length === 0) {
     return <p className="type-body">{texts.emptyMessage}</p>;
@@ -164,20 +165,86 @@ export function FlavorWheel({
   const activeSegment = segments.find((s) => s.node.id === activeId);
   const legend = (node: FlavorWheelNode): string => `${node.count}/${total}`;
 
-  /** Activate a note and, when it has children, toggle its expansion. */
-  const activate = (node: FlavorWheelNode): void => {
-    setActiveId(node.id);
-    if (node.children.length === 0) return;
+  /** Expand or collapse a parent; collapsing also collapses its descendants. */
+  const setExpansion = (node: FlavorWheelNode, open: boolean): void => {
     setExpanded((current) => {
       const next = new Set(current);
-      if (next.has(node.id)) {
+      if (open) {
+        next.add(node.id);
+      } else {
         next.delete(node.id);
         for (const id of descendantIds(node)) next.delete(id);
-      } else {
-        next.add(node.id);
       }
       return next;
     });
+  };
+
+  const toggle = (node: FlavorWheelNode): void => {
+    if (node.children.length > 0) setExpansion(node, !expanded.has(node.id));
+  };
+
+  /** Activate a note and, when it has children, toggle its expansion. */
+  const activate = (node: FlavorWheelNode): void => {
+    setActiveId(node.id);
+    toggle(node);
+  };
+
+  const focusRow = (id: string): void => {
+    rowElements.current.get(id)?.focus();
+  };
+
+  // The list's single tab stop: the active row, or the first row (D6).
+  const tabStop = rows.some((r) => r.node.id === activeId)
+    ? activeId
+    : rows[0].node.id;
+
+  /** APG Tree View keys over the visible rows, plus Escape (design.md D6). */
+  const handleKeyDown = (
+    event: KeyboardEvent<HTMLLIElement>,
+    index: number,
+  ): void => {
+    const { node, parentId } = rows[index];
+    const isExpanded = expanded.has(node.id);
+    switch (event.key) {
+      case "ArrowDown":
+        if (index < rows.length - 1) focusRow(rows[index + 1].node.id);
+        break;
+      case "ArrowUp":
+        if (index > 0) focusRow(rows[index - 1].node.id);
+        break;
+      case "ArrowRight":
+        if (node.children.length === 0) break;
+        if (isExpanded) focusRow(node.children[0].id);
+        else setExpansion(node, true);
+        break;
+      case "ArrowLeft":
+        if (node.children.length > 0 && isExpanded) setExpansion(node, false);
+        else if (parentId !== null) focusRow(parentId);
+        break;
+      case "Home":
+        focusRow(rows[0].node.id);
+        break;
+      case "End":
+        focusRow(rows[rows.length - 1].node.id);
+        break;
+      case "Enter":
+      case " ":
+        toggle(node);
+        break;
+      case "Escape": {
+        const root = nodes.find(
+          (candidate) =>
+            candidate.id === node.id ||
+            descendantIds(candidate).includes(node.id),
+        );
+        setExpanded(new Set());
+        if (root) focusRow(root.id);
+        break;
+      }
+      default:
+        return;
+    }
+    event.preventDefault();
   };
 
   return (
@@ -280,7 +347,7 @@ export function FlavorWheel({
           aria-label={texts.label}
           className="flex flex-col gap-1"
         >
-          {rows.map(({ node, depth, setSize, position }) => {
+          {rows.map(({ node, depth, setSize, position }, index) => {
             const isParent = node.children.length > 0;
             const isExpanded = expanded.has(node.id);
             const isActive = node.id === activeId;
@@ -299,14 +366,20 @@ export function FlavorWheel({
                     ? descriptionId(node.id)
                     : undefined
                 }
-                tabIndex={-1}
+                tabIndex={node.id === tabStop ? 0 : -1}
+                ref={(element) => {
+                  if (element) rowElements.current.set(node.id, element);
+                  else rowElements.current.delete(node.id);
+                }}
                 className={cn(
                   ROW_CLASSES,
                   isActive && "bg-surface-section",
                   ROW_INDENT[depth],
                 )}
                 onPointerEnter={() => setActiveId(node.id)}
+                onFocus={() => setActiveId(node.id)}
                 onClick={() => activate(node)}
+                onKeyDown={(event) => handleKeyDown(event, index)}
               >
                 {isParent ? (
                   <Chevron className="size-4 shrink-0" aria-hidden="true" />
