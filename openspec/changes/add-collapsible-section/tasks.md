@@ -4,7 +4,7 @@
 
 The change consumes no API, so no type is derived from `src/shared/api/schema.ts` and no generated type is edited or redefined. It defines only the UI-specific types of design.md D2.
 
-- [ ] 1.1 Create `src/shared/ui/Collapsible.tsx` with `"use client"` as its first statement and the three exported types of design.md D2 exactly — `CollapsibleProps`, `CollapsibleHeaderProps`, `CollapsibleBodyProps` — and no component. Verification: `npx tsc --noEmit`, `npm run lint` and `npm run test:run` exit 0 with the file holding only the directive, its type imports and the three types.
+- [x] 1.1 Create `src/shared/ui/Collapsible.tsx` with `"use client"` as its first statement and the three exported types of design.md D2 exactly — `CollapsibleProps`, `CollapsibleHeaderProps`, `CollapsibleBodyProps` — and no component. Verification: `npx tsc --noEmit`, `npm run lint` and `npm run test:run` exit 0 with the file holding only the directive, its type imports and the three types.
 
 ## 2. Collapsible section vertical slice (content-structure)
 
