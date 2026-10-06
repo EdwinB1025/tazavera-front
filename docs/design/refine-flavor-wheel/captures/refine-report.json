@@ -1,0 +1,1446 @@
+{
+  "375-light": {
+    "rest": {
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "wheelPx": 291,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "false",
+        "controlsBody": true,
+        "bodyInert": true,
+        "bodyHeight": 0,
+        "width": 291,
+        "wrapperWidth": 291,
+        "panelWidth": 291,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "none",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(139, 46, 46)",
+        "cardBg": "rgb(242, 232, 217)",
+        "titleRatio": 6.85,
+        "chevronRatio": 4.5,
+        "ring": null
+      },
+      "focusedRow": null,
+      "gapBelowPanel": 24,
+      "rows": 13
+    },
+    "restRings": [
+      "80-200 (13)"
+    ],
+    "restLabels": {
+      "segments": 13,
+      "labelled": 9,
+      "twoLine": 9,
+      "overflow": []
+    },
+    "headerFocus": {
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "wheelPx": 291,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "false",
+        "controlsBody": true,
+        "bodyInert": true,
+        "bodyHeight": 0,
+        "width": 291,
+        "wrapperWidth": 291,
+        "panelWidth": 291,
+        "leftAligned": true,
+        "height": 40,
+        "focused": true,
+        "boxShadow": "rgb(242, 232, 217) 0px 0px 0px 2px, rgb(26, 47, 53) 0px 0px 0px 4px",
+        "chevronRotate": "none",
+        "chevronOpacity": 0.99806,
+        "titleColor": "rgb(139, 46, 46)",
+        "cardBg": "rgb(242, 232, 217)",
+        "titleRatio": 6.85,
+        "chevronRatio": 6.83,
+        "ring": {
+          "rect": {
+            "x": 44,
+            "y": 491,
+            "w": 291,
+            "h": 40
+          },
+          "clipped": false,
+          "clips": []
+        }
+      },
+      "focusedRow": null,
+      "gapBelowPanel": 24,
+      "rows": 13
+    },
+    "listOpen": {
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "wheelPx": 291,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 576,
+        "width": 291,
+        "wrapperWidth": 291,
+        "panelWidth": 291,
+        "leftAligned": true,
+        "height": 40,
+        "focused": true,
+        "boxShadow": "rgb(242, 232, 217) 0px 0px 0px 2px, rgb(26, 47, 53) 0px 0px 0px 4px",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 1,
+        "titleColor": "rgb(139, 46, 46)",
+        "cardBg": "rgb(242, 232, 217)",
+        "titleRatio": 6.85,
+        "chevronRatio": 6.85,
+        "ring": {
+          "rect": {
+            "x": 44,
+            "y": 491,
+            "w": 291,
+            "h": 40
+          },
+          "clipped": false,
+          "clips": []
+        }
+      },
+      "focusedRow": null,
+      "gapBelowPanel": 24,
+      "rows": 13
+    },
+    "v1": {
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "wheelPx": 291,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 708,
+        "width": 291,
+        "wrapperWidth": 291,
+        "panelWidth": 291,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(139, 46, 46)",
+        "cardBg": "rgb(242, 232, 217)",
+        "titleRatio": 6.85,
+        "chevronRatio": 4.5,
+        "ring": null
+      },
+      "focusedRow": null,
+      "gapBelowPanel": 24,
+      "rows": 16
+    },
+    "v1Rings": [
+      "140-200 (3)",
+      "80-140 (13)"
+    ],
+    "v1Labels": {
+      "segments": 16,
+      "labelled": 5,
+      "twoLine": 5,
+      "overflow": []
+    },
+    "v2": {
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "wheelPx": 291,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 796,
+        "width": 291,
+        "wrapperWidth": 291,
+        "panelWidth": 291,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(139, 46, 46)",
+        "cardBg": "rgb(242, 232, 217)",
+        "titleRatio": 6.85,
+        "chevronRatio": 4.5,
+        "ring": null
+      },
+      "focusedRow": null,
+      "gapBelowPanel": 24,
+      "rows": 18
+    },
+    "v2Rings": [
+      "120-160 (3)",
+      "160-200 (2)",
+      "80-120 (13)"
+    ],
+    "v2Labels": {
+      "segments": 18,
+      "labelled": 4,
+      "twoLine": 4,
+      "overflow": []
+    },
+    "v2Clicked": "2",
+    "rowTop": {
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "wheelPx": 291,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 796,
+        "width": 291,
+        "wrapperWidth": 291,
+        "panelWidth": 291,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(139, 46, 46)",
+        "cardBg": "rgb(242, 232, 217)",
+        "titleRatio": 6.85,
+        "chevronRatio": 4.5,
+        "ring": null
+      },
+      "focusedRow": {
+        "label": "Frutal, 4 de 5 evaluadores",
+        "level": "1",
+        "boxShadow": "rgb(242, 232, 217) 0px 0px 0px 2px, rgb(26, 47, 53) 0px 0px 0px 4px",
+        "rect": {
+          "x": 44,
+          "y": 563,
+          "w": 291,
+          "h": 40
+        },
+        "clipped": false,
+        "clips": [
+          {
+            "el": "DIV.grid motion-reduce:[transition:none] grid-rows-[1fr] [clip-p",
+            "why": "clip-path inset(-4px)",
+            "cut": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            }
+          }
+        ]
+      },
+      "gapBelowPanel": 24,
+      "rows": 18
+    },
+    "rowBottom": {
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "wheelPx": 291,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 796,
+        "width": 291,
+        "wrapperWidth": 291,
+        "panelWidth": 291,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(139, 46, 46)",
+        "cardBg": "rgb(242, 232, 217)",
+        "titleRatio": 6.85,
+        "chevronRatio": 4.5,
+        "ring": null
+      },
+      "focusedRow": {
+        "label": "Cereales, 2 de 5 evaluadores",
+        "level": "1",
+        "boxShadow": "rgb(242, 232, 217) 0px 0px 0px 2px, rgb(26, 47, 53) 0px 0px 0px 4px",
+        "rect": {
+          "x": 44,
+          "y": 804,
+          "w": 291,
+          "h": 40
+        },
+        "clipped": false,
+        "clips": [
+          {
+            "el": "DIV.grid motion-reduce:[transition:none] grid-rows-[1fr] [clip-p",
+            "why": "clip-path inset(-4px)",
+            "cut": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            }
+          }
+        ]
+      },
+      "gapBelowPanel": 24,
+      "rows": 18
+    },
+    "escape": {
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "wheelPx": 291,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 576,
+        "width": 291,
+        "wrapperWidth": 291,
+        "panelWidth": 291,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(139, 46, 46)",
+        "cardBg": "rgb(242, 232, 217)",
+        "titleRatio": 6.85,
+        "chevronRatio": 4.5,
+        "ring": null
+      },
+      "focusedRow": {
+        "label": "Cereales, 2 de 5 evaluadores",
+        "level": "1",
+        "boxShadow": "rgb(242, 232, 217) 0px 0px 0px 2px, rgb(26, 47, 53) 0px 0px 0px 4px",
+        "rect": {
+          "x": 44,
+          "y": 804,
+          "w": 291,
+          "h": 40
+        },
+        "clipped": false,
+        "clips": [
+          {
+            "el": "DIV.grid motion-reduce:[transition:none] grid-rows-[1fr] [clip-p",
+            "why": "clip-path inset(-4px)",
+            "cut": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            }
+          }
+        ]
+      },
+      "gapBelowPanel": 24,
+      "rows": 13
+    },
+    "escapeRings": [
+      "80-200 (13)"
+    ],
+    "escapeLabels": {
+      "segments": 13,
+      "labelled": 9,
+      "twoLine": 9,
+      "overflow": []
+    }
+  },
+  "1280-light": {
+    "rest": {
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "wheelPx": 512,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "false",
+        "controlsBody": true,
+        "bodyInert": true,
+        "bodyHeight": 0,
+        "width": 524,
+        "wrapperWidth": 524,
+        "panelWidth": 524,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "none",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(139, 46, 46)",
+        "cardBg": "rgb(242, 232, 217)",
+        "titleRatio": 6.85,
+        "chevronRatio": 4.5,
+        "ring": null
+      },
+      "focusedRow": null,
+      "gapBelowPanel": 24,
+      "rows": 13
+    },
+    "restRings": [
+      "80-200 (13)"
+    ],
+    "restLabels": {
+      "segments": 13,
+      "labelled": 9,
+      "twoLine": 9,
+      "overflow": []
+    },
+    "headerFocus": {
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "wheelPx": 512,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "false",
+        "controlsBody": true,
+        "bodyInert": true,
+        "bodyHeight": 0,
+        "width": 524,
+        "wrapperWidth": 524,
+        "panelWidth": 524,
+        "leftAligned": true,
+        "height": 40,
+        "focused": true,
+        "boxShadow": "rgb(242, 232, 217) 0px 0px 0px 2px, rgb(26, 47, 53) 0px 0px 0px 4px",
+        "chevronRotate": "none",
+        "chevronOpacity": 0.995513,
+        "titleColor": "rgb(139, 46, 46)",
+        "cardBg": "rgb(242, 232, 217)",
+        "titleRatio": 6.85,
+        "chevronRatio": 6.79,
+        "ring": {
+          "rect": {
+            "x": 652,
+            "y": 176,
+            "w": 524,
+            "h": 40
+          },
+          "clipped": false,
+          "clips": []
+        }
+      },
+      "focusedRow": null,
+      "gapBelowPanel": 24,
+      "rows": 13
+    },
+    "listOpen": {
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "wheelPx": 512,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 576,
+        "width": 524,
+        "wrapperWidth": 524,
+        "panelWidth": 524,
+        "leftAligned": true,
+        "height": 40,
+        "focused": true,
+        "boxShadow": "rgb(242, 232, 217) 0px 0px 0px 2px, rgb(26, 47, 53) 0px 0px 0px 4px",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 1,
+        "titleColor": "rgb(139, 46, 46)",
+        "cardBg": "rgb(242, 232, 217)",
+        "titleRatio": 6.85,
+        "chevronRatio": 6.85,
+        "ring": {
+          "rect": {
+            "x": 652,
+            "y": 176,
+            "w": 524,
+            "h": 40
+          },
+          "clipped": false,
+          "clips": []
+        }
+      },
+      "focusedRow": null,
+      "gapBelowPanel": 24,
+      "rows": 13
+    },
+    "v1": {
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "wheelPx": 512,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 708,
+        "width": 524,
+        "wrapperWidth": 524,
+        "panelWidth": 524,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(139, 46, 46)",
+        "cardBg": "rgb(242, 232, 217)",
+        "titleRatio": 6.85,
+        "chevronRatio": 4.5,
+        "ring": null
+      },
+      "focusedRow": null,
+      "gapBelowPanel": 24,
+      "rows": 16
+    },
+    "v1Rings": [
+      "140-200 (3)",
+      "80-140 (13)"
+    ],
+    "v1Labels": {
+      "segments": 16,
+      "labelled": 5,
+      "twoLine": 5,
+      "overflow": []
+    },
+    "v2": {
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "wheelPx": 512,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 796,
+        "width": 524,
+        "wrapperWidth": 524,
+        "panelWidth": 524,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(139, 46, 46)",
+        "cardBg": "rgb(242, 232, 217)",
+        "titleRatio": 6.85,
+        "chevronRatio": 4.5,
+        "ring": null
+      },
+      "focusedRow": null,
+      "gapBelowPanel": 24,
+      "rows": 18
+    },
+    "v2Rings": [
+      "120-160 (3)",
+      "160-200 (2)",
+      "80-120 (13)"
+    ],
+    "v2Labels": {
+      "segments": 18,
+      "labelled": 4,
+      "twoLine": 4,
+      "overflow": []
+    },
+    "v2Clicked": "2",
+    "rowTop": {
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "wheelPx": 512,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 796,
+        "width": 524,
+        "wrapperWidth": 524,
+        "panelWidth": 524,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(139, 46, 46)",
+        "cardBg": "rgb(242, 232, 217)",
+        "titleRatio": 6.85,
+        "chevronRatio": 4.5,
+        "ring": null
+      },
+      "focusedRow": {
+        "label": "Frutal, 4 de 5 evaluadores",
+        "level": "1",
+        "boxShadow": "rgb(242, 232, 217) 0px 0px 0px 2px, rgb(26, 47, 53) 0px 0px 0px 4px",
+        "rect": {
+          "x": 652,
+          "y": 224,
+          "w": 524,
+          "h": 40
+        },
+        "clipped": false,
+        "clips": [
+          {
+            "el": "DIV.grid motion-reduce:[transition:none] grid-rows-[1fr] [clip-p",
+            "why": "clip-path inset(-4px)",
+            "cut": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            }
+          }
+        ]
+      },
+      "gapBelowPanel": 24,
+      "rows": 18
+    },
+    "rowBottom": {
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "wheelPx": 512,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 796,
+        "width": 524,
+        "wrapperWidth": 524,
+        "panelWidth": 524,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(139, 46, 46)",
+        "cardBg": "rgb(242, 232, 217)",
+        "titleRatio": 6.85,
+        "chevronRatio": 4.5,
+        "ring": null
+      },
+      "focusedRow": {
+        "label": "Cereales, 2 de 5 evaluadores",
+        "level": "1",
+        "boxShadow": "rgb(242, 232, 217) 0px 0px 0px 2px, rgb(26, 47, 53) 0px 0px 0px 4px",
+        "rect": {
+          "x": 652,
+          "y": 804,
+          "w": 524,
+          "h": 40
+        },
+        "clipped": false,
+        "clips": [
+          {
+            "el": "DIV.grid motion-reduce:[transition:none] grid-rows-[1fr] [clip-p",
+            "why": "clip-path inset(-4px)",
+            "cut": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            }
+          }
+        ]
+      },
+      "gapBelowPanel": 24,
+      "rows": 18
+    },
+    "escape": {
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "wheelPx": 512,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 576,
+        "width": 524,
+        "wrapperWidth": 524,
+        "panelWidth": 524,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(139, 46, 46)",
+        "cardBg": "rgb(242, 232, 217)",
+        "titleRatio": 6.85,
+        "chevronRatio": 4.5,
+        "ring": null
+      },
+      "focusedRow": {
+        "label": "Cereales, 2 de 5 evaluadores",
+        "level": "1",
+        "boxShadow": "rgb(242, 232, 217) 0px 0px 0px 2px, rgb(26, 47, 53) 0px 0px 0px 4px",
+        "rect": {
+          "x": 652,
+          "y": 752,
+          "w": 524,
+          "h": 40
+        },
+        "clipped": false,
+        "clips": [
+          {
+            "el": "DIV.grid motion-reduce:[transition:none] grid-rows-[1fr] [clip-p",
+            "why": "clip-path inset(-4px)",
+            "cut": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            }
+          }
+        ]
+      },
+      "gapBelowPanel": 24,
+      "rows": 13
+    },
+    "escapeRings": [
+      "80-200 (13)"
+    ],
+    "escapeLabels": {
+      "segments": 13,
+      "labelled": 9,
+      "twoLine": 9,
+      "overflow": []
+    }
+  },
+  "375-dark": {
+    "rest": {
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "wheelPx": 291,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "false",
+        "controlsBody": true,
+        "bodyInert": true,
+        "bodyHeight": 0,
+        "width": 291,
+        "wrapperWidth": 291,
+        "panelWidth": 291,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "none",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(220, 140, 133)",
+        "cardBg": "rgb(13, 27, 30)",
+        "titleRatio": 6.82,
+        "chevronRatio": 4.78,
+        "ring": null
+      },
+      "focusedRow": null,
+      "gapBelowPanel": 24,
+      "rows": 13
+    },
+    "restRings": [
+      "80-200 (13)"
+    ],
+    "restLabels": {
+      "segments": 13,
+      "labelled": 9,
+      "twoLine": 9,
+      "overflow": []
+    },
+    "headerFocus": {
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "wheelPx": 291,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "false",
+        "controlsBody": true,
+        "bodyInert": true,
+        "bodyHeight": 0,
+        "width": 291,
+        "wrapperWidth": 291,
+        "panelWidth": 291,
+        "leftAligned": true,
+        "height": 40,
+        "focused": true,
+        "boxShadow": "rgb(5, 18, 21) 0px 0px 0px 2px, rgb(201, 229, 224) 0px 0px 0px 4px",
+        "chevronRotate": "none",
+        "chevronOpacity": 0.998061,
+        "titleColor": "rgb(220, 140, 133)",
+        "cardBg": "rgb(13, 27, 30)",
+        "titleRatio": 6.82,
+        "chevronRatio": 6.8,
+        "ring": {
+          "rect": {
+            "x": 44,
+            "y": 491,
+            "w": 291,
+            "h": 40
+          },
+          "clipped": false,
+          "clips": []
+        }
+      },
+      "focusedRow": null,
+      "gapBelowPanel": 24,
+      "rows": 13
+    },
+    "listOpen": {
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "wheelPx": 291,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 576,
+        "width": 291,
+        "wrapperWidth": 291,
+        "panelWidth": 291,
+        "leftAligned": true,
+        "height": 40,
+        "focused": true,
+        "boxShadow": "rgb(5, 18, 21) 0px 0px 0px 2px, rgb(201, 229, 224) 0px 0px 0px 4px",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 1,
+        "titleColor": "rgb(220, 140, 133)",
+        "cardBg": "rgb(13, 27, 30)",
+        "titleRatio": 6.82,
+        "chevronRatio": 6.82,
+        "ring": {
+          "rect": {
+            "x": 44,
+            "y": 491,
+            "w": 291,
+            "h": 40
+          },
+          "clipped": false,
+          "clips": []
+        }
+      },
+      "focusedRow": null,
+      "gapBelowPanel": 24,
+      "rows": 13
+    },
+    "v1": {
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "wheelPx": 291,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 708,
+        "width": 291,
+        "wrapperWidth": 291,
+        "panelWidth": 291,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(220, 140, 133)",
+        "cardBg": "rgb(13, 27, 30)",
+        "titleRatio": 6.82,
+        "chevronRatio": 4.78,
+        "ring": null
+      },
+      "focusedRow": null,
+      "gapBelowPanel": 24,
+      "rows": 16
+    },
+    "v1Rings": [
+      "140-200 (3)",
+      "80-140 (13)"
+    ],
+    "v1Labels": {
+      "segments": 16,
+      "labelled": 5,
+      "twoLine": 5,
+      "overflow": []
+    },
+    "v2": {
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "wheelPx": 291,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 796,
+        "width": 291,
+        "wrapperWidth": 291,
+        "panelWidth": 291,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(220, 140, 133)",
+        "cardBg": "rgb(13, 27, 30)",
+        "titleRatio": 6.82,
+        "chevronRatio": 4.78,
+        "ring": null
+      },
+      "focusedRow": null,
+      "gapBelowPanel": 24,
+      "rows": 18
+    },
+    "v2Rings": [
+      "120-160 (3)",
+      "160-200 (2)",
+      "80-120 (13)"
+    ],
+    "v2Labels": {
+      "segments": 18,
+      "labelled": 4,
+      "twoLine": 4,
+      "overflow": []
+    },
+    "v2Clicked": "2",
+    "rowTop": {
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "wheelPx": 291,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 796,
+        "width": 291,
+        "wrapperWidth": 291,
+        "panelWidth": 291,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(220, 140, 133)",
+        "cardBg": "rgb(13, 27, 30)",
+        "titleRatio": 6.82,
+        "chevronRatio": 4.78,
+        "ring": null
+      },
+      "focusedRow": {
+        "label": "Frutal, 4 de 5 evaluadores",
+        "level": "1",
+        "boxShadow": "rgb(5, 18, 21) 0px 0px 0px 2px, rgb(201, 229, 224) 0px 0px 0px 4px",
+        "rect": {
+          "x": 44,
+          "y": 563,
+          "w": 291,
+          "h": 40
+        },
+        "clipped": false,
+        "clips": [
+          {
+            "el": "DIV.grid motion-reduce:[transition:none] grid-rows-[1fr] [clip-p",
+            "why": "clip-path inset(-4px)",
+            "cut": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            }
+          }
+        ]
+      },
+      "gapBelowPanel": 24,
+      "rows": 18
+    },
+    "rowBottom": {
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "wheelPx": 291,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 796,
+        "width": 291,
+        "wrapperWidth": 291,
+        "panelWidth": 291,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(220, 140, 133)",
+        "cardBg": "rgb(13, 27, 30)",
+        "titleRatio": 6.82,
+        "chevronRatio": 4.78,
+        "ring": null
+      },
+      "focusedRow": {
+        "label": "Cereales, 2 de 5 evaluadores",
+        "level": "1",
+        "boxShadow": "rgb(5, 18, 21) 0px 0px 0px 2px, rgb(201, 229, 224) 0px 0px 0px 4px",
+        "rect": {
+          "x": 44,
+          "y": 804,
+          "w": 291,
+          "h": 40
+        },
+        "clipped": false,
+        "clips": [
+          {
+            "el": "DIV.grid motion-reduce:[transition:none] grid-rows-[1fr] [clip-p",
+            "why": "clip-path inset(-4px)",
+            "cut": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            }
+          }
+        ]
+      },
+      "gapBelowPanel": 24,
+      "rows": 18
+    },
+    "escape": {
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "wheelPx": 291,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 576,
+        "width": 291,
+        "wrapperWidth": 291,
+        "panelWidth": 291,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(220, 140, 133)",
+        "cardBg": "rgb(13, 27, 30)",
+        "titleRatio": 6.82,
+        "chevronRatio": 4.78,
+        "ring": null
+      },
+      "focusedRow": {
+        "label": "Cereales, 2 de 5 evaluadores",
+        "level": "1",
+        "boxShadow": "rgb(5, 18, 21) 0px 0px 0px 2px, rgb(201, 229, 224) 0px 0px 0px 4px",
+        "rect": {
+          "x": 44,
+          "y": 804,
+          "w": 291,
+          "h": 40
+        },
+        "clipped": false,
+        "clips": [
+          {
+            "el": "DIV.grid motion-reduce:[transition:none] grid-rows-[1fr] [clip-p",
+            "why": "clip-path inset(-4px)",
+            "cut": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            }
+          }
+        ]
+      },
+      "gapBelowPanel": 24,
+      "rows": 13
+    },
+    "escapeRings": [
+      "80-200 (13)"
+    ],
+    "escapeLabels": {
+      "segments": 13,
+      "labelled": 9,
+      "twoLine": 9,
+      "overflow": []
+    }
+  },
+  "1280-dark": {
+    "rest": {
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "wheelPx": 512,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "false",
+        "controlsBody": true,
+        "bodyInert": true,
+        "bodyHeight": 0,
+        "width": 524,
+        "wrapperWidth": 524,
+        "panelWidth": 524,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "none",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(220, 140, 133)",
+        "cardBg": "rgb(13, 27, 30)",
+        "titleRatio": 6.82,
+        "chevronRatio": 4.78,
+        "ring": null
+      },
+      "focusedRow": null,
+      "gapBelowPanel": 24,
+      "rows": 13
+    },
+    "restRings": [
+      "80-200 (13)"
+    ],
+    "restLabels": {
+      "segments": 13,
+      "labelled": 9,
+      "twoLine": 9,
+      "overflow": []
+    },
+    "headerFocus": {
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "wheelPx": 512,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "false",
+        "controlsBody": true,
+        "bodyInert": true,
+        "bodyHeight": 0,
+        "width": 524,
+        "wrapperWidth": 524,
+        "panelWidth": 524,
+        "leftAligned": true,
+        "height": 40,
+        "focused": true,
+        "boxShadow": "rgb(5, 18, 21) 0px 0px 0px 2px, rgb(201, 229, 224) 0px 0px 0px 4px",
+        "chevronRotate": "none",
+        "chevronOpacity": 0.991801,
+        "titleColor": "rgb(220, 140, 133)",
+        "cardBg": "rgb(13, 27, 30)",
+        "titleRatio": 6.82,
+        "chevronRatio": 6.73,
+        "ring": {
+          "rect": {
+            "x": 652,
+            "y": 176,
+            "w": 524,
+            "h": 40
+          },
+          "clipped": false,
+          "clips": []
+        }
+      },
+      "focusedRow": null,
+      "gapBelowPanel": 24,
+      "rows": 13
+    },
+    "listOpen": {
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "wheelPx": 512,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 576,
+        "width": 524,
+        "wrapperWidth": 524,
+        "panelWidth": 524,
+        "leftAligned": true,
+        "height": 40,
+        "focused": true,
+        "boxShadow": "rgb(5, 18, 21) 0px 0px 0px 2px, rgb(201, 229, 224) 0px 0px 0px 4px",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 1,
+        "titleColor": "rgb(220, 140, 133)",
+        "cardBg": "rgb(13, 27, 30)",
+        "titleRatio": 6.82,
+        "chevronRatio": 6.82,
+        "ring": {
+          "rect": {
+            "x": 652,
+            "y": 176,
+            "w": 524,
+            "h": 40
+          },
+          "clipped": false,
+          "clips": []
+        }
+      },
+      "focusedRow": null,
+      "gapBelowPanel": 24,
+      "rows": 13
+    },
+    "v1": {
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "wheelPx": 512,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 708,
+        "width": 524,
+        "wrapperWidth": 524,
+        "panelWidth": 524,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(220, 140, 133)",
+        "cardBg": "rgb(13, 27, 30)",
+        "titleRatio": 6.82,
+        "chevronRatio": 4.78,
+        "ring": null
+      },
+      "focusedRow": null,
+      "gapBelowPanel": 24,
+      "rows": 16
+    },
+    "v1Rings": [
+      "140-200 (3)",
+      "80-140 (13)"
+    ],
+    "v1Labels": {
+      "segments": 16,
+      "labelled": 5,
+      "twoLine": 5,
+      "overflow": []
+    },
+    "v2": {
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "wheelPx": 512,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 796,
+        "width": 524,
+        "wrapperWidth": 524,
+        "panelWidth": 524,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(220, 140, 133)",
+        "cardBg": "rgb(13, 27, 30)",
+        "titleRatio": 6.82,
+        "chevronRatio": 4.78,
+        "ring": null
+      },
+      "focusedRow": null,
+      "gapBelowPanel": 24,
+      "rows": 18
+    },
+    "v2Rings": [
+      "120-160 (3)",
+      "160-200 (2)",
+      "80-120 (13)"
+    ],
+    "v2Labels": {
+      "segments": 18,
+      "labelled": 4,
+      "twoLine": 4,
+      "overflow": []
+    },
+    "v2Clicked": "2",
+    "rowTop": {
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "wheelPx": 512,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 796,
+        "width": 524,
+        "wrapperWidth": 524,
+        "panelWidth": 524,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(220, 140, 133)",
+        "cardBg": "rgb(13, 27, 30)",
+        "titleRatio": 6.82,
+        "chevronRatio": 4.78,
+        "ring": null
+      },
+      "focusedRow": {
+        "label": "Frutal, 4 de 5 evaluadores",
+        "level": "1",
+        "boxShadow": "rgb(5, 18, 21) 0px 0px 0px 2px, rgb(201, 229, 224) 0px 0px 0px 4px",
+        "rect": {
+          "x": 652,
+          "y": 224,
+          "w": 524,
+          "h": 40
+        },
+        "clipped": false,
+        "clips": [
+          {
+            "el": "DIV.grid motion-reduce:[transition:none] grid-rows-[1fr] [clip-p",
+            "why": "clip-path inset(-4px)",
+            "cut": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            }
+          }
+        ]
+      },
+      "gapBelowPanel": 24,
+      "rows": 18
+    },
+    "rowBottom": {
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "wheelPx": 512,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 796,
+        "width": 524,
+        "wrapperWidth": 524,
+        "panelWidth": 524,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(220, 140, 133)",
+        "cardBg": "rgb(13, 27, 30)",
+        "titleRatio": 6.82,
+        "chevronRatio": 4.78,
+        "ring": null
+      },
+      "focusedRow": {
+        "label": "Cereales, 2 de 5 evaluadores",
+        "level": "1",
+        "boxShadow": "rgb(5, 18, 21) 0px 0px 0px 2px, rgb(201, 229, 224) 0px 0px 0px 4px",
+        "rect": {
+          "x": 652,
+          "y": 804,
+          "w": 524,
+          "h": 40
+        },
+        "clipped": false,
+        "clips": [
+          {
+            "el": "DIV.grid motion-reduce:[transition:none] grid-rows-[1fr] [clip-p",
+            "why": "clip-path inset(-4px)",
+            "cut": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            }
+          }
+        ]
+      },
+      "gapBelowPanel": 24,
+      "rows": 18
+    },
+    "escape": {
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "wheelPx": 512,
+      "header": {
+        "text": "Notas",
+        "ariaExpanded": "true",
+        "controlsBody": true,
+        "bodyInert": false,
+        "bodyHeight": 576,
+        "width": 524,
+        "wrapperWidth": 524,
+        "panelWidth": 524,
+        "leftAligned": true,
+        "height": 40,
+        "focused": false,
+        "boxShadow": "none",
+        "chevronRotate": "180deg",
+        "chevronOpacity": 0.8,
+        "titleColor": "rgb(220, 140, 133)",
+        "cardBg": "rgb(13, 27, 30)",
+        "titleRatio": 6.82,
+        "chevronRatio": 4.78,
+        "ring": null
+      },
+      "focusedRow": {
+        "label": "Cereales, 2 de 5 evaluadores",
+        "level": "1",
+        "boxShadow": "rgb(5, 18, 21) 0px 0px 0px 2px, rgb(201, 229, 224) 0px 0px 0px 4px",
+        "rect": {
+          "x": 652,
+          "y": 752,
+          "w": 524,
+          "h": 40
+        },
+        "clipped": false,
+        "clips": [
+          {
+            "el": "DIV.grid motion-reduce:[transition:none] grid-rows-[1fr] [clip-p",
+            "why": "clip-path inset(-4px)",
+            "cut": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            }
+          }
+        ]
+      },
+      "gapBelowPanel": 24,
+      "rows": 13
+    },
+    "escapeRings": [
+      "80-200 (13)"
+    ],
+    "escapeLabels": {
+      "segments": 13,
+      "labelled": 9,
+      "twoLine": 9,
+      "overflow": []
+    }
+  }
+}
