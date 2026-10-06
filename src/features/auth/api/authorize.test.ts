@@ -228,6 +228,26 @@ describe("signIn — the popup start of design.md D10 (spec: Sign in)", () => {
 
     expect(openedUrl().searchParams.get("theme")).toBe("traditional");
   });
+
+  it("navigates the current page to the authorization URL and stores the flow record with its return route when window.open returns null (spec: The popup cannot be opened)", async () => {
+    const { signIn, flow } = await load();
+    locationMock.pathname = route;
+    openMock.mockReturnValue(null);
+
+    signIn(route);
+    await vi.waitFor(() => {
+      expect(locationMock.assign).toHaveBeenCalledTimes(1);
+    });
+
+    const url = new URL(String(locationMock.assign.mock.calls[0]![0]));
+    expect(url.origin).toBe(API_URL);
+    expect(url.pathname).toBe("/oauth/authorize");
+
+    const pending = flow.readFlow();
+    expect(pending).not.toBeNull();
+    expect(pending!.returnRoute).toBe(route);
+    expect(url.searchParams.get("state")).toBe(pending!.state);
+  });
 });
 
 describe("completeCallback — the outcomes of design.md D4 (spec: Return through the callback)", () => {
