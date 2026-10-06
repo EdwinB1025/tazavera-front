@@ -88,5 +88,5 @@ The handover of design.md D5 and D6: the card's actions slot consumption and the
 
 Integration only: every group above lands its own tests.
 
-- [ ] 10.1 Run the whole suite and the static checks over the change: `npm run test:run`, `npm run lint`, `npx tsc --noEmit` and `npm run build` all pass, the color, radius, focus and client-boundary guards included. Verify: all four commands are green on the change's branch.
+- [x] 10.1 Run the whole suite and the static checks over the change: `npm run test:run`, `npm run lint`, `npx tsc --noEmit` and `npm run build` all pass, the color, radius, focus and client-boundary guards included. Verify: all four commands are green on the change's branch.
 - [ ] 10.2 Walk the spec's scenarios against the three routes in `npm run dev` (list, `/new?offering={ulid}`, `/{ulid}` open and closed): loading, empty, success and the failure states of the design.md error table, at 375px and 1280px (the layout end states of D14). Verify: the walk is recorded in the final report with anything that deviates; the visual verification of the form and the list in the browser is Product owner's (the summary §11).
