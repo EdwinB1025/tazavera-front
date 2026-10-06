@@ -493,6 +493,21 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "text-strong", bg: "surface-card", kind: "text" },
   // The thumb edge is decorative (design summary §4): exempt from the 3:1 rule.
   { fg: "evaluation-slider-thumb-border", bg: "evaluation-slider-thumb", kind: "bound", exempt: true },
+
+  // ── Offering catalog (add-offering-catalog design.md D15) ──
+  // The detail's meta and labels on the card, the back link on the page, the
+  // rating badge words on the consensus score card (each rating background
+  // rides its documented surface-card base) and the tab labels and legends on
+  // the section surface.
+  { fg: "text-secondary", bg: "surface-card", kind: "text" },
+  { fg: "text-label", bg: "surface-card", kind: "text" },
+  { fg: "text-link", bg: "surface-page", kind: "text" },
+  { fg: "text-link-hover", bg: "surface-page", kind: "text" },
+  { fg: "badge-text", bg: "evaluation-rating-exceptional", kind: "text" },
+  { fg: "badge-text", bg: "evaluation-rating-excellent", kind: "text" },
+  { fg: "badge-text", bg: "evaluation-rating-good", kind: "text" },
+  { fg: "badge-text", bg: "evaluation-rating-commercial", kind: "text" },
+  { fg: "text-label", bg: "surface-section", kind: "text" },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -831,6 +846,21 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "text-strong", bg: "surface-card", kind: "text" },
   // The thumb edge is decorative (design summary §4): exempt from the 3:1 rule.
   { fg: "evaluation-slider-thumb-border", bg: "evaluation-slider-thumb", kind: "bound", exempt: true },
+
+  // ── Offering catalog (add-offering-catalog design.md D15) ──
+  // The detail's meta and labels on the card, the back link on the page, the
+  // rating badge words on the consensus score card (each rating background
+  // rides its documented surface-card base) and the tab labels and legends on
+  // the section surface.
+  { fg: "text-secondary", bg: "surface-card", kind: "text" },
+  { fg: "text-label", bg: "surface-card", kind: "text" },
+  { fg: "text-link", bg: "surface-page", kind: "text" },
+  { fg: "text-link-hover", bg: "surface-page", kind: "text" },
+  { fg: "badge-text", bg: "evaluation-rating-exceptional", kind: "text" },
+  { fg: "badge-text", bg: "evaluation-rating-excellent", kind: "text" },
+  { fg: "badge-text", bg: "evaluation-rating-good", kind: "text" },
+  { fg: "badge-text", bg: "evaluation-rating-commercial", kind: "text" },
+  { fg: "text-label", bg: "surface-section", kind: "text" },
 ];
 
 describe("Dark theme contrast matrix", () => {
