@@ -107,9 +107,7 @@ describe("IntensitySlider", () => {
         "inset-x-0",
         "h-1.5",
         "rounded-pill",
-        "bg-linear-to-r",
-        "from-evaluation-slider-start",
-        "to-evaluation-slider-end",
+        "bg-linear-[to_right,var(--color-evaluation-slider-start),var(--color-evaluation-slider-end)]",
       ]) {
         expect(tokensOf(gradient)).toContain(token);
       }

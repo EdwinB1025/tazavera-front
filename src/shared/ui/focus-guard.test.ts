@@ -96,6 +96,7 @@ describe("focus-indicator guard", () => {
       "Checkbox.tsx",
       "RadioGroup.tsx",
       "BeanScale.tsx",
+      "IntensitySlider.tsx",
     ]) {
       const content = readFileSync(pathResolve(uiDir, name), "utf-8");
       expect(

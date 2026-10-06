@@ -698,6 +698,37 @@
 }
 
 /* =========================================================
+   TAZAVERA — INTENSITY SLIDER THUMB (@utility intensity-slider-thumb)
+   The range thumb of the intensity slider (add-evaluation-scales
+   design.md D5): a 20px circle in --color-evaluation-slider-thumb with
+   a 2px --color-evaluation-slider-thumb-border edge, for both engines'
+   thumb pseudo-elements. A utility keeps the thumb colors in the token
+   layer, where arbitrary pseudo-element variants would escape the
+   color guard's grammar.
+   ========================================================= */
+
+@utility intensity-slider-thumb {
+    &::-webkit-slider-thumb {
+        appearance: none;
+        box-sizing: border-box;
+        width: 20px;
+        height: 20px;
+        border-radius: calc(infinity * 1px);
+        background-color: var(--color-evaluation-slider-thumb);
+        border: 2px solid var(--color-evaluation-slider-thumb-border);
+    }
+
+    &::-moz-range-thumb {
+        box-sizing: border-box;
+        width: 20px;
+        height: 20px;
+        border-radius: calc(infinity * 1px);
+        background-color: var(--color-evaluation-slider-thumb);
+        border: 2px solid var(--color-evaluation-slider-thumb-border);
+    }
+}
+
+/* =========================================================
    TAZAVERA — INVERSE VARIANT SCOPE (@utility variant-inverse)
    One scope utility carries the whole inverse variant (form-fields
    design.md D2): it reassigns the tokens the dark-surface controls

@@ -32,6 +32,8 @@ export type {
 } from "./RadioGroup";
 export { BeanScale } from "./BeanScale";
 export type { BeanScaleProps, BeanScaleSize } from "./BeanScale";
+export { IntensitySlider } from "./IntensitySlider";
+export type { IntensitySliderProps } from "./IntensitySlider";
 export { Loader2, ArrowLeft, type LucideIcon } from "./icons";
 export { Logo } from "./Logo";
 export type { LogoProps, LogoVariant } from "./Logo";
