@@ -3,6 +3,7 @@ import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { FlavorWheel } from "./FlavorWheel";
 import type { FlavorWheelNode, FlavorWheelProps } from "./FlavorWheel";
 import { taxonomyColorRule } from "./taxonomy-color";
+import { labelPath, labelRadius, layoutWheel } from "./flavor-wheel-geometry";
 
 // This project has no global test setup, so RTL's auto-cleanup (which relies
 // on a framework-provided afterEach) does not run. Clean up manually between
@@ -534,21 +535,58 @@ describe("FlavorWheel — expand and collapse", () => {
 });
 
 describe("FlavorWheel — segment labels", () => {
-  it("labels a wide segment with its name and its count over the total", () => {
-    const { container } = renderWheel({
-      nodes: [note("fruity", 0, 1), note("floral", 0, 1)],
-      total: 5,
+  it("labels a wide segment with its name and its count along its arc", () => {
+    const nodes = [note("fruity", 0, 1), note("floral", 0, 1)];
+    const { container } = renderWheel({ nodes, total: 5 });
+    const arc = layoutWheel(nodes, new Set()).segments[0];
+    const group = segment(container, "fruity")!;
+    const texts = Array.from(group.querySelectorAll("text"));
+    expect(texts).toHaveLength(2);
+    expect(group.querySelector("tspan")).toBeNull();
+    texts.forEach((text, line) => {
+      expect(text.getAttribute("fill")).toBe("currentColor");
+      expect(text.getAttribute("text-anchor")).toBe("middle");
+      expect(text.getAttribute("dominant-baseline")).toBe("central");
+      expect(text.getAttribute("font-size")).toBe("13");
+      const textPaths = text.querySelectorAll("textPath");
+      expect(textPaths).toHaveLength(1);
+      const textPath = textPaths[0];
+      expect(textPath.textContent).toBe(["Fruity", "1/5"][line]);
+      expect(textPath.getAttribute("startOffset")).toBe("50%");
+      const href = textPath.getAttribute("href") ?? "";
+      expect(href.startsWith("#")).toBe(true);
+      const path = document.getElementById(href.slice(1));
+      expect(path?.tagName).toBe("path");
+      expect(group.contains(path)).toBe(true);
+      expect(path?.getAttribute("fill")).toBe("none");
+      expect(path?.getAttribute("d")).toBe(
+        labelPath(labelRadius(arc, line as 0 | 1), arc.start, arc.end),
+      );
     });
-    const text = segment(container, "fruity")!.querySelector("text");
-    expect(text?.getAttribute("fill")).toBe("currentColor");
-    expect(
-      Array.from(text?.querySelectorAll("tspan") ?? []).map(
-        (t) => t.textContent,
-      ),
-    ).toEqual(["Fruity", "1/5"]);
   });
 
-  it("draws no label when the segment is too narrow", () => {
+  it("gives every wheel its own label path ids", () => {
+    const nodes = [note("fruity", 0, 1), note("floral", 0, 1)];
+    render(<FlavorWheel nodes={nodes} total={5} texts={TEXTS} />);
+    render(<FlavorWheel nodes={nodes} total={5} texts={TEXTS} />);
+    const hrefs = Array.from(document.querySelectorAll("textPath")).map(
+      (t) => t.getAttribute("href"),
+    );
+    expect(hrefs).toHaveLength(8);
+    expect(new Set(hrefs).size).toBe(8);
+  });
+
+  it("labels the ring-1 segments of an expanded note along their arcs", () => {
+    const { container } = renderWheel();
+    fireEvent.click(segment(container, "fruity")!);
+    for (const id of ["berry", "dried"]) {
+      expect(
+        segment(container, id)!.querySelector("text textPath"),
+      ).not.toBeNull();
+    }
+  });
+
+  it("draws no label at rest when not even the name fits arched", () => {
     const { container } = renderWheel({
       nodes: [note("fruity", 0, 200), note("floral", 0, 1)],
       total: 5,

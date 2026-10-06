@@ -4,7 +4,8 @@ import {
   ringRadii,
   layoutWheel,
   arcPath,
-  labelPlacement,
+  labelRadius,
+  labelPath,
   fitLabel,
   type WheelGeometryNode,
 } from "./flavor-wheel-geometry";
@@ -149,117 +150,81 @@ describe("arcPath", () => {
   });
 });
 
-describe("labelPlacement", () => {
-  const segment = (ring: number, start: number, end: number) => ({
-    ring,
-    inner: 100,
-    outer: 200,
-    start,
-    end,
+describe("labelRadius", () => {
+  it("centres the name one half line inside the outer edge and the legend one line further in", () => {
+    const ring0 = { ring: 0, inner: 80, outer: 140, start: 0, end: 90 };
+    expect(labelRadius(ring0, 0)).toBeCloseTo(128.2);
+    expect(labelRadius(ring0, 1)).toBeCloseTo(112.6);
+    const ring1 = { ring: 1, inner: 140, outer: 200, start: 0, end: 90 };
+    expect(labelRadius(ring1, 0)).toBeCloseTo(188.8);
+    expect(labelRadius(ring1, 1)).toBeCloseTo(174.4);
+  });
+});
+
+describe("labelPath", () => {
+  it("runs clockwise in the upper half", () => {
+    expect(labelPath(100, 0, 90)).toBe("M 0 -100 A 100 100 0 0 1 100 0");
+    expect(labelPath(100, 270, 360)).toBe("M -100 0 A 100 100 0 0 1 0 -100");
+    expect(labelPath(100, 0, 180)).toBe("M 0 -100 A 100 100 0 0 1 0 100");
   });
 
-  it("centres the label at the mid-angle and mid-radius", () => {
-    const { x, y } = labelPlacement(segment(0, 80, 100));
-    expect(x).toBeCloseTo(150);
-    expect(y).toBeCloseTo(0);
+  it("reverses in the lower half so the text stays upright", () => {
+    expect(labelPath(100, 90, 180)).toBe("M 0 100 A 100 100 0 0 0 100 0");
+    expect(labelPath(100, 0, 270)).toBe("M -100 0 A 100 100 0 1 0 0 -100");
   });
 
-  it("keeps ring 0 upright in the upper half and flips it in the lower half", () => {
-    expect(labelPlacement(segment(0, 30, 60))).toMatchObject({
-      rotate: 45,
-      flipped: false,
-    });
-    expect(labelPlacement(segment(0, 300, 330))).toMatchObject({
-      rotate: 315,
-      flipped: false,
-    });
-    expect(labelPlacement(segment(0, 120, 150))).toMatchObject({
-      rotate: -45,
-      flipped: true,
-    });
-    expect(labelPlacement(segment(0, 210, 240))).toMatchObject({
-      rotate: 45,
-      flipped: true,
-    });
-  });
-
-  it("runs rings 1–2 along the radius and flips them in the left half", () => {
-    expect(labelPlacement(segment(1, 30, 60))).toMatchObject({
-      rotate: -45,
-      flipped: false,
-    });
-    expect(labelPlacement(segment(2, 120, 150))).toMatchObject({
-      rotate: 45,
-      flipped: false,
-    });
-    expect(labelPlacement(segment(1, 210, 240))).toMatchObject({
-      rotate: -45,
-      flipped: true,
-    });
-    expect(labelPlacement(segment(2, 300, 330))).toMatchObject({
-      rotate: 45,
-      flipped: true,
-    });
+  it("draws a full circle as two half-arcs in the same direction", () => {
+    expect(labelPath(100, 0, 360)).toBe(
+      "M 0 -100 A 100 100 0 0 0 0 100 A 100 100 0 0 0 0 -100",
+    );
   });
 });
 
 describe("fitLabel", () => {
   const toDegrees = (radians: number): number => (radians * 180) / Math.PI;
 
-  // Ring 0 tangential, D = 0: 40–200, mid-radius 120, height room 152.
+  // Ring 0, D = 1: 80–140, name line at radius 128.2, legend line at 112.6,
+  // height room 52 (two 13-unit lines are 31.2 tall).
   // "Tea" is 3 × 0.6 × 13 = 23.4 wide; "12/15" is 5 × 0.6 × 13 = 39 wide.
-  const tangentialSpan = (width: number): number =>
-    toDegrees(2 * Math.asin((width + 8) / (2 * 120)));
-  const tangential = (width: number) => ({
+  const ring0 = (end: number) => ({
     ring: 0,
-    inner: 40,
-    outer: 200,
+    inner: 80,
+    outer: 140,
     start: 0,
-    end: tangentialSpan(width),
+    end,
+  });
+  const spanFor = (width: number, radius: number): number =>
+    toDegrees((width + 8) / radius);
+
+  it("returns both lines when the legend fits its arc", () => {
+    expect(fitLabel(ring0(spanFor(39, 112.6) + 0.01), "Tea", "12/15")).toBe(
+      "both",
+    );
   });
 
-  it("returns two lines when the longest line fits the chord", () => {
-    expect(fitLabel(tangential(39.01), "Tea", "12/15")).toBe("both");
+  it("drops to the name alone when only the name fits its arc", () => {
+    expect(fitLabel(ring0(spanFor(39, 112.6) - 0.01), "Tea", "12/15")).toBe(
+      "name",
+    );
+    expect(fitLabel(ring0(spanFor(23.4, 128.2) + 0.01), "Tea", "12/15")).toBe(
+      "name",
+    );
   });
 
-  it("drops to the name alone when only the name fits", () => {
-    expect(fitLabel(tangential(38.99), "Tea", "12/15")).toBe("name");
-    expect(fitLabel(tangential(23.41), "Tea", "12/15")).toBe("name");
-  });
-
-  it("draws no label when not even the name fits", () => {
-    expect(fitLabel(tangential(23.39), "Tea", "12/15")).toBe("none");
+  it("shows the name only while active when not even the name fits", () => {
+    expect(fitLabel(ring0(spanFor(23.4, 128.2) - 0.01), "Tea", "12/15")).toBe(
+      "active",
+    );
   });
 
   it("drops to the name alone when two lines exceed the ring height", () => {
-    // D = 2 ring 0 is 60 wide: height room 52 holds 2 × 1.2 × 13 = 31.2.
-    // A 30-wide tangential ring would hold 22: one line (15.6) only.
-    const narrow = { ring: 0, inner: 70, outer: 100, start: 0, end: 180 };
-    expect(fitLabel(narrow, "Tea", "4/5")).toBe("name");
+    // A 30-wide ring holds 22: one 15.6-unit line, not two (31.2).
+    const thin = { ring: 0, inner: 80, outer: 110, start: 0, end: 180 };
+    expect(fitLabel(thin, "Tea", "4/5")).toBe("name");
   });
 
-  // Ring 1 radial, D = 1: 110–200, mid-radius 155, width room 82.
-  // Two lines are 2 × 1.2 × 12 = 28.8 tall; one line is 14.4.
-  const radialSpan = (height: number): number => toDegrees((height + 4) / 155);
-  const radial = (height: number) => ({
-    ring: 1,
-    inner: 110,
-    outer: 200,
-    start: 0,
-    end: radialSpan(height),
-  });
-
-  it("fits radial labels by the arc length at mid-radius", () => {
-    expect(fitLabel(radial(28.81), "Berry", "4/5")).toBe("both");
-    expect(fitLabel(radial(28.79), "Berry", "4/5")).toBe("name");
-    expect(fitLabel(radial(14.41), "Berry", "4/5")).toBe("name");
-    expect(fitLabel(radial(14.39), "Berry", "4/5")).toBe("none");
-  });
-
-  it("fits radial labels by the ring width", () => {
-    // 11 × 0.6 × 12 = 79.2 fits 82; 12 characters (86.4) do not.
-    const wide = radial(100);
-    expect(fitLabel(wide, "Elevenchars", "4/5")).toBe("both");
-    expect(fitLabel(wide, "Twelve chars", "4/5")).toBe("none");
+  it("fits both lines of a single note over the full circle", () => {
+    const full = { ring: 0, inner: 80, outer: 200, start: 0, end: 360 };
+    expect(fitLabel(full, "Fruity", "5/5")).toBe("both");
   });
 });
