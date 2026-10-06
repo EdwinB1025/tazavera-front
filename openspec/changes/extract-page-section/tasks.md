@@ -4,7 +4,7 @@
 
 The change consumes no API, so no type is derived from `src/shared/api/schema.ts` and no generated type is edited or redefined. It defines only the two UI-specific types of design.md D2.
 
-- [ ] 1.1 Declare the UI-specific types of design.md D2 in `src/shared/ui/PageSection.tsx`, before any component: `PageSectionSurface` as `"page" | "section"` and `PageSectionProps` as `{ surface?: PageSectionSurface; containerClassName?: string; children: ReactNode }`, both exported, with the `containerClassName` doc comment stating it is added to the container's classes for the layout of the container's children only (display, gap, grid columns, alignment) and never carries padding, width or margin. Verification: `npx tsc --noEmit` exits 0 with the file holding the two exported types and no component.
+- [x] 1.1 Declare the UI-specific types of design.md D2 in `src/shared/ui/PageSection.tsx`, before any component: `PageSectionSurface` as `"page" | "section"` and `PageSectionProps` as `{ surface?: PageSectionSurface; containerClassName?: string; children: ReactNode }`, both exported, with the `containerClassName` doc comment stating it is added to the container's classes for the layout of the container's children only (display, gap, grid columns, alignment) and never carries padding, width or margin. Verification: `npx tsc --noEmit` exits 0 with the file holding the two exported types and no component.
 
 ## 2. Page section primitive vertical slice (content-structure)
 
