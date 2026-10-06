@@ -75,6 +75,157 @@ export interface paths {
          * @description Returns a single evaluation with its taste notes and associated offering.
          */
         get: operations["getAnEvaluation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/evaluations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List evaluations
+         * @description Returns a paginated list of sensory evaluations, each including its taste
+         *     notes (olfactory taxonomy references) and the offering it belongs to.
+         *     Supports filtering and sorting via query parameters.
+         */
+        get: operations["listEvaluations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{user_ulid}/evaluations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description The ULID of the user (evaluator).
+                 * @example 01M35F5RX4ADGC3CSDXXYB08DA
+                 */
+                user_ulid: string;
+            };
+            cookie?: never;
+        };
+        /**
+         * List the evaluations of a user
+         * @description Returns a paginated list of the evaluations made by the given user
+         *     (specialist), each including its taste notes and the offering it belongs
+         *     to. Supports the same filtering and sorting as the public list, except the
+         *     evaluator, which is the user in the path. An unknown user ULID returns
+         *     `404 Not Found`.
+         */
+        get: operations["listTheEvaluationsOfAUser"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/user/evaluations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List my evaluations
+         * @description Returns a paginated list of the evaluations created by the authenticated
+         *     specialist, each including its taste notes (olfactory taxonomy references)
+         *     and the offering it belongs to. Supports the same filtering and sorting as
+         *     the public list, except the evaluator, which is always the authenticated
+         *     user.
+         *
+         *     **Authorization:** requires the `specialist` role and the `profile:read`
+         *     or `profile:write` scope.
+         */
+        get: operations["listMyEvaluations"];
+        put?: never;
+        /**
+         * Create an evaluation
+         * @description Records a new sensory evaluation (cupping) for an offering. The evaluation
+         *     is created in the "open" state and must later be finalized via the close
+         *     endpoint. Returns the created evaluation with a confirmation message.
+         *
+         *     The request body carries three main blocks: `descriptive` (objective
+         *     assessment, scores 0–15), `affective` (preference assessment, scores 1–9),
+         *     and `extrinsics` (contextual metadata). See the body parameters and example
+         *     below for the full nested structure.
+         *
+         *     **Authorization:** requires the `specialist` role.
+         */
+        post: operations["createAnEvaluation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/user/evaluations/{evaluation}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description The evaluation.
+                 * @example architecto
+                 */
+                evaluation: string;
+                /**
+                 * @description The ULID of the evaluation.
+                 * @example 01M35F5RX4ADGC3CSDXXYB08DA
+                 */
+                evaluation_ulid: string;
+            };
+            cookie?: never;
+        };
+        /**
+         * Get my evaluation
+         * @description Returns a single evaluation of the authenticated specialist with its taste
+         *     notes and associated offering. An evaluation that does not exist, or that
+         *     belongs to another user, returns `404 Not Found`, so the response never
+         *     reveals whether another user's evaluation exists.
+         *
+         *     **Authorization:** requires the `specialist` role and the `profile:read`
+         *     or `profile:write` scope.
+         */
+        get: operations["getMyEvaluation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/user/evaluations/{evaluation_ulid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description The ULID of the evaluation.
+                 * @example 01M35F5RX4ADGC3CSDXXYB08DA
+                 */
+                evaluation_ulid: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
         /**
          * Update an evaluation
          * @description Updates an existing evaluation. Returns the updated evaluation with a
@@ -105,42 +256,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/evaluations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List evaluations
-         * @description Returns a paginated list of sensory evaluations, each including its taste
-         *     notes (olfactory taxonomy references) and the offering it belongs to.
-         *     Supports filtering and sorting via query parameters.
-         */
-        get: operations["listEvaluations"];
-        put?: never;
-        /**
-         * Create an evaluation
-         * @description Records a new sensory evaluation (cupping) for an offering. The evaluation
-         *     is created in the "open" state and must later be finalized via the close
-         *     endpoint. Returns the created evaluation with a confirmation message.
-         *
-         *     The request body carries three main blocks: `descriptive` (objective
-         *     assessment, scores 0–15), `affective` (preference assessment, scores 1–9),
-         *     and `extrinsics` (contextual metadata). See the body parameters and example
-         *     below for the full nested structure.
-         *
-         *     **Authorization:** requires the `specialist` role.
-         */
-        post: operations["createAnEvaluation"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/evaluations/{evaluation_ulid}/close": {
+    "/user/evaluations/{evaluation_ulid}/close": {
         parameters: {
             query?: never;
             header?: never;
@@ -936,6 +1052,2054 @@ export interface operations {
             };
         };
     };
+    listEvaluations: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Filter by the evaluating specialist (user) ULID. Must match an existing stored value.
+                 * @example 01M35F5RX4ADGC3CSDXXYB08DA
+                 */
+                evaluatorId?: string;
+                /**
+                 * @description Filter by coffee ULID. Must match an existing stored value.
+                 * @example 01M35F5JEZMS845TNPAEM1V8PF
+                 */
+                coffeeId?: string;
+                /**
+                 * @description Filter by location ULID. Must match an existing stored value.
+                 * @example 01M35F5JDFXM13R1CA06FFWTNG
+                 */
+                locationId?: string;
+                /**
+                 * @description Filter by the city of the evaluation location. Must not be greater than 90 characters.
+                 * @example Barcelona
+                 */
+                city?: string;
+                /**
+                 * @description Filter by coffee processing method. Must not be greater than 90 characters.
+                 * @example Washed
+                 */
+                process?: string;
+                /**
+                 * @description Filter by evaluation status. One of: open, closed.
+                 * @example closed
+                 */
+                status?: "open" | "closed";
+                /**
+                 * @description Minimum cupping score (0–100). Must be at least 0. Must not be greater than 100.
+                 * @example 80
+                 */
+                scoreMin?: number;
+                /**
+                 * @description Maximum cupping score (0–100). Must be ≥ scoreMin. Must be at least 0. Must not be greater than 100.
+                 * @example 95
+                 */
+                scoreMax?: number;
+                /**
+                 * @description Sort field. One of: cupping_score, created_at, status.
+                 * @example cupping_score
+                 */
+                orderBy?: "cupping_score" | "created_at" | "status";
+                /**
+                 * @description Sort direction. One of: asc, desc.
+                 * @example desc
+                 */
+                orderDirection?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @example [
+                         *       {
+                         *         "ulid": "01M35F5RX4ADGC3CSDXXYB08DB",
+                         *         "offeringId": "01K6A3M8Q2V7XH4T9B5N1RCW0D",
+                         *         "evaluationType": "specialist",
+                         *         "status": "open",
+                         *         "extractionMethod": "espresso",
+                         *         "cuppingScore": null,
+                         *         "isDefective": true,
+                         *         "descriptive": {
+                         *           "fragrance": {
+                         *             "score": 10,
+                         *             "note": null
+                         *           },
+                         *           "aroma": {
+                         *             "score": 11,
+                         *             "note": null
+                         *           },
+                         *           "flavor": {
+                         *             "score": 0,
+                         *             "note": null
+                         *           },
+                         *           "aftertaste": {
+                         *             "score": 0,
+                         *             "note": null
+                         *           },
+                         *           "acidity": {
+                         *             "score": 9,
+                         *             "note": null
+                         *           },
+                         *           "sweetness": {
+                         *             "score": 10,
+                         *             "note": null
+                         *           },
+                         *           "mouthfeel": {
+                         *             "score": 8,
+                         *             "note": null
+                         *           }
+                         *         },
+                         *         "affective": {
+                         *           "fragrance": {
+                         *             "score": 6,
+                         *             "note": null
+                         *           },
+                         *           "aroma": {
+                         *             "score": 7,
+                         *             "note": null
+                         *           },
+                         *           "flavor": {
+                         *             "score": 0,
+                         *             "note": null
+                         *           },
+                         *           "aftertaste": {
+                         *             "score": 0,
+                         *             "note": null
+                         *           },
+                         *           "acidity": {
+                         *             "score": 6,
+                         *             "note": null
+                         *           },
+                         *           "sweetness": {
+                         *             "score": 7,
+                         *             "note": null
+                         *           },
+                         *           "mouthfeel": {
+                         *             "score": 6,
+                         *             "note": null
+                         *           },
+                         *           "overall": {
+                         *             "score": 0,
+                         *             "note": null
+                         *           }
+                         *         },
+                         *         "extrinsics": {
+                         *           "farming": null,
+                         *           "processing": null,
+                         *           "trading": null,
+                         *           "certifications": null,
+                         *           "generalObservation": null
+                         *         },
+                         *         "tastes": [
+                         *           {
+                         *             "ref": "01JTAXN0DE000000000000000B",
+                         *             "type": "defects"
+                         *           },
+                         *           {
+                         *             "ref": "01JTAXN0DE0000000000000009",
+                         *             "type": "main_tastes"
+                         *           }
+                         *         ],
+                         *         "createdAt": "2026-10-06T09:12:45.000000Z",
+                         *         "closedAt": null
+                         *       },
+                         *       {
+                         *         "ulid": "01M35F5RX4ADGC3CSDXXYB08DA",
+                         *         "offeringId": "01K6A3M8Q2V7XH4T9B5N1RCW0D",
+                         *         "evaluationType": "specialist",
+                         *         "status": "closed",
+                         *         "extractionMethod": "v60",
+                         *         "cuppingScore": "84.25",
+                         *         "isDefective": false,
+                         *         "descriptive": {
+                         *           "fragrance": {
+                         *             "score": 11,
+                         *             "note": null
+                         *           },
+                         *           "aroma": {
+                         *             "score": 12,
+                         *             "note": null
+                         *           },
+                         *           "flavor": {
+                         *             "score": 10,
+                         *             "note": null
+                         *           },
+                         *           "aftertaste": {
+                         *             "score": 9,
+                         *             "note": null
+                         *           },
+                         *           "acidity": {
+                         *             "score": 11,
+                         *             "note": null
+                         *           },
+                         *           "sweetness": {
+                         *             "score": 10,
+                         *             "note": null
+                         *           },
+                         *           "mouthfeel": {
+                         *             "score": 8,
+                         *             "note": null
+                         *           }
+                         *         },
+                         *         "affective": {
+                         *           "fragrance": {
+                         *             "score": 7,
+                         *             "note": null
+                         *           },
+                         *           "aroma": {
+                         *             "score": 8,
+                         *             "note": null
+                         *           },
+                         *           "flavor": {
+                         *             "score": 8,
+                         *             "note": null
+                         *           },
+                         *           "aftertaste": {
+                         *             "score": 7,
+                         *             "note": null
+                         *           },
+                         *           "acidity": {
+                         *             "score": 7,
+                         *             "note": null
+                         *           },
+                         *           "sweetness": {
+                         *             "score": 8,
+                         *             "note": null
+                         *           },
+                         *           "mouthfeel": {
+                         *             "score": 7,
+                         *             "note": null
+                         *           },
+                         *           "overall": {
+                         *             "score": 8,
+                         *             "note": "Limpio y dulce, acidez cítrica."
+                         *           }
+                         *         },
+                         *         "extrinsics": {
+                         *           "farming": "Agricultura orgánica",
+                         *           "processing": null,
+                         *           "trading": "Comercio directo",
+                         *           "certifications": null,
+                         *           "generalObservation": null
+                         *         },
+                         *         "tastes": [
+                         *           {
+                         *             "ref": "01JTAXN0DE0000000000000003",
+                         *             "type": "flavor"
+                         *           },
+                         *           {
+                         *             "ref": "01JTAXN0DE0000000000000008",
+                         *             "type": "aroma"
+                         *           },
+                         *           {
+                         *             "ref": "01JTAXN0DE0000000000000009",
+                         *             "type": "main_tastes"
+                         *           },
+                         *           {
+                         *             "ref": "01JTAXN0DE000000000000000C",
+                         *             "type": "mouthfeel"
+                         *           }
+                         *         ],
+                         *         "createdAt": "2026-10-01T16:40:00.000000Z",
+                         *         "closedAt": "2026-10-02T11:05:30.000000Z"
+                         *       }
+                         *     ]
+                         */
+                        data?: {
+                            /** @example 01M35F5RX4ADGC3CSDXXYB08DB */
+                            ulid?: string;
+                            /** @example 01K6A3M8Q2V7XH4T9B5N1RCW0D */
+                            offeringId?: string;
+                            /** @example specialist */
+                            evaluationType?: string;
+                            /** @example open */
+                            status?: string;
+                            /** @example espresso */
+                            extractionMethod?: string;
+                            /** @example null */
+                            cuppingScore?: string | null;
+                            /** @example true */
+                            isDefective?: boolean;
+                            descriptive?: {
+                                fragrance?: {
+                                    /** @example 10 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                aroma?: {
+                                    /** @example 11 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                flavor?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                aftertaste?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                acidity?: {
+                                    /** @example 9 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                sweetness?: {
+                                    /** @example 10 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                mouthfeel?: {
+                                    /** @example 8 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                            };
+                            affective?: {
+                                fragrance?: {
+                                    /** @example 6 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                aroma?: {
+                                    /** @example 7 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                flavor?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                aftertaste?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                acidity?: {
+                                    /** @example 6 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                sweetness?: {
+                                    /** @example 7 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                mouthfeel?: {
+                                    /** @example 6 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                overall?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                            };
+                            extrinsics?: {
+                                /** @example null */
+                                farming?: string | null;
+                                /** @example null */
+                                processing?: string | null;
+                                /** @example null */
+                                trading?: string | null;
+                                /** @example null */
+                                certifications?: string | null;
+                                /** @example null */
+                                generalObservation?: string | null;
+                            };
+                            /**
+                             * @example [
+                             *       {
+                             *         "ref": "01JTAXN0DE000000000000000B",
+                             *         "type": "defects"
+                             *       },
+                             *       {
+                             *         "ref": "01JTAXN0DE0000000000000009",
+                             *         "type": "main_tastes"
+                             *       }
+                             *     ]
+                             */
+                            tastes?: {
+                                /** @example 01JTAXN0DE000000000000000B */
+                                ref?: string;
+                                /** @example defects */
+                                type?: string;
+                            }[];
+                            /** @example 2026-10-06T09:12:45.000000Z */
+                            createdAt?: string;
+                            /** @example null */
+                            closedAt?: string | null;
+                        }[];
+                        links?: {
+                            /** @example http://localhost/api/evaluations?page=1 */
+                            first?: string;
+                            /** @example http://localhost/api/evaluations?page=1 */
+                            last?: string;
+                            /** @example null */
+                            prev?: string | null;
+                            /** @example null */
+                            next?: string | null;
+                        };
+                        meta?: {
+                            /** @example 1 */
+                            current_page?: number;
+                            /** @example 1 */
+                            from?: number;
+                            /** @example 1 */
+                            last_page?: number;
+                            /**
+                             * @example [
+                             *       {
+                             *         "url": null,
+                             *         "label": "&laquo; Previous",
+                             *         "active": false
+                             *       },
+                             *       {
+                             *         "url": "http://localhost/api/evaluations?page=1",
+                             *         "label": "1",
+                             *         "active": true
+                             *       },
+                             *       {
+                             *         "url": null,
+                             *         "label": "Next &raquo;",
+                             *         "active": false
+                             *       }
+                             *     ]
+                             */
+                            links?: {
+                                /** @example null */
+                                url?: string | null;
+                                /** @example &laquo; Previous */
+                                label?: string;
+                                /** @example false */
+                                active?: boolean;
+                            }[];
+                            /** @example http://localhost/api/evaluations */
+                            path?: string;
+                            /** @example 15 */
+                            per_page?: number;
+                            /** @example 2 */
+                            to?: number;
+                            /** @example 2 */
+                            total?: number;
+                        };
+                    };
+                };
+            };
+        };
+    };
+    listTheEvaluationsOfAUser: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Filter by coffee ULID. Must match an existing stored value.
+                 * @example 01M35F5JEZMS845TNPAEM1V8PF
+                 */
+                coffeeId?: string;
+                /**
+                 * @description Filter by location ULID. Must match an existing stored value.
+                 * @example 01M35F5JDFXM13R1CA06FFWTNG
+                 */
+                locationId?: string;
+                /**
+                 * @description Filter by the city of the evaluation location. Must not be greater than 90 characters.
+                 * @example Barcelona
+                 */
+                city?: string;
+                /**
+                 * @description Filter by coffee processing method. Must not be greater than 90 characters.
+                 * @example Washed
+                 */
+                process?: string;
+                /**
+                 * @description Filter by evaluation status. One of: open, closed.
+                 * @example closed
+                 */
+                status?: "open" | "closed";
+                /**
+                 * @description Minimum cupping score (0–100). Must be at least 0. Must not be greater than 100.
+                 * @example 80
+                 */
+                scoreMin?: number;
+                /**
+                 * @description Maximum cupping score (0–100). Must be ≥ scoreMin. Must be at least 0. Must not be greater than 100.
+                 * @example 95
+                 */
+                scoreMax?: number;
+                /**
+                 * @description Sort field. One of: cupping_score, created_at, status.
+                 * @example cupping_score
+                 */
+                orderBy?: "cupping_score" | "created_at" | "status";
+                /**
+                 * @description Sort direction. One of: asc, desc.
+                 * @example desc
+                 */
+                orderDirection?: "asc" | "desc";
+            };
+            header?: never;
+            path: {
+                /**
+                 * @description The ULID of the user (evaluator).
+                 * @example 01M35F5RX4ADGC3CSDXXYB08DA
+                 */
+                user_ulid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @example [
+                         *       {
+                         *         "ulid": "01M35F5RX4ADGC3CSDXXYB08DB",
+                         *         "offeringId": "01K6A3M8Q2V7XH4T9B5N1RCW0D",
+                         *         "evaluationType": "specialist",
+                         *         "status": "open",
+                         *         "extractionMethod": "espresso",
+                         *         "cuppingScore": null,
+                         *         "isDefective": true,
+                         *         "descriptive": {
+                         *           "fragrance": {
+                         *             "score": 10,
+                         *             "note": null
+                         *           },
+                         *           "aroma": {
+                         *             "score": 11,
+                         *             "note": null
+                         *           },
+                         *           "flavor": {
+                         *             "score": 0,
+                         *             "note": null
+                         *           },
+                         *           "aftertaste": {
+                         *             "score": 0,
+                         *             "note": null
+                         *           },
+                         *           "acidity": {
+                         *             "score": 9,
+                         *             "note": null
+                         *           },
+                         *           "sweetness": {
+                         *             "score": 10,
+                         *             "note": null
+                         *           },
+                         *           "mouthfeel": {
+                         *             "score": 8,
+                         *             "note": null
+                         *           }
+                         *         },
+                         *         "affective": {
+                         *           "fragrance": {
+                         *             "score": 6,
+                         *             "note": null
+                         *           },
+                         *           "aroma": {
+                         *             "score": 7,
+                         *             "note": null
+                         *           },
+                         *           "flavor": {
+                         *             "score": 0,
+                         *             "note": null
+                         *           },
+                         *           "aftertaste": {
+                         *             "score": 0,
+                         *             "note": null
+                         *           },
+                         *           "acidity": {
+                         *             "score": 6,
+                         *             "note": null
+                         *           },
+                         *           "sweetness": {
+                         *             "score": 7,
+                         *             "note": null
+                         *           },
+                         *           "mouthfeel": {
+                         *             "score": 6,
+                         *             "note": null
+                         *           },
+                         *           "overall": {
+                         *             "score": 0,
+                         *             "note": null
+                         *           }
+                         *         },
+                         *         "extrinsics": {
+                         *           "farming": null,
+                         *           "processing": null,
+                         *           "trading": null,
+                         *           "certifications": null,
+                         *           "generalObservation": null
+                         *         },
+                         *         "tastes": [
+                         *           {
+                         *             "ref": "01JTAXN0DE000000000000000B",
+                         *             "type": "defects"
+                         *           },
+                         *           {
+                         *             "ref": "01JTAXN0DE0000000000000009",
+                         *             "type": "main_tastes"
+                         *           }
+                         *         ],
+                         *         "createdAt": "2026-10-06T09:12:45.000000Z",
+                         *         "closedAt": null
+                         *       },
+                         *       {
+                         *         "ulid": "01M35F5RX4ADGC3CSDXXYB08DA",
+                         *         "offeringId": "01K6A3M8Q2V7XH4T9B5N1RCW0D",
+                         *         "evaluationType": "specialist",
+                         *         "status": "closed",
+                         *         "extractionMethod": "v60",
+                         *         "cuppingScore": "84.25",
+                         *         "isDefective": false,
+                         *         "descriptive": {
+                         *           "fragrance": {
+                         *             "score": 11,
+                         *             "note": null
+                         *           },
+                         *           "aroma": {
+                         *             "score": 12,
+                         *             "note": null
+                         *           },
+                         *           "flavor": {
+                         *             "score": 10,
+                         *             "note": null
+                         *           },
+                         *           "aftertaste": {
+                         *             "score": 9,
+                         *             "note": null
+                         *           },
+                         *           "acidity": {
+                         *             "score": 11,
+                         *             "note": null
+                         *           },
+                         *           "sweetness": {
+                         *             "score": 10,
+                         *             "note": null
+                         *           },
+                         *           "mouthfeel": {
+                         *             "score": 8,
+                         *             "note": null
+                         *           }
+                         *         },
+                         *         "affective": {
+                         *           "fragrance": {
+                         *             "score": 7,
+                         *             "note": null
+                         *           },
+                         *           "aroma": {
+                         *             "score": 8,
+                         *             "note": null
+                         *           },
+                         *           "flavor": {
+                         *             "score": 8,
+                         *             "note": null
+                         *           },
+                         *           "aftertaste": {
+                         *             "score": 7,
+                         *             "note": null
+                         *           },
+                         *           "acidity": {
+                         *             "score": 7,
+                         *             "note": null
+                         *           },
+                         *           "sweetness": {
+                         *             "score": 8,
+                         *             "note": null
+                         *           },
+                         *           "mouthfeel": {
+                         *             "score": 7,
+                         *             "note": null
+                         *           },
+                         *           "overall": {
+                         *             "score": 8,
+                         *             "note": "Limpio y dulce, acidez cítrica."
+                         *           }
+                         *         },
+                         *         "extrinsics": {
+                         *           "farming": "Agricultura orgánica",
+                         *           "processing": null,
+                         *           "trading": "Comercio directo",
+                         *           "certifications": null,
+                         *           "generalObservation": null
+                         *         },
+                         *         "tastes": [
+                         *           {
+                         *             "ref": "01JTAXN0DE0000000000000003",
+                         *             "type": "flavor"
+                         *           },
+                         *           {
+                         *             "ref": "01JTAXN0DE0000000000000008",
+                         *             "type": "aroma"
+                         *           },
+                         *           {
+                         *             "ref": "01JTAXN0DE0000000000000009",
+                         *             "type": "main_tastes"
+                         *           },
+                         *           {
+                         *             "ref": "01JTAXN0DE000000000000000C",
+                         *             "type": "mouthfeel"
+                         *           }
+                         *         ],
+                         *         "createdAt": "2026-10-01T16:40:00.000000Z",
+                         *         "closedAt": "2026-10-02T11:05:30.000000Z"
+                         *       }
+                         *     ]
+                         */
+                        data?: {
+                            /** @example 01M35F5RX4ADGC3CSDXXYB08DB */
+                            ulid?: string;
+                            /** @example 01K6A3M8Q2V7XH4T9B5N1RCW0D */
+                            offeringId?: string;
+                            /** @example specialist */
+                            evaluationType?: string;
+                            /** @example open */
+                            status?: string;
+                            /** @example espresso */
+                            extractionMethod?: string;
+                            /** @example null */
+                            cuppingScore?: string | null;
+                            /** @example true */
+                            isDefective?: boolean;
+                            descriptive?: {
+                                fragrance?: {
+                                    /** @example 10 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                aroma?: {
+                                    /** @example 11 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                flavor?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                aftertaste?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                acidity?: {
+                                    /** @example 9 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                sweetness?: {
+                                    /** @example 10 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                mouthfeel?: {
+                                    /** @example 8 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                            };
+                            affective?: {
+                                fragrance?: {
+                                    /** @example 6 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                aroma?: {
+                                    /** @example 7 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                flavor?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                aftertaste?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                acidity?: {
+                                    /** @example 6 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                sweetness?: {
+                                    /** @example 7 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                mouthfeel?: {
+                                    /** @example 6 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                overall?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                            };
+                            extrinsics?: {
+                                /** @example null */
+                                farming?: string | null;
+                                /** @example null */
+                                processing?: string | null;
+                                /** @example null */
+                                trading?: string | null;
+                                /** @example null */
+                                certifications?: string | null;
+                                /** @example null */
+                                generalObservation?: string | null;
+                            };
+                            /**
+                             * @example [
+                             *       {
+                             *         "ref": "01JTAXN0DE000000000000000B",
+                             *         "type": "defects"
+                             *       },
+                             *       {
+                             *         "ref": "01JTAXN0DE0000000000000009",
+                             *         "type": "main_tastes"
+                             *       }
+                             *     ]
+                             */
+                            tastes?: {
+                                /** @example 01JTAXN0DE000000000000000B */
+                                ref?: string;
+                                /** @example defects */
+                                type?: string;
+                            }[];
+                            /** @example 2026-10-06T09:12:45.000000Z */
+                            createdAt?: string;
+                            /** @example null */
+                            closedAt?: string | null;
+                        }[];
+                        links?: {
+                            /** @example http://localhost/api/evaluations?page=1 */
+                            first?: string;
+                            /** @example http://localhost/api/evaluations?page=1 */
+                            last?: string;
+                            /** @example null */
+                            prev?: string | null;
+                            /** @example null */
+                            next?: string | null;
+                        };
+                        meta?: {
+                            /** @example 1 */
+                            current_page?: number;
+                            /** @example 1 */
+                            from?: number;
+                            /** @example 1 */
+                            last_page?: number;
+                            /**
+                             * @example [
+                             *       {
+                             *         "url": null,
+                             *         "label": "&laquo; Previous",
+                             *         "active": false
+                             *       },
+                             *       {
+                             *         "url": "http://localhost/api/evaluations?page=1",
+                             *         "label": "1",
+                             *         "active": true
+                             *       },
+                             *       {
+                             *         "url": null,
+                             *         "label": "Next &raquo;",
+                             *         "active": false
+                             *       }
+                             *     ]
+                             */
+                            links?: {
+                                /** @example null */
+                                url?: string | null;
+                                /** @example &laquo; Previous */
+                                label?: string;
+                                /** @example false */
+                                active?: boolean;
+                            }[];
+                            /** @example http://localhost/api/evaluations */
+                            path?: string;
+                            /** @example 15 */
+                            per_page?: number;
+                            /** @example 2 */
+                            to?: number;
+                            /** @example 2 */
+                            total?: number;
+                        };
+                    };
+                };
+            };
+        };
+    };
+    listMyEvaluations: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Filter by coffee ULID. Must match an existing stored value.
+                 * @example 01M35F5JEZMS845TNPAEM1V8PF
+                 */
+                coffeeId?: string;
+                /**
+                 * @description Filter by location ULID. Must match an existing stored value.
+                 * @example 01M35F5JDFXM13R1CA06FFWTNG
+                 */
+                locationId?: string;
+                /**
+                 * @description Filter by the city of the evaluation location. Must not be greater than 90 characters.
+                 * @example Barcelona
+                 */
+                city?: string;
+                /**
+                 * @description Filter by coffee processing method. Must not be greater than 90 characters.
+                 * @example Washed
+                 */
+                process?: string;
+                /**
+                 * @description Filter by evaluation status. One of: open, closed.
+                 * @example closed
+                 */
+                status?: "open" | "closed";
+                /**
+                 * @description Minimum cupping score (0–100). Must be at least 0. Must not be greater than 100.
+                 * @example 80
+                 */
+                scoreMin?: number;
+                /**
+                 * @description Maximum cupping score (0–100). Must be ≥ scoreMin. Must be at least 0. Must not be greater than 100.
+                 * @example 95
+                 */
+                scoreMax?: number;
+                /**
+                 * @description Sort field. One of: cupping_score, created_at, status.
+                 * @example cupping_score
+                 */
+                orderBy?: "cupping_score" | "created_at" | "status";
+                /**
+                 * @description Sort direction. One of: asc, desc.
+                 * @example desc
+                 */
+                orderDirection?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @example [
+                         *       {
+                         *         "ulid": "01M35F5RX4ADGC3CSDXXYB08DB",
+                         *         "offeringId": "01K6A3M8Q2V7XH4T9B5N1RCW0D",
+                         *         "evaluationType": "specialist",
+                         *         "status": "open",
+                         *         "extractionMethod": "espresso",
+                         *         "cuppingScore": null,
+                         *         "isDefective": true,
+                         *         "descriptive": {
+                         *           "fragrance": {
+                         *             "score": 10,
+                         *             "note": null
+                         *           },
+                         *           "aroma": {
+                         *             "score": 11,
+                         *             "note": null
+                         *           },
+                         *           "flavor": {
+                         *             "score": 0,
+                         *             "note": null
+                         *           },
+                         *           "aftertaste": {
+                         *             "score": 0,
+                         *             "note": null
+                         *           },
+                         *           "acidity": {
+                         *             "score": 9,
+                         *             "note": null
+                         *           },
+                         *           "sweetness": {
+                         *             "score": 10,
+                         *             "note": null
+                         *           },
+                         *           "mouthfeel": {
+                         *             "score": 8,
+                         *             "note": null
+                         *           }
+                         *         },
+                         *         "affective": {
+                         *           "fragrance": {
+                         *             "score": 6,
+                         *             "note": null
+                         *           },
+                         *           "aroma": {
+                         *             "score": 7,
+                         *             "note": null
+                         *           },
+                         *           "flavor": {
+                         *             "score": 0,
+                         *             "note": null
+                         *           },
+                         *           "aftertaste": {
+                         *             "score": 0,
+                         *             "note": null
+                         *           },
+                         *           "acidity": {
+                         *             "score": 6,
+                         *             "note": null
+                         *           },
+                         *           "sweetness": {
+                         *             "score": 7,
+                         *             "note": null
+                         *           },
+                         *           "mouthfeel": {
+                         *             "score": 6,
+                         *             "note": null
+                         *           },
+                         *           "overall": {
+                         *             "score": 0,
+                         *             "note": null
+                         *           }
+                         *         },
+                         *         "extrinsics": {
+                         *           "farming": null,
+                         *           "processing": null,
+                         *           "trading": null,
+                         *           "certifications": null,
+                         *           "generalObservation": null
+                         *         },
+                         *         "tastes": [
+                         *           {
+                         *             "ref": "01JTAXN0DE000000000000000B",
+                         *             "type": "defects"
+                         *           },
+                         *           {
+                         *             "ref": "01JTAXN0DE0000000000000009",
+                         *             "type": "main_tastes"
+                         *           }
+                         *         ],
+                         *         "createdAt": "2026-10-06T09:12:45.000000Z",
+                         *         "closedAt": null
+                         *       },
+                         *       {
+                         *         "ulid": "01M35F5RX4ADGC3CSDXXYB08DA",
+                         *         "offeringId": "01K6A3M8Q2V7XH4T9B5N1RCW0D",
+                         *         "evaluationType": "specialist",
+                         *         "status": "closed",
+                         *         "extractionMethod": "v60",
+                         *         "cuppingScore": "84.25",
+                         *         "isDefective": false,
+                         *         "descriptive": {
+                         *           "fragrance": {
+                         *             "score": 11,
+                         *             "note": null
+                         *           },
+                         *           "aroma": {
+                         *             "score": 12,
+                         *             "note": null
+                         *           },
+                         *           "flavor": {
+                         *             "score": 10,
+                         *             "note": null
+                         *           },
+                         *           "aftertaste": {
+                         *             "score": 9,
+                         *             "note": null
+                         *           },
+                         *           "acidity": {
+                         *             "score": 11,
+                         *             "note": null
+                         *           },
+                         *           "sweetness": {
+                         *             "score": 10,
+                         *             "note": null
+                         *           },
+                         *           "mouthfeel": {
+                         *             "score": 8,
+                         *             "note": null
+                         *           }
+                         *         },
+                         *         "affective": {
+                         *           "fragrance": {
+                         *             "score": 7,
+                         *             "note": null
+                         *           },
+                         *           "aroma": {
+                         *             "score": 8,
+                         *             "note": null
+                         *           },
+                         *           "flavor": {
+                         *             "score": 8,
+                         *             "note": null
+                         *           },
+                         *           "aftertaste": {
+                         *             "score": 7,
+                         *             "note": null
+                         *           },
+                         *           "acidity": {
+                         *             "score": 7,
+                         *             "note": null
+                         *           },
+                         *           "sweetness": {
+                         *             "score": 8,
+                         *             "note": null
+                         *           },
+                         *           "mouthfeel": {
+                         *             "score": 7,
+                         *             "note": null
+                         *           },
+                         *           "overall": {
+                         *             "score": 8,
+                         *             "note": "Limpio y dulce, acidez cítrica."
+                         *           }
+                         *         },
+                         *         "extrinsics": {
+                         *           "farming": "Agricultura orgánica",
+                         *           "processing": null,
+                         *           "trading": "Comercio directo",
+                         *           "certifications": null,
+                         *           "generalObservation": null
+                         *         },
+                         *         "tastes": [
+                         *           {
+                         *             "ref": "01JTAXN0DE0000000000000003",
+                         *             "type": "flavor"
+                         *           },
+                         *           {
+                         *             "ref": "01JTAXN0DE0000000000000008",
+                         *             "type": "aroma"
+                         *           },
+                         *           {
+                         *             "ref": "01JTAXN0DE0000000000000009",
+                         *             "type": "main_tastes"
+                         *           },
+                         *           {
+                         *             "ref": "01JTAXN0DE000000000000000C",
+                         *             "type": "mouthfeel"
+                         *           }
+                         *         ],
+                         *         "createdAt": "2026-10-01T16:40:00.000000Z",
+                         *         "closedAt": "2026-10-02T11:05:30.000000Z"
+                         *       }
+                         *     ]
+                         */
+                        data?: {
+                            /** @example 01M35F5RX4ADGC3CSDXXYB08DB */
+                            ulid?: string;
+                            /** @example 01K6A3M8Q2V7XH4T9B5N1RCW0D */
+                            offeringId?: string;
+                            /** @example specialist */
+                            evaluationType?: string;
+                            /** @example open */
+                            status?: string;
+                            /** @example espresso */
+                            extractionMethod?: string;
+                            /** @example null */
+                            cuppingScore?: string | null;
+                            /** @example true */
+                            isDefective?: boolean;
+                            descriptive?: {
+                                fragrance?: {
+                                    /** @example 10 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                aroma?: {
+                                    /** @example 11 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                flavor?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                aftertaste?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                acidity?: {
+                                    /** @example 9 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                sweetness?: {
+                                    /** @example 10 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                mouthfeel?: {
+                                    /** @example 8 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                            };
+                            affective?: {
+                                fragrance?: {
+                                    /** @example 6 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                aroma?: {
+                                    /** @example 7 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                flavor?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                aftertaste?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                acidity?: {
+                                    /** @example 6 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                sweetness?: {
+                                    /** @example 7 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                mouthfeel?: {
+                                    /** @example 6 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                overall?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                            };
+                            extrinsics?: {
+                                /** @example null */
+                                farming?: string | null;
+                                /** @example null */
+                                processing?: string | null;
+                                /** @example null */
+                                trading?: string | null;
+                                /** @example null */
+                                certifications?: string | null;
+                                /** @example null */
+                                generalObservation?: string | null;
+                            };
+                            /**
+                             * @example [
+                             *       {
+                             *         "ref": "01JTAXN0DE000000000000000B",
+                             *         "type": "defects"
+                             *       },
+                             *       {
+                             *         "ref": "01JTAXN0DE0000000000000009",
+                             *         "type": "main_tastes"
+                             *       }
+                             *     ]
+                             */
+                            tastes?: {
+                                /** @example 01JTAXN0DE000000000000000B */
+                                ref?: string;
+                                /** @example defects */
+                                type?: string;
+                            }[];
+                            /** @example 2026-10-06T09:12:45.000000Z */
+                            createdAt?: string;
+                            /** @example null */
+                            closedAt?: string | null;
+                        }[];
+                        links?: {
+                            /** @example http://localhost/api/user/evaluations?page=1 */
+                            first?: string;
+                            /** @example http://localhost/api/user/evaluations?page=1 */
+                            last?: string;
+                            /** @example null */
+                            prev?: string | null;
+                            /** @example null */
+                            next?: string | null;
+                        };
+                        meta?: {
+                            /** @example 1 */
+                            current_page?: number;
+                            /** @example 1 */
+                            from?: number;
+                            /** @example 1 */
+                            last_page?: number;
+                            /**
+                             * @example [
+                             *       {
+                             *         "url": null,
+                             *         "label": "&laquo; Previous",
+                             *         "active": false
+                             *       },
+                             *       {
+                             *         "url": "http://localhost/api/user/evaluations?page=1",
+                             *         "label": "1",
+                             *         "active": true
+                             *       },
+                             *       {
+                             *         "url": null,
+                             *         "label": "Next &raquo;",
+                             *         "active": false
+                             *       }
+                             *     ]
+                             */
+                            links?: {
+                                /** @example null */
+                                url?: string | null;
+                                /** @example &laquo; Previous */
+                                label?: string;
+                                /** @example false */
+                                active?: boolean;
+                            }[];
+                            /** @example http://localhost/api/user/evaluations */
+                            path?: string;
+                            /** @example 15 */
+                            per_page?: number;
+                            /** @example 2 */
+                            to?: number;
+                            /** @example 2 */
+                            total?: number;
+                        };
+                    };
+                };
+            };
+        };
+    };
+    createAnEvaluation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @description ULID of the offering being evaluated. Must match an existing stored value.
+                     * @example 01M35F5RX4ADGC3CSDXXYB08DA
+                     */
+                    offeringId: string;
+                    /** @example architecto */
+                    status?: string | null;
+                    /**
+                     * @description Brewing/extraction method used (max 60 chars). Must not be greater than 60 characters.
+                     * @example v60
+                     */
+                    extractionMethod?: string | null;
+                    /**
+                     * @description Objective assessment block.
+                     * @example null
+                     */
+                    descriptive: {
+                        /**
+                         * @description Roast level. One of: light, medium_light, medium, medium_dark, dark.
+                         * @example medium
+                         * @enum {string}
+                         */
+                        roastLevel: "light" | "medium_light" | "medium" | "medium_dark" | "dark";
+                        /** @example null */
+                        fragrance?: {
+                            /**
+                             * @description Fragrance intensity (0–15). Must be between 0 and 15.
+                             * @example 11
+                             */
+                            score?: number | null;
+                            /**
+                             * @description Optional free-text note.
+                             * @example null
+                             */
+                            note?: string | null;
+                            /**
+                             * @description Must match an existing stored value.
+                             * @example [
+                             *       "architecto"
+                             *     ]
+                             */
+                            cata?: string[];
+                        } | null;
+                        /** @example null */
+                        aroma?: {
+                            /**
+                             * @description Aroma intensity (0–15). Must be between 0 and 15.
+                             * @example 5
+                             */
+                            score?: number | null;
+                            /**
+                             * @description Optional note.
+                             * @example null
+                             */
+                            note?: string | null;
+                            /**
+                             * @description Must match an existing stored value.
+                             * @example [
+                             *       "architecto"
+                             *     ]
+                             */
+                            cata?: string[];
+                        } | null;
+                        /** @example null */
+                        flavor?: {
+                            /**
+                             * @description Flavor intensity (0–15). Must be between 0 and 15.
+                             * @example 12
+                             */
+                            score?: number | null;
+                            /**
+                             * @description Optional note.
+                             * @example null
+                             */
+                            note?: string | null;
+                            /**
+                             * @description Must match an existing stored value.
+                             * @example [
+                             *       "architecto"
+                             *     ]
+                             */
+                            cata?: string[];
+                        } | null;
+                        /** @example null */
+                        acidity?: {
+                            /**
+                             * @description Acidity intensity (0–15). Must be between 0 and 15.
+                             * @example 12
+                             */
+                            score?: number | null;
+                            /**
+                             * @description Optional note. No cata for acidity.
+                             * @example null
+                             */
+                            note?: string | null;
+                        } | null;
+                        /** @example null */
+                        sweetness?: {
+                            /**
+                             * @description Sweetness intensity (0–15). Must be between 0 and 15.
+                             * @example 6
+                             */
+                            score?: number | null;
+                            /**
+                             * @description Optional note. No cata for sweetness.
+                             * @example null
+                             */
+                            note?: string | null;
+                        } | null;
+                        /** @example null */
+                        mouthfeel?: {
+                            /**
+                             * @description Mouthfeel intensity (0–15). Must be between 0 and 15.
+                             * @example 11
+                             */
+                            score?: number | null;
+                            /**
+                             * @description Optional note.
+                             * @example null
+                             */
+                            note?: string | null;
+                            /**
+                             * @description Must match an existing stored value.
+                             * @example [
+                             *       "architecto"
+                             *     ]
+                             */
+                            cata?: string[];
+                        } | null;
+                        /** @example null */
+                        aftertaste?: {
+                            /**
+                             * @description Aftertaste intensity (0–15). Must be between 0 and 15.
+                             * @example 5
+                             */
+                            score?: number | null;
+                            /**
+                             * @description Optional note.
+                             * @example null
+                             */
+                            note?: string | null;
+                            /**
+                             * @description Must match an existing stored value.
+                             * @example [
+                             *       "architecto"
+                             *     ]
+                             */
+                            cata?: string[];
+                        } | null;
+                        /**
+                         * @description Must match an existing stored value.
+                         * @example [
+                         *       "architecto"
+                         *     ]
+                         */
+                        mainTastes?: string[];
+                    };
+                    /**
+                     * @description Preference assessment block. Scores 1–9.
+                     * @example null
+                     */
+                    affective: {
+                        /** @example [] */
+                        overall?: {
+                            /**
+                             * @description Overall preference (1–9). Must be between 1 and 9.
+                             * @example 8
+                             */
+                            score?: number | null;
+                            /**
+                             * @description Optional note.
+                             * @example Balanced, clean finish.
+                             */
+                            note?: string | null;
+                        };
+                        /** @example [] */
+                        fragrance?: {
+                            /**
+                             * @description Fragrance preference (1–9). Must be between 1 and 9.
+                             * @example 7
+                             */
+                            score?: number | null;
+                            /**
+                             * @description Optional note.
+                             * @example null
+                             */
+                            note?: string | null;
+                        };
+                        /** @example [] */
+                        aroma?: {
+                            /**
+                             * @description Aroma preference (1–9). Must be between 1 and 9.
+                             * @example 7
+                             */
+                            score?: number | null;
+                            /**
+                             * @description Optional note.
+                             * @example null
+                             */
+                            note?: string | null;
+                        };
+                        /** @example [] */
+                        flavor?: {
+                            /**
+                             * @description Flavor preference (1–9). Must be between 1 and 9.
+                             * @example 9
+                             */
+                            score?: number | null;
+                            /**
+                             * @description Optional note.
+                             * @example null
+                             */
+                            note?: string | null;
+                        };
+                        /** @example [] */
+                        aftertaste?: {
+                            /**
+                             * @description Aftertaste preference (1–9). Must be between 1 and 9.
+                             * @example 9
+                             */
+                            score?: number | null;
+                            /**
+                             * @description Optional note.
+                             * @example null
+                             */
+                            note?: string | null;
+                        };
+                        /** @example [] */
+                        acidity?: {
+                            /**
+                             * @description Acidity preference (1–9). Must be between 1 and 9.
+                             * @example 9
+                             */
+                            score?: number | null;
+                            /**
+                             * @description Optional note.
+                             * @example null
+                             */
+                            note?: string | null;
+                        };
+                        /** @example [] */
+                        sweetness?: {
+                            /**
+                             * @description Sweetness preference (1–9). Must be between 1 and 9.
+                             * @example 9
+                             */
+                            score?: number | null;
+                            /**
+                             * @description Optional note.
+                             * @example null
+                             */
+                            note?: string | null;
+                        };
+                        /** @example [] */
+                        mouthfeel?: {
+                            /**
+                             * @description Mouthfeel preference (1–9). Must be between 1 and 9.
+                             * @example 8
+                             */
+                            score?: number | null;
+                            /**
+                             * @description Optional note.
+                             * @example null
+                             */
+                            note?: string | null;
+                        };
+                        /**
+                         * @description Must match an existing stored value.
+                         * @example [
+                         *       "architecto"
+                         *     ]
+                         */
+                        defects?: string[];
+                    };
+                    /** @example null */
+                    extrinsics?: {
+                        /**
+                         * @description Optional farming context.
+                         * @example null
+                         */
+                        farming?: string | null;
+                        /**
+                         * @description Optional processing context.
+                         * @example null
+                         */
+                        processing?: string | null;
+                        /**
+                         * @description Optional trading context.
+                         * @example null
+                         */
+                        trading?: string | null;
+                        /**
+                         * @description Optional certifications.
+                         * @example null
+                         */
+                        certifications?: string | null;
+                        /**
+                         * @description Optional general observation.
+                         * @example null
+                         */
+                        generalObservation?: string | null;
+                    } | null;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: {
+                            /** @example 01M35F5RX4ADGC3CSDXXYB08DB */
+                            ulid?: string;
+                            /** @example 01K6A3M8Q2V7XH4T9B5N1RCW0D */
+                            offeringId?: string;
+                            /** @example specialist */
+                            evaluationType?: string;
+                            /** @example open */
+                            status?: string;
+                            /** @example espresso */
+                            extractionMethod?: string;
+                            /** @example null */
+                            cuppingScore?: string | null;
+                            /** @example true */
+                            isDefective?: boolean;
+                            descriptive?: {
+                                fragrance?: {
+                                    /** @example 10 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                aroma?: {
+                                    /** @example 11 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                flavor?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                aftertaste?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                acidity?: {
+                                    /** @example 9 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                sweetness?: {
+                                    /** @example 10 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                mouthfeel?: {
+                                    /** @example 8 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                            };
+                            affective?: {
+                                fragrance?: {
+                                    /** @example 6 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                aroma?: {
+                                    /** @example 7 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                flavor?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                aftertaste?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                acidity?: {
+                                    /** @example 6 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                sweetness?: {
+                                    /** @example 7 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                mouthfeel?: {
+                                    /** @example 6 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                overall?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                            };
+                            extrinsics?: {
+                                /** @example null */
+                                farming?: string | null;
+                                /** @example null */
+                                processing?: string | null;
+                                /** @example null */
+                                trading?: string | null;
+                                /** @example null */
+                                certifications?: string | null;
+                                /** @example null */
+                                generalObservation?: string | null;
+                            };
+                            /**
+                             * @example [
+                             *       {
+                             *         "ref": "01JTAXN0DE000000000000000B",
+                             *         "type": "defects"
+                             *       },
+                             *       {
+                             *         "ref": "01JTAXN0DE0000000000000009",
+                             *         "type": "main_tastes"
+                             *       }
+                             *     ]
+                             */
+                            tastes?: {
+                                /** @example 01JTAXN0DE000000000000000B */
+                                ref?: string;
+                                /** @example defects */
+                                type?: string;
+                            }[];
+                            /** @example 2026-10-06T09:12:45.000000Z */
+                            createdAt?: string;
+                            /** @example null */
+                            closedAt?: string | null;
+                        };
+                        /** @example Evaluation created. */
+                        message?: string;
+                    };
+                };
+            };
+        };
+    };
+    getMyEvaluation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description The evaluation.
+                 * @example architecto
+                 */
+                evaluation: string;
+                /**
+                 * @description The ULID of the evaluation.
+                 * @example 01M35F5RX4ADGC3CSDXXYB08DA
+                 */
+                evaluation_ulid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: {
+                            /** @example 01M35F5RX4ADGC3CSDXXYB08DB */
+                            ulid?: string;
+                            /** @example 01K6A3M8Q2V7XH4T9B5N1RCW0D */
+                            offeringId?: string;
+                            /** @example specialist */
+                            evaluationType?: string;
+                            /** @example open */
+                            status?: string;
+                            /** @example espresso */
+                            extractionMethod?: string;
+                            /** @example null */
+                            cuppingScore?: string | null;
+                            /** @example true */
+                            isDefective?: boolean;
+                            descriptive?: {
+                                fragrance?: {
+                                    /** @example 10 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                aroma?: {
+                                    /** @example 11 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                flavor?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                aftertaste?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                acidity?: {
+                                    /** @example 9 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                sweetness?: {
+                                    /** @example 10 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                mouthfeel?: {
+                                    /** @example 8 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                            };
+                            affective?: {
+                                fragrance?: {
+                                    /** @example 6 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                aroma?: {
+                                    /** @example 7 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                flavor?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                aftertaste?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                acidity?: {
+                                    /** @example 6 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                sweetness?: {
+                                    /** @example 7 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                mouthfeel?: {
+                                    /** @example 6 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                                overall?: {
+                                    /** @example 0 */
+                                    score?: number;
+                                    /** @example null */
+                                    note?: string | null;
+                                };
+                            };
+                            extrinsics?: {
+                                /** @example null */
+                                farming?: string | null;
+                                /** @example null */
+                                processing?: string | null;
+                                /** @example null */
+                                trading?: string | null;
+                                /** @example null */
+                                certifications?: string | null;
+                                /** @example null */
+                                generalObservation?: string | null;
+                            };
+                            /**
+                             * @example [
+                             *       {
+                             *         "ref": "01JTAXN0DE000000000000000B",
+                             *         "type": "defects"
+                             *       },
+                             *       {
+                             *         "ref": "01JTAXN0DE0000000000000009",
+                             *         "type": "main_tastes"
+                             *       }
+                             *     ]
+                             */
+                            tastes?: {
+                                /** @example 01JTAXN0DE000000000000000B */
+                                ref?: string;
+                                /** @example defects */
+                                type?: string;
+                            }[];
+                            /** @example 2026-10-06T09:12:45.000000Z */
+                            createdAt?: string;
+                            /** @example null */
+                            closedAt?: string | null;
+                        };
+                    };
+                };
+            };
+            /** @description Not found or not the owner */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example No query results for model [App\Models\Evaluation]. */
+                        message?: string;
+                    };
+                };
+            };
+        };
+    };
     updateAnEvaluation: {
         parameters: {
             query?: never;
@@ -1417,943 +3581,6 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @example One or more evaluations do not belong to the user. */
-                        message?: string;
-                    };
-                };
-            };
-        };
-    };
-    listEvaluations: {
-        parameters: {
-            query?: {
-                /**
-                 * @description Filter by the evaluating specialist (user) ULID. Must match an existing stored value.
-                 * @example 01M35F5RX4ADGC3CSDXXYB08DA
-                 */
-                evaluatorId?: string;
-                /**
-                 * @description Filter by coffee ULID. Must match an existing stored value.
-                 * @example 01M35F5JEZMS845TNPAEM1V8PF
-                 */
-                coffeeId?: string;
-                /**
-                 * @description Filter by location ULID. Must match an existing stored value.
-                 * @example 01M35F5JDFXM13R1CA06FFWTNG
-                 */
-                locationId?: string;
-                /**
-                 * @description Filter by the city of the evaluation location. Must not be greater than 90 characters.
-                 * @example Barcelona
-                 */
-                city?: string;
-                /**
-                 * @description Filter by coffee processing method. Must not be greater than 90 characters.
-                 * @example Washed
-                 */
-                process?: string;
-                /**
-                 * @description Filter by evaluation status. One of: open, closed.
-                 * @example closed
-                 */
-                status?: "open" | "closed";
-                /**
-                 * @description Minimum cupping score (0–100). Must be at least 0. Must not be greater than 100.
-                 * @example 80
-                 */
-                scoreMin?: number;
-                /**
-                 * @description Maximum cupping score (0–100). Must be ≥ scoreMin. Must be at least 0. Must not be greater than 100.
-                 * @example 95
-                 */
-                scoreMax?: number;
-                /**
-                 * @description Sort field. One of: cupping_score, created_at, status.
-                 * @example cupping_score
-                 */
-                orderBy?: "cupping_score" | "created_at" | "status";
-                /**
-                 * @description Sort direction. One of: asc, desc.
-                 * @example desc
-                 */
-                orderDirection?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /**
-                         * @example [
-                         *       {
-                         *         "ulid": "01M35F5RX4ADGC3CSDXXYB08DB",
-                         *         "offeringId": "01K6A3M8Q2V7XH4T9B5N1RCW0D",
-                         *         "evaluationType": "specialist",
-                         *         "status": "open",
-                         *         "extractionMethod": "espresso",
-                         *         "cuppingScore": null,
-                         *         "isDefective": true,
-                         *         "descriptive": {
-                         *           "fragrance": {
-                         *             "score": 10,
-                         *             "note": null
-                         *           },
-                         *           "aroma": {
-                         *             "score": 11,
-                         *             "note": null
-                         *           },
-                         *           "flavor": {
-                         *             "score": 0,
-                         *             "note": null
-                         *           },
-                         *           "aftertaste": {
-                         *             "score": 0,
-                         *             "note": null
-                         *           },
-                         *           "acidity": {
-                         *             "score": 9,
-                         *             "note": null
-                         *           },
-                         *           "sweetness": {
-                         *             "score": 10,
-                         *             "note": null
-                         *           },
-                         *           "mouthfeel": {
-                         *             "score": 8,
-                         *             "note": null
-                         *           }
-                         *         },
-                         *         "affective": {
-                         *           "fragrance": {
-                         *             "score": 6,
-                         *             "note": null
-                         *           },
-                         *           "aroma": {
-                         *             "score": 7,
-                         *             "note": null
-                         *           },
-                         *           "flavor": {
-                         *             "score": 0,
-                         *             "note": null
-                         *           },
-                         *           "aftertaste": {
-                         *             "score": 0,
-                         *             "note": null
-                         *           },
-                         *           "acidity": {
-                         *             "score": 6,
-                         *             "note": null
-                         *           },
-                         *           "sweetness": {
-                         *             "score": 7,
-                         *             "note": null
-                         *           },
-                         *           "mouthfeel": {
-                         *             "score": 6,
-                         *             "note": null
-                         *           },
-                         *           "overall": {
-                         *             "score": 0,
-                         *             "note": null
-                         *           }
-                         *         },
-                         *         "extrinsics": {
-                         *           "farming": null,
-                         *           "processing": null,
-                         *           "trading": null,
-                         *           "certifications": null,
-                         *           "generalObservation": null
-                         *         },
-                         *         "tastes": [
-                         *           {
-                         *             "ref": "01JTAXN0DE000000000000000B",
-                         *             "type": "defects"
-                         *           },
-                         *           {
-                         *             "ref": "01JTAXN0DE0000000000000009",
-                         *             "type": "main_tastes"
-                         *           }
-                         *         ],
-                         *         "createdAt": "2026-10-06T09:12:45.000000Z",
-                         *         "closedAt": null
-                         *       },
-                         *       {
-                         *         "ulid": "01M35F5RX4ADGC3CSDXXYB08DA",
-                         *         "offeringId": "01K6A3M8Q2V7XH4T9B5N1RCW0D",
-                         *         "evaluationType": "specialist",
-                         *         "status": "closed",
-                         *         "extractionMethod": "v60",
-                         *         "cuppingScore": "84.25",
-                         *         "isDefective": false,
-                         *         "descriptive": {
-                         *           "fragrance": {
-                         *             "score": 11,
-                         *             "note": null
-                         *           },
-                         *           "aroma": {
-                         *             "score": 12,
-                         *             "note": null
-                         *           },
-                         *           "flavor": {
-                         *             "score": 10,
-                         *             "note": null
-                         *           },
-                         *           "aftertaste": {
-                         *             "score": 9,
-                         *             "note": null
-                         *           },
-                         *           "acidity": {
-                         *             "score": 11,
-                         *             "note": null
-                         *           },
-                         *           "sweetness": {
-                         *             "score": 10,
-                         *             "note": null
-                         *           },
-                         *           "mouthfeel": {
-                         *             "score": 8,
-                         *             "note": null
-                         *           }
-                         *         },
-                         *         "affective": {
-                         *           "fragrance": {
-                         *             "score": 7,
-                         *             "note": null
-                         *           },
-                         *           "aroma": {
-                         *             "score": 8,
-                         *             "note": null
-                         *           },
-                         *           "flavor": {
-                         *             "score": 8,
-                         *             "note": null
-                         *           },
-                         *           "aftertaste": {
-                         *             "score": 7,
-                         *             "note": null
-                         *           },
-                         *           "acidity": {
-                         *             "score": 7,
-                         *             "note": null
-                         *           },
-                         *           "sweetness": {
-                         *             "score": 8,
-                         *             "note": null
-                         *           },
-                         *           "mouthfeel": {
-                         *             "score": 7,
-                         *             "note": null
-                         *           },
-                         *           "overall": {
-                         *             "score": 8,
-                         *             "note": "Limpio y dulce, acidez cítrica."
-                         *           }
-                         *         },
-                         *         "extrinsics": {
-                         *           "farming": "Agricultura orgánica",
-                         *           "processing": null,
-                         *           "trading": "Comercio directo",
-                         *           "certifications": null,
-                         *           "generalObservation": null
-                         *         },
-                         *         "tastes": [
-                         *           {
-                         *             "ref": "01JTAXN0DE0000000000000003",
-                         *             "type": "flavor"
-                         *           },
-                         *           {
-                         *             "ref": "01JTAXN0DE0000000000000008",
-                         *             "type": "aroma"
-                         *           },
-                         *           {
-                         *             "ref": "01JTAXN0DE0000000000000009",
-                         *             "type": "main_tastes"
-                         *           },
-                         *           {
-                         *             "ref": "01JTAXN0DE000000000000000C",
-                         *             "type": "mouthfeel"
-                         *           }
-                         *         ],
-                         *         "createdAt": "2026-10-01T16:40:00.000000Z",
-                         *         "closedAt": "2026-10-02T11:05:30.000000Z"
-                         *       }
-                         *     ]
-                         */
-                        data?: {
-                            /** @example 01M35F5RX4ADGC3CSDXXYB08DB */
-                            ulid?: string;
-                            /** @example 01K6A3M8Q2V7XH4T9B5N1RCW0D */
-                            offeringId?: string;
-                            /** @example specialist */
-                            evaluationType?: string;
-                            /** @example open */
-                            status?: string;
-                            /** @example espresso */
-                            extractionMethod?: string;
-                            /** @example null */
-                            cuppingScore?: string | null;
-                            /** @example true */
-                            isDefective?: boolean;
-                            descriptive?: {
-                                fragrance?: {
-                                    /** @example 10 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                aroma?: {
-                                    /** @example 11 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                flavor?: {
-                                    /** @example 0 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                aftertaste?: {
-                                    /** @example 0 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                acidity?: {
-                                    /** @example 9 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                sweetness?: {
-                                    /** @example 10 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                mouthfeel?: {
-                                    /** @example 8 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                            };
-                            affective?: {
-                                fragrance?: {
-                                    /** @example 6 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                aroma?: {
-                                    /** @example 7 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                flavor?: {
-                                    /** @example 0 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                aftertaste?: {
-                                    /** @example 0 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                acidity?: {
-                                    /** @example 6 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                sweetness?: {
-                                    /** @example 7 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                mouthfeel?: {
-                                    /** @example 6 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                overall?: {
-                                    /** @example 0 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                            };
-                            extrinsics?: {
-                                /** @example null */
-                                farming?: string | null;
-                                /** @example null */
-                                processing?: string | null;
-                                /** @example null */
-                                trading?: string | null;
-                                /** @example null */
-                                certifications?: string | null;
-                                /** @example null */
-                                generalObservation?: string | null;
-                            };
-                            /**
-                             * @example [
-                             *       {
-                             *         "ref": "01JTAXN0DE000000000000000B",
-                             *         "type": "defects"
-                             *       },
-                             *       {
-                             *         "ref": "01JTAXN0DE0000000000000009",
-                             *         "type": "main_tastes"
-                             *       }
-                             *     ]
-                             */
-                            tastes?: {
-                                /** @example 01JTAXN0DE000000000000000B */
-                                ref?: string;
-                                /** @example defects */
-                                type?: string;
-                            }[];
-                            /** @example 2026-10-06T09:12:45.000000Z */
-                            createdAt?: string;
-                            /** @example null */
-                            closedAt?: string | null;
-                        }[];
-                        links?: {
-                            /** @example http://localhost/api/evaluations?page=1 */
-                            first?: string;
-                            /** @example http://localhost/api/evaluations?page=1 */
-                            last?: string;
-                            /** @example null */
-                            prev?: string | null;
-                            /** @example null */
-                            next?: string | null;
-                        };
-                        meta?: {
-                            /** @example 1 */
-                            current_page?: number;
-                            /** @example 1 */
-                            from?: number;
-                            /** @example 1 */
-                            last_page?: number;
-                            /**
-                             * @example [
-                             *       {
-                             *         "url": null,
-                             *         "label": "&laquo; Previous",
-                             *         "active": false
-                             *       },
-                             *       {
-                             *         "url": "http://localhost/api/evaluations?page=1",
-                             *         "label": "1",
-                             *         "active": true
-                             *       },
-                             *       {
-                             *         "url": null,
-                             *         "label": "Next &raquo;",
-                             *         "active": false
-                             *       }
-                             *     ]
-                             */
-                            links?: {
-                                /** @example null */
-                                url?: string | null;
-                                /** @example &laquo; Previous */
-                                label?: string;
-                                /** @example false */
-                                active?: boolean;
-                            }[];
-                            /** @example http://localhost/api/evaluations */
-                            path?: string;
-                            /** @example 15 */
-                            per_page?: number;
-                            /** @example 2 */
-                            to?: number;
-                            /** @example 2 */
-                            total?: number;
-                        };
-                    };
-                };
-            };
-        };
-    };
-    createAnEvaluation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    /**
-                     * @description ULID of the offering being evaluated. Must match an existing stored value.
-                     * @example 01M35F5RX4ADGC3CSDXXYB08DA
-                     */
-                    offeringId: string;
-                    /** @example architecto */
-                    status?: string | null;
-                    /**
-                     * @description Brewing/extraction method used (max 60 chars). Must not be greater than 60 characters.
-                     * @example v60
-                     */
-                    extractionMethod?: string | null;
-                    /**
-                     * @description Objective assessment block.
-                     * @example null
-                     */
-                    descriptive: {
-                        /**
-                         * @description Roast level. One of: light, medium_light, medium, medium_dark, dark.
-                         * @example medium
-                         * @enum {string}
-                         */
-                        roastLevel: "light" | "medium_light" | "medium" | "medium_dark" | "dark";
-                        /** @example null */
-                        fragrance?: {
-                            /**
-                             * @description Fragrance intensity (0–15). Must be between 0 and 15.
-                             * @example 11
-                             */
-                            score?: number | null;
-                            /**
-                             * @description Optional free-text note.
-                             * @example null
-                             */
-                            note?: string | null;
-                            /**
-                             * @description Must match an existing stored value.
-                             * @example [
-                             *       "architecto"
-                             *     ]
-                             */
-                            cata?: string[];
-                        } | null;
-                        /** @example null */
-                        aroma?: {
-                            /**
-                             * @description Aroma intensity (0–15). Must be between 0 and 15.
-                             * @example 5
-                             */
-                            score?: number | null;
-                            /**
-                             * @description Optional note.
-                             * @example null
-                             */
-                            note?: string | null;
-                            /**
-                             * @description Must match an existing stored value.
-                             * @example [
-                             *       "architecto"
-                             *     ]
-                             */
-                            cata?: string[];
-                        } | null;
-                        /** @example null */
-                        flavor?: {
-                            /**
-                             * @description Flavor intensity (0–15). Must be between 0 and 15.
-                             * @example 12
-                             */
-                            score?: number | null;
-                            /**
-                             * @description Optional note.
-                             * @example null
-                             */
-                            note?: string | null;
-                            /**
-                             * @description Must match an existing stored value.
-                             * @example [
-                             *       "architecto"
-                             *     ]
-                             */
-                            cata?: string[];
-                        } | null;
-                        /** @example null */
-                        acidity?: {
-                            /**
-                             * @description Acidity intensity (0–15). Must be between 0 and 15.
-                             * @example 12
-                             */
-                            score?: number | null;
-                            /**
-                             * @description Optional note. No cata for acidity.
-                             * @example null
-                             */
-                            note?: string | null;
-                        } | null;
-                        /** @example null */
-                        sweetness?: {
-                            /**
-                             * @description Sweetness intensity (0–15). Must be between 0 and 15.
-                             * @example 6
-                             */
-                            score?: number | null;
-                            /**
-                             * @description Optional note. No cata for sweetness.
-                             * @example null
-                             */
-                            note?: string | null;
-                        } | null;
-                        /** @example null */
-                        mouthfeel?: {
-                            /**
-                             * @description Mouthfeel intensity (0–15). Must be between 0 and 15.
-                             * @example 11
-                             */
-                            score?: number | null;
-                            /**
-                             * @description Optional note.
-                             * @example null
-                             */
-                            note?: string | null;
-                            /**
-                             * @description Must match an existing stored value.
-                             * @example [
-                             *       "architecto"
-                             *     ]
-                             */
-                            cata?: string[];
-                        } | null;
-                        /** @example null */
-                        aftertaste?: {
-                            /**
-                             * @description Aftertaste intensity (0–15). Must be between 0 and 15.
-                             * @example 5
-                             */
-                            score?: number | null;
-                            /**
-                             * @description Optional note.
-                             * @example null
-                             */
-                            note?: string | null;
-                            /**
-                             * @description Must match an existing stored value.
-                             * @example [
-                             *       "architecto"
-                             *     ]
-                             */
-                            cata?: string[];
-                        } | null;
-                        /**
-                         * @description Must match an existing stored value.
-                         * @example [
-                         *       "architecto"
-                         *     ]
-                         */
-                        mainTastes?: string[];
-                    };
-                    /**
-                     * @description Preference assessment block. Scores 1–9.
-                     * @example null
-                     */
-                    affective: {
-                        /** @example [] */
-                        overall?: {
-                            /**
-                             * @description Overall preference (1–9). Must be between 1 and 9.
-                             * @example 8
-                             */
-                            score?: number | null;
-                            /**
-                             * @description Optional note.
-                             * @example Balanced, clean finish.
-                             */
-                            note?: string | null;
-                        };
-                        /** @example [] */
-                        fragrance?: {
-                            /**
-                             * @description Fragrance preference (1–9). Must be between 1 and 9.
-                             * @example 7
-                             */
-                            score?: number | null;
-                            /**
-                             * @description Optional note.
-                             * @example null
-                             */
-                            note?: string | null;
-                        };
-                        /** @example [] */
-                        aroma?: {
-                            /**
-                             * @description Aroma preference (1–9). Must be between 1 and 9.
-                             * @example 7
-                             */
-                            score?: number | null;
-                            /**
-                             * @description Optional note.
-                             * @example null
-                             */
-                            note?: string | null;
-                        };
-                        /** @example [] */
-                        flavor?: {
-                            /**
-                             * @description Flavor preference (1–9). Must be between 1 and 9.
-                             * @example 9
-                             */
-                            score?: number | null;
-                            /**
-                             * @description Optional note.
-                             * @example null
-                             */
-                            note?: string | null;
-                        };
-                        /** @example [] */
-                        aftertaste?: {
-                            /**
-                             * @description Aftertaste preference (1–9). Must be between 1 and 9.
-                             * @example 9
-                             */
-                            score?: number | null;
-                            /**
-                             * @description Optional note.
-                             * @example null
-                             */
-                            note?: string | null;
-                        };
-                        /** @example [] */
-                        acidity?: {
-                            /**
-                             * @description Acidity preference (1–9). Must be between 1 and 9.
-                             * @example 9
-                             */
-                            score?: number | null;
-                            /**
-                             * @description Optional note.
-                             * @example null
-                             */
-                            note?: string | null;
-                        };
-                        /** @example [] */
-                        sweetness?: {
-                            /**
-                             * @description Sweetness preference (1–9). Must be between 1 and 9.
-                             * @example 9
-                             */
-                            score?: number | null;
-                            /**
-                             * @description Optional note.
-                             * @example null
-                             */
-                            note?: string | null;
-                        };
-                        /** @example [] */
-                        mouthfeel?: {
-                            /**
-                             * @description Mouthfeel preference (1–9). Must be between 1 and 9.
-                             * @example 8
-                             */
-                            score?: number | null;
-                            /**
-                             * @description Optional note.
-                             * @example null
-                             */
-                            note?: string | null;
-                        };
-                        /**
-                         * @description Must match an existing stored value.
-                         * @example [
-                         *       "architecto"
-                         *     ]
-                         */
-                        defects?: string[];
-                    };
-                    /** @example null */
-                    extrinsics?: {
-                        /**
-                         * @description Optional farming context.
-                         * @example null
-                         */
-                        farming?: string | null;
-                        /**
-                         * @description Optional processing context.
-                         * @example null
-                         */
-                        processing?: string | null;
-                        /**
-                         * @description Optional trading context.
-                         * @example null
-                         */
-                        trading?: string | null;
-                        /**
-                         * @description Optional certifications.
-                         * @example null
-                         */
-                        certifications?: string | null;
-                        /**
-                         * @description Optional general observation.
-                         * @example null
-                         */
-                        generalObservation?: string | null;
-                    } | null;
-                };
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: {
-                            /** @example 01M35F5RX4ADGC3CSDXXYB08DB */
-                            ulid?: string;
-                            /** @example 01K6A3M8Q2V7XH4T9B5N1RCW0D */
-                            offeringId?: string;
-                            /** @example specialist */
-                            evaluationType?: string;
-                            /** @example open */
-                            status?: string;
-                            /** @example espresso */
-                            extractionMethod?: string;
-                            /** @example null */
-                            cuppingScore?: string | null;
-                            /** @example true */
-                            isDefective?: boolean;
-                            descriptive?: {
-                                fragrance?: {
-                                    /** @example 10 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                aroma?: {
-                                    /** @example 11 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                flavor?: {
-                                    /** @example 0 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                aftertaste?: {
-                                    /** @example 0 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                acidity?: {
-                                    /** @example 9 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                sweetness?: {
-                                    /** @example 10 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                mouthfeel?: {
-                                    /** @example 8 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                            };
-                            affective?: {
-                                fragrance?: {
-                                    /** @example 6 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                aroma?: {
-                                    /** @example 7 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                flavor?: {
-                                    /** @example 0 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                aftertaste?: {
-                                    /** @example 0 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                acidity?: {
-                                    /** @example 6 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                sweetness?: {
-                                    /** @example 7 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                mouthfeel?: {
-                                    /** @example 6 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                                overall?: {
-                                    /** @example 0 */
-                                    score?: number;
-                                    /** @example null */
-                                    note?: string | null;
-                                };
-                            };
-                            extrinsics?: {
-                                /** @example null */
-                                farming?: string | null;
-                                /** @example null */
-                                processing?: string | null;
-                                /** @example null */
-                                trading?: string | null;
-                                /** @example null */
-                                certifications?: string | null;
-                                /** @example null */
-                                generalObservation?: string | null;
-                            };
-                            /**
-                             * @example [
-                             *       {
-                             *         "ref": "01JTAXN0DE000000000000000B",
-                             *         "type": "defects"
-                             *       },
-                             *       {
-                             *         "ref": "01JTAXN0DE0000000000000009",
-                             *         "type": "main_tastes"
-                             *       }
-                             *     ]
-                             */
-                            tastes?: {
-                                /** @example 01JTAXN0DE000000000000000B */
-                                ref?: string;
-                                /** @example defects */
-                                type?: string;
-                            }[];
-                            /** @example 2026-10-06T09:12:45.000000Z */
-                            createdAt?: string;
-                            /** @example null */
-                            closedAt?: string | null;
-                        };
-                        /** @example Evaluation created. */
                         message?: string;
                     };
                 };
