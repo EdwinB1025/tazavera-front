@@ -22,7 +22,7 @@
 ## 5. Search only for typed text (filtering)
 
 - [x] 5.1 Extend the search-mode block of `src/shared/ui/Combobox.test.tsx` with fake timers and a search mock (spec filtering "Combobox", scenario "No search for the combobox's own label"; design.md D3): (1) rendering with `value` `{ value: "1", label: "Café Uno" }` and advancing 1000 ms makes no call; (2) with no value, typing "caf", advancing 300 ms, resolving with Café Uno and Café Dos, choosing Café Uno with ArrowDown and Enter, then advancing 1000 ms leaves the mock called exactly once, with "caf"; (3) with `value` Café Uno, typing "zz", pressing Escape at once and advancing 1000 ms makes no call; (4) after case (3), typing "ca" and advancing 300 ms makes one call with "ca" (typed text still searches). The existing search-mode cases stay unchanged. Verifying `npm run test:run` runs the file, only cases (1)–(3) fail, and every other case passes
-- [ ] 5.2 Implement design.md D3 in `src/shared/ui/Combobox.tsx`, leaving `src/shared/ui/use-combobox-search.ts` and its tests unchanged — verifying the cases of 5.1 pass, `git diff --stat develop -- src/shared/ui/use-combobox-search.ts src/shared/ui/use-combobox-search.test.ts` is empty, and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0
+- [x] 5.2 Implement design.md D3 in `src/shared/ui/Combobox.tsx`, leaving `src/shared/ui/use-combobox-search.ts` and its tests unchanged — verifying the cases of 5.1 pass, `git diff --stat develop -- src/shared/ui/use-combobox-search.ts src/shared/ui/use-combobox-search.test.ts` is empty, and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0
 
 ## 6. Integration verification
 
