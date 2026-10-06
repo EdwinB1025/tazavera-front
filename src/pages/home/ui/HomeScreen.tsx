@@ -1,5 +1,4 @@
 import { Suspense, type ReactNode } from "react";
-import type { Session } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
 import { PageSection } from "@/shared/ui";
 import {
@@ -19,12 +18,6 @@ export type HomeScreenProps = {
   page?: string | string[];
 };
 
-// The session supply expression (design.md D10, the `add-app-shell` D3
-// pattern): one anonymous `Session` constant, at this single expression,
-// until `add-auth` can produce a live session — so the Evaluate link stays
-// hidden in this change.
-const ANONYMOUS_SESSION: Session = { state: "anonymous" };
-
 // Placeholder cards rendered while the list loads (spec "Loading"): several,
 // standing in for a page of offering cards (design.md D9).
 const SKELETON_CARD_KEYS = [0, 1, 2] as const;
@@ -35,7 +28,7 @@ const SKELETON_CARD_KEYS = [0, 1, 2] as const;
  * catalog for the route's locale through the area reader of `add-app-shell`
  * (design.md D11), composes the hero with every text as a prop, and wraps the
  * verified-offerings block in a `Suspense` boundary whose fallback is the
- * skeleton cards (design.md D9), passing the session, the locale and the
+ * skeleton cards (design.md D9), passing the locale and the
  * requested page down at one expression each.
  */
 export function HomeScreen({ locale, page }: HomeScreenProps): ReactNode {
@@ -93,7 +86,6 @@ export function HomeScreen({ locale, page }: HomeScreenProps): ReactNode {
           <VerifiedOfferings
             locale={locale}
             page={currentPage}
-            session={ANONYMOUS_SESSION}
             texts={listTexts}
           />
         </Suspense>

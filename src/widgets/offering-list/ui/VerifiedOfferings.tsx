@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import type { Session } from "@/shared/api";
 import { buildTaxonomyLookup, fetchTaxonomies } from "@/entities/taxonomy";
 import { fetchVerifiedOfferings } from "../api/offerings";
 import { resolveTaxonomies } from "../lib/resolve-taxonomies";
@@ -15,7 +14,6 @@ import type {
 export type VerifiedOfferingsProps = {
   locale: string;
   page: number;
-  session: Session;
   texts: OfferingListTexts;
 };
 
@@ -31,7 +29,6 @@ export type VerifiedOfferingsProps = {
 export async function VerifiedOfferings({
   locale,
   page,
-  session,
   texts,
 }: VerifiedOfferingsProps): Promise<ReactNode> {
   let result: OfferingListResult;
@@ -52,6 +49,6 @@ export async function VerifiedOfferings({
   }
 
   return (
-    <OfferingList result={result} locale={locale} session={session} texts={texts} />
+    <OfferingList result={result} locale={locale} texts={texts} />
   );
 }
