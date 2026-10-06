@@ -1,0 +1,18 @@
+{
+  "listHeading": "My evaluations",
+  "statusOpen": "Open",
+  "statusClosed": "Closed",
+  "createdOnLabel": "Created on",
+  "closedOnLabel": "Closed on",
+  "coffeeshopCaption": "Coffeeshop:",
+  "roasterCaption": "Roaster:",
+  "editLabel": "Edit",
+  "viewLabel": "View",
+  "previousLabel": "Previous",
+  "nextLabel": "Next",
+  "listEmptyMessage": "You have no evaluations yet.",
+  "listLoadErrorMessage": "Your evaluations could not be loaded.",
+  "retryLabel": "Retry",
+  "accessMessage": "Sign in with your specialist account to manage your evaluations.",
+  "signInLabel": "Sign in"
+}

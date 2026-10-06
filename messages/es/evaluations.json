@@ -1,0 +1,18 @@
+{
+  "listHeading": "Mis evaluaciones",
+  "statusOpen": "Abierta",
+  "statusClosed": "Cerrada",
+  "createdOnLabel": "Creada el",
+  "closedOnLabel": "Cerrada el",
+  "coffeeshopCaption": "Cafetería:",
+  "roasterCaption": "Tostador:",
+  "editLabel": "Editar",
+  "viewLabel": "Ver",
+  "previousLabel": "Anterior",
+  "nextLabel": "Siguiente",
+  "listEmptyMessage": "Todavía no tienes evaluaciones.",
+  "listLoadErrorMessage": "No se han podido cargar tus evaluaciones.",
+  "retryLabel": "Reintentar",
+  "accessMessage": "Inicia sesión con tu cuenta de especialista para gestionar tus evaluaciones.",
+  "signInLabel": "Iniciar sesión"
+}

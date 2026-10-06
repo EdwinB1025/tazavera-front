@@ -1,0 +1,18 @@
+{
+  "listHeading": "Les meves avaluacions",
+  "statusOpen": "Oberta",
+  "statusClosed": "Tancada",
+  "createdOnLabel": "Creada el",
+  "closedOnLabel": "Tancada el",
+  "coffeeshopCaption": "Cafeteria:",
+  "roasterCaption": "Torrador:",
+  "editLabel": "Editar",
+  "viewLabel": "Veure",
+  "previousLabel": "Anterior",
+  "nextLabel": "Següent",
+  "listEmptyMessage": "Encara no tens avaluacions.",
+  "listLoadErrorMessage": "No s'han pogut carregar les teves avaluacions.",
+  "retryLabel": "Tornar-ho a provar",
+  "accessMessage": "Inicia la sessió amb el teu compte d'especialista per gestionar les teves avaluacions.",
+  "signInLabel": "Iniciar sessió"
+}
