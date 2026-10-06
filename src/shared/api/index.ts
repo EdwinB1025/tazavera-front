@@ -51,3 +51,39 @@ export type TaxonomyNode = NonNullable<ListTaxonomiesResponse["data"]>[number];
 export type TaxonomiesPayload = {
   data: TaxonomyNode[];
 };
+
+type ListMyEvaluationsResponse =
+  operations["listMyEvaluations"]["responses"][200]["content"]["application/json"];
+type GetAnOfferingResponse =
+  operations["getAnOffering"]["responses"][200]["content"]["application/json"];
+
+/**
+ * One item of `GET /user/evaluations` `data`. The `data` of `getMyEvaluation`,
+ * `createAnEvaluation` and `updateAnEvaluation` has the same shape and reuses it.
+ */
+export type EvaluationItem = NonNullable<ListMyEvaluationsResponse["data"]>[number];
+
+/** `meta` of `GET /user/evaluations`: `current_page`, `last_page`, `per_page`, `total`. */
+export type EvaluationPageMeta = NonNullable<ListMyEvaluationsResponse["meta"]>;
+
+/** The `descriptive` block of an evaluation: per-axis `{score, note}`. */
+export type EvaluationDescriptive = NonNullable<EvaluationItem["descriptive"]>;
+
+/** The `affective` block of an evaluation: per-axis `{score, note}`, `overall` included. */
+export type EvaluationAffective = NonNullable<EvaluationItem["affective"]>;
+
+/** The `extrinsics` block of an evaluation; the form writes `generalObservation` only. */
+export type EvaluationExtrinsics = NonNullable<EvaluationItem["extrinsics"]>;
+
+/** One item of an evaluation's `tastes`: `{ref, type}`. */
+export type EvaluationTaste = NonNullable<EvaluationItem["tastes"]>[number];
+
+/** The request body of `POST /user/evaluations`. */
+export type EvaluationCreateBody =
+  operations["createAnEvaluation"]["requestBody"]["content"]["application/json"];
+
+/** The request body of `PUT /user/evaluations/{evaluation_ulid}`: the create body without `offeringId`. */
+export type EvaluationUpdateBody = Omit<EvaluationCreateBody, "offeringId">;
+
+/** `data` of `GET /offerings/{offering_ulid}`. */
+export type OfferingDetail = NonNullable<GetAnOfferingResponse["data"]>;
