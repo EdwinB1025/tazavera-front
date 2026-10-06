@@ -77,7 +77,7 @@ Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, 
 
 ## Cobertura del contrato
 
-Las 26 operaciones de `contracts/openapi.yaml` (`develop`, contrato `84e29fe`) y el cambio que las consume (actualizado el 6 oct, 17:45). Tres operaciones públicas de evaluaciones quedan fuera del alcance por decisión de Product owner (registro, "evaluaciones públicas fuera del alcance").
+Las 26 operaciones de `contracts/openapi.yaml` (`develop`, contrato `84e29fe`) y el cambio que las consume (actualizado el 6 oct, 20:00). `listTheEvaluationsOfAUser` queda fuera del alcance; `listEvaluations` y `getAnEvaluation` vuelven al alcance (registro, "evaluaciones públicas y evaluación provisional").
 
 | `operationId` | Cambio | Estado del cambio |
 |---|---|---|
@@ -90,6 +90,7 @@ Las 26 operaciones de `contracts/openapi.yaml` (`develop`, contrato `84e29fe`) y
 | `getAnOffering` | `add-offering-catalog` (detalle); `add-specialist-evaluations` (datos de cada fila) | Propose |
 | `createOfferings`, `deleteAnOffering`, `deleteMultipleOfferings`, `listMyLocations`, `listCoffeeInventory` | `add-offering-management` | Propose |
 | `listCoffees`, `listRoasteries` | `add-offering-facets` (opciones de las facetas; tostador con búsqueda) | Propose |
-| `listEvaluations`, `getAnEvaluation`, `listTheEvaluationsOfAUser` | — fuera del alcance (Product owner, 6 oct) | — |
+| `listEvaluations`, `getAnEvaluation` | `add-public-evaluations` (se recupera: lista pública con filtro de oferta, botón "Ver evaluaciones" del detalle); pestaña "Evaluación provisional" (`evaluationType=baseline`, filtros nuevos del API) | Resumen pendiente |
+| `listTheEvaluationsOfAUser` | — fuera del alcance (Product owner, 6 oct) | — |
 
-No queda ninguna operación del alcance sin cambio asignado.
+`listEvaluations` y `getAnEvaluation` tienen cambio asignado (`add-public-evaluations`), pero aún les falta el resumen de diseño.
