@@ -36,7 +36,7 @@ vi.mock("next/navigation", () => ({
   notFound: mocks.notFound,
 }));
 
-import { ManageOfferingsPanel, type ManageOfferingsTexts } from "./ManageOfferingsPanel";
+import { ManageOfferingsPanel } from "./ManageOfferingsPanel";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
@@ -49,7 +49,9 @@ afterEach(() => {
  * exists (task 3.1).
  */
 
-const TEXTS: ManageOfferingsTexts = {
+// Typed by the panel's props where it is passed, so a key the panel does not
+// read yet is no type error.
+const TEXTS = {
   coffeeshopCaption: "Coffeeshop:",
   roasterCaption: "Roaster:",
   evaluationsLabel: "Evaluations:",
@@ -72,6 +74,11 @@ const TEXTS: ManageOfferingsTexts = {
   retryLabel: "Retry",
   signedOutMessage: "Sign in to manage your offerings.",
   signInLabel: "Sign in",
+  selectAllLabel: "Select all on this page",
+  selectedCount: "Selected:",
+  selectLabel: "Select",
+  deleteLabel: "Delete",
+  deleteSelectedLabel: "Delete selected",
 };
 
 const COFFEESHOP: Session = {
@@ -294,5 +301,118 @@ describe("ManageOfferingsPanel — list states (spec 'My offerings list')", () =
       expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(2),
     );
     expect(mocks.publicRequest).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("ManageOfferingsPanel — selection (spec 'Offering selection')", () => {
+  const SELECT_A = "Select Huila El Mirador — Tazavera Gràcia";
+  const SELECT_B = "Select Sidama Bensa — Tazavera Born";
+
+  function checkbox(name: string): HTMLInputElement {
+    return screen.getByRole("checkbox", { name }) as HTMLInputElement;
+  }
+
+  async function loaded(page = 1) {
+    mocks.publicRequest.mockResolvedValue(pageOf(ITEMS, page, 2));
+    const view = renderPanel(page);
+    await screen.findAllByRole("heading", { level: 3 });
+    return view;
+  }
+
+  it("fills every card's actions with its Select and Delete", async () => {
+    await loaded();
+
+    expect(checkbox(SELECT_A)).toBeTruthy();
+    expect(checkbox(SELECT_B)).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Delete Huila El Mirador — Tazavera Gràcia" }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Delete Sidama Bensa — Tazavera Born" }),
+    ).toBeTruthy();
+  });
+
+  it("renders the toolbar in the success state: select all, the count and the bulk delete, laid out in one wrapping row", async () => {
+    await loaded();
+
+    const selectAll = checkbox(TEXTS.selectAllLabel);
+    const count = screen.getByText("Selected: 0");
+    const bulk = screen.getByRole("button", { name: TEXTS.deleteSelectedLabel });
+    expect(count.className).toBe("type-meta");
+    const toolbar = count.parentElement!;
+    expect(toolbar.className).toBe("flex flex-wrap items-center gap-4");
+    expect(toolbar.contains(selectAll)).toBe(true);
+    expect(toolbar.lastElementChild!.contains(bulk)).toBe(true);
+    expect(bulk.className).toContain("md:ml-auto");
+  });
+
+  it("renders no toolbar while loading, on empty and on error", async () => {
+    mocks.publicRequest.mockResolvedValue(pageOf([]));
+    renderPanel();
+    await screen.findByText(TEXTS.listEmptyMessage);
+
+    expect(screen.queryByRole("checkbox", { name: TEXTS.selectAllLabel })).toBeNull();
+    expect(screen.queryByRole("button", { name: TEXTS.deleteSelectedLabel })).toBeNull();
+  });
+
+  it("toggles only the activated card and updates the count", async () => {
+    await loaded();
+
+    fireEvent.click(checkbox(SELECT_A));
+
+    expect(checkbox(SELECT_A).checked).toBe(true);
+    expect(checkbox(SELECT_B).checked).toBe(false);
+    expect(screen.getByText("Selected: 1")).toBeTruthy();
+    fireEvent.click(checkbox(SELECT_A));
+    expect(checkbox(SELECT_A).checked).toBe(false);
+    expect(screen.getByText("Selected: 0")).toBeTruthy();
+  });
+
+  it("reads select all unchecked at none selected and checked at a full page selection", async () => {
+    await loaded();
+
+    expect(checkbox(TEXTS.selectAllLabel).checked).toBe(false);
+    fireEvent.click(checkbox(SELECT_A));
+    expect(checkbox(TEXTS.selectAllLabel).checked).toBe(false);
+    fireEvent.click(checkbox(SELECT_B));
+    expect(checkbox(TEXTS.selectAllLabel).checked).toBe(true);
+  });
+
+  it("selects the whole page from a partial selection and clears it from a full one", async () => {
+    await loaded();
+
+    fireEvent.click(checkbox(SELECT_A));
+    fireEvent.click(checkbox(TEXTS.selectAllLabel));
+    expect(checkbox(SELECT_A).checked).toBe(true);
+    expect(checkbox(SELECT_B).checked).toBe(true);
+    expect(screen.getByText("Selected: 2")).toBeTruthy();
+
+    fireEvent.click(checkbox(TEXTS.selectAllLabel));
+    expect(checkbox(SELECT_A).checked).toBe(false);
+    expect(checkbox(SELECT_B).checked).toBe(false);
+    expect(screen.getByText("Selected: 0")).toBeTruthy();
+  });
+
+  it("disables the bulk delete at zero selected", async () => {
+    await loaded();
+
+    const bulk = () =>
+      screen.getByRole("button", { name: TEXTS.deleteSelectedLabel }) as HTMLButtonElement;
+    expect(bulk().disabled).toBe(true);
+    fireEvent.click(checkbox(SELECT_A));
+    expect(bulk().disabled).toBe(false);
+  });
+
+  it("clears the selection and resets the count on a page change", async () => {
+    const view = await loaded(1);
+    fireEvent.click(checkbox(SELECT_A));
+    expect(screen.getByText("Selected: 1")).toBeTruthy();
+
+    mocks.publicRequest.mockResolvedValue(pageOf(ITEMS, 2, 2));
+    view.rerender(
+      <ManageOfferingsPanel locale="en" page={2} taxonomies={[]} texts={TEXTS} />,
+    );
+    await screen.findByText("Selected: 0");
+    expect(checkbox(SELECT_A).checked).toBe(false);
   });
 });
