@@ -41,6 +41,10 @@ const TEXTS = {
   evaluateLabel: "texts.evaluateLabel",
   verifiedLabel: "texts.verifiedLabel",
   provisionalLabel: "texts.provisionalLabel",
+  ratingExceptionalLabel: "texts.ratingExceptionalLabel",
+  ratingExcellentLabel: "texts.ratingExcellentLabel",
+  ratingGoodLabel: "texts.ratingGoodLabel",
+  ratingCommercialLabel: "texts.ratingCommercialLabel",
 };
 
 // ─── Session fixtures (design.md D8: the session arrives as a prop and gates
@@ -108,6 +112,14 @@ const OFFERING_NULL_REGION = {
     roastery: { name: "Nomada" },
   },
 } as unknown as OfferingSummary;
+
+// ─── One offering fixture per score range (spec: 'Score and rating tier';
+// label-rating-badge design.md D1: one word per tier) ────────────────────────
+
+const OFFERING_EXCEPTIONAL: OfferingSummary = { ...OFFERING, cuppingAvg: "95" };
+const OFFERING_EXCELLENT: OfferingSummary = { ...OFFERING, cuppingAvg: "87" };
+const OFFERING_GOOD: OfferingSummary = { ...OFFERING, cuppingAvg: "82" };
+const OFFERING_COMMERCIAL: OfferingSummary = { ...OFFERING, cuppingAvg: "75" };
 
 /** The class tokens of an element, as exact names (no substring matching). */
 function classTokens(element: Element): string[] {
@@ -184,6 +196,50 @@ describe("OfferingCard", () => {
           "bg-evaluation-rating-good",
         ),
       ).toBe(true);
+    });
+
+    // The badge's text is the word of the tier, not the score (label-rating-badge
+    // design.md D1, D2). Each case pins one range's word as exactly that tier's
+    // `texts` field on that range's treatment, so the badge showing the score
+    // or another tier's word fails.
+    it("carries the exceptional word on the exceptional badge at 90 or above", () => {
+      const { container } = renderCard({ offering: OFFERING_EXCEPTIONAL });
+      const badges = ratingBadges(container);
+      expect(badges).toHaveLength(1);
+      expect(
+        classTokens(badges[0]).includes("bg-evaluation-rating-exceptional"),
+      ).toBe(true);
+      expect(badges[0].textContent).toBe(TEXTS.ratingExceptionalLabel);
+    });
+
+    it("carries the excellent word on the excellent badge from 85 to below 90", () => {
+      const { container } = renderCard({ offering: OFFERING_EXCELLENT });
+      const badges = ratingBadges(container);
+      expect(badges).toHaveLength(1);
+      expect(
+        classTokens(badges[0]).includes("bg-evaluation-rating-excellent"),
+      ).toBe(true);
+      expect(badges[0].textContent).toBe(TEXTS.ratingExcellentLabel);
+    });
+
+    it("carries the good word on the good badge from 80 to below 85", () => {
+      const { container } = renderCard({ offering: OFFERING_GOOD });
+      const badges = ratingBadges(container);
+      expect(badges).toHaveLength(1);
+      expect(
+        classTokens(badges[0]).includes("bg-evaluation-rating-good"),
+      ).toBe(true);
+      expect(badges[0].textContent).toBe(TEXTS.ratingGoodLabel);
+    });
+
+    it("carries the commercial word on the commercial badge below 80", () => {
+      const { container } = renderCard({ offering: OFFERING_COMMERCIAL });
+      const badges = ratingBadges(container);
+      expect(badges).toHaveLength(1);
+      expect(
+        classTokens(badges[0]).includes("bg-evaluation-rating-commercial"),
+      ).toBe(true);
+      expect(badges[0].textContent).toBe(TEXTS.ratingCommercialLabel);
     });
   });
 
@@ -342,22 +398,36 @@ describe("OfferingCard", () => {
 
   describe("Texts (design.md D11)", () => {
     it("renders every label and caption from the texts props", () => {
-      // One status label per card state (specs/feedback "Verification status
-      // badge"): the verified card renders every text but the provisional
-      // label, and the provisional card renders that one — the union of both
-      // cards covers all eight texts, so the case fails whenever a text is
-      // never rendered. Both cards carry the specialist session so the
-      // Evaluate label renders on each of them.
-      const { container: verifiedCard } = renderCard({ session: SPECIALIST });
+      // The per-tier rule (label-rating-badge design.md D1): one card per
+      // score range (90 or above, 85 to below 90, 80 to below 85, below 80)
+      // plus the provisional card, all on the specialist session so the
+      // Evaluate label renders on each. Their union must cover all twelve
+      // texts — the eight labels and captions plus the four tier words — so
+      // the case fails whenever any of the twelve is never rendered.
+      const { container: exceptionalCard } = renderCard({
+        offering: OFFERING_EXCEPTIONAL,
+      });
+      const { container: excellentCard } = renderCard({
+        offering: OFFERING_EXCELLENT,
+      });
+      const { container: goodCard } = renderCard({ offering: OFFERING_GOOD });
+      const { container: commercialCard } = renderCard({
+        offering: OFFERING_COMMERCIAL,
+      });
       const { container: provisionalCard } = renderCard({
         session: SPECIALIST,
-        offering: { ...OFFERING, verificationStatus: "provisional" },
+        offering: { ...OFFERING_GOOD, verificationStatus: "provisional" },
       });
-      const verifiedRendered = verifiedCard.textContent ?? "";
-      const provisionalRendered = provisionalCard.textContent ?? "";
-      for (const [key, text] of Object.entries(TEXTS)) {
-        const rendered =
-          key === "provisionalLabel" ? provisionalRendered : verifiedRendered;
+      const rendered = [
+        exceptionalCard,
+        excellentCard,
+        goodCard,
+        commercialCard,
+        provisionalCard,
+      ]
+        .map((card) => card.textContent ?? "")
+        .join("\n");
+      for (const text of Object.values(TEXTS)) {
         expect(rendered.includes(text), text).toBe(true);
       }
     });
