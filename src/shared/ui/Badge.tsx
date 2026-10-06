@@ -41,16 +41,14 @@ const VARIANT_CLASSES: Record<BadgeVariant, string[]> = {
   taxonomy: [],
 };
 
-const BASE_CLASSES = [
-  "type-badge",
-  "rounded-field",
-  // Icon and label on one row, padded (design.md D14).
-  "inline-flex",
-  "items-center",
-  "gap-1",
-  "px-2",
-  "py-0.5",
-].join(" ");
+/**
+ * The badge's geometry — text treatment, field radius and the icon/label row
+ * with its gap and padding (design.md D14) — as the one exported definition
+ * other compact chips reuse (design.md D1). The token order is the one
+ * `Badge.test.tsx` pins.
+ */
+export const BADGE_GEOMETRY_CLASSES =
+  "type-badge rounded-field inline-flex items-center gap-1 px-2 py-0.5";
 
 // ─── Taxonomy data colors (design.md D7) ───
 // The two inline colors of this variant are the only inline colors under
@@ -162,7 +160,7 @@ export function Badge({
     <span
       {...rest}
       className={cn(
-        BASE_CLASSES,
+        BADGE_GEOMETRY_CLASSES,
         VARIANT_CLASSES[variant].join(" "),
         className,
       )}
