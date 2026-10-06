@@ -145,6 +145,7 @@ Summary: Product owner and the orchestrator went through the Open list. The answ
 - Product owner's answer to `add-evaluation-scales` Open 4 (show and send 0).
 
 ### Deferred to Product owner
+#### Q9 — ANSWERED 2026-10-06: no captures or mock-up for the form or the list; Product owner verifies both in the browser (§11 rewritten, uncommitted)
 #### Q9 — Point 12: form visual reference
 - Question: the form follows the CVA Combined Form, not the MVC per-axis layout, but §11 asks for MVC captures of the form.
 - Recommendation: MVC captures for the list; a CVA mock-up (375/1280) by the design lead as the form's reference; the MVC form only for spacing values.
