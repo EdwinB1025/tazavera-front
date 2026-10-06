@@ -1,5 +1,11 @@
 import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import {
+  render,
+  screen,
+  cleanup,
+  fireEvent,
+  waitFor,
+} from "@testing-library/react";
 import type { ReactNode } from "react";
 import type { Session } from "@/shared/api";
 import { SidebarProvider, SIDEBAR_ID } from "@/shared/ui";
@@ -101,7 +107,7 @@ describe("SidebarReopenControl (spec: Sidebar re-open control)", () => {
     expect(document.activeElement).toBe(buttons[0]);
   });
 
-  it("opens the overlay below md and gets focus back on dismissal (spec: Opening on a small viewport)", () => {
+  it("opens the overlay below md and gets focus back on dismissal (spec: Opening on a small viewport)", async () => {
     mobile = true;
     renderControl(<AppSidebar />);
     expect(screen.queryByRole("dialog")).toBeNull();
@@ -112,8 +118,11 @@ describe("SidebarReopenControl (spec: Sidebar re-open control)", () => {
     const dialog = screen.getByRole("dialog");
     fireEvent.keyDown(dialog, { key: "Escape" });
     expect(screen.queryByRole("dialog")).toBeNull();
-    expect(document.activeElement).toBe(
-      screen.getByRole("button", { name: TOGGLE }),
+    // the dialog returns focus once it has unmounted (Radix, asynchronously)
+    await waitFor(() =>
+      expect(document.activeElement).toBe(
+        screen.getByRole("button", { name: TOGGLE }),
+      ),
     );
   });
 });

@@ -122,13 +122,30 @@ function Sidebar({
 }: React.ComponentProps<"aside"> & { label?: string }) {
   const { open, setOpen, isMobile, register } = useSidebar();
 
+  // The control that opened the sheet sits outside it, so the sheet returns
+  // focus to whatever held it on opening (design.md D6: dismissing returns
+  // focus to the re-open control).
+  const returnFocusRef = React.useRef<HTMLElement | null>(null);
+
   // Presence (design.md D3): registered whatever this renders below.
   React.useEffect(() => register(), [register]);
 
   if (isMobile) {
     return (
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent id={SIDEBAR_ID} side="left" className="w-full p-0">
+        <SheetContent
+          id={SIDEBAR_ID}
+          side="left"
+          className="w-full p-0"
+          onOpenAutoFocus={() => {
+            returnFocusRef.current = document.activeElement as HTMLElement | null;
+          }}
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            returnFocusRef.current?.focus();
+            returnFocusRef.current = null;
+          }}
+        >
           <SheetHeader className="sr-only">
             <SheetTitle>{label}</SheetTitle>
           </SheetHeader>

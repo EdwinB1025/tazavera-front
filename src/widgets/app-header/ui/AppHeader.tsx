@@ -92,10 +92,12 @@ export function AppHeader({
   onSignOut,
   onLocaleChange,
   currentPath,
+  leading,
 }: AppHeaderProps): ReactNode {
   return (
     <header className={HEADER_CLASSES}>
       <div className={LEFT_GROUP_CLASSES}>
+        {leading}
         <span className="md:hidden">
           <Logo
             variant="icon"

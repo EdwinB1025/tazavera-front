@@ -5,7 +5,11 @@ import type { Session } from "@/shared/api";
 import { LOCALES } from "@/shared/config/locales";
 import { useSession } from "@/features/auth";
 import { SidebarProvider } from "@/shared/ui";
-import { AppSidebarProvider, DefaultSidebar } from "@/widgets/app-sidebar";
+import {
+  AppSidebarProvider,
+  DefaultSidebar,
+  SidebarReopenControl,
+} from "@/widgets/app-sidebar";
 import type { AppHeaderTexts } from "@/widgets/app-header";
 import { ShellChrome } from "./ShellChrome";
 
@@ -61,6 +65,7 @@ export function SessionShell({
           locale={locale}
           locales={[...LOCALES]}
           texts={texts}
+          leading={<SidebarReopenControl />}
         />
         <main className={MAIN_CLASSES}>
           <div className={SIDEBAR_COLUMN_CLASSES}>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import {
@@ -7,8 +8,9 @@ import {
   SidebarContent,
   SidebarHeader,
   SidebarTrigger,
+  useSidebar,
 } from "@/shared/ui";
-import { useAppSidebar } from "./AppSidebarContext";
+import { useAppSidebar, useFocusIntent } from "./AppSidebarContext";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -34,14 +36,31 @@ export const MANAGE_ROUTE = /^\/[^/]+\/manage(\/|$)/;
  */
 export function AppSidebar({ entries, children }: AppSidebarProps): ReactNode {
   const { session, entries: roleEntries, toggleLabel } = useAppSidebar();
+  const { isMobile, open, toggleSidebar } = useSidebar();
+  const focusIntentRef = useFocusIntent();
+  const headerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+
+  // Re-opened from the header's control: focus moves to the collapse control
+  // (design.md D6; spec "Re-opening the sidebar").
+  useEffect(() => {
+    if (open && focusIntentRef.current === "collapse") {
+      focusIntentRef.current = null;
+      headerRef.current?.querySelector("button")?.focus();
+    }
+  }, [open, focusIntentRef]);
+
+  const handleToggle = () => {
+    if (!isMobile) focusIntentRef.current = "reopen";
+    toggleSidebar();
+  };
   const managing =
     session.state === "authenticated" && MANAGE_ROUTE.test(pathname ?? "");
 
   return (
     <Sidebar label={toggleLabel}>
-      <SidebarHeader>
-        <SidebarTrigger aria-label={toggleLabel} />
+      <SidebarHeader ref={headerRef}>
+        <SidebarTrigger aria-label={toggleLabel} onClick={handleToggle} />
       </SidebarHeader>
       <SidebarContent>
         {(managing || entries) && (
