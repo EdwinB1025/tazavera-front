@@ -164,6 +164,49 @@ function SegmentLabel({
 }
 
 /**
+ * The name of an active note whose label cannot fit even arched (design.md
+ * D5): the name alone on a half-circle centred on the segment's mid-angle,
+ * in the primary text colour over a halo of the card colour, since it
+ * overflows onto the neighbouring segments. Drawn last; nothing for a label
+ * that fits.
+ */
+function ActiveName({
+  segment,
+  legend,
+  idPrefix,
+}: {
+  segment: WheelSegment<FlavorWheelNode>;
+  legend: string;
+  idPrefix: string;
+}): ReactNode {
+  if (fitLabel(segment, segment.node.name, legend) !== "active") return null;
+  const id = `${idPrefix}-active-name`;
+  const mid = (segment.start + segment.end) / 2;
+  return (
+    <>
+      <path
+        id={id}
+        d={labelPath(labelRadius(segment, 0), mid - 90, mid + 90)}
+        fill="none"
+      />
+      <text
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontSize={labelFontSize(segment.ring)}
+        strokeWidth={4}
+        paintOrder="stroke"
+        strokeLinejoin="round"
+        className="pointer-events-none select-none fill-text-primary stroke-surface-card"
+      >
+        <textPath href={`#${id}`} startOffset="50%">
+          {segment.node.name}
+        </textPath>
+      </text>
+    </>
+  );
+}
+
+/**
  * Interactive flavor wheel (the `feedback` spec: "Flavor wheel", "Flavor wheel
  * note list"). An in-house SVG sunburst of the notes, a fixed description
  * panel and a flat tree of note rows, which is the wheel's accessible
@@ -343,6 +386,13 @@ export function FlavorWheel({
                 )}
                 className="pointer-events-none fill-none stroke-text-primary"
                 strokeWidth={3}
+              />
+            ) : null}
+            {activeSegment ? (
+              <ActiveName
+                segment={activeSegment}
+                legend={legend(activeSegment.node)}
+                idPrefix={idPrefix}
               />
             ) : null}
           </svg>

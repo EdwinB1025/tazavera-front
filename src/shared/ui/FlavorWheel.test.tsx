@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup, act } from "@testing-library/react";
 import { FlavorWheel } from "./FlavorWheel";
 import type { FlavorWheelNode, FlavorWheelProps } from "./FlavorWheel";
 import { taxonomyColorRule } from "./taxonomy-color";
@@ -655,7 +655,8 @@ describe("FlavorWheel — name shown while active", () => {
 
   it("shows the name when the row is focused or clicked", () => {
     const { container } = renderWheel({ nodes: NARROW });
-    row("Floral").focus();
+    // Wrapped in act so the focus handler's state update flushes.
+    act(() => row("Floral").focus());
     expect(activeName(container)?.textContent).toBe("Floral");
     fireEvent.pointerEnter(segment(container, "fruity")!);
     fireEvent.click(row("Floral"));
