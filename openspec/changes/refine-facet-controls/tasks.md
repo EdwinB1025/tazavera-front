@@ -2,11 +2,11 @@
 
 ## 1. Types
 
-- [ ] 1.1 Confirm this change derives no type from the generated API types and adds no UI-specific type (design.md "Types") — verifying `git diff --stat develop -- src/shared/api/ contracts/` is empty at the end of the change; this task changes no files and is checked off in the commit of task 2.1
+- [x] 1.1 Confirm this change derives no type from the generated API types and adds no UI-specific type (design.md "Types") — verifying `git diff --stat develop -- src/shared/api/ contracts/` is empty at the end of the change; this task changes no files and is checked off in the commit of task 2.1
 
 ## 2. Help alignment under the cascade facet (filtering)
 
-- [ ] 2.1 Extend `src/shared/ui/FacetCascade.test.tsx` (spec filtering "Facet rows", scenario "Help aligned with the legend"; design.md D1): with help "Options unavailable", the help paragraph's class list is exactly `type-meta`, `mt-1`, `px-3`, and `FACET_MESSAGE_CLASSES` imported from `@/shared/ui/facet-row` equals `"px-3"`. No existing assertion changes. Verifying `npm run test:run` runs the file, the new case fails because the constant and the padding do not exist yet (a typecheck error for the missing export is allowed), and every other case passes
+- [x] 2.1 Extend `src/shared/ui/FacetCascade.test.tsx` (spec filtering "Facet rows", scenario "Help aligned with the legend"; design.md D1): with help "Options unavailable", the help paragraph's class list is exactly `type-meta`, `mt-1`, `px-3`, and `FACET_MESSAGE_CLASSES` imported from `@/shared/ui/facet-row` equals `"px-3"`. No existing assertion changes. Verifying `npm run test:run` runs the file, the new case fails because the constant and the padding do not exist yet (a typecheck error for the missing export is allowed), and every other case passes
 - [ ] 2.2 Add `FACET_MESSAGE_CLASSES` to `src/shared/ui/facet-row.ts` and apply it to the help paragraph of `src/shared/ui/FacetCascade.tsx` (design.md D1) — verifying the cases of 2.1 pass, `src/shared/ui/facet-disabled.test.tsx`, `color-guard`, `radius-guard` and `focus-guard` pass, and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0
 
 ## 3. Help and error alignment in the facet-row presentation (form-fields)
