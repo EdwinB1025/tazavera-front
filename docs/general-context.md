@@ -325,3 +325,17 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Datos de ejemplo:** `migrate:fresh --seed` recrea el cliente OAuth del front, así que hay que actualizar `NEXT_PUBLIC_OAUTH_CLIENT_ID` en cada `.env.local` después de sembrar.
 - **Por qué:** respuestas de Product owner del 6 oct.
 - **Afecta:** add-public-evaluations, add-offering-catalog (pestaña provisional y botón), toda prueba en navegador con datos (ahora hay ofertas verificadas).
+
+### 2026-10-06 — add-public-evaluations aprobado y piezas compartidas (decidido por el orquestador en ausencia de Product owner)
+- **Decisión:**
+  - **Resumen de `add-public-evaluations` aprobado** con todas las recomendaciones del design lead:
+    - el botón "Ver evaluaciones" y la pestaña provisional van en este cambio, no en uno aparte, como dijo Product owner;
+    - faceta de oferta como lista de opción ("Cualquiera" + la oferta activa);
+    - la tarjeta de fila pasa a `src/widgets/evaluation-row`;
+    - las facetas públicas amplían `features/evaluation-facets`;
+    - descriptores como chips; una evaluación abierta abierta por URL da 404; la baseline más reciente primero; sin entrada en la cabecera; "Ver evaluaciones" como enlace simple, siempre visible.
+  - **`fetchOffering` único:** catalog (D3, lanza error) y specialist-evaluations (D1, `publicRequest` con encontrado / no encontrado / fallo) crean el mismo `src/entities/offering/api/offering.ts`. Vale una sola función con el contrato de D1. El segundo cambio que se mergee adapta su llamada.
+  - **Constructor de filas de descriptores:** el primer cambio que lo aplique (catalog D13 o specialist-evaluations D7) lo deja en `src/entities/taxonomy`, y el otro lo reutiliza.
+  - **Contraste en el consenso de catalog:** la puntuación sobre el fondo de sección da 4,38:1 en el nivel comercial del tema tradicional (medida del design lead). Se corrige sin token nuevo, poniendo esa fila dentro de una tarjeta. Pasa al arquitecto de catalog antes de su apply.
+- **Por qué:** mandato nocturno de Product owner; informe del design lead del 6 oct; regla de reutilizar (criterio C).
+- **Afecta:** add-public-evaluations, add-offering-catalog (D3, D13, contraste del consenso), add-specialist-evaluations (D1, D7), add-evaluation-facets (facetas públicas).
