@@ -2,7 +2,7 @@
 
 Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, qué falta y quién lo tiene. Complementa `docs/general-context.md` (contexto y decisiones) y el `handoff.md` de cada cambio (detalle de cada sesión).
 
-**Última actualización:** 2026-10-06 (tarde), orquestador (Claude Code).
+**Última actualización:** 2026-10-06 13:00, orquestador (Claude Code).
 
 ## Cómo se usa
 
@@ -48,12 +48,12 @@ Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, 
 
 | Cambio | Capabilities | Rama / worktree | Fase | Estado | Siguiente fase | Agente | Bloqueo | Último commit |
 |---|---|---|---|---|---|---|---|---|
-| `add-auth` | auth, app-shell | `feature/add-auth` / `tazavera-front-auth` | Apply | 1.1–8.16 hechas (8.8–8.16 en la nube); arreglo no planificado F1 integrado (`4947bd8`); tests 820/820, lint y tsc en verde | 8.17 (navegador), verify, archive | Product owner | — (Q-merge: se mergea `develop` en el paso de merge final) | `972f15f` |
-| `refactor-badge-geometry` | feedback | `feature/refactor-badge-geometry` / `tazavera-front-badge` | Explore | Resumen `9a574b3`; explore en curso | Propose | Arquitecto (OpenCode) | — | `ee913ca` |
-| `fix-button-boundaries` | base-controls | `feature/fix-button-boundaries` / `tazavera-front-buttons` | Explore | Resumen `ee913ca` (bordes de 1px medidos por el design lead); explore en curso | Propose | Arquitecto (OpenCode) | — | `ee913ca` |
-| `extract-offering-list-parts` | content-structure | `feature/extract-offering-list-parts` / `tazavera-front-listparts` | Explore | Resumen `424a36c`; explore en curso | Propose | Arquitecto (OpenCode) | — | `ee913ca` |
-| `add-evaluation-scales` | form-fields | `feature/add-evaluation-scales` / `tazavera-front-scales` | Explore | Puntos abiertos respondidos el 6 oct (resumen sin commitear); explore en curso | Propose | Arquitecto (OpenCode) | Apply después de `refactor-badge-geometry` | `7176afb` |
-| `add-specialist-evaluations` | evaluations | `feature/add-specialist-evaluations` / `tazavera-front-evaluations` | Resumen — en revisión | Q8 respondida el 6 oct (sin commitear); queda Q9 (referencia visual del formulario) | Propose cuando el contrato traiga `createdAt`/`closedAt` | Product owner (contrato) | Contrato; depende de scales y `extract-offering-list-parts` | `2c39a6c` |
+| `add-auth` | auth, app-shell | `feature/add-auth` / `tazavera-front-auth` | Apply → Verify | 1.1–8.16 hechas; F1 integrado; 8.17 aceptada por Product owner (handoff, `ba94fd9`). Nube 12:52: checkbox 8.17 + verify (rama `claude/add-auth-817`) | Revisar e integrar la nube; archive cuando lo pida Product owner; merge final con Q-merge | Claude nube | — | `ba94fd9` |
+| `refactor-badge-geometry` | feedback | `feature/refactor-badge-geometry` / `tazavera-front-badge` | Apply | 1.1–4.1 hechas (OpenCode, tests en verde). Nube 12:52: 5.1 (rama `claude/refactor-badge-geometry-5.1`) | Integrar 5.1; 5.2 (capturas del orquestador); verify, archive | Claude nube, luego orquestador | — | `dee343a` |
+| `fix-button-boundaries` | base-controls | `feature/fix-button-boundaries` / `tazavera-front-buttons` | Propose hecho | Propose `13a054f`. Mock-up de botones: HTML en el scratchpad de la sesión del 6 oct, sin capturar | Capturar el mock-up, revisión de Product owner, apply | Orquestador, luego Product owner | Mock-up antes del apply | `13a054f` |
+| `extract-offering-list-parts` | content-structure | `feature/extract-offering-list-parts` / `tazavera-front-listparts` | Apply | 1.1 hecha; 1.2 movida a 4.2 (capturas del orquestador, `ea1d370`). Nube 13:05: 2.1–4.1 (rama `claude/extract-offering-list-parts-apply`) | Integrar la nube; 4.2 capturas; verify, archive | Claude nube, luego orquestador | — | `61de4f6` |
+| `add-evaluation-scales` | form-fields, feedback | `feature/add-evaluation-scales` / `tazavera-front-scales` | Propose hecho | Propose `d3cce1e` (form-fields) y `706b99b` (feedback), sin revisar aún | Revisión del propose; apply cuando `refactor-badge-geometry` esté en `develop` | Orquestador | `refactor-badge-geometry` | `706b99b` |
+| `add-specialist-evaluations` | evaluations | `feature/add-specialist-evaluations` / `tazavera-front-evaluations` | Explore + Propose | Respuestas del 6 oct commiteadas (`c379a98`); contrato con fechas en `develop` (`2d7d8b8`). Nube 13:08: explore y propose (rama `claude/add-specialist-evaluations-propose`) | Revisar e integrar; apply tras scales, list parts, badge, auth y `develop` mergeados | Claude nube | Q9 (referencia visual del formulario, no bloquea propose) | `33f505c` |
 | `add-user-account` | user-account | — | Resumen — en revisión | Borrador revisado por el design lead (`ed92b2b`); 9 puntos bloquean el propose | Respuestas de Product owner, aprobación | Product owner | Open 1 (sin 422 en el contrato) y Open 2 (step-up, afecta a offering-management) | `ed92b2b` |
 | `add-filter-controls` | filtering, app-shell | — | Resumen — en revisión | Rehecho el 6 oct con facetas en el sidebar (sin commitear) | Respuestas de Product owner, Propose | Product owner | Librería del combobox; ranura `@sidebar`; depende de `add-auth` (shell) y `add-offering-catalog` | `0de9864` |
 | `add-offering-management` | offering-management | — | Resumen — en revisión | Borrador (`b16697e`); 7 puntos bloquean el propose | Respuestas de Product owner, aprobación | Product owner | Open 1–7; refactors compartidos con catalog y evaluations | `b16697e` |
