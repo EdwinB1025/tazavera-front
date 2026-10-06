@@ -94,6 +94,7 @@ Derived from the generated `src/shared/api/schema.ts` through `operations`, adde
 | `src/features/offering-management/ui/ManagementSidebarEntries.tsx` | features | created: the entries list (icon + label + current state) |
 | `src/shared/api/index.ts` | shared (api) | modified: the three derived aliases above |
 | `src/shared/ui/icons.ts` | shared (ui) | modified: `Trash2`, `Plus`, `List` join the single icon entry point (`lucide-react` is installed; no new dependency) |
+| `src/shared/ui/Combobox.tsx` | shared (ui) | modified (filtering capability): inside a `Field` it renders no label or help of its own and its input takes the Field's control id (D14); unchanged outside a `Field` |
 | `messages/es/offering-management.json`, `messages/en/offering-management.json`, `messages/ca/offering-management.json` | message catalog (offering-management area) | created: the area's texts (D11) |
 
 Each of the `src/**` pieces lands with the tests its group owes (`*.test.tsx` beside the file). `src/widgets/offering-list` changes nothing: `OfferingSkeletonCard` and the card are consumed through its public API (D2).
@@ -170,6 +171,10 @@ This change registers six token pairs in both contrast matrices of `src/app/styl
 
 `src/features/offering-management` is a noun phrase, not a verb-object name. The `fsd-architecture` naming rules prefer verb-object names for features (`filter-offerings`, `create-evaluation`) while their naming section first allows slice names as the business domain in kebab-case. This slice keeps the business-domain form because it holds every action of one business area — the own list and its selection, the two delete flows and the create flow — rather than one user action, so no single verb-object name covers it without splitting the area into several slices; the name also matches the capability (`offering-management`), the message-catalog area and the commit scope. Recorded here as the settled choice so the build does not rename the slice.
 
+### D14. The shared combobox inside a `Field` (orchestrator decision 2026-10-07, closed for Product owner's review before the archive)
+
+Inside a `Field`, the shared `Combobox` (`src/shared/ui/Combobox.tsx`, filtering capability, from `add-facet-controls`) renders no label and no help of its own, and its input takes the Field's control id, so the Field's label, required marker, help and error are the only ones shown and the Field's label names the input. Outside a `Field` (the facet panels) it is unchanged. Why: a probe render of task 6.2's composition showed the label twice — the Combobox always renders its own visible label and help — and the Field's `<label for>` pointing at no element, because cmdk gives the input its own id; `required`, `aria-invalid` and the help and error ids already reach the input through the Field's context. The decision keeps task 6.2's wording and the summary's §6 single-label layout and changes nothing the user sees; the build chooses the mechanism. This change therefore edits a shared component of the `filtering` capability.
+
 ## Risks / Trade-offs
 
 - [Contract/API mismatches M1–M6 (summary §12)] → The front follows the contract (`AGENTS.md`). All six are reported to Product owner in the handoff: M1 (`createOfferings` needs `profile:write` in the contract but the API route checks read-or-write), M2 (`locations` not marked required while the API requires a non-empty distinct array), M3 (no 422 documented for the three writes), M4 (no 403 documented for them), M5 (the 50-item maximum only in a description), M6 (`coffeeName` does not state partial matching — search-as-you-type assumes it).
@@ -177,6 +182,7 @@ This change registers six token pairs in both contrast matrices of `src/app/styl
 - [`meta.per_page` is 15 in the contract example and unverified against the API default] → The bulk limit holds for any page size up to 50; above it the selection cap would need revisiting (M5).
 - [Four dependencies are unmerged at propose time] → The apply waits for `add-evaluation-scales`, `replace-offering-card-session`, `add-sidebar-slot` and `add-facet-controls` merged into `develop` (tasks.md). The sidebar hover and focus contrast fix (this summary's F2, `add-filter-controls`' F3: `nav-text-hover` and the `variant-inverse` scope) lands with `add-sidebar-slot`; without it the entries' traditional-theme hover text and focus ring fail their gates.
 - [The lot help line's copy (D4) is a proposal] → Same status as every §8 string (Open 20): Product owner confirms or edits before the archive.
+- [D14 edits the shared `Combobox.tsx`, which `refine-facet-controls` (built, not yet merged) also edits] → Whichever of the two changes merges second merges `develop` first and resolves the overlap there, keeping both changes' behaviour.
 - [Two grid constants for offering grids (D3)] → Accepted with Q2; the catalog's grid beside the sidebar stays `add-offering-catalog`'s decision and a later refactor can converge them.
 
 ## Migration Plan
