@@ -263,7 +263,7 @@ describe("FlavorWheel — taxonomy colour treatment", () => {
       expect(path.getAttribute("fill")).toBe(color);
       expect(path.getAttribute("fill-opacity")).toBe(opacity);
       expect(path.getAttribute("class")).toBe("stroke-surface-card");
-      expect(path.getAttribute("stroke-width")).toBe("2");
+      expect(path.getAttribute("stroke-width")).toBe("4");
     }
   });
 

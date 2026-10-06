@@ -73,7 +73,7 @@ Spec "Every segment carries an arched label"; design.md D5 "Arched labels" (`lab
 
 Spec "Segments separated by a gap"; design.md D5 (separator stroke 2 → 4 units, `stroke-surface-card`).
 
-- [ ] 11.1 In `src/shared/ui/FlavorWheel.test.tsx`, "fills each segment with its colour at the depth opacity of its level" asserts `stroke-width` `"4"` instead of `"2"` on every segment path, keeping its `stroke-surface-card` class and fill assertions; the active outline's `stroke-width` `"3"` stays. Verifying: `npm run test:run` fails only on that case
+- [x] 11.1 In `src/shared/ui/FlavorWheel.test.tsx`, "fills each segment with its colour at the depth opacity of its level" asserts `stroke-width` `"4"` instead of `"2"` on every segment path, keeping its `stroke-surface-card` class and fill assertions; the active outline's `stroke-width` `"3"` stays. Verifying: `npm run test:run` fails only on that case
 - [ ] 11.2 Widen the separator stroke to 4 units in `src/shared/ui/FlavorWheel.tsx`. Verifying: 11.1 passes and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` all exit 0
 
 ## 12. Review round 1, corrections 5 and 7: a larger hole and thinner rings
