@@ -19,6 +19,16 @@ Summary: worktree `tazavera-front-listparts` created on `feature/extract-offerin
 #### D3 — Q3: `TaxonomiesPayload` goes to `src/shared/api/index.ts`
 - Decision: the named API type alias is exported from `@/shared/api`, built on `schema.ts`; the entity imports it from there.
 - Why: AGENTS.md "Import API types only from `src/shared/api/`" and the FSD skill naming rule. `VerifiedOfferingsPayload` in the widget is a prior deviation, not a precedent to follow (not moved by this change).
-#### D4 — Wording fixes for the propose
+#### D4 — Wording fixes for the propose (see below for the apply)
 - "Same cases and assertions; fixtures copied" instead of "moved unchanged"; `index.test.tsx` gains one smoke render and its other cases stay; one new `OfferingList` case; the `ExploreButton.test.tsx` comment is updated to name `Pagination.test.tsx`.
 - Why: wording only (`.claude/CLAUDE.md` §4).
+
+## Session 2026-10-06 — apply (OpenCode, then cloud)
+Summary: Build runs through the orchestrator's apply loop. Task 1.1 done (`TaxonomiesPayload` in `src/shared/api`). Task 1.2 failed twice: the Build cannot take browser captures. At 12:39 the OpenCode provider ran out of balance; Product owner: work with cloud sessions for now. Stopped because: artifact fix, then the rest goes to a cloud session.
+
+### Artifact fixes
+#### A1 — Visual reference moved to the orchestrator (apply, task 1.2)
+- Conflict: task 1.2 asked the Build for 375/1280 captures; the Build has no browser (its report proposed the orchestrator or design lead takes them). Product owner agreed on 2026-10-06 that the orchestrator takes the captures and that they live in `docs/design/<change-id>/captures/`.
+- Fix: 1.2 removed; the capture becomes task 4.2 at the end (develop does not change, so its reference can be taken last), with the files `es-{375,1280}-{develop,branch}.png` and the comparison recorded here; 4.1 keeps the command and guard checks. `openspec validate --strict` passes.
+- Result: `ea1d370`.
+- The Build left an untracked `scratchpad/` (a probe script) in the worktree root; removed.
