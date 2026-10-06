@@ -77,7 +77,7 @@ Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, 
 
 ## Cobertura del contrato
 
-Las 26 operaciones de `contracts/openapi.yaml` (`develop`, contrato `84e29fe`) y el cambio que las consume (actualizado el 6 oct, 20:00). `listTheEvaluationsOfAUser` queda fuera del alcance; `listEvaluations` y `getAnEvaluation` vuelven al alcance (registro, "evaluaciones públicas y evaluación provisional").
+Las 26 operaciones de `contracts/openapi.yaml` (`develop`, contrato `92328fc`: filtros `offeringId` y `evaluationType` en las tres listas de evaluaciones) y el cambio que las consume (actualizado el 6 oct, 20:00). `listTheEvaluationsOfAUser` queda fuera del alcance; `listEvaluations` y `getAnEvaluation` vuelven al alcance (registro, "evaluaciones públicas y evaluación provisional").
 
 | `operationId` | Cambio | Estado del cambio |
 |---|---|---|
