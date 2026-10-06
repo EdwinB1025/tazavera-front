@@ -28,3 +28,12 @@ export { buildCreateBody, buildUpdateBody } from "./model/body";
 export { formStateFromEvaluation } from "./model/load";
 export { completenessOf } from "./model/completeness";
 export type { GroupCompleteness } from "./model/completeness";
+export {
+  closeAnEvaluation,
+  createAnEvaluation,
+  deleteAnEvaluation,
+  getMyEvaluation,
+  listMyEvaluations,
+  updateAnEvaluation,
+} from "./api/user-evaluations";
+export type { EvaluationCallResult, EvaluationPage } from "./api/user-evaluations";
