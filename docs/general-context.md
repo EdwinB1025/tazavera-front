@@ -289,3 +289,8 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Coexistencia:** add-specialist-evaluations (D5) llena la ranura `entries` del sidebar de app-shell según el rol desde `SessionShell`, y add-offering-management usa `@sidebar`. add-sidebar-slot debe dejar las dos vías compatibles.
 - **Por qué:** delegación de Product owner durante su pausa.
 - **Afecta:** add-facet-controls, add-sidebar-slot, add-offering-facets, add-evaluation-facets, add-specialist-evaluations, add-offering-management.
+
+### 2026-10-06 — add-offering-catalog: preguntas del propose (decidido por el orquestador en ausencia de Product owner)
+- **Decisión:** 1. No se divide el cambio: el apply va tarea a tarea, una ejecución por tarea, así que el tamaño de la sesión no limita; la frontera entre los grupos 6 y 7–9 queda como punto de corte si hiciera falta. 2. La leyenda de consenso de Defectos y Sabores principales es una línea `type-meta` por nota identificada, `{nombre} {n}/{total}`, y no aparece si el grupo está vacío (design.md D13), igual que la leyenda de la rueda. 3. Las props de `FlavorWheel` son las del resumen aprobado de add-flavor-wheel (`nodes`, `total`, `texts`, más `buildFlavorWheelNodes` en `entities/taxonomy`); la llamada de catalog (D14) se adapta a ellas en su apply.
+- **Por qué:** delegación de Product owner durante su pausa.
+- **Afecta:** add-offering-catalog, add-flavor-wheel.
