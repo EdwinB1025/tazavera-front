@@ -418,6 +418,19 @@ describe("FlavorWheel — expand and collapse", () => {
     expect(document.activeElement).toBe(before);
   });
 
+  it("expands a parent row and makes it active on click without moving focus", () => {
+    const { container } = renderWheel();
+    const before = document.activeElement;
+    fireEvent.click(row("Fruity"));
+    expect(row("Fruity").getAttribute("aria-expanded")).toBe("true");
+    expect(segmentIds(container)).toContain("berry");
+    expect(row("Fruity").className).toBe(`${ROW_CLASSES} bg-surface-section`);
+    expect(
+      panel(container).querySelector(".type-subheading")?.textContent,
+    ).toBe("Fruity");
+    expect(document.activeElement).toBe(before);
+  });
+
   it("activates a leaf on click without expanding anything", () => {
     const { container } = renderWheel();
     fireEvent.click(segment(container, "nutty")!);
