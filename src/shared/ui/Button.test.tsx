@@ -156,6 +156,78 @@ describe("Button", () => {
     });
   });
 
+  describe("border classes per variant (fix-button-boundaries design.md D6)", () => {
+    // fix-button-boundaries: each action treatment gains a 1px border coloured
+    // by its own semantic border token (D1/D2), added to the rest classes only
+    // (D4); hover keeps the rest border token, so no hover:border- class exists
+    // (D3). Assertions split the className into exact tokens (jsdom has no CSS
+    // engine), so `border` cannot be satisfied by `border-action-1-border` or
+    // any other border-* token. Written before the border classes exist (task
+    // 3.1): the five action cases fail until task 3.2 adds them.
+
+    /** Exact border tokens of the className, order-insensitive. */
+    const borderTokens = (btn: HTMLElement): string[] =>
+      btn.className
+        .split(/\s+/)
+        .filter((cls) => cls === "border" || cls.includes("border-"))
+        .sort();
+
+    /** Any hover border token (e.g. `enabled:hover:border-*-hover`). */
+    const hoverBorderTokens = (btn: HTMLElement): string[] =>
+      btn.className.split(/\s+/).filter((cls) => cls.includes("hover:border-"));
+
+    it("primary carries exactly border and border-action-primary-border, and no hover border", () => {
+      const btn = renderButton(<Button variant="primary">Save</Button>);
+      expect(borderTokens(btn)).toEqual(
+        ["border", "border-action-primary-border"].sort(),
+      );
+      expect(hoverBorderTokens(btn)).toEqual([]);
+    });
+
+    it("action-1 carries exactly border and border-action-1-border, and no hover border", () => {
+      const btn = renderButton(<Button variant="action-1">Save</Button>);
+      expect(borderTokens(btn)).toEqual(
+        ["border", "border-action-1-border"].sort(),
+      );
+      expect(hoverBorderTokens(btn)).toEqual([]);
+    });
+
+    it("action-2 carries exactly border and border-action-2-border, and no hover border", () => {
+      const btn = renderButton(<Button variant="action-2">Save</Button>);
+      expect(borderTokens(btn)).toEqual(
+        ["border", "border-action-2-border"].sort(),
+      );
+      expect(hoverBorderTokens(btn)).toEqual([]);
+    });
+
+    it("action-3 carries exactly border and border-action-3-border, and no hover border", () => {
+      const btn = renderButton(<Button variant="action-3">Save</Button>);
+      expect(borderTokens(btn)).toEqual(
+        ["border", "border-action-3-border"].sort(),
+      );
+      expect(hoverBorderTokens(btn)).toEqual([]);
+    });
+
+    it("action-4 carries exactly border and border-action-4-border, and no hover border", () => {
+      const btn = renderButton(<Button variant="action-4">Save</Button>);
+      expect(borderTokens(btn)).toEqual(
+        ["border", "border-action-4-border"].sort(),
+      );
+      expect(hoverBorderTokens(btn)).toEqual([]);
+    });
+
+    it("nav-button keeps exactly its current border classes", () => {
+      const btn = renderButton(<Button variant="nav-button">Menu</Button>);
+      expect(borderTokens(btn)).toEqual(
+        [
+          "border",
+          "border-nav-button-border",
+          "enabled:hover:border-nav-button-border-hover",
+        ].sort(),
+      );
+    });
+  });
+
   describe("hover and focus-visible state classes", () => {
     // Correction 4 (review round 1): assert the FULL prefixed class names, not
     // substrings that would pass without the prefix. `enabled:hover:` ensures
