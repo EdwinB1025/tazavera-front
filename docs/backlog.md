@@ -26,17 +26,6 @@ One section per candidate, in this format:
 - **Status:** deferred
 - **Affects:** none
 
-## R2 — Tighten the `/callback` matcher exclusion (verify S2)
-
-- **Duplicated:** none
-- **Where today:** `proxy.ts:97` (`matcher: ["/((?!callback).*)"]`)
-- **Why it pays off now:** the lookahead excludes any path merely starting with `callback` (e.g. `/callbackfoo` skips the default-locale redirect and 404s in place); `add-auth` lands `/callback` next and the matcher is the seam
-- **Owning capability:** app-shell
-- **Proposed change:** none
-- **Open decision (Augusto):** tighten to `callback(?:/|$)` or accept the over-exclusion
-- **Status:** proposed
-- **Affects:** `add-auth`
-
 ## R3 — Cover the `/callback` exclusion and the `connect-src` fallback (verify S3)
 
 - **Duplicated:** none
