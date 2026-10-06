@@ -206,6 +206,8 @@
     --color-evaluation-rating-commercial: color-mix(in srgb, var(--color-score-gold) 45%, transparent);
     --color-evaluation-bean-on: color-mix(in srgb, var(--color-oxblood-900) 80%, transparent);
     --color-evaluation-bean-off: var(--color-moss-400);
+    --color-evaluation-bean-mark-on: var(--color-cream-100);
+    --color-evaluation-bean-mark-off: var(--color-brown-900);
     --color-evaluation-slider-track: var(--color-oxblood-300);
     --color-evaluation-slider-start: var(--color-moss-400);
     --color-evaluation-slider-end: var(--color-sage-800);
@@ -430,6 +432,8 @@
         --color-evaluation-rating-commercial: color-mix(in srgb, var(--color-score-gold) 30%, transparent);
         --color-evaluation-bean-on: var(--color-night-oxblood-600);
         --color-evaluation-bean-off: var(--color-night-moss-800);
+        --color-evaluation-bean-mark-on: var(--color-night-petrol-950);
+        --color-evaluation-bean-mark-off: var(--color-night-sage-100);
         --color-evaluation-slider-track: var(--color-night-oxblood-950);
         --color-evaluation-slider-start: var(--color-night-moss-600);
         --color-evaluation-slider-end: var(--color-night-sage-100);
