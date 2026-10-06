@@ -79,7 +79,7 @@ No route, page, widget, feature or entity file changes. `FlavorWheel.tsx` import
 ## Risks / Trade-offs
 
 - **Dependency not in the base yet.** `add-collapsible-section` is implemented on `feature/add-collapsible-section` but not merged into `develop` (`2bc37aa`), which this branch was created from. Tasks of section 3 import `Collapsible` from `@/shared/ui` and cannot be built until that change is merged into this branch's base (agents never merge). Sections 1 and 2 do not depend on it.
-- **The wheel rescales under the pointer.** Expanding a note by click moves every ring boundary at once; the clicked segment stays at the same angles and remains the active note, so the panel does not jump. Accepted by Q4 (b).
+- **The wheel rescales under the pointer.** Expanding a note by click moves every ring boundary at once; after the rescale, the active note is the one under the still pointer, which may be a different segment (spec "Description on hover"), so the panel may change. A click in the inner part of the ring keeps the clicked note active; keyboard activation is unaffected. Accepted by Q4 (b).
 - **Label coverage at each `V` with real counts is unverified** until the browser check (task 4.1).
 - **jsdom and `inert`.** jsdom does not compute the accessibility effect of `inert`; tests assert the attribute and the shared section's own tests cover its behaviour.
 
