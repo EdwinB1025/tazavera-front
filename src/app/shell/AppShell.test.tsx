@@ -7,6 +7,7 @@ import type { Session } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
 import { completeCallback, signIn, signOut } from "@/features/auth";
 import { AppShell } from "@/app/shell";
+import { AppSidebar } from "@/widgets/app-sidebar";
 
 // The shell's client chrome drives navigation through the app router hooks,
 // which need the router context jsdom does not provide. Test infrastructure
@@ -140,19 +141,24 @@ describe("AppShell (spec: Shell layout and main area)", () => {
   });
 
   it("holds the content in one column when no sidebar is present (spec: Single column)", () => {
+    shellPathname = "/es";
     renderShell();
     expect(screen.queryByRole("complementary")).toBeNull();
-    expect(screen.getByRole("main").className).not.toContain("md:flex");
+    expect(
+      screen.getByRole("main").contains(screen.getByTestId("main-area-child")),
+    ).toBe(true);
   });
 
   it("gives the sidebar its own column beside the content from md (spec: Sidebar column)", () => {
-    renderShell(undefined, <div data-testid="sidebar-region" />);
+    shellPathname = "/es";
+    renderShell(undefined, <AppSidebar />);
     const main = screen.getByRole("main");
     expect(main.className).toContain("md:flex");
-    const sidebarColumn = screen.getByRole("complementary");
-    expect(sidebarColumn.className).toContain("hidden");
-    expect(sidebarColumn.className).toContain("md:block");
-    expect(screen.getByTestId("sidebar-region")).toBeDefined();
+    const sidebar = screen.getByRole("complementary");
+    expect(main.contains(sidebar)).toBe(true);
+    expect(sidebar.className).toContain("hidden");
+    expect(sidebar.className).toContain("md:flex");
+    expect(sidebar.className).toContain("w-64");
   });
 
   it("renders the shell with the child it was given in its main area (spec: Root of a supported locale)", () => {
