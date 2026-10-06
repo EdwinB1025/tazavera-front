@@ -30,6 +30,7 @@ import {
   BADGE_GEOMETRY_CLASSES as SEGMENT_BADGE_GEOMETRY_CLASSES,
   Pagination,
   PageSection,
+  BeanScale,
 } from "@/shared/ui";
 // Inside `src/shared/ui` the geometry comes from `./Badge` (design.md D5):
 // this is the single definition the segment entry must re-export.
@@ -220,5 +221,12 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
   it("renders the page section exported from the segment", () => {
     render(<PageSection>SECTION CONTENT</PageSection>);
     expect(screen.getByText("SECTION CONTENT")).toBeDefined();
+  });
+
+  it("renders the bean scale exported from the segment", () => {
+    render(
+      <BeanScale label="Aroma" value={null} valueText="–/9" onChange={() => {}} />,
+    );
+    expect(screen.getByRole("radiogroup", { name: "Aroma" })).toBeDefined();
   });
 });
