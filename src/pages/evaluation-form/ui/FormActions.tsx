@@ -61,6 +61,9 @@ export function FormActions({
   busy,
   message,
 }: FormActionsProps): ReactNode {
+  // One action at a time (design.md D4): while either runs, the other one
+  // ignores activation too; only the running one shows its loading state.
+  const idle = busy === null;
   return (
     <div data-slot="actions" className={BAR_CLASSES}>
       <p role="status" className="type-body">
@@ -71,7 +74,7 @@ export function FormActions({
           variant="action-3"
           className={BUTTON_WIDTH_CLASSES}
           loading={busy === "save"}
-          onClick={onSave}
+          onClick={idle ? onSave : undefined}
         >
           {saveLabel}
         </Button>
@@ -79,7 +82,7 @@ export function FormActions({
           variant="primary"
           className={BUTTON_WIDTH_CLASSES}
           loading={busy === "close"}
-          onClick={onClose}
+          onClick={idle ? onClose : undefined}
         >
           {closeLabel}
         </Button>

@@ -475,3 +475,34 @@ describe("EvaluationForm: read-only presentation (design.md D4, D14; tasks 7.3)"
     expect(readOnlyShape).toEqual(shape(open.container));
   });
 });
+
+describe("EvaluationForm: one action at a time (design.md D4)", () => {
+  function pendingUpdate() {
+    const pending: Array<(value: unknown) => void> = [];
+    updateAnEvaluation.mockImplementation(() => new Promise((settle) => pending.push(settle)));
+    return () => pending.forEach((settle) => settle({ ok: true, status: 200, data: OPEN_EVALUATION }));
+  }
+
+  it("ignores Close evaluation while a save is running", async () => {
+    const finish = pendingUpdate();
+    renderForm({ evaluation: OPEN_EVALUATION });
+    fireEvent.click(screen.getByRole("button", { name: "Save draft" }));
+    fireEvent.click(screen.getByRole("button", { name: "Close evaluation" }));
+    finish();
+    await waitFor(() => expect(screen.getByRole("status").textContent).toBe("Draft saved."));
+    expect(updateAnEvaluation).toHaveBeenCalledTimes(1);
+    expect(closeAnEvaluation).not.toHaveBeenCalled();
+  });
+
+  it("ignores Save draft while a close is running", async () => {
+    const finish = pendingUpdate();
+    closeAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: null });
+    renderForm({ evaluation: OPEN_EVALUATION });
+    fireEvent.click(screen.getByRole("button", { name: "Close evaluation" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save draft" }));
+    finish();
+    await waitFor(() => expect(screen.getByRole("status").textContent).toBe("Evaluation closed."));
+    expect(updateAnEvaluation).toHaveBeenCalledTimes(1);
+    expect(closeAnEvaluation).toHaveBeenCalledTimes(1);
+  });
+});
