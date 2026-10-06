@@ -390,3 +390,20 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
   - El orquestador elige los filtros, la librería y el comportamiento, por delegación de Product owner.
 - **Por qué:** respuestas de Product owner del 6 oct por la noche.
 - **Afecta:** add-coffeeshop-directory (nuevo), add-coffeeshop-location (geocodificación), add-offering-catalog y add-offering-facets (reutilizados), app-shell (cabecera y CSP), API add-contacts-and-locations.
+
+### 2026-10-06 — directorio por negocio, pestañas y barra lateral de la cafetería (respuestas de Product owner)
+- **Decisión** (sustituye en lo que contradiga a la entrada anterior):
+  - **La "cafetería" del directorio es el negocio** (usuario con rol `coffeeshop`), con uno o varios locales; no un local suelto.
+    - API: `GET /coffeeshops` (usuarios cafetería con al menos un local; filtros `name`, `city`, `postalCode`, `verified` sobre cualquiera de sus locales; orden por nombre) y `GET /coffeeshops/{user}` (recuentos y `locations[]` con coordenadas y contacto del negocio). Solo datos del negocio.
+    - Las ofertas de la cafetería se leen con `GET /offerings?coffeeshopUlid=` (filtro existente).
+  - **Detalle de cafetería con dos pestañas:** "Ofertas" (con la barra de filtros del catálogo) y "Ubicaciones" (lista y mapa).
+  - **Barra lateral de la cafetería:** "Administrar ofertas" y "Administrar ubicaciones"; la segunda lista los locales propios y permite crear más (`POST /locations`, geocodificado en el front). Sustituye la idea del local en el perfil.
+  - **Contacto personal** (`add-user-contact`) se queda en el perfil.
+  - **Estilo del API:** los endpoints nuevos copian el esquema, la sintaxis y la resolución de consultas en el modelo (scopes y `filter()`) de los existentes.
+- **Por qué:** respuestas de Product owner del 6 oct por la noche.
+- **Afecta:** add-coffeeshop-directory, add-coffeeshop-location (página "Administrar ubicaciones"), add-offering-management (entradas de la barra lateral, tarea 8: pendiente de Product owner), API add-contacts-and-locations.
+
+### 2026-10-07 — Combobox dentro de Field (orquestador, cerrado para revisión)
+- **Decisión:** dentro de un `Field`, el `Combobox` compartido no pinta etiqueta ni ayuda propias y su input toma el id del `Field`; fuera de un `Field` (paneles de facetas) no cambia.
+- **Por qué:** la tarea 6.2 de add-offering-management no se podía construir tal como estaba escrita (etiqueta duplicada y sin enlazar); la opción mantiene el texto de la tarea y el diseño de una sola etiqueta.
+- **Afecta:** add-offering-management (D14, tareas 6.0a/6.0b), add-coffeeshop-location y cualquier formulario futuro con combobox.
