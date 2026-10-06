@@ -154,18 +154,30 @@ const REFRESH_RETRY_PAUSE_MS = 500;
  * response never being written into the session. A network failure or a
  * server error retries once after a short pause; a second failure keeps the
  * previous user with nothing shown. A `401` is recovered by the client.
+ * It runs only on an `authenticated` session, and an answer that arrives
+ * after that session ended (signed out or another user) changes nothing
+ * (spec: "Sign out").
  */
 export async function refreshProfile(): Promise<void> {
+  const started = snapshot();
+  if (started.state !== "authenticated") return;
+  const ulid = started.user.ulid;
+  const stillCurrent = (): boolean => {
+    const current = snapshot();
+    return current.state === "authenticated" && current.user.ulid === ulid;
+  };
   for (let attempt = 0; attempt < 2; attempt += 1) {
     if (attempt > 0) {
       await new Promise((resolve) => setTimeout(resolve, REFRESH_RETRY_PAUSE_MS));
+      if (!stillCurrent()) return;
     }
     try {
       const response = await request("/user");
+      if (!stillCurrent()) return;
       if (response.status >= 500) continue;
       if (response.ok) {
         const body = (await response.json()) as { data?: SessionUser };
-        if (body.data !== undefined) {
+        if (body.data !== undefined && stillCurrent()) {
           settle({ state: "authenticated", user: body.data });
         }
       }

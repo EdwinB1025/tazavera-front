@@ -496,6 +496,52 @@ describe("profile refresh (spec: Session states and profile; design.md D5)", () 
     expect(seen.current()).toEqual({ state: "authenticated", user: PROFILE });
   });
 
+  it("sends no GET /user and changes nothing on an anonymous session (spec: Sign out; design.md D5)", async () => {
+    const loaded = await load();
+    const seen = consume(loaded);
+    await vi.waitFor(() => {
+      expect(seen.current()).toEqual({ state: "anonymous" });
+    });
+    answerProfileInTurn(() => Promise.resolve(jsonResponse({ data: UPDATED })));
+
+    await loaded.refreshProfile();
+
+    expect(profileRequests()).toHaveLength(0);
+    expect(seen.current()).toEqual({ state: "anonymous" });
+  });
+
+  it("discards a GET /user answer that arrives after a sign out (spec: Sign out; design.md D5)", async () => {
+    const loaded = await load();
+    const seen = consume(loaded);
+    await completeSignIn(loaded);
+    await vi.waitFor(() => {
+      expect(seen.current()).toEqual({ state: "authenticated", user: PROFILE });
+    });
+    fetchMock.mockReset();
+    let answerProfile: (response: Response) => void = () => {};
+    fetchMock.mockImplementation((input) => {
+      if (String(input) === `${API_URL}/user`) {
+        return new Promise<Response>((resolve) => {
+          answerProfile = resolve;
+        });
+      }
+      return Promise.resolve(jsonResponse({ message: "logout successfully." }));
+    });
+
+    const refreshing = loaded.refreshProfile();
+    await vi.waitFor(() => {
+      expect(profileRequests()).toHaveLength(1);
+    });
+    loaded.signOut();
+    await vi.waitFor(() => {
+      expect(seen.current()).toEqual({ state: "anonymous" });
+    });
+    answerProfile(jsonResponse({ data: UPDATED }));
+    await refreshing;
+
+    expect(seen.current()).toEqual({ state: "anonymous" });
+  });
+
   it("recovers a 401 through the client's chain and changes nothing else (spec: Keeping the session alive)", async () => {
     const loaded = await load();
     const seen = consume(loaded);
