@@ -14,5 +14,12 @@
   "listLoadErrorMessage": "No se han podido cargar tus evaluaciones.",
   "retryLabel": "Reintentar",
   "accessMessage": "Inicia sesión con tu cuenta de especialista para gestionar tus evaluaciones.",
-  "signInLabel": "Iniciar sesión"
+  "signInLabel": "Iniciar sesión",
+  "deleteLabel": "Eliminar",
+  "deleteTitle": "¿Eliminar esta evaluación?",
+  "deleteDescription": "Se eliminarán la evaluación y todas sus puntuaciones y notas. No se puede deshacer.",
+  "deleteConfirmLabel": "Eliminar evaluación",
+  "deleteCancelLabel": "Cancelar",
+  "notYoursMessage": "Esta evaluación no es tuya, así que no se puede modificar.",
+  "failureMessage": "Algo ha fallado. Vuelve a intentarlo más tarde."
 }

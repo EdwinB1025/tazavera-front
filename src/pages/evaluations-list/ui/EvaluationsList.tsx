@@ -76,7 +76,8 @@ async function loadPage(page: number): Promise<ListState> {
  * client through the add-auth client, newest first, 15 per page. A loading
  * placeholder stands in the list's place until the page and its offerings
  * arrive; then one row per evaluation in the API's order, the empty message,
- * or the failure message with a retry that loads again.
+ * or the failure message with a retry that loads again. A deleted row
+ * leaves the list at once and the page reloads behind it.
  */
 export function EvaluationsList({ locale, texts }: EvaluationsListProps): ReactNode {
   const page = pageFrom(useSearchParams()?.get("page") ?? null);
@@ -85,7 +86,11 @@ export function EvaluationsList({ locale, texts }: EvaluationsListProps): ReactN
   const [attempt, setAttempt] = useState(0);
   const key = `${page}:${attempt}`;
   const [loaded, setLoaded] = useState<{ key: string; list: ListState } | null>(null);
-  const list: ListState = loaded?.key === key ? loaded.list : { state: "loading" };
+  // After a deletion the list reloads behind the rows already shown, with the
+  // deleted row removed, instead of the loading placeholder.
+  const [quietKey, setQuietKey] = useState<string | null>(null);
+  const list: ListState =
+    loaded && (loaded.key === key || quietKey === key) ? loaded.list : { state: "loading" };
 
   useEffect(() => {
     let current = true;
@@ -98,6 +103,22 @@ export function EvaluationsList({ locale, texts }: EvaluationsListProps): ReactN
   }, [page, key]);
 
   const retry = useCallback(() => setAttempt((count) => count + 1), []);
+
+  const removeRow = (ulid: string) => {
+    setLoaded((current) =>
+      current && current.list.state === "success"
+        ? {
+            ...current,
+            list: {
+              ...current.list,
+              rows: current.list.rows.filter((row) => row.evaluation.ulid !== ulid),
+            },
+          }
+        : current,
+    );
+    setQuietKey(`${page}:${attempt + 1}`);
+    setAttempt(attempt + 1);
+  };
 
   return (
     <div className={BLOCK_CLASSES}>
@@ -134,6 +155,7 @@ export function EvaluationsList({ locale, texts }: EvaluationsListProps): ReactN
                   offering={row.offering}
                   locale={locale}
                   texts={texts}
+                  onDeleted={removeRow}
                 />
               </li>
             ))}

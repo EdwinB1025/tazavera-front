@@ -14,5 +14,12 @@
   "listLoadErrorMessage": "Your evaluations could not be loaded.",
   "retryLabel": "Retry",
   "accessMessage": "Sign in with your specialist account to manage your evaluations.",
-  "signInLabel": "Sign in"
+  "signInLabel": "Sign in",
+  "deleteLabel": "Delete",
+  "deleteTitle": "Delete this evaluation?",
+  "deleteDescription": "The evaluation and all its scores and notes will be removed. This cannot be undone.",
+  "deleteConfirmLabel": "Delete evaluation",
+  "deleteCancelLabel": "Cancel",
+  "notYoursMessage": "This evaluation is not yours, so it cannot be changed.",
+  "failureMessage": "Something went wrong. Please try again later."
 }

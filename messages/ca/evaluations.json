@@ -14,5 +14,12 @@
   "listLoadErrorMessage": "No s'han pogut carregar les teves avaluacions.",
   "retryLabel": "Tornar-ho a provar",
   "accessMessage": "Inicia la sessió amb el teu compte d'especialista per gestionar les teves avaluacions.",
-  "signInLabel": "Iniciar sessió"
+  "signInLabel": "Iniciar sessió",
+  "deleteLabel": "Eliminar",
+  "deleteTitle": "Vols eliminar aquesta avaluació?",
+  "deleteDescription": "S'eliminaran l'avaluació i totes les seves puntuacions i notes. No es pot desfer.",
+  "deleteConfirmLabel": "Eliminar l'avaluació",
+  "deleteCancelLabel": "Cancel·lar",
+  "notYoursMessage": "Aquesta avaluació no és teva, així que no es pot modificar.",
+  "failureMessage": "Alguna cosa ha fallat. Torna-ho a provar més tard."
 }

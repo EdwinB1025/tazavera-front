@@ -40,6 +40,13 @@ export function EvaluationsListScreen({ locale }: EvaluationsListScreenProps): R
     emptyMessage: catalog.listEmptyMessage,
     loadErrorMessage: catalog.listLoadErrorMessage,
     retryLabel: catalog.retryLabel,
+    deleteLabel: catalog.deleteLabel,
+    deleteTitle: catalog.deleteTitle,
+    deleteDescription: catalog.deleteDescription,
+    deleteConfirmLabel: catalog.deleteConfirmLabel,
+    deleteCancelLabel: catalog.deleteCancelLabel,
+    notYoursMessage: catalog.notYoursMessage,
+    failureMessage: catalog.failureMessage,
   };
 
   return (

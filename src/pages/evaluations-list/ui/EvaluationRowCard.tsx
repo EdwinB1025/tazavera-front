@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import type { EvaluationItem, OfferingDetail } from "@/shared/api";
 import { ratingTierFor } from "@/entities/offering";
 import { Badge, Button, Card, CardAside, CardContent, CardFooter } from "@/shared/ui";
+import { DeleteEvaluationAction } from "./DeleteEvaluationAction";
+import type { DeleteEvaluationTexts } from "./DeleteEvaluationAction";
 
 // ─── UI-specific types (declared before the component) ───
 
 /** Every label and caption of a row, from the `evaluations` catalog (design.md D14). */
-export type EvaluationRowTexts = {
+export type EvaluationRowTexts = DeleteEvaluationTexts & {
   openLabel: string;
   closedLabel: string;
   createdOnLabel: string;
@@ -30,8 +32,8 @@ export type EvaluationRowCardProps = {
   offering: OfferingDetail | null;
   locale: string;
   texts: EvaluationRowTexts;
-  /** Row actions after Edit or View (the delete action). */
-  actions?: ReactNode;
+  /** Called once the row's evaluation is deleted. */
+  onDeleted: (ulid: string) => void;
 };
 
 // ─── Fixed pieces (no interface text) ───
@@ -51,14 +53,15 @@ function datePart(value: string): string {
  * evaluations list" and "Row actions"): the score row when the evaluation has
  * a `cuppingScore`, the status badge, the coffee name, the date of the row's
  * state and the coffeeshop and roaster captions, and the row actions — Edit
- * for an open evaluation, View for a closed one, both opening its form route.
+ * for an open evaluation, View for a closed one, both opening its form route,
+ * and Delete with its confirmation.
  */
 export function EvaluationRowCard({
   evaluation,
   offering,
   locale,
   texts,
-  actions,
+  onDeleted,
 }: EvaluationRowCardProps): ReactNode {
   const router = useRouter();
   const tier = ratingTierFor(evaluation.cuppingScore);
@@ -105,7 +108,11 @@ export function EvaluationRowCard({
         <Button variant="action-3" onClick={() => router.push(formRoute)}>
           {closed ? texts.viewLabel : texts.editLabel}
         </Button>
-        {actions}
+        <DeleteEvaluationAction
+          ulid={evaluation.ulid ?? ""}
+          texts={texts}
+          onDeleted={onDeleted}
+        />
       </CardFooter>
     </Card>
   );
