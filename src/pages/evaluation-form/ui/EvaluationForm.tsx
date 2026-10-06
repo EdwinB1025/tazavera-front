@@ -20,6 +20,7 @@ import type {
   DescriptorBlockKey,
   EvaluationCallResult,
   EvaluationFormState,
+  GroupKey,
 } from "@/entities/evaluation";
 import { Card, CardContent, Checkbox, Field, Link, Select } from "@/shared/ui";
 import { DescriptorBlock } from "./DescriptorBlock";
@@ -102,6 +103,14 @@ function initialState(
   return evaluation ? formStateFromEvaluation(evaluation, roastLevel) : emptyFormState(roastLevel);
 }
 
+/** Every group's open state set to `open`. */
+function allGroups(open: boolean): Record<GroupKey, boolean> {
+  return Object.fromEntries(EVALUATION_GROUPS.map((group) => [group.key, open])) as Record<
+    GroupKey,
+    boolean
+  >;
+}
+
 /**
  * The CVA combined form (design.md D3, D11, D12, D14; spec "Evaluation
  * form"): one state object for the whole form, the page header block, the
@@ -126,6 +135,11 @@ export function EvaluationForm({
   const [roastLevelMissing, setRoastLevelMissing] = useState(false);
   const [closed, setClosed] = useState(evaluation?.status === "closed");
   const [highlighted, setHighlighted] = useState(false);
+  // Every group starts collapsed when editable and expanded when closed
+  // (design.md D15).
+  const [openGroups, setOpenGroups] = useState<Record<GroupKey, boolean>>(() =>
+    allGroups(evaluation?.status === "closed"),
+  );
   const readOnly = closed;
   const completeness = completenessOf(state);
   const coffeeshopCaption = `${texts.coffeeshopCaption} ${offering.location?.name ?? ""}`.trim();
@@ -201,8 +215,19 @@ export function EvaluationForm({
     setBusy(null);
     if (result.ok) {
       setClosed(true);
+      setOpenGroups(allGroups(true));
       setMessage(texts.actions.closedMessage);
       return;
+    }
+    if (result.status === 409) {
+      // The incomplete groups expand so their highlight is in view (D15).
+      setOpenGroups((current) => {
+        const next = { ...current };
+        for (const group of EVALUATION_GROUPS) {
+          if (completeness[group.key] === false) next[group.key] = true;
+        }
+        return next;
+      });
     }
     setHighlighted(result.status === 409);
     setMessage(failureFor(result.status, texts.actions.incompleteMessage));
@@ -281,6 +306,10 @@ export function EvaluationForm({
             complete={completeness[group.key]}
             readOnly={readOnly}
             highlighted={highlighted && completeness[group.key] === false}
+            open={openGroups[group.key]}
+            onOpenChange={(open) =>
+              setOpenGroups((current) => ({ ...current, [group.key]: open }))
+            }
             top={
               group.key === "fragranceAroma" && !readOnly ? (
                 <Checkbox
