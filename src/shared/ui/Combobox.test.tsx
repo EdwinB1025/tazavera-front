@@ -166,6 +166,27 @@ describe("Combobox — local mode", () => {
     expect(onChange).toHaveBeenCalledWith(null);
   });
 
+  it("while open, the popup carries exactly the D9 popup classes", () => {
+    render(local());
+    type("fin");
+    const popup = screen.getByRole("listbox").parentElement!;
+    expect(popup.getAttribute("class")!.split(/\s+/).sort()).toEqual(
+      [
+        "z-50",
+        "w-(--radix-popover-trigger-width)",
+        "max-h-60",
+        "overflow-y-auto",
+        "rounded-field",
+        "border",
+        "border-border-strong",
+        "bg-nav-surface",
+        "p-1",
+        "text-nav-text",
+        "shadow-md",
+      ].sort(),
+    );
+  });
+
   it("variant inverse puts the input's inverse classes on it, default does not", () => {
     const { rerender } = render(local({ variant: "inverse" }));
     expect(input().className).toContain("variant-inverse");
