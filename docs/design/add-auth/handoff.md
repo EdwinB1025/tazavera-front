@@ -445,3 +445,43 @@ Summary: Product owner chose the add-auth apply as the first Claude cloud sessio
 
 ### Next
 - Remaining: 7.1 and 8.1–8.16 (8.17 is Product owner's). Q-merge is still open; it applies when auth merges develop.
+
+## Session 2026-10-06 (night) — apply 7.1–8.7 with OpenCode
+Summary: the orchestrator moved `tazavera-front-auth` from detached HEAD to `feature/add-auth` (same commit), copied the restricted profiles from `tazavera-front` (develop's overnight versions; `architect.md` shows modified, `build.md` matches the branch), and ran the Build one task per run. Stopped because: task 8.8 failed twice (provider block, then a stall). MVC reachable: not needed.
+
+### Runs
+- 7.1 `fe8e253` (checkbox only: verification task; the four commands exit 0, 808 tests).
+- 8.1 `1cf915d` (checkbox only: the three cases already awaited the challenge; removal probes fail as specified).
+- 8.2 `6458715` (adds the three D10 cases; the rewrite half was already done by 3.2/6.1).
+- 8.3 `e11a56f` (checkbox only: the popup flow already matched D10).
+- 8.4 `6f3f35a`, 8.5 `1f5298f` (checkbox only), 8.6 `bf235ef` (test-only commit, fails as expected), 8.7 `ae3876a`.
+- My re-runs of `npm run test:run` after 8.1, 8.2, 8.3: 811 tests pass; after 8.4–8.7 the chain script ran it after each commit (only 8.6, a test-only commit, failed, as allowed).
+- Branch pushed: `2cbb293..ae3876a`.
+
+### Decisions taken
+#### D19 — Launch OpenCode in the worktree without `cd`
+- Context: the session runs in `dontAsk` mode; commands that change directory are denied, and opencode has no directory flag. A plain `cwd` was not enough: opencode reads `PWD` and ran on `develop` once (stopped before any change; develop stayed clean).
+- Decision: a node launcher in the orchestrator's scratchpad that spawns opencode with `cwd`, `PWD` and `INIT_CWD` set to the worktree; checked with a probe run (`git branch --show-current` → `feature/add-auth`).
+
+#### D20 — Discard a leftover mutation probe after the provider block (8.8, first run)
+- Context: the provider answered "The request was rejected because it was considered high risk" while the Build was probing `authorize.ts` (`replaceState` over `location.href`, a deliberate fault to prove a test fails).
+- Decision: `git restore src/features/auth/api/authorize.ts`, following Product owner's answer to Q17 (discard partial edits of a broken run).
+
+### Fixes and coverage sent to the Build
+None.
+
+### Deferred to Product owner
+#### Q18 — Tasks 8.8–8.16 to a cloud session
+- Question: launch the cloud session for 8.8–8.16?
+- Why deferred: 8.8 failed twice on OpenCode (provider content block, then a 10-minute stall at its final step); the remaining tasks touch the same auth/CSP code, so the block is likely to recur. Only Product owner can launch `claude --cloud`.
+- State left: `src/pages/callback/ui/CallbackScreen.test.tsx` holds 8.8's uncommitted test edit (two `await new Promise(setTimeout)` lines before the no-exchange assertions, and a comment). Saved as `auth-8.8-partial.patch` in the orchestrator's scratchpad. The cloud starts from the pushed branch and redoes 8.8.
+- Recommendation: launch the prompt below from this worktree; before integrating its branch, discard the local edit (`git restore src/pages/callback/ui/CallbackScreen.test.tsx`) so the fast-forward is clean.
+- Prompt: in the orchestrator's scratchpad, `cloud-auth-8.x.md` (build role, base `feature/add-auth`, target `claude/add-auth-8.x`, scope first unchecked task to 8.16).
+- Blocks: 8.8–8.16, then 8.17 and the archive.
+
+### Notes
+- The 8.8 run may have left an `opencode` process hung; the session could not list or end processes in `dontAsk` mode.
+- Refactor candidates reported by the Build (not added to the backlog; Product owner's): per-case popup mocks in `authorize.test.ts` (shared `popupMock` leaks between cases under probes); three copies of the popup/message helpers in `authorize.test.ts`.
+
+### Final checks
+`npm run test:run` after 8.7 (chain script): pass. Not re-run with the uncommitted 8.8 edit.
