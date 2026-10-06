@@ -576,3 +576,120 @@ describe("requestProfileWrite — step-up in the popup of design.md D10 (spec: S
     expect(pushMock).not.toHaveBeenCalled();
   });
 });
+
+describe("the popup handshake of design.md D10 (spec: Sign in)", () => {
+  const route = "/en/offerings/1";
+
+  const PROFILE = {
+    ulid: "user-ulid-1",
+    name: "Andrés",
+    surname: "Gómez",
+    email: "andres@example.test",
+    role: "specialist",
+  };
+
+  /**
+   * A popup window of this test's own and a window the flow never opened: a
+   * message listener left behind by an earlier test's page load answers only
+   * its own popup, never these.
+   */
+  let popup: { location: { assign: ReturnType<typeof vi.fn> }; closed: boolean };
+  let otherWindow: {
+    location: { assign: ReturnType<typeof vi.fn> };
+    closed: boolean;
+  };
+  const reloadMock = vi.fn<() => void>();
+
+  /** The `postMessage` `source` sends to the opener (design.md D4 popup mode). */
+  function answer(data: unknown, source: unknown, origin: string): void {
+    const event = new MessageEvent("message", { data, origin });
+    Object.defineProperty(event, "source", { value: source });
+    window.dispatchEvent(event);
+  }
+
+  /** Waits for this test's popup to reach the authorization page (design.md D8). */
+  async function awaitPopup(): Promise<void> {
+    await vi.waitFor(() => {
+      expect(popup.location.assign).toHaveBeenCalled();
+    });
+  }
+
+  beforeEach(() => {
+    popup = {
+      location: { assign: vi.fn<(url: string) => void>() },
+      closed: false,
+    };
+    otherWindow = {
+      location: { assign: vi.fn<(url: string) => void>() },
+      closed: false,
+    };
+    openMock.mockReturnValue(popup as unknown as Window);
+    reloadMock.mockReset();
+    Object.assign(locationMock, { reload: reloadMock });
+  });
+
+  afterEach(() => {
+    cleanup();
+    document.body.innerHTML = "";
+  });
+
+  it("ignores a message from another origin or from a window other than the popup and starts no exchange (design.md D10)", async () => {
+    const { signIn, flow } = await load();
+    signIn(route);
+    await awaitPopup();
+    const pending = flow.readHeldFlow()!;
+
+    answer({ code: "code-1", state: pending.state }, popup, "https://evil.test");
+    answer({ code: "code-2", state: pending.state }, otherWindow, APP_URL);
+    // Let any exchange such a message could have started reach `fetch`.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(flow.readHeldFlow()).not.toBeNull();
+  });
+
+  it("ends authenticated when a matching message arrives, the opener neither navigating nor reloading (design.md D10)", async () => {
+    const auth = await import("@/features/auth");
+    const flow = await import("../model/flow");
+    fetchMock.mockImplementation((input) =>
+      Promise.resolve(
+        String(input).includes("/oauth/token")
+          ? jsonResponse(GRANT)
+          : jsonResponse({ data: PROFILE }),
+      ),
+    );
+    const { result } = renderHook(() => auth.useSession());
+    auth.signIn(route);
+    await awaitPopup();
+    const pending = flow.readHeldFlow()!;
+
+    answer({ code: "code-1", state: pending.state }, popup, APP_URL);
+
+    await vi.waitFor(() => {
+      expect(result.current).toEqual({ state: "authenticated", user: PROFILE });
+    });
+    expect(locationMock.assign).not.toHaveBeenCalled();
+    expect(reloadMock).not.toHaveBeenCalled();
+    expect(pushMock).not.toHaveBeenCalled();
+    expect(replaceMock).not.toHaveBeenCalled();
+  });
+
+  it("keeps the popup flow's record out of sessionStorage from the popup's opening to the flow's completion (design.md D3 and D10)", async () => {
+    const { signIn, flow } = await load();
+    fetchMock.mockResolvedValue(jsonResponse(GRANT));
+    signIn(route);
+    await awaitPopup();
+    const pending = flow.readHeldFlow();
+    expect(pending).not.toBeNull();
+
+    expect(flow.readFlow()).toBeNull();
+    expect(sessionStorage.length).toBe(0);
+
+    answer({ code: "code-1", state: pending!.state }, popup, APP_URL);
+    await vi.waitFor(() => {
+      expect(flow.hasMarker()).toBe(true);
+    });
+
+    expect(sessionStorage.length).toBe(0);
+  });
+});
