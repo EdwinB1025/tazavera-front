@@ -1,6 +1,11 @@
 import type { ReactNode } from "react";
-import { cn } from "@/shared/lib/utils";
-import { Card, CardContent, Link } from "@/shared/ui";
+import {
+  Card,
+  CardContent,
+  Link,
+  PageSection,
+  type PageSectionSurface,
+} from "@/shared/ui";
 import { ExploreButton } from "./ExploreButton";
 
 // ─── UI-specific types (declared before the component) ───
@@ -32,27 +37,16 @@ export type AboutContentProps = {
 const ACCENT_CLASSES = "text-text-accent";
 
 // The five sections of the design summary §5 alternate the page and section
-// surfaces, starting at `bg-surface-page` (spec "Sections and order").
-const SECTION_BACKGROUNDS = [
-  "bg-surface-page",
-  "bg-surface-section",
-  "bg-surface-page",
-  "bg-surface-section",
-  "bg-surface-page",
-] as const;
+// surfaces, starting at the page surface (spec "Sections and order").
+const SECTION_BACKGROUNDS: readonly PageSectionSurface[] = [
+  "page",
+  "section",
+  "page",
+  "section",
+  "page",
+];
 
 // ─── Page layout (design.md D14) ───
-// Each section pads its content vertically; the content sits in a centered
-// container at most 72rem wide. The home screen holds its own copy: pages
-// slices cannot import each other.
-const SECTION_CLASSES = ["py-12", "md:py-16"].join(" ");
-const CONTAINER_CLASSES = [
-  "mx-auto",
-  "w-full",
-  "max-w-6xl",
-  "px-4",
-  "md:px-8",
-].join(" ");
 // Stacked blocks of one section, 1rem apart.
 const STACK_CLASSES = ["flex", "flex-col", "gap-4"].join(" ");
 // The three evaluation cards share the container width equally from `md`.
@@ -75,62 +69,61 @@ const LINK_GROUP_CLASSES = ["flex", "flex-wrap", "gap-x-6", "gap-y-2"].join(
 export function AboutContent({ locale, texts }: AboutContentProps): ReactNode {
   return (
     <div>
-      <section className={cn(SECTION_CLASSES, SECTION_BACKGROUNDS[0])}>
-        <div className={cn(CONTAINER_CLASSES, STACK_CLASSES)}>
-          <p className="type-eyebrow-strong">{texts.eyebrow}</p>
-          <h1 className="type-heading">
-            {texts.headingBefore}
-            <span className={ACCENT_CLASSES}>{texts.headingAccent}</span>
-            {texts.headingAfter}
-          </h1>
-        </div>
-      </section>
+      <PageSection
+        surface={SECTION_BACKGROUNDS[0]}
+        containerClassName={STACK_CLASSES}
+      >
+        <p className="type-eyebrow-strong">{texts.eyebrow}</p>
+        <h1 className="type-heading">
+          {texts.headingBefore}
+          <span className={ACCENT_CLASSES}>{texts.headingAccent}</span>
+          {texts.headingAfter}
+        </h1>
+      </PageSection>
 
-      <section className={cn(SECTION_CLASSES, SECTION_BACKGROUNDS[1])}>
-        <div className={CONTAINER_CLASSES}>
-          <p className="type-body">{texts.storyText}</p>
-        </div>
-      </section>
+      <PageSection surface={SECTION_BACKGROUNDS[1]}>
+        <p className="type-body">{texts.storyText}</p>
+      </PageSection>
 
-      <section className={cn(SECTION_CLASSES, SECTION_BACKGROUNDS[2])}>
-        <div className={cn(CONTAINER_CLASSES, STEPS_CLASSES)}>
-          <Card>
-            <CardContent>
-              <p className="type-body">{texts.stepProvisional}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent>
-              <p className="type-body">{texts.stepCupping}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent>
-              <p className="type-body">{texts.stepConsensus}</p>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
+      <PageSection
+        surface={SECTION_BACKGROUNDS[2]}
+        containerClassName={STEPS_CLASSES}
+      >
+        <Card>
+          <CardContent>
+            <p className="type-body">{texts.stepProvisional}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent>
+            <p className="type-body">{texts.stepCupping}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent>
+            <p className="type-body">{texts.stepConsensus}</p>
+          </CardContent>
+        </Card>
+      </PageSection>
 
-      <section className={cn(SECTION_CLASSES, SECTION_BACKGROUNDS[3])}>
-        <div className={cn(CONTAINER_CLASSES, STACK_CLASSES)}>
-          <p className="type-body">{texts.audienceText}</p>
-          <nav className={LINK_GROUP_CLASSES}>
-            <Link href={`/${locale}/register/coffeeshop`}>
-              {texts.coffeeshopRegisterLabel}
-            </Link>
-            <Link href={`/${locale}/register`}>
-              {texts.specialistRegisterLabel}
-            </Link>
-          </nav>
-        </div>
-      </section>
+      <PageSection
+        surface={SECTION_BACKGROUNDS[3]}
+        containerClassName={STACK_CLASSES}
+      >
+        <p className="type-body">{texts.audienceText}</p>
+        <nav className={LINK_GROUP_CLASSES}>
+          <Link href={`/${locale}/register/coffeeshop`}>
+            {texts.coffeeshopRegisterLabel}
+          </Link>
+          <Link href={`/${locale}/register`}>
+            {texts.specialistRegisterLabel}
+          </Link>
+        </nav>
+      </PageSection>
 
-      <section className={cn(SECTION_CLASSES, SECTION_BACKGROUNDS[4])}>
-        <div className={CONTAINER_CLASSES}>
-          <ExploreButton locale={locale} label={texts.closingLabel} />
-        </div>
-      </section>
+      <PageSection surface={SECTION_BACKGROUNDS[4]}>
+        <ExploreButton locale={locale} label={texts.closingLabel} />
+      </PageSection>
     </div>
   );
 }

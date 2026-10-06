@@ -128,6 +128,7 @@
     --color-action-primary: var(--color-oxblood-800);
     --color-action-primary-hover: var(--color-oxblood-900);
     --color-action-primary-text: var(--color-cream-100);
+    --color-action-primary-border: transparent;
 
     /* ─── POSITIONAL ACTIONS ───
        Opaque bg: tint mixed with card surface (cream-100). */
@@ -135,21 +136,25 @@
     --color-action-1-text: var(--color-moss-700);
     --color-action-1-bg-hover: var(--color-moss-700);
     --color-action-1-text-hover: var(--color-cream-100);
+    --color-action-1-border: var(--color-moss-700);
 
     --color-action-2-bg: color-mix(in srgb, var(--color-oxblood-800) 40%, var(--color-cream-100));
     --color-action-2-text: var(--color-brown-900);
     --color-action-2-bg-hover: var(--color-oxblood-800);
     --color-action-2-text-hover: var(--color-cream-100);
+    --color-action-2-border: var(--color-brown-900);
 
     --color-action-3-bg: color-mix(in srgb, var(--color-sage-800) 20%, var(--color-cream-100));
     --color-action-3-text: var(--color-sage-800);
     --color-action-3-bg-hover: var(--color-sage-800);
     --color-action-3-text-hover: var(--color-cream-100);
+    --color-action-3-border: var(--color-sage-800);
 
     --color-action-4-bg: color-mix(in srgb, var(--color-petrol-600) 35%, var(--color-cream-100));
     --color-action-4-text: var(--color-petrol-800);
     --color-action-4-bg-hover: var(--color-petrol-700);
     --color-action-4-text-hover: var(--color-cream-100);
+    --color-action-4-border: var(--color-petrol-900);
 
     /* ─── NAVIGATION (light: header, navbar, navlist, menu · dark: sidebar) ─── */
     --color-nav-header: var(--color-sage-500);
@@ -347,6 +352,7 @@
         --color-action-primary: var(--color-night-oxblood-700);
         --color-action-primary-hover: var(--color-night-oxblood-800);
         --color-action-primary-text: var(--color-night-cream-100);
+        --color-action-primary-border: var(--color-night-cream-100);
 
         /* ─── POSITIONAL ACTIONS ───
            Opaque bg: tint mixed with card surface (night-petrol-900). */
@@ -354,21 +360,25 @@
         --color-action-1-text: var(--color-night-moss-400);
         --color-action-1-bg-hover: var(--color-night-moss-700);
         --color-action-1-text-hover: var(--color-night-moss-200);
+        --color-action-1-border: var(--color-night-moss-200);
 
         --color-action-2-bg: color-mix(in srgb, var(--color-night-oxblood-600) 20%, var(--color-night-petrol-900));
         --color-action-2-text: var(--color-night-oxblood-400);
         --color-action-2-bg-hover: var(--color-night-oxblood-800);
         --color-action-2-text-hover: var(--color-night-oxblood-200);
+        --color-action-2-border: var(--color-night-oxblood-200);
 
         --color-action-3-bg: color-mix(in srgb, var(--color-night-sage-600) 20%, var(--color-night-petrol-900));
         --color-action-3-text: var(--color-night-sage-400);
         --color-action-3-bg-hover: var(--color-night-sage-700);
         --color-action-3-text-hover: var(--color-night-sage-200);
+        --color-action-3-border: var(--color-night-sage-100);
 
         --color-action-4-bg: color-mix(in srgb, var(--color-night-petrol-600) 20%, var(--color-night-petrol-900));
         --color-action-4-text: var(--color-night-petrol-500);
         --color-action-4-bg-hover: var(--color-night-petrol-700);
         --color-action-4-text-hover: var(--color-night-petrol-100);
+        --color-action-4-border: var(--color-night-petrol-100);
 
         /* ─── NAVIGATION ─── */
         --color-nav-header: var(--color-night-sage-950);

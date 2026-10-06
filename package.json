@@ -15,6 +15,7 @@
     "lucide-react": "^1.49.0",
     "next": "16.3.6",
     "next-intl": "^4.14.9",
+    "oauth4webapi": "3.8.x",
     "radix-ui": "^1.6.7",
     "react": "19.2.8",
     "react-dom": "19.2.8"

@@ -26,17 +26,6 @@ One section per candidate, in this format:
 - **Status:** deferred
 - **Affects:** none
 
-## R2 — Tighten the `/callback` matcher exclusion (verify S2)
-
-- **Duplicated:** none
-- **Where today:** `proxy.ts:97` (`matcher: ["/((?!callback).*)"]`)
-- **Why it pays off now:** the lookahead excludes any path merely starting with `callback` (e.g. `/callbackfoo` skips the default-locale redirect and 404s in place); `add-auth` lands `/callback` next and the matcher is the seam
-- **Owning capability:** app-shell
-- **Proposed change:** none
-- **Open decision (Augusto):** tighten to `callback(?:/|$)` or accept the over-exclusion
-- **Status:** proposed
-- **Affects:** `add-auth`
-
 ## R3 — Cover the `/callback` exclusion and the `connect-src` fallback (verify S3)
 
 - **Duplicated:** none
@@ -57,3 +46,14 @@ One section per candidate, in this format:
 - **Open decision (Augusto):** move the card panel to `radius-field`, or amend `base-controls` to allow `radius-container` for card menus
 - **Status:** proposed
 - **Affects:** none
+
+## R5 — Single active-locale derivation in `src/features/auth` (add-auth, Build report at 5.2)
+
+- **Duplicated:** the active-locale derivation from the path (first segment, `isSupportedLocale` check, `DEFAULT_LOCALE` fallback)
+- **Where today:** `src/features/auth/api/authorize.ts` (`activeLang`), `src/features/auth/model/session.ts` (`localeRoot`)
+- **Why it pays off now:** step-up (6.x) and the callback's return route (8.x) also need the active locale; a third copy is likely
+- **Owning capability:** auth (or `src/shared/lib/i18n` if another slice needs it)
+- **Proposed change:** none
+- **Open decision (Augusto):** keep it inside `src/features/auth` or move it to `src/shared/lib/i18n`
+- **Status:** proposed
+- **Affects:** `add-auth`

@@ -2,7 +2,7 @@
 
 Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, qué falta y quién lo tiene. Complementa `docs/general-context.md` (contexto y decisiones) y el `handoff.md` de cada cambio (detalle de cada sesión).
 
-**Última actualización:** 2026-10-06, orquestador (Claude Code).
+**Última actualización:** 2026-10-06 13:00, orquestador (Claude Code).
 
 ## Cómo se usa
 
@@ -48,13 +48,19 @@ Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, 
 
 | Cambio | Capabilities | Rama / worktree | Fase | Estado | Siguiente fase | Agente | Bloqueo | Último commit |
 |---|---|---|---|---|---|---|---|---|
-| `add-auth` | auth, app-shell | `feature/add-auth` / `tazavera-front` (y `tazavera-front-auth` en detached HEAD) | Apply | 1.1–6.2 hechas (6.1–6.2 en la nube). Rondas 1–3 procesadas | Apply: 7.1, luego 8.1–8.16; 8.17 de Product owner | Claude nube o Build (OpenCode), a decidir | Elegir ejecutor del resto del apply. Q-merge al mergear `develop` | `2cbb293` |
-| `add-specialist-evaluations` | evaluations | `feature/add-specialist-evaluations` / `tazavera-front-evaluations` | Resumen — en revisión | Resumen revisado ("ready to repropose"); falta aplicar los cambios del 6 oct | Revisión del design lead, aprobación de Product owner, Propose | Design lead (revisión) | Aprobación de Product owner | `08c62a9` |
-| `add-evaluation-scales` | form-fields | — | Resumen | Sin resumen | Borrador del design lead | Design lead (genera desde el MVC) | Diálogo: shadcn AlertDialog o propio | — |
-| `add-user-account` | user-account | — | Resumen — borrador | Borrador de `design-summary.md` sin commitear | Revisión del design lead, aprobación de Product owner | Design lead (revisión) | 9.5, 9.7 (`tokensExpireIn`), 9.8 | — |
-| `add-filter-controls` | filtering | — | Resumen | Por escribir; incluye el filtro de evaluaciones | Borrador del design lead | Design lead (genera) | — | — |
-| `add-offering-management` | offering-management | — | Resumen | Por escribir | Borrador del design lead | Design lead (genera) | — | — |
-| `add-offering-catalog` | offering-catalog | — | Resumen | Por escribir | Borrador del design lead | Design lead (genera) | — | — |
+| `add-auth` | auth, app-shell | `feature/add-auth` / `tazavera-front-auth` | Verify | 34/34 tareas. F2 (W1, página en blanco tras `/callback`) integrado `4ac8129`: `router.replace` en lugar de `pushState`; 821 tests, lint y tsc en 0 re-ejecutados en local; Chromium en la nube: `/es` renderiza. Re-verify (13:42): W1 anterior arreglado; validate, 821 tests, lint, tsc y build en 0; flujos en Chromium contra API HTTPS simulada OK. Nuevo W1: `oauth4webapi` rechaza el intercambio de tokens contra `http://localhost:8000` (`OAUTH_HTTP_REQUEST_FORBIDDEN`, `tokens.ts` sin `allowInsecureRequests`): en local no se completa el login. W2 en `session_01D6xthcbRAav9yMXyUvjqpN`. F3 (opción a de Product owner) integrado `e41c7e8`: `allowInsecureRequests` solo fuera de producción; 824 tests, lint y tsc en 0 re-ejecutados en local; en Chromium contra API http simulada: login por popup, restauración al recargar y cierre de sesión OK CORS arreglado en la API (`feature/cors_front`, `4f91639`): Product owner confirma el login real contra `php artisan serve` ("bien funciona") | W2; archive cuando lo pida Product owner; merge con Q-merge | Product owner | W2 (texto en `session_01D6xthcbRAav9yMXyUvjqpN`) | `e41c7e8` |
+| `refactor-badge-geometry` | feedback | `feature/refactor-badge-geometry` / `tazavera-front-badge` | Verify | 8/8 tareas (5.2 integrada `0f9cea3`). Verify en la nube: 0 CRITICAL, 1 WARNING (escenario "Chip matches the badge geometry" sin test; aún no existe ningún chip consumidor), validate --strict OK, 936 tests | Archive cuando lo pida Product owner (WARNING diferido al primer chip, registro de decisiones 6 oct); merge | Product owner | — | `0f9cea3` |
+| `fix-button-boundaries` | base-controls | `feature/fix-button-boundaries` / `tazavera-front-buttons` | Revisión → Apply | Propose `13a054f`. Product owner aprobó todos los bordes del mock-up (Open 1 a y Open 2 a, handoff). Redacción de Risk 2/3 corregida en design.md | Actualización de artefactos del arquitecto; apply en OpenCode | Arquitecto, luego Build (OpenCode) | — | `13a054f` |
+| `extract-offering-list-parts` | content-structure | `feature/extract-offering-list-parts` / `tazavera-front-listparts` | Apply | 1.1–4.1 hechas (nube, integrada `7e6b777`; 937 tests, lint y tsc en 0 re-ejecutados en local). 4.2 en la nube: 6 pares rama/`develop` (`/es` páginas 1–3 a 375 y 1280) con 0 píxeles distintos y DOM idéntico; integrada `3caf980`. Verify: 0 CRITICAL, 1 WARNING (en `session_01KEbRZHk4aNy9Kkq5DtZREF`); las capturas no se commitean | Clasificar el WARNING; archive cuando lo pida Product owner | Product owner | WARNING del verify | `3caf980` |
+| `add-evaluation-scales` | form-fields, feedback | `feature/add-evaluation-scales` / `tazavera-front-scales` | Propose hecho | Propose `d3cce1e` (form-fields) y `706b99b` (feedback), sin revisar aún | Revisión del propose; apply cuando `refactor-badge-geometry` esté en `develop` | Orquestador | `refactor-badge-geometry` | `706b99b` |
+| `add-specialist-evaluations` | evaluations | `feature/add-specialist-evaluations` / `tazavera-front-evaluations` | Explore + Propose | Explore en la nube (13:09) con 3 preguntas. B1 respondida (registro, "lecturas de evaluaciones: decisión final"): `/user/evaluations…` para las propias, lecturas públicas sin cambio, `GET /users/{user}/evaluations` nuevo. Contrato regenerado en `develop` local (`84e29fe`, sin subir hasta el merge de la rama de la API). Q9 respondida | Subir el contrato; propose contra él | Product owner | Merge de la API y push de `84e29fe`; B2–B3 si siguen abiertas | `33f505c` |
+| `extract-page-section` | content-structure | `feature/extract-page-section` / `tazavera-front-pagesection` | Apply | Resumen aprobado por el orquestador (delegación para refactors, `143607f`). Explore y propose en OpenCode (`49cb45a`, validate OK); handoff `620ced5`. Apply: build en OpenCode, una tarea por ejecución desde 1.1 | Apply 1.1–5.1; 5.2 capturas en la nube; verify, archive | Build (OpenCode) | — (va antes de user-account, offering-management y offering-catalog) | `620ced5` |
+| `replace-offering-card-session` | landing | — | Resumen — aprobado | Aprobado por el orquestador (`143607f`) | Worktree desde `develop` tras el merge de `extract-offering-list-parts`; explore, propose | Orquestador | Merge de `extract-offering-list-parts` | `143607f` |
+| `label-rating-badge` | landing | — | Resumen — aprobado | Aprobado (`fd4a9b4`): la insignia muestra la palabra del nivel del MVC (Excepcional ≥ 90, Excelente 85–89,99, Bueno 80–84,99, Comercial < 80); cierra landing D4. Sin dependencias | Worktree; explore, propose y apply en OpenCode | Orquestador → Arquitecto (OpenCode) | — (toca `OfferingCard` como `replace-offering-card-session`: va antes) | `fd4a9b4` |
+| `add-user-account` | user-account | — | Resumen — en revisión | Borrador revisado por el design lead (`ed92b2b`); 9 puntos bloquean el propose | Respuestas de Product owner, aprobación | Product owner | Open 1 (sin 422 en el contrato) y Open 2 (step-up, afecta a offering-management) | `ed92b2b` |
+| `add-filter-controls` | filtering, app-shell | — | Resumen — aprobado | Aprobado (`ea7648c`); puntos resueltos en el registro (combobox shadcn + `cmdk`, ranura `@sidebar`, facetas de evaluaciones sobre `listMyEvaluations`) | Explore y propose; apply después de `add-offering-catalog` | Orquestador | Apply: auth y catalog en `develop` | `ea7648c` |
+| `add-offering-management` | offering-management | — | Resumen — en revisión | Borrador (`b16697e`); 7 puntos bloquean el propose | Respuestas de Product owner, aprobación | Product owner | Open 1–7; refactors compartidos con catalog y evaluations | `b16697e` |
+| `add-offering-catalog` | offering-catalog | — | Resumen — aprobado | Aprobado (`923e2d7`); puntos resueltos en el registro (petición de ofertas con query, detalle con pestañas, medias con la escala de granos) | Explore y propose; apply tras scales, list parts, page section, card session y auth en `develop` | Orquestador | Apply: esas dependencias | `923e2d7` |
 | `add-theme-tokens` | theming | — (rama borrada) | Merge | Archivado `e53c808`, mergeado `a3a96e2` | — | — | — | `a3a96e2` |
 | `add-base-control` | base-controls | — (rama borrada) | Merge | Archivado `d492481`, mergeado `c4f70ad` | — | — | — | `c4f70ad` |
 | `add-focus-ring-utility` | theming | — (rama borrada) | Merge | Archivado `fcc6e28`, mergeado `8d23918` | — | — | — | `8d23918` |
@@ -63,7 +69,7 @@ Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, 
 | `refine-app-header` | app-shell | — (rama borrada) | Merge | Archivado `27ca840`, mergeado `124c048`. Pendiente: R4 (radio del panel) en el backlog | — | — | — | `124c048` |
 | `add-landing` | landing, content-structure, feedback, app-shell | — (rama borrada; carpeta vacía `tazavera-front-landing` por borrar) | Merge | Archivado `f6bce3b`, mergeado `2284399`. Pendiente: D4 (puntuación dos veces en la tarjeta); candidato de backlog: primitivo de sección compartido | Decisión D4 | Product owner | D4 | `2284399` |
 
-Operaciones sin cambio asignado: `GET /coffees`, `GET /roasteries`.
+Todas las operaciones tienen cambio asignado.
 
 ## Cobertura del contrato
 
@@ -92,7 +98,7 @@ Las 23 operaciones de `contracts/openapi.yaml` (`develop`) y el cambio que las c
 | `DELETE /offerings` (varias) | `deleteMultipleOfferings` | `add-offering-management` *(supuesto)* | Por diseñar |
 | `GET /locations` | `listMyLocations` | `add-offering-management` *(supuesto)* | Por diseñar |
 | `GET /coffeeInventory` | `listCoffeeInventory` | `add-offering-management` *(supuesto)* | Por diseñar |
-| `GET /coffees` | `listCoffees` | **Sin cambio asignado** | — |
-| `GET /roasteries` | `listRoasteries` | **Sin cambio asignado** | — |
+| `GET /coffees` | `listCoffees` | `add-offering-management`; `add-filter-controls` (filtros de ofertas) | Por diseñar |
+| `GET /roasteries` | `listRoasteries` | `add-offering-management`; `add-filter-controls` (filtros de ofertas) | Por diseñar |
 
 Las rutas con `{id}` y los paréntesis son orientativos; la fuente es el `operationId` en el contrato. La entrada "Mejor valorados" de la cabecera tampoco tiene cambio asignado *(supuesto: `add-offering-catalog`)*.

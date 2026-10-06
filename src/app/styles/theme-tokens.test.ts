@@ -379,6 +379,65 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "nav-avatar-border", bg: "nav-avatar", kind: "bound", exempt: true },
   { fg: "nav-avatar-border", bg: "nav-avatar-hover", kind: "bound", exempt: true },
 
+  // ── Action button boundaries (fix-button-boundaries design.md D2 + D6) ──
+  // The D2 exemption gate: the primary fill identifies the button at rest and
+  // on hover, making the transparent primary border decorative.
+  { fg: "action-primary", bg: "surface-page", kind: "bound" },
+  { fg: "action-primary", bg: "surface-card", kind: "bound" },
+  { fg: "action-primary", bg: "surface-section", kind: "bound" },
+  { fg: "action-primary", bg: "surface-form", kind: "bound" },
+  { fg: "action-primary-hover", bg: "surface-page", kind: "bound" },
+  { fg: "action-primary-hover", bg: "surface-card", kind: "bound" },
+  { fg: "action-primary-hover", bg: "surface-section", kind: "bound" },
+  { fg: "action-primary-hover", bg: "surface-form", kind: "bound" },
+
+  // action-primary-border is transparent in the traditional theme (D2, the
+  // nav-avatar-border precedent): exempt, the fill gate above holds.
+  { fg: "action-primary-border", bg: "surface-page", kind: "bound", exempt: true },
+  { fg: "action-primary-border", bg: "action-primary", kind: "bound", exempt: true },
+
+  // Positional borders identify the button at rest against every host surface
+  // and against the rest fill; the hover fill identifies it on hover, so the
+  // border against the hover fill is not registered here (D6).
+  { fg: "action-1-border", bg: "surface-page", kind: "bound" },
+  { fg: "action-1-border", bg: "surface-card", kind: "bound" },
+  { fg: "action-1-border", bg: "surface-section", kind: "bound" },
+  { fg: "action-1-border", bg: "surface-form", kind: "bound" },
+  { fg: "action-1-border", bg: "action-1-bg", kind: "bound" },
+  { fg: "action-2-border", bg: "surface-page", kind: "bound" },
+  { fg: "action-2-border", bg: "surface-card", kind: "bound" },
+  { fg: "action-2-border", bg: "surface-section", kind: "bound" },
+  { fg: "action-2-border", bg: "surface-form", kind: "bound" },
+  { fg: "action-2-border", bg: "action-2-bg", kind: "bound" },
+  { fg: "action-3-border", bg: "surface-page", kind: "bound" },
+  { fg: "action-3-border", bg: "surface-card", kind: "bound" },
+  { fg: "action-3-border", bg: "surface-section", kind: "bound" },
+  { fg: "action-3-border", bg: "surface-form", kind: "bound" },
+  { fg: "action-3-border", bg: "action-3-bg", kind: "bound" },
+  { fg: "action-4-border", bg: "surface-page", kind: "bound" },
+  { fg: "action-4-border", bg: "surface-card", kind: "bound" },
+  { fg: "action-4-border", bg: "surface-section", kind: "bound" },
+  { fg: "action-4-border", bg: "surface-form", kind: "bound" },
+  { fg: "action-4-border", bg: "action-4-bg", kind: "bound" },
+
+  // D2 exemption gate on hover: the hover fill identifies the button.
+  { fg: "action-1-bg-hover", bg: "surface-page", kind: "bound" },
+  { fg: "action-1-bg-hover", bg: "surface-card", kind: "bound" },
+  { fg: "action-1-bg-hover", bg: "surface-section", kind: "bound" },
+  { fg: "action-1-bg-hover", bg: "surface-form", kind: "bound" },
+  { fg: "action-2-bg-hover", bg: "surface-page", kind: "bound" },
+  { fg: "action-2-bg-hover", bg: "surface-card", kind: "bound" },
+  { fg: "action-2-bg-hover", bg: "surface-section", kind: "bound" },
+  { fg: "action-2-bg-hover", bg: "surface-form", kind: "bound" },
+  { fg: "action-3-bg-hover", bg: "surface-page", kind: "bound" },
+  { fg: "action-3-bg-hover", bg: "surface-card", kind: "bound" },
+  { fg: "action-3-bg-hover", bg: "surface-section", kind: "bound" },
+  { fg: "action-3-bg-hover", bg: "surface-form", kind: "bound" },
+  { fg: "action-4-bg-hover", bg: "surface-page", kind: "bound" },
+  { fg: "action-4-bg-hover", bg: "surface-card", kind: "bound" },
+  { fg: "action-4-bg-hover", bg: "surface-section", kind: "bound" },
+  { fg: "action-4-bg-hover", bg: "surface-form", kind: "bound" },
+
   // ── Logotype exemptions (add-app-shell design.md D8) ──
   // A part of the brand logotype is excluded from WCAG 2.2 SC 1.4.11 ("part
   // of a logo or brand name"), so the three logotype pairs are exempt from
@@ -476,6 +535,34 @@ describe("Avatar boundary token completeness: --color-nav-avatar-border defined 
     expect(
       darkProps.has("--color-nav-avatar-border"),
       "avatar boundary token --color-nav-avatar-border is undefined in the dark theme",
+    ).toBe(true);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Action border token completeness (fix-button-boundaries design.md D5)
+// --color-action-primary-border is transparent in the traditional @theme, so
+// its value falls outside the relational completeness check's var()/color-mix()
+// filter (the avatar boundary gap above): its presence in both theme blocks is
+// asserted explicitly. The shared completeness filter is unchanged.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+describe("Action border token completeness: --color-action-primary-border defined in both themes", () => {
+  const css = readGlobals();
+  const tradProps = extractTraditional(css);
+  const darkProps = extractDark(css);
+
+  it("traditional @theme defines --color-action-primary-border", () => {
+    expect(
+      tradProps.has("--color-action-primary-border"),
+      "action border token --color-action-primary-border is undefined in the traditional theme",
+    ).toBe(true);
+  });
+
+  it("dark theme defines --color-action-primary-border", () => {
+    expect(
+      darkProps.has("--color-action-primary-border"),
+      "action border token --color-action-primary-border is undefined in the dark theme",
     ).toBe(true);
   });
 });
@@ -637,6 +724,41 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "nav-avatar-border", bg: "nav-surface", kind: "bound" },
   { fg: "nav-avatar-border", bg: "nav-avatar", kind: "bound" },
   { fg: "nav-avatar-border", bg: "nav-avatar-hover", kind: "bound" },
+
+  // ── Action button boundaries (fix-button-boundaries design.md D2 + D6) ──
+  // No action fill passes in dark, so each border identifies the button
+  // against every host surface and against the rest fill and the hover fill
+  // (D3: the rest border is kept on hover).
+  { fg: "action-primary-border", bg: "surface-page", kind: "bound" },
+  { fg: "action-primary-border", bg: "surface-card", kind: "bound" },
+  { fg: "action-primary-border", bg: "surface-section", kind: "bound" },
+  { fg: "action-primary-border", bg: "surface-form", kind: "bound" },
+  { fg: "action-primary-border", bg: "action-primary", kind: "bound" },
+  { fg: "action-primary-border", bg: "action-primary-hover", kind: "bound" },
+  { fg: "action-1-border", bg: "surface-page", kind: "bound" },
+  { fg: "action-1-border", bg: "surface-card", kind: "bound" },
+  { fg: "action-1-border", bg: "surface-section", kind: "bound" },
+  { fg: "action-1-border", bg: "surface-form", kind: "bound" },
+  { fg: "action-1-border", bg: "action-1-bg", kind: "bound" },
+  { fg: "action-1-border", bg: "action-1-bg-hover", kind: "bound" },
+  { fg: "action-2-border", bg: "surface-page", kind: "bound" },
+  { fg: "action-2-border", bg: "surface-card", kind: "bound" },
+  { fg: "action-2-border", bg: "surface-section", kind: "bound" },
+  { fg: "action-2-border", bg: "surface-form", kind: "bound" },
+  { fg: "action-2-border", bg: "action-2-bg", kind: "bound" },
+  { fg: "action-2-border", bg: "action-2-bg-hover", kind: "bound" },
+  { fg: "action-3-border", bg: "surface-page", kind: "bound" },
+  { fg: "action-3-border", bg: "surface-card", kind: "bound" },
+  { fg: "action-3-border", bg: "surface-section", kind: "bound" },
+  { fg: "action-3-border", bg: "surface-form", kind: "bound" },
+  { fg: "action-3-border", bg: "action-3-bg", kind: "bound" },
+  { fg: "action-3-border", bg: "action-3-bg-hover", kind: "bound" },
+  { fg: "action-4-border", bg: "surface-page", kind: "bound" },
+  { fg: "action-4-border", bg: "surface-card", kind: "bound" },
+  { fg: "action-4-border", bg: "surface-section", kind: "bound" },
+  { fg: "action-4-border", bg: "surface-form", kind: "bound" },
+  { fg: "action-4-border", bg: "action-4-bg", kind: "bound" },
+  { fg: "action-4-border", bg: "action-4-bg-hover", kind: "bound" },
 
   // ── Logotype exemptions (add-app-shell design.md D8) ──
   // Exempt from the 3:1 rule in the dark theme as well; measured at their
