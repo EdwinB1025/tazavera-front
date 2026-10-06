@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach, beforeAll } from "vitest";
+import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import {
   Button,
@@ -27,7 +27,14 @@ import {
   CardContent,
   CardFooter,
   Badge,
+  Pagination,
 } from "@/shared/ui";
+
+// Pagination pushes through the app router; the hook is mocked here — test
+// infrastructure only.
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+}));
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
@@ -184,5 +191,17 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
   it("renders the badge exported from the segment", () => {
     render(<Badge variant="verified">Verified</Badge>);
     expect(screen.getByText("Verified")).toBeDefined();
+  });
+
+  it("renders the pagination exported from the segment", () => {
+    render(
+      <Pagination
+        currentPage={1}
+        lastPage={2}
+        path="/es"
+        texts={{ previousLabel: "Previous", nextLabel: "Next" }}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Next" })).toBeDefined();
   });
 });
