@@ -25,6 +25,16 @@ type SidebarContextValue = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   toggleSidebar: () => void;
   isMobile: boolean;
+  /**
+   * Whether a `Sidebar` is mounted under the provider (design.md D3): the
+   * shell reads it to know whether the route in view has a sidebar at all.
+   */
+  present: boolean;
+  /**
+   * Called by `Sidebar` on mount; the returned function decrements the
+   * mounted-sidebar count again (design.md D3).
+   */
+  register: () => () => void;
 };
 
 const SidebarContext = React.createContext<SidebarContextValue | null>(null);
@@ -49,7 +59,18 @@ function SidebarProvider({
   }, []);
 
   return (
-    <SidebarContext.Provider value={{ open, setOpen, toggleSidebar, isMobile }}>
+    <SidebarContext.Provider
+      value={{
+        open,
+        setOpen,
+        toggleSidebar,
+        isMobile,
+        // Presence is wired in by `Sidebar` itself later (design.md D3);
+        // until then every consumer sees no sidebar mounted.
+        present: false,
+        register: () => () => {},
+      }}
+    >
       <div
         data-slot="sidebar-provider"
         className="flex min-h-full w-full flex-col"

@@ -2,7 +2,7 @@
 
 No type is derived from `src/shared/api/schema.ts`; this group declares the UI-specific types of design.md "Types".
 
-- [ ] 1.1 Declare the UI types before their components: `present: boolean` and `register: () => () => void` in `SidebarContextValue` (`src/shared/ui/Sidebar.tsx`, not yet provided: the provider keeps compiling by supplying `present: false` and a no-op `register` until task 2.2), the exported type `AppSidebarContextValue = { session: Session; entries?: ReactNode; toggleLabel: string }` in a new `src/widgets/app-sidebar/ui/AppSidebarContext.tsx` (type only), and `leading?: ReactNode` in `AppHeaderProps` (unused until task 5.2). Commit `feat(app-shell): add types for the sidebar context`. Verify: `npx tsc --noEmit`, `npm run lint` and `npm run test:run` pass.
+- [x] 1.1 Declare the UI types before their components: `present: boolean` and `register: () => () => void` in `SidebarContextValue` (`src/shared/ui/Sidebar.tsx`, not yet provided: the provider keeps compiling by supplying `present: false` and a no-op `register` until task 2.2), the exported type `AppSidebarContextValue = { session: Session; entries?: ReactNode; toggleLabel: string }` in a new `src/widgets/app-sidebar/ui/AppSidebarContext.tsx` (type only), and `leading?: ReactNode` in `AppHeaderProps` (unused until task 5.2). Commit `feat(app-shell): add types for the sidebar context`. Verify: `npx tsc --noEmit`, `npm run lint` and `npm run test:run` pass.
 
 ## 2. Sidebar state, presence and scope (shared)
 
