@@ -115,8 +115,15 @@ async function load() {
   const authorize = await import("../api/authorize");
   const flow = await import("../model/flow");
   const api = await import("@/shared/api");
-  const { signOut } = await import("@/features/auth");
-  return { ...session, ...authorize, flow, signOut, getTokens: api.getTokens };
+  const { signOut, refreshProfile } = await import("@/features/auth");
+  return {
+    ...session,
+    ...authorize,
+    flow,
+    signOut,
+    refreshProfile,
+    getTokens: api.getTokens,
+  };
 }
 
 type Loaded = Awaited<ReturnType<typeof load>>;
@@ -409,5 +416,106 @@ describe("sign out (spec: Sign out)", () => {
     expect(loaded.flow.hasMarker()).toBe(false);
     expect(pushMock).toHaveBeenCalledTimes(1);
     expect(pushMock).toHaveBeenCalledWith(null, "", "/en");
+  });
+});
+
+describe("profile refresh (spec: Session states and profile; design.md D5)", () => {
+  const UPDATED = { ...PROFILE, name: "Andrea", email: "andrea@example.test" };
+
+  /** The `GET /user` requests sent so far. */
+  function profileRequests() {
+    return fetchMock.mock.calls.filter(([input]) => String(input) === `${API_URL}/user`);
+  }
+
+  /** Answers `POST /oauth/token` with the grant and `GET /user` with each answer in turn. */
+  function answerProfileInTurn(...answers: Array<() => Promise<Response>>): void {
+    let next = 0;
+    fetchMock.mockImplementation((input) => {
+      const url = String(input);
+      if (url.includes("/oauth/token")) return Promise.resolve(jsonResponse(GRANT));
+      const answer = answers[Math.min(next, answers.length - 1)]!;
+      next += 1;
+      return answer();
+    });
+  }
+
+  it("requests GET /user and settles the session with its data (spec: Refreshing the profile)", async () => {
+    const loaded = await load();
+    const seen = consume(loaded);
+    await completeSignIn(loaded);
+    await vi.waitFor(() => {
+      expect(seen.current()).toEqual({ state: "authenticated", user: PROFILE });
+    });
+    fetchMock.mockReset();
+    answerProfileInTurn(() => Promise.resolve(jsonResponse({ data: UPDATED })));
+
+    await loaded.refreshProfile();
+
+    expect(profileRequests()).toHaveLength(1);
+    const [, init] = profileRequests()[0]!;
+    expect(init?.method ?? "GET").toBe("GET");
+    expect(new Headers(init?.headers).get("Authorization")).toBe("Bearer access-1");
+    await vi.waitFor(() => {
+      expect(seen.current()).toEqual({ state: "authenticated", user: UPDATED });
+    });
+  });
+
+  for (const [label, failure] of [
+    ["a network failure", () => Promise.reject(new TypeError("offline"))],
+    ["a 5xx", () => Promise.resolve(jsonResponse({ message: "down" }, 503))],
+  ] as const) {
+    it(`retries GET /user exactly once after ${label} (spec: A profile refresh that fails transiently)`, async () => {
+      const loaded = await load();
+      const seen = consume(loaded);
+      await completeSignIn(loaded);
+      fetchMock.mockReset();
+      answerProfileInTurn(failure, () => Promise.resolve(jsonResponse({ data: UPDATED })));
+
+      await loaded.refreshProfile();
+
+      expect(profileRequests()).toHaveLength(2);
+      await vi.waitFor(() => {
+        expect(seen.current()).toEqual({ state: "authenticated", user: UPDATED });
+      });
+    });
+  }
+
+  it("keeps the previous user and reaches no consumer with an error when the retry fails too (spec: A profile refresh that fails twice)", async () => {
+    const loaded = await load();
+    const seen = consume(loaded);
+    await completeSignIn(loaded);
+    await vi.waitFor(() => {
+      expect(seen.current()).toEqual({ state: "authenticated", user: PROFILE });
+    });
+    fetchMock.mockReset();
+    answerProfileInTurn(() => Promise.reject(new TypeError("offline")));
+
+    await expect(loaded.refreshProfile()).resolves.toBeUndefined();
+
+    expect(profileRequests()).toHaveLength(2);
+    expect(seen.current()).toEqual({ state: "authenticated", user: PROFILE });
+  });
+
+  it("recovers a 401 through the client's chain and changes nothing else (spec: Keeping the session alive)", async () => {
+    const loaded = await load();
+    const seen = consume(loaded);
+    await completeSignIn(loaded);
+    fetchMock.mockReset();
+    answerProfileInTurn(
+      () => Promise.resolve(jsonResponse({}, 401)),
+      () => Promise.resolve(jsonResponse({ data: UPDATED })),
+    );
+
+    await loaded.refreshProfile();
+
+    const refreshes = fetchMock.mock.calls.filter(([input]) =>
+      String(input).includes("/oauth/token"),
+    );
+    expect(refreshes).toHaveLength(1);
+    expect(profileRequests()).toHaveLength(2);
+    expect(locationMock.assign).not.toHaveBeenCalled();
+    await vi.waitFor(() => {
+      expect(seen.current()).toEqual({ state: "authenticated", user: UPDATED });
+    });
   });
 });
