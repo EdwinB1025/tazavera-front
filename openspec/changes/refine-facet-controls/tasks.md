@@ -26,4 +26,4 @@
 
 ## 6. Integration verification
 
-- [ ] 6.1 Verify the complete change with `npm run test:run`, `npm run lint`, `npx tsc --noEmit` and `npm run build`, all exiting 0, and `git diff --stat develop -- src/shared/api/ contracts/ src/app/styles/ messages/ package.json` empty (task 1.1; no token, text or dependency change); the suites that must keep passing apart from the cases this change added: `FacetRadioList.test.tsx`, `facet-disabled.test.tsx`, `FacetTextField.test.tsx`, `use-combobox-search.test.ts`, `index.test.tsx`, `color-guard`, `radius-guard`, `focus-guard` and `client-boundary`
+- [x] 6.1 Verify the complete change with `npm run test:run`, `npm run lint`, `npx tsc --noEmit` and `npm run build`, all exiting 0, and `git diff --stat develop -- src/shared/api/ contracts/ src/app/styles/ messages/ package.json` empty (task 1.1; no token, text or dependency change); the suites that must keep passing apart from the cases this change added: `FacetRadioList.test.tsx`, `facet-disabled.test.tsx`, `FacetTextField.test.tsx`, `use-combobox-search.test.ts`, `index.test.tsx`, `color-guard`, `radius-guard`, `focus-guard` and `client-boundary`
