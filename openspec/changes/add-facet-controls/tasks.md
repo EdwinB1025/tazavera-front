@@ -2,7 +2,7 @@
 
 ## 1. Setup and types
 
-- [ ] 1.1 Install the combobox dependency approved by Product owner (decisions log of `docs/general-context.md`, 2026-10-06, "librería del combobox": shadcn/ui Combobox on Radix Popover + `cmdk`, new dependency approved; design.md D13): `npm install cmdk@1.1.1 --save-exact`, so `package.json` lists `"cmdk": "1.1.1"` under `dependencies` and `package-lock.json` changes accordingly — verifying `npm ls cmdk` prints `cmdk@1.1.1`, `npm ls @radix-ui/react-dialog` shows a single version, and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0
+- [x] 1.1 Install the combobox dependency approved by Product owner (decisions log of `docs/general-context.md`, 2026-10-06, "librería del combobox": shadcn/ui Combobox on Radix Popover + `cmdk`, new dependency approved; design.md D13): `npm install cmdk@1.1.1 --save-exact`, so `package.json` lists `"cmdk": "1.1.1"` under `dependencies` and `package-lock.json` changes accordingly — verifying `npm ls cmdk` prints `cmdk@1.1.1`, `npm ls @radix-ui/react-dialog` shows a single version, and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0
 - [ ] 1.2 Confirm this change derives no type from the generated API types and never touches them (design.md D2: every type is UI-specific and is declared at the top of its component file, before the component, in the tasks that create those files) — verifying `git diff --stat develop -- src/shared/api/` is empty at the end of the change; this task changes no files and is checked off in the commit of task 2.1
 
 ## 2. Tokens, typography roles, icons and texts
