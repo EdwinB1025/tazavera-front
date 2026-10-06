@@ -577,43 +577,50 @@ Numbers and names are appended to the catalog word by concatenation, as `Offerin
      - (b) Each management layout (`app/[locale]/manage/offerings/layout.tsx`) fills the shell's region through a context or a slot.
      - (c) No entries (the spec allows an empty region).
    - Recommendation: (a). The role already decides the user-menu entry (`UserMenu.tsx:115-120`), so the same rule picks the area; it needs no new routing mechanism. It is shared with add-specialist-evaluations Open 10. Source: `app-shell` spec "Management sidebar"; criterion C.
-   - Blocks propose: yes.
+   - **Answered 2026-10-06 (Product owner): (b).** Each management area fills the sidebar through the same `@sidebar` parallel-route slot that `add-filter-controls` adds (its Open 4b): `/manage/offerings` supplies its entries, `/manage/evaluations` its own. `SidebarMenuButton` gains a link form (`asChild`), which fixes F5. One mechanism for facets and management entries.
+   - Blocks propose: no (waits for `add-filter-controls`' slot to be merged).
 2. **`OfferingCard` action slot.**
    - Options:
      - (a) The slot add-specialist-evaluations proposes (its summary line 123): a consumer-supplied node in the footer, replacing the `session` prop. This change passes the select checkbox and the Delete button.
      - (b) A separate management row component (a second offering presentation: duplication).
    - Recommendation: (a), done once, as a refactor change in the owning capability (`landing`, the entity's owner) before both feature changes. That follows the backlog rule; it should be added to `docs/backlog.md`. Source: criterion C; `OfferingCard.tsx:138-155`.
-   - Blocks propose: yes.
+   - **Answered 2026-10-06 (Product owner): (a).** A refactor change in `landing` adds the consumer-supplied action slot to `OfferingCard` and removes the `session` prop, before this change and add-specialist-evaluations.
+   - Blocks propose: no (waits for the refactor to be merged).
 3. **Generalizing the offering-list widget** (add-offering-catalog Open 1): `OfferingPagination` pushes `/{locale}?page=n` (`OfferingPagination.tsx`), and the taxonomy resolution lives in the widget.
    - Options:
      - (a) The same refactor catalog recommends, before both changes: a base path for pagination, and the taxonomy resolution moved down to an entity.
      - (b) A local pagination for this change (duplication).
    - Recommendation: (a). One answer for both changes.
-   - Blocks propose: yes.
+   - **Answered 2026-10-06 (Product owner): covered.** `extract-offering-list-parts` already moved the pagination to `Pagination` (`@/shared/ui`, `path` + `query`) and the taxonomy read and lookup to `src/entities/taxonomy`; this change uses them. The offerings fetch with a query is generalized by `add-offering-catalog` (its Open 1).
+   - Blocks propose: no.
 4. **Shared section and container primitive** (add-offering-catalog Open 2). These two screens would be the fifth and sixth copies.
    - Options:
      - (a) The backlog entry and the refactor first.
      - (b) Copy again.
    - Recommendation: (a).
-   - Blocks propose: yes.
+   - **Answered 2026-10-06 (Product owner): (a).** Refactor first; this change uses the shared primitive.
+   - Blocks propose: no (waits for the refactor to be merged).
 5. **Access to `/manage/offerings*` by an anonymous user or a non-coffeeshop.** The API answers 403 for the role; the front has no rule yet.
    - Options:
      - (a) `loading` → skeleton; `anonymous` → `signIn(currentRoute)`; another role → the 404 page.
      - (b) A message with a link home for both.
    - Recommendation: (a), the same answer as add-specialist-evaluations Open 9. It touches the auth flow, so it is Product owner's.
-   - Blocks propose: yes.
+   - **Answered 2026-10-06 (Product owner): neither as written.** `loading` → skeleton; `anonymous` → a message with a "Sign in" button that calls `signIn(currentRoute)` inside the click (popup; the user stays on the route), no automatic redirect; another role → the 404 page. Same rule as add-user-account Open 5 and `/manage/evaluations*`.
+   - Blocks propose: no.
 6. **Write scope (`profile:write`) and the step-up.** Sign-in grants only `profile:read` (add-auth summary, "Sign in"), so the first delete of a session fails. `requestProfileWrite` returns `void` and the session does not expose the scope.
    - Options:
      - (a) Reactive: on a 403 from a write, show `stepUpMessage` with a "Confirm your identity" button that calls `requestProfileWrite(currentRoute)` inside the click. In the popup mode the dialog or form keeps its state, and the user confirms again. No add-auth change.
      - (b) Proactive: add-auth exposes whether a write grant is held, and the write action starts the step-up first. This changes add-auth, so it is a security point.
      - (c) Step-up on entering the management area (a forced login on every visit).
    - Recommendation: (a). It needs no auth change and handles M1 either way. Risk: a 403 for ownership or role also shows the step-up prompt, because the contract documents no body to tell them apart (M4). Align with add-user-account 9.3 and 9.7.
-   - Blocks propose: yes.
+   - **Answered 2026-10-06 (Product owner): (a).** Reactive step-up after a `403`, as in add-user-account Open 2.
+   - Blocks propose: no.
 7. **422 handling.** No 422 body is documented for the three writes (M3).
    - Options:
      - (a) Any 422 shows the generic form or dialog error. Local validation prevents the known cases (no item, no location).
      - (b) Map `errors` to fields: this needs the contract updated first (Product owner's).
    - Recommendation: (a). It invents no error format (`AGENTS.md`).
+   - **Answered 2026-10-06 (Product owner): (a).** Generic error; field mapping in `docs/backlog.md` R8.
    - Blocks propose: no.
 8. **Roaster narrowing.** `listCoffeeInventory` has no roastery parameter (contract lines 49-115; `FilterCoffeeInventoryRequest.php:26-31`).
    - Options:
@@ -621,7 +628,8 @@ Numbers and names are appended to the catalog word by concatenation, as `Offerin
      - (b) Roaster select only, shown as labels; coffee via `coffeeName`.
      - (c) Ask the API for a `roasteryUlid` parameter (a contract change).
    - Recommendation: (a). It uses only documented fields and keeps both settled consumptions. Note: `coffeeName` is a name filter, so similar names may also match *(matching mode unverified)*.
-   - Blocks propose: yes (it defines the create flow).
+   - **Answered 2026-10-06 (Product owner): none of these.** The Roaster and Coffee selects and the inventory-item radio group are replaced by one search-as-you-type combobox over `GET /coffeeInventory?coffeeName=` (client, `request`), the reusable combobox built by `add-filter-controls` (its Open 16). Choosing a row chooses the inventory item (`coffeeInventoryId` for `POST /offerings`). Row: coffee name, then `roastery · country · process`. This change no longer consumes `listCoffees` or `listRoasteries`; `add-filter-controls` still does. §2, §4, §6 and the states table describe the old selects and must be redrafted.
+   - Blocks propose: yes, until those sections are redrafted.
 9. **After a successful create.**
    - Options:
      - (a) Stay on the form: the success status with the count and the "View my offerings" link; reset the selection.
