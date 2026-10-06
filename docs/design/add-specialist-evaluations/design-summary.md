@@ -1,4 +1,4 @@
-Status: draft — pending Product owner review
+Status: approved
 
 # Design summary — add-specialist-evaluations
 
@@ -9,7 +9,7 @@ Input for `/opsx:propose`. Decisions taken by the product owner (Augusto) on 202
 - Depends on: `add-app-shell` (routes, catalogs, session source, management sidebar region), `add-auth` (HTTP client with token, `useSession()`), `add-form-fields` (Field, Select, Checkbox, Textarea), `add-landing` (taxonomy `Badge` variant, `Card`, `OfferingCard`), and `add-evaluation-scales` (bean scale, slider, descriptor chip group and confirmation dialog, capability `form-fields`, built before this change).
 - The propose may reference the designs of `add-auth` and `add-landing`. The apply starts only after both are archived and merged into `develop`, and `develop` is merged into this branch. (`add-landing` is merged into `develop` since 2026-10-06; `add-auth` is in apply.)
 - Reference: SCA Coffee Value Assessment, Combined Form v2 (June 2024), adapted to the `POST /evaluations` contract.
-- Visual reference: the MVC form and list (see §11). The capture files are not yet in this folder (Open 12).
+- Visual reference: none; Product owner verifies the form and the list in the browser (see §11).
 
 ## 1. Scope
 
@@ -121,7 +121,8 @@ Built in `add-evaluation-scales` (capability `form-fields`); this change only us
 
 - add-landing ships `OfferingCard` with a `session: Session` prop and renders the link when that session's role is `specialist`; `HomeScreen` passes the anonymous session constant, so the link never renders. The cards are rendered by the async Server Component `VerifiedOfferings`, where `useSession()` (client only) cannot run.
 - `OfferingCard` gets a consumer-supplied action slot that replaces the `session` prop and its role check. The consumer passes a feature component (`EvaluateLink`) that reads `useSession()` (add-auth) and renders the link only for role `specialist`, pointing at `/{locale}/manage/evaluations/new?offering={ulid}`. The entity stays free of auth.
-- The card change is made in this change, after add-landing is archived (done). The tests of `OfferingCard`, `OfferingList` and `HomeScreen` that pass a `session` change with it.
+- Product owner, 2026-10-06: the slot itself is built by a separate refactor change in `landing`, before this change and add-offering-management. This change only supplies `EvaluateLink` to it.
+- The card change is made by `replace-offering-card-session` (landing), which keeps the specialist check in `OfferingList` for now; this change swaps in `EvaluateLink` and removes the remaining `session` props from the widget and the page, updating the `OfferingList` and `HomeScreen` tests that pass a `session`.
 
 ## 9. Page layout and spacing
 
@@ -169,7 +170,7 @@ Not in the catalog: roast level values, taxonomy names (from the API per locale)
 
 ## 11. Visual reference
 
-MVC views to capture at 375px and 1280px (Product owner adds them to this folder): the evaluation form (`livewire/evaluations/evaluation-form.blade.php`, one group expanded, from `evaluation-axis.blade.php`) and the evaluation list (`layouts/evaluations/partials/evaluation-list.blade.php` with `evaluation-card.blade.php`). The MVC filter bar (`evaluation-filterbar.blade.php`) belongs to `add-filter-controls`.
+No captures and no mock-up (Product owner, 2026-10-06). Layout and spacing values are in §2 and §9, taken from the MVC views `livewire/evaluations/evaluation-form.blade.php` (with `evaluation-axis.blade.php`) and `layouts/evaluations/partials/evaluation-list.blade.php` (with `evaluation-card.blade.php`). Product owner verifies the form and the list in the browser. The MVC filter bar (`evaluation-filterbar.blade.php`) belongs to `add-filter-controls`.
 
 ## 12. Contrast
 
@@ -198,7 +199,7 @@ This change adds no colour token. Its own text roles sit on `surface-page`, `sur
 9. **Access to `/manage/evaluations*` by an anonymous user or a non-specialist.** Options: a) anonymous → start sign-in (add-auth `signIn` with the route); non-specialist → 404 page; b) both → a message with a link home. Recommendation: a), pending add-auth's final API; touches the auth flow, so it is Product owner's. Blocks propose: yes.
 10. **Management sidebar entries.** The app-shell sidebar shows the entries of the management area in view; this change must supply them. Options: a) one entry "My evaluations" → the list; b) none (sidebar empty). Recommendation: a). Blocks propose: no.
 11. **Status badge in the list.** The MVC uses the verified/provisional badges (`clock` for open, `check` for closed). Options: a) reuse `Badge` `provisional` (Clock) for open and `verified` (Check) for closed, with catalog labels "Open"/"Closed"; b) new badge variants. Recommendation: a) (criterion C; no new tokens). Blocks propose: no.
-12. **Visual reference captures.** The folder has no capture yet. Product owner adds the MVC captures named in §11. Blocks propose: no.
+12. **Visual reference captures.** Closed 2026-10-06: no captures or mock-up; Product owner verifies the form and the list in the browser (§11). Blocks propose: no.
 13. **Reuse of the landing pieces (backlog).** `fetchTaxonomies` and `buildTaxonomyLookup` (`src/widgets/offering-list/api/offerings.ts`, `lib/resolve-taxonomies.ts`) and `OfferingPagination` (route hard-wired to `/{locale}?page=`) live in the `offering-list` widget; this change cannot import them from another widget or page slice without breaking FSD. Options: a) a refactor change first that moves the taxonomy read and lookup to `entities/taxonomy` (or `shared/api`) and makes the pagination route-agnostic in `shared/ui`; b) copy them here and register the duplication in `docs/backlog.md`. Recommendation: a), as its own change before this apply (criterion C; `add-offering-catalog` and `add-filter-controls` will need the same pieces). Product owner adds the backlog entry. Blocks propose: yes (decides the files this change creates).
 
 ### Answers of 2026-10-06 (Product owner with the orchestrator)
@@ -209,12 +210,16 @@ This change adds no colour token. Its own text roles sit on `surface-page`, `sur
 4. a), follows Product owner's answer to `add-evaluation-scales` Open 4: sliders start at 0 and send 0; the completeness indicator flags them.
 5. a), settled by the orchestrator: `Check` + "Complete"; "Incomplete" as text with no icon.
 6. a), settled by the orchestrator: server load, read-only view for non-owners, unknown `{ulid}` → 404 page.
+   - Replaced by Product owner, 2026-10-06 (explore B1: the evaluation resource carries no owner). API (`tazavera-api` branch `feature/user_evaluations`): the public reads `GET /evaluations` and `GET /evaluations/{ulid}` stay public and anonymous, as the API design states; new authenticated specialist endpoints under `/user/evaluations` (`listMyEvaluations`, `getMyEvaluation`, `createAnEvaluation`, `updateAnEvaluation`, `closeAnEvaluation`, `deleteAnEvaluation`) only serve the token user's evaluations, and another user's evaluation is a 404; new public `GET /users/{user}/evaluations` (`listTheEvaluationsOfAUser`). Front: "My evaluations" and the edit page use `/user/evaluations…` on the client through the add-auth client, with no `evaluatorId`; no read-only view for non-owners (another user's evaluation → the 404 page); the read-only view stays for the user's own closed evaluations. The propose waits for that branch merged into the API's `dev` and the contract on the front's `develop`.
 7. Settled by the orchestrator: reuse the landing loading, empty and error patterns.
 8. Settled by the orchestrator: as listed in the point.
 9. **a)** Anonymous → sign-in with return to the route; non-specialist → 404 page.
+   - Updated by Product owner, 2026-10-06: the anonymous visitor sees a message with a "Sign in" button that calls `signIn(currentRoute)` inside the click (popup, stays on the route); no automatic redirect. Same rule as add-user-account Open 5 and add-offering-management Open 5.
 10. a), settled by the orchestrator: one entry "My evaluations". The evaluations list also shows the evaluation facets in the sidebar (`add-filter-controls`, Product owner's answer of 2026-10-06).
+   - Product owner, 2026-10-06 (add-offering-management Open 1 b): the entry reaches the sidebar through the `@sidebar` parallel-route slot of `add-filter-controls`, the same mechanism as the facets; `SidebarMenuButton` gains a link form.
 11. a), settled by the orchestrator.
 12. Still open: proposed MVC captures for the list, and a CVA mock-up by the design lead as the form reference (the MVC form only for spacing), because the form follows the CVA Combined Form, not the MVC layout.
+   - Closed by Product owner, 2026-10-06: no captures or mock-up; Product owner verifies the form and the list in the browser (§11).
 13. **a)** A refactor change first moves the taxonomy read and lookup to `entities/taxonomy` and makes the pagination route-agnostic in `shared/ui`.
 
 ## Review log
@@ -230,3 +235,33 @@ Settled (criterion B), with the source:
 - §7: the user menu already links to the list route (add-app-shell `UserMenu`).
 - Added: status line, response states table, page layout and spacing (§9, from the MVC and D14), texts by catalog area (§10), visual reference (§11), contrast (§12), Open list, this log.
 Changed since the last review: the Product owner's 6 Oct descriptor rules (§3) and dependency on the chip group and dialog were already in the file and are kept as written.
+
+## Propose status
+
+Change-id: `add-specialist-evaluations`. Date: 2026-10-06. Branch: `feature/add-specialist-evaluations`. Capability: `evaluations`. `openspec validate add-specialist-evaluations --strict`: passing ("Change 'add-specialist-evaluations' is valid"). Artifacts: `openspec/changes/add-specialist-evaluations/` — `proposal.md`, `specs/evaluations/spec.md` (new capability `evaluations`; ADDED requirements only, no other capability modified), `design.md`, `tasks.md`.
+
+### Resolved
+
+Product owner's answers to the explore's questions (2026-10-06), recorded here as instructed and applied in the artifacts:
+
+1. **Q1 — 403 on own evaluations.** No `profile:write` scope and no step-up; the list shows only the user's own evaluations; a `403` on a write shows the "not yours" message and never a sign-in request. Supersedes the reactive step-up for this change only (`add-user-account` and `add-offering-management` keep it). → design.md D4 and its error table; spec "Saving a draft", "Closing an evaluation", "Row actions".
+2. **Q2 — entry.** "My evaluations" in the user menu (the existing entry of `src/widgets/app-header/ui/UserMenu.tsx`) opens `/{locale}/manage/evaluations`, the list with the existing management sidebar and its entry; no dependency on `add-filter-controls`' `@sidebar` slot. → design.md D5 (the `entries` seam of the app-shell sidebar filled by role, `SidebarMenuButton` link form); spec "Management sidebar entry".
+3. **Q3 — list row date.** Open rows show "Created on" `createdAt`; closed rows "Closed on" `closedAt`; in `type-meta` below the coffee name. → design.md card field mapping; spec "My evaluations list".
+4. **Q4 — default order.** `orderBy=created_at&orderDirection=desc`. → design.md endpoint 1; spec "My evaluations list".
+5. **Q5 — "Complete" per group.** A score group is complete when all its scores are set; the descriptor of the fragrance/aroma/flavor/aftertaste set is one requirement shared by those groups; Defects and Extrinsic have no indicator. The contract's close rule adds the other two descriptor requirements (main tastes to the Flavor / Aftertaste group, mouthfeel to the Mouthfeel group), stated as such in design.md D10. → spec "Completeness indicator".
+6. **Q6 — propose now.** The propose is made now; `tasks.md` states that the apply starts after `add-evaluation-scales` and `replace-offering-card-session` are merged into `develop` and `develop` into this branch.
+
+Also resolved into the artifacts (from the decisions log and the explore report of 2026-10-06):
+
+- **Migration to `/user/evaluations`** (decisions log, "lecturas de evaluaciones: decisión final"): list, detail and all writes run over `listMyEvaluations`, `getMyEvaluation`, `createAnEvaluation`, `updateAnEvaluation`, `closeAnEvaluation` and `deleteAnEvaluation` on the client through the add-auth client, with no `evaluatorId`; no read-only view for non-owners (another user's evaluation → the 404 page); the read-only view stays for one's own closed evaluations. The wording slips this supersedes in the summary body: §1's `GET /evaluations?evaluatorId={me}` and the `POST`/`PUT`/`PATCH`/`DELETE /evaluations` routes (`legacy.*` in the API), §1's "requested on the client, without a token", and §6's `listEvaluations` row of the response-states table.
+- **Non-blocking defaults of the explore report**, applied: the row score block is `cuppingScore` in `type-score` with "/100" and the rating badge carrying the tier word (no score and no badge when `cuppingScore` is absent); "Fragrance not evaluated — use aroma values" loads unchecked and, while checked, the fragrance controls are disabled and each part's aroma `score` is sent as its fragrance `score`; a stored `extractionMethod` outside the nine options is shown as-is and sent back unchanged; the `descriptive.roastLevel` read gap is covered by prefilling from `coffeeInventory.coffee.roastLevel` and is reported to the API; the delete confirmation is `ConfirmDialog` of `add-evaluation-scales` with its `pending` and `error` treatments; the note remove control is a link-styled button built in this change; score bounds stay with the scales and an API `422` shows the generic failure message (R8 keeps the field mapping); the `tastes` `type` values are mapped as the contract reports them.
+- **Access to `/manage/evaluations*`** (decisions log, "rutas protegidas sin sesión: mensaje con botón"): a message with a "Sign in" button calling `signIn(currentRoute)` inside the click (popup, the visitor stays on the route), a non-specialist gets the 404 page, and the screen waits while the session is `loading`. → design.md D13.
+- **Browser form validation** (decisions log, "validación de formularios"): `noValidate`, and only the documented `requestBody` rules are checked before sending — `descriptive.roastLevel` here. → design.md D4.
+- **Backlog checked** before the propose: R1, R3, R4 and R5 do not affect this change, and this change resolves none of them.
+
+### Open
+
+- Nothing blocks the propose or the apply (beyond the merge precondition of Q6). Reported to the API as documentation gaps, not blocking: `tastes[].type` is declared as a plain string with examples covering 5 of the 7 values the API stores (design.md D7 and its risk), and the evaluation reads carry no `descriptive.roastLevel` while both writes require it (D11 and its risk).
+- `add-evaluation-scales`' control names (`DescriptorChipGroup`, `ConfirmDialog` and the two scales) are taken from its summary; the imports follow the names that change exports at merge time (design.md risk).
+- Sidebar entries: this change fills the app-shell sidebar's `entries` seam and does not use `add-filter-controls`' `@sidebar` slot (Q2), while `add-offering-management`'s answer (b) routes its entries through that slot. The two mechanisms can coexist but leave two paths for management entries until Product owner retires one (design.md D5).
+- The list's loading placeholder is new code following the landing pattern; if Product owner wants the skeleton/retry duplication tracked, the `docs/backlog.md` entry is his to add.
