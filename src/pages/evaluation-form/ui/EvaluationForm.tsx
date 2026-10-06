@@ -8,6 +8,7 @@ import {
   ROAST_LEVELS,
   buildCreateBody,
   buildUpdateBody,
+  closeAnEvaluation,
   completenessOf,
   createAnEvaluation,
   emptyFormState,
@@ -60,6 +61,8 @@ export type EvaluationFormTexts = {
     saveLabel: string;
     closeLabel: string;
     savedMessage: string;
+    closedMessage: string;
+    incompleteMessage: string;
     notYoursMessage: string;
     alreadyClosedMessage: string;
     failureMessage: string;
@@ -121,7 +124,9 @@ export function EvaluationForm({
   const [busy, setBusy] = useState<FormBusy>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [roastLevelMissing, setRoastLevelMissing] = useState(false);
-  const readOnly = evaluation?.status === "closed";
+  const [closed, setClosed] = useState(evaluation?.status === "closed");
+  const [highlighted, setHighlighted] = useState(false);
+  const readOnly = closed;
   const completeness = completenessOf(state);
   const coffeeshopCaption = `${texts.coffeeshopCaption} ${offering.location?.name ?? ""}`.trim();
   const roasterCaption =
@@ -174,9 +179,33 @@ export function EvaluationForm({
 
   const onSave = async () => {
     setBusy("save");
+    setHighlighted(false);
     const saved = await save();
     setBusy(null);
     if (saved) setMessage(texts.actions.savedMessage);
+  };
+
+  /**
+   * Close evaluation (design.md D4): saves first, then closes. A `409` names
+   * the incomplete groups the completeness rule reports (design.md D10).
+   */
+  const onClose = async () => {
+    setBusy("close");
+    setHighlighted(false);
+    const saved = await save();
+    if (!saved) {
+      setBusy(null);
+      return;
+    }
+    const result = await closeAnEvaluation(saved);
+    setBusy(null);
+    if (result.ok) {
+      setClosed(true);
+      setMessage(texts.actions.closedMessage);
+      return;
+    }
+    setHighlighted(result.status === 409);
+    setMessage(failureFor(result.status, texts.actions.incompleteMessage));
   };
 
   return (
@@ -251,6 +280,7 @@ export function EvaluationForm({
             texts={texts.group}
             complete={completeness[group.key]}
             readOnly={readOnly}
+            highlighted={highlighted && completeness[group.key] === false}
             top={
               group.key === "fragranceAroma" && !readOnly ? (
                 <Checkbox
@@ -294,12 +324,16 @@ export function EvaluationForm({
           />
         ))}
       </div>
-      {readOnly ? null : (
+      {readOnly ? (
+        <p role="status" className="type-body">
+          {message}
+        </p>
+      ) : (
         <FormActions
           saveLabel={texts.actions.saveLabel}
           closeLabel={texts.actions.closeLabel}
           onSave={onSave}
-          onClose={() => {}}
+          onClose={onClose}
           busy={busy}
           message={message}
         />

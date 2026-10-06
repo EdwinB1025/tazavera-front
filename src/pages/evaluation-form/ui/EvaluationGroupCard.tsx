@@ -57,6 +57,8 @@ export type EvaluationGroupCardProps = {
   renderBlock?: (block: BlockDefinition) => ReactNode;
   /** Content at the top of the body, 1rem above the parts (design.md D9). */
   top?: ReactNode;
+  /** Marks the group after a `409` on close (design.md D10). */
+  highlighted?: boolean;
 };
 
 // ─── Layout end states (design.md D14; the summary §9) ───
@@ -72,6 +74,9 @@ const TOGGLE_CLASSES = [
   "rounded-field",
   "focus-visible:focus-ring",
 ].join(" ");
+// An incomplete group after a refused close: a ring in the error colour; the
+// indicator's "Incomplete" carries the state in words.
+const HIGHLIGHT_CLASSES = ["ring-2", "ring-feedback-error"].join(" ");
 const BODY_CLASSES = ["flex", "flex-col", "gap-4"].join(" ");
 const BOTH_PARTS_CLASSES = ["flex", "flex-col", "gap-6", "md:grid", "md:grid-cols-2"].join(" ");
 const ONE_PART_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
@@ -113,6 +118,7 @@ export function EvaluationGroupCard({
   readOnly = false,
   renderBlock,
   top,
+  highlighted = false,
 }: EvaluationGroupCardProps): ReactNode {
   const [expanded, setExpanded] = useState(true);
   const bodyId = useId();
@@ -240,7 +246,12 @@ export function EvaluationGroupCard({
       : null;
 
   return (
-    <Card layout="stacked" data-group={group.key}>
+    <Card
+      layout="stacked"
+      data-group={group.key}
+      data-highlighted={highlighted ? "true" : undefined}
+      className={highlighted ? HIGHLIGHT_CLASSES : undefined}
+    >
       <CardAside>
         <h3 className="md:hidden">
           <button

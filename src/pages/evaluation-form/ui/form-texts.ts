@@ -30,6 +30,8 @@ export function formTextsFrom(catalog: MessageCatalog): EvaluationFormTexts {
       saveLabel: catalog.saveLabel,
       closeLabel: catalog.closeLabel,
       savedMessage: catalog.savedMessage,
+      closedMessage: catalog.closedMessage,
+      incompleteMessage: catalog.incompleteMessage,
       notYoursMessage: catalog.notYoursMessage,
       alreadyClosedMessage: catalog.alreadyClosedMessage,
       failureMessage: catalog.failureMessage,
