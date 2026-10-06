@@ -2,7 +2,7 @@
 
 ## 1. Foundation: types
 
-- [ ] 1.1 Confirm this change introduces no derived or UI-specific type and never touches generated types: verify `git status --short` shows no entry under `src/shared/api/` (with `src/shared/api/schema.ts` untouched) and `npx tsc --noEmit` exits 0 without any type file added or modified
+- [x] 1.1 Confirm this change introduces no derived or UI-specific type and never touches generated types: verify `git status --short` shows no entry under `src/shared/api/` (with `src/shared/api/schema.ts` untouched) and `npx tsc --noEmit` exits 0 without any type file added or modified
 
 ## 2. Badge geometry export slice
 
