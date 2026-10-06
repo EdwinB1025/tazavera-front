@@ -926,6 +926,10 @@ export interface operations {
                                 /** @example defects */
                                 type?: string;
                             }[];
+                            /** @example 2026-10-06T09:12:45.000000Z */
+                            createdAt?: string;
+                            /** @example null */
+                            closedAt?: string | null;
                         };
                     };
                 };
@@ -1342,6 +1346,10 @@ export interface operations {
                                 /** @example defects */
                                 type?: string;
                             }[];
+                            /** @example 2026-10-06T09:12:45.000000Z */
+                            createdAt?: string;
+                            /** @example null */
+                            closedAt?: string | null;
                         };
                         /** @example Evaluation updated. */
                         message?: string;
@@ -1571,7 +1579,9 @@ export interface operations {
                          *             "ref": "01JTAXN0DE0000000000000009",
                          *             "type": "main_tastes"
                          *           }
-                         *         ]
+                         *         ],
+                         *         "createdAt": "2026-10-06T09:12:45.000000Z",
+                         *         "closedAt": null
                          *       },
                          *       {
                          *         "ulid": "01M35F5RX4ADGC3CSDXXYB08DA",
@@ -1669,7 +1679,9 @@ export interface operations {
                          *             "ref": "01JTAXN0DE000000000000000C",
                          *             "type": "mouthfeel"
                          *           }
-                         *         ]
+                         *         ],
+                         *         "createdAt": "2026-10-01T16:40:00.000000Z",
+                         *         "closedAt": "2026-10-02T11:05:30.000000Z"
                          *       }
                          *     ]
                          */
@@ -1812,6 +1824,10 @@ export interface operations {
                                 /** @example defects */
                                 type?: string;
                             }[];
+                            /** @example 2026-10-06T09:12:45.000000Z */
+                            createdAt?: string;
+                            /** @example null */
+                            closedAt?: string | null;
                         }[];
                         links?: {
                             /** @example http://localhost/api/evaluations?page=1 */
@@ -2332,6 +2348,10 @@ export interface operations {
                                 /** @example defects */
                                 type?: string;
                             }[];
+                            /** @example 2026-10-06T09:12:45.000000Z */
+                            createdAt?: string;
+                            /** @example null */
+                            closedAt?: string | null;
                         };
                         /** @example Evaluation created. */
                         message?: string;

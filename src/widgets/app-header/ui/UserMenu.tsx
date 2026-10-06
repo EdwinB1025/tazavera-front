@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   Link,
 } from "@/shared/ui";
+import { ChevronDown } from "@/shared/ui/icons";
 import { ThemeSelect } from "./ThemeSelect";
 
 // ─── UI-specific types (declared before the component) ───
@@ -38,20 +39,43 @@ export type UserMenuProps = {
   onSignOut: () => void;
 };
 
-// The avatar control takes the nav-avatar* treatment (design summary §3) and
-// the shared focus indicator.
+// ─── The ghost trigger (design.md D3, D4) ───
+// A menu trigger, not an action control: no fill and no border at rest or on
+// hover, the content switching between the header's navigation text colours
+// (one colour owner: `type-button` binds none), and focus keeping the shared
+// indicator (spec: "Header menu triggers"). One hit target: the circle takes
+// its hover pair while the pointer is anywhere on the control — `group` here,
+// `group-hover:` on the circle (design.md D4).
 const TRIGGER_CLASSES = [
   "type-button",
+  "group",
   "flex",
   "h-10",
-  "w-10",
+  "items-center",
+  "gap-2",
+  "rounded-field",
+  "px-3",
+  "text-nav-text",
+  "hover:text-nav-text-hover",
+  "focus-visible:focus-ring",
+].join(" ");
+
+// ─── One class list for the circle (design.md D5) ───
+// The same list in both themes: the theme difference lives entirely in the
+// token values. The boundary width is unconditional and only its colour is
+// transparent in the traditional theme.
+const CIRCLE_CLASSES = [
+  "flex",
+  "size-8",
+  "shrink-0",
   "items-center",
   "justify-center",
   "rounded-full",
   "bg-nav-avatar",
   "text-nav-text-dark",
-  "hover:bg-nav-avatar-hover",
-  "focus-visible:focus-ring",
+  "group-hover:bg-nav-avatar-hover",
+  "border",
+  "border-nav-avatar-border",
 ].join(" ");
 
 const ITEM_HREFS = {
@@ -98,9 +122,11 @@ export function UserMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className={TRIGGER_CLASSES} aria-label={name}>
-        {initials}
+        <span className={CIRCLE_CLASSES}>{initials}</span>
+        <span className="hidden md:inline">{name}</span>
+        <ChevronDown className="hidden md:block size-4" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" surface="nav">
         {(Object.keys(ITEM_HREFS) as Array<keyof typeof ITEM_HREFS>).map(
           (key) => (
             <DropdownMenuItem key={key} asChild>

@@ -315,8 +315,18 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "nav-text", bg: "nav-surface", kind: "text" },
   { fg: "nav-text", bg: "nav-current", kind: "text" },
   { fg: "nav-text-hover", bg: "nav-hover", kind: "text" },
+  // refine-app-header D13: the trigger's hover text on the header surface
+  { fg: "nav-text-hover", bg: "nav-surface", kind: "text" },
   { fg: "nav-text-dark", bg: "nav-surface-dark", kind: "text" },
   { fg: "nav-text-dark", bg: "nav-current-dark", kind: "text" },
+  // refine-app-header D13: the initials on the avatar circle, at rest and
+  // while the pointer is on the trigger
+  { fg: "nav-text-dark", bg: "nav-avatar", kind: "text" },
+  { fg: "nav-text-dark", bg: "nav-avatar-hover", kind: "text" },
+  // refine-app-header D13 (corrections.md round 1, correction 4): the
+  // destructive entry on the nav surface, at rest and on hover and focus
+  { fg: "nav-text-destructive", bg: "nav-surface", kind: "text" },
+  { fg: "nav-text-destructive", bg: "nav-hover", kind: "text" },
   // Icon pair: measured over two documented bases (Decision 14)
   { fg: "nav-toggle-icon", bg: "nav-toggle-bg", kind: "icon" },
   // Text on translucent hover bg: composited over nav-button-bg (Decision 10)
@@ -337,6 +347,10 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "border-strong", bg: "surface-page", kind: "bound" },
   { fg: "border-strong", bg: "surface-card", kind: "bound" },
   { fg: "border-strong", bg: "surface-form", kind: "bound" },
+  // refine-app-header D13: the header menu panel and in-menu select boundary
+  { fg: "border-strong", bg: "nav-surface", kind: "bound" },
+  // refine-app-header D14: the current navigation entry's bar
+  { fg: "nav-indicator", bg: "nav-surface", kind: "bound" },
   { fg: "border-muted", bg: "surface-textarea", kind: "bound" },
   { fg: "border-accent", bg: "surface-card", kind: "bound" },
   { fg: "focus-ring", bg: "surface-page", kind: "bound" },
@@ -357,6 +371,13 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "nav-button-border", bg: "nav-header", kind: "bound", exempt: true },
   { fg: "nav-button-border-hover", bg: "nav-button-bg-hover", kind: "bound", exempt: true },
   { fg: "nav-button-border-hover", bg: "nav-header", kind: "bound", exempt: true },
+
+  // refine-app-header D13: the avatar boundary is transparent in the
+  // traditional theme (design.md D5), so no boundary shows there — exempt,
+  // the fill gate asserted beside the nav-button gate below holds.
+  { fg: "nav-avatar-border", bg: "nav-surface", kind: "bound", exempt: true },
+  { fg: "nav-avatar-border", bg: "nav-avatar", kind: "bound", exempt: true },
+  { fg: "nav-avatar-border", bg: "nav-avatar-hover", kind: "bound", exempt: true },
 
   // ── Logotype exemptions (add-app-shell design.md D8) ──
   // A part of the brand logotype is excluded from WCAG 2.2 SC 1.4.11 ("part
@@ -419,6 +440,43 @@ describe("Traditional theme decorative exemptions (Decision 8 + 14)", () => {
     const fill = resolveToken("nav-button-bg", props);
     const header = resolveToken("nav-header", props);
     expect(contrast(fill, header)).toBeGreaterThanOrEqual(3.0);
+  });
+
+  // refine-app-header D13: the avatar fill identifies the circle in the
+  // traditional theme, the gate for the transparent avatar boundary of
+  // design.md D5 beside the nav-button gate above.
+  it("nav-avatar vs nav-surface >= 3:1 (gate for the transparent avatar boundary)", () => {
+    const fill = resolveToken("nav-avatar", props);
+    const surface = resolveToken("nav-surface", props);
+    expect(contrast(fill, surface)).toBeGreaterThanOrEqual(3.0);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Avatar boundary token completeness (refine-app-header design.md D5)
+// --color-nav-avatar-border is transparent in the traditional @theme, so its
+// value falls outside the relational completeness check's var()/color-mix()
+// filter (design.md D13): its presence in both theme blocks is asserted
+// explicitly.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+describe("Avatar boundary token completeness: --color-nav-avatar-border defined in both themes", () => {
+  const css = readGlobals();
+  const tradProps = extractTraditional(css);
+  const darkProps = extractDark(css);
+
+  it("traditional @theme defines --color-nav-avatar-border", () => {
+    expect(
+      tradProps.has("--color-nav-avatar-border"),
+      "avatar boundary token --color-nav-avatar-border is undefined in the traditional theme",
+    ).toBe(true);
+  });
+
+  it("dark theme defines --color-nav-avatar-border", () => {
+    expect(
+      darkProps.has("--color-nav-avatar-border"),
+      "avatar boundary token --color-nav-avatar-border is undefined in the dark theme",
+    ).toBe(true);
   });
 });
 
@@ -524,8 +582,18 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "nav-text", bg: "nav-surface", kind: "text" },
   { fg: "nav-text", bg: "nav-current", kind: "text" },
   { fg: "nav-text-hover", bg: "nav-hover", kind: "text" },
+  // refine-app-header D13: the trigger's hover text on the header surface
+  { fg: "nav-text-hover", bg: "nav-surface", kind: "text" },
   { fg: "nav-text-dark", bg: "nav-surface-dark", kind: "text" },
   { fg: "nav-text-dark", bg: "nav-current-dark", kind: "text" },
+  // refine-app-header D13: the initials on the avatar circle, at rest and
+  // while the pointer is on the trigger
+  { fg: "nav-text-dark", bg: "nav-avatar", kind: "text" },
+  { fg: "nav-text-dark", bg: "nav-avatar-hover", kind: "text" },
+  // refine-app-header D13 (corrections.md round 1, correction 4): the
+  // destructive entry on the nav surface, at rest and on hover and focus
+  { fg: "nav-text-destructive", bg: "nav-surface", kind: "text" },
+  { fg: "nav-text-destructive", bg: "nav-hover", kind: "text" },
   { fg: "nav-toggle-icon", bg: "nav-toggle-bg", kind: "icon" },
   { fg: "nav-button-text", bg: "nav-button-bg", kind: "text" },
   { fg: "nav-button-text-hover", bg: "nav-button-bg-hover", kind: "text" },
@@ -543,6 +611,10 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "border-strong", bg: "surface-page", kind: "bound" },
   { fg: "border-strong", bg: "surface-card", kind: "bound" },
   { fg: "border-strong", bg: "surface-form", kind: "bound" },
+  // refine-app-header D13: the header menu panel and in-menu select boundary
+  { fg: "border-strong", bg: "nav-surface", kind: "bound" },
+  // refine-app-header D14: the current navigation entry's bar
+  { fg: "nav-indicator", bg: "nav-surface", kind: "bound" },
   { fg: "border-muted", bg: "surface-textarea", kind: "bound" },
   { fg: "border-accent", bg: "surface-card", kind: "bound" },
   { fg: "focus-ring", bg: "surface-page", kind: "bound" },
@@ -560,6 +632,11 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "nav-button-border", bg: "nav-header", kind: "bound" },
   { fg: "nav-button-border-hover", bg: "nav-button-bg-hover", kind: "bound" },
   { fg: "nav-button-border-hover", bg: "nav-header", kind: "bound" },
+  // refine-app-header D13: the avatar boundary is state-identifying in the
+  // dark theme (design.md D5), so its pairs are measured there
+  { fg: "nav-avatar-border", bg: "nav-surface", kind: "bound" },
+  { fg: "nav-avatar-border", bg: "nav-avatar", kind: "bound" },
+  { fg: "nav-avatar-border", bg: "nav-avatar-hover", kind: "bound" },
 
   // ── Logotype exemptions (add-app-shell design.md D8) ──
   // Exempt from the 3:1 rule in the dark theme as well; measured at their

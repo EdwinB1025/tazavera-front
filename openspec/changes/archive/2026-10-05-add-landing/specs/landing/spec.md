@@ -1,0 +1,178 @@
+# Spec Delta
+
+## Purpose
+
+Defines Tazavera's public web presence: the entry page with its hero and the verified offerings list, and the About us page that explains the guide, as visitors meet them in every supported locale before and after signing in.
+
+## ADDED Requirements
+
+### Requirement: Public access
+Both public pages SHALL render completely for an anonymous visitor, in the locale of the route, with no sign-in required.
+
+#### Scenario: Anonymous visit
+- **WHEN** an anonymous visitor opens the entry route or the about route in a supported locale
+- **THEN** the page renders its full content in that locale with no sign-in prompt
+
+### Requirement: Page layout
+Both public pages SHALL be built from full-width sections. Each section's content SHALL sit in a horizontally centered container at most 72rem wide, with side padding (1rem below the medium breakpoint of 768px, 2rem from it). Each section SHALL have vertical padding (3rem below 768px, 4rem from it). On the entry page, the hero and the verified offerings list SHALL be separate sections, the hero on the page background and the list on the section background. Groups of navigation links SHALL keep a visible gap between their links and wrap when there is no room.
+
+#### Scenario: Centered content
+- **WHEN** either page renders on a viewport wider than 72rem plus its side padding
+- **THEN** the content of every section is centered with equal space on both sides, while the section backgrounds span the full viewport width
+
+#### Scenario: Side and section spacing
+- **WHEN** either page renders at any viewport width
+- **THEN** no section content touches the viewport's side edges, and consecutive sections are separated by their vertical padding
+
+#### Scenario: Entry page sections
+- **WHEN** the entry page renders
+- **THEN** the hero renders on the page background and the verified offerings list renders below it, in its own section on the section background
+
+#### Scenario: Link groups
+- **WHEN** the two registration links render on either page
+- **THEN** a visible gap separates them, and they wrap onto separate lines when the row has no room
+
+### Requirement: Entry page hero
+The entry page SHALL render, in the main content area, an eyebrow label, the entry heading with exactly one emphasized word in the accent text color (in Spanish the settled copy `Tu café, el que merece cada sorbo`), an introduction paragraph, a primary action that scrolls the verified offerings list into view on the same page, and two navigation links: one registering a coffeeshop and one registering as a specialist. The coffee-beans photograph SHALL accompany the hero from the medium breakpoint (768px) up and be hidden below it.
+
+#### Scenario: Hero presentation
+- **WHEN** a visitor opens the entry route in a supported locale
+- **THEN** the eyebrow, the heading with one emphasized word, the paragraph, the primary explore action and both registration links render with the texts of that locale
+
+#### Scenario: Explore scrolls to the offerings
+- **WHEN** the visitor activates the primary explore action
+- **THEN** the verified offerings list scrolls into view on the same page and the route does not change
+
+#### Scenario: Registration destinations
+- **WHEN** the visitor activates the coffeeshop registration link
+- **THEN** the application opens the coffeeshop registration route of the active locale, owned by a later change
+
+#### Scenario: Specialist registration destination
+- **WHEN** the visitor activates the specialist registration link
+- **THEN** the application opens the specialist registration route of the active locale, owned by a later change
+
+#### Scenario: Responsive hero
+- **WHEN** the viewport is below 768px
+- **THEN** the hero renders in one column with the photograph hidden, and from 768px up it renders in two equal columns, vertically centered, with the photograph beside the text
+
+### Requirement: Verified offerings list
+The entry page SHALL list the verified offerings of the API, one offering card per offering, in a grid of one column below the medium breakpoint (768px), two from 768px and three from the extra-large breakpoint (1280px), with Previous and Next pagination driven by the API's current and last page, and SHALL cover loading, empty, success and error states.
+
+#### Scenario: Success
+- **WHEN** the verified offerings load and the API returns offerings
+- **THEN** one offering card renders per offering of the current page and the pagination reflects the API's current and last page
+
+#### Scenario: Grid by viewport
+- **WHEN** the list renders offering cards
+- **THEN** the cards fill one column below 768px, two from 768px and three from 1280px, separated by a gap, and the cards of one row share the same height
+
+#### Scenario: Loading
+- **WHEN** the list is loading its data
+- **THEN** skeleton cards render in the list's place and no empty or error message renders
+
+#### Scenario: Empty
+- **WHEN** the API holds no verified offerings
+- **THEN** a centered message renders and no offering card renders
+
+#### Scenario: Error and retry
+- **WHEN** the offerings data cannot be loaded, whether the request fails or returns a non-success status
+- **THEN** a message with a retry action renders and no offering card renders
+
+#### Scenario: Retry reloads
+- **WHEN** the visitor activates the retry action
+- **THEN** the list loads again through its loading state into success, empty or error
+
+#### Scenario: Paging
+- **WHEN** the visitor activates Next or Previous
+- **THEN** the list requests the following or preceding page and updates its cards and pagination state
+
+#### Scenario: Paging at the boundaries
+- **WHEN** the list shows the first page
+- **THEN** Previous is unavailable, and when it shows the last page Next is unavailable
+
+### Requirement: Offering card content
+Each offering card SHALL show the offering's data as mapped from the API: the cupping score out of 100 with a rating badge classifying it — exceptional at 90 or above, excellent at 85 or above and below 90, good at 80 or above and below 85, commercial below 80; the verification state badge (verified or provisional); the coffee name; the coffeeshop name and the roaster name as labeled captions; one origin line joining country, region, process and variety and omitting any null value; the taxonomy badges of the offering; and a footer with the evaluation count, the defective evaluation count, a View link for every viewer and an Evaluate link for a signed-in specialist only.
+
+#### Scenario: Score and rating tier
+- **WHEN** an offering carries a cupping average
+- **THEN** the card shows the score out of 100 with the rating badge of its range: exceptional at 90 or above, excellent from 85 to below 90, good from 80 to below 85, commercial below 80
+
+#### Scenario: Score row above the content
+- **WHEN** an offering card renders at any viewport width
+- **THEN** the score, the `/100` scale and the rating badge sit on one row above the card's main content
+
+#### Scenario: No score
+- **WHEN** an offering carries no cupping average
+- **THEN** the card shows no score and no rating badge and the rest of its content renders normally
+
+#### Scenario: Origin line skips null values
+- **WHEN** any of country, region, process or variety is null on an offering's coffee
+- **THEN** the origin line omits that value and joins the remaining values, keeping the fixed order country, region, process, variety
+
+#### Scenario: Footer counts
+- **WHEN** an offering card renders
+- **THEN** its footer shows the offering's evaluation count and defective evaluation count, separated by a visible gap, with the card's links grouped apart from the counts at the end of the footer
+
+#### Scenario: View link for everyone
+- **WHEN** any viewer sees an offering card
+- **THEN** a View link addresses the offering's detail route in the active locale, built from the offering's identifier
+
+#### Scenario: Evaluate link for specialists
+- **WHEN** the viewer is signed in with the specialist role
+- **THEN** the footer shows an Evaluate link addressing the new-evaluation route of the active locale with the offering's identifier
+
+#### Scenario: No Evaluate link for other viewers
+- **WHEN** the viewer is anonymous or signed in with another role
+- **THEN** no Evaluate link renders on the card
+
+### Requirement: Taxonomy badges on the offering card
+Each taxonomy reference of an offering's sensory taxonomy, including nested children, SHALL render as a badge carrying the taxonomy's name in the active locale and the taxonomy's data color, arranged in three rows by level (0, 1, 2), each row wrapping its badges so that no row overflows the card below the medium breakpoint (768px). A reference that resolves to no taxonomy SHALL render no badge.
+
+#### Scenario: Names by locale
+- **WHEN** an offering card renders in the active locale
+- **THEN** each taxonomy badge shows the taxonomy's name in that locale
+
+#### Scenario: Rows by level
+- **WHEN** an offering carries taxonomy references at levels 0, 1 and 2
+- **THEN** the badges render in three rows, one per level, each row wrapping its badges rather than overflowing the card
+
+#### Scenario: Unresolved reference
+- **WHEN** a taxonomy reference matches no taxonomy
+- **THEN** no badge renders for that reference and the remaining badges render normally
+
+### Requirement: About us page
+The about route SHALL render five sections with alternating page and section backgrounds, in this order: a brief hero with an eyebrow label and a heading with one emphasized word in the accent text color; the story of the gap between a coffee label and what is in the cup and why the guide is built on objective evaluations; how we evaluate as three cards — the coffeeshop registers its offering as provisional, specialists cup it with the SCA method, and the consensus verifies it; who it is for, naming coffeeshops and specialists with their registration links; and a closing primary action that opens the entry page of the active locale.
+
+#### Scenario: Sections and order
+- **WHEN** a visitor opens the about route in a supported locale
+- **THEN** the five sections render in order with alternating page and section backgrounds
+
+#### Scenario: How we evaluate
+- **WHEN** the evaluation section renders
+- **THEN** three cards present the provisional registration, the SCA cupping by specialists and the consensus verification, sharing the container width equally from the medium breakpoint (768px) up
+
+#### Scenario: Registration links
+- **WHEN** the visitor activates the coffeeshop or the specialist registration link of the about page
+- **THEN** the application opens that registration route of the active locale, owned by a later change
+
+#### Scenario: Closing action
+- **WHEN** the visitor activates the closing primary action
+- **THEN** the entry page of the active locale opens
+
+### Requirement: Localized page texts
+Every text of both pages — hero, list states, card labels and captions, pagination, and the about sections — SHALL render in the active locale (Spanish, English or Catalan) from the locale's message catalog, and no page text SHALL be hardcoded in the interface.
+
+#### Scenario: Texts follow the locale
+- **WHEN** a visitor opens either page in Spanish, English or Catalan
+- **THEN** every text renders in that locale and no text renders in another
+
+#### Scenario: Settled Spanish heading
+- **WHEN** the entry page renders in Spanish
+- **THEN** its heading is exactly `Tu café, el que merece cada sorbo` with exactly one emphasized word
+
+### Requirement: Page metadata
+The document metadata of both public pages SHALL carry the title exactly `Tazavera` and a description drawn from the message catalog of the active locale.
+
+#### Scenario: Metadata by locale
+- **WHEN** a visitor opens either page in Spanish, English or Catalan
+- **THEN** the document title is exactly `Tazavera` and the document description is the metadata description text of that locale's catalog

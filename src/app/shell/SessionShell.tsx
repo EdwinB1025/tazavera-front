@@ -60,7 +60,7 @@ export function SessionShell({
     ) : undefined);
 
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="flex flex-1 flex-col">
       <ShellChrome
         session={supplied}
         locale={locale}

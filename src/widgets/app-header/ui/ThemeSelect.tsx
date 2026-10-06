@@ -13,14 +13,18 @@ export type ThemeSelectProps = {
   label: string;
 };
 
+// ─── The menu treatment (refine-app-header design.md D9) ───
+// The geometry and the shared focus indicator stay; the menu row treatment
+// of the header menus replaces the input block, so no panel-coloured block
+// sits inside the menu (spec: "Theme selector inside the menu").
 const SELECT_CLASSES = [
-  "type-control",
+  "type-navlist-item",
   "h-10",
   "w-full",
   "rounded-field",
   "border",
   "border-border-strong",
-  "bg-surface-input",
+  "bg-nav-surface",
   "px-3",
   "focus-visible:focus-ring",
 ].join(" ");

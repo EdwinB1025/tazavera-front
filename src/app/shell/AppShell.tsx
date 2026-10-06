@@ -1,5 +1,11 @@
 import type { ReactNode } from "react";
 import type { Session } from "@/shared/api";
+import {
+  DEFAULT_LOCALE,
+  isSupportedLocale,
+  type Locale,
+} from "@/shared/config/locales";
+import { LOCALE_NAMES } from "@/shared/config/locale-names";
 import { getMessages } from "@/shared/lib/i18n";
 import { SessionShell } from "./SessionShell";
 
@@ -33,18 +39,31 @@ export function AppShell({
   sidebar,
   children,
 }: AppShellProps): ReactNode {
-  const texts = getMessages("shell", locale);
+  // design.md D6 (correction 3 of round 1): the locale is resolved with
+  // `isSupportedLocale` and never cast. An unsupported locale resolves to
+  // DEFAULT_LOCALE (es) for the whole composition — catalog word, code and
+  // own name — so the name reads "ES — Idioma: Español" and the shell
+  // renders without throwing (the catalog included, since `getMessages`
+  // rejects an unsupported locale).
+  const active: Locale = isSupportedLocale(locale) ? locale : DEFAULT_LOCALE;
+  const texts = getMessages("shell", active);
 
   return (
     <SessionShell
-      locale={locale}
+      locale={active}
       session={session}
       sidebar={sidebar}
       texts={{
         topRated: texts.topRated!,
         aboutUs: texts.aboutUs!,
         signIn: texts.signIn!,
-        languageSelector: texts.languageSelector!,
+        // design.md D6: the shell composes one name — the resolved
+        // locale's code in uppercase, then " — ", then the catalog word
+        // with the resolved language's own name, e.g.
+        // "ES — Idioma: Español" for es — and passes it as one string
+        // (spec: "Selector is named"), so the name leads with the code
+        // the trigger shows.
+        languageSelector: `${active.toUpperCase()} — ${texts.languageSelector!}: ${LOCALE_NAMES[active].name}`,
         brandLink: texts.brandLink!,
         profile: texts.profile!,
         editProfile: texts.editProfile!,
