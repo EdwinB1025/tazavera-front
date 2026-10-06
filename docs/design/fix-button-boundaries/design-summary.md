@@ -255,3 +255,8 @@ Settled by the orchestrator, 2026-10-06 (Product owner may reopen it): Open 1 a)
   - **§6's incomplete "must keep passing" list, by handoff D3.** The complete list (direct renderers, transitive renderers and style guards) is recorded in design.md D6.
 - Open: **Open 2 (visual reference).** The mock-up is rendered by the design lead before the apply (design.md Open Questions); it changes no spec, decision or task and does not block propose.
 - Backlog: none. No entry names this change (R4 touches `DropdownMenu.tsx`, not `Button`).
+- **Artifact review by Product owner, 2026-10-06 (applied 2026-10-06).** `openspec validate fix-button-boundaries --strict`: passed ("Change 'fix-button-boundaries' is valid").
+  - Open 1 a) (1px border) and Open 2 a) confirmed.
+  - Product owner reviewed the mock-up (`mockup/buttons-mockup.html`) and approves every border as rendered, including the border merging with the fill on the traditional hover of `action-1` and `action-3`, the dark-theme borders lighter than the label at rest, and the cream border on dark `primary`. Nothing blocks the apply on the visual side.
+  - Kept as edited by the orchestrator in `openspec/changes/fix-button-boundaries/design.md`: Risk 2 (the mock-up uses its own copy of the stylesheet; every rendered `Button` on the live landing computes `box-sizing: border-box` at 40px high) and Risk 3 (the transparent border makes the button 2px wider and, at the fixed height, its content area 2px shorter).
+  - Applied: design.md "Open Questions" records the visual reference as resolved. Open 2 is closed and supersedes the `Open` line above (it changes no spec, decision or task). Open: none.
