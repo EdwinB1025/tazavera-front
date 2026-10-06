@@ -33,7 +33,10 @@ export function readHeldFlow(): PendingFlow | null {
   return held;
 }
 
-/** Discards the popup flow's record once its result arrives (design.md D3). */
+/**
+ * Discards the popup flow's record once its result arrives, or once the popup
+ * closes without one (design.md D3 and D10).
+ */
 export function releaseFlow(): void {
   held = null;
 }

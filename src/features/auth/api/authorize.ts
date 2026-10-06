@@ -159,12 +159,26 @@ function startInteractive(scope: Scope, returnRoute: string): void {
  * in memory, the marker set and the session settled, so after a step-up the
  * new token replaces the previous one. An error or a `state` mismatch takes the
  * D4 error path: marker removed and the session `anonymous`, with no text.
+ *
+ * A popup closed before completing ends the flow the same way design.md D10
+ * states it: the in-memory flow data is discarded, the session stays as it was
+ * (still `anonymous` after a sign in, unchanged after a step-up) and no
+ * message is shown. Retrying is a new click.
  */
 function listenToPopup(popup: Window, pending: PendingFlow): void {
   const onMessage = (event: MessageEvent) => {
     if (event.origin !== appUrl() || event.source !== popup) return;
-    window.removeEventListener("message", onMessage);
+    stop();
     void completePopup(event.data, pending);
+  };
+  const timer = window.setInterval(() => {
+    if (!popup.closed) return;
+    stop();
+    releaseFlow();
+  }, 250);
+  const stop = (): void => {
+    window.removeEventListener("message", onMessage);
+    window.clearInterval(timer);
   };
   window.addEventListener("message", onMessage);
 }
