@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
+import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
 
 /**
@@ -19,6 +19,19 @@ vi.mock("@/entities/evaluation", async (importOriginal) => ({
 
 import { EvaluationForm } from "./EvaluationForm";
 import { FORM_TEXTS, OFFERING, OPEN_EVALUATION } from "./form-fixtures";
+
+// Inside a form the Radix radio group measures each bean for its hidden
+// native radio; jsdom has no ResizeObserver. Test infrastructure only.
+beforeAll(() => {
+  vi.stubGlobal(
+    "ResizeObserver",
+    class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  );
+});
 
 afterEach(cleanup);
 
