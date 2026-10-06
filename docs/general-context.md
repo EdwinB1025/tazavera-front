@@ -11,7 +11,7 @@ Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`.
 
 ## Estado
 
-- **Entrega del bootcamp esta semana; Product owner quiere cerrar todo hoy (6 oct) con todos los ejecutores.** Mínimo: consumir el contrato, salvo `listEvaluations`, `getAnEvaluation` y `listTheEvaluationsOfAUser`, fuera del alcance por decisión de Product owner (registro).
+- **Entrega del bootcamp esta semana; Product owner quiere cerrar todo hoy (6 oct) con todos los ejecutores.** Mínimo: consumir el contrato, salvo `listTheEvaluationsOfAUser`, fuera del alcance. `listEvaluations` y `getAnEvaluation` vuelven al alcance con la lista pública de evaluaciones (registro, "evaluaciones públicas y evaluación provisional").
 - **En `develop`:** theme-tokens, base-control, focus-ring, form-fields, app-shell, refine-app-header, landing, auth, refactor-badge-geometry, extract-offering-list-parts, extract-page-section, fix-button-boundaries, label-rating-badge; contrato `84e29fe` (`/user/evaluations`).
 - **Ejecutores:** OpenCode sin saldo desde ~18:30 del 6 oct: todo va a la nube hasta que Product owner recargue (lanzador `node launch.mjs <worktree> <agent> <title> <prompt-file> <log>` en el scratchpad de la sesión; recrearlo). Nube con rutinas de un solo uso. Claude local como build/arquitecto mientras el uso (5 h y 7 días) esté < 80 %. En modo don't ask: el orquestador no puede `git merge` en `develop` (lo lanza Product owner) ni editar `src/`/`openspec/`; `openspec archive` lo ejecuta el orquestador con `node run-in.mjs <dir> openspec archive <id> --yes` (el perfil del arquitecto lo deniega).
 - **Fases por cambio:** ver el tablero.
@@ -295,3 +295,19 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Decisión:** 1. No se divide el cambio: el apply va tarea a tarea, una ejecución por tarea, así que el tamaño de la sesión no limita; la frontera entre los grupos 6 y 7–9 queda como punto de corte si hiciera falta. 2. La leyenda de consenso de Defectos y Sabores principales es una línea `type-meta` por nota identificada, `{nombre} {n}/{total}`, y no aparece si el grupo está vacío (design.md D13), igual que la leyenda de la rueda. 3. Las props de `FlavorWheel` son las del resumen aprobado de add-flavor-wheel (`nodes`, `total`, `texts`, más `buildFlavorWheelNodes` en `entities/taxonomy`); la llamada de catalog (D14) se adapta a ellas en su apply.
 - **Por qué:** delegación de Product owner durante su pausa.
 - **Afecta:** add-offering-catalog, add-flavor-wheel.
+
+### 2026-10-06 — evaluaciones públicas y evaluación provisional (respuesta de Product owner; corrige "evaluaciones públicas fuera del alcance")
+- **Decisión:** la entrada "evaluaciones públicas fuera del alcance" leyó mal la respuesta de Product owner. "Mejor valorados" sigue siendo la lista de ofertas de `add-offering-catalog`, pero la **lista pública de evaluaciones existe y entra en el alcance**. Opción (b):
+  - El detalle de la oferta tiene un botón "Ver evaluaciones" que abre la lista pública de evaluaciones con el filtro de esa oferta activo en la barra lateral.
+  - El detalle tiene además una pestaña "Evaluación provisional" que muestra la evaluación `baseline` de la cafetería (`GET /evaluations?offeringId=<ulid>&evaluationType=baseline`).
+  - `listEvaluations` y `getAnEvaluation` vuelven a tener consumidor. `listTheEvaluationsOfAUser` (la página pública de un especialista) sigue fuera del alcance.
+- **Cambio en el API, nuevo y en diseño:**
+  - un seeder que crea al menos 3 ofertas por cafetería y una evaluación `baseline` cerrada por oferta (`evaluator_id` = la cafetería, creada con `EvaluationFactory`);
+  - los scopes `offeringId` y `evaluationType` en `Evaluation::filter()`, en `GET /evaluations`, `GET /users/{user}/evaluations` y `GET /user/evaluations`.
+  - La unicidad de la baseline la garantiza solo el seeder: el endpoint de la baseline de la cafetería sigue en el backlog del API (MVC `casos de uso.md:3`, README del API). El resource no cambia, porque ya expone `offeringId` y `evaluationType`.
+- **Pendiente:**
+  - si el botón y la pestaña entran en `add-offering-catalog` o en un cambio aparte;
+  - el nombre del cambio del API;
+  - si el seeder se engancha en `DatabaseSeeder`.
+- **Por qué:** respuestas de Product owner del 6 oct (opción b) y documentos de diseño del MVC (`Diseño.md:96`, `:104`; `casos de uso.md:3`, `:100`).
+- **Afecta:** add-public-evaluations (se recupera), add-offering-catalog (detalle: botón y pestaña), add-flavor-wheel (posible consumidor en la lista pública), cobertura del contrato, nuevo cambio del API.
