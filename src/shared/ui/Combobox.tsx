@@ -157,6 +157,13 @@ export function Combobox({
     if (term === "" && value !== null) onChange(null);
   }
 
+  // Abandoned typed text (refine-facet-controls design.md D2): the input
+  // shows the chosen value's label again, or empties, and nothing is reported.
+  function restore(): void {
+    setTerm(value?.label ?? "");
+    setOpen(false);
+  }
+
   return (
     <div className={variant === "inverse" ? "variant-inverse" : undefined}>
       <label ref={labelRef} className="type-label">
@@ -180,11 +187,17 @@ export function Combobox({
                   firstPending.current = false;
                 } else if (event.key === "Enter" && term === "") {
                   clearIfEmpty();
+                } else if (event.key === "Escape") {
+                  restore();
                 }
               }}
               onBlur={() => {
-                setOpen(false);
-                clearIfEmpty();
+                if (term === "") {
+                  setOpen(false);
+                  clearIfEmpty();
+                } else {
+                  restore();
+                }
               }}
             >
               <Input
