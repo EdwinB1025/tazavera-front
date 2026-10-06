@@ -6,6 +6,7 @@ import {
   cleanup,
   waitFor,
   act,
+  within,
 } from "@testing-library/react";
 import type { OfferingSummary, Session } from "@/shared/api";
 
@@ -79,6 +80,16 @@ const TEXTS = {
   selectLabel: "Select",
   deleteLabel: "Delete",
   deleteSelectedLabel: "Delete selected",
+  deleteOneTitle: "Delete this offering?",
+  deleteOneDescription: "The offering will be deleted. This cannot be undone.",
+  deleteManyTitle: "Delete the selected offerings?",
+  deleteManyDescription: "The selected offerings will be deleted. This cannot be undone.",
+  deleteConfirmLabel: "Delete",
+  cancelLabel: "Cancel",
+  deleteError: "It could not be deleted. Try again.",
+  deletedStatus: "Offerings deleted:",
+  stepUpMessage: "To continue, confirm your identity.",
+  stepUpLabel: "Confirm your identity",
 };
 
 const COFFEESHOP: Session = {
@@ -414,5 +425,120 @@ describe("ManageOfferingsPanel — selection (spec 'Offering selection')", () =>
     );
     await screen.findByText("Selected: 0");
     expect(checkbox(SELECT_A).checked).toBe(false);
+  });
+});
+
+describe("ManageOfferingsPanel — deleting (spec 'Deleting offerings')", () => {
+  const DELETE_A = "Delete Huila El Mirador — Tazavera Gràcia";
+
+  function ok(): Response {
+    return jsonResponse(200, { message: "never shown" });
+  }
+
+  async function loaded(page = 1, items = ITEMS) {
+    mocks.publicRequest.mockResolvedValueOnce(pageOf(items, page, page));
+    const view = renderPanel(page);
+    await screen.findAllByRole("heading", { level: 3 });
+    return view;
+  }
+
+  function confirmButton(): HTMLElement {
+    const dialog = screen.getByRole("alertdialog");
+    return within(dialog).getByRole("button", { name: TEXTS.deleteConfirmLabel });
+  }
+
+  it("deletes one offering after confirmation: closes, announces 1, reloads and focuses the heading", async () => {
+    await loaded();
+    fireEvent.click(screen.getByRole("button", { name: DELETE_A }));
+    expect(screen.getByRole("alertdialog", { name: TEXTS.deleteOneTitle })).toBeTruthy();
+    expect(mocks.request).not.toHaveBeenCalled();
+
+    mocks.request.mockResolvedValue(ok());
+    mocks.publicRequest.mockResolvedValueOnce(pageOf([ITEMS[1]]));
+    await act(async () => {
+      fireEvent.click(confirmButton());
+    });
+
+    expect(mocks.request.mock.calls[0][0]).toBe("/offerings/01A");
+    await waitFor(() => expect(screen.queryByRole("alertdialog")).toBeNull());
+    const status = screen.getByRole("status");
+    expect(status.textContent).toBe("Offerings deleted: 1");
+    expect(status.className).toBe("type-body");
+    expect(status.parentElement!.className).toBe("flex flex-col gap-4");
+    await waitFor(() =>
+      expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(1),
+    );
+    expect(mocks.publicRequest).toHaveBeenCalledTimes(2);
+    const heading = screen.getByRole("heading", { level: 1 });
+    await waitFor(() => expect(document.activeElement).toBe(heading));
+  });
+
+  it("renders no status line before a delete", async () => {
+    await loaded();
+
+    expect(screen.queryByRole("status")).toBeNull();
+  });
+
+  it("deletes the selection after confirmation, announces its count and empties the selection", async () => {
+    await loaded();
+    fireEvent.click(screen.getByRole("checkbox", { name: TEXTS.selectAllLabel }));
+    fireEvent.click(screen.getByRole("button", { name: TEXTS.deleteSelectedLabel }));
+    expect(screen.getByRole("alertdialog", { name: TEXTS.deleteManyTitle })).toBeTruthy();
+
+    mocks.request.mockResolvedValue(ok());
+    mocks.publicRequest.mockResolvedValueOnce(pageOf(ITEMS));
+    await act(async () => {
+      fireEvent.click(confirmButton());
+    });
+
+    expect(mocks.request.mock.calls[0][0]).toBe("/offerings");
+    const init = mocks.request.mock.calls[0][1] as RequestInit;
+    expect(JSON.parse(init.body as string)).toEqual({ offerings: ["01A", "01B"] });
+    await waitFor(() =>
+      expect(screen.getByRole("status").textContent).toBe("Offerings deleted: 2"),
+    );
+    await screen.findByText("Selected: 0");
+    const heading = screen.getByRole("heading", { level: 1 });
+    await waitFor(() => expect(document.activeElement).toBe(heading));
+  });
+
+  it("keeps the confirmation open with its error on a failure", async () => {
+    await loaded();
+    fireEvent.click(screen.getByRole("button", { name: DELETE_A }));
+    mocks.request.mockResolvedValue(jsonResponse(500, {}));
+    await act(async () => {
+      fireEvent.click(confirmButton());
+    });
+
+    const dialog = screen.getByRole("alertdialog");
+    expect(within(dialog).getByRole("alert").textContent).toBe(TEXTS.deleteError);
+    expect(screen.queryByRole("status")).toBeNull();
+  });
+
+  it("offers the step-up on a 403, calling requestProfileWrite with the route within the click", async () => {
+    await loaded();
+    fireEvent.click(screen.getByRole("button", { name: DELETE_A }));
+    mocks.request.mockResolvedValue(jsonResponse(403, {}));
+    await act(async () => {
+      fireEvent.click(confirmButton());
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: TEXTS.stepUpLabel }));
+    expect(mocks.requestProfileWrite).toHaveBeenCalledWith("/en/manage/offerings");
+    expect(screen.getByRole("alertdialog")).toBeTruthy();
+  });
+
+  it("moves to the previous page when a delete empties a page beyond the first", async () => {
+    await loaded(2, [ITEMS[0]]);
+    fireEvent.click(screen.getByRole("button", { name: DELETE_A }));
+    mocks.request.mockResolvedValue(ok());
+    mocks.publicRequest.mockResolvedValueOnce(pageOf([], 2, 2));
+    await act(async () => {
+      fireEvent.click(confirmButton());
+    });
+
+    await waitFor(() =>
+      expect(mocks.push).toHaveBeenCalledWith("/en/manage/offerings?page=1"),
+    );
   });
 });
