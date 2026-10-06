@@ -92,3 +92,4 @@ export { Pagination } from "./Pagination";
 export type { PaginationProps, PaginationTexts } from "./Pagination";
 export { PageSection } from "./PageSection";
 export type { PageSectionProps, PageSectionSurface } from "./PageSection";
+export type { FlavorWheelNode } from "./FlavorWheel";
