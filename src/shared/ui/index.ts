@@ -40,6 +40,8 @@ export type {
   ChipRow,
   DescriptorChipGroupProps,
 } from "./DescriptorChipGroup";
+export { ConfirmDialog } from "./ConfirmDialog";
+export type { ConfirmDialogProps } from "./ConfirmDialog";
 export { Loader2, ArrowLeft, type LucideIcon } from "./icons";
 export { Logo } from "./Logo";
 export type { LogoProps, LogoVariant } from "./Logo";

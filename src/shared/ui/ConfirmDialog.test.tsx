@@ -65,6 +65,16 @@ function openFromTrigger(): HTMLElement {
   return trigger;
 }
 
+/**
+ * Lets the primitive's timers run: its focus scope restores focus on the tick
+ * after unmount, and its outside-pointerdown listener arms on the next tick.
+ */
+async function nextTick(): Promise<void> {
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+}
+
 function tokensOf(element: Element): string[] {
   return element.getAttribute("class")!.split(/\s+/).filter(Boolean);
 }
@@ -117,7 +127,7 @@ describe("ConfirmDialog", () => {
   });
 
   describe("cancelling (spec: Cancelling with Escape, Focus returns to the trigger)", () => {
-    it("closes on Escape, runs no request and returns focus to the trigger", () => {
+    it("closes on Escape, runs no request and returns focus to the trigger", async () => {
       const onConfirm = vi.fn();
       const onOpenChange = vi.fn();
       render(<Host onConfirm={onConfirm} onOpenChange={onOpenChange} />);
@@ -126,14 +136,16 @@ describe("ConfirmDialog", () => {
       expect(onOpenChange).toHaveBeenCalledWith(false);
       expect(screen.queryByRole("alertdialog")).toBeNull();
       expect(onConfirm).not.toHaveBeenCalled();
+      await nextTick();
       expect(document.activeElement).toBe(trigger);
     });
 
-    it("closes from the cancel action and returns focus to the trigger", () => {
+    it("closes from the cancel action and returns focus to the trigger", async () => {
       render(<Host />);
       const trigger = openFromTrigger();
       fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
       expect(screen.queryByRole("alertdialog")).toBeNull();
+      await nextTick();
       expect(document.activeElement).toBe(trigger);
     });
   });
@@ -143,10 +155,7 @@ describe("ConfirmDialog", () => {
       const onOpenChange = vi.fn();
       render(<Host onOpenChange={onOpenChange} />);
       openFromTrigger();
-      // Radix arms its outside-pointerdown listener on the next tick.
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 0));
-      });
+      await nextTick();
       const overlay = document.querySelector(
         '[data-slot="alert-dialog-overlay"]',
       )!;
