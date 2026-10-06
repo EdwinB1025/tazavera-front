@@ -6,8 +6,8 @@ import { resolve as pathResolve } from "node:path";
  * Guard test enforcing design rule 1 (semantic tokens only) at the code level
  * for color utilities (correction 5, review round 1). Every color utility used
  * in `src/shared/ui` component source — `bg-`, `text-`, `border-`, `ring-`,
- * `ring-offset-`, including state-prefixed variants like `hover:` or
- * `enabled:` — must map to a `--color-*` token defined in
+ * `ring-offset-`, `fill-`, `stroke-`, including state-prefixed variants like
+ * `hover:` or `enabled:` — must map to a `--color-*` token defined in
  * `src/app/styles/globals.css` or to a Tailwind built-in color (e.g. white,
  * black). A utility whose token does not exist (e.g. `text-link` when only
  * `--color-text-link` is defined) generates no CSS, so the color would silently
@@ -18,21 +18,24 @@ import { resolve as pathResolve } from "node:path";
  */
 
 // ─── Color utilities grammar ───
-// A Tailwind color utility has the shape [state:]?(bg|text|border|ring|ring-offset)-<name>
+// A Tailwind color utility has the shape
+// [state:]?(bg|text|border|ring|ring-offset|fill|stroke)-<name>
 // where <name> is a token name (kebab, may include digits like `cream-100`) or
 // `<name>/<shade>`. State prefixes can stack and include things like `hover:`,
 // `focus:`, `enabled:`, `disabled:`, `motion-reduce:`, etc., always ending in
-// `:`. We capture the property group and the color name after it.
+// `:`. We capture the property group and the color name after it. Arbitrary
+// variant prefixes (e.g. `[&::-webkit-slider-thumb]:`) do not parse — a known
+// gap kept open (design.md D10).
 //
 // `ring-offset` must be tried before `ring` (alternation is ordered) so
 // `ring-offset-focus-offset` parses as property `ring-offset` + name
 // `focus-offset`, not `ring` + `offset-focus-offset`.
 //
-// A purely-numeric name (e.g. `2` in `ring-2`, `ring-offset-2`) is a ring WIDTH
-// utility, not a color utility, and is skipped: color token names are always
-// alphabetic at the start.
+// A purely-numeric name (e.g. `2` in `ring-2`, `ring-offset-2`, `stroke-2`) is
+// a width utility (ring or stroke width), not a color utility, and is skipped:
+// color token names are always alphabetic at the start.
 const COLOR_UTILITY =
-  /^(?:[a-z-]+:)*(bg|text|border|ring-offset|ring)-([a-z0-9][a-z0-9-]*)(?:\/[a-z0-9]+)?$/;
+  /^(?:[a-z-]+:)*(bg|text|border|ring-offset|ring|fill|stroke)-([a-z0-9][a-z0-9-]*)(?:\/[a-z0-9]+)?$/;
 
 // ─── Border-width utilities ───
 // Bare `border`, `border-<side>` and `border-<side>-<n>` (n numeric; side one
@@ -60,7 +63,7 @@ function offendingColorName(
   const m = tok.match(COLOR_UTILITY);
   if (!m) return null;
   const colorName = m[2]!;
-  // Purely-numeric names are ring WIDTH utilities (ring-2, ring-offset-2),
+  // Purely-numeric names are width utilities (ring-2, ring-offset-2, stroke-2),
   // not color utilities; skip them.
   if (/^\d+$/.test(colorName)) return null;
   if (BUILTIN_COLOR_NAMES.has(colorName)) return null;
@@ -158,6 +161,21 @@ describe("color-utility guard", () => {
     );
     expect(
       offendingColorName("border-border-accent", definedColorTokens),
+    ).toBeNull();
+  });
+
+  it("passes fill colors with a token and fails on fill colors with no token", () => {
+    // The `fill-` and `stroke-` property groups (design.md D10) follow the
+    // same token-or-built-in rule: `fill-nope` generates no CSS and must fail,
+    // naming the class, while the bean artwork's `fill-evaluation-bean-on`
+    // resolves through `--color-evaluation-bean-on`.
+    expect(
+      offendingColorName("fill-nope", definedColorTokens),
+      "fill-nope",
+    ).toBe("nope");
+    expect(
+      offendingColorName("fill-evaluation-bean-on", definedColorTokens),
+      "fill-evaluation-bean-on",
     ).toBeNull();
   });
 });

@@ -19,7 +19,7 @@ export type AppShellProps = {
    * (review round 2, item 2).
    */
   session?: Session;
-  /** The management sidebar region (filled by `@/widgets/app-sidebar`). */
+  /** The `@sidebar` slot of the `[locale]` layout (add-sidebar-slot D1). */
   sidebar?: ReactNode;
   children?: ReactNode;
 };

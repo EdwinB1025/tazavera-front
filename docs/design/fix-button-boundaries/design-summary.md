@@ -60,7 +60,7 @@ Every action button is identifiable against each host surface in both themes, at
 - Border: 1px on all four sides, colour `action-<variant>-border` (width: Open 1).
 - Radius: `rounded-pill`, unchanged (fully rounded in traditional, 0 in dark, as today).
 - Height: unchanged at 40px (`base`) and 32px (`sm`). Icon-only buttons stay square. The border is drawn inside the box (Tailwind's preflight sets `box-sizing: border-box`; **unverified** in this repo's built CSS).
-- Padding: unchanged at 16px (`base`) and 12px (`sm`) horizontal. The content box narrows by 2px, the two border widths (computed by the design lead).
+- Padding: unchanged at 16px (`base`) and 12px (`sm`) horizontal. The button grows 2px wider; at the fixed height its content area is 2px shorter, the two border widths (computed by the design lead).
 - Gap: 8px between icon and label, unchanged.
 - Margin: none. The host spaces its buttons, as today.
 
@@ -229,6 +229,8 @@ The MVC has no bordered button to capture: its buttons are borderless tints. Pen
    - Blocks propose: no.
 
 Settled by the orchestrator, 2026-10-06 (Product owner may reopen it): Open 1 a), 1px, as `nav-button`; every chosen border reaches 4.77 or more (design lead's measurement). Open 2 stays with the design lead: the mock-up is rendered before the apply.
+
+**Answered 2026-10-06 (Product owner):** Open 1 a) and Open 2 a) confirmed. Product owner reviewed the mock-up (`mockup/buttons-mockup.html`) and approves every border as rendered, including the three points shown: the border merging with the fill on the traditional hover of `action-1` and `action-3`, the dark-theme borders lighter than the label at rest, and the cream border on dark `primary`. Nothing blocks the apply on the visual side.
 
 ## Review log
 

@@ -22,6 +22,8 @@ import {
   SheetContent,
   SidebarProvider,
   Sidebar,
+  useSidebar,
+  SIDEBAR_ID,
   Card,
   CardAside,
   CardContent,
@@ -31,6 +33,10 @@ import {
   Pagination,
   PageSection,
   FlavorWheel,
+  BeanScale,
+  IntensitySlider,
+  DescriptorChipGroup,
+  ConfirmDialog,
 } from "@/shared/ui";
 // Inside `src/shared/ui` the geometry comes from `./Badge` (design.md D5):
 // this is the single definition the segment entry must re-export.
@@ -85,6 +91,11 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
   it("re-exports the icon module", () => {
     expect(Loader2).toBeDefined();
     expect(ArrowLeft).toBeDefined();
+  });
+
+  it("exports the sidebar hook and id from the segment (design.md D3)", () => {
+    expect(typeof useSidebar).toBe("function");
+    expect(typeof SIDEBAR_ID).toBe("string");
   });
 
   it("renders the field control exported from the segment", () => {
@@ -252,6 +263,63 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
     fireEvent.click(screen.getByRole("button", { name: "Notes" }));
     expect(
       screen.getByRole("treeitem", { name: "Fruity, 4 of 5 evaluators" }),
+    ).toBeDefined();
+  });
+
+  it("renders the bean scale exported from the segment", () => {
+    render(
+      <BeanScale label="Aroma" value={null} valueText="–/9" onChange={() => {}} />,
+    );
+    expect(screen.getByRole("radiogroup", { name: "Aroma" })).toBeDefined();
+  });
+
+  it("renders the intensity slider exported from the segment", () => {
+    render(
+      <IntensitySlider
+        label="Acidity"
+        value={null}
+        valueText="0/15"
+        valueLabel="0 de 15"
+        scaleLabels={["LOW", "MEDIUM", "HIGH"]}
+        onChange={() => {}}
+      />,
+    );
+    expect(screen.getByRole("slider", { name: "Acidity" })).toBeDefined();
+  });
+
+  it("renders the descriptor chip group exported from the segment", () => {
+    render(
+      <DescriptorChipGroup
+        legend="Aroma descriptors"
+        rows={[
+          {
+            id: "shared",
+            options: [
+              { value: "01NUTTY", label: "Nutty", color: "#7A4E2D", level: 0 },
+            ],
+          },
+        ]}
+        value={[]}
+        onValueChange={() => {}}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Nutty" })).toBeDefined();
+  });
+
+  it("renders the confirmation dialog exported from the segment", () => {
+    render(
+      <ConfirmDialog
+        open
+        onOpenChange={() => {}}
+        title="Delete this evaluation?"
+        description="The evaluation will be removed permanently."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={() => {}}
+      />,
+    );
+    expect(
+      screen.getByRole("alertdialog", { name: "Delete this evaluation?" }),
     ).toBeDefined();
   });
 });

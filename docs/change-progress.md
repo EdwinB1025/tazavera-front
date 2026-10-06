@@ -2,7 +2,7 @@
 
 Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, qué falta y quién lo tiene. Complementa `docs/general-context.md` (contexto y decisiones) y el `handoff.md` de cada cambio (detalle de cada sesión).
 
-**Última actualización:** 2026-10-06 13:00, orquestador (Claude Code).
+**Última actualización:** 2026-10-06 22:45, orquestador (Claude Code), noche autónoma.
 
 ## Cómo se usa
 
@@ -53,38 +53,45 @@ Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, 
 | `extract-offering-list-parts` | content-structure | — (rama borrada) | Merge | Archivado `350792a` (R7 fuera); mergeado `4ccf9b8` | — | — | — | `4ccf9b8` |
 | `extract-page-section` | content-structure | — (rama borrada) | Merge | Archivado `cb8a3b4`; mergeado `fdff5e4` | — | — | — | `fdff5e4` |
 | `fix-button-boundaries` | base-controls | — (rama borrada) | Merge | Verify en la nube sin hallazgos (Chromium: 40px, `border-box`, borde 1px, +2px de ancho). Archivado `3969e50`; mergeado `756c58b` | — | — | — | `756c58b` |
-| `label-rating-badge` | landing | `feature/label-rating-badge` / `tazavera-front-ratingbadge` | Archive → Merge | 2/2 tareas; verify en la nube sin hallazgos (Chromium es/en/ca); prueba de Product owner dispensada (sin ofertas en local). Archivado `c5d7d00`; `develop` mergeado en la rama (`9f47204`), 1101 tests | Merge a `develop` (Product owner) | Product owner | — | `9f47204` |
-| `add-evaluation-scales` | form-fields, feedback | `feature/add-evaluation-scales` / `tazavera-front-scales` | Apply | Propose `d3cce1e`/`706b99b`; `develop` mergeado en la rama (badge dentro). Apply en OpenCode ("apply todo lo que esté listo") | Apply; verify; archive | Build (OpenCode) | — | `706b99b` |
-| `add-specialist-evaluations` | evaluations | `feature/add-specialist-evaluations` / `tazavera-front-evaluations` | Explore | Explore en OpenCode contra el contrato `84e29fe` (ya en `develop` y en la rama). Orquestador cierra Q4 (`created_at desc`) y Q6 (propose ya) | Respuestas de Product owner (403, fecha de la fila, "Completo" por grupo, entrada del sidebar); propose | Product owner | Q1, Q2, Q3, Q5 | `33f505c` |
-| `replace-offering-card-session` | landing | — | Resumen — aprobado | Aprobado (`143607f`); list-parts ya en `develop` | Worktree desde `develop` tras el merge de `label-rating-badge`; explore, propose | Orquestador | Merge de `label-rating-badge` | `143607f` |
-| `add-user-account` | user-account | — | Resumen — en revisión | Borrador revisado por el design lead (`ed92b2b`); 9 puntos bloquean el propose | Respuestas de Product owner, aprobación | Product owner | Open 1 (sin 422 en el contrato) y Open 2 (step-up, afecta a offering-management) | `ed92b2b` |
-| `add-filter-controls` | filtering, app-shell | — | Resumen — aprobado | Aprobado (`ea7648c`); puntos resueltos en el registro (combobox shadcn + `cmdk`, ranura `@sidebar`, facetas de evaluaciones sobre `listMyEvaluations`) | Explore y propose; apply después de `add-offering-catalog` | Orquestador | Apply: auth y catalog en `develop` | `ea7648c` |
-| `add-offering-management` | offering-management | — | Resumen — en revisión | Borrador (`b16697e`); 7 puntos bloquean el propose | Respuestas de Product owner, aprobación | Product owner | Open 1–7; refactors compartidos con catalog y evaluations | `b16697e` |
-| `add-offering-catalog` | offering-catalog | — | Resumen — aprobado | Aprobado (`923e2d7`); puntos resueltos en el registro (petición de ofertas con query, detalle con pestañas, medias con la escala de granos) | Explore y propose; apply tras scales, list parts, page section, card session y auth en `develop` | Orquestador | Apply: esas dependencias | `923e2d7` |
-| `add-theme-tokens` | theming | — (rama borrada) | Merge | Archivado `e53c808`, mergeado `a3a96e2` | — | — | — | `a3a96e2` |
+| `add-flavor-wheel` | feedback | `feature/add-flavor-wheel` / `tazavera-front-wheel` | Archive → Merge | Ronda 1 integrada `4186ca9`; prueba del design lead (delegada) OK; fix del botón `f25b478`; archivado `3c3a3ab`. Merge con develop en conflicto aditivo en `openspec/specs/feedback` | Merge de develop en la nube (`trig_01NzH6pqU9a9YVH5RkatxZya`, `claude/add-flavor-wheel-merge`); merge a develop | Claude nube | Q4, Q5 (no bloquean) | `2f7429d` |
+| `add-specialist-evaluations` | evaluations | `feature/add-specialist-evaluations` / `tazavera-front-evaluations` | Verify | Apply 41/42 en la nube, integrado `6e7034c` (1320 tests); falta 10.2 (navegador) | Verify en la nube (`trig_01BFGUxWqToP6iU6WPuaJzxH`); prueba del design lead; archive | Claude nube | — | `6e7034c` |
+| `add-user-account` | user-account, app-shell, auth | `feature/add-user-account` / `tazavera-front-account` | Verify | Apply 17/18 integrado `86edaf0` (1287 tests); verify: 0 CRITICAL, W1 `refreshProfile` frente a un cierre de sesión | Fix en la nube (`trig_01LMPPzZAUJHQauKCiM28MaQ`, `claude/add-user-account-fix`); prueba 9.2 del design lead; archive | Claude nube | — | `86edaf0` |
+| `add-offering-catalog` | offering-catalog, content-structure | `feature/add-offering-catalog` / `tazavera-front-catalog` | Propose → Apply | Artefactos ajustados `30ea60d` (consenso en tarjeta, `fetchOffering` único, constructor de descriptores en entities/taxonomy) | Apply | Claude nube | Merge de flavor-wheel | `30ea60d` |
+| `add-offering-management` | offering-management | `feature/add-offering-management` / `tazavera-front-management` | Apply | `develop` (scales, sidebar-slot, facet-controls) mergeado `cf242d0` | Apply en la nube (`trig_01C4sERVWrEYBk3rNSbbSvsu`, `claude/add-offering-management-apply`) | Claude nube | — | `cf242d0` |
+| `add-public-evaluations` | evaluations, offering-catalog | `feature/add-public-evaluations` / `tazavera-front-pubevals` | Propose → Apply | Resumen aprobado por el orquestador `4d08864`; propose `265cd9d` | Apply | Claude nube | Merge de catalog, specialist-evaluations y evaluation-facets | `265cd9d` |
+| `add-offering-facets` | filtering | `feature/add-offering-facets` / `tazavera-front-offacets` | Propose → Apply | Propose en la nube `360c5bc` | Apply | Build | Merge de catalog, sidebar-slot y facet-controls | `360c5bc` |
+| `add-evaluation-facets` | filtering | `feature/add-evaluation-facets` / `tazavera-front-evfacets` | Propose → Apply | Propose `8b8f0c0` | Apply | Build | Merge de sidebar-slot, facet-controls y specialist-evaluations | `8b8f0c0` |
+| `add-filter-controls` | — | — (rama y worktree borrados) | Sustituido | Dividido por Product owner en sidebar-slot, facet-controls, offering-facets y evaluation-facets | — | — | — | `ea7648c` |
+| `add-facet-controls` | filtering, form-fields | — (rama borrada) | Merge | Verify con arreglos (combobox, coberturas); prueba del design lead (delegada) con F1/F2 arreglados `785c346`/`6b3a8f3`; archivado `e85c529`; mergeado `e85c529` (6 oct, noche), 1352 tests. Q1/Q2 (F3/F4) para Product owner | — | — | Q1, Q2 | `e85c529` |
+| `add-sidebar-slot` | app-shell | — (rama borrada) | Merge | D2 cerrado por el orquestador (`@sidebar/page.tsx` + `[...rest]`); verify sin CRITICAL, W2 cubierto `e5a9298`, W1 diferido; archivado `3124e65`; mergeado `be2fe47` (6 oct, noche), 1223 tests | — | — | — | `be2fe47` |
+| `add-evaluation-scales` | form-fields, feedback | — (rama borrada) | Merge | Verify en la nube sin CRITICAL; W1 cubierto `9546737`; archivado `16aeae5` (arquitecto local); mergeado `39d945c` (6 oct), 1197 tests | — | — | — | `39d945c` |
+| `label-rating-badge` | landing | — (rama borrada) | Merge | Archivado `c5d7d00`; mergeado `b1037be` | — | — | — | `b1037be` |
+| `replace-offering-card-session` | landing | — (rama borrada) | Merge | Archivado `07a1992`; mergeado `68123d0` (6 oct), 1101 tests | — | — | — | `68123d0` |
+| `add-theme-tokens` | theming | — (rama borrada) | Merge | Archivado `e53c808`, mergeado `a3a96e2` | — | — | — | `a3a96e2` |
 | `add-base-control` | base-controls | — (rama borrada) | Merge | Archivado `d492481`, mergeado `c4f70ad` | — | — | — | `c4f70ad` |
 | `add-focus-ring-utility` | theming | — (rama borrada) | Merge | Archivado `fcc6e28`, mergeado `8d23918` | — | — | — | `8d23918` |
 | `add-form-fields` | form-fields | — (rama borrada) | Merge | Archivado `6fbd517`, mergeado `c6fe64d` | — | — | — | `c6fe64d` |
-| `add-app-shell` | app-shell, theming | — (rama `feature/add-app-shell` aún existe en local) | Merge | Archivado `935236d`, mergeado `8e300b8` | — | — | — | `8e300b8` |
+| `add-app-shell` | app-shell, theming | — (rama borrada) | Merge | Archivado `935236d`, mergeado `8e300b8` | — | — | — | `8e300b8` |
 | `refine-app-header` | app-shell | — (rama borrada) | Merge | Archivado `27ca840`, mergeado `124c048`. Pendiente: R4 (radio del panel) en el backlog | — | — | — | `124c048` |
-| `add-landing` | landing, content-structure, feedback, app-shell | — (rama borrada; carpeta vacía `tazavera-front-landing` por borrar) | Merge | Archivado `f6bce3b`, mergeado `2284399`. Pendiente: D4 (puntuación dos veces en la tarjeta); candidato de backlog: primitivo de sección compartido | Decisión D4 | Product owner | D4 | `2284399` |
+| `add-landing` | landing, content-structure, feedback, app-shell | — (rama borrada) | Merge | Archivado `f6bce3b`, mergeado `2284399`. Pendiente: D4 (puntuación dos veces en la tarjeta); candidato de backlog: primitivo de sección compartido | Decisión D4 | Product owner | D4 | `2284399` |
 
 
 ## Cobertura del contrato
 
-Las 26 operaciones de `contracts/openapi.yaml` (`develop`, contrato `84e29fe`) y el cambio que las consume (actualizado el 6 oct, 17:45). Tres operaciones públicas de evaluaciones quedan fuera del alcance por decisión de Product owner (registro, "evaluaciones públicas fuera del alcance").
+Las 26 operaciones de `contracts/openapi.yaml` (`develop`, contrato `92328fc`: filtros `offeringId` y `evaluationType` en las tres listas de evaluaciones) y el cambio que las consume (actualizado el 6 oct, 20:00). `listTheEvaluationsOfAUser` queda fuera del alcance; `listEvaluations` y `getAnEvaluation` vuelven al alcance (registro, "evaluaciones públicas y evaluación provisional").
 
 | `operationId` | Cambio | Estado del cambio |
 |---|---|---|
 | `listOfferings` | `add-landing` (verificadas); `add-offering-catalog` (catálogo y "Mejor valorados"); `add-offering-management` (las propias) | Mergeado / propose / explore |
 | `listOlfactoryTaxonomies` | `add-landing`; `add-offering-catalog` (rueda); `add-specialist-evaluations`; `add-offering-facets` | Mergeado / propose |
 | `logOut`, `getTheAuthenticatedUser` | `add-auth` | Mergeado |
-| `registerAUser`, `updateAUser`, `updateUserPassword`, `deactivateAUser`, `permanentlyDeleteAUser` | `add-user-account` | Explore |
+| `registerAUser`, `updateAUser`, `updateUserPassword`, `deactivateAUser`, `permanentlyDeleteAUser` | `add-user-account` | Propose |
 | `listMyEvaluations` | `add-specialist-evaluations`; `add-evaluation-facets` | Propose |
 | `createAnEvaluation`, `getMyEvaluation`, `updateAnEvaluation`, `closeAnEvaluation`, `deleteAnEvaluation` | `add-specialist-evaluations` | Propose |
 | `getAnOffering` | `add-offering-catalog` (detalle); `add-specialist-evaluations` (datos de cada fila) | Propose |
-| `createOfferings`, `deleteAnOffering`, `deleteMultipleOfferings`, `listMyLocations`, `listCoffeeInventory` | `add-offering-management` | Explore |
+| `createOfferings`, `deleteAnOffering`, `deleteMultipleOfferings`, `listMyLocations`, `listCoffeeInventory` | `add-offering-management` | Propose |
 | `listCoffees`, `listRoasteries` | `add-offering-facets` (opciones de las facetas; tostador con búsqueda) | Propose |
-| `listEvaluations`, `getAnEvaluation`, `listTheEvaluationsOfAUser` | — fuera del alcance (Product owner, 6 oct) | — |
+| `listEvaluations`, `getAnEvaluation` | `add-public-evaluations` (se recupera: lista pública con filtro de oferta, botón "Ver evaluaciones" del detalle); pestaña "Evaluación provisional" (`evaluationType=baseline`, filtros nuevos del API) | Resumen pendiente |
+| `listTheEvaluationsOfAUser` | — fuera del alcance (Product owner, 6 oct) | — |
 
-No queda ninguna operación del alcance sin cambio asignado.
+`listEvaluations` y `getAnEvaluation` tienen cambio asignado (`add-public-evaluations`), pero aún les falta el resumen de diseño.
