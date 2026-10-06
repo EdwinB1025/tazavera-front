@@ -195,9 +195,10 @@ describe("DescriptorChipGroup", () => {
       for (const name of ["Berry", "Citrus", "Nutty"]) {
         expect(chip(name).getAttribute("tabindex")).toBe("-1");
       }
-      // Keyboard entry into the block lands on a chip.
+      // Keyboard entry into the block lands on a chip: the primitive's
+      // roving focus enters on the first chosen chip.
       (stops[0] as HTMLElement).focus();
-      expect(document.activeElement).toBe(chip("Berry"));
+      expect(document.activeElement).toBe(chip("Citrus"));
     });
 
     const cases: [string, string, string][] = [

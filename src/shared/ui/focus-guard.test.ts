@@ -97,6 +97,7 @@ describe("focus-indicator guard", () => {
       "RadioGroup.tsx",
       "BeanScale.tsx",
       "IntensitySlider.tsx",
+      "DescriptorChipGroup.tsx",
     ]) {
       const content = readFileSync(pathResolve(uiDir, name), "utf-8");
       expect(
