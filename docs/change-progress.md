@@ -69,36 +69,22 @@ Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, 
 | `refine-app-header` | app-shell | — (rama borrada) | Merge | Archivado `27ca840`, mergeado `124c048`. Pendiente: R4 (radio del panel) en el backlog | — | — | — | `124c048` |
 | `add-landing` | landing, content-structure, feedback, app-shell | — (rama borrada; carpeta vacía `tazavera-front-landing` por borrar) | Merge | Archivado `f6bce3b`, mergeado `2284399`. Pendiente: D4 (puntuación dos veces en la tarjeta); candidato de backlog: primitivo de sección compartido | Decisión D4 | Product owner | D4 | `2284399` |
 
-Todas las operaciones tienen cambio asignado.
 
 ## Cobertura del contrato
 
-Las 23 operaciones de `contracts/openapi.yaml` (`develop`) y el cambio que las consume. Mínimo de la entrega: todas consumidas. Las marcadas *(supuesto)* son asignaciones del orquestador por el nombre del cambio; Product owner las confirma al escribir el resumen.
+Las 26 operaciones de `contracts/openapi.yaml` (`develop`, contrato `84e29fe`) y el cambio que las consume (actualizado el 6 oct, 17:45). Tres operaciones públicas de evaluaciones quedan fuera del alcance por decisión de Product owner (registro, "evaluaciones públicas fuera del alcance").
 
-| Operación | `operationId` | Cambio | Estado del cambio |
-|---|---|---|---|
-| `GET /offerings` | `listOfferings` | `add-landing` (verificadas); `add-offering-catalog` y `add-filter-controls` *(supuesto)* | Mergeado / por diseñar |
-| `GET /taxonomies` | `listOlfactoryTaxonomies` | `add-landing`; `add-specialist-evaluations` | Mergeado / resumen |
-| `POST /logout` | `logOut` | `add-auth` | Apply |
-| `GET /user` | `getTheAuthenticatedUser` | `add-auth`; `add-user-account` | Apply / por diseñar |
-| `POST /register` | `registerAUser` | `add-user-account` | Borrador |
-| `PUT /user` | `updateAUser` | `add-user-account` | Borrador |
-| `PUT /user` (contraseña) | `updateUserPassword` | `add-user-account` | Borrador |
-| `DELETE /user` (desactivar) | `deactivateAUser` | `add-user-account` | Borrador |
-| `DELETE /user` (borrado definitivo) | `permanentlyDeleteAUser` | `add-user-account` | Borrador |
-| `GET /evaluations` | `listEvaluations` | `add-specialist-evaluations`; filtro en `add-filter-controls` | Resumen / por diseñar |
-| `POST /evaluations` | `createAnEvaluation` | `add-specialist-evaluations` | Resumen |
-| `GET /evaluations/{id}` | `getAnEvaluation` | `add-specialist-evaluations` | Resumen |
-| `PUT /evaluations/{id}` | `updateAnEvaluation` | `add-specialist-evaluations` | Resumen |
-| `PATCH /evaluations/{id}` | `closeAnEvaluation` | `add-specialist-evaluations` | Resumen |
-| `DELETE /evaluations/{id}` | `deleteAnEvaluation` | `add-specialist-evaluations` | Resumen |
-| `GET /offerings/{id}` | `getAnOffering` | `add-offering-catalog` (página de detalle) *(supuesto)* | Por diseñar |
-| `POST /offerings` | `createOfferings` | `add-offering-management` *(supuesto)* | Por diseñar |
-| `DELETE /offerings/{id}` | `deleteAnOffering` | `add-offering-management` *(supuesto)* | Por diseñar |
-| `DELETE /offerings` (varias) | `deleteMultipleOfferings` | `add-offering-management` *(supuesto)* | Por diseñar |
-| `GET /locations` | `listMyLocations` | `add-offering-management` *(supuesto)* | Por diseñar |
-| `GET /coffeeInventory` | `listCoffeeInventory` | `add-offering-management` *(supuesto)* | Por diseñar |
-| `GET /coffees` | `listCoffees` | `add-offering-management`; `add-filter-controls` (filtros de ofertas) | Por diseñar |
-| `GET /roasteries` | `listRoasteries` | `add-offering-management`; `add-filter-controls` (filtros de ofertas) | Por diseñar |
+| `operationId` | Cambio | Estado del cambio |
+|---|---|---|
+| `listOfferings` | `add-landing` (verificadas); `add-offering-catalog` (catálogo y "Mejor valorados"); `add-offering-management` (las propias) | Mergeado / propose / explore |
+| `listOlfactoryTaxonomies` | `add-landing`; `add-offering-catalog` (rueda); `add-specialist-evaluations`; `add-offering-facets` | Mergeado / propose |
+| `logOut`, `getTheAuthenticatedUser` | `add-auth` | Mergeado |
+| `registerAUser`, `updateAUser`, `updateUserPassword`, `deactivateAUser`, `permanentlyDeleteAUser` | `add-user-account` | Explore |
+| `listMyEvaluations` | `add-specialist-evaluations`; `add-evaluation-facets` | Propose |
+| `createAnEvaluation`, `getMyEvaluation`, `updateAnEvaluation`, `closeAnEvaluation`, `deleteAnEvaluation` | `add-specialist-evaluations` | Propose |
+| `getAnOffering` | `add-offering-catalog` (detalle); `add-specialist-evaluations` (datos de cada fila) | Propose |
+| `createOfferings`, `deleteAnOffering`, `deleteMultipleOfferings`, `listMyLocations`, `listCoffeeInventory` | `add-offering-management` | Explore |
+| `listCoffees`, `listRoasteries` | `add-offering-facets` (opciones de las facetas; tostador con búsqueda) | Propose |
+| `listEvaluations`, `getAnEvaluation`, `listTheEvaluationsOfAUser` | — fuera del alcance (Product owner, 6 oct) | — |
 
-Las rutas con `{id}` y los paréntesis son orientativos; la fuente es el `operationId` en el contrato. La entrada "Mejor valorados" de la cabecera tampoco tiene cambio asignado *(supuesto: `add-offering-catalog`)*.
+No queda ninguna operación del alcance sin cambio asignado.
