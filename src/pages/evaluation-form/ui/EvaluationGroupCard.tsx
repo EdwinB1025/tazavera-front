@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import type {
   AxisKey,
   DescriptiveAxisKey,
+  DescriptorBlock as BlockDefinition,
   EvaluationFormState,
   GroupDefinition,
   GroupKey,
@@ -45,6 +46,8 @@ export type EvaluationGroupCardProps = {
   complete?: boolean;
   /** The closed evaluation's read-only presentation (design.md D4). */
   readOnly?: boolean;
+  /** Renders one descriptor block of a part (design.md D7). */
+  renderBlock?: (block: BlockDefinition) => ReactNode;
 };
 
 // ─── Layout end states (design.md D14; the summary §9) ───
@@ -88,7 +91,8 @@ const PANEL_CLASSES = [
  * below `md`, a static row from `md` — and the descriptive and affective
  * parts, stacked below `md` and in two columns from `md`. Each descriptive
  * axis is an intensity slider (0–15) and each affective axis a bean scale
- * (1–9), both read-only for a closed evaluation.
+ * (1–9), both read-only for a closed evaluation; the descriptor blocks of a
+ * part follow its scores, each in its own panel.
  */
 export function EvaluationGroupCard({
   group,
@@ -97,6 +101,7 @@ export function EvaluationGroupCard({
   texts,
   complete,
   readOnly = false,
+  renderBlock,
 }: EvaluationGroupCardProps): ReactNode {
   const [expanded, setExpanded] = useState(true);
   const bodyId = useId();
@@ -171,6 +176,14 @@ export function EvaluationGroupCard({
   };
 
   const both = group.descriptive !== null && group.affective !== null;
+  const blocks = (part: { blocks: BlockDefinition[] }) =>
+    renderBlock
+      ? part.blocks.map((block) => (
+          <div key={block.selection} className={PANEL_CLASSES}>
+            {renderBlock(block)}
+          </div>
+        ))
+      : null;
 
   return (
     <Card layout="stacked" data-group={group.key}>
@@ -210,6 +223,7 @@ export function EvaluationGroupCard({
               {group.descriptive.axes.length > 0 ? (
                 <div className={PANEL_CLASSES}>{group.descriptive.axes.map(intensity)}</div>
               ) : null}
+              {blocks(group.descriptive)}
             </div>
           ) : null}
           {group.affective ? (
@@ -218,6 +232,7 @@ export function EvaluationGroupCard({
               {group.affective.axes.length > 0 ? (
                 <div className={PANEL_CLASSES}>{group.affective.axes.map(preference)}</div>
               ) : null}
+              {blocks(group.affective)}
             </div>
           ) : null}
         </div>

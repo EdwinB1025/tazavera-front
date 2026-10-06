@@ -26,6 +26,12 @@ export function formTextsFrom(catalog: MessageCatalog): EvaluationFormTexts {
       siphon: catalog.extractionSiphon,
       kalita: catalog.extractionKalita,
     },
+    blockLabels: {
+      aromatics: catalog.blockAromatics,
+      main_tastes: catalog.blockMainTastes,
+      mouthfeel: catalog.blockMouthfeel,
+      defects: catalog.blockDefects,
+    },
     group: {
       groupNames: {
         fragranceAroma: catalog.groupFragranceAroma,

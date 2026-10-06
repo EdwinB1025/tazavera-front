@@ -63,5 +63,9 @@
   "unsetScore": "–",
   "completeLabel": "Complete",
   "incompleteLabel": "Incomplete",
-  "formLoadErrorMessage": "This evaluation could not be loaded."
+  "formLoadErrorMessage": "This evaluation could not be loaded.",
+  "blockAromatics": "Aromatics",
+  "blockMainTastes": "Main tastes",
+  "blockMouthfeel": "Mouthfeel descriptors",
+  "blockDefects": "Defects"
 }

@@ -63,5 +63,9 @@
   "unsetScore": "–",
   "completeLabel": "Complet",
   "incompleteLabel": "Incomplet",
-  "formLoadErrorMessage": "No s'ha pogut carregar aquesta avaluació."
+  "formLoadErrorMessage": "No s'ha pogut carregar aquesta avaluació.",
+  "blockAromatics": "Aromàtics",
+  "blockMainTastes": "Gustos bàsics",
+  "blockMouthfeel": "Descriptors de cos",
+  "blockDefects": "Defectes"
 }

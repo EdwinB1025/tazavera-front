@@ -27,6 +27,12 @@ export const FORM_TEXTS: EvaluationFormTexts = {
     siphon: "Siphon",
     kalita: "Kalita Wave",
   },
+  blockLabels: {
+    aromatics: "Aromatics",
+    main_tastes: "Main tastes",
+    mouthfeel: "Mouthfeel descriptors",
+    defects: "Defects",
+  },
   group: {
     groupNames: {
       fragranceAroma: "Fragrance / Aroma",

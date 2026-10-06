@@ -63,5 +63,9 @@
   "unsetScore": "–",
   "completeLabel": "Completo",
   "incompleteLabel": "Incompleto",
-  "formLoadErrorMessage": "No se ha podido cargar esta evaluación."
+  "formLoadErrorMessage": "No se ha podido cargar esta evaluación.",
+  "blockAromatics": "Aromáticos",
+  "blockMainTastes": "Sabores básicos",
+  "blockMouthfeel": "Descriptores de cuerpo",
+  "blockDefects": "Defectos"
 }

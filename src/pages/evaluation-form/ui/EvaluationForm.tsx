@@ -11,8 +11,9 @@ import {
   formStateFromEvaluation,
   toRoastLevel,
 } from "@/entities/evaluation";
-import type { EvaluationFormState } from "@/entities/evaluation";
+import type { DescriptorBlockKey, EvaluationFormState } from "@/entities/evaluation";
 import { Card, CardContent, Field, Link, Select } from "@/shared/ui";
+import { DescriptorBlock } from "./DescriptorBlock";
 import { EvaluationGroupCard } from "./EvaluationGroupCard";
 import type { EvaluationGroupTexts } from "./EvaluationGroupCard";
 
@@ -44,6 +45,8 @@ export type EvaluationFormTexts = {
   extractionMethodLabel: string;
   extractionMethodPlaceholder: string;
   extractionLabels: Record<ExtractionMethod, string>;
+  /** The legends of the four descriptor blocks. */
+  blockLabels: Record<DescriptorBlockKey, string>;
   group: EvaluationGroupTexts;
 };
 
@@ -82,6 +85,7 @@ function initialState(
 export function EvaluationForm({
   locale,
   offering,
+  taxonomies,
   texts,
   evaluation,
 }: EvaluationFormProps): ReactNode {
@@ -169,6 +173,32 @@ export function EvaluationForm({
             texts={texts.group}
             complete={completeness[group.key]}
             readOnly={readOnly}
+            renderBlock={(block) =>
+              readOnly ? (
+                <DescriptorBlock
+                  legend={texts.blockLabels[block.key]}
+                  nodes={taxonomies}
+                  category={block.key}
+                  locale={locale}
+                  value={state.descriptors[block.selection]}
+                  readOnly
+                />
+              ) : (
+                <DescriptorBlock
+                  legend={texts.blockLabels[block.key]}
+                  nodes={taxonomies}
+                  category={block.key}
+                  locale={locale}
+                  value={state.descriptors[block.selection]}
+                  onValueChange={(value) =>
+                    setState((current) => ({
+                      ...current,
+                      descriptors: { ...current.descriptors, [block.selection]: value },
+                    }))
+                  }
+                />
+              )
+            }
           />
         ))}
       </div>
