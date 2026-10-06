@@ -1,6 +1,10 @@
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
 import { Check, Clock } from "@/shared/ui/icons";
 import { cn } from "@/shared/lib/utils";
+import {
+  TAXONOMY_CARD_SURFACES,
+  taxonomyColorRule,
+} from "@/shared/ui/taxonomy-color";
 
 // ─── UI-specific types (declared before the component) ───
 // Generic chip: the consumer supplies the label and, for the taxonomy family,
@@ -53,61 +57,10 @@ export const BADGE_GEOMETRY_CLASSES =
 // ─── Taxonomy data colors (design.md D7) ───
 // The two inline colors of this variant are the only inline colors under
 // `src/`, because they are data: the background comes from the taxonomy's own
-// color — reduced by depth — and the label is white or black by the WCAG 2.2
-// relative luminance `L` of that color (white when `L` ≤ 0.179, black above),
-// which always picks the better pair (spec: "Badge label contrast").
+// color — reduced by depth — and the label is white or black by the shared
+// taxonomy colour rule (`taxonomy-color.ts`; spec: "Badge label contrast").
 
-const LUMINANCE_THRESHOLD = 0.179;
-
-/** WCAG 2.2 relative luminance of a `#RRGGBB` color. */
-function relativeLuminance(hex: string): number {
-  const value = hex.replace(/^#/, "");
-  const channel = (start: number): number => {
-    const srgb = parseInt(value.slice(start, start + 2), 16) / 255;
-    return srgb <= 0.04045 ? srgb / 12.92 : ((srgb + 0.055) / 1.055) ** 2.4;
-  };
-  return 0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4);
-}
-
-/**
- * The card surface each theme renders the badge on (`--color-surface-card`),
- * as data: the label rule needs it during render, where CSS variables cannot
- * be read. `Badge.test.tsx` fails if these drift from `globals.css`
- * (design.md D7, review round 4).
- */
-export const TAXONOMY_CARD_SURFACES = {
-  traditional: "#f2e8d9",
-  dark: "#0d1b1e",
-} as const;
-
-/** The `#RRGGBB` channels of a color. */
-function channels(hex: string): [number, number, number] {
-  const value = hex.replace(/^#/, "");
-  return [0, 2, 4].map((start) =>
-    parseInt(value.slice(start, start + 2), 16),
-  ) as [number, number, number];
-}
-
-/**
- * The label for one theme: white or black by the luminance of the rendered
- * background, the data color at its depth opacity over that theme's card
- * surface (design.md D7, review round 4).
- */
-function labelOver(
-  color: string,
-  opacity: number,
-  surface: string,
-): "white" | "black" {
-  const front = channels(color);
-  const back = channels(surface);
-  const blended = front
-    .map((channel, index) => channel * opacity + back[index] * (1 - opacity))
-    .map((channel) => Math.round(channel).toString(16).padStart(2, "0"))
-    .join("");
-  return relativeLuminance(`#${blended}`) <= LUMINANCE_THRESHOLD
-    ? "white"
-    : "black";
-}
+export { TAXONOMY_CARD_SURFACES };
 
 /**
  * The taxonomy badge's inline colors: the data color as the background —
@@ -117,23 +70,14 @@ function labelOver(
  * opaque (spec: "Depth reduces the background").
  */
 function taxonomyStyle(color: string, level: 0 | 1 | 2): CSSProperties {
-  const depth = level === 1 ? 92 : level === 2 ? 85 : null;
-  const opacity = depth === null ? 1 : depth / 100;
+  const { opacity, label, labelDark } = taxonomyColorRule(color, level);
   return {
     backgroundColor:
-      depth === null
+      opacity === 1
         ? color
-        : `color-mix(in srgb, ${color} ${depth}%, transparent)`,
-    ["--taxonomy-label" as string]: labelOver(
-      color,
-      opacity,
-      TAXONOMY_CARD_SURFACES.traditional,
-    ),
-    ["--taxonomy-label-dark" as string]: labelOver(
-      color,
-      opacity,
-      TAXONOMY_CARD_SURFACES.dark,
-    ),
+        : `color-mix(in srgb, ${color} ${Math.round(opacity * 100)}%, transparent)`,
+    ["--taxonomy-label" as string]: label,
+    ["--taxonomy-label-dark" as string]: labelDark,
   };
 }
 

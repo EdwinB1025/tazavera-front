@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import {
   Button,
   Link,
@@ -32,6 +32,10 @@ import {
   BADGE_GEOMETRY_CLASSES as SEGMENT_BADGE_GEOMETRY_CLASSES,
   Pagination,
   PageSection,
+  Collapsible,
+  CollapsibleHeader,
+  CollapsibleBody,
+  FlavorWheel,
   BeanScale,
   IntensitySlider,
   DescriptorChipGroup,
@@ -141,7 +145,9 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
 
   it("renders the checkbox exported from the segment", () => {
     render(<Checkbox label="Accept terms" />);
-    expect(screen.getByRole("checkbox", { name: "Accept terms" })).toBeDefined();
+    expect(
+      screen.getByRole("checkbox", { name: "Accept terms" }),
+    ).toBeDefined();
   });
 
   it("renders the radio group exported from the segment", () => {
@@ -231,6 +237,47 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
   it("renders the page section exported from the segment", () => {
     render(<PageSection>SECTION CONTENT</PageSection>);
     expect(screen.getByText("SECTION CONTENT")).toBeDefined();
+  });
+
+  it("renders the collapsible section exported from the segment", () => {
+    render(
+      <Collapsible defaultOpen>
+        <CollapsibleHeader>SECTION TITLE</CollapsibleHeader>
+        <CollapsibleBody>SECTION BODY</CollapsibleBody>
+      </Collapsible>,
+    );
+    expect(screen.getByRole("button", { name: "SECTION TITLE" })).toBeDefined();
+    expect(screen.getByText("SECTION BODY")).toBeDefined();
+  });
+
+  it("renders the flavor wheel exported from the segment", () => {
+    render(
+      <FlavorWheel
+        nodes={[
+          {
+            id: "fruity",
+            name: "Fruity",
+            description: null,
+            color: "#da1d23",
+            level: 0,
+            count: 4,
+            countLabel: "4 of 5 evaluators",
+            children: [],
+          },
+        ]}
+        total={5}
+        texts={{
+          label: "Flavor wheel",
+          hint: "Hint",
+          emptyMessage: "Empty",
+          notesToggle: "Notes",
+        }}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Notes" }));
+    expect(
+      screen.getByRole("treeitem", { name: "Fruity, 4 of 5 evaluators" }),
+    ).toBeDefined();
   });
 
   it("renders the bean scale exported from the segment", () => {
