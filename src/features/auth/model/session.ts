@@ -144,6 +144,38 @@ async function loadProfile(): Promise<void> {
   return profileLoad;
 }
 
+/** The short pause before the one retry of a failed profile refresh (design.md D5). */
+const REFRESH_RETRY_PAUSE_MS = 500;
+
+/**
+ * Refreshes the profile after a consumer changed it (design.md D5; spec
+ * "Session states and profile"): `GET /user` through the authenticated
+ * client settles the session with its `data`, the change request's own
+ * response never being written into the session. A network failure or a
+ * server error retries once after a short pause; a second failure keeps the
+ * previous user with nothing shown. A `401` is recovered by the client.
+ */
+export async function refreshProfile(): Promise<void> {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    if (attempt > 0) {
+      await new Promise((resolve) => setTimeout(resolve, REFRESH_RETRY_PAUSE_MS));
+    }
+    try {
+      const response = await request("/user");
+      if (response.status >= 500) continue;
+      if (response.ok) {
+        const body = (await response.json()) as { data?: SessionUser };
+        if (body.data !== undefined) {
+          settle({ state: "authenticated", user: body.data });
+        }
+      }
+      return;
+    } catch {
+      // A network failure: retried once, then the previous user is kept.
+    }
+  }
+}
+
 // The module's initialization (design.md D2): `src/features/auth` fills the
 // API client's seam once — the tokens, the refresh and the silent
 // re-authentication that starts when nothing can recover the session — and the
