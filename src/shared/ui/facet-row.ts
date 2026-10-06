@@ -21,6 +21,18 @@ export const FACET_ROW_LABEL_SELECTED_CLASSES =
 
 export const FACET_ROW_DISABLED_CLASSES = "cursor-not-allowed opacity-50";
 
+/**
+ * Removes the control's own disabled fade (`disabled:opacity-50`,
+ * `peer-disabled:opacity-50`) from a box or mark class string: inside a facet
+ * row the row's `opacity-50` already fades it, and opacities multiply.
+ */
+export function withoutDisabledFade(classes: string): string {
+  return classes
+    .split(" ")
+    .filter((c) => c !== "disabled:opacity-50" && c !== "peer-disabled:opacity-50")
+    .join(" ");
+}
+
 export const FACET_LEGEND_CLASSES = "type-label mb-1 px-3 py-1";
 
 /** Row column: rows sit in a `flex flex-col gap-1` column. */

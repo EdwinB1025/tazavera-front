@@ -2,7 +2,11 @@
 
 import { useId, type InputHTMLAttributes, type ReactNode } from "react";
 import { Check } from "@/shared/ui/icons";
-import { facetRowClasses, type ControlPresentation } from "./facet-row";
+import {
+  facetRowClasses,
+  withoutDisabledFade,
+  type ControlPresentation,
+} from "./facet-row";
 
 // ─── UI-specific types (declared before the component) ───
 // No generated API type is used here: every text is a prop supplied by the
@@ -128,7 +132,7 @@ export function Checkbox({
             aria-describedby={describedBy}
             aria-invalid={ariaInvalid}
             className={[
-              BOX_CLASSES,
+              row ? withoutDisabledFade(BOX_CLASSES) : BOX_CLASSES,
               invalid
                 ? "border-feedback-error"
                 : row
@@ -139,7 +143,7 @@ export function Checkbox({
               .filter(Boolean)
               .join(" ")}
           />
-          <Check className={MARK_CLASSES} />
+          <Check className={row ? withoutDisabledFade(MARK_CLASSES) : MARK_CLASSES} />
         </span>
         <span className={row ? row.label : "type-label"}>{label}</span>
       </label>

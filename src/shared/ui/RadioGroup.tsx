@@ -5,6 +5,7 @@ import {
   FACET_LEGEND_CLASSES,
   FACET_ROWS_CLASSES,
   facetRowClasses,
+  withoutDisabledFade,
   type ControlPresentation,
 } from "./facet-row";
 
@@ -167,7 +168,7 @@ export function RadioGroup({
             required={required}
             disabled={disabled}
             className={[
-              CIRCLE_CLASSES,
+              isRow ? withoutDisabledFade(CIRCLE_CLASSES) : CIRCLE_CLASSES,
               hasError
                 ? "border-feedback-error"
                 : isRow
@@ -175,7 +176,7 @@ export function RadioGroup({
                   : "border-border-strong",
             ].join(" ")}
           />
-          <span className={DOT_CLASSES} />
+          <span className={isRow ? withoutDisabledFade(DOT_CLASSES) : DOT_CLASSES} />
         </span>
         <span className={row ? row.label : "type-label"}>
           {option.label}

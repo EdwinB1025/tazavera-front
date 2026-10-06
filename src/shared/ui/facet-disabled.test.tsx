@@ -53,8 +53,56 @@ function checkbox(name: string): HTMLInputElement {
   return screen.getByRole("checkbox", { name, hidden: true }) as HTMLInputElement;
 }
 
+const OPACITY_50 = ["opacity-50", "disabled:opacity-50", "peer-disabled:opacity-50"];
+
+/** Number of 50% opacity classes from `element` up to its row `label`, inclusive. */
+function opacityChain(element: Element): number {
+  let count = 0;
+  let current: Element | null = element;
+  while (current) {
+    count += classesOf(current).filter((c) => OPACITY_50.includes(c)).length;
+    if (current.tagName === "LABEL") break;
+    current = current.parentElement;
+  }
+  return count;
+}
+
+describe("Disabled facet row — exactly one 50% opacity along the chain", () => {
+  it("a disabled radio row fades once: the row, not the circle or the dot", () => {
+    render(
+      <FacetRadioList
+        legend="Process"
+        options={PROCESSES}
+        onChange={() => {}}
+        anyLabel="Any"
+        texts={SEE_MORE}
+        disabled
+      />,
+    );
+    const radio = screen.getByRole("radio", { name: "Washed" });
+    expect(opacityChain(radio)).toBe(1);
+    expect(opacityChain(radio.nextElementSibling!)).toBe(1);
+  });
+
+  it("a disabled checkbox row fades once: the row, not the box or the mark", () => {
+    render(
+      <FacetCascade
+        legend="Flavour"
+        options={FLAVOURS}
+        value={["floral"]}
+        onChange={() => {}}
+        texts={CASCADE_TEXTS}
+        disabled
+      />,
+    );
+    const box = checkbox("Floral");
+    expect(opacityChain(box)).toBe(1);
+    expect(opacityChain(box.nextElementSibling!)).toBe(1);
+  });
+});
+
 describe("Disabled facet — 50% opacity", () => {
-  it("a disabled facet row is faded and its input carries disabled:opacity-50", () => {
+  it("a disabled facet row is faded and its input does not fade again", () => {
     render(
       <FacetRadioList
         legend="Process"
@@ -69,7 +117,7 @@ describe("Disabled facet — 50% opacity", () => {
     const row = screen.getByText("Washed").closest("label")!;
     expect(classesOf(row)).toEqual(expect.arrayContaining(["cursor-not-allowed", "opacity-50"]));
     const radio = screen.getByRole("radio", { name: "Washed" });
-    expect(classesOf(radio)).toContain("disabled:opacity-50");
+    expect(classesOf(radio)).not.toContain("disabled:opacity-50");
   });
 
   it("a disabled text facet's input carries disabled:opacity-50", () => {
