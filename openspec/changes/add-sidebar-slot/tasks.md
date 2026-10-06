@@ -8,7 +8,7 @@ No type is derived from `src/shared/api/schema.ts`; this group declares the UI-s
 
 design.md D3, D8; spec "Management sidebar" (Expanded on arrival, Closed on arrival), "Sidebar entry presentation" (Focus inside the sidebar).
 
-- [ ] 2.1 Write the tests in `src/shared/ui/Sidebar.test.tsx` (test before implementation), with `window.matchMedia` mocked per case:
+- [x] 2.1 Write the tests in `src/shared/ui/Sidebar.test.tsx` (test before implementation), with `window.matchMedia` mocked per case:
   - desktop (`matches: false`): `Sidebar` renders an `<aside>` (role `complementary`) named by its `label`, with `id` equal to the exported `SIDEBAR_ID`, its class containing `variant-inverse`, and `SidebarTrigger` reports `aria-expanded="true"` on mount; the existing case "is collapsible from md" keeps passing unchanged;
   - mobile (`matches: true`): on mount no `dialog` is in the document and `SidebarTrigger` reports `aria-expanded="false"`; activating it opens the `dialog` (id `SIDEBAR_ID`, its inner container's class containing `variant-inverse`); toggling there does not change the desktop state (switch the mock back to desktop and the column is still expanded);
   - presence: a probe component calling `useSidebar()` inside `SidebarProvider` reads `present === false` with no `Sidebar` mounted, `true` once a `Sidebar` is mounted (also while collapsed from `md`, when it renders nothing) and `false` again after it unmounts;

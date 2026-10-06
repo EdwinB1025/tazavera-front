@@ -22,6 +22,8 @@ import {
   SheetContent,
   SidebarProvider,
   Sidebar,
+  useSidebar,
+  SIDEBAR_ID,
   Card,
   CardAside,
   CardContent,
@@ -84,6 +86,11 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
   it("re-exports the icon module", () => {
     expect(Loader2).toBeDefined();
     expect(ArrowLeft).toBeDefined();
+  });
+
+  it("exports the sidebar hook and id from the segment (design.md D3)", () => {
+    expect(typeof useSidebar).toBe("function");
+    expect(typeof SIDEBAR_ID).toBe("string");
   });
 
   it("renders the field control exported from the segment", () => {
