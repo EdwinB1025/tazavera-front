@@ -29,5 +29,14 @@
   "concordanceLow": "Low",
   "concordanceModerate": "Moderate",
   "concordanceHigh": "High",
-  "concordanceExcellent": "Excellent"
+  "concordanceExcellent": "Excellent",
+  "detailAttributesHeading": "SCA attributes",
+  "attrFragrance": "Fragrance",
+  "attrAroma": "Aroma",
+  "attrFlavor": "Flavor",
+  "attrAftertaste": "Aftertaste",
+  "attrAcidity": "Acidity",
+  "attrSweetness": "Sweetness",
+  "attrMouthfeel": "Mouthfeel",
+  "attrOverall": "Overall"
 }

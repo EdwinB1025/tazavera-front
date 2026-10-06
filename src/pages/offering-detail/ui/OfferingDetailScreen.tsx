@@ -59,6 +59,7 @@ export function OfferingDetailScreen({
 }: OfferingDetailScreenProps): ReactNode {
   const catalog = getMessages("catalog", locale);
   const landing = getMessages("landing", locale);
+  const scales = getMessages("scales", locale);
 
   const texts: OfferingDetailTexts = {
     backLabel: catalog.detailBackLabel,
@@ -97,6 +98,17 @@ export function OfferingDetailScreen({
     concordanceModerate: catalog.concordanceModerate,
     concordanceHigh: catalog.concordanceHigh,
     concordanceExcellent: catalog.concordanceExcellent,
+    detailAttributesHeading: catalog.detailAttributesHeading,
+    attrFragrance: catalog.attrFragrance,
+    attrAroma: catalog.attrAroma,
+    attrFlavor: catalog.attrFlavor,
+    attrAftertaste: catalog.attrAftertaste,
+    attrAcidity: catalog.attrAcidity,
+    attrSweetness: catalog.attrSweetness,
+    attrMouthfeel: catalog.attrMouthfeel,
+    attrOverall: catalog.attrOverall,
+    beanValue: scales.beanValue,
+    beanValueLabel: scales.beanValueLabel,
   };
 
   return (

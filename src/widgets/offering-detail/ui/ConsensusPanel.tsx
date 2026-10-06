@@ -1,7 +1,13 @@
 import type { ReactNode } from "react";
 import type { OfferingDetail, TaxonomyNode } from "@/shared/api";
 import { ratingTierFor } from "@/entities/offering";
-import { Badge, Card, CardContent, LabelValueRow } from "@/shared/ui";
+import {
+  Badge,
+  BeanScale,
+  Card,
+  CardContent,
+  LabelValueRow,
+} from "@/shared/ui";
 import { concordanceBand } from "../lib/concordance";
 import type { ConcordanceBand } from "../lib/concordance";
 
@@ -21,6 +27,19 @@ export type ConsensusPanelTexts = {
   concordanceModerate: string;
   concordanceHigh: string;
   concordanceExcellent: string;
+  detailAttributesHeading: string;
+  attrFragrance: string;
+  attrAroma: string;
+  attrFlavor: string;
+  attrAftertaste: string;
+  attrAcidity: string;
+  attrSweetness: string;
+  attrMouthfeel: string;
+  attrOverall: string;
+  /** `{value}/9`, from the shared `scales` area. */
+  beanValue: string;
+  /** `{value} de 9` / `{value} of 9`, from the shared `scales` area. */
+  beanValueLabel: string;
 };
 
 export type ConsensusPanelProps = {
@@ -54,6 +73,24 @@ const CONTENT_CLASSES = ["flex", "flex-col", "gap-4"].join(" ");
 // The label/value rows (design.md D5's grid).
 const LIST_CLASSES = ["grid", "gap-x-6", "gap-y-3", "md:grid-cols-2"].join(" ");
 
+// A card spanning both grid columns from `lg`.
+const WIDE_CARD_CLASSES = "lg:col-span-2";
+
+// The eight attribute scales, 1.5rem apart.
+const SCALES_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
+
+// The SCA attributes in the settled order, with the label key of each.
+const ATTRIBUTES = [
+  ["fragranceAffectiveAvg", "attrFragrance"],
+  ["aromaAffectiveAvg", "attrAroma"],
+  ["flavorAffectiveAvg", "attrFlavor"],
+  ["aftertasteAffectiveAvg", "attrAftertaste"],
+  ["acidityAffectiveAvg", "attrAcidity"],
+  ["sweetnessAffectiveAvg", "attrSweetness"],
+  ["mouthfeelAffectiveAvg", "attrMouthfeel"],
+  ["overallAffectiveAvg", "attrOverall"],
+] as const;
+
 // A concordance value and its band word, 0.5rem apart, wrapping.
 const CONCORDANCE_CLASSES = ["flex", "flex-wrap", "gap-2"].join(" ");
 
@@ -65,8 +102,14 @@ const CONCORDANCE_CLASSES = ["flex", "flex-wrap", "gap-2"].join(" ");
  */
 export function ConsensusPanel({
   offering,
+  locale,
   texts,
 }: ConsensusPanelProps): ReactNode {
+  // One decimal in the route's locale: the settled "7,2 de 9" reading.
+  const oneDecimal = new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
   const tier =
     offering.verificationStatus === "verified"
       ? ratingTierFor(offering.cuppingAvg)
@@ -129,6 +172,39 @@ export function ConsensusPanel({
         </Card>
       ) : null}
       <div className={GRID_CLASSES}>
+        <div className={WIDE_CARD_CLASSES}>
+          <Card layout="stacked">
+            <CardContent className={CONTENT_CLASSES}>
+              <h2 className="type-subheading">
+                {texts.detailAttributesHeading}
+              </h2>
+              <div className={SCALES_CLASSES}>
+                {ATTRIBUTES.map(([field, labelKey]) => {
+                  const average = offering[field];
+                  if (average == null) {
+                    return null;
+                  }
+                  const value = Number(average);
+                  const formatted = oneDecimal.format(value);
+                  return (
+                    <BeanScale
+                      key={field}
+                      readOnly
+                      size="responsive"
+                      label={texts[labelKey]}
+                      value={value}
+                      valueText={texts.beanValue.replace("{value}", formatted)}
+                      valueLabel={texts.beanValueLabel.replace(
+                        "{value}",
+                        formatted,
+                      )}
+                    />
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
         <Card layout="stacked">
           <CardContent className={CONTENT_CLASSES}>
             <h2 className="type-subheading">{texts.detailStatusHeading}</h2>
