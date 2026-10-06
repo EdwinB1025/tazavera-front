@@ -462,6 +462,13 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "text-placeholder-inverse", bg: "nav-surface-dark", kind: "text" },
   { fg: "feedback-error-inverse", bg: "nav-surface-dark", kind: "text" },
   { fg: "surface-checked", bg: "nav-surface-dark", kind: "bound" },
+
+  // ── Facet rows and sort control (add-facet-controls design.md D12) ──
+  { fg: "nav-button-border", bg: "nav-surface-dark", kind: "bound" },
+  { fg: "nav-button-border", bg: "nav-current-dark", kind: "bound" },
+  { fg: "focus-ring-inverse", bg: "nav-current-dark", kind: "bound" },
+  { fg: "focus-ring-inverse", bg: "focus-offset-inverse", kind: "bound" },
+  { fg: "text-strong", bg: "surface-input", kind: "text" },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -774,6 +781,13 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "text-placeholder-inverse", bg: "nav-surface-dark", kind: "text" },
   { fg: "feedback-error-inverse", bg: "nav-surface-dark", kind: "text" },
   { fg: "surface-checked", bg: "nav-surface-dark", kind: "bound" },
+
+  // ── Facet rows and sort control (add-facet-controls design.md D12) ──
+  { fg: "nav-button-border", bg: "nav-surface-dark", kind: "bound" },
+  { fg: "nav-button-border", bg: "nav-current-dark", kind: "bound" },
+  { fg: "focus-ring-inverse", bg: "nav-current-dark", kind: "bound" },
+  { fg: "focus-ring-inverse", bg: "focus-offset-inverse", kind: "bound" },
+  { fg: "text-strong", bg: "surface-input", kind: "text" },
 ];
 
 describe("Dark theme contrast matrix", () => {
@@ -957,6 +971,9 @@ const ROLES: RoleSpec[] = [
   { name: "sidebar-item", family: "var(--font-sans)", weight: "400", sizeBase: "base", lineHeight: "default", color: "nav-text-dark" },
   { name: "button", family: "var(--font-sans)", weight: "600", sizeBase: "sm", lineHeight: "default" },
   { name: "badge", family: "var(--font-sans)", weight: "600", sizeBase: "sm", lineHeight: "default" },
+  // Combobox option lines (add-facet-controls design.md D10): no colour.
+  { name: "option", family: "var(--font-sans)", weight: "600", sizeBase: "sm", lineHeight: "tight" },
+  { name: "option-detail", family: "var(--font-sans)", weight: "400", sizeBase: "xs", lineHeight: "default" },
 ];
 
 /** Extract @utility type-{role} blocks: returns map of role name -> block content. */
@@ -1243,5 +1260,34 @@ describe("Inverse variant scope utility: @utility variant-inverse (form-fields d
     expect(Object.fromEntries(extractProperties(block))).toEqual(
       VARIANT_INVERSE_REASSIGNMENTS,
     );
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Facet-row shadow tokens (add-facet-controls design.md D10)
+// Traditional: Tailwind's default shadow-md and inset-shadow-sm; dark: none.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+describe("Facet-row shadow tokens (add-facet-controls design.md D10)", () => {
+  const css = readGlobals();
+  const tradProps = extractTraditional(css);
+  const darkProps = extractDark(css);
+
+  it("traditional @theme defines --shadow-nav-current as a medium drop shadow", () => {
+    expect(tradProps.get("--shadow-nav-current")).toBe(
+      "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+    );
+  });
+
+  it("traditional @theme defines --shadow-nav-hover as a small inner shadow", () => {
+    expect(tradProps.get("--shadow-nav-hover")).toBe("inset 0 2px 4px rgb(0 0 0 / 0.05)");
+  });
+
+  it("dark theme defines --shadow-nav-current as none", () => {
+    expect(darkProps.get("--shadow-nav-current")).toBe("none");
+  });
+
+  it("dark theme defines --shadow-nav-hover as none", () => {
+    expect(darkProps.get("--shadow-nav-hover")).toBe("none");
   });
 });
