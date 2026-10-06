@@ -261,6 +261,8 @@ describe("DescriptorChipGroup", () => {
       renderGroup({ disabled: true });
       for (const name of ["Berry", "Citrus", "Nutty"]) {
         expect(chip(name).hasAttribute("disabled")).toBe(true);
+        expect(chip(name).className).toContain("disabled:opacity-50");
+        expect(chip(name).className).toContain("disabled:cursor-not-allowed");
       }
     });
   });
