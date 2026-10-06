@@ -20,5 +20,14 @@
   "fieldCoffeeLot": "Lote",
   "fieldRoastLevel": "Nivel de tueste",
   "fieldRoastery": "Tostadora",
-  "fieldCoffeeshop": "Cafetería"
+  "fieldCoffeeshop": "Cafetería",
+  "detailStatusHeading": "Estado y evaluaciones",
+  "fieldEvaluationCount": "Total",
+  "fieldDefectiveCount": "Defectuosas",
+  "fieldConcordanceAffective": "Concordancia afectiva",
+  "fieldConcordanceDescriptive": "Concordancia descriptiva",
+  "concordanceLow": "Baja",
+  "concordanceModerate": "Moderada",
+  "concordanceHigh": "Alta",
+  "concordanceExcellent": "Excelente"
 }

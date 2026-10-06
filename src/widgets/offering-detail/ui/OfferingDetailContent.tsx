@@ -5,6 +5,8 @@ import type { DetailTab } from "../lib/tab";
 import { DetailHeader } from "./DetailHeader";
 import type { DetailHeaderTexts } from "./DetailHeader";
 import { DetailTabs } from "./DetailTabs";
+import { ConsensusPanel } from "./ConsensusPanel";
+import type { ConsensusPanelTexts } from "./ConsensusPanel";
 import { InventoryPanel } from "./InventoryPanel";
 import type { InventoryPanelTexts } from "./InventoryPanel";
 
@@ -12,7 +14,8 @@ import type { InventoryPanelTexts } from "./InventoryPanel";
 
 /** Every text of the detail, as props (design.md D16). */
 export type OfferingDetailTexts = DetailHeaderTexts &
-  InventoryPanelTexts & {
+  InventoryPanelTexts &
+  ConsensusPanelTexts & {
     backLabel: string;
     errorMessage: string;
     retryLabel: string;
@@ -98,7 +101,14 @@ export function OfferingDetailContent({
           inventory={
             <InventoryPanel offering={result.offering} texts={texts} />
           }
-          consensus={<div data-panel="consensus" />}
+          consensus={
+            <ConsensusPanel
+              offering={result.offering}
+              taxonomies={result.taxonomies}
+              locale={locale}
+              texts={texts}
+            />
+          }
         />
       </PageSection>
     </>

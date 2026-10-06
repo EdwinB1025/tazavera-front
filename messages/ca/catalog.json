@@ -20,5 +20,14 @@
   "fieldCoffeeLot": "Lot",
   "fieldRoastLevel": "Nivell de torrat",
   "fieldRoastery": "Torradora",
-  "fieldCoffeeshop": "Cafeteria"
+  "fieldCoffeeshop": "Cafeteria",
+  "detailStatusHeading": "Estat i avaluacions",
+  "fieldEvaluationCount": "Total",
+  "fieldDefectiveCount": "Defectuoses",
+  "fieldConcordanceAffective": "Concordança afectiva",
+  "fieldConcordanceDescriptive": "Concordança descriptiva",
+  "concordanceLow": "Baixa",
+  "concordanceModerate": "Moderada",
+  "concordanceHigh": "Alta",
+  "concordanceExcellent": "Excelent"
 }

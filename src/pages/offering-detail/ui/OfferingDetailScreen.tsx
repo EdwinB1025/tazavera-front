@@ -84,6 +84,19 @@ export function OfferingDetailScreen({
     fieldRoastLevel: catalog.fieldRoastLevel,
     fieldRoastery: catalog.fieldRoastery,
     fieldCoffeeshop: catalog.fieldCoffeeshop,
+    ratingExceptionalLabel: landing.cardRatingExceptionalLabel,
+    ratingExcellentLabel: landing.cardRatingExcellentLabel,
+    ratingGoodLabel: landing.cardRatingGoodLabel,
+    ratingCommercialLabel: landing.cardRatingCommercialLabel,
+    detailStatusHeading: catalog.detailStatusHeading,
+    fieldEvaluationCount: catalog.fieldEvaluationCount,
+    fieldDefectiveCount: catalog.fieldDefectiveCount,
+    fieldConcordanceAffective: catalog.fieldConcordanceAffective,
+    fieldConcordanceDescriptive: catalog.fieldConcordanceDescriptive,
+    concordanceLow: catalog.concordanceLow,
+    concordanceModerate: catalog.concordanceModerate,
+    concordanceHigh: catalog.concordanceHigh,
+    concordanceExcellent: catalog.concordanceExcellent,
   };
 
   return (
