@@ -251,6 +251,17 @@
 }
 
 /* =========================================================
+   TAZAVERA — FACET-ROW SHADOWS (add-facet-controls design.md D10)
+   Selected row: Tailwind's default shadow-md; row hover: its default
+   inset-shadow-sm. Both are none in the dark theme.
+   ========================================================= */
+
+@theme {
+    --shadow-nav-current: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-nav-hover: inset 0 2px 4px rgb(0 0 0 / 0.05);
+}
+
+/* =========================================================
    TAZAVERA — NIGHT PRIMITIVES (dark theme)
    Dark zone (L < 0.40): numbered by order (950 darkest → 750).
    Lighter steps follow the traditional lightness rule.
@@ -461,6 +472,10 @@
         --radius-container: 0;
         --radius-field: 0;
         --radius-check: 0;
+
+        /* ─── FACET-ROW SHADOWS (add-facet-controls design.md D10) ─── */
+        --shadow-nav-current: none;
+        --shadow-nav-hover: none;
     }
 }
 
@@ -674,6 +689,22 @@
     font-family: var(--font-sans);
     font-weight: 600;
     font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+}
+
+/* Combobox option lines (add-facet-controls design.md D10): no colour, so
+   the popup's text colour applies. */
+@utility type-option {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    line-height: var(--leading-tight);
+}
+
+@utility type-option-detail {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: var(--text-xs);
     line-height: var(--leading-normal);
 }
 

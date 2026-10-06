@@ -1,0 +1,16 @@
+{
+  "title": "Filters",
+  "clearAll": "Clear all",
+  "removeFilter": "Remove filter: {facet}: {value}",
+  "seeMore": "See more ({count})",
+  "seeLess": "See less",
+  "any": "Any",
+  "noOptionMatches": "No matches",
+  "searching": "Searching…",
+  "searchFailed": "Results could not be loaded",
+  "optionCount": "Options: {count}",
+  "toggleChildren": "Options under {label}",
+  "rangeFrom": "From",
+  "rangeTo": "To",
+  "optionsUnavailable": "Options unavailable"
+}
