@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach, beforeAll } from "vitest";
 import { render, screen, fireEvent, cleanup, act } from "@testing-library/react";
-import { Combobox, type ComboboxOption, type ComboboxSearch } from "@/shared/ui";
+import { Combobox, Field, type ComboboxOption, type ComboboxSearch } from "@/shared/ui";
 
 afterEach(() => {
   cleanup();
@@ -288,5 +288,45 @@ describe("Combobox — search mode", () => {
       vi.advanceTimersByTime(1000);
     });
     expect(search).not.toHaveBeenCalled();
+  });
+});
+
+describe("Combobox — inside a Field (design.md D14)", () => {
+  function inField(error?: string) {
+    return (
+      <Field label="Coffee" required help="Field help" error={error}>
+        <Combobox
+          label="Coffee"
+          options={FINCAS}
+          value={null}
+          onChange={() => {}}
+          help="Own help"
+          texts={TEXTS}
+        />
+      </Field>
+    );
+  }
+
+  it("shows one label, which names the input, and only the Field's help", () => {
+    render(inField());
+    expect(screen.getAllByText("Coffee")).toHaveLength(1);
+    const box = screen.getByRole("combobox", { name: "Coffee" });
+    const label = screen.getByText("Coffee");
+    expect(label.getAttribute("for")).toBe(box.id);
+    const help = screen.getByText("Field help");
+    expect(box.getAttribute("aria-describedby")).toBe(help.id);
+    expect(screen.queryByText("Own help")).toBeNull();
+    expect(box.hasAttribute("required")).toBe(true);
+  });
+
+  it("with an error, the input is described by the help and the error", () => {
+    render(inField("Choose a coffee"));
+    expect(screen.getAllByText("Coffee")).toHaveLength(1);
+    const box = screen.getByRole("combobox", { name: "Coffee" });
+    const help = screen.getByText("Field help");
+    const error = screen.getByText("Choose a coffee");
+    expect(box.getAttribute("aria-describedby")?.split(" ")).toEqual([help.id, error.id]);
+    expect(box.getAttribute("aria-invalid")).toBe("true");
+    expect(screen.queryByText("Own help")).toBeNull();
   });
 });
