@@ -1,3 +1,6 @@
+"use client";
+
+import { createContext, useContext } from "react";
 import type { ReactNode } from "react";
 import type { Session } from "@/shared/api";
 
@@ -15,3 +18,31 @@ export type AppSidebarContextValue = {
   /** Accessible name of the sidebar's collapse control (`toggleSidebar`). */
   toggleLabel: string;
 };
+
+export type AppSidebarProviderProps = AppSidebarContextValue & {
+  children?: ReactNode;
+};
+
+const AppSidebarContext = createContext<AppSidebarContextValue | null>(null);
+
+/** Rendered by `SessionShell` around the chrome and the main area (D4, D5). */
+export function AppSidebarProvider({
+  session,
+  entries,
+  toggleLabel,
+  children,
+}: AppSidebarProviderProps): ReactNode {
+  return (
+    <AppSidebarContext.Provider value={{ session, entries, toggleLabel }}>
+      {children}
+    </AppSidebarContext.Provider>
+  );
+}
+
+export function useAppSidebar(): AppSidebarContextValue {
+  const context = useContext(AppSidebarContext);
+  if (!context) {
+    throw new Error("useAppSidebar must be used within an AppSidebarProvider");
+  }
+  return context;
+}

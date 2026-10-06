@@ -100,7 +100,11 @@ describe("AppSidebar frame (design.md D4)", () => {
 
   it("renders its children after the navigation", () => {
     pathname = "/es/manage/offerings";
-    renderFrame(<AppSidebar>area-controls</AppSidebar>);
+    renderFrame(
+      <AppSidebar>
+        <p>area-controls</p>
+      </AppSidebar>,
+    );
     const nav = screen.getByRole("navigation");
     const controls = screen.getByText("area-controls");
     expect(

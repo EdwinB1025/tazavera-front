@@ -4,7 +4,8 @@ import type { ReactNode } from "react";
 import type { Session } from "@/shared/api";
 import { LOCALES } from "@/shared/config/locales";
 import { useSession } from "@/features/auth";
-import { AppSidebar } from "@/widgets/app-sidebar";
+import { SidebarProvider } from "@/shared/ui";
+import { AppSidebarProvider, DefaultSidebar } from "@/widgets/app-sidebar";
 import type { AppHeaderTexts } from "@/widgets/app-header";
 import { ShellChrome } from "./ShellChrome";
 
@@ -14,17 +15,18 @@ export type SessionShellProps = {
   locale: string;
   /** The `session?` override of `AppShell` (review round 2, item 2). */
   session?: Session;
-  /** The management sidebar region, when a caller fills it explicitly. */
+  /** The route's sidebar (the `@sidebar` slot); absent, the default one. */
   sidebar?: ReactNode;
   /** The catalog texts `AppShell` resolves on the server (design.md D1). */
   texts: AppHeaderTexts & { toggleSidebar: string };
   children?: ReactNode;
 };
 
-const MAIN_CLASSES = ["bg-surface-page", "flex-1"].join(" ");
-// The column sizes itself on its content: with the sidebar region hidden it
-// collapses to nothing and the main area stays a single column.
-const SIDEBAR_COLUMN_CLASSES = ["hidden", "md:block", "shrink-0"].join(" ");
+// Always `md:flex` (design.md D5): presence is only known after hydration,
+// so the layout never switches. The column sizes itself on its content: with
+// no sidebar mounted it is empty and zero-wide, a single column remains.
+const MAIN_CLASSES = ["bg-surface-page", "flex-1", "md:flex"].join(" ");
+const SIDEBAR_COLUMN_CLASSES = "shrink-0";
 const CONTENT_CLASSES = ["min-w-0", "flex-1"].join(" ");
 
 /**
@@ -34,9 +36,9 @@ const CONTENT_CLASSES = ["min-w-0", "flex-1"].join(" ");
  * `AppShell` stays a Server Component that resolves the catalog texts and
  * passes them here; this client boundary owns the session: it calls
  * `useSession()` unconditionally and renders `ShellChrome` and the sidebar
- * region with `session ?? <hook value>`, so an explicit session still wins.
- * `ShellChrome` and `AppSidebar` keep receiving the session as input,
- * unchanged. The rendered layout is unchanged.
+ * providers with `session ?? <hook value>`, so an explicit session still
+ * wins. The sidebar state and the sidebar's session live at this level
+ * (add-sidebar-slot design.md D3, D5).
  */
 export function SessionShell({
   locale,
@@ -47,30 +49,26 @@ export function SessionShell({
 }: SessionShellProps): ReactNode {
   const hookValue = useSession();
   const supplied = session ?? hookValue;
-  // The sidebar region: the management sidebar is mounted here for an
-  // authenticated session (it shows itself only on a management route) and a
-  // caller may fill the region explicitly.
-  const region =
-    sidebar ??
-    (supplied.state === "authenticated" ? (
-      <AppSidebar
-        session={supplied}
-        toggleLabel={texts.toggleSidebar}
-      />
-    ) : undefined);
 
+  // design.md D5: one sidebar state for the header, the sidebar and the page
+  // body; the region is the route's slot or the default sidebar.
   return (
-    <div className="flex flex-1 flex-col">
-      <ShellChrome
-        session={supplied}
-        locale={locale}
-        locales={[...LOCALES]}
-        texts={texts}
-      />
-      <main className={region ? `${MAIN_CLASSES} md:flex` : MAIN_CLASSES}>
-        {region && <aside className={SIDEBAR_COLUMN_CLASSES}>{region}</aside>}
-        <div className={CONTENT_CLASSES}>{children}</div>
-      </main>
-    </div>
+    // The provider's own element is the shell root (refine-app-header D15).
+    <SidebarProvider className="flex flex-1 flex-col">
+      <AppSidebarProvider session={supplied} toggleLabel={texts.toggleSidebar}>
+        <ShellChrome
+          session={supplied}
+          locale={locale}
+          locales={[...LOCALES]}
+          texts={texts}
+        />
+        <main className={MAIN_CLASSES}>
+          <div className={SIDEBAR_COLUMN_CLASSES}>
+            {sidebar ?? <DefaultSidebar />}
+          </div>
+          <div className={CONTENT_CLASSES}>{children}</div>
+        </main>
+      </AppSidebarProvider>
+    </SidebarProvider>
   );
 }
