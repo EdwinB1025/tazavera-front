@@ -187,6 +187,15 @@ describe("Combobox — local mode", () => {
     );
   });
 
+  it("emptying the input and pressing Enter with a value reports null", () => {
+    const onChange = vi.fn();
+    render(local({ value: FINCAS[0]!, onChange }));
+    type("");
+    fireEvent.keyDown(input(), { key: "Enter" });
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith(null);
+  });
+
   it("variant inverse puts the input's inverse classes on it, default does not", () => {
     const { rerender } = render(local({ variant: "inverse" }));
     expect(input().className).toContain("variant-inverse");
