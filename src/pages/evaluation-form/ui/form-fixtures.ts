@@ -36,6 +36,7 @@ export const FORM_TEXTS: EvaluationFormTexts = {
     failureMessage: "Something went wrong.",
     roastLevelRequired: "Choose the roast level.",
   },
+  fragranceNotEvaluatedLabel: "Fragrance not evaluated — use aroma values",
   blockLabels: {
     aromatics: "Aromatics",
     main_tastes: "Main tastes",

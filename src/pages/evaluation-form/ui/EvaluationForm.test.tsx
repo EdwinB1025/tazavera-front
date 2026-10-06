@@ -268,3 +268,75 @@ describe("EvaluationForm: saving a draft (design.md D4; tasks 6.1)", () => {
     expect(updateAnEvaluation.mock.calls[0][1].descriptive.fragrance.note).toBeNull();
   });
 });
+
+describe("EvaluationForm: Fragrance not evaluated (design.md D9; tasks 6.3)", () => {
+  function fragranceCard(container: HTMLElement) {
+    return container.querySelector('[data-group="fragranceAroma"]') as HTMLElement;
+  }
+
+  function part(card: HTMLElement, name: "descriptive" | "affective") {
+    return card.querySelector(`[data-part="${name}"]`) as HTMLElement;
+  }
+
+  function slider(card: HTMLElement, label: string) {
+    return within(part(card, "descriptive")).getByRole("slider", { name: label }) as HTMLInputElement;
+  }
+
+  function beans(card: HTMLElement, label: string) {
+    return within(part(card, "affective")).getByRole("radiogroup", { name: label });
+  }
+
+  it("is a labelled checkbox at the top of the Fragrance / Aroma body, unchecked on load", () => {
+    const { container } = renderForm();
+    const card = fragranceCard(container);
+    const option = within(card).getByRole("checkbox", {
+      name: "Fragrance not evaluated — use aroma values",
+    }) as HTMLInputElement;
+    expect(option.checked).toBe(false);
+    const body = card.querySelector('[data-part="descriptive"]')!.parentElement!.parentElement!;
+    expect(body.firstElementChild!.contains(option)).toBe(true);
+    cleanup();
+    const loaded = renderForm({ evaluation: OPEN_EVALUATION });
+    expect(
+      (within(fragranceCard(loaded.container)).getByRole("checkbox") as HTMLInputElement).checked,
+    ).toBe(false);
+  });
+
+  it("disables the fragrance controls of both parts and sends the aroma scores as fragrance", async () => {
+    createAnEvaluation.mockResolvedValue({ ok: true, status: 201, data: CREATED });
+    const { container } = renderForm();
+    const card = fragranceCard(container);
+    fireEvent.change(slider(card, "Fragrance"), { target: { value: "4" } });
+    fireEvent.change(slider(card, "Aroma"), { target: { value: "9" } });
+    fireEvent.click(within(beans(card, "Aroma")).getByRole("radio", { name: "7" }));
+    fireEvent.click(within(card).getByRole("checkbox"));
+    expect(slider(card, "Fragrance").disabled).toBe(true);
+    expect(
+      within(beans(card, "Fragrance"))
+        .getAllByRole("radio")
+        .every((radio) => (radio as HTMLButtonElement).disabled),
+    ).toBe(true);
+    expect(slider(card, "Aroma").disabled).toBe(false);
+    save();
+    await waitFor(() => expect(createAnEvaluation).toHaveBeenCalledTimes(1));
+    const body = createAnEvaluation.mock.calls[0][0];
+    expect(body.descriptive.fragrance.score).toBe(9);
+    expect(body.affective.fragrance.score).toBe(7);
+  });
+
+  it("sends the fragrance controls' own values once unchecked again", async () => {
+    createAnEvaluation.mockResolvedValue({ ok: true, status: 201, data: CREATED });
+    const { container } = renderForm();
+    const card = fragranceCard(container);
+    fireEvent.change(slider(card, "Fragrance"), { target: { value: "4" } });
+    fireEvent.change(slider(card, "Aroma"), { target: { value: "9" } });
+    const option = within(card).getByRole("checkbox");
+    fireEvent.click(option);
+    fireEvent.click(option);
+    expect(slider(card, "Fragrance").disabled).toBe(false);
+    expect(slider(card, "Fragrance").value).toBe("4");
+    save();
+    await waitFor(() => expect(createAnEvaluation).toHaveBeenCalledTimes(1));
+    expect(createAnEvaluation.mock.calls[0][0].descriptive.fragrance.score).toBe(4);
+  });
+});
