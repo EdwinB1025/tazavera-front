@@ -44,4 +44,4 @@
 
 ## 9. Integration verification
 
-- [ ] 9.1 Verify the complete change with `npm run test:run`, `npm run lint`, `npx tsc --noEmit` and `npm run build`, all exiting 0, and `git diff --stat develop -- src/shared/api/ contracts/` empty (task 1.2); the suites that must keep passing unchanged apart from the cases this change added: `Checkbox.test.tsx`, `RadioGroup.test.tsx`, `Badge.test.tsx`, `index.test.tsx`, `color-guard`, `radius-guard`, `focus-guard`, `badge-geometry-guard`, `client-boundary`, `xss-guard`, `icons.test.ts`, `catalog-guard.test.ts` and `theme-tokens.test.ts`
+- [x] 9.1 Verify the complete change with `npm run test:run`, `npm run lint`, `npx tsc --noEmit` and `npm run build`, all exiting 0, and `git diff --stat develop -- src/shared/api/ contracts/` empty (task 1.2); the suites that must keep passing unchanged apart from the cases this change added: `Checkbox.test.tsx`, `RadioGroup.test.tsx`, `Badge.test.tsx`, `index.test.tsx`, `color-guard`, `radius-guard`, `focus-guard`, `badge-geometry-guard`, `client-boundary`, `xss-guard`, `icons.test.ts`, `catalog-guard.test.ts` and `theme-tokens.test.ts`
