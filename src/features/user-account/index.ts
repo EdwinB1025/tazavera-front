@@ -34,3 +34,5 @@ export { RoleRow } from "./ui/RoleRow";
 export type { RoleRowProps } from "./ui/RoleRow";
 export { ProfileForm } from "./ui/ProfileForm";
 export type { ProfileFormProps, ProfileFormTexts } from "./ui/ProfileForm";
+export { PasswordForm } from "./ui/PasswordForm";
+export type { PasswordFormProps, PasswordFormTexts } from "./ui/PasswordForm";

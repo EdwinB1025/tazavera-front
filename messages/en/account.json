@@ -42,5 +42,9 @@
   "profileDescription": "Update your personal information",
   "roleLabel": "Role",
   "save": "Save",
-  "profileUpdated": "Profile updated"
+  "profileUpdated": "Profile updated",
+  "forgotPasswordLink": "Forgot your password?",
+  "newPasswordLabel": "New password",
+  "currentPasswordLabel": "Current password",
+  "passwordUpdated": "Password changed"
 }

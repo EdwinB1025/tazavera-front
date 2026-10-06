@@ -12,9 +12,11 @@ import {
   AccountSection,
   DangerZone,
   ExternalLink,
+  PasswordForm,
   ProfileForm,
   SessionGate,
   type DangerZoneTexts,
+  type PasswordFormTexts,
   type ProfileFormTexts,
   type SessionGateTexts,
 } from "@/features/user-account";
@@ -23,6 +25,7 @@ import {
 
 export type AccountClientTexts = SessionGateTexts &
   DangerZoneTexts &
+  PasswordFormTexts &
   ProfileFormTexts & {
     profileHeading: string;
     profileDescription: string;
@@ -48,6 +51,7 @@ export type AccountClientProps = {
 export function AccountClient({ locale, texts }: AccountClientProps): ReactNode {
   const session = useSession();
   const profileHeadingId = useId();
+  const passwordHeadingId = useId();
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   return (
@@ -68,7 +72,18 @@ export function AccountClient({ locale, texts }: AccountClientProps): ReactNode 
               requestProfileWrite={requestProfileWrite}
             />
           </AccountSection>
-          <AccountSection heading={texts.passwordHeading}>{null}</AccountSection>
+          <AccountSection
+            heading={texts.passwordHeading}
+            headingId={passwordHeadingId}
+          >
+            <PasswordForm
+              ulid={user.ulid ?? ""}
+              locale={locale}
+              labelledBy={passwordHeadingId}
+              texts={texts}
+              requestProfileWrite={requestProfileWrite}
+            />
+          </AccountSection>
           <AccountSection
             heading={texts.securityHeading}
             description={texts.securityDescription}

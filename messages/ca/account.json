@@ -42,5 +42,9 @@
   "profileDescription": "Actualitza la teva informació personal",
   "roleLabel": "Rol",
   "save": "Desa",
-  "profileUpdated": "Perfil actualitzat"
+  "profileUpdated": "Perfil actualitzat",
+  "forgotPasswordLink": "Has oblidat la contrasenya?",
+  "newPasswordLabel": "Nova contrasenya",
+  "currentPasswordLabel": "Contrasenya actual",
+  "passwordUpdated": "Contrasenya canviada"
 }
