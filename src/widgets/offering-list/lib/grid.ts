@@ -11,3 +11,18 @@ export const OFFERING_GRID_CLASSES = [
   "md:grid-cols-2",
   "xl:grid-cols-3",
 ].join(" ");
+
+/**
+ * The catalog grid (add-offering-catalog design.md D10; spec "Catalog grid by
+ * available width"): the columns follow the width of the results region, not
+ * the viewport — one column, two from a 768px region and three from 1280px,
+ * with a 1.5rem gap — so content beside the region narrows the columns. An
+ * ancestor carries `@container`, since a container cannot query itself.
+ */
+export const CATALOG_GRID_CLASSES = [
+  "grid",
+  "grid-cols-1",
+  "gap-6",
+  "@min-[768px]:grid-cols-2",
+  "@min-[1280px]:grid-cols-3",
+].join(" ");
