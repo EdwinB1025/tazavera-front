@@ -55,7 +55,7 @@ const PANEL_CLASSES =
 const ROW_CLASSES =
   "flex min-h-10 cursor-pointer items-center gap-2 rounded-field px-2 py-1 text-text-primary hover:bg-surface-section focus-visible:focus-ring";
 const TOGGLE_CLASSES =
-  "type-body flex min-h-10 cursor-pointer items-center gap-2 self-start rounded-field px-2 py-1 text-text-primary hover:bg-surface-section focus-visible:focus-ring";
+  "type-body flex min-h-10 cursor-pointer items-center gap-2 self-start rounded-field px-2 py-1 text-text-primary hover:bg-surface-section focus-visible:focus-ring @2xl:justify-self-start";
 const ROW_INDENT = ["", "ms-6", "ms-12"];
 const SWATCH_CLASSES = "size-3 shrink-0 rounded-check";
 

@@ -179,7 +179,7 @@ describe("FlavorWheel — initial render", () => {
 
 describe("FlavorWheel — note list disclosure", () => {
   const TOGGLE_CLASSES =
-    "type-body flex min-h-10 cursor-pointer items-center gap-2 self-start rounded-field px-2 py-1 text-text-primary hover:bg-surface-section focus-visible:focus-ring";
+    "type-body flex min-h-10 cursor-pointer items-center gap-2 self-start rounded-field px-2 py-1 text-text-primary hover:bg-surface-section focus-visible:focus-ring @2xl:justify-self-start";
 
   it("collapses the note list at first behind its expand control", () => {
     const { container } = renderWheel({}, { listOpen: false });
@@ -228,6 +228,9 @@ describe("FlavorWheel — note list disclosure", () => {
   it("takes the row treatment, start-aligned at content width", () => {
     renderWheel({}, { listOpen: false });
     expect(notesToggle().className).toBe(TOGGLE_CLASSES);
+    expect(notesToggle().classList.contains("@2xl:justify-self-start")).toBe(
+      true,
+    );
     expect(notesToggle().querySelector("svg")!.getAttribute("class")).toContain(
       "size-4 shrink-0",
     );
