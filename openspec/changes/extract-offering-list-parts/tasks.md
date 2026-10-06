@@ -2,7 +2,7 @@
 
 ## 1. Foundation: derived type and visual reference
 
-- [ ] 1.1 Add `TaxonomiesPayload` to `src/shared/api/index.ts` exactly as defined in design.md D2 — the named alias of the `GET /taxonomies` 200 response built on `operations["listOlfactoryTaxonomies"]` of `schema.ts`, exported beside the existing aliases and derived before any component, with no generated type edited or redefined — verifying `npx tsc --noEmit` passes and `src/shared/api/schema.ts` is left byte-for-byte untouched
+- [x] 1.1 Add `TaxonomiesPayload` to `src/shared/api/index.ts` exactly as defined in design.md D2 — the named alias of the `GET /taxonomies` 200 response built on `operations["listOlfactoryTaxonomies"]` of `schema.ts`, exported beside the existing aliases and derived before any component, with no generated type edited or redefined — verifying `npx tsc --noEmit` passes and `src/shared/api/schema.ts` is left byte-for-byte untouched
 - [ ] 1.2 Capture the visual reference of design-summary §12 — the landing `/es` at 375px and 1280px on the current code, with the local read mock (the local database has no offerings) — verifying the captures show the hero, the offerings grid and the pagination and are held for the comparison in task 4.1
 
 ## 2. Taxonomy vertical slice (entities/taxonomy → offering-list)
