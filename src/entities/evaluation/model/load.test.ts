@@ -51,7 +51,7 @@ describe("formStateFromEvaluation (design.md D3)", () => {
 
   it("maps missing scores to 0 (descriptive) and unset (affective)", () => {
     const state = formStateFromEvaluation(
-      { ...ITEM, descriptive: {}, affective: {}, extrinsics: undefined },
+      { ...ITEM, extractionMethod: undefined, descriptive: {}, affective: {}, extrinsics: undefined },
       null,
     );
     expect(state.descriptive.mouthfeel).toEqual({ score: 0, note: null });
