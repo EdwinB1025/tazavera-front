@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { useState } from "react";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { NoteField } from "./NoteField";
@@ -9,20 +9,25 @@ import { NoteField } from "./NoteField";
  * remove-note control; removing drops the note and its text.
  */
 
-afterEach(cleanup);
+const sent = vi.fn();
 
-let sent: string | null = null;
+afterEach(() => {
+  cleanup();
+  sent.mockReset();
+});
 
 function Harness({ initial = null }: { initial?: string | null }) {
   const [value, setValue] = useState<string | null>(initial);
-  sent = value;
   return (
     <NoteField
       label="Note on aroma"
       addLabel="Add note"
       removeLabel="Remove note"
       value={value}
-      onChange={setValue}
+      onChange={(next) => {
+        sent(next);
+        setValue(next);
+      }}
     />
   );
 }
@@ -35,7 +40,7 @@ describe("NoteField (design.md D14)", () => {
     const add = screen.getByRole("button", { name: "Add note" });
     for (const token of LINK_STYLE) expect(add.className).toContain(token);
     expect(screen.queryByRole("textbox")).toBeNull();
-    expect(sent).toBeNull();
+    expect(sent).not.toHaveBeenCalled();
   });
 
   it("opens the note field with its label, a textarea and the remove control aligned to the end", () => {
@@ -48,14 +53,14 @@ describe("NoteField (design.md D14)", () => {
     for (const token of LINK_STYLE) expect(remove.className).toContain(token);
     expect(remove.className).toContain("self-end");
     fireEvent.change(textarea, { target: { value: "Bright jasmine" } });
-    expect(sent).toBe("Bright jasmine");
+    expect(sent).toHaveBeenLastCalledWith("Bright jasmine");
   });
 
   it("drops the note and its text when removed", () => {
     render(<Harness initial="Bright jasmine" />);
     fireEvent.click(screen.getByRole("button", { name: "Remove note" }));
     expect(screen.queryByRole("textbox")).toBeNull();
-    expect(sent).toBeNull();
+    expect(sent).toHaveBeenLastCalledWith(null);
     fireEvent.click(screen.getByRole("button", { name: "Add note" }));
     expect((screen.getByRole("textbox") as HTMLTextAreaElement).value).toBe("");
   });
