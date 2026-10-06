@@ -107,3 +107,9 @@ export { SeeMoreButton } from "./SeeMoreButton";
 export type { SeeMoreButtonProps, SeeMoreTexts } from "./SeeMoreButton";
 export { FacetRadioList } from "./FacetRadioList";
 export type { FacetOption, FacetRadioListProps } from "./FacetRadioList";
+export { FacetCascade } from "./FacetCascade";
+export type {
+  CascadeOption,
+  FacetCascadeProps,
+  FacetCascadeTexts,
+} from "./FacetCascade";
