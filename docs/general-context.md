@@ -311,3 +311,17 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
   - si el seeder se engancha en `DatabaseSeeder`.
 - **Por qué:** respuestas de Product owner del 6 oct (opción b) y documentos de diseño del MVC (`Diseño.md:96`, `:104`; `casos de uso.md:3`, `:100`).
 - **Afecta:** add-public-evaluations (se recupera), add-offering-catalog (detalle: botón y pestaña), add-flavor-wheel (posible consumidor en la lista pública), cobertura del contrato, nuevo cambio del API.
+
+### 2026-10-06 — API add-offering-baseline-seed: diseño final, integrado (respuestas de Product owner)
+- **Decisión:** el cambio del API está mergeado en `dev` y `PROD` (`4878ca5`). Contrato y tipos actualizados en el front (`92328fc`).
+  - **Filtros:** `offeringId` y `evaluationType` (`specialist` | `baseline`) en `GET /evaluations`, `GET /users/{user}/evaluations` y `GET /user/evaluations`. El resource no cambia.
+  - **Comportamiento por defecto (1a):** el API sigue devolviendo los dos tipos. La lista pública del front envía siempre `evaluationType=specialist`, y la pestaña provisional envía `evaluationType=baseline`.
+  - **Seeders, llamados desde `DatabaseSeeder`:**
+    - `OfferingBaselineSeeder`: entre 1 y 5 ofertas por cafetería, cada una con su baseline cerrada (`evaluator_id` = la cafetería);
+    - `VerifiedOfferingSeeder`: 15 ofertas con entre 5 y 9 evaluaciones de 10 especialistas, con `EvaluationClosed` por oferta para que se calcule el consenso.
+    - Resultado en local: 73 ofertas, 15 verificadas, 73 baselines.
+  - `GetAnOfferingSeeder` y `CreateOfferingSeeder` se mantienen. Sin tests nuevos.
+  - La baseline queda en el backlog del API solo como endpoint de creación.
+- **Datos de ejemplo:** `migrate:fresh --seed` recrea el cliente OAuth del front, así que hay que actualizar `NEXT_PUBLIC_OAUTH_CLIENT_ID` en cada `.env.local` después de sembrar.
+- **Por qué:** respuestas de Product owner del 6 oct.
+- **Afecta:** add-public-evaluations, add-offering-catalog (pestaña provisional y botón), toda prueba en navegador con datos (ahora hay ofertas verificadas).
