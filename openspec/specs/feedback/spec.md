@@ -84,11 +84,15 @@ The badge's geometry — its text treatment, inner padding, icon gap, one-line l
 - **THEN** verification fails and names the file holding the second definition
 
 ### Requirement: Flavor wheel
-The system SHALL present an offering's aromatic consensus as an interactive flavor wheel: one segment per note of the offering's `cataConcordance` group of type `aromatics`, resolved against the olfactory taxonomies of `GET /taxonomies` for its name, description and colour. The rings SHALL expand from the centre outward one level at a time, each segment's span SHALL be proportional to its `count` within its siblings, the `evaluationCount` total SHALL sit at the centre, and each note's visible legend SHALL be its `count` over that total (for example `4/5`). Hovering or focusing a note SHALL make it the active note and show its name, its legend and its olfactory-taxonomy description in a fixed description panel. The notes SHALL keep the order of `GET /taxonomies` around the wheel and down the list.
+The system SHALL present an offering's aromatic consensus as an interactive flavor wheel: one segment per note of the offering's `cataConcordance` group of type `aromatics`, resolved against the olfactory taxonomies of `GET /taxonomies` for its name, description and colour. The rings SHALL expand from the centre outward one level at a time and SHALL be sized by the deepest level currently expanded, so the wheel rescales instantly as notes expand and collapse, each segment's span SHALL be proportional to its `count` within its siblings, the `evaluationCount` total SHALL sit at the centre, and each note's visible legend SHALL be its `count` over that total (for example `4/5`). Hovering or focusing a note SHALL make it the active note and show its name, its legend and its olfactory-taxonomy description in a fixed description panel. The notes SHALL keep the order of `GET /taxonomies` around the wheel and down the list.
 
 #### Scenario: Ring 0 only at first
 - **WHEN** the wheel first renders with resolved notes
-- **THEN** only the innermost ring (level 0) shows and nothing is expanded
+- **THEN** only the innermost ring (level 0) shows, nothing is expanded, and that ring fills the wheel from the centre hole to the outer edge
+
+#### Scenario: Rings follow the deepest expanded level
+- **WHEN** the viewer expands or collapses notes, or presses Escape
+- **THEN** the rings are resized at once to the deepest level that is expanded: one ring filling the wheel with nothing expanded, two rings sharing it with a level-0 note expanded, three with a level-1 note expanded, and back to one ring after Escape
 
 #### Scenario: Activating a note expands it one level
 - **WHEN** the viewer activates a note that has children
@@ -182,15 +186,19 @@ The wheel SHALL carry a text alternative that is a note list structured as a tre
 - **THEN** its note becomes active and the list's active row without moving focus
 
 ### Requirement: Flavor wheel note list disclosure
-The note list SHALL be collapsed by default behind a visible expand control that exposes whether the list is expanded and which list it controls. Only the note list SHALL collapse: the description panel SHALL never collapse and stays beside the wheel.
+The note list SHALL be collapsed by default behind a visible expand control that exposes whether the list is expanded and which list it controls. The control SHALL span the full width of its column, with the note list title at the start and a chevron at the end that points down while collapsed and up while expanded; its accessible name SHALL be the title and SHALL not change with the state. While collapsed, the note list SHALL be out of the tab order. Only the note list SHALL collapse: the description panel SHALL never collapse and stays beside the wheel.
 
 #### Scenario: Note list collapsed at first
 - **WHEN** the wheel first renders with resolved notes
-- **THEN** the note list is collapsed, its expand control shows collapsed, and the wheel and the description panel show
+- **THEN** the note list is collapsed and out of the tab order, its expand control shows collapsed with its chevron pointing down, and the wheel and the description panel show
 
 #### Scenario: Expanding and collapsing the note list
 - **WHEN** the viewer activates the note list's expand control
-- **THEN** the note list toggles between expanded and collapsed and the control exposes the new state, while the description panel stays shown
+- **THEN** the note list toggles between expanded and collapsed, the control exposes the new state and turns its chevron, and the description panel stays shown
+
+#### Scenario: Full-width expand control
+- **WHEN** the expand control renders
+- **THEN** it spans the full width of its column with the title at the start and the chevron at the end
 
 ### Requirement: Confirmation dialog
 A confirmation dialog SHALL ask the user to confirm one destructive action before the consuming capability runs it, presenting the title, the description and two actions — the destructive action and a cancellation — whose texts the consuming capability supplies. While it is open it SHALL be exposed to assistive technology as an alert dialog named by its title and described by its description, with the content behind it inert.
