@@ -128,3 +128,27 @@ Summary: the design lead reviewed `design-summary.md` against the contract, the 
 - 13 reuse of `fetchTaxonomies`, `buildTaxonomyLookup` and `OfferingPagination` from the `offering-list` widget breaks FSD → refactor change first (move to `entities/taxonomy` or `shared`); also needed by add-offering-catalog and add-filter-controls. Backlog candidate for Product owner to add.
 - Non-blocking (2, 5, 10, 11, 12): recommendations are in the summary.
 - Blocks: propose.
+
+## Session 2026-10-06 — Product owner's answers to Q8
+Summary: Product owner and the orchestrator went through the Open list. The answers are written in the summary under "Answers of 2026-10-06" (uncommitted). Stopped because: completed, except point 12. MVC reachable: files read.
+
+### Q8 — ANSWERED 2026-10-06
+- Product owner: 1 b) the backend adds `createdAt`/`closedAt` (contract change; propose waits for it on `develop`); 9 a); 13 a) refactor change first; sidebar facets on the evaluations list (filter-controls).
+- Orchestrator (decisions below): 2, 3, 4, 5, 6, 7, 8, 10, 11.
+
+### Decisions taken
+#### D1 — Points 2, 3, 5, 6, 7, 8, 10, 11 settled by the orchestrator
+- Context: the design lead left them open although the sources settle them (criterion B); Product owner asked why they reached him.
+- Decision: the recommendations in the summary; 3 uses the verified MVC list (`EvaluationForm.php:114`, 9 values).
+- Why: contract (1 interim, 6), settled data-loading rule (6), base-controls primary rule and the MVC (2), MVC source (3), criterion C (7, 11), existing `icons.ts` export (5), app-shell sidebar requirement (10).
+#### D2 — Point 4 follows the scales answer
+- Product owner's answer to `add-evaluation-scales` Open 4 (show and send 0).
+
+### Deferred to Product owner
+#### Q9 — Point 12: form visual reference
+- Question: the form follows the CVA Combined Form, not the MVC per-axis layout, but §11 asks for MVC captures of the form.
+- Recommendation: MVC captures for the list; a CVA mock-up (375/1280) by the design lead as the form's reference; the MVC form only for spacing values.
+- Blocks: the verification task's reference, not the propose.
+
+### Next
+- Propose waits for: the contract with `createdAt`/`closedAt` on `develop`, `add-evaluation-scales` merged, the taxonomy/pagination refactor merged, Product owner's approval commit of the summary.
