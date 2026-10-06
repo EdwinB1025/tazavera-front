@@ -95,5 +95,40 @@ To be processed after the API change `add-offering-baseline-seed`. Product owner
 Open, for Product owner before the round is written:
 - A label that does not fit even when arched, on a very narrow segment: ellipsis (today forbidden by Open 13), a smaller font, or the name only on hover or activation.
 
+## Session 2026-10-06 (night) — review round 1
+Summary: round 1 (Product owner's feedback; item 8 decided by the orchestrator) was processed and implemented in a cloud routine (`trig_01VNj19GscaFMN8sU7pgfTa6`, branch `claude/add-flavor-wheel-round1`). The orchestrator reviewed it: commit format, test-first order and files were correct. It was integrated by fast-forward (`4186ca9`); test:run gives 58 files and 1184 tests. The design lead took the 14.2 captures, which also serve as Product owner's browser check (delegated for the night). Stopped because: an unplanned fix was sent to the Build.
+
+### Agent feedback
+Design lead, task 14.2:
+- **Captures:** harness with Chrome DevTools emulation, at 375 and 1280px, both themes, in three states: default, list expanded and note active. Files `captures/round1-*`, plus the task-named copies `round1-{375,1280}-wheel{,-dark}.png`.
+- **Checks, all pass:**
+  - every segment carries its arched label, or shows its name only while active: 65 segments hovered in 4 runs, 0 mismatches;
+  - the 4-unit gap is visible;
+  - the radii match the D = 2 row of D5, with hole 80;
+  - the wheel measures 512px at 1280 and 291px at 375;
+  - no horizontal scroll;
+  - the expand control has its name "Notas", `aria-expanded`, `aria-controls` and a visible focus ring;
+  - the name shown only while active measures 6.41 (traditional) and 13.22 (dark) against its halo.
+- **Finding 1 (unplanned fix):** from 42rem the "Notas" control stretches across the whole right column (524px at 1280). design.md D8 says "aligned to the start and as wide as its content". `self-start` only aligns in the block axis; start alignment in the inline axis is missing too.
+- **Finding 2 (correction, Product owner):** at rest only 3 of the 13 inner segments carry a label, because D5 sizes the rings by the deepest level in the tree and the wheel never rescales. Options:
+  - (a) accept it;
+  - (b) size the rings by the deepest level currently expanded;
+  - (c) let a name wrap onto two lines.
+  - The design lead recommends (b). It reverses D5's "never rescales", so it is not decided overnight.
+- **Unverified:** the D = 0 and D = 1 rings in a real browser; the real host page; label coverage with real counts.
+
+### Fixes and coverage sent to the Build
+#### F2 — Finding 1, unplanned fix
+- Type: unplanned fix (design.md D8, note list control "aligned to the start and as wide as its content"). Sent to the local build subagent. Result: see the next entry.
+
+### Deferred to Product owner
+#### Q4 — Finding 2: more labels at rest (possible round 2)
+- Question: should the wheel show more labels before any interaction?
+- Options: (a) accept as is; (b) size the rings by the deepest level currently expanded, so the wheel rescales as notes expand; (c) let long names wrap onto two lines.
+- Recommendation (design lead): (b).
+- Blocks: nothing. If Product owner chooses (b) or (c) after the archive, it becomes its own change in `feedback`.
+#### Q5 — text of the expand control
+- Question: confirm the text proposed by the round for the note list control: host key `wheelNotes`, es "Notas", en "Notes", ca "Notes".
+
 ### Final checks
 `npm run test:run` (orchestrator, 19:47, after F1): 58 files, 1172 tests passed.
