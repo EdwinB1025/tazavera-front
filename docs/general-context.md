@@ -372,3 +372,21 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Pendiente:** la geocodificación en el navegador llama a un servicio externo, lo que exige abrir `connect-src` de la CSP (seguridad: decisión de Product owner).
 - **Por qué:** respuestas de Product owner del 6 oct por la noche.
 - **Afecta:** add-user-account (perfil), add-user-contact, add-coffeeshop-location, la CSP de app-shell.
+
+### 2026-10-06 — directorio de cafeterías (respuestas de Product owner)
+- **Decisión:**
+  - **CSP aprobada por Product owner:**
+    - `connect-src` abierto al servicio de geocodificación (Nominatim de OpenStreetMap);
+    - `img-src` abierto a los servidores de teselas del mapa.
+  - **API**, en el mismo cambio `add-contacts-and-locations` para no chocar en `Location`, factories y seeders:
+    - **Directorio público:** `GET /coffeeshops` (paginado; filtros `name`, `city`, `postalCode`, `verified`; orden por nombre) y `GET /coffeeshops/{location}`. La "cafetería" es el local (`Location`).
+    - **Solo datos del negocio:** nombre, descripción, coordenadas, contacto principal del local y recuentos de ofertas. Nunca datos personales del usuario.
+    - **Seeder** con una lista cerrada de cafeterías de especialidad reales de Barcelona, con dirección y coordenadas.
+  - **Front, `add-coffeeshop-directory`:**
+    - entrada "Explora coffees" en la cabecera;
+    - lista con filtros en la barra lateral (nombre, código postal o barrio, con ofertas verificadas; orden por nombre), tarjetas y paginación, con los patrones de catálogo y facetas;
+    - **mapa con Leaflet y teselas de OpenStreetMap:** conmutador lista/mapa y un icono de mapa en cada tarjeta que centra esa cafetería; en móvil, el mapa a pantalla completa;
+    - **detalle de cafetería**, como el detalle de oferta: los datos del local y la lista de sus ofertas con la misma barra de filtros del catálogo (`locationId`).
+  - El orquestador elige los filtros, la librería y el comportamiento, por delegación de Product owner.
+- **Por qué:** respuestas de Product owner del 6 oct por la noche.
+- **Afecta:** add-coffeeshop-directory (nuevo), add-coffeeshop-location (geocodificación), add-offering-catalog y add-offering-facets (reutilizados), app-shell (cabecera y CSP), API add-contacts-and-locations.

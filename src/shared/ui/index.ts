@@ -14,10 +14,7 @@ export type { FieldProps } from "./Field";
 export { Input } from "./Input";
 export type { InputProps, InputVariant } from "./Input";
 export { PasswordInput } from "./PasswordInput";
-export type {
-  PasswordInputProps,
-  PasswordInputVariant,
-} from "./PasswordInput";
+export type { PasswordInputProps, PasswordInputVariant } from "./PasswordInput";
 export { Select } from "./Select";
 export type { SelectProps, SelectVariant } from "./Select";
 export { Textarea } from "./Textarea";
@@ -92,6 +89,12 @@ export { Pagination } from "./Pagination";
 export type { PaginationProps, PaginationTexts } from "./Pagination";
 export { PageSection } from "./PageSection";
 export type { PageSectionProps, PageSectionSurface } from "./PageSection";
+export { FlavorWheel } from "./FlavorWheel";
+export type {
+  FlavorWheelNode,
+  FlavorWheelTexts,
+  FlavorWheelProps,
+} from "./FlavorWheel";
 export { FilterChip } from "./FilterChip";
 export type { FilterChipProps } from "./FilterChip";
 export { FacetPanel } from "./FacetPanel";
