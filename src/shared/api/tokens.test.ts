@@ -80,6 +80,33 @@ function storageWrites(setItem: { mock: { calls: unknown[][] } }): string {
     .join("\n");
 }
 
+/** Every value in `localStorage` and `sessionStorage` right now. */
+function storedValues(): string {
+  return [localStorage, sessionStorage]
+    .flatMap((storage) =>
+      Object.keys(storage).map((key) => `${key}=${storage.getItem(key)}`),
+    )
+    .join("\n");
+}
+
+/**
+ * Every own property of `window` that is or serialises to a text containing
+ * `value`. A property that cannot be read or serialised (a throwing getter, a
+ * cyclic object) cannot carry the value as plain data and is skipped.
+ */
+function windowPropertiesHolding(value: string): string[] {
+  return Object.getOwnPropertyNames(window).filter((name) => {
+    try {
+      const property: unknown = (window as unknown as Record<string, unknown>)[name];
+      const text =
+        typeof property === "string" ? property : JSON.stringify(property);
+      return typeof text === "string" && text.includes(value);
+    } catch {
+      return false;
+    }
+  });
+}
+
 beforeEach(() => {
   process.env.NEXT_PUBLIC_API_URL = API_URL;
   process.env.NEXT_PUBLIC_OAUTH_CLIENT_ID = CLIENT_ID;
@@ -123,6 +150,20 @@ describe("the code exchange (design.md D5)", () => {
     const writes = storageWrites(setItem);
     expect(writes).not.toContain(GRANT.access_token);
     expect(writes).not.toContain(GRANT.refresh_token);
+  });
+
+  it("leaves no token value on window, in localStorage or in sessionStorage after a successful grant (spec: Credential handling — After sign in)", async () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    fetchMock.mockResolvedValue(jsonResponse(GRANT));
+
+    await exchangeCode("code-123", "verifier-123");
+
+    expect(getTokens()).toEqual(GRANT);
+    for (const token of [GRANT.access_token, GRANT.refresh_token]) {
+      expect(windowPropertiesHolding(token)).toEqual([]);
+      expect(storedValues()).not.toContain(token);
+    }
   });
 
   it("surfaces a token error body with error and error_description as failure (spec: Keeping the session alive — the tokens are rejected and nothing restores them)", async () => {
