@@ -29,30 +29,30 @@ function node(
 const NONE = new Set<string>();
 
 describe("ringRadii", () => {
-  it("uses the whole radius for ring 0 when D = 0", () => {
+  it("uses 80–200 for ring 0 around an 80 hole when D = 0", () => {
     expect(ringRadii(0)).toEqual({
-      hole: 40,
-      rings: [{ inner: 40, outer: 200 }],
+      hole: 80,
+      rings: [{ inner: 80, outer: 200 }],
     });
   });
 
-  it("splits 40–110 and 110–200 when D = 1", () => {
+  it("splits 80–140 and 140–200 when D = 1", () => {
     expect(ringRadii(1)).toEqual({
-      hole: 40,
+      hole: 80,
       rings: [
-        { inner: 40, outer: 110 },
-        { inner: 110, outer: 200 },
+        { inner: 80, outer: 140 },
+        { inner: 140, outer: 200 },
       ],
     });
   });
 
-  it("splits 40–100, 100–150 and 150–200 when D = 2", () => {
+  it("splits 80–120, 120–160 and 160–200 when D = 2", () => {
     expect(ringRadii(2)).toEqual({
-      hole: 40,
+      hole: 80,
       rings: [
-        { inner: 40, outer: 100 },
-        { inner: 100, outer: 150 },
-        { inner: 150, outer: 200 },
+        { inner: 80, outer: 120 },
+        { inner: 120, outer: 160 },
+        { inner: 160, outer: 200 },
       ],
     });
   });
@@ -87,7 +87,7 @@ describe("layoutWheel", () => {
     const { radii, segments } = layoutWheel(tree, NONE);
     expect(radii).toEqual(ringRadii(2));
     expect(segments).toHaveLength(1);
-    expect(segments[0]).toMatchObject({ inner: 40, outer: 100 });
+    expect(segments[0]).toMatchObject({ inner: 80, outer: 120 });
   });
 
   it("places a child inside its parent's span, proportional among siblings and filling it", () => {
@@ -106,10 +106,10 @@ describe("layoutWheel", () => {
         outer,
       })),
     ).toEqual([
-      { id: "a", ring: 0, start: 0, end: 180, inner: 40, outer: 110 },
-      { id: "a1", ring: 1, start: 0, end: 135, inner: 110, outer: 200 },
-      { id: "a2", ring: 1, start: 135, end: 180, inner: 110, outer: 200 },
-      { id: "b", ring: 0, start: 180, end: 360, inner: 40, outer: 110 },
+      { id: "a", ring: 0, start: 0, end: 180, inner: 80, outer: 140 },
+      { id: "a1", ring: 1, start: 0, end: 135, inner: 140, outer: 200 },
+      { id: "a2", ring: 1, start: 135, end: 180, inner: 140, outer: 200 },
+      { id: "b", ring: 0, start: 180, end: 360, inner: 80, outer: 140 },
     ]);
   });
 
