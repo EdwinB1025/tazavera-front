@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Slot } from "radix-ui";
 import { cn } from "@/shared/lib/utils";
 import { useIsMobile } from "@/shared/lib/hooks";
 import { Button } from "@/shared/ui";
@@ -276,26 +277,40 @@ const MENU_BUTTON_CLASSES = [
   "data-[active=true]:bg-nav-current-dark",
 ].join(" ");
 
+/**
+ * A sidebar menu entry. With `asChild` it renders its one child — a link —
+ * as the entry, carrying the menu button's classes and data attributes
+ * (shadcn's link form; add-specialist-evaluations design.md D5).
+ */
 function SidebarMenuButton({
   className,
   children,
   icon: Icon,
   isActive = false,
+  asChild = false,
   ...props
 }: React.ComponentProps<"button"> & {
   icon?: LucideIcon;
   isActive?: boolean;
+  asChild?: boolean;
 }) {
+  const Comp = asChild ? Slot.Root : "button";
   return (
-    <button
+    <Comp
       data-slot="sidebar-menu-button"
       data-active={isActive}
       className={cn(MENU_BUTTON_CLASSES, className)}
       {...props}
     >
-      {Icon && <Icon className="size-4 shrink-0" />}
-      {children}
-    </button>
+      {asChild ? (
+        children
+      ) : (
+        <>
+          {Icon && <Icon className="size-4 shrink-0" />}
+          {children}
+        </>
+      )}
+    </Comp>
   );
 }
 

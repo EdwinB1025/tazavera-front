@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import type { Session } from "@/shared/api";
 import { LOCALES } from "@/shared/config/locales";
 import { useSession } from "@/features/auth";
+import { EvaluationsSidebarEntry } from "@/features/manage-evaluations";
 import { AppSidebar } from "@/widgets/app-sidebar";
 import type { AppHeaderTexts } from "@/widgets/app-header";
 import { ShellChrome } from "./ShellChrome";
@@ -49,12 +50,20 @@ export function SessionShell({
   const supplied = session ?? hookValue;
   // The sidebar region: the management sidebar is mounted here for an
   // authenticated session (it shows itself only on a management route) and a
-  // caller may fill the region explicitly.
+  // caller may fill the region explicitly. Its entries are the management
+  // area's for the session's role, by the user menu's role rule
+  // (add-specialist-evaluations design.md D5): a specialist gets "My
+  // evaluations"; no other role contributes entries here.
+  const entries =
+    supplied.state === "authenticated" && supplied.user.role === "specialist" ? (
+      <EvaluationsSidebarEntry locale={locale} texts={{ label: texts.manageEvaluations }} />
+    ) : undefined;
   const region =
     sidebar ??
     (supplied.state === "authenticated" ? (
       <AppSidebar
         session={supplied}
+        entries={entries}
         toggleLabel={texts.toggleSidebar}
       />
     ) : undefined);

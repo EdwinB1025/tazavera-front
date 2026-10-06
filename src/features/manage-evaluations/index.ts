@@ -6,3 +6,5 @@
  */
 export { EvaluationsAccess } from "./ui/EvaluationsAccess";
 export type { EvaluationsAccessProps, EvaluationsAccessTexts } from "./ui/EvaluationsAccess";
+export { EvaluationsSidebarEntry } from "./ui/EvaluationsSidebarEntry";
+export type { EvaluationsSidebarEntryProps, SidebarEntryTexts } from "./ui/EvaluationsSidebarEntry";
