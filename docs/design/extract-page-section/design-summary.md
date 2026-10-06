@@ -169,3 +169,24 @@ No point blocks propose. Every value comes from the code on `develop`, the landi
   - B4: the consumers' inner elements (user-account's 32rem column, management's block column, catalog's heading block and filter slot) stay theirs; their values are already in their summaries.
   - B5 (semantic): capability `content-structure`, as the decisions log names it; the landing spec is not modified because no observable behaviour changes.
   - Findings for the orchestrator: no `docs/backlog.md` entry records this refactor (the orchestrator may add it, `.claude/CLAUDE.md` §3); the board has no row for the change yet.
+
+## Propose status
+
+- Change-id: `extract-page-section`. Date: 2026-10-06. Phase: propose, completed by the architect agent.
+- `openspec validate extract-page-section --strict`: passing (`Change 'extract-page-section' is valid`).
+- Artifacts created in `openspec/changes/extract-page-section/`: `proposal.md`; `specs/content-structure/spec.md` (ADDED requirement "Page sections", scenarios "Centered content", "Side and section spacing", "Section background", "Consumer content only"); `design.md` (D1–D10); `tasks.md` (five groups, eight tasks, test-first).
+- Backlog: none (decisions log 2026-10-06). The change comes from the decisions log entry "primitivo compartido de sección" (2026-10-06) and resolves no backlog entry; archiving it removes nothing from `docs/backlog.md`.
+- Branch (orchestrator's answer to explore Q2): the build proceeds on the existing branch `feature/extract-page-section`. `develop` is merged into it at the integration step before the merge to `develop`; in `src/shared/ui/index.ts` and `src/shared/ui/index.test.tsx` the merge resolution keeps both sides. The merge is done by the build or a cloud session, never by the architect (design.md D10).
+
+Resolved (the eight wording slips of today's explore report, with the orchestrator's decisions):
+
+1. `SECTION_BACKGROUNDS` (first reading): it holds `PageSectionSurface` values `"page"`, `"section"`, `"page"`, `"section"`, `"page"`, each fed to `surface` (design.md D6, task 4.1).
+2. The section's width is "full width of the page content area" (spec delta, design.md D4).
+3. American spelling "centered" throughout the artifacts.
+4. `src/shared/ui/index.test.tsx` is an edit with one new smoke case, not a new file (design.md D7, D9, task 2.1).
+5. The unused `cn` import in `HomeScreen.tsx` is removed in the adoption task (design.md D5, task 3.1).
+6. The unused `cn` import in `AboutContent.tsx` is removed in the adoption task (design.md D6, task 4.1).
+7. The verification task compares this branch against `develop` in the browser at 375px and 1280px, pixel diff (design.md D8, task 5.2).
+8. The captures of that comparison are taken by the orchestrator or a cloud session, not by the build (design.md D8, task 5.2).
+
+Remaining open: none. No point of the summary blocks propose; every value comes from the code on `develop`, the landing spec and the decisions log.

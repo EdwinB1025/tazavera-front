@@ -31,6 +31,10 @@ export type OfferingCardTexts = {
   evaluateLabel: string;
   verifiedLabel: string;
   provisionalLabel: string;
+  ratingExceptionalLabel: string;
+  ratingExcellentLabel: string;
+  ratingGoodLabel: string;
+  ratingCommercialLabel: string;
 };
 
 export type OfferingCardProps = {
@@ -77,6 +81,15 @@ export function OfferingCard({
   texts,
 }: OfferingCardProps): ReactNode {
   const tier = ratingTierFor(offering.cuppingAvg);
+  // The badge's text is the word of the tier the score falls in, in place of
+  // the score (label-rating-badge design.md D1, D2): the word follows the same
+  // tier that picks the treatment, so the two can never disagree.
+  const tierWords = {
+    "rating-exceptional": texts.ratingExceptionalLabel,
+    "rating-excellent": texts.ratingExcellentLabel,
+    "rating-good": texts.ratingGoodLabel,
+    "rating-commercial": texts.ratingCommercialLabel,
+  };
   const coffee = offering.coffeeInventory?.coffee;
   const origin = [
     coffee?.country,
@@ -104,7 +117,7 @@ export function OfferingCard({
           <div className={SCORE_ROW_CLASSES}>
             <div className="type-score">{offering.cuppingAvg}</div>
             <div className="type-meta">{SCORE_SCALE}</div>
-            <Badge variant={tier}>{offering.cuppingAvg}</Badge>
+            <Badge variant={tier}>{tierWords[tier]}</Badge>
           </div>
         </CardAside>
       ) : null}

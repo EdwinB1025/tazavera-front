@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { OfferingTaxonomyNode, TaxonomyNode } from "@/shared/api";
-import { buildTaxonomyLookup, resolveTaxonomies } from "./resolve-taxonomies";
+import { buildTaxonomyLookup } from "@/entities/taxonomy";
+import { resolveTaxonomies } from "./resolve-taxonomies";
 
 /**
  * Taxonomy resolution tests (design.md D5; the landing spec "Taxonomy badges
@@ -9,9 +10,9 @@ import { buildTaxonomyLookup, resolveTaxonomies } from "./resolve-taxonomies";
  * `src/widgets/offering-list/lib/resolve-taxonomies.ts` exists, so the file
  * runs and fails as required.
  *
- * `buildTaxonomyLookup(nodes, locale)` flattens the tree's nested `children`
- * into a lookup by `ulid` whose entries carry the name of the given locale and
- * the data color (design.md D5). `resolveTaxonomies(nodes, lookup)` walks an
+ * The lookup comes from `buildTaxonomyLookup` of `@/entities/taxonomy`, whose
+ * cases live in `src/entities/taxonomy/model/lookup.test.ts`.
+ * `resolveTaxonomies(nodes, lookup)` walks an
  * offering's `sensoryTaxonomy` including its `children`, resolves each `ref`
  * through the lookup and omits a `ref` that matches no node (spec: "Unresolved
  * reference"). The badge's `level` — the row the card renders it in — comes
@@ -53,40 +54,6 @@ const TREE: TaxonomyNode[] = [
     ],
   },
 ];
-
-describe("buildTaxonomyLookup (design.md D5)", () => {
-  it("picks nameCa for the locale ca (spec: Names by locale)", () => {
-    const lookup = buildTaxonomyLookup(TREE, "ca");
-    expect(lookup.get(T_FRUTAL)).toEqual({
-      label: "Fruitat",
-      color: "#D9345A",
-    });
-  });
-
-  it("picks nameEs for the locale es (spec: Names by locale)", () => {
-    const lookup = buildTaxonomyLookup(TREE, "es");
-    expect(lookup.get(T_FRUTAL)).toEqual({
-      label: "Frutal",
-      color: "#D9345A",
-    });
-  });
-
-  it("picks nameEn for the locale en (spec: Names by locale)", () => {
-    const lookup = buildTaxonomyLookup(TREE, "en");
-    expect(lookup.get(T_FRUTAL)).toEqual({
-      label: "Fruity",
-      color: "#D9345A",
-    });
-  });
-
-  it("flattens the nested children of the tree into the lookup (design.md D5)", () => {
-    const lookup = buildTaxonomyLookup(TREE, "ca");
-    expect(lookup.get(T_MORA)).toEqual({
-      label: "Móra",
-      color: "#7A1F35",
-    });
-  });
-});
 
 describe("resolveTaxonomies (design.md D5)", () => {
   it("resolves the offering's nested children and takes each row from the offering node's own level", () => {

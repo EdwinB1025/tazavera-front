@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { fetchVerifiedOfferings, fetchTaxonomies } from "./offerings";
+import { fetchVerifiedOfferings } from "./offerings";
 
 /**
  * Server fetch tests (design.md D4; the landing spec "Error and retry").
@@ -8,11 +8,10 @@ import { fetchVerifiedOfferings, fetchTaxonomies } from "./offerings";
  * and fails as required.
  *
  * `fetchVerifiedOfferings(page)` requests `{NEXT_PUBLIC_API_URL}/offerings`
- * with `verified=1` and `page`; `fetchTaxonomies()` requests
- * `{NEXT_PUBLIC_API_URL}/taxonomies`. Both use plain `fetch` with no options
- * and so no credential header (design.md D4) — asserted as a call with the URL
- * and no second argument — and return `data` and `meta`, and `data`,
- * respectively. A non-2xx status or a transport failure rejects (spec "Error
+ * with `verified=1` and `page`, with plain `fetch` and no options and so no
+ * credential header (design.md D4) — asserted as a call with the URL and no
+ * second argument — and returns `data` and `meta`. The `fetchTaxonomies` cases
+ * live in `src/entities/taxonomy/api/taxonomies.test.ts`. A non-2xx status or a transport failure rejects (spec "Error
  * and retry"); nothing about the rejection reason is asserted, because the
  * API's error body and status never reach the presentation (design.md D4).
  */
@@ -30,19 +29,6 @@ const OFFERINGS_PAYLOAD = {
     to: 20,
     total: 42,
   },
-};
-
-const TAXONOMIES_PAYLOAD = {
-  data: [
-    {
-      ulid: "01JTAXN0DE0000000000000001",
-      level: 0,
-      nameEn: "Fruity",
-      nameEs: "Frutal",
-      nameCa: "Fruitat",
-      color: "#D9345A",
-    },
-  ],
 };
 
 const fetchSpy = vi.fn();
@@ -87,30 +73,5 @@ describe("fetchVerifiedOfferings (design.md D4)", () => {
   it("rejects when the request fails to transport (spec: Error and retry)", async () => {
     fetchSpy.mockRejectedValue(new Error("network down"));
     await expect(fetchVerifiedOfferings(2)).rejects.toBeDefined();
-  });
-});
-
-describe("fetchTaxonomies (design.md D4)", () => {
-  it("requests {NEXT_PUBLIC_API_URL}/taxonomies with plain fetch and returns data", async () => {
-    fetchSpy.mockResolvedValue(okResponse(TAXONOMIES_PAYLOAD));
-    const result = await fetchTaxonomies();
-    // Plain `fetch` with the URL and no options, so no credential header is
-    // sent (design.md D4).
-    expect(fetchSpy).toHaveBeenCalledWith(`${API_URL}/taxonomies`);
-    expect(result.data).toEqual(TAXONOMIES_PAYLOAD.data);
-  });
-
-  it("rejects when the API answers with a non-2xx status (spec: Error and retry)", async () => {
-    fetchSpy.mockResolvedValue({
-      ok: false,
-      status: 500,
-      json: async () => ({ message: "boom" }),
-    });
-    await expect(fetchTaxonomies()).rejects.toBeDefined();
-  });
-
-  it("rejects when the request fails to transport (spec: Error and retry)", async () => {
-    fetchSpy.mockRejectedValue(new Error("network down"));
-    await expect(fetchTaxonomies()).rejects.toBeDefined();
   });
 });

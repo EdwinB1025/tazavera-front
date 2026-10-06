@@ -26,17 +26,6 @@ One section per candidate, in this format:
 - **Status:** deferred
 - **Affects:** none
 
-## R2 — Tighten the `/callback` matcher exclusion (verify S2)
-
-- **Duplicated:** none
-- **Where today:** `proxy.ts:97` (`matcher: ["/((?!callback).*)"]`)
-- **Why it pays off now:** the lookahead excludes any path merely starting with `callback` (e.g. `/callbackfoo` skips the default-locale redirect and 404s in place); `add-auth` lands `/callback` next and the matcher is the seam
-- **Owning capability:** app-shell
-- **Proposed change:** none
-- **Open decision (Augusto):** tighten to `callback(?:/|$)` or accept the over-exclusion
-- **Status:** proposed
-- **Affects:** `add-auth`
-
 ## R3 — Cover the `/callback` exclusion and the `connect-src` fallback (verify S3)
 
 - **Duplicated:** none
@@ -58,24 +47,13 @@ One section per candidate, in this format:
 - **Status:** proposed
 - **Affects:** none
 
-## R6 — Expose the badge geometry from `Badge` (add-evaluation-scales, Open 3)
+## R5 — Single active-locale derivation in `src/features/auth` (add-auth, Build report at 5.2)
 
-- **Duplicated:** the badge layout classes (`type-badge rounded-field inline-flex items-center gap-1 px-2 py-0.5`), which the unselected descriptor chip would copy outside `Badge`
-- **Where today:** `src/shared/ui/Badge.tsx` (R5 is reserved by the uncommitted entry in the `add-auth` worktree)
-- **Why it pays off now:** `add-evaluation-scales` (`DescriptorChipGroup`) needs the geometry without a `Badge`; catalog and filter chips would add more copies
-- **Owning capability:** feedback
-- **Proposed change:** `refactor-badge-geometry`
-- **Open decision (Augusto):** none (Product owner chose the refactor first, 2026-10-06)
-- **Status:** accepted
-- **Affects:** `add-evaluation-scales`, `add-specialist-evaluations`
-
-## R7 — Move the taxonomy read and the pagination out of the offering-list widget (add-specialist-evaluations, Open 13)
-
-- **Duplicated:** `fetchTaxonomies`, `buildTaxonomyLookup` and `OfferingPagination` (route hard-wired to `/{locale}?page=`), which other slices cannot import without breaking FSD and would copy
-- **Where today:** `src/widgets/offering-list/api/offerings.ts`, `src/widgets/offering-list/lib/resolve-taxonomies.ts`, `src/widgets/offering-list/ui/OfferingPagination.tsx`
-- **Why it pays off now:** evaluations, catalog, filters and offering management all need taxonomies or pagination
-- **Owning capability:** content-structure
-- **Proposed change:** `extract-offering-list-parts`
-- **Open decision (Augusto):** none (Product owner chose the refactor first, 2026-10-06)
-- **Status:** accepted
-- **Affects:** `add-specialist-evaluations`, `add-offering-catalog`, `add-filter-controls`, `add-offering-management`
+- **Duplicated:** the active-locale derivation from the path (first segment, `isSupportedLocale` check, `DEFAULT_LOCALE` fallback)
+- **Where today:** `src/features/auth/api/authorize.ts` (`activeLang`), `src/features/auth/model/session.ts` (`localeRoot`)
+- **Why it pays off now:** step-up (6.x) and the callback's return route (8.x) also need the active locale; a third copy is likely
+- **Owning capability:** auth (or `src/shared/lib/i18n` if another slice needs it)
+- **Proposed change:** none
+- **Open decision (Augusto):** keep it inside `src/features/auth` or move it to `src/shared/lib/i18n`
+- **Status:** proposed
+- **Affects:** `add-auth`

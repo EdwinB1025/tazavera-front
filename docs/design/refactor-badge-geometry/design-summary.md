@@ -134,3 +134,16 @@ Settled by the orchestrator, 2026-10-06 (criterion B): Open 1 a) and Open 2 a), 
   - B1 (semantic): the class order. The task listed `rounded-field` last; `Badge.test.tsx` pins it second. The existing test is kept, so the constant follows the test's order. The set is the same.
   - B2 (semantic): the constant's name and placement follow the `OFFERING_GRID_CLASSES` precedent (an upper-case constant re-exported from the public entry).
   - B3: R6 is not yet in `docs/backlog.md`. Recorded under the header; adding the entry is Product owner's.
+
+## Propose status
+
+- Change-id: `refactor-badge-geometry`
+- Date: 2026-10-06
+- `openspec validate refactor-badge-geometry --strict`: passed (`Change 'refactor-badge-geometry' is valid`); 4/4 artifacts complete (proposal, spec delta, design, tasks).
+- Resolved:
+  - Open 1 — option a): the change carries an ADDED `feedback` requirement "Shared chip geometry" (the badge's geometry has one definition that compact chips reuse) with the scenarios "Chip matches the badge geometry" and "Second geometry definition detected". `skip_specs` is not set in `.openspec.yaml`.
+  - Open 2 — option a): both proofs land — the `Badge.test.tsx`/`index.test.tsx` cases pinning the export to the render, and the source scan `src/shared/ui/badge-geometry-guard.test.ts`.
+  - Handoff D2 (requirement wording): the requirement is stated in observable terms ("compact chips render with the badge's geometry"), with the verification scenario "Second geometry definition detected" in the existing "… detected" pattern, and without the word "guard" or section numbers.
+  - Handoff D3 (wording fix): the scan-scope statement reads "the only non-test `.ts`/`.tsx` file" — `globals.css` defines `@utility type-badge` and is outside the scan. Applied in design.md D4 and tasks 4.1.
+  - Handoff D1 (backlog R6): R6 "Expose the badge geometry from `Badge`" exists on `develop` (`f0d2c87`, read with `git show develop:docs/backlog.md`); this change resolves it. The backlog entry id recorded here is **R6**; it is removed from `docs/backlog.md` when this change is archived (after `develop` is merged into this branch).
+- Open: nothing. Product owner may still reopen Open 1 and Open 2.

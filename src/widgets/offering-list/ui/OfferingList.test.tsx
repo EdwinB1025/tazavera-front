@@ -48,6 +48,10 @@ const TEXTS = {
   evaluateLabel: "texts.evaluateLabel",
   verifiedLabel: "texts.verifiedLabel",
   provisionalLabel: "texts.provisionalLabel",
+  ratingExceptionalLabel: "texts.ratingExceptionalLabel",
+  ratingExcellentLabel: "texts.ratingExcellentLabel",
+  ratingGoodLabel: "texts.ratingGoodLabel",
+  ratingCommercialLabel: "texts.ratingCommercialLabel",
   emptyMessage: "texts.emptyMessage",
   errorMessage: "texts.errorMessage",
   retryLabel: "texts.retryLabel",
@@ -145,6 +149,16 @@ describe("OfferingList", () => {
           .getByRole("button", { name: TEXTS.nextLabel })
           .hasAttribute("disabled"),
       ).toBe(true);
+    });
+
+    it("pushes the landing address /{locale}?page={n} on Next (design.md D8)", () => {
+      renderList({
+        state: "success",
+        items: [ITEM_ONE],
+        meta: { current_page: 1, last_page: 2 },
+      });
+      fireEvent.click(screen.getByRole("button", { name: TEXTS.nextLabel }));
+      expect(router.push).toHaveBeenCalledWith("/es?page=2");
     });
   });
 

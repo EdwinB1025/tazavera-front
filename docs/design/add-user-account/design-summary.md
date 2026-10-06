@@ -406,7 +406,8 @@ Wireframe of the target layout (design lead; spacing from §6.3):
      - c) No field mapping: any 4xx other than 403 shows the form-level error only.
    - Recommendation: a). The field keys are verified (§3), catalog texts keep the three locales, and the form-fields spec already expects "an API validation response". The contract change is Product owner's.
    - Source: AGENTS.md "API contract"; `tazavera-api` FormRequests; `SetLocale.php`.
-   - Blocks propose: yes.
+   - **Answered 2026-10-06 (Product owner): c).** Any 422 shows the generic form-level error; no field mapping and no contract change. Field mapping goes to `docs/backlog.md` R8.
+   - Blocks propose: no.
 
 2. **Step-up timing and 403 handling (was 9.3 and 9.7).**
    - Question: when does the step-up run, and what does a `403` show?
@@ -417,7 +418,8 @@ Wireframe of the target layout (design lead; spacing from §6.3):
      - c) As a), but `add-auth` returns a promise or event from `requestProfileWrite` so the write is sent automatically. Changes a shared mechanism of a change in Build.
      - d) Step-up when the page opens (an "Unlock editing" button). Asks for a login even when the user only looks.
    - Recommendation: b). It uses `add-auth` as built, resolves 9.7 at the same time (a `403` means "needs the write scope", since the user owns the ulid), and keeps typed input. Product owner's earlier recommendation was a); b) differs only in that the first attempt may succeed without a login. If chosen, the decisions log should record it for `add-offering-management`, whose offering deletes also need `profile:write` (`routes/api.php:41-43`).
-   - Blocks propose: yes.
+   - **Answered 2026-10-06 (Product owner): b).** Reactive step-up after a `403`; the user activates the action again after the step-up.
+   - Blocks propose: no.
 
 3. **After registration (was 9.2).**
    - Question: what follows a `201`?
@@ -425,7 +427,8 @@ Wireframe of the target layout (design lead; spacing from §6.3):
      - a) The success panel (§6.3) with "Sign in" calling `signIn()`; the popup leaves the user on the registration route, signed in (`add-auth` D10: the opener never navigates).
      - b) Start sign in automatically. Not possible without a click (popup blocked; the fallback redirect would leave the page).
    - Recommendation: a), Product owner's recommendation. With a), Open 4 decides what the panel becomes once the session is `authenticated`.
-   - Blocks propose: yes.
+   - **Answered 2026-10-06 (Product owner): a).** Success panel with a "Sign in" button that calls `signIn()` inside the click.
+   - Blocks propose: no.
 
 4. **Registration route for a signed-in visitor.**
    - Question: what does `/[locale]/register*` show when the session is `authenticated` (including right after the sign-in of Open 3)?
@@ -434,7 +437,8 @@ Wireframe of the target layout (design lead; spacing from §6.3):
      - b) Redirect to `/[locale]`.
      - c) The form, as for anyone.
    - Recommendation: a). It mirrors the MVC's guest-only registration without a redirect, and gives the post-sign-in panel a clear next step. Texts `alreadySignedInText`, `goHome` would join the catalog.
-   - Blocks propose: yes.
+   - **Answered 2026-10-06 (Product owner): b).** An authenticated visitor never sees the registration page: when the session is `authenticated`, `/[locale]/register*` navigates to `/[locale]` (client-side, so the in-memory tokens survive). This includes the moment right after signing in from the success panel of Open 3. While `loading`, the page waits. No new texts.
+   - Blocks propose: no.
 
 5. **Account pages without a session.**
    - Question: what do the account routes show while `loading` and when `anonymous`?
@@ -442,7 +446,8 @@ Wireframe of the target layout (design lead; spacing from §6.3):
      - a) `loading`: the loading status in the card. `anonymous`: `signedOutText` and a "Sign in" button calling `signIn()` (returns to the same route).
      - b) Redirect anonymous visitors to `/[locale]`.
    - Recommendation: a). No redirect logic, and a declined step-up (settled to end `anonymous`) leaves the user where they were with a way back.
-   - Blocks propose: yes.
+   - **Answered 2026-10-06 (Product owner): a).** `loading`: the loading status in the card. `anonymous`: `signedOutText` and a "Sign in" button that calls `signIn(currentRoute)` inside the click (popup; the user stays on the route). No automatic redirect. The same rule applies to `/manage/offerings*` and `/manage/evaluations*`. (Replaces an earlier answer of the same day, automatic sign in, so the user sees what is happening.)
+   - Blocks propose: no.
 
 6. **Layout: one page per action, and in-page navigation (was 9.8).**
    - Question: one settings page with sections, or one page per action? And how does the user move between them?
@@ -451,7 +456,12 @@ Wireframe of the target layout (design lead; spacing from §6.3):
      - b) As a), without the in-page links (the user menu only).
      - c) One page with sections, as the MVC settings (`profile.blade.php` holds the delete form). The five menu routes would then need anchors or a change to `UserMenu.tsx` (`app-shell`).
    - Recommendation: a). It matches the merged menu with no `app-shell` change; the extra links reuse `Link` and add no token.
-   - Blocks propose: yes.
+   - **Answered 2026-10-06 (Product owner): c).** One account settings page with sections (profile, edit, password, deactivate, delete), replacing the five routes of §4. Pages that live in the API stay there and are reached as external links: security (`{API}/user/security`, 2FA and passkeys) and password reset (API web flow). This changes the user menu (`UserMenu.tsx:82-86`, `app-shell`): the change carries an `app-shell` delta. Sub-points (Product owner, 2026-10-06):
+     - Route: `/[locale]/account`. The five sub-routes of §4 are not created.
+     - User menu: one entry "My account" → `/[locale]/account` replaces the five account entries; the external Security entry stays.
+     - Sections, in order: Profile (view and edit in the same block) → Password → Security (external link to `{API}/user/security`) → a "Danger zone" at the end with Deactivate and Delete, each behind its confirmation dialog.
+   - §4, §6 and §7 still describe one page per route and must be redrafted to this answer.
+   - Blocks propose: yes, until those sections are redrafted.
 
 7. **Header name after a profile update.**
    - Question: the header shows the session's name. After `updateAUser`, the session keeps the old one until the next load (F3). Fix it?
@@ -460,7 +470,8 @@ Wireframe of the target layout (design lead; spacing from §6.3):
      - b) Accept the stale header until the next page load (silent re-authentication reloads the profile).
      - c) A refactor change in `auth` first.
    - Recommendation: a). It is small and keeps one owner of user data (`add-auth` spec "Session states and profile"). It touches a shared module, so it is Product owner's call.
-   - Blocks propose: yes.
+   - **Answered 2026-10-06 (Product owner): a).** After a successful `updateAUser`, `refreshProfile()` re-runs `GET /user` (the only source of user data, add-auth D5) and settles the session; the `PUT` response body is not written into the session. On a network or 5xx failure it retries once after a short pause; if that fails too, the session keeps the previous user, with no error shown. A `401` is already recovered by the add-auth client. The header updates through the session store.
+   - Blocks propose: no.
 
 8. **Section and container classes (D14) duplication.**
    - Question: `HomeScreen.tsx` and `AboutContent.tsx` already hold copies of the D14 section and container classes. This change adds seven screens.
@@ -468,7 +479,8 @@ Wireframe of the target layout (design lead; spacing from §6.3):
      - a) Product owner adds the pending backlog candidate ("shared section primitive", general context item 8), and a refactor change in `content-structure` lands first; this change uses it.
      - b) This change keeps one copy, in a single shared place inside its own slices (for example one account layout used by all account screens, and one in registration), and the backlog entry records three copies.
    - Recommendation: a) by criterion C, if the delivery date allows it; otherwise b) with the backlog entry.
-   - Blocks propose: yes (the architect stops on a backlog entry that the change affects).
+   - **Answered 2026-10-06 (Product owner): a).** A refactor change in `content-structure` adds the shared section and container primitive first; this change uses it.
+   - Blocks propose: no (waits for the refactor to be merged).
 
 9. **Client-side checks and native validation.**
    - Question: Field marks controls `required`, so browsers show their own validation bubbles in the browser's language, not the catalog's.
@@ -477,7 +489,8 @@ Wireframe of the target layout (design lead; spacing from §6.3):
      - b) Forms are `noValidate`, with no client checks: the API's 422 does all validation (depends on Open 1).
      - c) Native validation as is.
    - Recommendation: a). The texts stay in the catalog and the user gets an answer without a round trip; the rules mirror only `required` and `same`, verified in the FormRequests.
-   - Blocks propose: yes.
+   - **Answered 2026-10-06 (Product owner): a), limited to the rules the contract states.** Forms are `noValidate`. Before sending, the client checks only what each operation's `requestBody` in `contracts/openapi.yaml` documents: the `required` fields are not empty, the email is a valid address ("Must be a valid email address"), and the new password equals its confirmation ("must match"). Messages come from the catalog (es/en/ca) under each `Field`. Password strength ("default strength rules", not detailed in the contract), email uniqueness and the current password are left to the API, whose 422 shows the generic message (Open 1) until backlog R8 documents the 422.
+   - Blocks propose: no.
 
 10. **"Already have an account? Sign in" under the registration form.**
     - Question: the MVC shows it (`register.blade.php:71-74`). Keep it?

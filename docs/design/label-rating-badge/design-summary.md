@@ -45,3 +45,17 @@ No capture. Product owner verifies the card in the browser (`/es`, `/en`, `/ca`)
 ## Open
 
 None.
+
+## Propose status
+
+- **Change:** `label-rating-badge`, capability `landing`, branch `feature/label-rating-badge`. Date: 2026-10-06.
+- **`openspec validate label-rating-badge --strict`:** passing (`Change 'label-rating-badge' is valid`).
+- **Artifacts:** `openspec/changes/label-rating-badge/` — `proposal.md`; `specs/landing/spec.md` (MODIFIED "Offering card content": the "Score and rating tier" scenario names the tier word as the badge's text); `design.md` (D1 four landing-owned keys as texts props, D2 the tier selects the word and the ranges stay untouched, D3 texts type extension only); `tasks.md` (1.1 tests, then 1.2 implementation).
+- **Explore questions answered by the orchestrator (settled here):**
+  - **Q1 order:** `label-rating-badge` goes first; `replace-offering-card-session` starts from `develop` after this change and `extract-offering-list-parts` are merged, so the two never run in parallel on the card.
+  - **Q2 message keys:** the four words are landing-owned keys in `messages/{locale}/landing.json`, passed as texts props like the other card texts; later consumers (catalog, offering management) add the same keys to their own area catalogs, as they already do for the card texts.
+  - **Q3 verification:** the approved summary rules: no captures; Product owner verifies the card in the browser on `/es`, `/en` and `/ca` before the archive.
+- **Explore report wording slips corrected in the artifacts:** the real test inventory — `OfferingCard.test.tsx` "renders every label and caption from the texts props" gets one offering fixture per tier and a revised coverage rule, `HomeScreen.test.tsx`'s exact texts object gains four keys, `OfferingList.test.tsx`'s `TEXTS` fixture gains four fields, and new assertions pin the badge text to the tier word per range; the rating tokens live in `globals.css`; the en and ca words are the translations decided in §1 (es from the MVC); no blocking dependency, one coordination overlap with `replace-offering-card-session`; no score or unparsable `cuppingAvg` shows no badge (unchanged); the words are the MVC's, not SCA grade names.
+- **Backlog:** no entry resolved (`docs/backlog.md` R1–R7 untouched).
+- **Open:** none.
+

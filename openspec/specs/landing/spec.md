@@ -94,7 +94,7 @@ Each offering card SHALL show the offering's data as mapped from the API: the cu
 
 #### Scenario: Score and rating tier
 - **WHEN** an offering carries a cupping average
-- **THEN** the card shows the score out of 100 with the rating badge of its range: exceptional at 90 or above, excellent from 85 to below 90, good from 80 to below 85, commercial below 80
+- **THEN** the card shows the score out of 100 with the rating badge of its range — exceptional at 90 or above, excellent from 85 to below 90, good from 80 to below 85, commercial below 80 — and the badge's text is the word of that tier in the active locale (in Spanish Excepcional at 90 or above, Excelente from 85 to below 90, Bueno from 80 to below 85, Comercial below 80), not the score
 
 #### Scenario: Score row above the content
 - **WHEN** an offering card renders at any viewport width
