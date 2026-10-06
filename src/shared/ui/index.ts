@@ -113,3 +113,9 @@ export type {
   FacetCascadeProps,
   FacetCascadeTexts,
 } from "./FacetCascade";
+export { ScoreRangeFacet } from "./ScoreRangeFacet";
+export type {
+  ScoreRange,
+  ScoreRangeFacetProps,
+  ScoreRangeTexts,
+} from "./ScoreRangeFacet";

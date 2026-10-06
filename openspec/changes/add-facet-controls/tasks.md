@@ -33,7 +33,7 @@
 ## 7. Score range facet
 
 - [x] 7.1 Write `src/shared/ui/ScoreRangeFacet.test.tsx` importing from `@/shared/ui` (spec filtering "Score range facet"; design.md D8), with `min={0}`, `max={100}`, `value={[0, 100]}`: the group is named by its legend; two sliders named "Minimum score" and "Maximum score" with `aria-valuenow` 0 and 100; focusing the minimum thumb and pressing ArrowRight calls `onCommit([1, 100])` and the "From" input shows 1; typing 60 in "From" and Enter calls `onCommit([60, 100])` once and the minimum thumb's `aria-valuenow` is 60; typing 140 in "To" and blurring shows 100 and calls nothing (range unchanged); with `value={[20, 50]}`, typing 80 in "From" and Enter shows 50 and calls `onCommit([50, 50])`; emptying "From" and blurring with `value={[20, 50]}` shows 0 and calls `onCommit([0, 50])`; no error message renders in any case; a new `value` prop updates both inputs and thumbs. Verifying `npm run test:run` runs the file and it fails only because the component does not exist yet
-- [ ] 7.2 Create `src/shared/ui/ScoreRangeFacet.tsx` per design.md D8 on the Slider of `radix-ui`, with its types, exported from `src/shared/ui/index.ts` — verifying the cases of 7.1 pass, `radius-guard` passes (`rounded-pill`, `rounded-full`), and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0
+- [x] 7.2 Create `src/shared/ui/ScoreRangeFacet.tsx` per design.md D8 on the Slider of `radix-ui`, with its types, exported from `src/shared/ui/index.ts` — verifying the cases of 7.1 pass, `radius-guard` passes (`rounded-pill`, `rounded-full`), and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0
 
 ## 8. Combobox
 
