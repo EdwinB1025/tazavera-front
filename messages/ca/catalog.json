@@ -38,5 +38,8 @@
   "attrAcidity": "Acidesa",
   "attrSweetness": "Dolçor",
   "attrMouthfeel": "Cos",
-  "attrOverall": "Global"
+  "attrOverall": "Global",
+  "detailMainTastesHeading": "Sabors principals",
+  "detailDefectsHeading": "Defectes",
+  "detailTasteEmpty": "Sense dades de tast disponibles."
 }

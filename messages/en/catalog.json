@@ -38,5 +38,8 @@
   "attrAcidity": "Acidity",
   "attrSweetness": "Sweetness",
   "attrMouthfeel": "Mouthfeel",
-  "attrOverall": "Overall"
+  "attrOverall": "Overall",
+  "detailMainTastesHeading": "Main tastes",
+  "detailDefectsHeading": "Defects",
+  "detailTasteEmpty": "No cupping data available."
 }

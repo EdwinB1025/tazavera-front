@@ -38,5 +38,8 @@
   "attrAcidity": "Acidez",
   "attrSweetness": "Dulzor",
   "attrMouthfeel": "Cuerpo",
-  "attrOverall": "Global"
+  "attrOverall": "Global",
+  "detailMainTastesHeading": "Sabores principales",
+  "detailDefectsHeading": "Defectos",
+  "detailTasteEmpty": "Sin datos de cata disponibles."
 }

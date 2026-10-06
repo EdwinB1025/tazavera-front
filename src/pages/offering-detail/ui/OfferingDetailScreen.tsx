@@ -109,6 +109,9 @@ export function OfferingDetailScreen({
     attrOverall: catalog.attrOverall,
     beanValue: scales.beanValue,
     beanValueLabel: scales.beanValueLabel,
+    detailMainTastesHeading: catalog.detailMainTastesHeading,
+    detailDefectsHeading: catalog.detailDefectsHeading,
+    detailTasteEmpty: catalog.detailTasteEmpty,
   };
 
   return (

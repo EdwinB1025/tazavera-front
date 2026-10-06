@@ -1,11 +1,17 @@
 import type { ReactNode } from "react";
-import type { OfferingDetail, TaxonomyNode } from "@/shared/api";
+import type {
+  OfferingDetail,
+  OfferingTaxonomyNode,
+  TaxonomyNode,
+} from "@/shared/api";
 import { ratingTierFor } from "@/entities/offering";
+import { buildDescriptorRows } from "@/entities/taxonomy";
 import {
   Badge,
   BeanScale,
   Card,
   CardContent,
+  DescriptorChipGroup,
   LabelValueRow,
 } from "@/shared/ui";
 import { concordanceBand } from "../lib/concordance";
@@ -40,6 +46,9 @@ export type ConsensusPanelTexts = {
   beanValue: string;
   /** `{value} de 9` / `{value} of 9`, from the shared `scales` area. */
   beanValueLabel: string;
+  detailMainTastesHeading: string;
+  detailDefectsHeading: string;
+  detailTasteEmpty: string;
 };
 
 export type ConsensusPanelProps = {
@@ -91,6 +100,43 @@ const ATTRIBUTES = [
   ["overallAffectiveAvg", "attrOverall"],
 ] as const;
 
+// A selection block: the card and its consensus legend beside it from `md`,
+// 1.5rem apart, stacking 1rem apart below `md`; it spans both grid columns.
+const SELECTION_BLOCK_CLASSES = [
+  "flex",
+  "flex-col",
+  "gap-4",
+  "md:flex-row",
+  "md:gap-6",
+  "lg:col-span-2",
+].join(" ");
+
+// The consensus legend: one meta line per identified note.
+const LEGEND_CLASSES = ["flex", "flex-col", "gap-1"].join(" ");
+
+/** One line of a consensus legend: a note's name and its count. */
+export type ConsensusLegendEntry = { label: string; count: number };
+
+/** `ref` → `count` of every node of the offering's tree of one `type`, descendants included. */
+function identifiedCounts(
+  nodes: OfferingTaxonomyNode[],
+  type: string,
+): Map<string, number> {
+  const counts = new Map<string, number>();
+  function visit(node: OfferingTaxonomyNode) {
+    counts.set(node.ref ?? "", node.count ?? 0);
+    for (const child of node.children ?? []) {
+      visit(child as OfferingTaxonomyNode);
+    }
+  }
+  for (const node of nodes) {
+    if (node.type === type) {
+      visit(node);
+    }
+  }
+  return counts;
+}
+
 // A concordance value and its band word, 0.5rem apart, wrapping.
 const CONCORDANCE_CLASSES = ["flex", "flex-wrap", "gap-2"].join(" ");
 
@@ -102,9 +148,11 @@ const CONCORDANCE_CLASSES = ["flex", "flex-wrap", "gap-2"].join(" ");
  */
 export function ConsensusPanel({
   offering,
+  taxonomies,
   locale,
   texts,
 }: ConsensusPanelProps): ReactNode {
+  const total = offering.evaluationCount ?? 0;
   // One decimal in the route's locale: the settled "7,2 de 9" reading.
   const oneDecimal = new Intl.NumberFormat(locale, {
     minimumFractionDigits: 1,
@@ -157,6 +205,49 @@ export function ConsensusPanel({
           : undefined,
     },
   ];
+
+  // Main tastes and Defects (design.md D13): the identified notes of one
+  // `type` as a read-only selection over the category's descriptor rows, and
+  // the consensus legend beside the card, in card order.
+  function selectionBlock(category: string, heading: string): ReactNode {
+    const rows = buildDescriptorRows(taxonomies, category, locale);
+    const counts = identifiedCounts(offering.sensoryTaxonomy ?? [], category);
+    const legend: ConsensusLegendEntry[] = rows
+      .flatMap((row) => row.options)
+      .filter((option) => counts.has(option.value))
+      .map((option) => ({
+        label: option.label,
+        count: counts.get(option.value) ?? 0,
+      }));
+    return (
+      <div className={SELECTION_BLOCK_CLASSES}>
+        <Card layout="stacked" className="flex-1">
+          <CardContent className={CONTENT_CLASSES}>
+            <h2 className="type-subheading">{heading}</h2>
+            <DescriptorChipGroup
+              readOnly
+              legend={heading}
+              rows={rows}
+              value={[...counts.keys()]}
+              emptyText={texts.detailTasteEmpty}
+            />
+          </CardContent>
+        </Card>
+        {legend.length > 0 ? (
+          <ul className={LEGEND_CLASSES}>
+            {legend.map((entry) => {
+              const line = `${entry.label} ${entry.count}/${total}`;
+              return (
+                <li key={entry.label} className="type-meta">
+                  {line}
+                </li>
+              );
+            })}
+          </ul>
+        ) : null}
+      </div>
+    );
+  }
 
   return (
     <div className={PANEL_CLASSES}>
@@ -221,6 +312,8 @@ export function ConsensusPanel({
             </dl>
           </CardContent>
         </Card>
+        {selectionBlock("main_tastes", texts.detailMainTastesHeading)}
+        {selectionBlock("defects", texts.detailDefectsHeading)}
       </div>
     </div>
   );
