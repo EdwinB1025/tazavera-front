@@ -4,7 +4,7 @@ The apply of this change waits for `add-evaluation-scales` (its `ConfirmDialog`)
 
 ## 1. Derived types from the generated API types
 
-- [ ] 1.1 Define the three derived payload types of design.md "Derived and UI-specific types" in `src/shared/api/index.ts`, built from `operations` of `src/shared/api/schema.ts` exactly as design.md lists them — `RegisterPayload`, `ProfileUpdatePayload` and `PasswordUpdatePayload` — exported through `src/shared/api/index.ts`; no generated type is edited or redefined and no response type is added (design.md: no response body is rendered or written into the session). Verify `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0, `src/shared/api/schema.ts` and `contracts/openapi.yaml` are unchanged, and `src/shared/api/session-types-guard.test.ts` stays green.
+- [x] 1.1 Define the three derived payload types of design.md "Derived and UI-specific types" in `src/shared/api/index.ts`, built from `operations` of `src/shared/api/schema.ts` exactly as design.md lists them — `RegisterPayload`, `ProfileUpdatePayload` and `PasswordUpdatePayload` — exported through `src/shared/api/index.ts`; no generated type is edited or redefined and no response type is added (design.md: no response body is rendered or written into the session). Verify `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0, `src/shared/api/schema.ts` and `contracts/openapi.yaml` are unchanged, and `src/shared/api/session-types-guard.test.ts` stays green.
 
 ## 2. Registration (specialist and coffeeshop)
 
