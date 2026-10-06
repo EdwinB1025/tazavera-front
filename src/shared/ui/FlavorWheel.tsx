@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { Fragment, useId, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent, ReactNode } from "react";
 import { ChevronDown, ChevronRight } from "@/shared/ui/icons";
 import { cn } from "@/shared/lib/utils";
@@ -9,7 +9,8 @@ import {
   arcPath,
   fitLabel,
   labelFontSize,
-  labelPlacement,
+  labelPath,
+  labelRadius,
   layoutWheel,
   type WheelSegment,
 } from "./flavor-wheel-geometry";
@@ -57,7 +58,6 @@ const TOGGLE_CLASSES =
   "type-body flex min-h-10 cursor-pointer items-center gap-2 self-start rounded-field px-2 py-1 text-text-primary hover:bg-surface-section focus-visible:focus-ring";
 const ROW_INDENT = ["", "ms-6", "ms-12"];
 const SWATCH_CLASSES = "size-3 shrink-0 rounded-check";
-const LINE_HEIGHT = 1.2;
 
 /** A visible note row in wheel order (depth-first), with its tree position. */
 type Row = {
@@ -110,35 +110,56 @@ function swatchStyle(node: FlavorWheelNode): CSSProperties {
   };
 }
 
+/**
+ * A segment's arched label (design.md D5): one `<text>` per line, set on a
+ * `<textPath>` along an unfilled arc near the segment's outer edge. Nothing
+ * is drawn at rest when not even the name fits.
+ */
 function SegmentLabel({
   segment,
   legend,
+  idPrefix,
 }: {
   segment: WheelSegment<FlavorWheelNode>;
   legend: string;
+  idPrefix: string;
 }): ReactNode {
   const fit = fitLabel(segment, segment.node.name, legend);
-  if (fit === "none") return null;
-  const { x, y, rotate } = labelPlacement(segment);
+  if (fit === "active") return null;
   const size = labelFontSize(segment.ring);
   const lines =
     fit === "both" ? [segment.node.name, legend] : [segment.node.name];
-  const step = size * LINE_HEIGHT;
+  // Nested in its own group so the segment's direct `<path>` stays its arc.
   return (
-    <text
-      transform={`translate(${x} ${y}) rotate(${rotate})`}
-      textAnchor="middle"
-      dominantBaseline="central"
-      fontSize={size}
-      fill="currentColor"
-      className="pointer-events-none select-none"
-    >
-      {lines.map((line, index) => (
-        <tspan key={index} x={0} y={(index - (lines.length - 1) / 2) * step}>
-          {line}
-        </tspan>
-      ))}
-    </text>
+    <g>
+      {lines.map((line, index) => {
+        const id = `${idPrefix}-label-${segment.node.id}-${index}`;
+        return (
+          <Fragment key={index}>
+            <path
+              id={id}
+              d={labelPath(
+                labelRadius(segment, index as 0 | 1),
+                segment.start,
+                segment.end,
+              )}
+              fill="none"
+            />
+            <text
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize={size}
+              fill="currentColor"
+              className="pointer-events-none select-none"
+            >
+              <textPath href={`#${id}`} startOffset="50%">
+                {line}
+              </textPath>
+            </text>
+          </Fragment>
+        );
+      })}
+    </g>
   );
 }
 
@@ -158,6 +179,7 @@ export function FlavorWheel({
   const [activeId, setActiveId] = useState<string | null>(null);
   const [listOpen, setListOpen] = useState(false);
   const listId = useId();
+  const idPrefix = useId();
   const rowElements = useRef(new Map<string, HTMLLIElement>());
 
   if (total === 0 || nodes.length === 0) {
@@ -293,7 +315,11 @@ export function FlavorWheel({
                     className="stroke-surface-card"
                     strokeWidth={2}
                   />
-                  <SegmentLabel segment={segment} legend={legend(node)} />
+                  <SegmentLabel
+                    segment={segment}
+                    legend={legend(node)}
+                    idPrefix={idPrefix}
+                  />
                 </g>
               );
             })}

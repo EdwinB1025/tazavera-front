@@ -140,60 +140,64 @@ export function arcPath(
   ].join(" ");
 }
 
-/**
- * The label anchor (mid-angle, mid-radius) and rotation. Ring 0 is tangential
- * and flips in the lower half (90°–270°); rings 1–2 run along the radius and
- * flip in the left half (180°–360°), so text always stays upright.
- */
-export function labelPlacement(segment: SegmentArc): {
-  x: number;
-  y: number;
-  rotate: number;
-  flipped: boolean;
-} {
-  const mid = (segment.start + segment.end) / 2;
-  const midRadius = (segment.inner + segment.outer) / 2;
-  const radians = (mid * Math.PI) / 180;
-  const tangential = segment.ring === 0;
-  const flipped = tangential ? mid > 90 && mid < 270 : mid > 180;
-  const base = tangential ? mid : mid - 90;
-  return {
-    x: round(midRadius * Math.sin(radians)),
-    y: round(-midRadius * Math.cos(radians)),
-    rotate: flipped ? base - 180 : base,
-    flipped,
-  };
-}
-
 /** The label font size of a ring: 13 units in ring 0, 12 in rings 1–2. */
 export function labelFontSize(ring: number): number {
   return LABEL_FONT_SIZE[ring];
 }
 
 /**
- * Which label fits, estimating text width as `characters × 0.6 × font size`:
- * both lines (name and legend), the name alone, or none — never an ellipsis.
+ * The radius a label line's glyphs are centred on: the name (line 0) half a
+ * line inside the outer edge less 4 units, the legend (line 1) one line
+ * further in.
+ */
+export function labelRadius(segment: SegmentArc, line: 0 | 1): number {
+  const size = labelFontSize(segment.ring);
+  return segment.outer - 4 - (0.5 + line) * LINE_HEIGHT * size;
+}
+
+/**
+ * Path data of the arc a label line runs along. It runs clockwise from
+ * `start` to `end`, and is reversed when the mid-angle lies strictly between
+ * 90° and 270°, so the text reads upright in the lower half. A span of 360°
+ * or more is two half-arcs in the same direction.
+ */
+export function labelPath(radius: number, start: number, end: number): string {
+  const mid = (start + end) / 2;
+  const reversed = mid > 90 && mid < 270;
+  const [from, to] = reversed ? [end, start] : [start, end];
+  const sweep = reversed ? 0 : 1;
+  const arc = (target: number, large: number): string =>
+    `A ${radius} ${radius} 0 ${large} ${sweep} ${point(radius, target)}`;
+  if (end - start >= 360) {
+    const half = (from + to) / 2;
+    return `M ${point(radius, from)} ${arc(half, 0)} ${arc(to, 0)}`;
+  }
+  return `M ${point(radius, from)} ${arc(to, end - start > 180 ? 1 : 0)}`;
+}
+
+/**
+ * Which arched label fits, estimating text width as `characters × 0.6 × font
+ * size` against the arc length at each line's own radius: both lines (name
+ * and legend), the name alone, or the name only while the note is active —
+ * never an ellipsis.
  */
 export function fitLabel(
   segment: SegmentArc,
   name: string,
   legend: string,
-): "both" | "name" | "none" {
+): "both" | "name" | "active" {
   const size = labelFontSize(segment.ring);
-  const midRadius = (segment.inner + segment.outer) / 2;
   const span = ((segment.end - segment.start) * Math.PI) / 180;
   const ringWidth = segment.outer - segment.inner;
-  const tangential = segment.ring === 0;
-  const maxWidth = tangential
-    ? 2 * midRadius * Math.sin(Math.min(span, Math.PI) / 2) - 8
-    : ringWidth - 8;
-  const maxHeight = tangential ? ringWidth - 8 : midRadius * span - 4;
 
   const fits = (lines: string[]): boolean =>
-    Math.max(...lines.map((line) => line.length)) * CHARACTER_WIDTH * size <=
-      maxWidth && lines.length * LINE_HEIGHT * size <= maxHeight;
+    lines.every(
+      (line, index) =>
+        line.length * CHARACTER_WIDTH * size <=
+        labelRadius(segment, index as 0 | 1) * span - 8,
+    ) && lines.length * LINE_HEIGHT * size <= ringWidth - 8;
 
   if (fits([name, legend])) return "both";
   if (fits([name])) return "name";
-  return "none";
+  return "active";
 }
