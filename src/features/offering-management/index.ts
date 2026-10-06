@@ -29,3 +29,8 @@ export type {
   DeleteOfferingsDialogProps,
   DeleteOfferingsDialogTexts,
 } from "./ui/DeleteOfferingsDialog";
+export type { CreateOutcome } from "./api/management";
+export { useCreateFlow } from "./model/create-flow";
+export type { CreateFlow, CreateStatus } from "./model/create-flow";
+export { InventoryField } from "./ui/InventoryField";
+export type { InventoryFieldProps, InventoryFieldTexts } from "./ui/InventoryField";

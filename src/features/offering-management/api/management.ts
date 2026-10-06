@@ -1,5 +1,11 @@
 import { publicRequest, request } from "@/shared/api";
-import type { OfferingsPageMeta, OfferingSummary } from "@/shared/api";
+import type {
+  CoffeeInventoryItem,
+  CoffeeInventoryPayload,
+  CreateOfferingsPayload,
+  OfferingsPageMeta,
+  OfferingSummary,
+} from "@/shared/api";
 
 /**
  * The management requests (design.md "API endpoints consumed"). The own list
@@ -18,6 +24,12 @@ export type OwnOfferingsResult =
 
 /** How a write ended: done, refused (403, the step-up) or failed otherwise. */
 export type WriteOutcome = "ok" | "forbidden" | "failed";
+
+/** How the create call ended: with the created count, refused (403) or failed. */
+export type CreateOutcome =
+  | { outcome: "ok"; count: number }
+  | { outcome: "forbidden" }
+  | { outcome: "failed" };
 
 type OwnOfferingsPayload = {
   data?: OfferingSummary[];
@@ -77,4 +89,43 @@ export function deleteOfferings(ulids: string[]): Promise<WriteOutcome> {
     headers: JSON_HEADERS,
     body: JSON.stringify({ offerings: ulids }),
   });
+}
+
+/**
+ * The inventory items matching a coffee name: `GET /coffeeInventory?coffeeName={text}`.
+ * A non-2xx status rejects, so the combobox shows its failure row.
+ */
+export async function searchCoffeeInventory(
+  coffeeName: string,
+  signal: AbortSignal,
+): Promise<CoffeeInventoryItem[]> {
+  const response = await request(
+    `/coffeeInventory?coffeeName=${encodeURIComponent(coffeeName)}`,
+    { headers: { Accept: "application/json" }, signal },
+  );
+  if (!response.ok) {
+    throw new Error(`coffeeInventory ${response.status}`);
+  }
+  const payload: CoffeeInventoryPayload = await response.json();
+  return payload.data ?? [];
+}
+
+/** `POST /offerings` with body `{ coffeeInventoryId, locations }`. */
+export async function createOfferings(
+  coffeeInventoryId: string,
+  locations: string[],
+): Promise<CreateOutcome> {
+  try {
+    const response = await request("/offerings", {
+      method: "POST",
+      headers: JSON_HEADERS,
+      body: JSON.stringify({ coffeeInventoryId, locations }),
+    });
+    if (response.status === 403) return { outcome: "forbidden" };
+    if (!response.ok) return { outcome: "failed" };
+    const payload: CreateOfferingsPayload = await response.json();
+    return { outcome: "ok", count: payload.data?.length ?? 0 };
+  } catch {
+    return { outcome: "failed" };
+  }
 }
