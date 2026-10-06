@@ -19,7 +19,7 @@ spec "Rings follow the deepest expanded level". The component needs no change fo
 
 design.md D2, D3; spec "Flavor wheel note list disclosure". Requires `Collapsible`, `CollapsibleHeader` and `CollapsibleBody` exported from `@/shared/ui` (`add-collapsible-section`) in this branch: if they are missing, stop before 3.1 and report it (design.md Risks).
 
-- [ ] 3.1 Update `src/shared/ui/FlavorWheel.test.tsx`:
+- [x] 3.1 Update `src/shared/ui/FlavorWheel.test.tsx`:
   - "lays out by container width…": the layout class expects `@2xl:grid-rows-[auto_1fr]` instead of `@2xl:grid-rows-[auto_auto_1fr]`; the wheel class expects `@2xl:row-span-2` instead of `@2xl:row-span-3`; column 2's children are `["flavor-wheel-panel", "DIV"]`, the `DIV` with class `flex flex-col` holding the header `BUTTON` then the body; the tree's class is `flex flex-col gap-1 pt-2`.
   - "FlavorWheel — note list disclosure": `TOGGLE_CLASSES` and "takes the row treatment, start-aligned at content width" are replaced by the case "is the shared full-width collapsible header": the button's class list contains `w-full`, `justify-between` and `focus-visible:focus-ring` and not `@2xl:justify-self-start`, and its title text is `texts.notesToggle`.
   - "collapses the note list at first…": the button keeps `type="button"`, `aria-expanded="false"` and text `texts.notesToggle`; its `aria-controls` names the element that contains the `ul[role="tree"]` (the body), and that element has the `inert` attribute; the `list.hasAttribute("hidden")` and `rows()`-empty checks become that body's `inert`. "expands and collapses the note list…" likewise checks the body's `inert` absent after expanding and present after collapsing, instead of the list's `hidden`.
