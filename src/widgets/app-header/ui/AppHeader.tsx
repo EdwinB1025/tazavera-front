@@ -26,11 +26,7 @@ export type AppHeaderTexts = {
   languageSelector: string;
   brandLink: string;
   // the user menu (spec: "Menu content")
-  profile: string;
-  editProfile: string;
-  changePassword: string;
-  deactivateAccount: string;
-  deleteAccount: string;
+  myAccount: string;
   security: string;
   themeSelector: string;
   manageOfferings: string;
@@ -71,8 +67,8 @@ const RIGHT_GROUP_CLASSES = ["ml-auto", "flex", "items-center", "gap-4"].join(" 
  * Signed out it shows the brand logotype, the primary navigation (from `md`),
  * the language selector and the "Sign in" action; signed in it shows the user
  * menu instead of the "Sign in" action; while the session resolves it shows
- * neither (spec: "Session resolving"). The user menu carries the profile
- * settings, security, theme selector, management entry and sign out.
+ * neither (spec: "Session resolving"). The user menu carries the account
+ * entry, security, theme selector, management entry and sign out.
  *
  * The logotype renders in both forms (design.md D7): the drawing alone below
  * `md` and the wordmark form from `md` up, so the brand stays visible at
