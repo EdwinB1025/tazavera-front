@@ -16,9 +16,10 @@ vi.mock("next/navigation", () => ({
 }));
 
 const listMyEvaluations = vi.fn();
+const deleteAnEvaluation = vi.fn();
 vi.mock("@/entities/evaluation", () => ({
   listMyEvaluations: (...args: unknown[]) => listMyEvaluations(...args),
-  deleteAnEvaluation: vi.fn(),
+  deleteAnEvaluation: (...args: unknown[]) => deleteAnEvaluation(...args),
 }));
 
 const fetchOffering = vi.fn();
@@ -153,5 +154,27 @@ describe("EvaluationsList (spec: My evaluations list)", () => {
     const list = await screen.findByRole("list");
     expect(within(list).getAllByRole("listitem")).toHaveLength(3);
     await waitFor(() => expect(screen.queryByRole("button", { name: "Next" })).toBeNull());
+  });
+
+  it("removes a deleted row and reloads the list without the loading placeholder", async () => {
+    listMyEvaluations.mockResolvedValueOnce(page(ITEMS));
+    deleteAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: null });
+    let resolveReload: (value: unknown) => void = () => {};
+    listMyEvaluations.mockReturnValueOnce(new Promise((done) => (resolveReload = done)));
+    const { container } = render(<EvaluationsList locale="en" texts={TEXTS} />);
+    await screen.findAllByRole("heading", { level: 3 });
+    fireEvent.click(screen.getAllByRole("button", { name: "Delete" })[0]);
+    fireEvent.click(screen.getByRole("button", { name: "Delete evaluation" }));
+    await waitFor(() => expect(screen.getAllByRole("listitem")).toHaveLength(2));
+    expect(deleteAnEvaluation).toHaveBeenCalledWith("01JEVAL3");
+    expect(listMyEvaluations).toHaveBeenCalledTimes(2);
+    expect(container.querySelector('[aria-busy="true"]')).toBeNull();
+    resolveReload(page(ITEMS.slice(1)));
+    await waitFor(() =>
+      expect(screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual([
+        "Alpha",
+        "Alpha",
+      ]),
+    );
   });
 });
