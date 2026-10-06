@@ -365,7 +365,8 @@ Memory before the runs: 4.67 GB free; the only other agent was the `refine-app-h
 Product owner approved the merge order header → landing → auth. Simulated merges (`git merge-tree`) show that `add-auth` will conflict with both on the shell.
 
 ### Deferred to Product owner
-#### Q-merge — Keep header's and landing's shell changes when auth merges develop
+#### Q-merge — ANSWERED 2026-10-06: merge `develop` into auth only at auth's own merge step (§6.7.2), not before. The resolution rules below stand; the conflict is code, so it goes to the Build or the cloud, never to the orchestrator
+#### Q-merge (original) — Keep header's and landing's shell changes when auth merges develop
 - `refine-app-header` (`cd536d2`, test `2d0da3f`): the shell grows to the viewport height (app-shell "Shell layout and main area", scenario "Main area fills the viewport"). The fix lives in `AppShell.tsx` classes. Auth moves the layout into `SessionShell.tsx`, so resolving the `AppShell.tsx` conflict by taking auth's side would silently drop the fix. It must be carried into `SessionShell.tsx`.
 - `add-landing` (task 10.1, `7e449b2`): `AppShell.test.tsx` renders a placeholder child instead of `HomeScreen`, and the main-area case asserts that child (app-shell "Root of a supported locale", modified by add-landing). Keep it when resolving the `AppShell.test.tsx` conflict.
 - Contract: auth already has develop's `contracts/openapi.yaml` and `schema.ts`, so there is no conflict there. `src/shared/api/index.ts` auto-merges (landing's derived types plus auth's client exports); run `npx tsc --noEmit` after the merge.
@@ -485,3 +486,25 @@ None.
 
 ### Final checks
 `npm run test:run` after 8.7 (chain script): pass. Not re-run with the uncommitted 8.8 edit.
+
+## Session 2026-10-06 — cloud 8.8–8.16 integrated
+Summary: the cloud session (`claude/add-auth-8.x`, session `session_01LBuAC9pQiRfRuB6GiYswfT`) finished 8.8–8.16. The orchestrator reviewed it, ran the checks, fast-forwarded `feature/add-auth` (`b5eedf6..e30ef85`) and pushed. Q18 answered by the launch. Stopped because: the test suite exits 1 (below); the unplanned fix could not be launched from this session (`dontAsk` denies starting OpenCode in the worktree). MVC reachable: not needed.
+
+### Cloud session review
+- Commits: `b50a1cd` test 8.8; `e9685d2` test 8.11 (8.9 and 8.10 checked off here: no file changes, reason in the body); `28ec738` test 8.13, `514ca72` feat 8.14; `4f397af` test 8.15, `e30ef85` feat 8.16. 8.12 checked off without changes (holder already confined). Test before implementation; `tasks.md` changes only checkboxes; files: `proxy.ts`, `proxy.test.ts` (approved, Q6), `CallbackScreen.test.tsx`, `tokens.test.ts`; `Refs: add-auth` on all.
+- Checks (temporary detached worktree at `e30ef85`, `npm ci` + `npx next typegen`): `npm run lint` exit 0; `npx tsc --noEmit` exit 0; `npm run test:run` Test Files 37 passed, Tests 820 passed, **4 errors, exit 1**.
+
+### Fixes and coverage sent to the Build
+#### F1 — Unhandled rejections in the token exposure test (8.11)
+- Type: unplanned fix (spec "Credential handling", task 8.11).
+- Cause (mine, reproduced on the file alone): `windowPropertiesHolding` in `src/shared/api/tokens.test.ts` calls `JSON.stringify` on every own property of `window`, including Vitest's RPC proxy; its `toJSON` call rejects asynchronously outside the `try` ("[birpc] function "toJSON" not found"), so Vitest reports 4 unhandled errors and exits 1. Product code unaffected.
+- Message to send: fix the test so it does not serialise Vitest internals (for example compare only the window properties added during the grant) while every mutation probe of `e9685d2` still fails the case; one `fix(auth): …` commit, body "Unplanned fix: spec Credential handling, task 8.11"; `npm run test:run` exit 0 with no unhandled errors, lint and tsc exit 0.
+- Result: not launched yet (permissions). Blocks: 8.17 and the archive.
+
+### Deferred to Product owner
+#### Q18 — ANSWERED 2026-10-06: launched; integrated as above
+#### Q-merge — note: Product owner chose the final merge step (see the answer above). Orchestrator's caution recorded in the session: 8.17 will then check a shell without `refine-app-header`'s viewport fix and `add-landing`'s changes; a browser re-check after the merge is advised.
+
+### Next
+1. Launch F1 (OpenCode build in this worktree, or a cloud session on `claude/add-auth-f1`).
+2. 8.17 is Product owner's; then verify and archive on request.
