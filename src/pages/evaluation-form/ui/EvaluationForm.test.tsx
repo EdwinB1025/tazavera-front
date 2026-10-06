@@ -428,3 +428,50 @@ describe("EvaluationForm: closing (design.md D4, D10; tasks 7.1)", () => {
     expect(closeAnEvaluation).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("EvaluationForm: read-only presentation (design.md D4, D14; tasks 7.3)", () => {
+  const CLOSED = {
+    ...OPEN_EVALUATION,
+    status: "closed",
+    tastes: [{ ref: "01JTAXFLORAL0000000000000A", type: "aroma" }],
+  };
+
+  it("renders every control read-only", () => {
+    renderForm({ evaluation: CLOSED });
+    expect(screen.queryAllByRole("slider")).toHaveLength(0);
+    expect(screen.queryAllByRole("radio")).toHaveLength(0);
+    expect(screen.getAllByRole("meter")).toHaveLength(15);
+    expect(screen.queryAllByRole("checkbox")).toHaveLength(0);
+    expect((screen.getByLabelText(/Roast level/) as HTMLSelectElement).disabled).toBe(true);
+    expect((screen.getByLabelText("Extraction method") as HTMLSelectElement).disabled).toBe(true);
+    // Descriptor chips are plain badges: no toggle buttons.
+    expect(screen.queryAllByRole("button", { name: "Floral" })).toHaveLength(0);
+    expect(screen.getAllByText("Floral").length).toBeGreaterThan(0);
+  });
+
+  it("shows existing notes as type-body text and offers no note, save or close action", () => {
+    renderForm({ evaluation: CLOSED });
+    expect(screen.queryAllByRole("textbox")).toHaveLength(0);
+    expect(screen.getByText("jasmine").className).toContain("type-body");
+    expect(screen.getByText("lovely").className).toContain("type-body");
+    for (const name of ["Add note", "Remove note", "Save draft", "Close evaluation"]) {
+      expect(screen.queryAllByRole("button", { name: new RegExp(`^${name}`) })).toHaveLength(0);
+    }
+  });
+
+  it("keeps the layout of the editing form", () => {
+    const closed = renderForm({ evaluation: CLOSED });
+    const shape = (root: HTMLElement) =>
+      Array.from(root.querySelectorAll("[data-group]")).map((card) => [
+        card.getAttribute("data-group"),
+        Array.from(card.querySelectorAll("[data-part]")).map((part) => [
+          part.getAttribute("data-part"),
+          part.className,
+        ]),
+      ]);
+    const readOnlyShape = shape(closed.container);
+    cleanup();
+    const open = renderForm({ evaluation: OPEN_EVALUATION });
+    expect(readOnlyShape).toEqual(shape(open.container));
+  });
+});
