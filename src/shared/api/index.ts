@@ -40,3 +40,8 @@ export type OfferingTaxonomyNode = NonNullable<
 
 /** One node of `GET /taxonomies` `data`: `ulid`, `level`, `nameEs`, `nameEn`, `nameCa`, `color`, `children`. */
 export type TaxonomyNode = NonNullable<ListTaxonomiesResponse["data"]>[number];
+
+/** What `GET /taxonomies` returns: `data` of taxonomy nodes. */
+export type TaxonomiesPayload = {
+  data: TaxonomyNode[];
+};

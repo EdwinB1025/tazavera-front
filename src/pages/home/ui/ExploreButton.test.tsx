@@ -22,7 +22,7 @@ afterEach(() => {
  * route. The scroll target is a real `#offerings` element (the block's root
  * id, design.md D9) carrying a `scrollIntoView` spy — jsdom implements no
  * scrolling — and the app router hook is mocked so a navigation would show
- * (test infrastructure only, exactly as `OfferingPagination.test.tsx` does).
+ * (test infrastructure only, exactly as `Pagination.test.tsx` does).
  */
 
 const router = { push: vi.fn(), refresh: vi.fn() };

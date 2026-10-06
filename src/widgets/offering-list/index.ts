@@ -14,11 +14,6 @@ export type {
   OfferingListResult,
   OfferingListTexts,
 } from "./ui/OfferingList";
-export { OfferingPagination } from "./ui/OfferingPagination";
-export type {
-  OfferingPaginationProps,
-  OfferingPaginationTexts,
-} from "./ui/OfferingPagination";
 export { RetryButton } from "./ui/RetryButton";
 export type { RetryButtonProps } from "./ui/RetryButton";
 export { OfferingSkeletonCard } from "./ui/OfferingSkeletonCard";

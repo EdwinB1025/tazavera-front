@@ -88,3 +88,5 @@ export type {
 export { Badge } from "./Badge";
 export { BADGE_GEOMETRY_CLASSES } from "./Badge";
 export type { BadgeProps, BadgeVariant } from "./Badge";
+export { Pagination } from "./Pagination";
+export type { PaginationProps, PaginationTexts } from "./Pagination";

@@ -230,3 +230,18 @@ Settled by the orchestrator, 2026-10-06 (Product owner may reopen them):
   - B3 (code, verified constraint): `entities/taxonomy` rather than `shared/api`. `shared` is business-agnostic, and `shared/api` holds only the type aliases (FSD skill).
   - B4: `model/` rather than `lib/` for the exported lookup (FSD skill, "Segments inside a slice").
   - B5: the five `OfferingPagination` cases are moved and adapted, never dropped, and a host-level case keeps `/{locale}?page=n` covered in `OfferingList.test.tsx`.
+
+## Propose status
+
+- Change-id: `extract-offering-list-parts`. Date: 2026-10-06. Branch `feature/extract-offering-list-parts`.
+- `openspec validate extract-offering-list-parts --strict`: passed ("Change 'extract-offering-list-parts' is valid").
+- Artifacts: `openspec/changes/extract-offering-list-parts/` — proposal.md, `specs/content-structure/spec.md` (one ADDED requirement, "Pagination", four scenarios), design.md (D1–D9), tasks.md (4 groups, 8 tasks).
+- Resolved:
+  - Open 1 (Pagination interface): b) — the host passes `path` and `query` and the control replaces only `page`; recorded as design.md D3 (interface) and D4 (address building).
+  - Open 2 (one change or two): a) one change, named `extract-offering-list-parts`; recorded in proposal.md (scope and non-goals).
+  - Handoff D1: the requirement is phrased as the pagination control's contract inside the current `content-structure` Purpose; the Purpose is not amended.
+  - Handoff D2: one scenario added — "Paging only with a successful list" (the paging actions render only below a successful, non-empty list; the host owns loading, empty and error).
+  - Handoff D3: `TaxonomiesPayload` is exported from `src/shared/api/index.ts` and the entity imports it from there (design.md D2). Consequences over this file, reported not edited: §2 sends the type to `entities/taxonomy/api/taxonomies.ts` and §11 says the change does not touch `src/shared/api/index.ts`; D3 supersedes both — the type lives in `shared/api`, and the file is now shared with `add-auth` (each change adds its own export lines).
+  - Handoff D4: the wording fixes are applied in the artifacts — "same cases and assertions, fixtures copied"; `src/shared/ui/index.test.tsx` gains one smoke render and its other cases stay; `OfferingList.test.tsx` gains exactly one case; the `ExploreButton.test.tsx` comment is updated to name `Pagination.test.tsx` (design.md D8/D9, tasks 2.1, 3.1, 3.3).
+- Backlog: no entry in `docs/backlog.md` (R1–R4) names this change; it resolves none.
+- Remains open: nothing. The 375px width for the longest catalog label stays unverified here and is checked by the task 4.1 visual comparison (design.md Risks).

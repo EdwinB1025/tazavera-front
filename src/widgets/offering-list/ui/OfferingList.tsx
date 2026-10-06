@@ -5,15 +5,15 @@ import type {
   ResolvedTaxonomyBadge,
 } from "@/entities/offering";
 import { OfferingCard } from "@/entities/offering";
-import { OfferingPagination } from "./OfferingPagination";
-import type { OfferingPaginationTexts } from "./OfferingPagination";
+import { Pagination } from "@/shared/ui";
+import type { PaginationTexts } from "@/shared/ui";
 import { RetryButton } from "./RetryButton";
 import { OFFERING_GRID_CLASSES } from "../lib/grid";
 
 // ─── UI-specific types (declared before the component) ───
 
 export type OfferingListTexts = OfferingCardTexts &
-  OfferingPaginationTexts & {
+  PaginationTexts & {
     emptyMessage: string;
     errorMessage: string;
     retryLabel: string;
@@ -62,6 +62,13 @@ export function OfferingList({
   session,
   texts,
 }: OfferingListProps): ReactNode {
+  // The contract marks the `meta` fields optional; the API always sends both,
+  // and the fallbacks keep the paging arithmetic defined (design.md D3).
+  const currentPage =
+    result.state === "success" ? (result.meta.current_page ?? 1) : 1;
+  const lastPage =
+    result.state === "success" ? (result.meta.last_page ?? currentPage) : 1;
+
   return (
     <div id="offerings" className={BLOCK_CLASSES}>
       {result.state === "success" ? (
@@ -78,9 +85,10 @@ export function OfferingList({
               />
             ))}
           </div>
-          <OfferingPagination
-            locale={locale}
-            meta={result.meta}
+          <Pagination
+            currentPage={currentPage}
+            lastPage={lastPage}
+            path={`/${locale}`}
             texts={texts}
           />
         </>
