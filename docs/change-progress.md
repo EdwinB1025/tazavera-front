@@ -2,7 +2,7 @@
 
 Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, qué falta y quién lo tiene. Complementa `docs/general-context.md` (contexto y decisiones) y el `handoff.md` de cada cambio (detalle de cada sesión).
 
-**Última actualización:** 2026-10-06 18:25, orquestador (Claude Code).
+**Última actualización:** 2026-10-06 19:20, orquestador (Claude Code).
 
 ## Cómo se usa
 
@@ -53,20 +53,20 @@ Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, 
 | `extract-offering-list-parts` | content-structure | — (rama borrada) | Merge | Archivado `350792a` (R7 fuera); mergeado `4ccf9b8` | — | — | — | `4ccf9b8` |
 | `extract-page-section` | content-structure | — (rama borrada) | Merge | Archivado `cb8a3b4`; mergeado `fdff5e4` | — | — | — | `fdff5e4` |
 | `fix-button-boundaries` | base-controls | — (rama borrada) | Merge | Verify en la nube sin hallazgos (Chromium: 40px, `border-box`, borde 1px, +2px de ancho). Archivado `3969e50`; mergeado `756c58b` | — | — | — | `756c58b` |
-| `label-rating-badge` | landing | `feature/label-rating-badge` / `tazavera-front-ratingbadge` | Archive → Merge | 2/2 tareas; verify en la nube sin hallazgos (Chromium es/en/ca); prueba de Product owner dispensada (sin ofertas en local). Archivado `c5d7d00`; `develop` mergeado en la rama (`9f47204`), 1101 tests | Merge a `develop` (Product owner) | Product owner | — | `9f47204` |
-| `replace-offering-card-session` | landing | `feature/replace-offering-card-session` / `tazavera-front-cardslot` | Archive → Merge | 2/2 tareas; verify sin críticos ni warnings (sugerencia cosmética descartada). Archivado `07a1992`; `develop` mergeado en la rama, 1101 tests | Merge a `develop` (Product owner) | Product owner | — | `07a1992` |
-| `add-evaluation-scales` | form-fields, feedback | `feature/add-evaluation-scales` / `tazavera-front-scales` | Apply | 6/16 tareas; la 1.7 (`BeanMark`) relanzada con el path del MVC en el prompt | Apply; verify; archive | Build (OpenCode) | — | `257d666` |
-| `add-flavor-wheel` | feedback | `feature/add-flavor-wheel` / `tazavera-front-wheel` | Apply | Resumen aprobado por el orquestador (`eccab8b`); propose `1b70b32`; 1/7 tareas (`644dc17`) | Apply; capturas; verify; archive | Build (OpenCode) | — | `644dc17` |
-| `add-sidebar-slot` | app-shell | `feature/add-sidebar-slot` / `tazavera-front-sidebarslot` | Apply | Propose en la nube `0683622` (preguntas cerradas por el orquestador) | Apply; verify; archive | Build (OpenCode) | — | `0683622` |
-| `add-facet-controls` | filtering, form-fields | `feature/add-facet-controls` / `tazavera-front-facetctl` | Apply | Propose en la nube `8e22b09`/`ca33d90` (cascada (a), `cmdk` con arreglo de accesibilidad) | Apply en la nube (`trig_0156R3WLedKRWrj5k7feG5HF`, rama `claude/add-facet-controls-apply`) | Claude nube | — | `ca33d90` |
-| `add-specialist-evaluations` | evaluations | `feature/add-specialist-evaluations` / `tazavera-front-evaluations` | Propose → Apply | Propose `eadf858` | Apply | Build | Merge de scales y card-session | `eadf858` |
+| `add-evaluation-scales` | form-fields, feedback | `feature/add-evaluation-scales` / `tazavera-front-scales` | Verify | Apply completo en la nube, integrado (`3696411`) | Verify; capturas; navegador de Product owner; archive | Arquitecto (OpenCode) | — | `3696411` |
+| `add-flavor-wheel` | feedback | `feature/add-flavor-wheel` / `tazavera-front-wheel` | Verify | Apply completo en la nube, integrado (`91ad0e4`) | Verify; capturas; navegador de Product owner; archive | Arquitecto (OpenCode) | — | `91ad0e4` |
+| `add-sidebar-slot` | app-shell | `feature/add-sidebar-slot` / `tazavera-front-sidebarslot` | Apply | Apply en la nube integrado hasta `128dd36`; quedan 6.3 y 7.1 | Apply (6.3, 7.1); verify; archive | Build (OpenCode) | — | `128dd36` |
+| `add-facet-controls` | filtering, form-fields | `feature/add-facet-controls` / `tazavera-front-facetctl` | Verify | Apply completo en la nube, integrado (`21ff097`) | Verify; capturas; navegador de Product owner; archive | Arquitecto (OpenCode) | — | `21ff097` |
+| `add-specialist-evaluations` | evaluations | `feature/add-specialist-evaluations` / `tazavera-front-evaluations` | Propose → Apply | Propose `eadf858` | Apply | Build | Merge de scales | `eadf858` |
 | `add-user-account` | user-account, app-shell, auth | `feature/add-user-account` / `tazavera-front-account` | Propose → Apply | Propose `59a3ec1`/`061492e`/`a65058f` (B1/B2 cerrados por el orquestador) | Apply | Build | Merge de scales (`ConfirmDialog`) | `a65058f` |
-| `add-offering-catalog` | offering-catalog, content-structure | `feature/add-offering-catalog` / `tazavera-front-catalog` | Propose → Apply | Propose `ba6f642`/`c9408b4`; sin dividir | Apply | Build | Merge de scales, card-session y flavor-wheel | `c9408b4` |
-| `add-offering-management` | offering-management | `feature/add-offering-management` / `tazavera-front-management` | Propose → Apply | Propose `30c878f`; erratas S1–S6 `2121983` | Apply | Build | Merge de scales, card-session, sidebar-slot y facet-controls | `2121983` |
+| `add-offering-catalog` | offering-catalog, content-structure | `feature/add-offering-catalog` / `tazavera-front-catalog` | Propose → Apply | Propose `ba6f642`/`c9408b4`; sin dividir | Apply | Build | Merge de scales y flavor-wheel | `c9408b4` |
+| `add-offering-management` | offering-management | `feature/add-offering-management` / `tazavera-front-management` | Propose → Apply | Propose `30c878f`; erratas S1–S6 `2121983` | Apply | Build | Merge de scales, sidebar-slot y facet-controls | `2121983` |
 | `add-offering-facets` | filtering | `feature/add-offering-facets` / `tazavera-front-offacets` | Propose → Apply | Propose en la nube `360c5bc` | Apply | Build | Merge de catalog, sidebar-slot y facet-controls | `360c5bc` |
 | `add-evaluation-facets` | filtering | `feature/add-evaluation-facets` / `tazavera-front-evfacets` | Propose → Apply | Propose `8b8f0c0` | Apply | Build | Merge de sidebar-slot, facet-controls y specialist-evaluations | `8b8f0c0` |
 | `add-filter-controls` | — | `feature/add-filter-controls` / `tazavera-front-filters` | Sustituido | Dividido por Product owner en sidebar-slot, facet-controls, offering-facets y evaluation-facets | Borrar worktree y rama | Orquestador | — | `ea7648c` |
-| `add-theme-tokens` | theming | — (rama borrada) | Merge | Archivado `e53c808`, mergeado `a3a96e2` | — | — | — | `a3a96e2` |
+| `label-rating-badge` | landing | — (rama mergeada; worktree `tazavera-front-ratingbadge` y rama por borrar) | Merge | Archivado `c5d7d00`; mergeado `b1037be` | Borrar worktree y rama | Product owner | — | `b1037be` |
+| `replace-offering-card-session` | landing | — (rama borrada; carpeta `tazavera-front-cardslot` con solo `.git` por borrar) | Merge | Archivado `07a1992`; mergeado `68123d0` (6 oct), 1101 tests | — | — | — | `68123d0` |
+| `add-theme-tokens` | theming | — (rama borrada) | Merge | Archivado `e53c808`, mergeado `a3a96e2` | — | — | — | `a3a96e2` |
 | `add-base-control` | base-controls | — (rama borrada) | Merge | Archivado `d492481`, mergeado `c4f70ad` | — | — | — | `c4f70ad` |
 | `add-focus-ring-utility` | theming | — (rama borrada) | Merge | Archivado `fcc6e28`, mergeado `8d23918` | — | — | — | `8d23918` |
 | `add-form-fields` | form-fields | — (rama borrada) | Merge | Archivado `6fbd517`, mergeado `c6fe64d` | — | — | — | `c6fe64d` |
