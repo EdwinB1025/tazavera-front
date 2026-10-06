@@ -28,6 +28,13 @@ const TEXTS: EvaluationRowTexts = {
   ratingExcellentLabel: "Excellent",
   ratingGoodLabel: "Good",
   ratingCommercialLabel: "Commercial",
+  deleteLabel: "Delete",
+  deleteTitle: "Delete this evaluation?",
+  deleteDescription: "The evaluation and its scores will be removed.",
+  deleteConfirmLabel: "Delete evaluation",
+  deleteCancelLabel: "Cancel",
+  notYoursMessage: "This evaluation is not yours.",
+  failureMessage: "Something went wrong. Try again later.",
 };
 
 const OFFERING: OfferingDetail = {
@@ -59,7 +66,13 @@ const OPEN: EvaluationItem = {
 
 function renderRow(evaluation: EvaluationItem) {
   return render(
-    <EvaluationRowCard evaluation={evaluation} offering={OFFERING} locale="en" texts={TEXTS} />,
+    <EvaluationRowCard
+      evaluation={evaluation}
+      offering={OFFERING}
+      locale="en"
+      texts={TEXTS}
+      onDeleted={vi.fn()}
+    />,
   );
 }
 
@@ -114,5 +127,17 @@ describe("EvaluationRowCard (design.md card field mapping)", () => {
     expect(screen.queryByRole("button", { name: "Edit" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "View" }));
     expect(push).toHaveBeenLastCalledWith(`/en/manage/evaluations/${CLOSED.ulid}`);
+  });
+
+  it("renders the footer's actions: Edit or View, and Delete", () => {
+    renderRow(OPEN);
+    const footerActions = (row: HTMLElement) =>
+      Array.from(row.querySelectorAll("button")).map((button) => button.textContent);
+    const openFooter = screen.getByRole("button", { name: "Edit" }).parentElement as HTMLElement;
+    expect(footerActions(openFooter)).toEqual(["Edit", "Delete"]);
+    cleanup();
+    renderRow(CLOSED);
+    const closedFooter = screen.getByRole("button", { name: "View" }).parentElement as HTMLElement;
+    expect(footerActions(closedFooter)).toEqual(["View", "Delete"]);
   });
 });

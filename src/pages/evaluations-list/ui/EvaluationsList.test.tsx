@@ -49,6 +49,13 @@ const TEXTS: EvaluationsListTexts = {
   emptyMessage: "You have no evaluations yet.",
   loadErrorMessage: "Your evaluations could not be loaded.",
   retryLabel: "Retry",
+  deleteLabel: "Delete",
+  deleteTitle: "Delete this evaluation?",
+  deleteDescription: "The evaluation and its scores will be removed.",
+  deleteConfirmLabel: "Delete evaluation",
+  deleteCancelLabel: "Cancel",
+  notYoursMessage: "This evaluation is not yours.",
+  failureMessage: "Something went wrong. Try again later.",
 };
 
 function offering(ulid: string, name: string): OfferingDetail {
