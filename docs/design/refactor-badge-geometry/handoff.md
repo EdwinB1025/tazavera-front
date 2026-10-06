@@ -17,3 +17,16 @@ Summary: worktree `tazavera-front-badge` created on `feature/refactor-badge-geom
 - Why: the main specs already carry rules of this kind with verification scenarios; `config.yaml` rules.specs is met by keeping implementation names out.
 #### D3 — Wording fix
 - §4 item 3 reads "the only non-test `.ts`/`.tsx` file".
+
+## Session 2026-10-06 — apply 5.1 (cloud) and 5.2 (design lead)
+Summary: 1.1–4.1 by OpenCode. 5.1 by a one-off cloud routine (`trig_01NjJk22gYhwn6ejUMWXNJpp`, branch `claude/refactor-badge-geometry-5.1`, commit `c7acb0f`, checkbox only): `npm run test:run` 45 files / 936 tests, lint and `npx tsc --noEmit` exit 0; the ten listed suites green and unchanged against `develop` except the cases tasks 2.1/3.1 add. Integrated with `git merge --ff-only` (`dee343a..c7acb0f`) and pushed. Stopped because: 5.2 checkbox and verify pending.
+
+### Task 5.2 — browser captures (design lead)
+- Result: **pass** on both points. Same mock of `GET /offerings` and `GET /taxonomies` (contract shapes; 5 offerings covering the four rating tiers, a missing score, verified and provisional, taxonomy badges at three levels) served this branch and `develop`'s code.
+- Landing `/es` at 375px and 1280px, light and dark: the four capture pairs are identical pixel for pixel (design lead's script); no horizontal scroll.
+- Badge output: 44 badges per width, no difference in tag, classes, inline style, `data-taxonomy`, HTML, box size or computed styles against `develop` (design lead's script).
+- Captures (local, untracked): `docs/design/refactor-badge-geometry/landing-es-{branch,develop}-{375,1280}-{light,dark}.png`.
+- Findings: none.
+
+### Next
+- Build: check off 5.2 recording this result (`chore(feedback): complete tasks for refactor-badge-geometry`); then `/opsx:verify refactor-badge-geometry`; archive on Product owner's request.
