@@ -88,9 +88,7 @@ describe("EvaluationForm: header and tree (tasks 4.1)", () => {
 
   it("renders the eight group cards in CVA order with their names in type-subheading", () => {
     const { container } = renderNew();
-    const names = Array.from(container.querySelectorAll("[data-group] .type-subheading")).filter(
-      (element) => element.tagName === "H3",
-    );
+    const names = Array.from(container.querySelectorAll("[data-group] h3 .type-subheading"));
     expect(names.map((name) => name.textContent)).toEqual([
       "Fragrance / Aroma",
       "Flavor / Aftertaste",

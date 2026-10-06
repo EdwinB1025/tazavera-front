@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useState } from "react";
 import type { ReactNode } from "react";
 import type {
   AxisKey,
@@ -10,8 +10,16 @@ import type {
   GroupDefinition,
   GroupKey,
 } from "@/entities/evaluation";
-import { BeanScale, Card, CardAside, CardContent, IntensitySlider } from "@/shared/ui";
-import { ChevronDown } from "@/shared/ui/icons";
+import {
+  BeanScale,
+  Card,
+  CardAside,
+  CardContent,
+  Collapsible,
+  CollapsibleBody,
+  CollapsibleHeader,
+  IntensitySlider,
+} from "@/shared/ui";
 import { cn } from "@/shared/lib/utils";
 import { CompletenessIndicator } from "./CompletenessIndicator";
 import { NoteField } from "./NoteField";
@@ -59,21 +67,21 @@ export type EvaluationGroupCardProps = {
   top?: ReactNode;
   /** Marks the group after a `409` on close (design.md D10). */
   highlighted?: boolean;
+  /**
+   * Controlled open state (design.md D15). Uncontrolled, the group starts
+   * collapsed when editable and expanded when read-only.
+   */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 // ─── Layout end states (design.md D14; the summary §9) ───
-const HEADER_ROW_CLASSES = ["flex", "flex-wrap", "items-center", "justify-between", "gap-2"].join(" ");
-const TOGGLE_CLASSES = [
-  "w-full",
-  "flex",
-  "flex-wrap",
-  "items-center",
-  "justify-between",
-  "gap-2",
-  "text-left",
-  "rounded-field",
-  "focus-visible:focus-ring",
-].join(" ");
+// The header's 0.5rem plus the aside's 0.5rem: 1rem from the card's edges
+// (design.md D15). `px-2`/`py-2` follow the Card's `p-6` in the generated CSS
+// and override it; `border-b-0` likewise drops the aside's bottom border while
+// the body is collapsed, so a collapsed card is its header row only.
+const ASIDE_CLASSES = ["px-2", "py-2"].join(" ");
+const ASIDE_COLLAPSED_CLASSES = "border-b-0";
 // An incomplete group after a refused close: a ring in the error colour; the
 // indicator's "Incomplete" carries the state in words.
 const HIGHLIGHT_CLASSES = ["ring-2", "ring-feedback-error"].join(" ");
@@ -101,9 +109,9 @@ const PANEL_CLASSES = [
 ].join(" ");
 
 /**
- * One CVA group (design.md D14; spec "Evaluation form"): the group name and
- * its completeness indicator in the header — a full-width collapse toggle
- * below `md`, a static row from `md` — and the descriptive and affective
+ * One CVA group (design.md D14, D15; spec "Evaluation form"): a shared
+ * collapsible section whose header carries the group name and its
+ * completeness indicator at every viewport, and the descriptive and affective
  * parts, stacked below `md` and in two columns from `md`. Each descriptive
  * axis is an intensity slider (0–15) and each affective axis a bean scale
  * (1–9), both read-only for a closed evaluation; the descriptor blocks of a
@@ -119,9 +127,15 @@ export function EvaluationGroupCard({
   renderBlock,
   top,
   highlighted = false,
+  open: openProp,
+  onOpenChange,
 }: EvaluationGroupCardProps): ReactNode {
-  const [expanded, setExpanded] = useState(true);
-  const bodyId = useId();
+  const [openState, setOpenState] = useState(readOnly);
+  const open = openProp ?? openState;
+  const changeOpen = (next: boolean) => {
+    if (openProp === undefined) setOpenState(next);
+    onOpenChange?.(next);
+  };
   const name = texts.groupNames[group.key];
   const indicator =
     complete === undefined ? null : (
@@ -247,85 +261,72 @@ export function EvaluationGroupCard({
       : null;
 
   return (
-    <Card
-      layout="stacked"
-      data-group={group.key}
-      data-highlighted={highlighted ? "true" : undefined}
-      className={highlighted ? HIGHLIGHT_CLASSES : undefined}
-    >
-      <CardAside>
-        <h3 className="md:hidden">
-          <button
-            type="button"
-            className={TOGGLE_CLASSES}
-            aria-expanded={expanded}
-            aria-controls={bodyId}
-            aria-label={name}
-            onClick={() => setExpanded((open) => !open)}
-          >
-            <span className="type-subheading">{name}</span>
-            <span className="inline-flex items-center gap-2">
-              {indicator}
-              <ChevronDown
-                aria-hidden="true"
-                className={cn("size-5 shrink-0 transition-transform", expanded && "rotate-180")}
-              />
-            </span>
-          </button>
-        </h3>
-        <div className={cn("hidden md:flex", HEADER_ROW_CLASSES)}>
-          <h3 className="type-subheading">{name}</h3>
-          {indicator}
-        </div>
-      </CardAside>
-      <CardContent id={bodyId} className={expanded ? undefined : "hidden md:block"}>
-        <div className={BODY_CLASSES}>
-          {top ? <div>{top}</div> : null}
-          <div className={both ? BOTH_PARTS_CLASSES : ONE_PART_CLASSES}>
-            {group.descriptive ? (
-              <div
-                data-part="descriptive"
-                className={cn(PART_CLASSES, both && DESCRIPTIVE_SPLIT_CLASSES)}
-              >
-                <p className="type-label">{texts.descriptiveHeading}</p>
-                {group.descriptive.axes.length > 0 ? (
-                  <div className={PANEL_CLASSES}>{group.descriptive.axes.map(intensity)}</div>
+    <Collapsible open={open} onOpenChange={changeOpen}>
+      <Card
+        layout="stacked"
+        data-group={group.key}
+        data-highlighted={highlighted ? "true" : undefined}
+        className={highlighted ? HIGHLIGHT_CLASSES : undefined}
+      >
+        <CardAside className={cn(ASIDE_CLASSES, !open && ASIDE_COLLAPSED_CLASSES)}>
+          <CollapsibleHeader headingLevel={3} aside={indicator}>
+            {name}
+          </CollapsibleHeader>
+        </CardAside>
+        <CollapsibleBody>
+          <CardContent>
+            <div className={BODY_CLASSES}>
+              {top ? <div>{top}</div> : null}
+              <div className={both ? BOTH_PARTS_CLASSES : ONE_PART_CLASSES}>
+                {group.descriptive ? (
+                  <div
+                    data-part="descriptive"
+                    className={cn(PART_CLASSES, both && DESCRIPTIVE_SPLIT_CLASSES)}
+                  >
+                    <p className="type-label">{texts.descriptiveHeading}</p>
+                    {group.descriptive.axes.length > 0 ? (
+                      <div className={PANEL_CLASSES}>{group.descriptive.axes.map(intensity)}</div>
+                    ) : null}
+                    {blocks(group.descriptive)}
+                    {group.descriptive.axes.map((axis) =>
+                      note("descriptive", axis, group.descriptive!.axes.length > 1),
+                    )}
+                  </div>
                 ) : null}
-                {blocks(group.descriptive)}
-                {group.descriptive.axes.map((axis) =>
-                  note("descriptive", axis, group.descriptive!.axes.length > 1),
-                )}
-              </div>
-            ) : null}
-            {group.affective ? (
-              <div data-part="affective" className={cn(PART_CLASSES, both && AFFECTIVE_SPLIT_CLASSES)}>
-                <p className="type-label">{texts.affectiveHeading}</p>
-                {group.affective.axes.length > 0 ? (
-                  <div className={PANEL_CLASSES}>{group.affective.axes.map(preference)}</div>
+                {group.affective ? (
+                  <div
+                    data-part="affective"
+                    className={cn(PART_CLASSES, both && AFFECTIVE_SPLIT_CLASSES)}
+                  >
+                    <p className="type-label">{texts.affectiveHeading}</p>
+                    {group.affective.axes.length > 0 ? (
+                      <div className={PANEL_CLASSES}>{group.affective.axes.map(preference)}</div>
+                    ) : null}
+                    {blocks(group.affective)}
+                    {group.affective.axes.map((axis) =>
+                      note("affective", axis, group.affective!.axes.length > 1),
+                    )}
+                  </div>
                 ) : null}
-                {blocks(group.affective)}
-                {group.affective.axes.map((axis) =>
-                  note("affective", axis, group.affective!.axes.length > 1),
-                )}
+                {group.notes === "generalObservation" ? (
+                  <div data-part="notes" className={PART_CLASSES}>
+                    <NoteField
+                      label={texts.extrinsicNoteLabel}
+                      addLabel={texts.addNoteLabel}
+                      removeLabel={texts.removeNoteLabel}
+                      value={state.generalObservation}
+                      readOnly={readOnly}
+                      onChange={(next) =>
+                        onChange((current) => ({ ...current, generalObservation: next }))
+                      }
+                    />
+                  </div>
+                ) : null}
               </div>
-            ) : null}
-            {group.notes === "generalObservation" ? (
-              <div data-part="notes" className={PART_CLASSES}>
-                <NoteField
-                  label={texts.extrinsicNoteLabel}
-                  addLabel={texts.addNoteLabel}
-                  removeLabel={texts.removeNoteLabel}
-                  value={state.generalObservation}
-                  readOnly={readOnly}
-                  onChange={(next) =>
-                    onChange((current) => ({ ...current, generalObservation: next }))
-                  }
-                />
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+            </div>
+          </CardContent>
+        </CollapsibleBody>
+      </Card>
+    </Collapsible>
   );
 }
