@@ -33,6 +33,7 @@ import {
   BeanScale,
   IntensitySlider,
   DescriptorChipGroup,
+  ConfirmDialog,
 } from "@/shared/ui";
 // Inside `src/shared/ui` the geometry comes from `./Badge` (design.md D5):
 // this is the single definition the segment entry must re-export.
@@ -263,5 +264,22 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
       />,
     );
     expect(screen.getByRole("button", { name: "Nutty" })).toBeDefined();
+  });
+
+  it("renders the confirmation dialog exported from the segment", () => {
+    render(
+      <ConfirmDialog
+        open
+        onOpenChange={() => {}}
+        title="Delete this evaluation?"
+        description="The evaluation will be removed permanently."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={() => {}}
+      />,
+    );
+    expect(
+      screen.getByRole("alertdialog", { name: "Delete this evaluation?" }),
+    ).toBeDefined();
   });
 });
