@@ -12,7 +12,7 @@
 ## 3. Button border vertical slice
 
 - [x] 3.1 Extend `src/shared/ui/Button.test.tsx` (design.md D6): for each of `primary` and `action-1` to `action-4`, assert the split class tokens include `border` and `border-action-<v>-border` exactly and that no `hover:border-` token is present, and assert `nav-button` keeps exactly its current border classes `border`, `border-nav-button-border` and `enabled:hover:border-nav-button-border-hover`, verifying `npm run test:run` runs the file, the `nav-button` case passes as the code stands, the five variant cases fail because the border classes are absent, and every other Button case still passes
-- [ ] 3.2 Add `border border-action-primary-border`, `border border-action-1-border`, `border border-action-2-border`, `border border-action-3-border` and `border border-action-4-border` to the rest classes of the five action variants in `src/shared/ui/Button.tsx` (design.md D4), leaving the hover classes and `nav-button` unchanged, verifying the new cases pass, every other Button test stays green unchanged, and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0
+- [x] 3.2 Add `border border-action-primary-border`, `border border-action-1-border`, `border border-action-2-border`, `border border-action-3-border` and `border border-action-4-border` to the rest classes of the five action variants in `src/shared/ui/Button.tsx` (design.md D4), leaving the hover classes and `nav-button` unchanged, verifying the new cases pass, every other Button test stays green unchanged, and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0
 
 ## 4. Integration verification
 
