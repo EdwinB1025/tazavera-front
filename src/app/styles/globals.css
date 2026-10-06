@@ -59,6 +59,7 @@
     --color-oxblood-600: #dc2626;
     --color-oxblood-700: #a3010d;
     --color-oxblood-800: #8b2e2e;
+    --color-oxblood-850: #600108;
     --color-oxblood-900: #5d0404;
 
     /* ─── BROWN ─── */
@@ -157,6 +158,7 @@
     --color-nav-text: var(--color-brown-900);
     --color-nav-text-dark: var(--color-cream-100);
     --color-nav-text-hover: var(--color-petrol-900);
+    --color-nav-text-destructive: var(--color-oxblood-850);
     --color-nav-icon: var(--color-sage-800);
     --color-nav-hover: var(--color-sage-500);
     --color-nav-current: var(--color-sage-400);
@@ -167,6 +169,7 @@
     --color-nav-toggle-icon: var(--color-cream-100);
     --color-nav-avatar: var(--color-sage-800);
     --color-nav-avatar-hover: var(--color-oxblood-800);
+    --color-nav-avatar-border: transparent;
     --color-nav-hover-shadow: color-mix(in srgb, rgb(0 0 0) 18%, transparent);
 
     /* ─── NAVIGATION — TABS ─── */
@@ -287,6 +290,7 @@
     /* ─── NIGHT OXBLOOD ─── */
     --color-night-oxblood-200: #ffc8c2;
     --color-night-oxblood-400: #dc8c85;
+    --color-night-oxblood-450: #f27f76;
     --color-night-oxblood-500: #ef675c;
     --color-night-oxblood-600: #c8635d;
     --color-night-oxblood-700: #a03f3c;
@@ -371,8 +375,9 @@
         --color-nav-surface: var(--color-night-sage-900);
         --color-nav-surface-dark: var(--color-night-sage-950);
         --color-nav-text: var(--color-night-sage-100);
-        --color-nav-text-dark: var(--color-night-sage-100);
+        --color-nav-text-dark: var(--color-night-cream-100);
         --color-nav-text-hover: var(--color-night-oxblood-400);
+        --color-nav-text-destructive: var(--color-night-oxblood-450);
         --color-nav-icon: var(--color-night-sage-100);
         --color-nav-hover: var(--color-night-sage-800);
         --color-nav-current: var(--color-night-sage-750);
@@ -381,8 +386,9 @@
         --color-nav-underline: var(--color-night-moss-300);
         --color-nav-toggle-bg: color-mix(in srgb, var(--color-night-sage-100) 15%, transparent);
         --color-nav-toggle-icon: var(--color-night-sage-100);
-        --color-nav-avatar: var(--color-night-sage-600);
-        --color-nav-avatar-hover: var(--color-night-oxblood-600);
+        --color-nav-avatar: var(--color-night-oxblood-700);
+        --color-nav-avatar-hover: var(--color-night-oxblood-800);
+        --color-nav-avatar-border: var(--color-night-cream-100);
         --color-nav-hover-shadow: color-mix(in srgb, rgb(0 0 0) 18%, transparent);
 
         /* ─── NAVIGATION — TABS ─── */
@@ -697,4 +703,15 @@
     --color-feedback-error: var(--color-feedback-error-inverse);
     --color-focus-ring: var(--color-focus-ring-inverse);
     --color-focus-offset: var(--color-focus-offset-inverse);
+}
+
+/* ─── Taxonomy badge label per theme (design.md D7, review round 4) ───
+   The badge sets one label per theme as custom properties; the active theme
+   picks one. */
+[data-taxonomy] {
+    color: var(--taxonomy-label);
+}
+
+[data-theme="dark"] [data-taxonomy] {
+    color: var(--taxonomy-label-dark);
 }

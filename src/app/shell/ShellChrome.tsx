@@ -57,6 +57,7 @@ export function ShellChrome({
       onSignIn={handleSignIn}
       onSignOut={handleSignOut}
       onLocaleChange={handleLocaleChange}
+      currentPath={pathname ?? undefined}
     />
   );
 }

@@ -1,12 +1,11 @@
 import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { resolve as pathResolve } from "node:path";
 import type { Session } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
 import { AppShell } from "@/app/shell";
-import { HomeScreen } from "@/pages/home";
 
 // The shell's client chrome drives navigation through the app router hooks,
 // which need the router context jsdom does not provide. Test infrastructure
@@ -61,10 +60,16 @@ afterEach(() => {
 const LOCALE = "es";
 const texts = getMessages("shell", LOCALE);
 
+// The main area holds the entry page in the application (spec: "Root of a
+// supported locale"). The shell tests fill it with a plain placeholder child
+// instead, so they do not depend on the home screen.
+const PLACEHOLDER_TEXT = "placeholder child";
+const placeholderChild = <p data-testid="main-area-child">{PLACEHOLDER_TEXT}</p>;
+
 function renderShell(session?: Session, sidebar?: ReactNode) {
   return render(
     <AppShell locale={LOCALE} session={session} sidebar={sidebar}>
-      <HomeScreen />
+      {placeholderChild}
     </AppShell>,
   );
 }
@@ -96,10 +101,26 @@ describe("AppShell (spec: Shell layout and main area)", () => {
     expect(screen.getByTestId("sidebar-region")).toBeDefined();
   });
 
-  it("renders the shell with an empty main area (spec: Root of a supported locale)", () => {
+  it("renders the shell with the child it was given in its main area (spec: Root of a supported locale)", () => {
     renderShell();
     expect(screen.getByRole("banner")).toBeDefined();
-    expect(screen.getByRole("main").textContent).toBe("");
+    const main = screen.getByRole("main");
+    expect(within(main).getByTestId("main-area-child")).toBeDefined();
+    expect(main.textContent).toBe(PLACEHOLDER_TEXT);
+  });
+
+  it("grows to the body's height so the main area reaches the bottom (spec: Main area fills the viewport)", () => {
+    const { container } = renderShell();
+    // refine-app-header design.md D15: the root is a flex child of the body's
+    // column, so it grows instead of relying on an unresolvable min-h-full
+    const root = container.firstElementChild as HTMLElement;
+    for (const cls of ["flex", "flex-1", "flex-col"]) {
+      expect(root.classList.contains(cls)).toBe(true);
+    }
+    expect(root.classList.contains("min-h-full")).toBe(false);
+    const main = screen.getByRole("main");
+    expect(main.classList.contains("bg-surface-page")).toBe(true);
+    expect(main.classList.contains("flex-1")).toBe(true);
   });
 });
 
@@ -122,9 +143,18 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
     // retry affordance.
     renderShell({ state: "anonymous" });
     expect(screen.getByRole("button", { name: texts.signIn })).toBeDefined();
+    // spec "Language selection": the language control is a button trigger,
+    // named with the composed name the shell passes (design.md D6, correction
+    // 1 of round 1 — code first)
+    expect(
+      screen.getByRole("button", {
+        name: `ES — ${texts.languageSelector}: Español`,
+      }),
+    ).toBeDefined();
     expect(screen.queryByRole("alert")).toBeNull();
     expect(screen.queryByRole("status")).toBeNull();
-    expect(screen.getAllByRole("button")).toHaveLength(1);
+    // exactly these two buttons: a third one would be a retry affordance
+    expect(screen.getAllByRole("button")).toHaveLength(2);
   });
 
   it("shows the user menu when the session is authenticated", () => {
@@ -154,7 +184,7 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
             user: { name: "Andrés", surname: "Gómez", role: "specialist" },
           }}
         >
-          <HomeScreen />
+          {placeholderChild}
         </AppShell>,
       );
       expect(
@@ -162,6 +192,40 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
       ).toBeDefined();
       unmount();
     }
+  });
+});
+
+describe("AppShell language control name (refine-app-header design.md D6)", () => {
+  it("passes the language control one composed name, never two parts (spec: Selector is named)", () => {
+    renderShell();
+    // The shell composes "<CODE uppercase> — <catalog word>: <own name>" —
+    // "ES — Idioma: Español" for es (design.md D6, correction 1 of round 1) —
+    // and passes it down as one string, so the trigger's accessible name is
+    // that composed name.
+    const composed = `ES — ${texts.languageSelector}: Español`;
+    expect(screen.getByRole("button", { name: composed })).toBeDefined();
+    // one composed name: never the catalog word and the own name as two parts
+    expect(
+      screen.queryByRole("button", { name: texts.languageSelector! }),
+    ).toBeNull();
+    expect(screen.queryByRole("button", { name: "Español" })).toBeNull();
+  });
+
+  it("composes the default locale's name for an unsupported locale", () => {
+    // design.md D6 (correction 3 of round 1): the shell resolves the locale
+    // with `isSupportedLocale`, and an unsupported locale resolves to
+    // DEFAULT_LOCALE (es) for the whole composition — catalog word, code and
+    // own name — so the shell renders without throwing and the name reads
+    // "ES — Idioma: Español".
+    expect(() =>
+      render(
+        <AppShell locale="fr">
+          {placeholderChild}
+        </AppShell>,
+      ),
+    ).not.toThrow();
+    const composed = `ES — ${texts.languageSelector}: Español`;
+    expect(screen.getByRole("button", { name: composed })).toBeDefined();
   });
 });
 
