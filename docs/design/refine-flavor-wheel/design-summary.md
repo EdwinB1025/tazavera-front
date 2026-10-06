@@ -193,3 +193,14 @@ Settled under criterion B:
 - **Full-width control:** reverses F2 (`f25b478`). This is a consequence of Q5, not a new decision.
 
 Each affected test is named with its line range on `feature/add-flavor-wheel` (§6).
+
+## Propose status
+
+- Change-id: `refine-flavor-wheel` (capability `feedback`), proposed 2026-10-06 by the architect in a cloud routine.
+- `openspec validate refine-flavor-wheel --strict` (`@fission-ai/openspec@1.13.2`): valid.
+- Resolved:
+  - Visible depth `V` is computed inside `layoutWheel` from the expanded set, counting only nodes reachable through expanded parents (design.md D1).
+  - The header and body sit in one `flex flex-col` wrapper so the section is one layout item; the 0.5rem body top padding is `pt-2` on the tree `ul`, inside the body's clipped row, so the collapsed body keeps zero height (design.md D3).
+  - Open 1 (title text) stays the host's, as approved: "Notas" / "Notes" / "Notes" under `wheelNotes`; it does not block this change.
+- Open: none. Risk: `add-collapsible-section` is not merged into `develop` (`2bc37aa`), so tasks 3.x cannot be built on this branch until it is (design.md Risks).
+- Backlog: no entry affected or resolved.
