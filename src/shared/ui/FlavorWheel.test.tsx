@@ -157,11 +157,11 @@ describe("FlavorWheel — initial render", () => {
     const { container } = renderWheel();
     const layout = container.querySelector("figure > div");
     expect(layout?.className).toBe(
-      "flex flex-col gap-6 @2xl:grid @2xl:grid-cols-[minmax(0,25rem)_minmax(0,1fr)] @2xl:grid-rows-[auto_auto_1fr] @2xl:gap-x-8 @2xl:gap-y-6",
+      "flex flex-col gap-6 @2xl:grid @2xl:grid-cols-[minmax(0,32rem)_minmax(16rem,1fr)] @2xl:grid-rows-[auto_auto_1fr] @2xl:gap-x-8 @2xl:gap-y-6",
     );
     const wheel = container.querySelector("svg")?.parentElement;
     expect(wheel?.className).toBe(
-      "mx-auto aspect-square w-full max-w-100 @2xl:row-span-3 @2xl:mx-0 @2xl:self-start",
+      "mx-auto aspect-square w-full max-w-128 @2xl:row-span-3 @2xl:mx-0 @2xl:self-start",
     );
     // Column 2 stacks the panel, the note-list control and the list.
     expect(
