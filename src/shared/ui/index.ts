@@ -128,3 +128,5 @@ export type {
   ComboboxSearch,
   ComboboxTexts,
 } from "./Combobox";
+export { LabelValueRow } from "./LabelValueRow";
+export type { LabelValueRowProps } from "./LabelValueRow";
