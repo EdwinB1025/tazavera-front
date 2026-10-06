@@ -105,6 +105,27 @@ describe("Combobox — local mode", () => {
     expect(input().getAttribute("aria-expanded")).toBe("false");
   });
 
+  it("with three options shown, ArrowDown, ArrowDown, Enter chooses the second", () => {
+    const three: ComboboxOption[] = [
+      { value: "1", label: "Finca Uno" },
+      { value: "2", label: "Finca Dos" },
+      { value: "3", label: "Finca Tres" },
+    ];
+    const onChange = vi.fn();
+    render(
+      <Combobox label="Producer" options={three} value={null} onChange={onChange} texts={TEXTS} />,
+    );
+    type("finca");
+    expect(screen.getAllByRole("option")).toHaveLength(3);
+    fireEvent.keyDown(input(), { key: "ArrowDown" });
+    fireEvent.keyDown(input(), { key: "ArrowDown" });
+    fireEvent.keyDown(input(), { key: "Enter" });
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith(three[1]);
+    expect(input().value).toBe("Finca Dos");
+    expect(input().getAttribute("aria-expanded")).toBe("false");
+  });
+
   it("Escape closes the popup", () => {
     render(local());
     type("fin");

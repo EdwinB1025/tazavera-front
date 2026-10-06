@@ -99,6 +99,10 @@ export function Combobox({
   const labelRef = useRef<HTMLLabelElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const searchMode = search !== undefined;
+  // cmdk highlights the first option as soon as the rows change; the next
+  // ArrowDown keeps it there instead of moving to the second (spec scenario
+  // "Keyboard choice").
+  const firstPending = useRef(false);
 
   const [term, setTerm] = useState(value?.label ?? "");
   const [open, setOpen] = useState(false);
@@ -139,6 +143,7 @@ export function Combobox({
 
   function changeTerm(next: string): void {
     setTerm(next);
+    firstPending.current = true;
     setOpen(searchMode ? next.trim().length >= MIN_SEARCH_LENGTH : next !== "");
   }
 
@@ -168,7 +173,11 @@ export function Combobox({
               onKeyDown={(event) => {
                 if (event.key === "ArrowDown" && !open && !searchMode && term !== "") {
                   event.preventDefault();
+                  firstPending.current = true;
                   setOpen(true);
+                } else if (event.key === "ArrowDown" && open && firstPending.current) {
+                  event.preventDefault();
+                  firstPending.current = false;
                 } else if (event.key === "Enter" && term === "") {
                   clearIfEmpty();
                 }
