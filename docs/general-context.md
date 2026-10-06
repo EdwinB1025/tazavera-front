@@ -7,26 +7,27 @@ Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`.
 - `AGENTS.md` y `.claude/workflow_sdd.md`: reglas y flujo de los agentes OpenCode.
 - El `handoff.md` y el `corrections.md` de cada cambio.
 
-**Actualizado:** 2026-10-06 13:45.
+**Actualizado:** 2026-10-06 17:40.
 
 ## Estado
 
-- **Entrega del bootcamp esta semana.** Mínimo: que el front consuma todas las operaciones del contrato (23 en `develop`). El alcance no se reduce.
-- **En `develop`:** `add-theme-tokens`, `add-base-control`, `add-focus-ring-utility`, `add-form-fields`, `add-app-shell`, `refine-app-header`, `add-landing`; contrato y tipos con `createdAt`/`closedAt` de evaluaciones (`2d7d8b8`).
-- **OpenCode sin saldo desde el 6 oct 12:39.** Product owner: trabajar con la nube hasta que lo recargue.
+- **Entrega del bootcamp esta semana; Product owner quiere cerrar todo hoy (6 oct) con todos los ejecutores.** Mínimo: consumir el contrato, salvo `listEvaluations`, `getAnEvaluation` y `listTheEvaluationsOfAUser`, fuera del alcance por decisión de Product owner (registro).
+- **En `develop`:** theme-tokens, base-control, focus-ring, form-fields, app-shell, refine-app-header, landing, auth, refactor-badge-geometry, extract-offering-list-parts, extract-page-section, fix-button-boundaries, label-rating-badge; contrato `84e29fe` (`/user/evaluations`).
+- **Ejecutores:** OpenCode con saldo (lanzador `node launch.mjs <worktree> <agent> <title> <prompt-file> <log>` en el scratchpad de la sesión; recrearlo). Nube con rutinas de un solo uso. Claude local como build/arquitecto mientras el uso (5 h y 7 días) esté < 80 %. En modo don't ask: el orquestador no puede `git merge` en `develop` (lo lanza Product owner) ni editar `src/`/`openspec/`; `openspec archive` lo ejecuta el orquestador con `node run-in.mjs <dir> openspec archive <id> --yes` (el perfil del arquitecto lo deniega).
 - **Fases por cambio:** ver el tablero.
 
-## Al retomar
+## Al retomar (sesión cerrada el 6 oct ~17:40)
 
-1. **Bucle del orquestador** cada 15 min en la sesión (CronCreate, muere al cerrarla): revisar rutinas, integrar con `--ff-only` tras re-ejecutar tests, lint y tsc, asignar lo siguiente. En modo don't ask el design lead local no puede usar Bash: las capturas van a la nube (Chromium + API simulada).
-   - Pendientes en la nube: `extract-offering-list-parts` 4.2 + verify (`trig_01JcQSWCXZMxRyahEB6NQEm8`, rama `claude/extract-offering-list-parts-4.2`); `add-auth` re-verify tras F2 (`trig_01RKwecou65A7MQbLASEifsM`, solo informe).
-   - Estado: `RemoteTrigger list_runs` con el id y `get_run_log` para el informe.
-2. **Listos para archivar cuando lo pida Product owner:** `refactor-badge-geometry` (8/8, verify sin CRITICAL; WARNING diferido, ver registro); `add-auth` tras el re-verify.
-3. **Mock-up de `fix-button-boundaries`:** capturado (`docs/design/fix-button-boundaries/mockup/buttons-mockup-{375,1280}-{light,dark}.png`, worktree `buttons`, sin trackear); espera la revisión visual de Product owner (Open 2). Redacción de Risk 2/3 y §2 corregida sin commitear: entra en el commit de revisión del arquitecto.
-4. **Revisar el propose de `add-evaluation-scales`** (`d3cce1e`, `706b99b`): Product owner.
-5. **Esperan a Product owner:** evaluations B1–B3 del explore (B1: la evaluación no trae dueño en el contrato; B2–B3 en la sesión `session_01GHJ6upeYKZUVm3GjFNC7YW`); user-account, offering-management y offering-catalog (puntos abiertos de sus resúmenes); landing D4; archives.
-6. **Servidor de desarrollo de auth** en `http://localhost:3000` desde el worktree `auth` (lanzado en la sesión del 6 oct; se cae al cerrarla).
-7. **Pendientes antiguos:** borrar las carpetas vacías `tazavera-front-header` y `tazavera-front-landing`; en `develop` hay cambios sin commitear de Product owner (`docs/design/add-filter-controls/design-summary.md` rehecho por el design lead, borrados de `docs/design/define-agent-roles/`).
+1. **OpenCode lanzado desde la sesión anterior** (probablemente cortado al cerrarla): comprobar cada worktree con `git log -1` y `git status`; descartar cambios sin commitear de una ejecución cortada (`git restore`/borrar no trackeados del cambio) y relanzar:
+   - `tazavera-front-scales` — apply de `add-evaluation-scales`, una tarea por ejecución (último `75b1de2`).
+   - `tazavera-front-catalog` — propose de `add-offering-catalog` (prompt con las respuestas: registro "catálogo: detalle y consenso…"; depende de `add-flavor-wheel`).
+   - `tazavera-front-cardslot` — propose de `replace-offering-card-session`.
+   - `tazavera-front-evaluations` — propose de `add-specialist-evaluations` (respuestas: registro "add-specialist-evaluations: preguntas del explore").
+   - `tazavera-front-account`, `tazavera-front-management` — explore de `add-user-account` y `add-offering-management` (resúmenes aprobados `9460462`); luego propose.
+2. **Rutinas en la nube (siguen solas):** propose de `add-sidebar-slot` (`trig_01Tz5eCuoZMSDs4pYDtyo7D7`), `add-facet-controls` (`trig_01HbXQAnutfj9caMdZy1uZ6W`), `add-offering-facets` + `add-evaluation-facets` (`trig_01A7CfFbrK3j2wnqTCmWMLt9`), `add-flavor-wheel` (`trig_01J4A4Hj6hACcDS7wHazr5me`); ramas `claude/<id>-propose`. Revisar con `RemoteTrigger list_runs`/`get_run_log`, integrar con `--ff-only` en `feature/<id>` (ramas creadas desde `develop` y subidas), y seguir con apply.
+3. **Orden de los applies:** scales → card-session → catalog (+ flavor-wheel) → offering-facets; sidebar-slot y facet-controls ya; evaluations tras scales y card-session; evaluation-facets tras evaluations; user-account tras scales (ConfirmDialog); management tras card-session, sidebar-slot y facet-controls (combobox).
+4. **Sin commitear en `develop` (de Product owner):** `docs/design/fix-button-boundaries/design-summary.md` (respuesta al mock-up), `docs/design/fix-button-boundaries/mockup/`, `docs/design/refactor-badge-geometry/captures/`. El worktree `tazavera-front-filters` (`feature/add-filter-controls`) queda sin uso: borrarlo y la rama (sustituida por los cuatro cambios).
+5. **Pendientes antiguos:** borrar las carpetas vacías `tazavera-front-header` y `tazavera-front-landing`; la tabla de cobertura del tablero está desactualizada (26 operaciones en el contrato).
 
 ## Forma de trabajar
 
