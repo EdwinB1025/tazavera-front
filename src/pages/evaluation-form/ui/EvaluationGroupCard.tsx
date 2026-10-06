@@ -55,6 +55,8 @@ export type EvaluationGroupCardProps = {
   readOnly?: boolean;
   /** Renders one descriptor block of a part (design.md D7). */
   renderBlock?: (block: BlockDefinition) => ReactNode;
+  /** Content at the top of the body, 1rem above the parts (design.md D9). */
+  top?: ReactNode;
 };
 
 // ─── Layout end states (design.md D14; the summary §9) ───
@@ -70,6 +72,7 @@ const TOGGLE_CLASSES = [
   "rounded-field",
   "focus-visible:focus-ring",
 ].join(" ");
+const BODY_CLASSES = ["flex", "flex-col", "gap-4"].join(" ");
 const BOTH_PARTS_CLASSES = ["flex", "flex-col", "gap-6", "md:grid", "md:grid-cols-2"].join(" ");
 const ONE_PART_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
 const PART_CLASSES = ["flex", "flex-col", "gap-4"].join(" ");
@@ -109,6 +112,7 @@ export function EvaluationGroupCard({
   complete,
   readOnly = false,
   renderBlock,
+  top,
 }: EvaluationGroupCardProps): ReactNode {
   const [expanded, setExpanded] = useState(true);
   const bodyId = useId();
@@ -121,6 +125,9 @@ export function EvaluationGroupCard({
         incompleteLabel={texts.incompleteLabel}
       />
     );
+
+  // "Fragrance not evaluated" disables the fragrance controls (design.md D9).
+  const disabledAxis = (axis: AxisKey) => state.fragranceNotEvaluated && axis === "fragrance";
 
   const intensity = (axis: DescriptiveAxisKey) => {
     const score = state.descriptive[axis].score;
@@ -138,6 +145,7 @@ export function EvaluationGroupCard({
       <IntensitySlider
         key={axis}
         {...common}
+        disabled={disabledAxis(axis)}
         onChange={(next) =>
           onChange((current) => ({
             ...current,
@@ -169,6 +177,7 @@ export function EvaluationGroupCard({
         label={texts.axisLabels[axis]}
         value={score}
         valueText={value}
+        disabled={disabledAxis(axis)}
         onChange={(next) =>
           onChange((current) => ({
             ...current,
@@ -196,6 +205,7 @@ export function EvaluationGroupCard({
         addLabel={pair ? `${texts.addNoteLabel} (${texts.axisLabels[axis]})` : texts.addNoteLabel}
         removeLabel={texts.removeNoteLabel}
         value={value}
+        disabled={disabledAxis(axis)}
         onChange={(next) =>
           onChange((current) =>
             part === "descriptive"
@@ -257,47 +267,50 @@ export function EvaluationGroupCard({
         </div>
       </CardAside>
       <CardContent id={bodyId} className={expanded ? undefined : "hidden md:block"}>
-        <div className={both ? BOTH_PARTS_CLASSES : ONE_PART_CLASSES}>
-          {group.descriptive ? (
-            <div
-              data-part="descriptive"
-              className={cn(PART_CLASSES, both && DESCRIPTIVE_SPLIT_CLASSES)}
-            >
-              <p className="type-label">{texts.descriptiveHeading}</p>
-              {group.descriptive.axes.length > 0 ? (
-                <div className={PANEL_CLASSES}>{group.descriptive.axes.map(intensity)}</div>
-              ) : null}
-              {blocks(group.descriptive)}
-              {group.descriptive.axes.map((axis) =>
-                note("descriptive", axis, group.descriptive!.axes.length > 1),
-              )}
-            </div>
-          ) : null}
-          {group.affective ? (
-            <div data-part="affective" className={cn(PART_CLASSES, both && AFFECTIVE_SPLIT_CLASSES)}>
-              <p className="type-label">{texts.affectiveHeading}</p>
-              {group.affective.axes.length > 0 ? (
-                <div className={PANEL_CLASSES}>{group.affective.axes.map(preference)}</div>
-              ) : null}
-              {blocks(group.affective)}
-              {group.affective.axes.map((axis) =>
-                note("affective", axis, group.affective!.axes.length > 1),
-              )}
-            </div>
-          ) : null}
-          {group.notes === "generalObservation" ? (
-            <div data-part="notes" className={PART_CLASSES}>
-              <NoteField
-                label={texts.extrinsicNoteLabel}
-                addLabel={texts.addNoteLabel}
-                removeLabel={texts.removeNoteLabel}
-                value={state.generalObservation}
-                onChange={(next) =>
-                  onChange((current) => ({ ...current, generalObservation: next }))
-                }
-              />
-            </div>
-          ) : null}
+        <div className={BODY_CLASSES}>
+          {top ? <div>{top}</div> : null}
+          <div className={both ? BOTH_PARTS_CLASSES : ONE_PART_CLASSES}>
+            {group.descriptive ? (
+              <div
+                data-part="descriptive"
+                className={cn(PART_CLASSES, both && DESCRIPTIVE_SPLIT_CLASSES)}
+              >
+                <p className="type-label">{texts.descriptiveHeading}</p>
+                {group.descriptive.axes.length > 0 ? (
+                  <div className={PANEL_CLASSES}>{group.descriptive.axes.map(intensity)}</div>
+                ) : null}
+                {blocks(group.descriptive)}
+                {group.descriptive.axes.map((axis) =>
+                  note("descriptive", axis, group.descriptive!.axes.length > 1),
+                )}
+              </div>
+            ) : null}
+            {group.affective ? (
+              <div data-part="affective" className={cn(PART_CLASSES, both && AFFECTIVE_SPLIT_CLASSES)}>
+                <p className="type-label">{texts.affectiveHeading}</p>
+                {group.affective.axes.length > 0 ? (
+                  <div className={PANEL_CLASSES}>{group.affective.axes.map(preference)}</div>
+                ) : null}
+                {blocks(group.affective)}
+                {group.affective.axes.map((axis) =>
+                  note("affective", axis, group.affective!.axes.length > 1),
+                )}
+              </div>
+            ) : null}
+            {group.notes === "generalObservation" ? (
+              <div data-part="notes" className={PART_CLASSES}>
+                <NoteField
+                  label={texts.extrinsicNoteLabel}
+                  addLabel={texts.addNoteLabel}
+                  removeLabel={texts.removeNoteLabel}
+                  value={state.generalObservation}
+                  onChange={(next) =>
+                    onChange((current) => ({ ...current, generalObservation: next }))
+                  }
+                />
+              </div>
+            ) : null}
+          </div>
         </div>
       </CardContent>
     </Card>

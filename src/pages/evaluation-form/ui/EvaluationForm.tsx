@@ -20,7 +20,7 @@ import type {
   EvaluationCallResult,
   EvaluationFormState,
 } from "@/entities/evaluation";
-import { Card, CardContent, Field, Link, Select } from "@/shared/ui";
+import { Card, CardContent, Checkbox, Field, Link, Select } from "@/shared/ui";
 import { DescriptorBlock } from "./DescriptorBlock";
 import { EvaluationGroupCard } from "./EvaluationGroupCard";
 import type { EvaluationGroupTexts } from "./EvaluationGroupCard";
@@ -65,6 +65,8 @@ export type EvaluationFormTexts = {
     failureMessage: string;
     roastLevelRequired: string;
   };
+  /** The option of design.md D9. */
+  fragranceNotEvaluatedLabel: string;
   /** The legends of the four descriptor blocks. */
   blockLabels: Record<DescriptorBlockKey, string>;
   group: EvaluationGroupTexts;
@@ -249,6 +251,20 @@ export function EvaluationForm({
             texts={texts.group}
             complete={completeness[group.key]}
             readOnly={readOnly}
+            top={
+              group.key === "fragranceAroma" && !readOnly ? (
+                <Checkbox
+                  label={texts.fragranceNotEvaluatedLabel}
+                  checked={state.fragranceNotEvaluated}
+                  onChange={(event) =>
+                    setState((current) => ({
+                      ...current,
+                      fragranceNotEvaluated: event.target.checked,
+                    }))
+                  }
+                />
+              ) : undefined
+            }
             renderBlock={(block) =>
               readOnly ? (
                 <DescriptorBlock

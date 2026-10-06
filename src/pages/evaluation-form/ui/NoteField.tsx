@@ -13,6 +13,7 @@ export type NoteFieldProps = {
   /** The note: `null` while closed, its text (possibly empty) once open. */
   value: string | null;
   onChange: (value: string | null) => void;
+  disabled?: boolean;
 };
 
 // "Add note" and the remove-note control are buttons styled as links
@@ -24,6 +25,8 @@ const LINK_BUTTON_CLASSES = [
   "underline",
   "rounded-field",
   "focus-visible:focus-ring",
+  "disabled:opacity-50",
+  "disabled:cursor-not-allowed",
 ].join(" ");
 const OPEN_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
 
@@ -38,10 +41,16 @@ export function NoteField({
   removeLabel,
   value,
   onChange,
+  disabled = false,
 }: NoteFieldProps): ReactNode {
   if (value === null) {
     return (
-      <button type="button" className={`${LINK_BUTTON_CLASSES} self-start`} onClick={() => onChange("")}>
+      <button
+        type="button"
+        className={`${LINK_BUTTON_CLASSES} self-start`}
+        disabled={disabled}
+        onClick={() => onChange("")}
+      >
         {addLabel}
       </button>
     );
@@ -49,9 +58,18 @@ export function NoteField({
   return (
     <div className={OPEN_CLASSES}>
       <Field label={label}>
-        <Textarea value={value} onChange={(event) => onChange(event.target.value)} />
+        <Textarea
+          value={value}
+          disabled={disabled}
+          onChange={(event) => onChange(event.target.value)}
+        />
       </Field>
-      <button type="button" className={`${LINK_BUTTON_CLASSES} self-end`} onClick={() => onChange(null)}>
+      <button
+        type="button"
+        className={`${LINK_BUTTON_CLASSES} self-end`}
+        disabled={disabled}
+        onClick={() => onChange(null)}
+      >
         {removeLabel}
       </button>
     </div>

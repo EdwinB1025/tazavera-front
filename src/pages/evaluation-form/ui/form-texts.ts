@@ -35,6 +35,7 @@ export function formTextsFrom(catalog: MessageCatalog): EvaluationFormTexts {
       failureMessage: catalog.failureMessage,
       roastLevelRequired: catalog.roastLevelRequired,
     },
+    fragranceNotEvaluatedLabel: catalog.fragranceNotEvaluatedLabel,
     blockLabels: {
       aromatics: catalog.blockAromatics,
       main_tastes: catalog.blockMainTastes,
