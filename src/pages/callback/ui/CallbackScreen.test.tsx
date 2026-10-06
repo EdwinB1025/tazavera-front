@@ -61,6 +61,15 @@ function seedFlow(locale: string): { state: string } {
   return pending;
 }
 
+/**
+ * Lets any exchange the screen may have started reach `fetch`: the token
+ * request is sent after asynchronous steps, so a synchronous check alone would
+ * miss it.
+ */
+async function settle(): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, 50));
+}
+
 /** One page load of the callback screen. */
 async function loadScreen() {
   vi.resetModules();
@@ -119,6 +128,7 @@ describe("popup mode — an opener of the front's origin (design.md D4)", () => 
       APP_URL,
     );
     expect(closeMock).toHaveBeenCalledTimes(1);
+    await settle();
     expect(fetchMock).not.toHaveBeenCalled();
     expect(container.textContent).toBe("");
   });
@@ -143,6 +153,7 @@ describe("popup mode — an opener of the front's origin (design.md D4)", () => 
       APP_URL,
     );
     expect(closeMock).toHaveBeenCalledTimes(1);
+    await settle();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });
