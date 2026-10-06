@@ -12,7 +12,7 @@
 ## 3. Segment entry slice
 
 - [x] 3.1 Extend `src/shared/ui/index.test.tsx` with an import check (design.md D4): `BADGE_GEOMETRY_CLASSES` is importable from `@/shared/ui` and equals the `Badge.tsx` export — verifying `npm run test:run` runs the file, the new check fails because the segment entry does not export the constant yet, and "renders the badge exported from the segment" keeps passing
-- [ ] 3.2 Re-export `BADGE_GEOMETRY_CLASSES` from `src/shared/ui/index.ts` beside `Badge` (design.md D1), verifying the new check passes, every segment-entry test passes and `npm run lint` and `npx tsc --noEmit` exit 0
+- [x] 3.2 Re-export `BADGE_GEOMETRY_CLASSES` from `src/shared/ui/index.ts` beside `Badge` (design.md D1), verifying the new check passes, every segment-entry test passes and `npm run lint` and `npx tsc --noEmit` exit 0
 
 ## 4. Single-source verification slice
 
