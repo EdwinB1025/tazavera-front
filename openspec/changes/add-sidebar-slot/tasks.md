@@ -38,7 +38,7 @@ design.md D4, D5, D10; spec "Shell layout and main area", "Management sidebar" (
 
 design.md D3, D6; spec "Sidebar re-open control".
 
-- [ ] 5.1 Write the tests (test before implementation):
+- [x] 5.1 Write the tests (test before implementation):
   - `src/widgets/app-header/ui/AppHeader.test.tsx`: given `leading`, the header renders it first in its left group, before the logotype link; without it the left group is unchanged.
   - New `src/widgets/app-sidebar/ui/SidebarReopenControl.test.tsx` (inside `SidebarProvider` and `AppSidebarProvider`): desktop with no `Sidebar` mounted → nothing; desktop with a mounted, expanded `AppSidebar` → nothing; after activating the frame's collapse button → a button named `toggleLabel` with `aria-expanded="false"`, `aria-controls` equal to `SIDEBAR_ID`, class containing the `nav-button` variant classes (`bg-nav-button-bg`), and it has focus; activating it → the frame is expanded, the control is gone and focus is on the frame's collapse button; mobile (`matchMedia` matching) with a mounted sidebar → the control is shown while the sheet is closed, opens the `dialog`, and closing the dialog with Escape returns focus to it.
   - `src/app/shell/AppShell.test.tsx`: with `/es/manage/offerings` and an authenticated session, collapsing the sidebar shows the header's re-open control named by `toggleSidebar` of the locale, for `es`, `en` and `ca`; on `/es` with an authenticated session no button named `toggleSidebar` exists.

@@ -264,6 +264,40 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
       unmount();
     }
   });
+  it("shows the header's re-open control named from the catalog once the sidebar collapses (spec: Control named in every locale)", () => {
+    for (const locale of ["es", "en", "ca"]) {
+      shellPathname = `/${locale}/manage/offerings`;
+      const catalog = getMessages("shell", locale);
+      const { unmount } = render(
+        <AppShell
+          locale={locale}
+          session={{
+            state: "authenticated",
+            user: { name: "Andrés", surname: "Gómez", role: "specialist" },
+          }}
+        >
+          {placeholderChild}
+        </AppShell>,
+      );
+      fireEvent.click(screen.getByRole("button", { name: catalog.toggleSidebar }));
+      const control = within(screen.getByRole("banner")).getByRole("button", {
+        name: catalog.toggleSidebar,
+      });
+      expect(control.getAttribute("aria-expanded")).toBe("false");
+      unmount();
+    }
+  });
+
+  it("shows no re-open control on a route without a sidebar (spec: No control without a sidebar)", () => {
+    shellPathname = "/es";
+    renderShell({
+      state: "authenticated",
+      user: { name: "Andrés", surname: "Gómez", role: "specialist" },
+    });
+    expect(
+      screen.queryByRole("button", { name: texts.toggleSidebar }),
+    ).toBeNull();
+  });
 });
 
 describe("AppShell header actions (spec: Sign in starts from the current route, Sign out)", () => {
