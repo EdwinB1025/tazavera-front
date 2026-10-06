@@ -13,21 +13,22 @@ Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`.
 
 - **Entrega del bootcamp esta semana; Product owner quiere cerrar todo hoy (6 oct) con todos los ejecutores.** Mínimo: consumir el contrato, salvo `listEvaluations`, `getAnEvaluation` y `listTheEvaluationsOfAUser`, fuera del alcance por decisión de Product owner (registro).
 - **En `develop`:** theme-tokens, base-control, focus-ring, form-fields, app-shell, refine-app-header, landing, auth, refactor-badge-geometry, extract-offering-list-parts, extract-page-section, fix-button-boundaries, label-rating-badge; contrato `84e29fe` (`/user/evaluations`).
-- **Ejecutores:** OpenCode con saldo (lanzador `node launch.mjs <worktree> <agent> <title> <prompt-file> <log>` en el scratchpad de la sesión; recrearlo). Nube con rutinas de un solo uso. Claude local como build/arquitecto mientras el uso (5 h y 7 días) esté < 80 %. En modo don't ask: el orquestador no puede `git merge` en `develop` (lo lanza Product owner) ni editar `src/`/`openspec/`; `openspec archive` lo ejecuta el orquestador con `node run-in.mjs <dir> openspec archive <id> --yes` (el perfil del arquitecto lo deniega).
+- **Ejecutores:** OpenCode sin saldo desde ~18:30 del 6 oct: todo va a la nube hasta que Product owner recargue (lanzador `node launch.mjs <worktree> <agent> <title> <prompt-file> <log>` en el scratchpad de la sesión; recrearlo). Nube con rutinas de un solo uso. Claude local como build/arquitecto mientras el uso (5 h y 7 días) esté < 80 %. En modo don't ask: el orquestador no puede `git merge` en `develop` (lo lanza Product owner) ni editar `src/`/`openspec/`; `openspec archive` lo ejecuta el orquestador con `node run-in.mjs <dir> openspec archive <id> --yes` (el perfil del arquitecto lo deniega).
 - **Fases por cambio:** ver el tablero.
 
-## Al retomar (sesión cerrada el 6 oct ~17:40)
+## Al retomar (sesión cerrada el 6 oct ~19:10)
 
-1. **OpenCode lanzado desde la sesión anterior** (probablemente cortado al cerrarla): comprobar cada worktree con `git log -1` y `git status`; descartar cambios sin commitear de una ejecución cortada (`git restore`/borrar no trackeados del cambio) y relanzar:
-   - `tazavera-front-scales` — apply de `add-evaluation-scales`, una tarea por ejecución (último `75b1de2`).
-   - `tazavera-front-catalog` — propose de `add-offering-catalog` (prompt con las respuestas: registro "catálogo: detalle y consenso…"; depende de `add-flavor-wheel`).
-   - `tazavera-front-cardslot` — propose de `replace-offering-card-session`.
-   - `tazavera-front-evaluations` — propose de `add-specialist-evaluations` (respuestas: registro "add-specialist-evaluations: preguntas del explore").
-   - `tazavera-front-account`, `tazavera-front-management` — explore de `add-user-account` y `add-offering-management` (resúmenes aprobados `9460462`); luego propose.
-2. **Rutinas en la nube (siguen solas):** propose de `add-sidebar-slot` (`trig_01Tz5eCuoZMSDs4pYDtyo7D7`), `add-facet-controls` (`trig_01HbXQAnutfj9caMdZy1uZ6W`), `add-offering-facets` + `add-evaluation-facets` (`trig_01A7CfFbrK3j2wnqTCmWMLt9`), `add-flavor-wheel` (`trig_01J4A4Hj6hACcDS7wHazr5me`); ramas `claude/<id>-propose`. Revisar con `RemoteTrigger list_runs`/`get_run_log`, integrar con `--ff-only` en `feature/<id>` (ramas creadas desde `develop` y subidas), y seguir con apply.
-3. **Orden de los applies:** scales → card-session → catalog (+ flavor-wheel) → offering-facets; sidebar-slot y facet-controls ya; evaluations tras scales y card-session; evaluation-facets tras evaluations; user-account tras scales (ConfirmDialog); management tras card-session, sidebar-slot y facet-controls (combobox).
-4. **Sin commitear en `develop` (de Product owner):** `docs/design/fix-button-boundaries/design-summary.md` (respuesta al mock-up), `docs/design/fix-button-boundaries/mockup/`, `docs/design/refactor-badge-geometry/captures/`. El worktree `tazavera-front-filters` (`feature/add-filter-controls`) queda sin uso: borrarlo y la rama (sustituida por los cuatro cambios).
-5. **Pendientes antiguos:** borrar las carpetas vacías `tazavera-front-header` y `tazavera-front-landing`; la tabla de cobertura del tablero está desactualizada (26 operaciones en el contrato).
+Ningún ejecutor queda corriendo, salvo quizá el verify de facet-controls en la nube. Todas las ramas están subidas y todos los cambios del alcance tienen propose.
+
+1. **Merges que lanza Product owner en `develop`** (el orquestador no puede): `feature/replace-offering-card-session` (archivado `07a1992`, ya contiene `develop`). Los siguientes tras su verify y archive.
+2. **Listos para verify y archive** (apply completo, checks en local en verde: tests, lint, tsc):
+   - `add-evaluation-scales` (`3696411`, 16/16 tareas, 1193 tests).
+   - `add-facet-controls` (`21ff097`, 19/19, 1217 tests). Su verify en la nube es `trig_01CJVCVrToKkY9FSrVtet5Fj`, sesión `cse_011oveaoVXLuJESmGKR1ngJo`: leer su informe con `get_run_log`.
+   - `add-sidebar-slot` (`128dd36`). Faltan la 6.3 (comprobación de rutas con `npm run start`/navegador) y la 7.1 (checks finales, commit solo de casillas). En un worktree nuevo hay que correr `npx next typegen` antes de `tsc` (si no, falla con `LayoutProps.sidebar`).
+   - `add-flavor-wheel` (`91ad0e4`). Falta la 7.2: capturas a 375 y 1280 px en `docs/design/add-flavor-wheel/captures/` (orquestador o design lead) y el resultado en el handoff. Lint avisa de `aria-selected` en el `treeitem` (`FlavorWheel.tsx:358`): candidato a arreglo no planificado.
+3. **Esperan dependencias en `develop`:** specialist-evaluations (scales y card-session), user-account (scales), catalog (scales, card-session y flavor-wheel), management (scales, card-session, sidebar-slot y facet-controls), offering-facets (catalog, sidebar-slot y facet-controls), evaluation-facets (sidebar-slot, facet-controls y specialist-evaluations). Antes de cada apply, mergear `develop` en la rama.
+4. **Sin commitear en `develop` (de Product owner):** `docs/design/fix-button-boundaries/design-summary.md`, `docs/design/fix-button-boundaries/mockup/`, `docs/design/refactor-badge-geometry/captures/`.
+5. **Limpieza:** borrar los worktrees y ramas `tazavera-front-ratingbadge`/`feature/label-rating-badge` (mergeada) y `tazavera-front-filters`/`feature/add-filter-controls` (sustituida), y las carpetas vacías `tazavera-front-header` y `tazavera-front-landing`.
 
 ## Forma de trabajar
 
