@@ -255,3 +255,14 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
   - Q4 orden por defecto `created_at desc` y Q6 propose ya (orquestador).
 - **Por qué:** respuestas de Product owner del 6 oct a las preguntas del explore.
 - **Afecta:** add-specialist-evaluations (propose); add-filter-controls (la ranura ya no la necesita evaluations); add-user-account y add-offering-management (el step-up reactivo sigue para ellos).
+
+### 2026-10-06 — catálogo: detalle y consenso; filtros: cascada y división (respuestas de Product owner)
+- **Decisión:**
+  - Cabecera del detalle sin puntuación. La puntuación vive en la pestaña "Consenso" (la `cuppingAvg` de la oferta, la misma de la tarjeta, solo si la oferta está verificada) y en la futura pestaña de la evaluación provisional.
+  - Las tarjetas de árbol (`sensoryTaxonomy`, `cataConcordance`) se sustituyen por una **rueda de sabores estilo SCA** (sunburst) interactiva: se amplía del centro hacia fuera por niveles; la leyenda de cada segmento es "evaluadores que identifican la nota / total de evaluadores" (p. ej. 4/5); al pasar el ratón (y con foco de teclado) por un segmento se muestra la descripción de la olfactory taxonomy. Componente propio en SVG (sin dependencia nueva; decisión del orquestador).
+  - Defectos y sabores principales: se reutilizan los componentes de selección de la evaluación (en solo lectura) y se añade la leyenda de consenso junto a cada tarjeta.
+  - Concordancia (0–1, `max(0, 1 − σ/σmax)` por eje en `OfferingConsensusService`): escala con nombre según Koo y Li (2016): < 0,50 "Baja", 0,50–0,75 "Moderada", 0,75–0,90 "Alta", ≥ 0,90 "Excelente"; el valor se muestra también en texto (nunca solo color).
+  - Q1 resto y Q2 (`LabelValueRow` y `Tabs` en `shared/ui`, content-structure) aceptados como los recomendó el orquestador.
+  - Filtros F1: marcar un padre añade el padre y sus descendientes; marcar un hijo sin su padre envía solo ese hijo. F2: (a) control del shell para desplegar el sidebar plegado (tomado por el orquestador; Product owner aceptó el resto). F3: dividir en cuatro cambios — `add-sidebar-slot` (app-shell), `add-facet-controls` (filtering, form-fields), `add-offering-facets` (tras catálogo), `add-evaluation-facets` (tras evaluations) — y terminarlos hoy con todos los ejecutores.
+- **Por qué:** respuestas de Product owner del 6 oct a las preguntas de los explores de catalog y filter-controls; escala de concordancia: Koo y Li (2016), bandas de coeficientes de acuerdo 0–1.
+- **Afecta:** add-offering-catalog (detalle, consenso, nuevo componente de rueda), add-filter-controls (sustituido por los cuatro cambios), add-public-evaluations (podría reutilizar la rueda).
