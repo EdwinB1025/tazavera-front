@@ -1,4 +1,4 @@
-Status: draft — pending Product owner review
+Status: approved
 
 # Design summary — add-offering-catalog
 
@@ -358,13 +358,15 @@ Notes:
      - (b) A separate refactor change first, in `landing`, then this change.
      - (c) A second widget for the catalog (duplication: not recommended).
    - Recommendation: (b) if Product owner wants the backlog rule applied strictly (`AGENTS.md`: the refactor goes first as its own change); otherwise (a), since no landing behaviour changes. Source: criterion C; `src/widgets/offering-list/*`.
-   - Blocks propose: yes.
+   - **Answered 2026-10-06 (Product owner): (a), reduced.** Pagination (`Pagination`, `@/shared/ui`, `path` + `query`) and the taxonomy read and lookup (`src/entities/taxonomy`) were already extracted by `extract-offering-list-parts`. This change only generalizes the offerings fetch: it takes a query (for example `fetchOfferings(query)`); landing calls it with `verified=1` and keeps its behaviour and tests; the catalog passes the URL query (filters, sort, page) without forcing `verified`.
+   - Blocks propose: no.
 2. **Shared section and container primitive.** The two screens would add a third and fourth copy of `SECTION_CLASSES`/`CONTAINER_CLASSES` (today in `HomeScreen.tsx` and `AboutContent.tsx`).
    - Options:
      - (a) Add the backlog entry and a refactor change in `src/shared/ui` (for example a `PageSection` with a `surface` prop) before this change.
      - (b) Copy the classes again and leave the candidate for later.
    - Recommendation: (a). It is the "next public page" the landing handoff D8 named. Source: add-landing handoff D8; general context "Al retomar" 8.
-   - Blocks propose: yes.
+   - **Answered 2026-10-06 (Product owner): (a).** Refactor first; this change uses the shared primitive.
+   - Blocks propose: no (waits for the refactor to be merged).
 3. **Message catalog area for the card texts.**
    - Options:
      - (a) The catalog screens read the card, pagination and retry labels from the `landing` area and their own texts from a new `catalog` area.
@@ -384,14 +386,17 @@ Notes:
      - (a) Plain text value with the scale, for example `7.2 / 9`, in the `dl`.
      - (b) The MVC's nine-bean row (`consensus-axis.blade.php`), which needs the coffee-bean icon and a read-only scale component that `add-evaluation-scales` would own.
    - Recommendation: (a) now, with (b) as a later change once the scale exists, so this change does not wait on `add-evaluation-scales`. The bean tokens exist (`evaluation-bean-on/off`), but no component does.
-   - Blocks propose: yes (changes the component set and the dependencies).
+   - **Answered 2026-10-06 (Product owner): (b).** Each average is the read-only bean scale of `add-evaluation-scales` (`readOnly`, `value` 0–9 with one decimal, geometric fraction cut, value also as text, `valueLabel` such as "7,2 de 9"; scales summary §3). This change depends on `add-evaluation-scales` being merged first.
+   - Blocks propose: no (waits for `add-evaluation-scales`).
 6. **Tabs and the evaluations of the offering.** The MVC detail has three tabs: General, Evaluations, Technical (`show.blade.php:27-58`). `listEvaluations` has no offering filter; the closest is `coffeeId` + `locationId` *(semantics unverified)*. The "Technical" tab shows the coffeeshop's own evaluation, which no contract operation exposes per offering.
    - Options:
      - (a) No tabs: one page with the section cards of 6.3, and no evaluations list.
      - (b) Tabs, with an evaluations tab using `coffeeId` + `locationId`, owned by `add-specialist-evaluations`.
      - (c) Ask the API for an `offering` filter (a contract change, Product owner's).
    - Recommendation: (a). It needs no unsupported operation.
-   - Blocks propose: yes.
+   - **Answered 2026-10-06 (Product owner): tabs, two now.** Below the header of §6.3 (unchanged, from the MVC), the detail has tabs (shadcn/Radix Tabs, `radix-ui` installed): "Inventory data" (`coffeeInventory`: roast lot, production date, the coffee's fields, the roastery, `location`) and "Consensus" (the SCA averages with the read-only bean scale of Open 5, `cuppingAvg`, evaluation and defective counts, concordances, `sensoryTaxonomy`, `cataConcordance`, `verificationStatus`). The active tab is kept in the URL (`?tab=`), as in the MVC. No evaluations list.
+   - Later change (planned by Product owner, not in this change): a third tab with the offering's provisional evaluation, presented with the same style as the Consensus tab (read-only bean scales and the same layout), not as the evaluation form (Product owner, 2026-10-06, replacing the earlier read-only-form idea). It needs the API to expose that evaluation (no contract operation finds it today); Product owner will create the provisional-evaluation seeders.
+   - Blocks propose: no.
 7. **Unknown ulid.**
    - Options:
      - (a) Every failure, 404 included, shows the error state with Retry.
