@@ -26,3 +26,5 @@ export type {
 } from "./model/state";
 export { buildCreateBody, buildUpdateBody } from "./model/body";
 export { formStateFromEvaluation } from "./model/load";
+export { completenessOf } from "./model/completeness";
+export type { GroupCompleteness } from "./model/completeness";
