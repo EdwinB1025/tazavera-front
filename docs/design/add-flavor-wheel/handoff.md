@@ -119,7 +119,7 @@ Design lead, task 14.2:
 
 ### Fixes and coverage sent to the Build
 #### F2 — Finding 1, unplanned fix
-- Type: unplanned fix (design.md D8, note list control "aligned to the start and as wide as its content"). Sent to the local build subagent. Result: see the next entry.
+- Type: unplanned fix (design.md D8, note list control "aligned to the start and as wide as its content"). Sent to the local build subagent. Result: `f25b478` (`@2xl:justify-self-start`, test asserts the classes); 14.2 checked in `2742644`; 1184 tests. Verify of round 1 by the local architect: no CRITICAL, no new WARNING. Archived `3c3a3ab`.
 
 ### Deferred to Product owner
 #### Q4 — Finding 2: more labels at rest (possible round 2)
