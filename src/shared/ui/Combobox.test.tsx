@@ -132,6 +132,7 @@ describe("Combobox — local mode", () => {
     fireEvent.keyDown(input(), { key: "Escape" });
     expect(input().getAttribute("aria-expanded")).toBe("false");
     expect(screen.queryByRole("listbox")).toBeNull();
+    expect(input().value).toBe("");
   });
 
   it("focus stays on the input while the popup is open", () => {
@@ -218,6 +219,64 @@ describe("Combobox — local mode", () => {
     const option = screen.getByRole("option");
     expect(option.querySelector(".type-option")!.textContent).toBe("Finca B");
     expect(option.querySelector(".type-option-detail")!.textContent).toBe("Huila");
+  });
+});
+
+describe("Combobox — abandoned text (refine-facet-controls design.md D2)", () => {
+  it("with a value, typing and Escape restores its label and reports nothing", () => {
+    const onChange = vi.fn();
+    render(local({ value: FINCAS[0]!, onChange }));
+    type("zz");
+    fireEvent.keyDown(input(), { key: "Escape" });
+    expect(input().value).toBe("Finca A");
+    expect(input().getAttribute("aria-expanded")).toBe("false");
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("with a value, typing and leaving restores its label and reports nothing", () => {
+    const onChange = vi.fn();
+    render(local({ value: FINCAS[0]!, onChange }));
+    type("zz");
+    fireEvent.blur(input());
+    expect(input().value).toBe("Finca A");
+    expect(input().getAttribute("aria-expanded")).toBe("false");
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("with no value, typing and leaving empties the input and reports nothing", () => {
+    const onChange = vi.fn();
+    render(local({ onChange }));
+    type("fin");
+    fireEvent.blur(input());
+    expect(input().value).toBe("");
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("with a value, emptying the input and Escape restores its label and reports nothing", () => {
+    const onChange = vi.fn();
+    render(local({ value: FINCAS[0]!, onChange }));
+    type("");
+    fireEvent.keyDown(input(), { key: "Escape" });
+    expect(input().value).toBe("Finca A");
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("Escape with the popup closed restores the label in search mode", () => {
+    render(
+      <Combobox
+        label="Roaster"
+        search={vi.fn<ComboboxSearch>(async () => [])}
+        value={{ value: "1", label: "Café Uno" }}
+        onChange={() => {}}
+        texts={TEXTS}
+      />,
+    );
+    const box = screen.getByRole("combobox", { name: "Roaster" }) as HTMLInputElement;
+    fireEvent.change(box, { target: { value: "c" } });
+    expect(box.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.keyDown(box, { key: "Escape" });
+    expect(box.value).toBe("Café Uno");
+    expect(box.getAttribute("aria-expanded")).toBe("false");
   });
 });
 
