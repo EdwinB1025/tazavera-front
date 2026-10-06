@@ -1,6 +1,13 @@
 "use client";
 
 import { useId, type ReactNode } from "react";
+import {
+  FACET_LEGEND_CLASSES,
+  FACET_ROWS_CLASSES,
+  facetRowClasses,
+  withoutDisabledFade,
+  type ControlPresentation,
+} from "./facet-row";
 
 // ─── UI-specific types (declared before the component) ───
 // No generated API type is used here: the options and every text are supplied
@@ -10,6 +17,11 @@ import { useId, type ReactNode } from "react";
 export type RadioOption = {
   value: string;
   label: ReactNode;
+  // add-facet-controls design.md D3 (facet-row presentation): a neutral
+  // option never takes the selected look; a hidden option renders its row
+  // with the `hidden` attribute and stays in the group.
+  neutral?: boolean;
+  hidden?: boolean;
 };
 
 export type RadioGroupVariant = "default" | "inverse";
@@ -26,6 +38,8 @@ export type RadioGroupProps = {
   required?: boolean; // marks each radio input required
   disabled?: boolean;
   variant?: RadioGroupVariant; // explicit prop only (design.md D1.1)
+  presentation?: ControlPresentation; // add-facet-controls design.md D3
+  id?: string; // fieldset id; else a generated one
 };
 
 // ─── Treatment classes ───
@@ -97,8 +111,12 @@ export function RadioGroup({
   required,
   disabled,
   variant = "default",
+  presentation = "field",
+  id,
 }: RadioGroupProps): ReactNode {
-  const groupId = useId();
+  const generatedGroupId = useId();
+  const groupId = id ?? generatedGroupId;
+  const isRow = presentation === "row";
   const legendId = useId();
   const helpId = useId();
   const errorId = useId();
@@ -122,6 +140,51 @@ export function RadioGroup({
     .filter(Boolean)
     .join(" ");
 
+  function renderOption(option: RadioOption): ReactNode {
+    const row = isRow
+      ? facetRowClasses({
+          selected: !option.neutral && value === option.value,
+          disabled,
+        })
+      : undefined;
+    return (
+      <label
+        key={option.value}
+        className={row ? row.row : OPTION_LABEL_CLASSES}
+        hidden={option.hidden || undefined}
+      >
+        <span className="relative inline-flex">
+          <input
+            type="radio"
+            name={name}
+            value={option.value}
+            checked={
+              value !== undefined ? option.value === value : undefined
+            }
+            defaultChecked={
+              value === undefined ? option.value === defaultValue : undefined
+            }
+            onChange={() => onChange?.(option.value)}
+            required={required}
+            disabled={disabled}
+            className={[
+              isRow ? withoutDisabledFade(CIRCLE_CLASSES) : CIRCLE_CLASSES,
+              hasError
+                ? "border-feedback-error"
+                : isRow
+                  ? "border-nav-button-border"
+                  : "border-border-strong",
+            ].join(" ")}
+          />
+          <span className={isRow ? withoutDisabledFade(DOT_CLASSES) : DOT_CLASSES} />
+        </span>
+        <span className={row ? row.label : "type-label"}>
+          {option.label}
+        </span>
+      </label>
+    );
+  }
+
   return (
     <fieldset
       id={groupId}
@@ -131,37 +194,17 @@ export function RadioGroup({
       aria-invalid={hasError ? "true" : undefined}
       className={variant === "inverse" ? "variant-inverse" : undefined}
     >
-      <legend id={legendId} className="type-label mb-2">
+      <legend
+        id={legendId}
+        className={isRow ? FACET_LEGEND_CLASSES : "type-label mb-2"}
+      >
         {legend}
       </legend>
-      {options.map((option) => {
-        return (
-          <label key={option.value} className={OPTION_LABEL_CLASSES}>
-            <span className="relative inline-flex">
-              <input
-                type="radio"
-                name={name}
-                value={option.value}
-                checked={
-                  value !== undefined ? option.value === value : undefined
-                }
-                defaultChecked={
-                  value === undefined ? option.value === defaultValue : undefined
-                }
-                onChange={() => onChange?.(option.value)}
-                required={required}
-                disabled={disabled}
-                className={[
-                  CIRCLE_CLASSES,
-                  hasError ? "border-feedback-error" : "border-border-strong",
-                ].join(" ")}
-              />
-              <span className={DOT_CLASSES} />
-            </span>
-            <span className="type-label">{option.label}</span>
-          </label>
-        );
-      })}
+      {isRow ? (
+        <div className={FACET_ROWS_CLASSES}>{options.map(renderOption)}</div>
+      ) : (
+        options.map(renderOption)
+      )}
       {hasHelp && (
         <p id={helpId} className="type-meta mt-1">
           {help}

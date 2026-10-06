@@ -68,3 +68,14 @@ One section per candidate, in this format:
 - **Open decision (Augusto):** document the 422 body in the API, then schedule the change
 - **Status:** proposed
 - **Affects:** `add-user-account`, `add-offering-management`, `add-specialist-evaluations`
+
+## R9 — Single "Clear all" filters button (add-evaluation-facets propose)
+
+- **Duplicated:** two host-side "Clear all" buttons with the same behaviour (drop every facet key from the URL, keep the sort keys)
+- **Where today:** `ClearFiltersButton` (`add-offering-facets`) and `ClearEvaluationFiltersButton` (`add-evaluation-facets`), both planned, each in its own feature slice because FSD forbids feature-to-feature imports
+- **Why it pays off now:** one shared button in `src/shared/ui` (taking the facet keys as a prop) ends the duplication before a third filtered list repeats it
+- **Owning capability:** filtering
+- **Proposed change:** a refactor after both facet changes merge, moving the button to `src/shared/ui`
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** `add-offering-facets`, `add-evaluation-facets`

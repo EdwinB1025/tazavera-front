@@ -206,6 +206,8 @@
     --color-evaluation-rating-commercial: color-mix(in srgb, var(--color-score-gold) 45%, transparent);
     --color-evaluation-bean-on: color-mix(in srgb, var(--color-oxblood-900) 80%, transparent);
     --color-evaluation-bean-off: var(--color-moss-400);
+    --color-evaluation-bean-mark-on: var(--color-cream-100);
+    --color-evaluation-bean-mark-off: var(--color-brown-900);
     --color-evaluation-slider-track: var(--color-oxblood-300);
     --color-evaluation-slider-start: var(--color-moss-400);
     --color-evaluation-slider-end: var(--color-sage-800);
@@ -248,6 +250,28 @@
     --radius-container: 16px;
     --radius-field: 8px;
     --radius-check: 4px;
+}
+
+/* =========================================================
+   TAZAVERA — FACET-ROW SHADOWS (add-facet-controls design.md D10)
+   Selected row: Tailwind's default shadow-md; row hover: its default
+   inset-shadow-sm. Both are none in the dark theme.
+   ========================================================= */
+
+@theme {
+    --shadow-nav-current: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-nav-hover: inset 0 2px 4px rgb(0 0 0 / 0.05);
+}
+
+/* Tailwind inlines a theme shadow's value into its shadow-* utility, so the
+   dark theme's reassignment would never apply. These two utilities read the
+   variables instead, keeping the class names and following the theme. */
+@utility shadow-nav-current {
+    box-shadow: var(--shadow-nav-current);
+}
+
+@utility shadow-nav-hover {
+    box-shadow: var(--shadow-nav-hover);
 }
 
 /* =========================================================
@@ -430,6 +454,8 @@
         --color-evaluation-rating-commercial: color-mix(in srgb, var(--color-score-gold) 30%, transparent);
         --color-evaluation-bean-on: var(--color-night-oxblood-600);
         --color-evaluation-bean-off: var(--color-night-moss-800);
+        --color-evaluation-bean-mark-on: var(--color-night-petrol-950);
+        --color-evaluation-bean-mark-off: var(--color-night-sage-100);
         --color-evaluation-slider-track: var(--color-night-oxblood-950);
         --color-evaluation-slider-start: var(--color-night-moss-600);
         --color-evaluation-slider-end: var(--color-night-sage-100);
@@ -461,6 +487,10 @@
         --radius-container: 0;
         --radius-field: 0;
         --radius-check: 0;
+
+        /* ─── FACET-ROW SHADOWS (add-facet-controls design.md D10) ─── */
+        --shadow-nav-current: none;
+        --shadow-nav-hover: none;
     }
 }
 
@@ -677,6 +707,22 @@
     line-height: var(--leading-normal);
 }
 
+/* Combobox option lines (add-facet-controls design.md D10): no colour, so
+   the popup's text colour applies. */
+@utility type-option {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    line-height: var(--leading-tight);
+}
+
+@utility type-option-detail {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: var(--text-xs);
+    line-height: var(--leading-normal);
+}
+
 /* =========================================================
    TAZAVERA — SHARED FOCUS INDICATOR (@utility focus-ring)
    One indicator for every interactive control (design.md D1): the
@@ -691,6 +737,37 @@
 @utility focus-ring {
     outline: none;
     box-shadow: 0 0 0 2px var(--color-focus-offset), 0 0 0 4px var(--color-focus-ring);
+}
+
+/* =========================================================
+   TAZAVERA — INTENSITY SLIDER THUMB (@utility intensity-slider-thumb)
+   The range thumb of the intensity slider (add-evaluation-scales
+   design.md D5): a 20px circle in --color-evaluation-slider-thumb with
+   a 2px --color-evaluation-slider-thumb-border edge, for both engines'
+   thumb pseudo-elements. A utility keeps the thumb colors in the token
+   layer, where arbitrary pseudo-element variants would escape the
+   color guard's grammar.
+   ========================================================= */
+
+@utility intensity-slider-thumb {
+    &::-webkit-slider-thumb {
+        appearance: none;
+        box-sizing: border-box;
+        width: 20px;
+        height: 20px;
+        border-radius: calc(infinity * 1px);
+        background-color: var(--color-evaluation-slider-thumb);
+        border: 2px solid var(--color-evaluation-slider-thumb-border);
+    }
+
+    &::-moz-range-thumb {
+        box-sizing: border-box;
+        width: 20px;
+        height: 20px;
+        border-radius: calc(infinity * 1px);
+        background-color: var(--color-evaluation-slider-thumb);
+        border: 2px solid var(--color-evaluation-slider-thumb-border);
+    }
 }
 
 /* =========================================================

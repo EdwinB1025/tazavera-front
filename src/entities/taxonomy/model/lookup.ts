@@ -11,6 +11,7 @@ import type { TaxonomyNode } from "@/shared/api";
 
 export type TaxonomyLookupEntry = {
   label: string;
+  description: string | null;
   color: string;
 };
 
@@ -30,6 +31,12 @@ export function buildTaxonomyLookup(
           : locale === "es"
             ? node.nameEs
             : node.nameEn) ?? "",
+      description:
+        (locale === "ca"
+          ? node.descriptionCa
+          : locale === "es"
+            ? node.descriptionEs
+            : node.descriptionEn) ?? null,
       color: node.color ?? "",
     });
     for (const [ulid, entry] of buildTaxonomyLookup(

@@ -14,10 +14,7 @@ export type { FieldProps } from "./Field";
 export { Input } from "./Input";
 export type { InputProps, InputVariant } from "./Input";
 export { PasswordInput } from "./PasswordInput";
-export type {
-  PasswordInputProps,
-  PasswordInputVariant,
-} from "./PasswordInput";
+export type { PasswordInputProps, PasswordInputVariant } from "./PasswordInput";
 export { Select } from "./Select";
 export type { SelectProps, SelectVariant } from "./Select";
 export { Textarea } from "./Textarea";
@@ -30,6 +27,19 @@ export type {
   RadioGroupVariant,
   RadioOption,
 } from "./RadioGroup";
+export type { ControlPresentation } from "./facet-row";
+export { BeanScale } from "./BeanScale";
+export type { BeanScaleProps, BeanScaleSize } from "./BeanScale";
+export { IntensitySlider } from "./IntensitySlider";
+export type { IntensitySliderProps } from "./IntensitySlider";
+export { DescriptorChipGroup } from "./DescriptorChipGroup";
+export type {
+  ChipOption,
+  ChipRow,
+  DescriptorChipGroupProps,
+} from "./DescriptorChipGroup";
+export { ConfirmDialog } from "./ConfirmDialog";
+export type { ConfirmDialogProps } from "./ConfirmDialog";
 export { Loader2, ArrowLeft, type LucideIcon } from "./icons";
 export { Logo } from "./Logo";
 export type { LogoProps, LogoVariant } from "./Logo";
@@ -61,22 +71,9 @@ export {
   SheetTitle,
   SheetFooter,
 } from "./Sheet";
-export {
-  SidebarProvider,
-  Sidebar,
-  SidebarTrigger,
-  SidebarInset,
-  SidebarHeader,
-  SidebarFooter,
-  SidebarContent,
-  SidebarSeparator,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-} from "./Sidebar";
+// The whole Sidebar module (its parts, `useSidebar` and `SIDEBAR_ID`):
+// re-exported as a set so this server-safe entry names no hook itself.
+export * from "./Sidebar";
 export { Card, CardAside, CardContent, CardFooter } from "./Card";
 export type {
   CardLayout,
@@ -92,3 +89,42 @@ export { Pagination } from "./Pagination";
 export type { PaginationProps, PaginationTexts } from "./Pagination";
 export { PageSection } from "./PageSection";
 export type { PageSectionProps, PageSectionSurface } from "./PageSection";
+export { FlavorWheel } from "./FlavorWheel";
+export type {
+  FlavorWheelNode,
+  FlavorWheelTexts,
+  FlavorWheelProps,
+} from "./FlavorWheel";
+export { FilterChip } from "./FilterChip";
+export type { FilterChipProps } from "./FilterChip";
+export { FacetPanel } from "./FacetPanel";
+export type {
+  AppliedFilter,
+  FacetPanelProps,
+  FacetPanelTexts,
+} from "./FacetPanel";
+export { FacetTextField } from "./FacetTextField";
+export type { FacetTextFieldProps } from "./FacetTextField";
+export { SeeMoreButton } from "./SeeMoreButton";
+export type { SeeMoreButtonProps, SeeMoreTexts } from "./SeeMoreButton";
+export { FacetRadioList } from "./FacetRadioList";
+export type { FacetOption, FacetRadioListProps } from "./FacetRadioList";
+export { FacetCascade } from "./FacetCascade";
+export type {
+  CascadeOption,
+  FacetCascadeProps,
+  FacetCascadeTexts,
+} from "./FacetCascade";
+export { ScoreRangeFacet } from "./ScoreRangeFacet";
+export type {
+  ScoreRange,
+  ScoreRangeFacetProps,
+  ScoreRangeTexts,
+} from "./ScoreRangeFacet";
+export { Combobox } from "./Combobox";
+export type {
+  ComboboxOption,
+  ComboboxProps,
+  ComboboxSearch,
+  ComboboxTexts,
+} from "./Combobox";

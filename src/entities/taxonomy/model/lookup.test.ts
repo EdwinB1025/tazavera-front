@@ -25,6 +25,9 @@ const TREE: TaxonomyNode[] = [
     nameEn: "Fruity",
     nameEs: "Frutal",
     nameCa: "Fruitat",
+    descriptionEn: "Aromas reminiscent of fresh, dried, or cooked fruit.",
+    descriptionEs: "Aromas que recuerdan a fruta fresca, seca o cocida.",
+    descriptionCa: "Aromes que recorden la fruita fresca, seca o cuita.",
     color: "#D9345A",
     children: [
       {
@@ -33,6 +36,9 @@ const TREE: TaxonomyNode[] = [
         nameEn: "Berry",
         nameEs: "Baya",
         nameCa: "Baia",
+        descriptionEn: "Notes of berry fruits.",
+        descriptionEs: "Notas de frutos del bosque.",
+        descriptionCa: "Notes de fruits del bosc.",
         color: "#B02A4A",
         children: [
           {
@@ -41,6 +47,9 @@ const TREE: TaxonomyNode[] = [
             nameEn: "Blackberry",
             nameEs: "Mora",
             nameCa: "Móra",
+            descriptionEn: "Specific note of blackberry.",
+            descriptionEs: "Nota específica de mora.",
+            descriptionCa: "Nota específica de móra.",
             color: "#7A1F35",
           },
         ],
@@ -55,6 +64,7 @@ describe("buildTaxonomyLookup (design.md D5)", () => {
     expect(lookup.get(T_FRUTAL)).toEqual({
       label: "Fruitat",
       color: "#D9345A",
+      description: "Aromes que recorden la fruita fresca, seca o cuita.",
     });
   });
 
@@ -63,6 +73,7 @@ describe("buildTaxonomyLookup (design.md D5)", () => {
     expect(lookup.get(T_FRUTAL)).toEqual({
       label: "Frutal",
       color: "#D9345A",
+      description: "Aromas que recuerdan a fruta fresca, seca o cocida.",
     });
   });
 
@@ -71,6 +82,7 @@ describe("buildTaxonomyLookup (design.md D5)", () => {
     expect(lookup.get(T_FRUTAL)).toEqual({
       label: "Fruity",
       color: "#D9345A",
+      description: "Aromas reminiscent of fresh, dried, or cooked fruit.",
     });
   });
 
@@ -79,6 +91,28 @@ describe("buildTaxonomyLookup (design.md D5)", () => {
     expect(lookup.get(T_MORA)).toEqual({
       label: "Móra",
       color: "#7A1F35",
+      description: "Nota específica de móra.",
+    });
+  });
+
+  it("resolves description: null when the chosen locale has no description (design.md D2)", () => {
+    const tree: TaxonomyNode[] = [
+      {
+        ulid: T_FRUTAL,
+        level: 0,
+        nameEn: "Fruity",
+        nameEs: "Frutal",
+        nameCa: "Fruitat",
+        descriptionEn: "Aromas reminiscent of fresh, dried, or cooked fruit.",
+        descriptionEs: "Aromas que recuerdan a fruta fresca, seca o cocida.",
+        color: "#D9345A",
+      },
+    ];
+    const lookup = buildTaxonomyLookup(tree, "ca");
+    expect(lookup.get(T_FRUTAL)).toEqual({
+      label: "Fruitat",
+      color: "#D9345A",
+      description: null,
     });
   });
 });

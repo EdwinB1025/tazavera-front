@@ -198,6 +198,34 @@ describe("OfferingList", () => {
     });
   });
 
+  describe("Consumer actions after View (spec: 'Consumer actions after View')", () => {
+    it("renders each card's Evaluate link after its View link and in the same group", () => {
+      renderList({
+        state: "success",
+        items: [ITEM_ONE, ITEM_TWO],
+        meta: { current_page: 1, last_page: 1 },
+      });
+      const views = screen.getAllByRole("link", { name: TEXTS.viewLabel });
+      expect(views).toHaveLength(2);
+      for (const view of views) {
+        const ulid = (view.getAttribute("href") ?? "").split("/").pop() ?? "";
+        const evaluate = screen
+          .getAllByRole("link", { name: TEXTS.evaluateLabel })
+          .find(
+            (link) =>
+              link.getAttribute("href") ===
+              `/es/manage/evaluations/new?offering=${ulid}`,
+          );
+        expect(evaluate).toBeDefined();
+        expect(evaluate!.parentElement).toBe(view.parentElement);
+        const children = Array.from(view.parentElement!.children);
+        expect(children.indexOf(evaluate!)).toBeGreaterThan(
+          children.indexOf(view),
+        );
+      }
+    });
+  });
+
   describe("Empty (spec: 'Empty')", () => {
     it("renders the centered empty message and no offering card", () => {
       renderList({ state: "empty" });

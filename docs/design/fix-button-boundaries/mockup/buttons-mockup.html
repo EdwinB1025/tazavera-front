@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>fix-button-boundaries — mock-up (draft, design lead 2026-10-06)</title>
+<style>
+*, ::before, ::after { box-sizing: border-box; margin: 0; padding: 0; border: 0 solid; }
+.theme-traditional {
+  --surface-page: #f2e8d9; --surface-card: #f2e8d9; --surface-section: #e3dcd2; --surface-form: #f6efe4;
+  --ink: #1a2f35; --ink-muted: #425a60; --pill: 9999px;
+  --action-primary: #8b2e2e; --action-primary-hover: #5d0404; --action-primary-text: #f2e8d9; --action-primary-text-hover: #f2e8d9; --action-primary-border: transparent;
+  --action-1-bg: color-mix(in srgb, #b5ba73 40%, #f2e8d9); --action-1-text: #535c02; --action-1-bg-hover: #535c02; --action-1-text-hover: #f2e8d9; --action-1-border: #535c02;
+  --action-2-bg: color-mix(in srgb, #8b2e2e 40%, #f2e8d9); --action-2-text: #44200b; --action-2-bg-hover: #8b2e2e; --action-2-text-hover: #f2e8d9; --action-2-border: #44200b;
+  --action-3-bg: color-mix(in srgb, #2E5A52 20%, #f2e8d9); --action-3-text: #2E5A52; --action-3-bg-hover: #2E5A52; --action-3-text-hover: #f2e8d9; --action-3-border: #2E5A52;
+  --action-4-bg: color-mix(in srgb, #6b7e83 35%, #f2e8d9); --action-4-text: #2C4A52; --action-4-bg-hover: #425a60; --action-4-text-hover: #f2e8d9; --action-4-border: #1a2f35;
+}
+.theme-dark {
+  --surface-page: #051215; --surface-card: #0d1b1e; --surface-section: #162428; --surface-form: #0d1b1e;
+  --ink: #d0d9dc; --ink-muted: #a0b1b6; --pill: 0;
+  --action-primary: #a03f3c; --action-primary-hover: #90302e; --action-primary-text: #f2eadd; --action-primary-text-hover: #f2eadd; --action-primary-border: #f2eadd;
+  --action-1-bg: color-mix(in srgb, #82863a 20%, #0d1b1e); --action-1-text: #a5aa6f; --action-1-bg-hover: #575a00; --action-1-text-hover: #d8dbb6; --action-1-border: #d8dbb6;
+  --action-2-bg: color-mix(in srgb, #c8635d 20%, #0d1b1e); --action-2-text: #dc8c85; --action-2-bg-hover: #90302e; --action-2-text-hover: #ffc8c2; --action-2-border: #ffc8c2;
+  --action-3-bg: color-mix(in srgb, #5e8a83 20%, #0d1b1e); --action-3-text: #89ada7; --action-3-bg-hover: #335f58; --action-3-text-hover: #c6ddd9; --action-3-border: #c9e5e0;
+  --action-4-bg: color-mix(in srgb, #738488 20%, #0d1b1e); --action-4-text: #9aa7ab; --action-4-bg-hover: #49585c; --action-4-text-hover: #d0d9dc; --action-4-border: #d0d9dc;
+}
+body { font-family: ui-sans-serif, system-ui, sans-serif; background: #808080; }
+.theme { padding: 16px; background: var(--surface-page); color: var(--ink); }
+.theme > h1 { font-size: 18px; margin-bottom: 4px; }
+.theme > p { font-size: 12px; color: var(--ink-muted); margin-bottom: 12px; max-width: 72ch; }
+.surfaces { display: grid; grid-template-columns: 1fr; gap: 16px; }
+@media (min-width: 1024px) { .surfaces { grid-template-columns: 1fr 1fr; } }
+.surface { padding: 16px; min-width: 0; }
+.surface h2 { font-size: 14px; margin-bottom: 12px; }
+.s-page { background: var(--surface-page); outline: 1px dashed var(--ink-muted); outline-offset: -1px; }
+.s-card { background: var(--surface-card); }
+.s-section { background: var(--surface-section); }
+.s-form { background: var(--surface-form); }
+.row { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 8px; align-items: start; padding: 8px 0; border-top: 1px solid color-mix(in srgb, var(--ink-muted) 30%, transparent); }
+.row > .name { font-size: 12px; font-weight: 600; padding-top: 18px; }
+.groups { display: flex; flex-wrap: wrap; gap: 8px 16px; min-width: 0; }
+.group { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.group > .cap { font-size: 10px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .05em; }
+.cells { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; }
+.cell { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.cell > .w { font-size: 10px; color: var(--ink-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: var(--pill); font-weight: 600; font-size: 14px; line-height: 1.5; font-family: inherit; white-space: nowrap; cursor: pointer; }
+.btn.base { height: 40px; padding: 0 16px; }
+.btn.sm { height: 32px; padding: 0 12px; }
+.btn.after { border-width: 1px; border-style: solid; }
+.btn.v-primary { background: var(--action-primary); color: var(--action-primary-text); }
+.btn.v-primary.hover { background: var(--action-primary-hover); color: var(--action-primary-text-hover); }
+.btn.v-primary.after { border-color: var(--action-primary-border); }
+.btn.v-1 { background: var(--action-1-bg); color: var(--action-1-text); }
+.btn.v-1.hover { background: var(--action-1-bg-hover); color: var(--action-1-text-hover); }
+.btn.v-1.after { border-color: var(--action-1-border); }
+.btn.v-2 { background: var(--action-2-bg); color: var(--action-2-text); }
+.btn.v-2.hover { background: var(--action-2-bg-hover); color: var(--action-2-text-hover); }
+.btn.v-2.after { border-color: var(--action-2-border); }
+.btn.v-3 { background: var(--action-3-bg); color: var(--action-3-text); }
+.btn.v-3.hover { background: var(--action-3-bg-hover); color: var(--action-3-text-hover); }
+.btn.v-3.after { border-color: var(--action-3-border); }
+.btn.v-4 { background: var(--action-4-bg); color: var(--action-4-text); }
+.btn.v-4.hover { background: var(--action-4-bg-hover); color: var(--action-4-text-hover); }
+.btn.v-4.after { border-color: var(--action-4-border); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const THEMES = [["traditional", "Traditional theme"], ["dark", "Dark theme"]];
+const SURFACES = [["s-page", "surface-page"], ["s-card", "surface-card"], ["s-section", "surface-section"], ["s-form", "surface-form"]];
+const VARIANTS = [["v-primary", "primary"], ["v-1", "action-1"], ["v-2", "action-2"], ["v-3", "action-3"], ["v-4", "action-4"]];
+const GROUPS = [["", "Before (no border)"], ["after", "After (1px border)"]];
+const STATES = [["", "rest"], ["hover", "hover"]];
+const SIZES = [["base", "Save"], ["sm", "Save"]];
+const root = document.getElementById("root");
+for (const [t, tName] of THEMES) {
+  const theme = document.createElement("section");
+  theme.className = "theme theme-" + t;
+  theme.innerHTML = `<h1>${tName}</h1><p>Hover is a forced static state. Under each button: state, size and rendered width × height in px. "After" buttons are 2px wider than "before".</p>`;
+  const grid = document.createElement("div");
+  grid.className = "surfaces";
+  for (const [s, sName] of SURFACES) {
+    const surf = document.createElement("div");
+    surf.className = "surface " + s;
+    surf.innerHTML = `<h2>${sName}</h2>`;
+    for (const [v, vName] of VARIANTS) {
+      const row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML = `<div class="name">${vName}</div>`;
+      const groups = document.createElement("div");
+      groups.className = "groups";
+      for (const [g, gName] of GROUPS) {
+        const group = document.createElement("div");
+        group.className = "group";
+        group.innerHTML = `<div class="cap">${gName}</div>`;
+        const cells = document.createElement("div");
+        cells.className = "cells";
+        for (const [st, stName] of STATES) {
+          for (const [size, label] of SIZES) {
+            const cell = document.createElement("div");
+            cell.className = "cell";
+            cell.dataset.state = stName;
+            cell.dataset.size = size;
+            const b = document.createElement("button");
+            b.type = "button";
+            b.className = ["btn", size, v, st, g].filter(Boolean).join(" ");
+            b.textContent = label;
+            const w = document.createElement("span");
+            w.className = "w";
+            cell.append(b, w);
+            cells.append(cell);
+          }
+        }
+        group.append(cells);
+        groups.append(group);
+      }
+      row.append(groups);
+      surf.append(row);
+    }
+    grid.append(surf);
+  }
+  theme.append(grid);
+  root.append(theme);
+}
+for (const cell of document.querySelectorAll(".cell")) {
+  const r = cell.querySelector("button").getBoundingClientRect();
+  cell.querySelector(".w").textContent = `${cell.dataset.state} ${cell.dataset.size} ${Math.round(r.width * 10) / 10}×${Math.round(r.height)}`;
+}
+</script>
+</body>
+</html>
