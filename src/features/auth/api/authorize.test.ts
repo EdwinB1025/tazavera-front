@@ -712,4 +712,27 @@ describe("the popup handshake of design.md D10 (spec: Sign in)", () => {
 
     expect(sessionStorage.length).toBe(0);
   });
+
+  it("leaves the session state unchanged and no flow data behind when the popup closes without a message (spec: The popup is closed before completing)", async () => {
+    const auth = await import("@/features/auth");
+    const flow = await import("../model/flow");
+    const { result } = renderHook(() => auth.useSession());
+    await vi.waitFor(() => {
+      expect(result.current).toEqual({ state: "anonymous" });
+    });
+    auth.signIn(route);
+    await awaitPopup();
+    expect(flow.readHeldFlow()).not.toBeNull();
+
+    popup.closed = true;
+    await vi.waitFor(() => {
+      expect(flow.readHeldFlow()).toBeNull();
+    });
+
+    // The session stays as it was — still `anonymous` after a sign in
+    // (design.md D10) — and neither flow data nor a message remains.
+    expect(result.current).toEqual({ state: "anonymous" });
+    expect(storageDump()).toBe("");
+    expect(document.body.textContent).toBe("");
+  });
 });
