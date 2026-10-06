@@ -518,3 +518,24 @@ Summary: dev server of this worktree at http://localhost:3000 with `.env.local` 
 
 ### Next
 - The Build checks off 8.17 recording this result (`chore(auth): complete tasks for add-auth`); then `/opsx:verify add-auth`; archive only on Product owner's request.
+
+## Session 2026-10-06 — verify fixes and the real sign-in
+Summary: 8.17 checked off in the cloud (`8411c0e`); verify found W1 (blank page after `/callback`). Stopped because: completed; archive on Product owner's request. MVC reachable: not needed.
+
+### Fixes and coverage sent to the Build
+#### F2 — Blank page after `/callback`
+- Type: unplanned fix (design.md D4, spec "Return through the callback"). Cloud routine `trig_01XxNaSDo7pbfQxwU2yR4PsF`, branch `claude/add-auth-f2`, commit `4ac8129`: `completeCallback` navigates with the App Router's `router.replace` (passed from `CallbackScreen`) instead of `history.pushState`. Chromium: before blank, after `/es` renders. My checks: 821 tests, lint, tsc exit 0. Integrated `--ff-only`.
+#### F3 — Token requests against the local http API
+- Type: fix by Product owner's decision (option a) for verify W1 after `4ac8129`: `oauth4webapi` refused http token requests. Routine `trig_01KCuPWQTXgQYqUshCkLMiPx`, branch `claude/add-auth-f3`, commit `e41c7e8`: `allowInsecureRequests` only when `NODE_ENV !== "production"`; three tests. My checks: 824 tests, lint, tsc exit 0. Integrated `--ff-only`.
+
+### Real sign-in (Product owner, 2026-10-06)
+- Test account created on the local API through `POST /register` (contract `registerAUser`): `edwin.specialist@tazavera.test`, role `specialist`.
+- First attempts failed: the browser blocked `POST /oauth/token` by CORS. Cause in `tazavera-api` (no `config/cors.php`, routes without prefix); fixed by Product owner on the API branch `feature/cors_front` (`4f91639`). The front did not change.
+- With the API on that branch: Product owner, "bien funciona!" — sign in completes against `php artisan serve`.
+
+### Deferred to Product owner
+#### Q-W2 — Second warning of the re-verify after `4ac8129`
+- Its text is in session `session_01D6xthcbRAav9yMXyUvjqpN` (truncated in the run log). Classify before the archive.
+
+### Next
+- Archive on Product owner's request; final merge with the Q-merge resolution.
