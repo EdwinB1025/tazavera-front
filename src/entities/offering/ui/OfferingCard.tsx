@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { OfferingSummary, Session } from "@/shared/api";
+import type { OfferingSummary } from "@/shared/api";
 import {
   Badge,
   Card,
@@ -28,7 +28,6 @@ export type OfferingCardTexts = {
   evaluationsLabel: string;
   defectiveLabel: string;
   viewLabel: string;
-  evaluateLabel: string;
   verifiedLabel: string;
   provisionalLabel: string;
   ratingExceptionalLabel: string;
@@ -40,9 +39,9 @@ export type OfferingCardTexts = {
 export type OfferingCardProps = {
   offering: OfferingSummary;
   locale: string;
-  session: Session;
   taxonomies: ResolvedTaxonomyBadge[];
   texts: OfferingCardTexts;
+  actions?: ReactNode;
 };
 
 // ─── Fixed pieces (no interface text; design.md D11) ───
@@ -70,15 +69,15 @@ const FOOTER_LINKS_CLASSES = ["ml-auto", "flex", "gap-4"].join(" ");
  * One offering filled into the shared card (design.md D4's field mapping and
  * D8; the landing spec "Offering card content" and "Taxonomy badges on the
  * offering card"). Every label and caption arrives as a prop (design.md D11)
- * and the session is an input of the `Session` type: the Evaluate link renders
- * exactly when its user role is `specialist` (design.md D8).
+ * and the consumer's actions arrive as the `actions` node, rendered after the
+ * View link with no wrapper (replace-offering-card-session design.md D1).
  */
 export function OfferingCard({
   offering,
   locale,
-  session,
   taxonomies,
   texts,
+  actions,
 }: OfferingCardProps): ReactNode {
   const tier = ratingTierFor(offering.cuppingAvg);
   // The badge's text is the word of the tier the score falls in, in place of
@@ -101,8 +100,6 @@ export function OfferingCard({
     .join(ORIGIN_SEPARATOR);
   const isVerified = offering.verificationStatus === "verified";
   const statusLabel = isVerified ? texts.verifiedLabel : texts.provisionalLabel;
-  const isSpecialist =
-    session.state === "authenticated" && session.user.role === "specialist";
   const coffeeshopCaption =
     `${texts.coffeeshopCaption} ${offering.location?.name ?? ""}`.trim();
   const roasterCaption =
@@ -157,13 +154,7 @@ export function OfferingCard({
           <Link href={`/${locale}/offerings/${offering.ulid ?? ""}`}>
             {texts.viewLabel}
           </Link>
-          {isSpecialist ? (
-            <Link
-              href={`/${locale}/manage/evaluations/new?offering=${offering.ulid ?? ""}`}
-            >
-              {texts.evaluateLabel}
-            </Link>
-          ) : null}
+          {actions}
         </div>
       </CardFooter>
     </Card>

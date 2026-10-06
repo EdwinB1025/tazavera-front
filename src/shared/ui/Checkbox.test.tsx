@@ -217,6 +217,116 @@ describe("Checkbox", () => {
   });
 });
 
+/**
+ * Facet-row presentation (add-facet-controls; spec form-fields "Facet row
+ * presentation"; design.md D3). The row look follows the controlled `checked`
+ * prop; the `label` element is the row.
+ */
+const FACET_ROW_TOKENS = [
+  "group",
+  "flex",
+  "w-full",
+  "min-h-10",
+  "cursor-pointer",
+  "items-center",
+  "gap-2",
+  "rounded-field",
+  "border-l-4",
+  "px-3",
+  "py-2",
+];
+const ROW_REST_TOKENS = ["border-transparent", "hover:shadow-nav-hover"];
+const ROW_SELECTED_TOKENS = [
+  "border-nav-indicator",
+  "bg-nav-current-dark",
+  "shadow-nav-current",
+];
+
+function classesOf(element: Element): string[] {
+  return (element.getAttribute("class") ?? "").split(/\s+/).filter(Boolean);
+}
+
+describe("Checkbox facet-row presentation (add-facet-controls design.md D3)", () => {
+  it("unchecked row carries the row and rest classes", () => {
+    render(
+      <Checkbox
+        label="Washed"
+        presentation="row"
+        variant="inverse"
+        checked={false}
+        onChange={() => {}}
+      />,
+    );
+    const row = screen.getByText("Washed").closest("label")!;
+    expect(classesOf(row)).toEqual(
+      expect.arrayContaining([...FACET_ROW_TOKENS, ...ROW_REST_TOKENS]),
+    );
+    for (const token of ROW_SELECTED_TOKENS) {
+      expect(classesOf(row)).not.toContain(token);
+    }
+  });
+
+  it("checked row carries the selected classes and no hover shadow", () => {
+    render(
+      <Checkbox
+        label="Washed"
+        presentation="row"
+        variant="inverse"
+        checked
+        onChange={() => {}}
+      />,
+    );
+    const row = screen.getByText("Washed").closest("label")!;
+    expect(classesOf(row)).toEqual(
+      expect.arrayContaining([...FACET_ROW_TOKENS, ...ROW_SELECTED_TOKENS]),
+    );
+    expect(classesOf(row)).not.toContain("hover:shadow-nav-hover");
+  });
+
+  it("label text is bold on hover at rest and underlined when checked", () => {
+    const { rerender } = render(
+      <Checkbox label="Washed" presentation="row" checked={false} onChange={() => {}} />,
+    );
+    expect(classesOf(screen.getByText("Washed"))).toEqual([
+      "type-sidebar-item",
+      "group-hover:font-bold",
+    ]);
+    rerender(<Checkbox label="Washed" presentation="row" checked onChange={() => {}} />);
+    expect(classesOf(screen.getByText("Washed"))).toEqual([
+      "type-sidebar-item",
+      "underline",
+      "decoration-nav-underline",
+      "underline-offset-3",
+    ]);
+  });
+
+  it("box boundary is nav-button-border instead of border-strong", () => {
+    render(<Checkbox label="Washed" presentation="row" checked={false} onChange={() => {}} />);
+    const input = screen.getByRole("checkbox", { name: "Washed" });
+    expect(classesOf(input)).toContain("border-nav-button-border");
+    expect(classesOf(input)).not.toContain("border-border-strong");
+  });
+
+  it("disabled row is faded with no hover look", () => {
+    render(
+      <Checkbox label="Washed" presentation="row" checked={false} disabled onChange={() => {}} />,
+    );
+    const row = screen.getByText("Washed").closest("label")!;
+    expect(classesOf(row)).toEqual(
+      expect.arrayContaining(["cursor-not-allowed", "opacity-50"]),
+    );
+    expect(classesOf(row)).not.toContain("hover:shadow-nav-hover");
+    expect(classesOf(screen.getByText("Washed"))).not.toContain("group-hover:font-bold");
+  });
+
+  it("clicking the row's label text calls onChange", () => {
+    const onChange = vi.fn();
+    render(<Checkbox label="Washed" presentation="row" checked={false} onChange={onChange} />);
+    fireEvent.click(screen.getByText("Washed"));
+    expect(onChange).toHaveBeenCalledTimes(1);
+  });
+});
+
 /** The margin utilities of an element (design.md D10 pins them exactly). */
 function margins(element: Element): string[] {
   return element.className
