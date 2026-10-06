@@ -188,7 +188,7 @@ Reuse:
   - **Rings 1–2, radial:** the baseline runs along the radius at the mid-angle, centred at mid-radius, and flipped 180° in the left half (180°–360°). Font size 12 units.
   - **Content:** line 1 is the name; line 2 is `count/total`. Line height 1.2 × font size.
   - **Fit rule.** Text width is estimated as `characters × 0.6 × font size` (approximation, *(unverified)* until the visual review).
-    - *Tangential:* the longest line must fit within `2 × midR × sin(Δθ / 2) − 8`, and the lines' height within `ring width − 8`.
+    - *Tangential:* the longest line must fit within `2 × midR × sin(min(Δθ, 180°) / 2) − 8`, so a span above 180° may use up to the diameter, and the lines' height within `ring width − 8`.
     - *Radial:* the longest line must fit within `ring width − 8`, and the lines' height within `midR × Δθ(rad) − 4`.
     - If two lines do not fit, try the name alone. If that does not fit, draw no label: no ellipsis, and the tree carries the name (Open 13).
   - **Colour:** `fill="currentColor"` inside the segment group that carries `data-taxonomy` and the badge rule's label custom properties. The label is white or black per theme, as the badge's.
@@ -314,7 +314,7 @@ No new guard pair needs registering. The wheel deliberately uses `text-primary` 
   - no horizontal scroll: names wrap, the counts do not shrink, and the panel header wraps;
   - segment labels are small (about 9px), and the tree carries every name at the body size *(visual review item)*.
 - **1280px:**
-  - with the full-width card, the container is about 1100px *(computed: 1152 − 48 − 4)*, so the two-column grid applies: wheel 400px, then the panel and tree in about 668px;
+  - with the full-width card, the container is about 1068px *(measured by the design lead in a harness with `max-w-6xl px-4`; the earlier 1100px skipped the 2 × 16px page padding)*, so the two-column grid applies: wheel 400px, then the panel and tree in about 636px;
   - in half a grid, about 512px *(computed)*, so it stays stacked (Open 9).
 
 ### 6.7 Visual reference (mock-up, ASCII)
