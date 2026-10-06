@@ -466,3 +466,139 @@ describe("FlavorWheel — empty state", () => {
     ).toBeNull();
   });
 });
+
+describe("FlavorWheel — keyboard on the note list", () => {
+  function tabStops(): string[] {
+    return rows()
+      .filter((r) => r.getAttribute("tabindex") === "0")
+      .map((r) => r.textContent ?? "");
+  }
+
+  function press(key: string): void {
+    fireEvent.keyDown(document.activeElement as Element, { key });
+  }
+
+  function focused(): string | null {
+    return (document.activeElement as HTMLElement).getAttribute("aria-label");
+  }
+
+  it("is one tab stop on the first row before any interaction", () => {
+    renderWheel();
+    expect(tabStops()).toEqual(["Fruity4/5"]);
+    expect(
+      rows().filter((r) => r.getAttribute("tabindex") === "-1"),
+    ).toHaveLength(2);
+  });
+
+  it("moves the tab stop to the last active row", () => {
+    const { container } = renderWheel();
+    fireEvent.pointerEnter(segment(container, "floral")!);
+    expect(tabStops()).toEqual(["Floral3/5"]);
+    fireEvent.click(segment(container, "nutty")!);
+    expect(tabStops()).toEqual(["Nutty1/5"]);
+  });
+
+  it("moves to the next and previous visible rows with Down and Up", () => {
+    renderWheel();
+    row("Fruity").focus();
+    press("ArrowDown");
+    expect(focused()).toBe("Floral, 3 of 5 evaluators");
+    press("ArrowDown");
+    expect(focused()).toBe("Nutty, 1 of 5 evaluators");
+    press("ArrowDown");
+    expect(focused()).toBe("Nutty, 1 of 5 evaluators");
+    press("ArrowUp");
+    expect(focused()).toBe("Floral, 3 of 5 evaluators");
+    expect(tabStops()).toEqual(["Floral3/5"]);
+  });
+
+  it("expands a collapsed parent with Right, then moves to its first child", () => {
+    const { container } = renderWheel();
+    row("Fruity").focus();
+    press("ArrowRight");
+    expect(row("Fruity").getAttribute("aria-expanded")).toBe("true");
+    expect(segmentIds(container)).toContain("berry");
+    expect(focused()).toBe("Fruity, 4 of 5 evaluators");
+    press("ArrowRight");
+    expect(focused()).toBe("Berry, 4 of 5 evaluators");
+  });
+
+  it("collapses an expanded parent with Left, and moves from a child to its parent", () => {
+    const { container } = renderWheel();
+    row("Fruity").focus();
+    press("ArrowRight");
+    press("ArrowDown");
+    press("ArrowDown");
+    expect(focused()).toBe("Dried, 2 of 5 evaluators");
+    press("ArrowLeft");
+    expect(focused()).toBe("Fruity, 4 of 5 evaluators");
+    press("ArrowLeft");
+    expect(row("Fruity").getAttribute("aria-expanded")).toBe("false");
+    expect(segmentIds(container)).toEqual(["fruity", "floral", "nutty"]);
+    expect(focused()).toBe("Fruity, 4 of 5 evaluators");
+  });
+
+  it("moves to the first and last visible rows with Home and End", () => {
+    renderWheel();
+    row("Floral").focus();
+    press("End");
+    expect(focused()).toBe("Nutty, 1 of 5 evaluators");
+    press("Home");
+    expect(focused()).toBe("Fruity, 4 of 5 evaluators");
+  });
+
+  it.each(["Enter", " "])(
+    "toggles a parent's expansion with %j, its segments following",
+    (key) => {
+      const { container } = renderWheel();
+      row("Floral").focus();
+      press(key);
+      expect(row("Floral").getAttribute("aria-expanded")).toBe("true");
+      expect(segmentIds(container)).toContain("jasmine");
+      expect(rows().map((r) => r.textContent)).toContain("Jasmine3/5");
+      press(key);
+      expect(row("Floral").getAttribute("aria-expanded")).toBe("false");
+      expect(segmentIds(container)).not.toContain("jasmine");
+      expect(focused()).toBe("Floral, 3 of 5 evaluators");
+    },
+  );
+
+  it("makes the focused row's note active: panel and segment highlight follow", () => {
+    const { container } = renderWheel();
+    row("Fruity").focus();
+    press("ArrowDown");
+    const box = panel(container);
+    expect(box.querySelector(".type-subheading")?.textContent).toBe("Floral");
+    expect(box.querySelector("#flavor-wheel-desc-floral")?.textContent).toBe(
+      "Floral description",
+    );
+    expect(row("Floral").getAttribute("aria-describedby")).toBe(
+      "flavor-wheel-desc-floral",
+    );
+    expect(
+      container
+        .querySelector("svg path.stroke-text-primary")
+        ?.getAttribute("d"),
+    ).toBe(
+      segment(container, "floral")!.querySelector("path")!.getAttribute("d"),
+    );
+  });
+
+  it("collapses every note with Escape and focuses the level-0 ancestor", () => {
+    const { container } = renderWheel();
+    row("Fruity").focus();
+    press("ArrowRight");
+    press("ArrowRight");
+    press("ArrowRight");
+    press("ArrowRight");
+    expect(focused()).toBe("Strawberry, 2 of 5 evaluators");
+    row("Floral").click();
+    expect(segmentIds(container)).toContain("jasmine");
+    row("Strawberry").focus();
+    press("Escape");
+    expect(segmentIds(container)).toEqual(["fruity", "floral", "nutty"]);
+    expect(rows()).toHaveLength(3);
+    expect(focused()).toBe("Fruity, 4 of 5 evaluators");
+    expect(tabStops()).toEqual(["Fruity4/5"]);
+  });
+});
