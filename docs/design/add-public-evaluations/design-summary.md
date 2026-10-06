@@ -1,443 +1,644 @@
-Status: draft — pending Product owner review
+Status: approved — by the orchestrator in Product owner's absence (overnight mandate, 2026-10-06): every Open point takes the design lead's recommendation (see "Settled by the orchestrator" under Open). Product owner may reopen any of them.
 
 # Design summary — add-public-evaluations
 
-Capability: `public-evaluations` (new). Change-id: `add-public-evaluations`. Branch (when created): `feature/add-public-evaluations`.
+- Change-id: `add-public-evaluations`. Branch (when created): `feature/add-public-evaluations`.
+- Capabilities (no new capability, Product owner 2026-10-06; `openspec/config.yaml`):
+  - `evaluations`: the public evaluations list with its filter, and the read-only evaluation view;
+  - `offering-catalog`: the detail delta, meaning the "View evaluations" link and the "Provisional evaluation" tab.
+- Replaces the withdrawn draft of 2026-10-06 (public list plus a specialist page, new capability `public-evaluations`).
 
-Drafted by the design lead on 2026-10-06 (generation mode), for the three public evaluation reads that no change consumes after today's contract update. Sources:
-- `contracts/openapi.yaml` on `develop` (updated 2026-10-06): `listEvaluations`, `getAnEvaluation`, `listTheEvaluationsOfAUser`, `getAnOffering`, `listOlfactoryTaxonomies`;
-- the decisions log of `docs/general-context.md`, especially "lecturas de evaluaciones: decisión final" (public reads stay public and anonymous; the evaluator is never exposed in public responses), "medias SCA en el detalle con la escala de granos", "pestañas del detalle de oferta" and "estilo de la pestaña futura";
-- the approved summaries of `add-specialist-evaluations` (worktree `tazavera-front-evaluations`: the read-only view of the user's own closed evaluations, §2, §3, §9) and `add-offering-catalog` (detail page, layout values), and the `add-evaluation-scales` summary (read-only `BeanScale`, `IntensitySlider`, `DescriptorChipGroup`);
-- the main specs in `openspec/specs/` and the code on `develop`;
-- the MVC, read only: `layouts/evaluations/show.blade.php`, `partials/technical-info.blade.php`, `layouts/offerings/partials/evaluation-axis-static.blade.php`, `consensus-axis.blade.php`, `partials/evaluation-card.blade.php`, `partials/evaluation-list.blade.php`.
+Sources:
+- the decisions log of `docs/general-context.md` (on `develop`): "evaluaciones públicas y evaluación provisional" and "API add-offering-baseline-seed: diseño final, integrado" (both supersede "evaluaciones públicas fuera del alcance"); also "estilo de la pestaña futura de evaluación provisional", "pestañas del detalle de oferta", "lecturas de evaluaciones: decisión final", D14, "piezas extraídas disponibles", "filtros…", "add-filter-controls: resto de puntos";
+- `contracts/openapi.yaml` on `develop` (`92328fc`): `listEvaluations` (now with `offeringId` and `evaluationType`), `getAnEvaluation`, `getAnOffering`, `listOlfactoryTaxonomies`, `listCoffees`;
+- the approved summary and the propose artifacts of `add-offering-catalog` (`feature/add-offering-catalog`: design.md D3–D16, summary §6.2–§6.3);
+- the propose artifacts of `add-specialist-evaluations` (design.md D2, D7, D12, D14, card field mapping), `add-evaluation-scales` (design.md D2–D6), `add-sidebar-slot` (design.md D1–D9), `add-facet-controls` (design.md D3–D11), `add-evaluation-facets` (design.md D2–D10), and the `add-filter-controls` and `add-flavor-wheel` summaries;
+- the MVC, read only: `layouts/offerings/show.blade.php` (an "Evaluaciones" tab lists the offering's evaluations under its consensus), `layouts/evaluations/partials/evaluation-card.blade.php`, `evaluation-list.blade.php`, `show.blade.php`, `partials/technical-info.blade.php`.
 
-Numbers marked *(measured)* come from a script executed by a design lead (this session had no shell: every such number is quoted from the cited summary); *(computed)* are the design lead's arithmetic; *(unverified)* was not checked.
+How numbers are marked:
+- *(measured)*: from an executed script, `contrast.mjs` in the design lead's scratchpad, run on `develop`'s `globals.css` on 2026-10-06, WCAG 2.x relative luminance, translucent tokens blended over their surface;
+- *(computed)*: the design lead's own arithmetic;
+- *(unverified)*: not checked.
 
 ## 1. Scope
 
-Three public screens, open to any visitor, with or without a session:
+Three pieces, open to any visitor with or without a session:
 
-1. **Evaluations** at `/{locale}/evaluations`: every closed evaluation, newest first, as row cards with Previous/Next pagination (`listEvaluations`).
-2. **Specialist's evaluations** at `/{locale}/specialists/{userUlid}`: the closed evaluations of one specialist, same list presentation (`listTheEvaluationsOfAUser`).
-3. **Evaluation** at `/{locale}/evaluations/{ulid}`: one closed evaluation, read only, with the offering it belongs to (`getAnEvaluation` + `getAnOffering`), presented as the user's own read-only view in `add-specialist-evaluations` (same groups, same layout, scales in `readOnly`).
-
-Why this split (criterion B, from the contract and the decisions log):
-- The evaluation resource carries `offeringId` but no evaluator and no offering details (`getAnEvaluation`, contract lines 426-751). Coffee, coffeeshop and roaster names come from `getAnOffering`, one request per distinct `offeringId`, as `add-specialist-evaluations` §1 does for its own list.
-- No public response exposes a specialist's ULID (decisions log "lecturas de evaluaciones: decisión final"). A specialist's page is reached only from a link that already holds the ULID: the specialist's own session (Open 2).
-- `listEvaluations` also accepts `evaluatorId`; the specialist page uses the dedicated `listTheEvaluationsOfAUser` instead, which documents the `404` for an unknown user.
-
-MVC mapping: the MVC has no public evaluation pages (its evaluation list and show are the evaluator's management area, `routes/web.php`). The visual language is translated from those management views and from the MVC offering detail's static axes, each cited where used.
+1. **Public evaluations list**, at `/{locale}/evaluations`. Closed specialist evaluations, newest first, as row cards with Previous/Next pagination. The filter sidebar holds the facets Offering, Score, Process and City, and the body toolbar holds the sort. Every request sends `evaluationType=specialist` and `status=closed` (decisions log, "API add-offering-baseline-seed", 1a).
+2. **Read-only evaluation view**, at `/{locale}/evaluations/{ulid}`. One evaluation (`getAnEvaluation`) with the offering it belongs to (`getAnOffering`), shown through the shared read-only evaluation presentation (§4.3).
+3. **Offering detail delta** (the page of `add-offering-catalog`):
+   - a "View evaluations" link that opens `/{locale}/evaluations?offeringId={ulid}`, so the list loads with the Offering facet active in the sidebar;
+   - a third tab, "Provisional evaluation", that shows the coffee shop's `baseline` evaluation (`GET /evaluations?offeringId={ulid}&evaluationType=baseline`), read only, through the same presentation as the view. When there is no baseline, the tab shows an empty state.
 
 Out of scope:
-- open (draft) evaluations: never shown publicly (Open 4);
-- filters and sorting controls on these lists (`add-filter-controls` places facets only on the offerings list and the management evaluations list; decisions log "filtros");
-- the evaluator's name or profile data: not in any public response;
-- the offering detail tab with the provisional evaluation (a later change of `add-offering-catalog`);
-- writing evaluations (`add-specialist-evaluations`).
+- the specialist's public page (`listTheEvaluationsOfAUser`), Product owner;
+- open (draft) evaluations in public;
+- the evaluator's identity, which no public response exposes;
+- creating a baseline: the API keeps it on its backlog as a creation endpoint only;
+- writing evaluations, which belongs to `add-specialist-evaluations`;
+- a header entry for the list (Open 7).
 
 ## 2. Contract operations consumed
 
-| operationId | Route | Security | Used by | Fetched |
-|---|---|---|---|---|
-| `listEvaluations` | `GET /evaluations?status=closed&orderBy=created_at&orderDirection=desc&page=n` | public (`security: []`) | Evaluations list | Server, plain `fetch` |
-| `listTheEvaluationsOfAUser` | `GET /users/{user_ulid}/evaluations?status=closed&orderBy=created_at&orderDirection=desc&page=n` | public | Specialist list | Server, plain `fetch` |
-| `getAnEvaluation` | `GET /evaluations/{evaluation_ulid}` | public | Evaluation view | Server, plain `fetch` |
-| `getAnOffering` | `GET /offerings/{offering_ulid}` | public | Row heading and captions (one per distinct `offeringId` on the page, in parallel); the evaluation view's header and roast level | Server, plain `fetch` (Open 7: where the fetcher lives) |
-| `listOlfactoryTaxonomies` | `GET /taxonomies` | public | Taste-note names and colours of the evaluation view | Server, `fetchTaxonomies` (`src/entities/taxonomy`) |
+All of them are public (`security: []`). They run on the server with plain `fetch` against `NEXT_PUBLIC_API_URL`, with no credential (settled rule, `.claude/CLAUDE.md` §2). No session is read on these screens, except by the offering detail's existing Evaluate link.
 
-Fetching rule (settled, `.claude/CLAUDE.md` §2): every operation here is public, so all run on the server with plain `fetch` against `NEXT_PUBLIC_API_URL`, with no credential, as `fetchVerifiedOfferings` does. No session is read on these screens.
-
-Fields shown (contract names; values as the API returns them, general context "Forma de trabajar"):
-- list row and view header: `cuppingScore` (decimal string, rating tier by `ratingTierFor`), `closedAt` (date), `extractionMethod`, `isDefective`; from the offering: `coffeeInventory.coffee.name`, `location.name`, `coffeeInventory.roastery.name`;
-- view only: `descriptive.{fragrance, aroma, flavor, aftertaste, acidity, sweetness, mouthfeel}.score` (0–15) and `.note`; `affective.{…, overall}.score` (1–9) and `.note`; `tastes[]` (`ref`, `type` per axis, mapped as `add-specialist-evaluations` §2 "Loading a draft"); `extrinsics.*` (non-null ones); `evaluationType`; the offering's `coffeeInventory.coffee.roastLevel` (the evaluation does not return it, `add-specialist-evaluations` §2).
-- not shown: `ulid`, `offeringId`, `status` (always closed here), `createdAt` (Open 5).
-
-**Response states:**
-
-| State | Lists | Evaluation view |
+| operationId | Request | Used by |
 |---|---|---|
-| Loading | `Suspense` fallback: three row skeletons (§6.2) | Header placeholder bars and two skeleton cards (§6.3), as the catalog detail |
-| 200 with items | Row cards + pagination | Full view |
-| 200 with `data: []` | Empty message | n/a |
-| One row's `getAnOffering` fails | That row shows `offeringUnavailable` as its heading, no captions, no "View offering" link; the other rows are unaffected | Header shows `offeringUnavailable`; the evaluation groups still render |
-| Unknown user ULID (`404`, documented in the description of `listTheEvaluationsOfAUser`) | The 404 page (Next `notFound()`) | n/a |
-| Evaluation with `status: open` | n/a | The 404 page (Open 4) |
-| Any other non-2xx or transport failure | Error message + Retry | Error message + Retry + the back link (add-offering-catalog Open 7 rule: a `404` of `getAnEvaluation` is undocumented, so it falls here) |
-| 422 (invalid query value) | Same as the error state; the screens send only fixed values and `page` | n/a |
+| `listEvaluations` | `GET /evaluations?evaluationType=specialist&status=closed` + facet keys (`offeringId`, `scoreMin`, `scoreMax`, `process`, `city`) + sort (`orderBy`, `orderDirection`; the default writes `created_at desc`) + `page` | Public list |
+| `listEvaluations` | `GET /evaluations?offeringId={ulid}&evaluationType=baseline` (Open 6 on ordering) | Provisional tab |
+| `getAnEvaluation` | `GET /evaluations/{ulid}` | View |
+| `getAnOffering` | `GET /offerings/{ulid}` | Per row (one call per distinct `offeringId` on the page, in parallel; at most 15 per page, contract `per_page` example); the view header; the Offering facet's label |
+| `listOlfactoryTaxonomies` | `GET /taxonomies` | Descriptor rows and names in the presentation (view and tab) |
+| `listCoffees` | `GET /coffees` | The Process facet's options (`distinctCoffeeValues`, `add-evaluation-facets` D7) |
+
+Fields shown (contract names, values as returned):
+- **Row:** `cuppingScore`, `closedAt`; from the offering, `coffeeInventory.coffee.name`, `location.name` and `coffeeInventory.roastery.name`.
+- **Presentation:**
+  - `cuppingScore`, `closedAt`, `extractionMethod`, `isDefective`;
+  - `descriptive.{fragrance, aroma, flavor, aftertaste, acidity, sweetness, mouthfeel}.score` (0–15) and `.note`;
+  - `affective.{…, overall}.score` (1–9) and `.note`;
+  - `tastes[]` (`ref`, `type`);
+  - the non-null `extrinsics.*`.
+- **Not shown:** `ulid`, `offeringId`, `status`, `evaluationType`, `createdAt`. The roast level is not shown: the evaluation resource does not return it (`add-specialist-evaluations` D11), and the offering's roast level is already in the Inventory data tab.
+
+Contract gaps (reported in §11, never adapted to):
+- only `200` is documented for `listEvaluations`, `getAnEvaluation` and `getAnOffering`;
+- the descriptions say the offering is "included", but the resource carries only `offeringId`.
+
+### Response states
+
+**Public list**
+
+| State | Shown |
+|---|---|
+| Loading | Three row skeletons (§5.2) |
+| 200 with items | Row cards and pagination |
+| 200 with `data: []`, no facet applied | `listEmptyMessage` |
+| 200 with `data: []`, with a facet applied | `filters.noMatches` and the "Clear all" button (`add-evaluation-facets` D9). This includes "View evaluations" for an offering without evaluations. |
+| One row's `getAnOffering` fails | That row shows `offeringUnavailable` as its heading, with no captions and no "View offering" link. Other rows are unaffected. |
+| Any non-2xx (422 included) or transport failure | `listErrorMessage` with Retry. The facets keep their values. |
+
+**Read-only view**
+
+| State | Shown |
+|---|---|
+| Loading | Section 1: the back link and three placeholder bars. Section 2: two skeleton cards. |
+| 200, `status` closed | Header and presentation |
+| 200, `status` not closed | The 404 page (Open 5) |
+| `getAnOffering` fails | The h1 shows `offeringUnavailable`, with no captions and no "View offering" link. The presentation still renders. |
+| Non-2xx or transport failure of `getAnEvaluation` or `listOlfactoryTaxonomies` | Section 1 keeps the back link; section 2 shows `viewErrorMessage` with Retry. An unknown ULID falls here: its 404 is undocumented, so the catalog's no-`notFound()` rule applies (`add-offering-catalog` design.md, `getAnOffering` row). |
+
+**Provisional tab**
+
+| State | Shown |
+|---|---|
+| Loading | Two skeleton cards in the panel |
+| 200 with at least one item | The presentation of the first item |
+| 200 with `data: []` | `detailProvisionalEmpty` |
+| Non-2xx or transport failure | `detailProvisionalError` with Retry, inside the panel only. The header and the other tabs are unaffected. |
+
+**Sidebar**
+
+| State | Shown |
+|---|---|
+| `listCoffees` fails | The Process facet is disabled with `filters.optionsUnavailable` (`add-evaluation-facets` D7) |
+| `getAnOffering` for the active `offeringId` fails | The Offering option and its chip read `offeringFilterFallback` |
 
 ## 3. Routes and composition (FSD)
 
-| Layer | Piece | Notes |
+| File or slice | Layer | Role |
 |---|---|---|
-| `app/[locale]/evaluations/page.tsx` | Route: passes the locale and `page` | No logic |
-| `app/[locale]/evaluations/[ulid]/page.tsx` | Route: passes the locale and the ulid | |
-| `app/[locale]/specialists/[userUlid]/page.tsx` | Route: passes the locale, the user ulid and `page` | Route name: Open 3 |
-| `src/pages/public-evaluations` | `EvaluationsScreen`, `SpecialistEvaluationsScreen`: texts (server), `PageSection`, the list in `Suspense` | New |
-| `src/pages/public-evaluation` | `EvaluationScreen`: texts, `PageSection`, the view in `Suspense` | New |
-| `src/widgets/evaluation-list` | Async fetch component (list + offerings per row) and sync presentation, the `VerifiedOfferings` / `OfferingList` split; takes the list fetch as a parameter so both list routes share it | Shared with `add-specialist-evaluations`' row card (Open 6) |
-| `src/widgets/evaluation-sheet` | The read-only evaluation: header data, context card, group cards with read-only scales and descriptors | Shared with `add-specialist-evaluations`' read-only view (Open 6) |
-| `src/entities/offering` | `ratingTierFor`; the single-offering fetch (Open 7) | Existing / Open 7 |
-| `src/entities/taxonomy` | `fetchTaxonomies`, `buildTaxonomyLookup` | Existing |
-| `src/shared/ui` | `PageSection`, `Pagination`, `Card`, `Badge`, `Link`, `Button`, `BeanScale`, `IntensitySlider`, `DescriptorChipGroup` (scales) | Existing / scales |
+| `app/[locale]/evaluations/page.tsx` | app | Passes `locale` and the raw `searchParams` to the list screen. No logic. |
+| `app/[locale]/evaluations/[ulid]/page.tsx` | app | Passes `locale` and `ulid` to the view screen |
+| `app/[locale]/@sidebar/evaluations/page.tsx` | app | The list's sidebar slot page (`add-sidebar-slot` D1). The view route `/evaluations/{ulid}` falls to the slot's catch-all, so it has no sidebar (D2). |
+| `src/pages/public-evaluations` | pages | List screen: texts, heading block, toolbar, list in `Suspense`. Sidebar screen: texts, the `listCoffees` read, the `getAnOffering` read for the active offering, parsing, `AppSidebar` frame with the facet panel. |
+| `src/pages/public-evaluation` | pages | View screen: texts, two `PageSection`s, content in `Suspense` |
+| `src/widgets/public-evaluation-list` | widgets | Async fetch component (list, plus offerings per row) and a sync presentation, on the `Offerings`/`OfferingList` pattern |
+| `src/widgets/evaluation-sheet` | widgets | `EvaluationSheet`: the sync read-only presentation (§4.3). Async wrappers for the view (`getAnEvaluation`, `getAnOffering`, `listOlfactoryTaxonomies`) and for the baseline (`listEvaluations` baseline, `listOlfactoryTaxonomies`). |
+| `src/entities/evaluation/api` | entities | `fetchEvaluations(query)` and `fetchEvaluation(ulid)`, plain server `fetch`, throwing on non-2xx. The entity is created by `add-specialist-evaluations` D2. |
+| `src/entities/evaluation/model` | entities | Reused from `add-specialist-evaluations`: the groups and axis order (`groups.ts`) and the `tastes` → block mapping (`load.ts`, D7). Exports are *(unverified)* until its apply. |
+| `src/entities/offering/api` | entities | `fetchOffering` (F2), `ratingTierFor` |
+| `src/entities/taxonomy` | entities | `fetchTaxonomies`, `buildTaxonomyLookup`, and the descriptor-row builder (F3) |
+| `src/features/evaluation-facets` | features | Reused and extended for the public facet set (Open 3) |
+| `src/widgets/offering-detail` | widgets | Modified: the header actions row (§5.4); `DetailTab` gains `"provisional"`; `DetailTabs` and the content take a third panel slot |
+| `src/pages/offering-detail` | pages | Modified: passes the baseline wrapper of `evaluation-sheet` as the third panel slot |
+
+Composition of the tab (settled; criterion B, verified constraint):
+- `widgets/offering-detail` cannot import `widgets/evaluation-sheet`, because FSD forbids imports between slices of one layer (AGENTS.md).
+- So the page (`src/pages/offering-detail`) composes the panel and passes it down as a `ReactNode` slot.
+- This is the slot mechanism `DetailTabs` already uses for its panels (`add-offering-catalog` D7).
+- No visible change and no new mechanism.
 
 ## 4. Components and reuse
 
-| Part | Component and variant | States | Accessible name / semantics |
-|---|---|---|---|
-| Page eyebrow | `<p className="type-eyebrow-strong">` | — | text |
-| Page heading | `<h1 className="type-heading">` | — | text |
-| Row card | `Card layout="default"`: `CardAside` (score), `CardContent` (heading, captions, meta), `CardFooter` (links) — the row card of `add-specialist-evaluations` §9 "List page", without its status badge and actions | — | `h2` coffee name (`type-card-heading`) |
-| Score row | `type-score` value, `type-meta` "/100", `Badge variant={ratingTierFor(cuppingScore)}` with the tier word (the `OfferingCard` composition, label-rating-badge) | absent when `cuppingScore` is null | the score text; the badge's word |
-| Row links | `Link` default: "View" → `/{locale}/evaluations/{ulid}`; "View offering" → `/{locale}/offerings/{offeringId}` | rest, hover, focus | "View" + visually hidden " {coffee name}" (WCAG 2.5.3, name starts with the visible text); same for "View offering" |
-| Defective mark | `<span className="type-meta">` with the `defectiveLabel` text, only when `isDefective` | — | text (never colour alone) |
-| Pagination | `Pagination` (`@/shared/ui`): `path` the route, `query` none, `currentPage` / `lastPage` from `meta` | disabled at the boundaries | button labels |
-| Row skeleton | `Card layout="default"` with the placeholder bars of `OfferingSkeletonCard` (`bg-surface-section`, `rounded-field`) | loading | `aria-hidden`; the list region carries `aria-busy` |
-| Empty message | `<p className="type-body">` | — | text |
-| Error + Retry | `type-body` message and Retry (Open 8) | — | label |
-| Back link | `Link variant="back"` → `/{locale}/evaluations` (Open 9) | — | `backLabel` |
-| View header | eyebrow, `h1` coffee name, captions (`type-label`), meta line (`type-meta`), "View offering" `Link` | — | — |
-| Context card | `Card layout="stacked"`, `CardContent` only: the score row, then a `dl` | — | `h2` `contextHeading` (`type-subheading`) |
-| Group card | `Card layout="stacked"`: `CardAside` header (group name), `CardContent` body (descriptive and affective parts) — `add-specialist-evaluations` §9 | below `md`: collapsible header (`aria-expanded`); from `md`: static | `h2` group name |
-| Intensity (0–15) | `IntensitySlider readOnly` (`role="meter"`, `valueText` "8/15", `valueLabel` "8 de 15", `scaleLabels`) | read-only | `label` = axis name |
-| Impression (1–9) | `BeanScale readOnly size="responsive"` (`role="meter"`, `valueText` "6/9", `valueLabel` "6 de 9") | read-only | `label` = axis name |
-| Descriptors | `DescriptorChipGroup readOnly` with the rows built from `GET /taxonomies` per `add-specialist-evaluations` §3; `emptyText` `noDescriptors` | read-only | `legend` = block name |
-| Notes | `<p className="type-body">` per non-null note, under a `type-label` "Note" | — | text |
-| Extrinsics | `dl`, one row per non-null `extrinsics.*` field | — | native |
+### 4.1 Public list
 
-**New components in `src/shared/ui`:** none. Two new widgets (Open 6) compose existing parts.
+| Part | Component and variant | Accessible name / semantics |
+|---|---|---|
+| Eyebrow, h1 | `<p class="type-eyebrow-strong">`, `<h1 class="type-heading">` | text |
+| Toolbar | `EvaluationsToolbar` (`add-evaluation-facets` D8): `FiltersTrigger` (`Button` primary, `SlidersHorizontal`, count) and the sort (`Field` + `Select` default, options of its D6) | the trigger's text; the select's label |
+| Row card | The row card of `add-specialist-evaluations` (`Card layout="default"`, its card field mapping), without the status badge and with its actions slot holding the public links (Open 2) | `h2` coffee name (`type-card-heading`) |
+| Score row | `type-score` value, `type-meta` "/100", `Badge variant={ratingTierFor(cuppingScore)}` with the tier word (`OfferingCard` composition). Absent when `cuppingScore` is null. | text + word |
+| Row links | `Link` default: "View" → `/{locale}/evaluations/{ulid}`; "View offering" → `/{locale}/offerings/{offeringId}` | the visible text plus a visually hidden " {coffee name}", so each name is unique and starts with the visible text (WCAG 2.5.3) |
+| Pagination | `Pagination` (`@/shared/ui`). `path` is `/{locale}/evaluations`; `query` is the URL's `searchParams` record, so every key is kept and `page` is replaced. | button labels |
+| Empty, error | `type-body` message; `RetryButton` (`@/shared/ui`, moved there by `add-offering-catalog` D4); `ClearEvaluationFiltersButton` (`add-evaluation-facets` D9) | label |
+| Row skeleton | `Card layout="default"` with `OfferingSkeletonCard`'s placeholder bars | `aria-hidden`; the list region carries `aria-busy` |
+| Result count | `evaluations.resultCount` as a polite `role="status"` element (`add-evaluation-facets` D9) | text |
 
-## 5. Semantic tokens and contrast
+### 4.2 Sidebar (public route)
 
-Only existing semantic tokens. No new primitive or semantic token.
+- `AppSidebar` frame (`add-sidebar-slot` D4). There is no `<nav>` and no `SidebarSeparator`: no entries on a public route.
+- Inside it, the `FacetPanel` of `add-facet-controls` D4 (`role="search"`, titled `filters.title`, applied chips and "Clear all"), with the facets in this order:
+
+| # | Facet | Control | Key | Values |
+|---|---|---|---|---|
+| 1 | Offering | `FacetRadioList`: "Any", then the active offering labelled "{coffee name} · {coffeeshop}". Shown only while `offeringId` is in the URL (Open 1). | `offeringId` | the ULID from the URL |
+| 2 | Score | `ScoreRangeFacet` 0–100 | `scoreMin`, `scoreMax` | `add-evaluation-facets` D4 rules |
+| 3 | Process | `FacetRadioList` over `distinctCoffeeValues(coffees, "process")` | `process` | single value |
+| 4 | City | `FacetTextField` (≤ 90 characters, help `filters.cityHelp`) | `city` | trimmed text |
+
+- No Status facet: `status=closed` is fixed.
+- Chips follow `add-evaluation-facets` D5. The Offering chip is "Offering: {coffee name}".
+- "Clear all" keeps the sort keys (its D5).
+- The sidebar is open from `md` and covers the full screen below `md` (`add-sidebar-slot` D3).
+
+### 4.3 Read-only evaluation presentation (`EvaluationSheet`)
+
+One presentation for the view and the provisional tab, in the style of the Consensus tab (decisions log, "estilo de la pestaña futura": read-only bean scales and the same layout; `add-offering-catalog` D12).
+
+| Card | Content | API fields |
+|---|---|---|
+| Summary (`h2` `summaryHeading`) | Header row: the `h2` and the score row. Below it, a `dl` of `LabelValueRow`s: Closed on, Extraction method (catalog label for the nine values, raw value otherwise: `add-specialist-evaluations` D12), Defective cup (Yes/No). A null `closedAt` omits its row. | `cuppingScore`, `closedAt`, `extractionMethod`, `isDefective` |
+| Intensity (`h2` `intensityHeading`) | Seven `IntensitySlider readOnly`: `valueText` "{v}/15", `valueLabel` "{v} de 15", `scaleLabels` LOW/MEDIUM/HIGH (from `evaluations`), label = axis name. A null score renders as 0 (scales D2). | `descriptive.*.score` |
+| Preference (`h2` `preferenceHeading`) | Eight `BeanScale readOnly size="responsive"`: `valueText` "{v}/9", `valueLabel` "{v} de 9" (from `scales`). A null score omits its scale (catalog D12 rule). | `affective.*.score` |
+| Descriptors (`h2` `descriptorsHeading`) | Five `DescriptorChipGroup readOnly` blocks, each with its block name as `legend` and `emptyText` `noDescriptors`: Fragrance / Aroma, Flavor / Aftertaste, Main tastes, Mouthfeel, Defects. Rows are built from `GET /taxonomies` by category with the settled rule (levels 0–1; `add-specialist-evaluations` D7; F3). An unresolved `ref` renders no badge. | `tastes[]` by `type`: `fragrance`/`aroma`, `flavor`/`aftertaste`, `main_tastes`, `mouthfeel`, `defects` |
+| Notes (`h2` `notesHeading`), only when a note is non-null | `dl`: `dt` "{Intensity or Preference} · {axis}" (`type-label`), `dd` the note (`type-body`) | `descriptive.*.note`, `affective.*.note` |
+| Extrinsic attributes (`h2` `extrinsicsHeading`), only when a field is non-null | `dl`: `dt` field label, `dd` value | `extrinsics.{farming, processing, trading, certifications, generalObservation}` |
+
+Reused without change:
+- `Card layout="stacked"` and `LabelValueRow` (`add-offering-catalog` D5);
+- `Badge` and `ratingTierFor`;
+- the three read-only scale controls of `add-evaluation-scales`.
+
+New components in `src/shared/ui`: none.
+
+### 4.4 Offering detail delta
+
+| Part | Component | Notes |
+|---|---|---|
+| "View evaluations" | `Link` default (Open 8) → `/{locale}/evaluations?offeringId={ulid}` | Always shown (Open 10). Name: `detailViewEvaluations`. |
+| Evaluate | Unchanged (`add-offering-catalog` D9) | Moves into the same actions row |
+| Third tab trigger | `TabsTrigger` (`add-offering-catalog` D6), value `provisional`, label `detailTabProvisional` | `?tab=provisional`; an absent or unknown value still opens `inventory` (D7) |
+| Third panel | `EvaluationSheet` of the baseline, or the empty or error state | — |
+
+## 5. Layout and spacing (criterion A)
+
+Breakpoints are Tailwind's defaults (`sm` 640, `md` 768, `lg` 1024, `xl` 1280). Every value is an end state.
+
+### 5.1 Page sections
+
+- Every route uses `PageSection` (decisions log D14): full width; vertical padding 3rem below `md` and 4rem from `md`; a centred container of at most 72rem with side padding 1rem / 2rem; no border or radius.
+- Each route has two sections: section 1 on `surface-page` and section 2 on `surface-section`. This mirrors the catalog list and detail (`add-offering-catalog` summary §6.2–§6.3).
+
+### 5.2 Public list `/{locale}/evaluations`
+
+**Section 1 (`surface-page`).** The container is a flex column.
+- Heading block: eyebrow and h1, 0.5rem apart, no box. Sources: MVC `layouts/evaluations/index.blade.php:3-5`; catalog §6.2.
+- Toolbar: 2rem below the heading block, full width (catalog §6.2 filter slot).
+  - Its own layout, from `add-evaluation-facets` D8: a flex row that wraps, items aligned to the bottom, 1rem column gap and 0.75rem row gap, the trigger at the start and the sort at the end. The sort field is 12–16rem wide.
+  - No padding, border or radius.
+
+**Section 2 (`surface-section`).** The container is a flex column.
+- List: one column at every width, 1rem between cards (`add-specialist-evaluations` D14; MVC `evaluation-list.blade.php:4`, `gap-2` rounded up to the project's list step). No padding, border or radius of its own.
+- Pagination: 2rem below the list, as shipped (centred, buttons 1rem apart, wrapping).
+- Empty state: a centred column, 1rem apart: the message, plus "Clear all" when filtered. No box.
+- Error state: a centred column, 1rem apart: the message, then Retry at its own width. No box.
+- Loading: three row skeletons, 1rem apart. Each is a `Card layout="default"` whose `CardContent` holds three bars, 0.5rem apart: 1.5rem tall at two thirds width, 1rem tall at half width, 1rem tall at a quarter width (`bg-surface-section`, `rounded-field`). No aside and no footer.
+
+**Row card** (`Card layout="default"`; MVC `evaluation-card.blade.php`). Border, radius and shadow are the card's own: 4px left `border-accent`, `rounded-container`, `shadow-lg`.
+- `CardAside`: the card's own 1.5rem padding. Below `lg`, a 1px bottom `border-subtle`; from `lg`, a 1px right border and a quarter of the card width.
+  - It holds the score row: flex, wrapping, baseline-aligned, 0.5rem gap.
+  - With a null `cuppingScore` the aside is empty.
+- `CardContent`: 1.5rem padding; a vertical stack, 0.5rem apart:
+  - the `h2` coffee name;
+  - directly below it, the date line (`type-meta`, "{closedOnLabel} {date}");
+  - the coffeeshop caption and the roaster caption (`type-label`).
+- `CardFooter`: 1.5rem padding, below both regions. The links sit in a flex row that wraps, aligned to the end, 1rem apart (`add-specialist-evaluations` footer).
+
+**Sidebar.**
+- The sidebar keeps its own values: a 16rem column from `md`, `nav-surface-dark` under `variant-inverse` (`add-sidebar-slot` D5, D8).
+- The panel keeps its own values (`add-facet-controls` D4):
+  - a column with 1.25rem gaps;
+  - the title with 0.75rem side padding;
+  - chips in a wrapping row, 0.5rem apart, with 0.75rem side padding.
+- Facet internals are the controls' own (D3, D5, D6, D8): rows 0.25rem apart, the legend at `px-3 py-1`.
+
+### 5.3 Read-only view `/{locale}/evaluations/{ulid}`
+
+**Section 1 (`surface-page`).** A flex column with two blocks 1.5rem apart, following the catalog detail (§6.3).
+1. Back link: `Link variant="back"` → `/{locale}/evaluations`, plain, with no query (as the catalog detail's back link: spec "Back link"). No box.
+2. Header block: a flex column, children 0.5rem apart, no border, background or padding:
+   - the eyebrow (`viewEyebrow`, `type-eyebrow-strong`);
+   - the h1 coffee name;
+   - the coffeeshop caption and the roaster caption (`type-label`);
+   - the meta line (`type-meta`, "{closedOnLabel} {date}");
+   - the "View offering" `Link`.
+
+**Section 2 (`surface-section`).** The `EvaluationSheet` (§5.5).
+
+- Loading:
+  - section 1 shows the back link and three bars, 0.5rem apart (1rem tall at a quarter, 1.5rem at two thirds, 1rem at half; `bg-surface-section`, `rounded-field`);
+  - section 2 shows two skeleton cards in the sheet grid.
+- Error: section 1 shows only the back link; section 2 shows the message and Retry in a centred column, 1rem apart.
+
+### 5.4 Offering detail delta
+
+- **Header actions row.** It is the last child of the catalog's title group, so it sits 0.5rem below the last caption (the group's own gap, `add-offering-catalog` D9).
+  - A flex row that wraps, 1rem apart both ways, start-aligned.
+  - It holds "View evaluations", then Evaluate (specialist only).
+  - No padding, border or radius.
+  - This replaces the catalog's standalone Evaluate placement, which is the same 0.5rem below the captions.
+- **Tabs.** The catalog's treatment (D6) is unchanged: list with a 1px `border-subtle` bottom edge (decorative); triggers `0.5rem 0.75rem` padding, at least 2.5rem tall; panel 1.5rem below the list. The third trigger follows the other two in the same flex row.
+- **Provisional panel:**
+  - the `EvaluationSheet` (§5.5);
+  - empty: `detailProvisionalEmpty` (`type-body`), centred, no box;
+  - error: the message and Retry, centred, 1rem apart;
+  - loading: two skeleton cards in the sheet grid.
+
+### 5.5 `EvaluationSheet`
+
+- **Grid.** One column below `lg`, two equal columns from `lg`, 1.5rem gap. Cards of a row stretch to equal height (catalog D12, §6.3).
+  - Order: Summary (spans both columns), Intensity | Preference (one row from `lg`), Descriptors (spans both), Notes (spans both, when present), Extrinsic attributes (spans both, when present).
+  - The sheet has no padding, border or radius of its own.
+- **Each card.** `Card layout="stacked"` with `CardContent` only: 1.5rem padding, 4px left `border-accent`, `rounded-container`, `shadow-lg`. Inside it, a flex column with the `h2` (`type-subheading`) and its content 1rem apart.
+- **Summary card:**
+  - Header row: a flex row that wraps, space-between, centre-aligned, 0.5rem gap, with the `h2` and the score row (MVC `technical-info.blade.php:26-33`, `flex items-center justify-between`).
+  - The score row sits on `surface-card`, never on `surface-section` (§6, measured).
+  - Then the `dl`: `LabelValueRow`s in the catalog grid (D5): one column below `md`, two from `md`, 0.75rem between rows and 1.5rem between columns. The row's own layout is term at the start and value at the end, at least 1rem apart, wrapping.
+- **Intensity and Preference cards.** The controls stack in a flex column, 1.5rem apart, as the catalog's SCA attributes card. Scale internals are the controls' own (scales D3, D5):
+  - bean scale: label 0.5rem above, beans 0.25rem apart, value text with a 0.75rem column gap;
+  - slider: header 0.5rem above the track, marks 0.25rem below.
+- **Descriptors card.** An inner grid with one column below `md` and two from `md`, 1.5rem gap both ways, holding the five chip groups. Group internals are the control's own (scales D6): legend 0.5rem below, rows 0.75rem apart, badges 0.5rem apart.
+- **Notes and Extrinsic attributes cards.** One `dl` each. Each entry is a stacked `dt` over `dd`, 0.25rem apart; entries are 1rem apart; one column; no separators.
+
+### 5.6 At 375px and 1280px *(computed)*
+
+**At 375px:**
+- The container is 343px.
+- A card's content box is 343 − 2 × 24 − 4 = 291px.
+- The bean row at 24px is 9 × 24 + 8 × 4 = 248px, so it fits 291px; the value text wraps under it (scales D3).
+- Row cards stack the aside above the content, and the links wrap.
+- The summary header wraps the score row under the `h2`.
+- The facets open full screen (sidebar sheet).
+- No horizontal scroll.
+
+**At 1280px:**
+- On the list with the sidebar open, the content column is 1280 − 256 − 64 = 960px.
+- On the view, the content is 72rem − 4rem = 1088px.
+
+### 5.7 Visual reference (ASCII mock-ups)
+
+The MVC has the row card (`evaluation-card.blade.php`) but no public list or provisional tab, so these mock-ups are the reference. The verification task captures all three routes, plus the detail's provisional tab, at 375px and 1280px in both themes.
+
+Public list, 1280px, sidebar open, arriving from "View evaluations":
+```
+┌ header ───────────────────────────────────────────────────────────────────────┐
+│▌Sidebar 16rem  ││ section 1 · surface-page · py-16                           │
+│ Filters        ││   EVALUATIONS                         (eyebrow)            │
+│ [Offering: Huila×]  Specialist evaluations                (h1)             │
+│ Clear all      ││   2rem                                                     │
+│ Offering       ││   [≡ Filters (1)]                    Sort by [Newest ▾]    │
+│  ○ Any         │├───────────────────────────────────────────────────────────┤
+│  ● Huila ·     ││ section 2 · surface-section                                │
+│    Tazavera    ││ ┃┌ aside ────────┐┌ content ─────────────────────────────┐ │
+│ Score  0──100  ││ ┃│ 84.25 /100    ││ Huila El Mirador              (h2)   │ │
+│ Process        ││ ┃│ [Good]        ││ Closed on 2 Oct 2026                 │ │
+│  ○ Any ○ washed││ ┃│               ││ Coffeeshop: Tazavera Gràcia          │ │
+│ City [______]  ││ ┃│               ││ Roaster: Nómada Roasters             │ │
+│                ││ ┃└───────────────┘└──────────── View  View offering ────┘ │
+│                ││   1rem                                                     │
+│                ││              [Previous] [Next]   (2rem below)              │
+└───────────────────────────────────────────────────────────────────────────────┘
+```
+
+Read-only view and provisional tab content, 375px (`EvaluationSheet`):
+```
+│ section 1 · px-4 py-12          │
+│ ← Back                          │
+│ EVALUATION                      │
+│ Huila El Mirador (h1)           │
+│ Coffeeshop: Tazavera Gràcia     │
+│ Roaster: Nómada Roasters        │
+│ Closed on 2 Oct 2026            │
+│ View offering                   │
+├ section 2 · surface-section ────┤
+│ ┃ Context      84.25 /100 [Good]│
+│ ┃ Closed on        2 Oct 2026   │
+│ ┃ Extraction method       V60   │
+│ ┃ Defective cup            No   │
+│   1.5rem                        │
+│ ┃ Intensity                     │
+│ ┃ Fragrance              11/15  │
+│ ┃ ▬▬▬▬▬▬▬▬▬▬▬▬░░░░░░            │
+│ ┃ LOW     MEDIUM      HIGH      │
+│ ┃ … six more, 1.5rem apart      │
+│ ┃ Preference                    │
+│ ┃ Fragrance                     │
+│ ┃ ●●●●●●●○○  7/9                │
+│ ┃ Descriptors                   │
+│ ┃ Fragrance / Aroma             │
+│ ┃ [Fruity] [Floral]             │
+│ ┃ Main tastes  [Sweet]          │
+```
+
+Offering detail header with the delta, 1280px:
+```
+│ ← Back                                                        │
+│ [✓ Verified]                                                  │
+│ Huila El Mirador (h1)                                         │
+│ Coffeeshop: Tazavera Gràcia                                   │
+│ Roaster: Nómada Roasters                                      │
+│ View evaluations   Evaluate          (row, 1rem apart)        │
+├ section 2 ────────────────────────────────────────────────────┤
+│ Inventory data | Consensus | Provisional evaluation           │
+│ ───────────────────────────────── (selected: 2px accent edge) │
+│ 1.5rem                                                        │
+│ [EvaluationSheet of the baseline]                             │
+```
+
+## 6. Semantic tokens and contrast (criterion D)
+
+Only existing semantic tokens. No new primitive and no new semantic token.
 
 | Part | Token(s) | Sits on |
 |---|---|---|
-| Page | `bg-surface-page` (`PageSection surface="page"`) | — |
-| Eyebrow | `text-label` (`type-eyebrow-strong`) | surface-page |
-| h1 | `text-primary` (`type-heading`) | surface-page |
-| View captions | `text-label` (`type-label`) | surface-page |
-| View meta line | `text-secondary` (`type-meta`) | surface-page |
-| Links (back, View offering) | `text-link`, hover `text-link-hover` | surface-page, surface-card |
-| Cards | `surface-card`, 4px left `border-accent`, `rounded-container`, `shadow-lg` (Card's own); `CardAside` 1px `border-subtle` separator (decorative) | surface-page |
-| Row heading, `h3` part headings in cards | `text-primary` (`type-card-heading`) / `text-label` (`type-label`) | surface-card |
-| Group and context `h2` | `text-accent` (`type-subheading`) | surface-card |
-| Captions, `dt` | `text-label` (`type-label`) | surface-card |
-| Meta, `dd` | `text-secondary` (`type-meta`) / `text-primary` (`type-body`) | surface-card |
-| Score | `text-primary` (`type-score`), `text-secondary` "/100", rating `Badge` (`evaluation-rating-*` + `badge-text`) | surface-card |
-| Score and descriptor panels | `bg-surface-section`, 1px `border-subtle` (decorative), `rounded-container` | surface-card |
-| Scale labels, value text, marks | `text-label`, `text-primary`, `text-secondary` (scales' own) | surface-section |
-| Beans, slider track | `evaluation-bean-*`, `evaluation-slider-*` (scales' own) | surface-section |
-| Taxonomy badges | `Badge variant="taxonomy"` (feedback's luminance rule) | surface-section |
-| Error text | `feedback-error` | n/a (no error text on a field here; errors use `type-body`) |
-| Focus | `focus-visible:focus-ring` | surface-page, surface-card |
+| Sections | `surface-page`, `surface-section` (`PageSection`) | — |
+| Eyebrow, captions, `dt` | `text-label` | surface-page, surface-card |
+| h1, `dd`, body, score | `text-primary` | surface-page, surface-card, surface-section (empty and error messages) |
+| Meta, "/100" | `text-secondary` | surface-page, surface-card |
+| Card `h2` (`type-subheading`) | `text-accent` | surface-card |
+| Links | `text-link`, hover `text-link-hover` | surface-page (back link, View offering, View evaluations), surface-card (row links) |
+| Rating badge | `badge-text` on `evaluation-rating-*` | **surface-card only** |
+| Cards | `surface-card`, 4px `border-accent`, `rounded-container`, `shadow-lg`; `border-subtle` separators (decorative) | surface-section |
+| Scales, chips, taxonomy badges | the controls' own tokens (`evaluation-bean-*`, `evaluation-slider-*`, `Badge taxonomy`) | surface-card |
+| Tabs | `text-secondary` / selected `text-primary`, `border-accent` edge | surface-section |
+| Sidebar and facets | `nav-*`, `variant-inverse` | nav-surface-dark |
+| Focus | `focus-visible:focus-ring` | every surface above |
 
-**Gated pairs** (text 4.5:1; icon and boundary 3:1). No new measurement in this session (no shell): every pair below is registered in `theme-tokens.test.ts` (measured on every run) or measured in the cited summary.
+**Gated pairs** *(measured)*. Text gate 4.5:1; boundary and icon gate 3:1. Values are traditional / dark.
 
-| Pair | Gate | Traditional | Dark | Registered today | Source |
-|---|---|---|---|---|---|
-| text-primary / surface-page, surface-card | 4.5 | 6.41 / 6.41 | 14.28 / 13.22 | yes | add-offering-catalog §5 *(measured)* |
-| text-label / surface-page | 4.5 | 5.97 | 10.28 | yes | same |
-| text-secondary / surface-page | 4.5 | 6.05 | 8.57 | yes | same |
-| text-accent / surface-card | 4.5 | 6.85 | 6.82 | yes | same |
-| **text-label / surface-card** | 4.5 | 5.97 | 9.51 | no | same |
-| **text-secondary / surface-card** | 4.5 | 6.05 | 7.93 | no | same |
-| **text-link / surface-page** | 4.5 | 6.41 | 14.28 | no | same |
-| **text-link-hover / surface-page** | 4.5 | 11.53 | 15.93 | no | same |
-| text-link, text-link-hover / surface-card | 4.5 | 6.41 / 11.53 | 13.22 / 14.75 | yes | add-user-account §6.4 *(measured)* |
-| badge-text / evaluation-rating-* over surface-card | 4.5 | 4.69–5.12 | 6.42–7.08 | no (add-offering-catalog F1) | add-offering-catalog §11 *(measured)* |
-| text-primary, text-secondary / surface-section | 4.5 | 5.72 / ≥5.39 | 11.97 / ≥7.18 | yes | add-evaluation-scales §4 *(measured, range over four surfaces)* |
-| **text-label / surface-section** (scale labels, legends in panels) | 4.5 | ≥5.32 | ≥8.61 | no | add-evaluation-scales §4 *(range minimum; the exact surface-section value unverified)* |
-| **evaluation-bean-mark-on / evaluation-bean-on over surface-section** (icon) | 3 | 7.31–7.72 | 4.89 | no (scales registers surface-form and surface-card only) | add-evaluation-scales §4 |
-| evaluation-bean-mark-off / evaluation-bean-off | 3 | 7.02 | 7.44 | yes, by scales | add-evaluation-scales §4 |
-| focus-ring / surface-page, surface-card | 3 | 11.53 / 11.53 | 14.28 / 13.22 | yes | add-offering-catalog §5 |
+| Pair | surface-page | surface-card | surface-section | Registered |
+|---|---|---|---|---|
+| text-primary | 6.41 / 14.28 | 6.41 / 13.22 | 5.72 / 11.97 | yes |
+| text-secondary | 6.05 / 8.57 | 6.05 / 7.93 | 5.39 / 7.18 | page, section yes; card by `add-offering-catalog` D15 |
+| text-label | 5.97 / 10.28 | 5.97 / 9.51 | 5.32 / 8.61 | page yes; card and section by catalog D15 |
+| text-accent | 6.85 / 7.37 | 6.85 / 6.82 | — | card yes |
+| text-link | 6.41 / 14.28 | 6.41 / 13.22 | — | card yes; page by catalog D15 |
+| text-link-hover | 11.53 / 15.93 | 11.53 / 14.75 | — | card yes; page by catalog D15 |
+| focus-ring (bound) | 11.53 / 14.28 | 11.53 / 13.22 | 10.28 / 11.97 | yes |
+| badge-text / rating-exceptional | — | 4.85 / 6.61 | **4.53** / 6.00 | card by catalog D15 |
+| badge-text / rating-excellent | — | 5.04 / 6.48 | 4.71 / 5.88 | card by catalog D15 |
+| badge-text / rating-good | — | 5.12 / 6.42 | 4.79 / 5.81 | card by catalog D15 |
+| badge-text / rating-commercial | — | 4.69 / 7.08 | **4.38 (fails)** / 6.42 | card by catalog D15 |
 
-Not gated: the read-only slider (a `meter` whose value is given as text; the track is decorative, scales §4), panel borders, the `CardAside` separator, the skeleton bars.
-
-**Pairs the guard tests must register, in both matrices** (only those not registered by an earlier change when this one lands):
-- `text-label` / `surface-card`, `text-secondary` / `surface-card`, `text-link` / `surface-page`, `text-link-hover` / `surface-page` (also named by add-offering-catalog, add-user-account and add-offering-management);
-- `text-label` / `surface-section`;
-- icon `evaluation-bean-mark-on` / `evaluation-bean-on` with base `surface-section` (scales §4: "Other host surfaces … are registered by the consumer that uses them");
-- the four `badge-text` / rating pairs over `surface-card`, unless add-offering-catalog registers them first (its Open 10).
-
-If `add-specialist-evaluations` builds the shared sheet first (Open 6), it registers the `surface-section` pairs and this change registers none of them.
-
-## 6. Layout and spacing (criterion A)
-
-Breakpoints: Tailwind defaults (`sm` 640px, `md` 768px, `lg` 1024px, `xl` 1280px). Every value is an end state.
-
-### 6.1 Page layout (`PageSection`, decisions log D14)
-
-All three routes: one `PageSection surface="page"`: full width, `surface-page`, vertical padding 3rem below `md` and 4rem from `md`; container centred, at most 72rem, side padding 1rem below `md` and 2rem from `md`; no border or radius. These are `PageSection`'s values; the screens add none. The container's children are a flex column (`containerClassName`, layout only). One section per page, as `add-specialist-evaluations` §9 (the read-only view this one mirrors).
-
-### 6.2 Lists (`/{locale}/evaluations`, `/{locale}/specialists/{userUlid}`)
-
-Container column, gaps:
-- heading block → list: 2rem;
-- list → pagination: 2rem.
-
-**Heading block:** eyebrow and h1, 0.5rem apart (MVC `layouts/evaluations/index.blade.php:3-5`; as add-offering-catalog §6.2). No box.
-
-**List:** one column at every width, one row card per evaluation, 1rem between cards (`add-specialist-evaluations` §9; MVC `evaluation-list.blade.php:4` `gap-2`, rounded up to the project's 1rem list step). No padding, border or radius of its own.
-
-**Row card** (`Card layout="default"`, MVC `evaluation-card.blade.php`):
-- `CardAside` (1.5rem padding; below `lg` a 1px bottom `border-subtle`, from `lg` a 1px right border and a quarter of the card width, Card's own): the score row: flex, wraps, baseline-aligned, 0.5rem gap (the `OfferingCard` score row). Absent when `cuppingScore` is null.
-- `CardContent` (1.5rem padding): a vertical stack, 0.5rem apart: the `h2` coffee name, the coffeeshop caption, the roaster caption, the meta line ("{closed date} · {extraction method}", `type-meta`) and, when `isDefective`, the defective mark.
-- `CardFooter` (1.5rem padding, below both regions): the links, a flex row, wrapping, aligned to the end, 1rem apart (`add-specialist-evaluations` §9 footer).
-- Card border, radius and shadow: Card's own (4px left `border-accent`, `rounded-container`, `shadow-lg`).
-
-**Pagination:** `Pagination` as shipped: centred, buttons 1rem apart, wrapping.
-
-**Empty state:** `type-body` text at the top of the list area; no box.
-
-**Error state:** a column, 1rem apart, at the top of the list area: the message (`type-body`), then Retry at its own width; no box.
-
-**Loading:** three row skeletons in the list (1rem apart), each a `Card layout="default"` whose `CardContent` holds three bars 0.5rem apart: 1.5rem tall at two thirds width, 1rem tall at half width, 1rem tall at a quarter width (`bg-surface-section`, `rounded-field`, as `OfferingSkeletonCard`); no aside, no footer.
-
-### 6.3 Evaluation view (`/{locale}/evaluations/{ulid}`)
-
-Values from `add-specialist-evaluations` §9 (form page, read-only variant), so the public view and the owner's read-only view are one presentation (Open 6). MVC `show.blade.php`, `technical-info.blade.php`, `evaluation-axis-static.blade.php`.
-
-Container column:
-- **Header block** at the top: back link; eyebrow (`viewEyebrow`); `h1` coffee name; coffeeshop and roaster captions (`type-label`); meta line (`type-meta`: "{closedLabel} {closed date}"); "View offering" link.
-  - Back link and eyebrow 1rem apart; eyebrow and heading 1rem apart; heading and first caption 0 apart (MVC `gap-0`); captions 0.25rem apart; meta line 0.25rem below the last caption; the link 0.5rem below the meta line.
-  - No border, background or padding of its own.
-- **Header block → context card:** 2rem.
-- **Context card** (`Card layout="stacked"`, `CardContent` only: 1.5rem padding, Card's border, radius, shadow). MVC `technical-info.blade.php:26-43`, translated:
-  - a header row: `h2` `contextHeading` (`type-subheading`) at the start and the score row at the end; flex, wraps, space between, centre-aligned, 0.5rem gap (MVC `flex items-center justify-between`);
-  - 1rem below it, a `dl`: rows "Roast level" (the offering's `roastLevel`), "Extraction method" (catalog label of `extractionMethod`, Open 10), "Defective cup" (Yes / No), "Evaluation type" (`evaluationType` as returned); each row `dt` (`type-label`) above `dd` (`type-body`), 0.25rem apart; rows stacked 1rem apart below `md`, two equal columns 1.5rem apart from `md` with 1rem between rows (MVC `grid-cols-2 gap-x-6 gap-y-3`; `add-specialist-evaluations` §9 context card).
-- **Context card → first group card:** 1rem; **between group cards:** 1rem (MVC `gap-4`).
-- **Group cards**, in CVA order (`add-specialist-evaluations` §2): Fragrance / Aroma, Flavor / Aftertaste, Acidity, Sweetness, Mouthfeel, Overall, Defects, Extrinsic. Each `Card layout="stacked"`:
-  - **Header** in `CardAside` (1.5rem padding, 1px bottom `border-subtle`, Card's own): the `h2` group name (`type-subheading`). Below `md`, the header is the collapse toggle: a full-width button carrying the name and a `ChevronDown` icon (1rem, rotated when open), name and icon 0.5rem apart, space between, `focus-visible:focus-ring`, `aria-expanded`, accessible name = the group name; every group starts open (MVC `x-data="{ open: true }"`). From `md`, not interactive. No completeness indicator (closed evaluations are complete).
-  - **Body** in `CardContent` (1.5rem padding): the descriptive and affective parts. Below `md` they stack, 1.5rem apart, the affective part with a 1px top `border-subtle` and 1.5rem padding above it. From `md` two equal columns 1.5rem apart, the descriptive column with a 1px right `border-subtle` and 1.5rem padding to its right (MVC `tz-right-border-card`, `gap-6`). Groups without a descriptive part (Overall, Defects, Extrinsic) use one full-width column.
-  - **Inside each part:** part heading (`h3`, `type-label`), score panel, descriptor block, notes, 1rem apart (MVC `gap-4`). A part with no descriptor block or no note omits it, with no gap.
-  - **Score panel:** `bg-surface-section`, `rounded-container`, 1px `border-subtle`, padding 1rem; the two scales of a pair 0.5rem apart (MVC `tz-card-section`, `gap-2`). Scales keep their own internals (scales §1–§2: label 0.5rem above, beans 0.25rem apart, row gap 0.75rem; slider header 0.5rem above the track, marks 0.25rem below).
-  - **Descriptor block:** the same panel treatment (padding 1rem); `DescriptorChipGroup readOnly` internals (legend 0.5rem above, rows 0.75rem apart, badges 0.5rem apart both ways). With nothing selected it shows `noDescriptors`.
-  - **Notes:** a vertical stack, 0.25rem apart: `type-label` "Note", then the note in `type-body`. Shown only when the note is non-null.
-  - **Extrinsic group:** a `dl` of the non-null `extrinsics.*` fields, same row values as the context card; with none, `noExtrinsics` (`type-body`).
-- **Error state:** the back link, then 1.5rem below, the message and Retry in a column 1rem apart.
-- **Loading:** the back link, three placeholder bars 0.5rem apart (1rem tall at a quarter width, 1.5rem at two thirds, 1rem at half; `bg-surface-section`, `rounded-field`), then 2rem below, two skeleton cards 1rem apart.
-
-### 6.4 At 375px
-
-*(computed)*
-- Container 343px; a card's content 343 − 2 × 24 − 4 = 291px; a score panel's content 291 − 2 × 16 − 2 = 257px.
-- Bean row at 24px: 9 × 24 + 8 × 4 = 248px, which fits 257px; the value text wraps under the beans (scales §1 row rule).
-- Row cards stack aside above content; links wrap; the context card's header wraps the score row under the `h2`.
-- No horizontal scroll.
-
-### 6.5 Visual reference (mock-ups, ASCII: the MVC has no public evaluation screen)
-
-Evaluations list, 1280px:
-```
-┌ header ── Logo  Top rated  About us ─────────────────── ES ▾  Sign in ┐
-│ PageSection surface-page  py-16                                       │
-│   EVALUATIONS                                   (eyebrow)             │
-│   Closed evaluations                            (h1)                  │
-│   2rem                                                                │
-│ ┃┌ aside ─────────────┐┌ content ──────────────────────────────────┐  │
-│ ┃│ 84.25 /100 [Good]  ││ Huila El Mirador                  (h2)    │  │
-│ ┃│                    ││ Coffeeshop: Tazavera Gràcia               │  │
-│ ┃│                    ││ Roaster: Nómada Roasters                  │  │
-│ ┃│                    ││ 2 Oct 2026 · V60                          │  │
-│ ┃└────────────────────┘└───────────────── View  View offering ─────┘  │
-│   1rem                                                                │
-│ ┃ … next row …                                                        │
-│                     [Previous] [Next]                                 │
-└───────────────────────────────────────────────────────────────────────┘
-```
-Evaluation view, 375px:
-```
-│ px-4 py-12                                │
-│ ← Back                                    │
-│ EVALUATION                                │
-│ Huila El Mirador (h1)                     │
-│ Coffeeshop: Tazavera Gràcia               │
-│ Roaster: Nómada Roasters                  │
-│ Closed on 2 Oct 2026                      │
-│ View offering                             │
-│ ┃ Context            84.25 /100 [Good]    │
-│ ┃ Roast level   medium                    │
-│ ┃ Extraction method   V60                 │
-│ ┃ Defective cup   No                      │
-│ ┃ Fragrance / Aroma                    ⌄  │
-│ ┃ Descriptive                              │
-│ ┃ ╭ panel (surface-section) ───────────╮  │
-│ ┃ │ Fragrance            11/15         │  │
-│ ┃ │ ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬            │  │
-│ ┃ │ 0     5     10     15              │  │
-│ ┃ ╰────────────────────────────────────╯  │
-│ ┃ Affective                                │
-│ ┃ ╭ Fragrance  ●●●●●●●○○  7/9 ╮          │
-```
-The verification task captures the three routes at 375px and 1280px in both themes, against a local read mock (the local database has no offerings or evaluations).
+- **Consequence.** The rating badge fails on `surface-section` in the traditional theme (commercial 4.38). It sits only on `surface-card`: in the row card's aside and in the Summary card.
+  - An existing surface passes everywhere, so no token is proposed (contrast procedure, step 2).
+  - The catalog's Consensus score has the same problem: see F1.
+- **Not gated:** the read-only slider track (a `meter` whose value is also text; scales D5), the beans' disc artwork beyond the pairs registered by scales, the `border-subtle` separators, the skeleton bars, the tab list's bottom edge.
+- **Pairs this change must register:** none, provided `add-offering-catalog` (D15) and `add-evaluation-scales` (D9) land first.
+  - The scale controls sit on `surface-card`, which scales registers.
+  - Every other pair above is registered on `develop` or by catalog D15.
+  - If this change were applied before the catalog, it would register the catalog D15 pairs it uses: `text-secondary`, `text-label` and the four `badge-text` / rating pairs on `surface-card`, and `text-label` / `surface-section`.
 
 ## 7. Behaviour
 
-- **Lists:** fixed query `status=closed&orderBy=created_at&orderDirection=desc` plus `page` from the URL (`?page=n`); `Pagination` replaces only `page`. No other query key is read or forwarded.
-- **Offerings per row:** after the list returns, one `getAnOffering` per distinct `offeringId` on the page, in parallel, on the server; at most 15 *(per_page from the contract example; the API default is unverified)*.
-- **Evaluation view:** `getAnEvaluation`; if `status` is not `closed`, the 404 page; otherwise `getAnOffering(offeringId)` and `fetchTaxonomies()` in parallel.
-- **Taste notes:** each `tastes[]` entry goes to its block by `type` (`fragrance`/`aroma` → the Fragrance / Aroma block, `flavor`/`aftertaste`/`main_tastes` → Flavor / Aftertaste, `mouthfeel` → Mouthfeel, `defects` → Defects), with the shared-block union of `add-specialist-evaluations` §2; names by the route's locale (`nameEs`, `nameEn`, `nameCa`); level 2 not shown; an unresolved `ref` renders no badge.
-- **Fragrance not evaluated:** the evaluation stores the copied aroma values (`add-specialist-evaluations` §2); the view shows what is stored.
-- **Dates:** `closedAt` formatted as a date in the route's locale (`Intl.DateTimeFormat`, medium date style, no time). A formatter shared with `add-specialist-evaluations`' list date (Open 6).
-- **Session:** none read. A signed-in specialist sees the same public screens.
+- **List query.** Facet and sort parsing reuse `add-evaluation-facets` D4 and D6 (limits, dropped values, sort ids, `default` → `created_at desc`). The public set adds `offeringId` (a non-empty string; never validated by the front: an unknown ULID ends in the API's answer, Open 1) and drops `status` from the facets.
+- **Fixed keys.** The request always carries `evaluationType=specialist&status=closed`. The URL never carries them, so a URL `status` or `evaluationType` value is ignored.
+- **Contract key order:** `offeringId`, `evaluationType`, `city`, `process`, `status`, `scoreMin`, `scoreMax`, `orderBy`, `orderDirection`, `page`.
+- **URL writes** go through `src/shared/lib/filter-query` (`add-evaluation-facets` D2): each change removes `page` and pushes with `scroll: false`. Pagination keeps every other key.
+- **Offerings per row.** After the list returns, one `getAnOffering` per distinct `offeringId` on the page, in parallel, on the server.
+- **View.** `getAnEvaluation`, then `getAnOffering(offeringId)` and `fetchTaxonomies()` in parallel.
+- **Baseline.** The provisional panel's async wrapper requests the baseline with the page's offering ULID and `fetchTaxonomies()`. Its own `Suspense` boundary isolates it, so its failure stays inside the panel.
+- **Dates.** `closedAt` is formatted as a date in the route's locale (`Intl.DateTimeFormat`, medium date style, no time), as the row date of `add-specialist-evaluations`.
+- **Taste notes.** Mapped by `type` with `add-specialist-evaluations` D7. Names follow the route's locale (`nameEs`, `nameEn`, `nameCa`). Level 2 is not shown.
+- **"View evaluations"** opens `/{locale}/evaluations?offeringId={ulid}`. The list arrives with the Offering facet showing the offering selected, and its chip applied.
 
-## 8. Texts (message catalog, es / en / ca, passed as props)
+## 8. Texts (message catalog es / en / ca, passed as props)
 
-New area `public-evaluations` (`messages/{locale}/public-evaluations.json`) for the keys below. The CVA labels (group, part and axis names, LOW/MEDIUM/HIGH, "/15", "/9", the descriptor block names, the extraction-method labels) come from the `evaluations` area of `add-specialist-evaluations`, read as the catalog reads the `landing` card keys (add-offering-catalog Open 3). The rating tier words and the pagination labels come from the `landing` area. Spanish follows the MVC where cited; the rest, and every English and Catalan string, are proposals (Open 11).
+Reused areas (no new keys):
+- `evaluations` (`add-specialist-evaluations` D14): group, part and axis names; descriptor block names; LOW/MEDIUM/HIGH; "/15"; the nine extraction labels; "Closed on" (`closedOnLabel` below stands for that key); `resultCount` (`add-evaluation-facets` D10);
+- `scales`: the bean `valueText` and `valueLabel`;
+- `landing`: tier words, coffeeshop and roaster captions, pagination and retry labels;
+- `filters`: every generic facet, sort and chip text.
+
+The English and Catalan strings below, and every Spanish string not cited to the MVC, are proposals (Open 9).
+
+**New area `public-evaluations`** (`messages/{locale}/public-evaluations.json`):
 
 | Key | es | en | ca |
 |---|---|---|---|
 | `listEyebrow` | Evaluaciones (MVC `index.blade.php:4`) | Evaluations | Avaluacions |
-| `listHeading` | Evaluaciones cerradas | Closed evaluations | Avaluacions tancades |
-| `specialistEyebrow` | Especialista | Specialist | Especialista |
-| `specialistHeading` | Evaluaciones de este especialista | Evaluations by this specialist | Avaluacions d'aquest especialista |
+| `listHeading` | Evaluaciones de especialistas | Specialist evaluations | Avaluacions d'especialistes |
 | `listEmptyMessage` | No hay evaluaciones registradas todavía. (MVC `evaluation-list.blade.php:8`) | There are no evaluations yet. | Encara no hi ha avaluacions. |
 | `listErrorMessage` | No se pudieron cargar las evaluaciones. | The evaluations could not be loaded. | No s'han pogut carregar les avaluacions. |
-| `retryLabel` | Reintentar | Retry | Tornar-ho a provar |
-| `coffeeshopCaption` | Cafetería: (MVC) | Coffeeshop: | Cafeteria: |
-| `roasterCaption` | Tostadora: (MVC) | Roaster: | Torrador: |
-| `viewLabel` | Ver (MVC) | View | Mostra |
+| `viewLabel` | Ver (MVC `evaluation-card.blade.php:64`) | View | Mostra |
 | `viewOfferingLabel` | Ver oferta | View offering | Mostra l'oferta |
-| `defectiveLabel` | Taza defectuosa (MVC) | Defective cup | Tassa defectuosa |
 | `offeringUnavailable` | Oferta no disponible | Offering unavailable | Oferta no disponible |
-| `viewEyebrow` | Evaluación (MVC `show.blade.php:1`) | Evaluation | Avaluació |
-| `backLabel` | Volver (MVC) | Back | Tornar |
-| `closedLabel` | Cerrada el | Closed on | Tancada el |
-| `contextHeading` | Contexto (MVC `technical-info.blade.php:28`) | Context | Context |
-| `roastLevelLabel` | Nivel de tueste (MVC) | Roast level | Nivell de torrat |
-| `extractionMethodLabel` | Método de extracción (MVC) | Extraction method | Mètode d'extracció |
-| `defectiveCupLabel` | Taza con defectos (MVC `evaluation-axis-static.blade.php:72`) | Defective cup | Tassa amb defectes |
-| `yes` / `no` | Sí / No (MVC) | Yes / No | Sí / No |
-| `evaluationTypeLabel` | Tipo de evaluación | Evaluation type | Tipus d'avaluació |
-| `noteLabel` | Notas (MVC) | Note | Nota |
+| `viewEyebrow` | Evaluación | Evaluation | Avaluació |
+| `backLabel` | Volver (MVC `offerings/show.blade.php:4`) | Back | Tornar |
+| `viewErrorMessage` | No se pudo cargar la evaluación. | The evaluation could not be loaded. | No s'ha pogut carregar l'avaluació. |
+| `summaryHeading` | Contexto (MVC `technical-info.blade.php:28`) | Context | Context |
+| `closedAtLabel` | Fecha de cierre | Closed on | Data de tancament |
+| `extractionMethodLabel` | Método de extracción | Extraction method | Mètode d'extracció |
+| `defectiveCupLabel` | Taza con defectos | Defective cup | Tassa amb defectes |
+| `yes` / `no` | Sí / No | Yes / No | Sí / No |
+| `intensityHeading` | Intensidad | Intensity | Intensitat |
+| `preferenceHeading` | Preferencia | Preference | Preferència |
+| `descriptorsHeading` | Descriptores | Descriptors | Descriptors |
 | `noDescriptors` | Sin descriptores. | No descriptors. | Sense descriptors. |
+| `notesHeading` | Notas | Notes | Notes |
 | `extrinsicsHeading` | Atributos extrínsecos | Extrinsic attributes | Atributs extrínsecs |
 | `extrinsicFarming` … `extrinsicGeneralObservation` | Cultivo, Procesado, Comercio, Certificaciones, Observación general | Farming, Processing, Trading, Certifications, General observation | Cultiu, Processament, Comerç, Certificacions, Observació general |
-| `noExtrinsics` | Sin atributos extrínsecos. | No extrinsic attributes. | Sense atributs extrínsecs. |
-| `viewErrorMessage` | No se pudo cargar la evaluación. | The evaluation could not be loaded. | No s'ha pogut carregar l'avaluació. |
+| `offeringFacet` | Oferta | Offering | Oferta |
+| `offeringFilterFallback` | Oferta seleccionada | Selected offering | Oferta seleccionada |
 
-API values shown as returned, untranslated: names, `roastLevel`, `evaluationType`, notes, extrinsic texts, scores.
+**Additions to the `catalog` area** (owned by the offering detail):
+
+| Key | es | en | ca |
+|---|---|---|---|
+| `detailViewEvaluations` | Ver evaluaciones (Product owner) | View evaluations | Mostra les avaluacions |
+| `detailTabProvisional` | Evaluación provisional (Product owner) | Provisional evaluation | Avaluació provisional |
+| `detailProvisionalEmpty` | Esta oferta aún no tiene evaluación provisional. | This offering has no provisional evaluation yet. | Aquesta oferta encara no té avaluació provisional. |
+| `detailProvisionalError` | No se pudo cargar la evaluación provisional. | The provisional evaluation could not be loaded. | No s'ha pogut carregar l'avaluació provisional. |
+
+The catalog guard checks that es, en and ca have the same keys in both areas.
 
 ## 9. Accessibility
 
-- **Headings:** one `h1` per screen; rows and view cards `h2`; parts `h3`.
-- **Names:** "View" and "View offering" in each row carry a visually hidden " {coffee name}" so every link name is unique and starts with its visible text.
-- **Scales:** read-only `meter`s with `aria-valuetext` (scales §1, §2); the value is also text.
-- **Descriptors:** a list of badges in labelled rows (`DescriptorChipGroup readOnly`).
-- **Collapsible groups (below `md`):** a button with `aria-expanded`, named by the group; the icon is `aria-hidden`.
-- **States:** the defective mark is text; the rating badge shows a word next to the numeric score; nothing relies on colour alone.
-- **Focus:** every interactive element is an existing control with `focus-visible:focus-ring`.
-- **Document title:** `Tazavera` (landing rule, as add-offering-catalog Open 12).
+- **Headings:**
+  - list: one `h1`; `h2` per row;
+  - view: the `h1` coffee name, card `h2`s, `legend`s for the chip groups;
+  - tab: the page `h1` stays the offering's, and the card `h2`s sit under the tab panel.
+- **Link names.** "View" and "View offering" carry a visually hidden " {coffee name}" per row. "View evaluations" is unique on the page.
+- **Scales.** Read-only `meter`s with `aria-valuetext` (scales D3, D5); each value is also visible text.
+- **Nothing by colour alone.** The tier word sits beside the score, Defective cup is Yes/No text, and chips carry names.
+- **Facets** follow the controls' contracts (`role="search"` panel, radio groups with legends, chip removal names, focus after removal).
+- **Tabs** use manual activation and `?tab=` (catalog D6, D7). The third tab follows the same contract.
+- **Focus.** Every interactive element is an existing control with `focus-visible:focus-ring`; inside the sidebar the ring resolves to the inverse ring (`add-sidebar-slot` D8).
+- **Document title:** `Tazavera`, with the description from `public-evaluations` (the catalog's metadata rule, D17); key `metaDescription` (es "Evaluaciones públicas de especialistas", a proposal).
 
 ## 10. Dependencies
 
-**Capability layer:** `theming` → `base-controls` (`Button`, `Link`) → `form-fields` (scales in `readOnly`), `feedback` (`Badge`), `content-structure` (`Card`, `PageSection`, `Pagination`) → `app-shell` (header entry, Open 1) → `landing` (`ratingTierFor`, tier words), `offering-catalog` (detail route as the "View offering" target), `evaluations` (shared sheet, labels) → `public-evaluations`.
+**Capability layer:**
+- `theming` → `base-controls` (`Link`, `Button`) → `form-fields` (read-only scales), `feedback` (`Badge`), `content-structure` (`Card`, `PageSection`, `Pagination`, `Tabs`, `LabelValueRow`), `filtering` (facet controls) → `app-shell` (`@sidebar` slot);
+- then the features: `landing` (`ratingTierFor`, tier words), `offering-catalog` (the detail page), `evaluations` (entity, model, labels).
 
-**Changes:**
-- **Merged:** `extract-page-section` (`PageSection`), `extract-offering-list-parts` (`Pagination`, `entities/taxonomy`), `label-rating-badge` (tier words; pending merge per the board, already in `develop`'s `OfferingCard`), `fix-button-boundaries`.
-- **add-evaluation-scales** (Apply): `BeanScale`, `IntensitySlider`, `DescriptorChipGroup` in `readOnly`. Waits for its merge.
-- **add-specialist-evaluations** (Explore; contract now on `develop`): owns the CVA layout, the descriptor-row mapping, the `evaluations` catalog labels and the read-only view this change mirrors (Open 6). Its §1 still lists `listEvaluations` and `getAnEvaluation`; after the decisions log "lecturas de evaluaciones: decisión final" it consumes `listMyEvaluations` / `getMyEvaluation` instead (F1).
-- **add-offering-catalog** (Summary — approved): the detail route `/{locale}/offerings/{ulid}` that "View offering" opens; the single-offering fetch (Open 7).
-- **add-filter-controls:** no facets here (decisions log "filtros").
+**Changes that must be merged into `develop` before the apply** (Product owner, plus one addition):
 
-**Backlog:** R1, R3, R4, R5 do not name this change. `RetryButton` reuse (Open 8) is a new candidate.
+| Change | Phase (board) | What this change takes from it |
+|---|---|---|
+| `add-evaluation-scales` | Verify | `BeanScale`, `IntensitySlider`, `DescriptorChipGroup` in `readOnly`; the `scales` area |
+| `add-offering-catalog` | Propose → Apply | The detail page, `Tabs`, `DetailTabs` slots, `LabelValueRow`, `RetryButton` in `shared/ui`, `fetchOffering`, the `catalog` area, the D15 contrast pairs |
+| `add-sidebar-slot` | Apply | The `@sidebar` slot, `AppSidebar` frame, `useSidebar`, `SIDEBAR_ID` |
+| `add-facet-controls` | Verify | `FacetPanel`, `FacetRadioList`, `ScoreRangeFacet`, `FacetTextField`, the `filters` area |
+| `add-specialist-evaluations` | Propose → Apply | `src/entities/evaluation` (model: groups, `tastes` mapping), the `evaluations` area, the row card (Open 2). It ships no shared read-only widget (F4). |
+| **`add-evaluation-facets`** (added) | Propose → Apply | `features/evaluation-facets` (parse, query, sort, `EvaluationsToolbar`, `ClearEvaluationFiltersButton`), `shared/lib/filter-query`, `fetchCoffees`, `FiltersTrigger` (Open 3). Its own dependencies are already in this list. |
 
-**Decisions log entries applied:** D14; "lecturas de evaluaciones: decisión final" (public reads, no evaluator exposed); "filtros" (no sidebar here); "piezas extraídas disponibles"; "primitivo compartido de sección"; "medias SCA … escala de granos" and "estilo de la pestaña futura" (read-only beans as the shared evaluation look); "landing D4" (tier words).
+`add-flavor-wheel` is not needed: aromatics show as chips (Open 4).
 
-**Contract coverage:** with this change, `listEvaluations`, `getAnEvaluation` and `listTheEvaluationsOfAUser` are consumed. The board's coverage table needs the new rows (F2).
+**Backlog.**
+- R9 ("Clear all" duplicated) affects the facet button this change reuses. It adds no third copy if Open 3 (a) holds.
+- R1, R3–R5 and R8 do not name this change.
+- New candidate: F3 (descriptor rows by category).
 
-## 11. Tests (expected coverage)
+**Decisions-log entries applied:**
+- D14;
+- "evaluaciones públicas y evaluación provisional";
+- "API add-offering-baseline-seed" (1a: `evaluationType` always sent);
+- "estilo de la pestaña futura" (Consensus style);
+- "pestañas del detalle de oferta" (`?tab=`);
+- "lecturas de evaluaciones: decisión final" (public reads, no evaluator);
+- "piezas extraídas disponibles";
+- "filtros…" and "add-filter-controls: resto de puntos" (sidebar facets, sort in the body);
+- "add-offering-catalog: preguntas del propose".
 
-- **Fetch builders (pure functions):** the public list `GET /evaluations?status=closed&orderBy=created_at&orderDirection=desc&page={n}`; the specialist list `GET /users/{ulid}/evaluations?…` with the same query; the view `GET /evaluations/{ulid}`; non-2xx and transport failures map to error; a `404` of the specialist list maps to not-found.
-- **Offerings per row:** one request per distinct `offeringId`; a failed one gives that row `offeringUnavailable` without captions or "View offering", others unaffected.
-- **List presentation (sync):** rows with score row (absent when `cuppingScore` is null), tier word, heading, captions, meta line with the locale date and the extraction label, defective mark only when `isDefective`; links to `/es/evaluations/{ulid}` and `/es/offerings/{offeringId}` with unique names; empty and error states; `Pagination` with the route path.
-- **View presentation (sync):** header (h1, captions, closed date, View offering link); context card rows; the eight groups in CVA order; scales `readOnly` with `valueText`/`valueLabel`; descriptors in their blocks by `type`, unresolved `ref` skipped, `noDescriptors`; notes only when non-null; extrinsic rows only when non-null; an `open` evaluation → not-found; the error state with Retry and the back link; below `md` the group toggle with `aria-expanded`.
-- **Catalog guard:** the `public-evaluations` area in es, en and ca with the same keys.
-- **Contrast guard:** the pairs of §5 not yet registered when this change lands.
-- **Layout classes:** exact classes per §6, asserted as chosen.
-- **Verification task:** captures of `/es/evaluations`, `/es/specialists/{ulid}` and `/es/evaluations/{ulid}` at 375px and 1280px in both themes, with a local read mock.
+**Contract coverage.** With this change, `listEvaluations` and `getAnEvaluation` are consumed. `listTheEvaluationsOfAUser` stays out of scope. All 26 operations are then covered except that one *(computed from the board's coverage table)*.
 
-## 12. Findings on existing code and records
+## 11. Findings on other changes and records (for the orchestrator to route)
 
-- **F1: `add-specialist-evaluations` summary §1 and §6 still describe the public reads.** Its table lists `listEvaluations` (with `evaluatorId`) and `getAnEvaluation` for its own list and edit, while its answer 6 and the decisions log moved them to `listMyEvaluations` / `getMyEvaluation`. Semantic contradiction inside an approved summary where the later answer is explicit: the orchestrator may fix the wording (`.claude/CLAUDE.md` §3) before its propose.
-- **F2: board coverage table out of date.** `docs/change-progress.md` counts 23 operations and assigns `listEvaluations` / `getAnEvaluation` to `add-specialist-evaluations`; today's contract has 26 *(computed from the `operationId` list of `contracts/openapi.yaml`)*, adding `listMyEvaluations`, `getMyEvaluation`, `listTheEvaluationsOfAUser`. Path: board update (orchestrator).
-- **F3: `listTheEvaluationsOfAUser` documents its `404` only in the description**, not as a response. The front follows the description (§2). Report to Product owner for the Scribe annotations.
-- **F4: `getAnEvaluation` publicly returns open (draft) evaluations** (contract example `status: open`). The front hides them (Open 4); whether the API should is Product owner's call for the API.
+- **F1. `add-offering-catalog`: the Consensus score's rating badge fails contrast on `surface-section`.**
+  - Evidence: D12 places the score "above the grid, full width, no box" inside the section-2 panel (`surface-section`). `badge-text` on `evaluation-rating-commercial` there measures **4.38** in the traditional theme (exceptional 4.53, excellent 4.71, good 4.79) *(measured)*. D15 registers the badge pairs on `surface-card` only, so the guard will not catch it.
+  - Path: a design decision of a change in Propose → Apply. It goes to the catalog's architect as an artifact update before its apply, or as a correction afterwards.
+  - Fix with existing tokens, no new token (procedure step 2): put the score row inside a card on `surface-card`, for example a header row of the Status and consensus card, as §5.5 does here.
+- **F2. Two changes create `src/entities/offering/api/offering.ts` with different contracts.**
+  - Evidence: `add-offering-catalog` D3 defines `fetchOffering(ulid)` as a server read that throws on non-2xx. `add-specialist-evaluations` D1 (Files) defines `fetchOffering` "via `publicRequest`, distinguishing found, not-found and failed".
+  - Path: a contradiction between two settled artifacts. The orchestrator may close it (§3): one function, kept by whichever change merges first, with the second adapting its call site.
+  - This change needs only "throws on failure" on the server.
+- **F3. Descriptor rows by category will exist in two or three copies.**
+  - Evidence: `add-offering-catalog` D13 (Main tastes and Defects in `widgets/offering-detail`) and `add-specialist-evaluations` D7 (`pages/evaluation-form` `DescriptorBlock`) each build `ChipRow[]` from `GET /taxonomies` by category, with the same level 0–1 rule. This change needs the same builder for five blocks.
+  - Path: backlog candidate (owning slice `entities/taxonomy`). Recommended: tell both architects now that the first to apply places the builder in `src/entities/taxonomy` (the "piezas extraídas disponibles" pattern) and the second reuses it.
+- **F4. `add-specialist-evaluations` ships no shared read-only widget.**
+  - Evidence: its D2 rejects a widgets layer. Its read-only view is `EvaluationForm` in read-only mode inside `src/pages/evaluation-form`, and its row card is `src/pages/evaluations-list/ui/EvaluationRowCard.tsx`. No other page can import either.
+  - The dependency named in the task ("shared read-only widgets") therefore holds only for the entity model and the catalog labels.
+  - This change builds the read-only presentation itself, in the Consensus style the decisions log settles. The row card is Open 2.
+- **F5. `add-flavor-wheel` summary, "Possible later consumers".** It still says `add-public-evaluations` was withdrawn. This is semantic (outdated wording); the orchestrator may fix it. Today's decision gives the wheel no consumer here (Open 4).
+- **F6. Decisions log.** The pending point "whether the button and the tab go into `add-offering-catalog` or a separate change" is now answered: `add-public-evaluations` carries both (Product owner). The orchestrator should record the answer in the log.
+- **F7. Contract descriptions vs schema.**
+  - `listEvaluations` ("each including … the offering it belongs to") and `getAnEvaluation` ("with … associated offering") describe an embedded offering, but the schema returns only `offeringId`.
+  - Only `200` is documented for both.
+  - `getAnEvaluation` returns open evaluations publicly (the example has `status: open`).
+  - Path: report to Product owner for the Scribe annotations. The front does not adapt.
 
 ## Open
 
-1. **Entry point of the public evaluations list.**
-   - Question: `/{locale}/evaluations` is new; nothing links to it.
+**Settled by the orchestrator, 2026-10-06 (overnight, Product owner away; reopenable):** 1 (a) radio list "Any" + the active offering; 2 (a) the row card moves to `src/widgets/evaluation-row` in this change; 3 (a) extend `features/evaluation-facets` with a public facet set; 4 chips; 5 the 404 page; 6 newest first, the first one shown; 7 no header entry; 8 a plain link beside Evaluate; 9 the proposed texts stand; 10 always shown; 11 the ASCII mock-ups stand until the verification captures. Nothing below blocks propose any longer.
+
+1. **Offering facet control.**
+   - Question: the sidebar must show the offering filter as active. Can a visitor also pick another offering from the sidebar?
    - Options:
-     - (a) A third header entry "Evaluations" in `PrimaryNav` (an `app-shell` delta in this change: entry, `shell` catalog key, the "Primary navigation" requirement and its tests; shown from `md` like the other two).
-     - (b) A link from the offering detail (add-offering-catalog) — but `listEvaluations` has no offering filter (`coffeeId` + `locationId` only approximates it).
-     - (c) No entry: reachable by URL and from the specialist page only.
-   - Recommendation: (a). The list is a public page of the same weight as "Top rated" and "About us"; the delta reuses the existing entry treatment and adds no token. Source: `PrimaryNav.tsx:51-58`; `app-shell` spec "Primary navigation".
-   - Blocks propose: yes (it decides whether this change carries an `app-shell` delta).
-2. **Entry point of a specialist's page.**
-   - Question: no public response exposes a specialist's ULID, so only the specialist's own session can build `/{locale}/specialists/{ulid}`. Where is that link?
+     - (a) A radio list with "Any" and the active offering only, shown while `offeringId` is in the URL. An offering is chosen from its detail page ("View evaluations"); no new read in the browser.
+     - (b) A `Combobox` in search mode over `GET /offerings?coffeeName=` from the browser. This extends the accepted search-as-you-type exception (decisions log, "add-filter-controls: resto de puntos": Roaster and management) to a third consumer.
+     - (c) No facet: only the applied chip.
+   - Recommendation: (a). It meets "the offering filter active in the sidebar" with existing controls and no new browser read. (b) can follow as its own change. Source: decisions log; `add-facet-controls` D6.
+   - Blocks propose: yes (it decides the spec scenarios and the reads).
+2. **One row card shared with `add-specialist-evaluations`.**
+   - Question: the public row is that change's row card without the status badge and with other actions. Its card lives in `src/pages/evaluations-list`, where no other page can import it.
    - Options:
-     - (a) In the specialist's "My evaluations" management list header, a link "View my public page" (touches `add-specialist-evaluations`' list; added by whichever of the two changes lands second).
-     - (b) In the account page's Profile section, for role `specialist` (touches `add-user-account`).
-     - (c) A user-menu entry for specialists (an `app-shell` delta).
-     - (d) No entry: the page exists for shared URLs only.
-   - Recommendation: (a): the link sits where the specialist manages the evaluations it lists, and needs no shell change. Source: decisions log "lecturas de evaluaciones: decisión final" (the evaluator is not exposed publicly).
-   - Blocks propose: yes (it decides which other change's files this one touches).
-3. **Specialist route name.**
-   - Options: (a) `/{locale}/specialists/{userUlid}`; (b) `/{locale}/evaluations?specialist={userUlid}` on the list route.
-   - Recommendation: (a): one route per operation and a documented 404 for an unknown user.
+     - (a) This change moves it to a widget (`src/widgets/evaluation-row`): optional status badge, actions slot. The specialist list keeps its rendering and tests. Precedent: `add-offering-catalog` D4 moved `RetryButton` in-change.
+     - (b) A refactor change first (`evaluations`), between `add-specialist-evaluations` and this one.
+     - (c) A second copy plus a backlog entry.
+   - Recommendation: (a). It is the fewest steps, has the precedent, and has no visible change for the specialist list. Under `.claude/CLAUDE.md` §3 ("shared components … solution in the current change"), the orchestrator may close it and register the backlog entry. Source: criterion C.
+   - Blocks propose: yes (it decides which files of another change are touched).
+3. **Facet code for the public list.**
+   - Options:
+     - (a) Extend `features/evaluation-facets` (`add-evaluation-facets`): `parseEvaluationFilters` gains `offeringId`; `EvaluationFacets` takes a facet set (`"mine"`: Status, Score, Process, City; `"public"`: Offering, Score, Process, City); the query builder takes the fixed keys. Toolbar, sort and "Clear all" are reused unchanged. This adds `add-evaluation-facets` to the apply dependencies, and its observable behaviour on `/manage/evaluations` stays unchanged.
+     - (b) A new slice `features/public-evaluation-facets`, copying the parse, query and toolbar, plus a backlog entry.
+   - Recommendation: (a). Criterion C, and R9 shows the cost of parallel facet copies. The orchestrator may close it as for Open 2.
+   - Blocks propose: yes (dependency and files).
+4. **Aromatic descriptors: chips or the flavor wheel?**
+   - Options:
+     - (a) `DescriptorChipGroup readOnly`, as the other four blocks;
+     - (b) `FlavorWheel` with `total` 1. Its legend "n/total evaluators" means consensus, so every segment would read "1 of 1" (`add-flavor-wheel` summary).
+   - Recommendation: (a). The decisions log says the wheel "could" be reused, but its meaning is consensus.
    - Blocks propose: no (the body follows (a)).
-4. **Open (draft) evaluations.**
-   - Options: (a) closed only: both lists send `status=closed`; an open evaluation opened by URL shows the 404 page; (b) show both, with the status badge.
-   - Recommendation: (a). A draft is not a result, and the specialist's own drafts already live in management. Source: decisions log ("the read-only view stays for the user's own closed evaluations"); F4.
-   - Blocks propose: no (the body follows (a)).
-5. **Order and date of the lists.**
-   - Options: (a) `orderBy=created_at desc`, showing `closedAt` as the row date; (b) the same order showing `createdAt`; (c) by `cupping_score desc`.
-   - Recommendation: (a). The contract has no `closed_at` sort; for closed evaluations the closing date is the meaningful one, and creation order approximates it *(unverified: an evaluation may stay open for days)*.
-   - Blocks propose: no.
-6. **One read-only evaluation presentation and one row card, shared with `add-specialist-evaluations`.**
-   - Question: that change shows the user's own closed evaluations read-only "with the same layout as the form without actions" (its §9) and a row card in its list (its §9 "List page"). A second copy here breaks criterion C.
+5. **An open evaluation opened by URL.**
    - Options:
-     - (a) Two widgets, `src/widgets/evaluation-sheet` (read-only view: context card and group cards) and `src/widgets/evaluation-list` (row card with an actions slot, the list presentation), plus the descriptor-row mapping in `src/entities/taxonomy` and the date formatter in `src/shared/lib`. Whichever of the two changes is proposed first builds them; the other reuses them.
-     - (b) A refactor change first that extracts them.
-     - (c) Each change its own copy, with a backlog entry.
-   - Recommendation: (a). `add-specialist-evaluations` is likely first (its contract is on `develop`); the orchestrator passes this to its propose so its read-only view is built as the widget. Source: criterion C; FSD (a feature cannot be imported by another page's feature; a widget can).
-   - Blocks propose: no (it orders the work; the files are named either way).
-7. **Single-offering fetch location.**
-   - Question: add-offering-catalog places its detail fetch in `src/widgets/offering-detail` (its §3), where this change and `add-specialist-evaluations` cannot import it.
-   - Options: (a) the fetch lives in `src/entities/offering/api` (as `entities/taxonomy` holds its fetch), built by the first of the three changes; (b) a copy per change.
-   - Recommendation: (a), passed to add-offering-catalog's propose. Source: decisions log "piezas extraídas disponibles" (same pattern); criterion C.
+     - (a) the 404 page (front decision: a draft is not public; the list never shows it);
+     - (b) render it;
+     - (c) the error state.
+   - Recommendation: (a). Source: Product owner's `status=closed` on the list; F7.
    - Blocks propose: no.
-8. **Retry on server-rendered lists.** `RetryButton` (`router.refresh()`) lives in `src/widgets/offering-list`, out of reach of another widget.
-   - Options: (a) move `RetryButton` to `@/shared/ui` in the first change that needs it outside landing, and add a backlog entry now; (b) a second copy.
-   - Recommendation: (a). `add-specialist-evaluations` (its answer 7) and this change both need it.
+6. **Several baselines for one offering.** Uniqueness is guaranteed only by the seeder (decisions log).
+   - Options:
+     - (a) add `orderBy=created_at&orderDirection=desc` to Product owner's query and show the first (newest);
+     - (b) send the query exactly as given and show `data[0]`; the API's default order is *(unverified)*.
+   - Recommendation: (a). The result is deterministic, it is additive to the query, and the contract supports it.
    - Blocks propose: no.
-9. **Back link destination of the evaluation view.**
-   - Options: (a) `/{locale}/evaluations`, plain; (b) browser history back (also returns to a specialist page or a catalog detail); (c) a `back` query, as the MVC (`show.blade.php:3`).
-   - Recommendation: (a), as add-offering-catalog Open 8: predictable, no query mechanism.
+7. **Header entry for the list.**
+   - Options:
+     - (a) none: reached from "View evaluations" and by URL;
+     - (b) a third `PrimaryNav` entry (an `app-shell` delta).
+   - Recommendation: (a). Product owner's decision names only the detail link. The unfiltered list is one "Clear all" away.
    - Blocks propose: no.
-10. **Extraction method labels.** The value is a free string (contract), shown in `add-specialist-evaluations` through catalog labels of its fixed list (its answer 3).
-    - Options: (a) the label from the `evaluations` area when the value is in that list, the API value as returned otherwise; (b) always the API value.
-    - Recommendation: (a): consistent with the owner's screens and safe for unknown values.
+8. **"View evaluations": link or button look.**
+   - Product owner calls it a "botón", but it navigates.
+   - Options:
+     - (a) `Link` default, beside Evaluate, which is also a `Link` (catalog D9);
+     - (b) a button-looking link. That needs a link form of `Button` (a `base-controls` mechanism that does not exist: `Button.tsx` has no `asChild` or `href`).
+   - Recommendation: (a).
+   - Blocks propose: no.
+9. **Texts.** Every key of §8 is a proposal except those cited to the MVC or to Product owner.
+   - Blocks propose: no.
+10. **"View evaluations" when the offering has no evaluations.**
+    - Options:
+      - (a) always shown; the list's filtered empty state explains it;
+      - (b) hidden when `evaluationCount` is 0. Whether `evaluationCount` counts specialist evaluations only is *(unverified)*.
+    - Recommendation: (a).
     - Blocks propose: no.
-11. **Texts.** The keys and strings of §8 are proposals; Product owner confirms or edits them. The specialist heading cannot show a name (no public source).
-    - Blocks propose: no.
-12. **Visual reference.** The MVC has no public evaluation screen; the ASCII mock-ups of §6.5 stand until the verification captures.
-    - Options: (a) accept the mock-ups; (b) a capture of the MVC `evaluations.show` (management) as the nearest reference.
-    - Recommendation: (a), plus (b) for spacing only.
+11. **Visual reference.** The ASCII mock-ups of §5.7 stand until the verification captures.
+    - Options: (a) accept them; (b) add an MVC capture of `evaluation-card` for the row card.
+    - Recommendation: (a).
     - Blocks propose: no.
 
 ## Review log
 
-- 2026-10-06, design lead, generation mode.
+- **2026-10-06, design lead, regeneration after the withdrawal.**
+  - **Changed since the withdrawn draft:**
+    - no new capability: `evaluations` plus an `offering-catalog` delta;
+    - the specialist page and `listTheEvaluationsOfAUser` are removed;
+    - the list sends `evaluationType=specialist&status=closed` and gets the sidebar facets (Offering, Score, Process, City) and the toolbar sort;
+    - new: the "View evaluations" link and the "Provisional evaluation" tab (baseline);
+    - the read-only presentation moves from the form-like CVA group cards to the Consensus-style card grid, as the decisions log entry "estilo de la pestaña futura" requires;
+    - both routes now use two sections (page and section), as the catalog does;
+    - contrast is measured by script in this session;
+    - Opens 1–4, 6, 9 and 10 of the withdrawn draft are closed or replaced.
   - **Settled from sources (criterion B):**
-    - the three operations and their screens from the contract and the decisions log "lecturas de evaluaciones: decisión final" (public, anonymous, no evaluator exposed);
-    - offering names per row and in the view from `getAnOffering`, as `add-specialist-evaluations` §1 does (the evaluation carries only `offeringId`);
-    - server fetching for every operation (all public, `.claude/CLAUDE.md` §2);
-    - the specialist list through `listTheEvaluationsOfAUser` rather than `listEvaluations?evaluatorId=`, for its documented 404;
-    - the view's groups, layout and spacing from `add-specialist-evaluations` §2, §3, §9 (its read-only variant), and the scales' `readOnly` modes from `add-evaluation-scales` §1–§3;
-    - the score badge in the context card on `surface-card`, following MVC `technical-info.blade.php:27-33`, which keeps the badge on an already measured surface;
-    - the error-state rule for an undocumented 404 from add-offering-catalog Open 7; `notFound()` only where the contract documents a 404;
-    - reuse of `PageSection`, `Pagination`, `Card`, `Badge`, `Link`, `ratingTierFor`, `entities/taxonomy`.
-  - **Not measured in this session** (no shell): every ratio in §5 is quoted from the cited summary or left to the guard; the per-surface value of `text-label` / `surface-section` is unverified.
-  - **Blocking points:** Open 1 and Open 2 (entry points; each decides a delta in another capability or change).
+    - the tab's composition through a page-level slot (FSD same-layer rule, verified in AGENTS.md; `add-offering-catalog` D7 slots);
+    - the score row only on `surface-card` (measured failure on `surface-section`, existing surface passes);
+    - the back link to the plain list (catalog spec "Back link" precedent);
+    - extraction labels (`add-specialist-evaluations` D12);
+    - the error rule for undocumented 404s (catalog design.md);
+    - no roast level in the presentation (not in the evaluation resource);
+    - texts split by area (catalog D16 precedent);
+    - `RetryButton` from `shared/ui` (catalog D4).
+  - **Blocking points:** Open 1, 2 and 3. The orchestrator may close 2 and 3 under §3.

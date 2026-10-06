@@ -1,7 +1,9 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { render, cleanup, screen } from "@testing-library/react";
-import type { OfferingSummary, Session, SessionUser } from "@/shared/api";
+import type { ReactNode } from "react";
+import type { OfferingSummary } from "@/shared/api";
 import { OfferingCard } from "@/entities/offering";
+import { Link } from "@/shared/ui";
 
 // This project has no global test setup, so RTL's auto-cleanup (which relies
 // on a framework-provided afterEach) does not run. Clean up manually between
@@ -13,9 +15,11 @@ afterEach(() => {
 /**
  * OfferingCard tests (design.md D4's card field mapping and D8; the landing
  * spec "Offering card content" — "Score and rating tier", "No score", "Origin
- * line skips null values", "Footer counts", "View link for everyone",
- * "Evaluate link for specialists", "No Evaluate link for other viewers" — and
- * "Taxonomy badges on the offering card" — "Rows by level"). Written before
+ * line skips null values", "Footer counts", "View link for everyone" — and
+ * "Taxonomy badges on the offering card" — "Rows by level"). The actions slot
+ * cases cover replace-offering-card-session's design.md D1 and the spec
+ * "Offering card actions" — "Consumer actions after View", "No consumer
+ * actions". Written before
  * the implementation (task 4.2): the import goes through the slice's public
  * API, which fails to resolve until `src/entities/offering/` exists
  * (`lib/rating.ts`, `ui/OfferingCard.tsx` and the entity entry `index.ts`), so
@@ -30,7 +34,8 @@ afterEach(() => {
  * literals themselves at `npm run lint`).
  */
 
-// ─── Texts props (design.md D11: every label and caption arrives as a prop) ─
+// ─── Texts props (design.md D11: every label and caption arrives as a prop;
+// eleven keys — `evaluateLabel` moved to the list's texts, design.md D3) ─────
 
 const TEXTS = {
   coffeeshopCaption: "texts.coffeeshopCaption",
@@ -38,7 +43,6 @@ const TEXTS = {
   evaluationsLabel: "texts.evaluationsLabel",
   defectiveLabel: "texts.defectiveLabel",
   viewLabel: "texts.viewLabel",
-  evaluateLabel: "texts.evaluateLabel",
   verifiedLabel: "texts.verifiedLabel",
   provisionalLabel: "texts.provisionalLabel",
   ratingExceptionalLabel: "texts.ratingExceptionalLabel",
@@ -47,16 +51,19 @@ const TEXTS = {
   ratingCommercialLabel: "texts.ratingCommercialLabel",
 };
 
-// ─── Session fixtures (design.md D8: the session arrives as a prop and gates
-// the Evaluate link on the role `specialist`) ────────────────────────────────
+// ─── Consumer action fixtures (replace-offering-card-session's design.md D1:
+// the consumer's actions render after the View link, with no wrapper) ────────
 
-const SPECIALIST_USER: SessionUser = { role: "specialist" };
-const SPECIALIST: Session = { state: "authenticated", user: SPECIALIST_USER };
-const OTHER_ROLE: Session = {
-  state: "authenticated",
-  user: { role: "coffeeshop" },
-};
-const ANONYMOUS: Session = { state: "anonymous" };
+const ACTION_LABEL = "ACTION";
+const SECOND_ACTION_LABEL = "ACTION_2";
+const ACTION = <Link href="/es/action">{ACTION_LABEL}</Link>;
+const SECOND_ACTION = <Link href="/es/action-2">{SECOND_ACTION_LABEL}</Link>;
+const TWO_ACTIONS = (
+  <>
+    {ACTION}
+    {SECOND_ACTION}
+  </>
+);
 
 // ─── Resolved taxonomy badge data (design.md D5 and D8: the labels, colors
 // and levels arrive resolved) ───────────────────────────────────────────────
@@ -161,7 +168,7 @@ function ratingBadges(root: HTMLElement): HTMLElement[] {
 
 type RenderOptions = {
   offering?: OfferingSummary;
-  session?: Session;
+  actions?: ReactNode;
   taxonomies?: ResolvedTaxonomyBadge[];
 };
 
@@ -171,9 +178,9 @@ function renderCard(options: RenderOptions = {}) {
     <OfferingCard
       offering={options.offering ?? OFFERING}
       locale="es"
-      session={options.session ?? SPECIALIST}
       taxonomies={options.taxonomies ?? TAXONOMIES}
       texts={TEXTS}
+      actions={options.actions}
     />,
   );
 }
@@ -359,11 +366,11 @@ describe("OfferingCard", () => {
     });
   });
 
-  describe("Links (specs: 'View link for everyone', 'Evaluate link for specialists', 'No Evaluate link for other viewers')", () => {
+  describe("Links (specs: 'View link for everyone', 'Offering card actions')", () => {
     it("addresses the View link at /{locale}/offerings/{ulid} on every card (spec: 'View link for everyone')", () => {
-      renderCard({ session: SPECIALIST });
-      renderCard({ session: ANONYMOUS });
-      renderCard({ session: OTHER_ROLE });
+      renderCard();
+      renderCard({ actions: ACTION });
+      renderCard({ actions: TWO_ACTIONS });
       const views = screen.getAllByRole("link", { name: TEXTS.viewLabel });
       expect(views).toHaveLength(3);
       for (const view of views) {
@@ -371,28 +378,25 @@ describe("OfferingCard", () => {
       }
     });
 
-    it("addresses the Evaluate link at /{locale}/manage/evaluations/new?offering={ulid} for a signed-in specialist (spec: 'Evaluate link for specialists')", () => {
-      renderCard({ session: SPECIALIST });
-      const evaluate = screen.getByRole("link", {
-        name: TEXTS.evaluateLabel,
-      });
-      expect(evaluate.getAttribute("href")).toBe(
-        `/es/manage/evaluations/new?offering=${ULID}`,
+    it("renders the consumer's actions after the View link in the same group (spec: 'Consumer actions after View')", () => {
+      renderCard({ actions: ACTION });
+      const view = screen.getByRole("link", { name: TEXTS.viewLabel });
+      const action = screen.getByRole("link", { name: ACTION_LABEL });
+      const group = view.parentElement!;
+      expect(action.parentElement).toBe(group);
+      expect(classTokens(group)).toEqual(
+        expect.arrayContaining(["ml-auto", "flex", "gap-4"]),
       );
+      const children = Array.from(group.children);
+      expect(children.indexOf(action)).toBeGreaterThan(children.indexOf(view));
     });
 
-    it("shows no Evaluate link for an anonymous viewer (spec: 'No Evaluate link for other viewers')", () => {
-      renderCard({ session: ANONYMOUS });
-      expect(
-        screen.queryByRole("link", { name: TEXTS.evaluateLabel }),
-      ).toBeNull();
-    });
-
-    it("shows no Evaluate link for another role (spec: 'No Evaluate link for other viewers')", () => {
-      renderCard({ session: OTHER_ROLE });
-      expect(
-        screen.queryByRole("link", { name: TEXTS.evaluateLabel }),
-      ).toBeNull();
+    it("renders no action of its own when the consumer supplies none (spec: 'No consumer actions')", () => {
+      renderCard();
+      const view = screen.getByRole("link", { name: TEXTS.viewLabel });
+      const group = view.parentElement!;
+      expect(group.childElementCount).toBe(1);
+      expect(group.firstElementChild).toBe(view);
     });
   });
 
@@ -400,10 +404,9 @@ describe("OfferingCard", () => {
     it("renders every label and caption from the texts props", () => {
       // The per-tier rule (label-rating-badge design.md D1): one card per
       // score range (90 or above, 85 to below 90, 80 to below 85, below 80)
-      // plus the provisional card, all on the specialist session so the
-      // Evaluate label renders on each. Their union must cover all twelve
-      // texts — the eight labels and captions plus the four tier words — so
-      // the case fails whenever any of the twelve is never rendered.
+      // plus the provisional card. Their union must cover all eleven texts —
+      // the seven labels and captions plus the four tier words — so the case
+      // fails whenever any of the eleven is never rendered.
       const { container: exceptionalCard } = renderCard({
         offering: OFFERING_EXCEPTIONAL,
       });
@@ -415,7 +418,6 @@ describe("OfferingCard", () => {
         offering: OFFERING_COMMERCIAL,
       });
       const { container: provisionalCard } = renderCard({
-        session: SPECIALIST,
         offering: { ...OFFERING_GOOD, verificationStatus: "provisional" },
       });
       const rendered = [
@@ -458,7 +460,7 @@ describe("OfferingCard", () => {
     });
 
     it("separates the counts and groups the links apart at the end of the footer", () => {
-      const { container } = renderCard({ session: SPECIALIST });
+      const { container } = renderCard({ actions: ACTION });
       const view = Array.from(container.querySelectorAll("a")).find(
         (link) => link.textContent === TEXTS.viewLabel,
       )!;
