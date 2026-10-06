@@ -30,6 +30,7 @@ import {
   BADGE_GEOMETRY_CLASSES as SEGMENT_BADGE_GEOMETRY_CLASSES,
   Pagination,
   PageSection,
+  FlavorWheel,
 } from "@/shared/ui";
 // Inside `src/shared/ui` the geometry comes from `./Badge` (design.md D5):
 // this is the single definition the segment entry must re-export.
@@ -130,7 +131,9 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
 
   it("renders the checkbox exported from the segment", () => {
     render(<Checkbox label="Accept terms" />);
-    expect(screen.getByRole("checkbox", { name: "Accept terms" })).toBeDefined();
+    expect(
+      screen.getByRole("checkbox", { name: "Accept terms" }),
+    ).toBeDefined();
   });
 
   it("renders the radio group exported from the segment", () => {
@@ -220,5 +223,29 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
   it("renders the page section exported from the segment", () => {
     render(<PageSection>SECTION CONTENT</PageSection>);
     expect(screen.getByText("SECTION CONTENT")).toBeDefined();
+  });
+
+  it("renders the flavor wheel exported from the segment", () => {
+    render(
+      <FlavorWheel
+        nodes={[
+          {
+            id: "fruity",
+            name: "Fruity",
+            description: null,
+            color: "#da1d23",
+            level: 0,
+            count: 4,
+            countLabel: "4 of 5 evaluators",
+            children: [],
+          },
+        ]}
+        total={5}
+        texts={{ label: "Flavor wheel", hint: "Hint", emptyMessage: "Empty" }}
+      />,
+    );
+    expect(
+      screen.getByRole("treeitem", { name: "Fruity, 4 of 5 evaluators" }),
+    ).toBeDefined();
   });
 });
