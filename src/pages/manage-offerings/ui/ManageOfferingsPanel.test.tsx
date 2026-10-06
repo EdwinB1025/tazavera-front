@@ -1,0 +1,298 @@
+import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
+import {
+  render,
+  screen,
+  fireEvent,
+  cleanup,
+  waitFor,
+  act,
+} from "@testing-library/react";
+import type { OfferingSummary, Session } from "@/shared/api";
+
+// The session, the request clients and the router are replaced by spies so
+// the list states can be driven without the network or Next's runtime. Test
+// infrastructure only.
+const mocks = vi.hoisted(() => ({
+  session: { state: "loading" } as Session,
+  signIn: vi.fn(),
+  requestProfileWrite: vi.fn(),
+  publicRequest: vi.fn(),
+  request: vi.fn(),
+  push: vi.fn(),
+  replace: vi.fn(),
+  notFound: vi.fn(),
+}));
+vi.mock("@/features/auth", () => ({
+  useSession: () => mocks.session,
+  signIn: mocks.signIn,
+  requestProfileWrite: mocks.requestProfileWrite,
+}));
+vi.mock("@/shared/api", () => ({
+  publicRequest: mocks.publicRequest,
+  request: mocks.request,
+}));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: mocks.push, replace: mocks.replace }),
+  notFound: mocks.notFound,
+}));
+
+import { ManageOfferingsPanel, type ManageOfferingsTexts } from "./ManageOfferingsPanel";
+
+// No global test setup in this project, so RTL auto-cleanup does not run.
+afterEach(() => {
+  cleanup();
+});
+
+/**
+ * The own list (design.md D1, D2, D3, D6; spec "My offerings list" and
+ * "Access to the management area"). Written before `./ManageOfferingsPanel`
+ * exists (task 3.1).
+ */
+
+const TEXTS: ManageOfferingsTexts = {
+  coffeeshopCaption: "Coffeeshop:",
+  roasterCaption: "Roaster:",
+  evaluationsLabel: "Evaluations:",
+  defectiveLabel: "Defective:",
+  viewLabel: "View",
+  verifiedLabel: "Verified",
+  provisionalLabel: "Provisional",
+  ratingExceptionalLabel: "Exceptional",
+  ratingExcellentLabel: "Excellent",
+  ratingGoodLabel: "Good",
+  ratingCommercialLabel: "Commercial",
+  previousLabel: "Previous",
+  nextLabel: "Next",
+  eyebrow: "Management",
+  listHeading: "My offerings",
+  newOfferingLink: "New offering",
+  listEmptyMessage: "You have no offerings yet.",
+  listEmptyCreateLink: "Create an offering",
+  listErrorMessage: "Your offerings could not be loaded.",
+  retryLabel: "Retry",
+  signedOutMessage: "Sign in to manage your offerings.",
+  signInLabel: "Sign in",
+};
+
+const COFFEESHOP: Session = {
+  state: "authenticated",
+  user: { ulid: "01USER", role: "coffeeshop", name: "Tazavera" },
+};
+
+function offering(ulid: string, coffee: string, location: string): OfferingSummary {
+  return {
+    ulid,
+    cuppingAvg: "84.25",
+    evaluationCount: 5,
+    defectiveEvaluationCount: 0,
+    verificationStatus: "provisional",
+    location: { ulid: `L${ulid}`, name: location },
+    coffeeInventory: {
+      ulid: `I${ulid}`,
+      coffee: { name: coffee, country: "Colombia" },
+      roastery: { name: "Nómada" },
+    },
+    sensoryTaxonomy: [],
+  };
+}
+
+const ITEMS = [
+  offering("01A", "Huila El Mirador", "Tazavera Gràcia"),
+  offering("01B", "Sidama Bensa", "Tazavera Born"),
+];
+
+function jsonResponse(status: number, body: unknown): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+function pageOf(data: OfferingSummary[], current = 1, last = 2) {
+  return jsonResponse(200, {
+    data,
+    meta: { current_page: current, last_page: last, per_page: 15 },
+  });
+}
+
+function renderPanel(page = 1) {
+  return render(
+    <ManageOfferingsPanel locale="en" page={page} taxonomies={[]} texts={TEXTS} />,
+  );
+}
+
+beforeEach(() => {
+  mocks.session = COFFEESHOP;
+  for (const fn of [
+    mocks.signIn,
+    mocks.requestProfileWrite,
+    mocks.publicRequest,
+    mocks.request,
+    mocks.push,
+    mocks.replace,
+    mocks.notFound,
+  ]) {
+    fn.mockReset();
+  }
+});
+
+function skeletonCount(container: HTMLElement): number {
+  // Each skeleton card holds three pulsing shapes.
+  return container.querySelectorAll(".animate-pulse").length / 3;
+}
+
+describe("ManageOfferingsPanel — header (design.md D6)", () => {
+  it("renders the eyebrow, the h1 as a focus target and the New offering link for a coffeeshop", async () => {
+    mocks.publicRequest.mockResolvedValue(pageOf(ITEMS));
+    renderPanel();
+
+    expect(screen.getByText(TEXTS.eyebrow).className).toBe("type-eyebrow-strong");
+    const heading = screen.getByRole("heading", { level: 1, name: TEXTS.listHeading });
+    expect(heading.className).toBe("type-heading");
+    expect(heading.getAttribute("tabindex")).toBe("-1");
+    const link = screen.getByRole("link", { name: TEXTS.newOfferingLink });
+    expect(link.getAttribute("href")).toBe("/en/manage/offerings/new");
+    await screen.findAllByRole("heading", { level: 3 });
+  });
+
+  it("renders the heading but no New offering link for an anonymous visitor, with the gate in place of the list", () => {
+    mocks.session = { state: "anonymous" };
+    renderPanel();
+
+    expect(screen.getByRole("heading", { level: 1, name: TEXTS.listHeading })).toBeTruthy();
+    expect(screen.queryByRole("link", { name: TEXTS.newOfferingLink })).toBeNull();
+    expect(screen.getByText(TEXTS.signedOutMessage)).toBeTruthy();
+    expect(mocks.publicRequest).not.toHaveBeenCalled();
+  });
+
+  it("signs in with the list route from the gate's button", () => {
+    mocks.session = { state: "anonymous" };
+    renderPanel();
+
+    fireEvent.click(screen.getByRole("button", { name: TEXTS.signInLabel }));
+    expect(mocks.signIn).toHaveBeenCalledWith("/en/manage/offerings");
+  });
+
+  it("renders the 404 for a signed-in user of another role", () => {
+    mocks.session = {
+      state: "authenticated",
+      user: { ulid: "01SPEC", role: "specialist" },
+    };
+    renderPanel();
+
+    expect(mocks.notFound).toHaveBeenCalled();
+    expect(mocks.publicRequest).not.toHaveBeenCalled();
+  });
+
+  it("lays the header out as a stacked row that spreads from md, the title group 0.5rem apart", async () => {
+    mocks.publicRequest.mockResolvedValue(pageOf(ITEMS));
+    renderPanel();
+
+    const titleGroup = screen.getByText(TEXTS.eyebrow).parentElement!;
+    expect(titleGroup.className).toBe("flex flex-col gap-2");
+    expect(titleGroup.parentElement!.className).toBe(
+      "flex flex-col items-start gap-4 md:flex-row md:flex-wrap md:items-end md:justify-between",
+    );
+    await screen.findAllByRole("heading", { level: 3 });
+  });
+});
+
+describe("ManageOfferingsPanel — list states (spec 'My offerings list')", () => {
+  it("shows three skeleton cards and no list content while the session resolves", () => {
+    mocks.session = { state: "loading" };
+    const { container } = renderPanel();
+
+    expect(skeletonCount(container)).toBe(3);
+    expect(screen.queryByText(TEXTS.signedOutMessage)).toBeNull();
+    expect(mocks.publicRequest).not.toHaveBeenCalled();
+  });
+
+  it("shows three skeleton cards while the list loads, with no empty or error message", () => {
+    mocks.publicRequest.mockReturnValue(new Promise(() => {}));
+    const { container } = renderPanel();
+
+    expect(skeletonCount(container)).toBe(3);
+    expect(screen.queryByRole("heading", { level: 3 })).toBeNull();
+    expect(screen.queryByText(TEXTS.listEmptyMessage)).toBeNull();
+    expect(screen.queryByText(TEXTS.listErrorMessage)).toBeNull();
+    expect(screen.queryByRole("button", { name: TEXTS.previousLabel })).toBeNull();
+  });
+
+  it("requests the session user's offerings for the route's page", async () => {
+    mocks.publicRequest.mockResolvedValue(pageOf(ITEMS, 2, 3));
+    renderPanel(2);
+
+    await screen.findAllByRole("heading", { level: 3 });
+    expect(mocks.publicRequest).toHaveBeenCalledWith(
+      "/offerings?coffeeshopUlid=01USER&page=2",
+    );
+  });
+
+  it("renders one offering card per item and the pagination on success", async () => {
+    mocks.publicRequest.mockResolvedValue(pageOf(ITEMS, 1, 2));
+    renderPanel();
+
+    const titles = await screen.findAllByRole("heading", { level: 3 });
+    expect(titles.map((title) => title.textContent)).toEqual([
+      "Huila El Mirador",
+      "Sidama Bensa",
+    ]);
+    const previous = screen.getByRole("button", { name: TEXTS.previousLabel });
+    const next = screen.getByRole("button", { name: TEXTS.nextLabel });
+    expect((previous as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(next);
+    expect(mocks.push).toHaveBeenCalledWith("/en/manage/offerings?page=2");
+  });
+
+  it("lays the cards out in the grid of design.md D3 (1 / lg 2 / 2xl 3, 1.5rem gap)", async () => {
+    mocks.publicRequest.mockResolvedValue(pageOf(ITEMS));
+    renderPanel();
+
+    const [title] = await screen.findAllByRole("heading", { level: 3 });
+    const grid = title.closest(".grid")!;
+    expect(grid.className).toBe("grid grid-cols-1 gap-6 lg:grid-cols-2 2xl:grid-cols-3");
+    expect(grid.className).not.toMatch(/\bmd:grid-cols|\bxl:grid-cols/);
+  });
+
+  it("renders the empty message and the create link, and no card, when there are no offerings", async () => {
+    mocks.publicRequest.mockResolvedValue(pageOf([]));
+    renderPanel();
+
+    const message = await screen.findByText(TEXTS.listEmptyMessage);
+    const link = screen.getByRole("link", { name: TEXTS.listEmptyCreateLink });
+    expect(link.getAttribute("href")).toBe("/en/manage/offerings/new");
+    expect(screen.queryByRole("heading", { level: 3 })).toBeNull();
+    expect(message.parentElement!.className).toBe(
+      "flex flex-col items-center gap-4 text-center",
+    );
+  });
+
+  it("renders the error message and Retry, and Retry reloads through the loading state", async () => {
+    mocks.publicRequest.mockResolvedValueOnce(jsonResponse(500, {}));
+    const { container } = renderPanel();
+
+    const message = await screen.findByText(TEXTS.listErrorMessage);
+    expect(message.parentElement!.className).toBe(
+      "flex flex-col items-center gap-4 text-center",
+    );
+    expect(screen.queryByRole("heading", { level: 3 })).toBeNull();
+
+    let resolve: (value: Response) => void = () => {};
+    mocks.publicRequest.mockReturnValueOnce(
+      new Promise<Response>((done) => {
+        resolve = done;
+      }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: TEXTS.retryLabel }));
+
+    expect(skeletonCount(container)).toBe(3);
+    expect(screen.queryByText(TEXTS.listErrorMessage)).toBeNull();
+    await act(async () => {
+      resolve(pageOf(ITEMS));
+    });
+    await waitFor(() =>
+      expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(2),
+    );
+    expect(mocks.publicRequest).toHaveBeenCalledTimes(2);
+  });
+});
