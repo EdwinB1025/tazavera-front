@@ -93,3 +93,11 @@ export { Pagination } from "./Pagination";
 export type { PaginationProps, PaginationTexts } from "./Pagination";
 export { PageSection } from "./PageSection";
 export type { PageSectionProps, PageSectionSurface } from "./PageSection";
+export { FilterChip } from "./FilterChip";
+export type { FilterChipProps } from "./FilterChip";
+export { FacetPanel } from "./FacetPanel";
+export type {
+  AppliedFilter,
+  FacetPanelProps,
+  FacetPanelTexts,
+} from "./FacetPanel";
