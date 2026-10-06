@@ -14,6 +14,8 @@ export type NoteFieldProps = {
   value: string | null;
   onChange: (value: string | null) => void;
   disabled?: boolean;
+  /** The closed evaluation's presentation: the note as text, no actions. */
+  readOnly?: boolean;
 };
 
 // "Add note" and the remove-note control are buttons styled as links
@@ -34,6 +36,7 @@ const OPEN_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
  * The optional note of an axis and part (design.md D14; spec "Notes"): closed
  * behind "Add note"; once open, a `Field` with a `Textarea` and the
  * remove-note control aligned to the end, which drops the note and its text.
+ * Read-only, an existing note shows as `type-body` text under its label.
  */
 export function NoteField({
   label,
@@ -42,7 +45,16 @@ export function NoteField({
   value,
   onChange,
   disabled = false,
+  readOnly = false,
 }: NoteFieldProps): ReactNode {
+  if (readOnly) {
+    return value ? (
+      <div className={OPEN_CLASSES}>
+        <p className="type-label">{label}</p>
+        <p className="type-body">{value}</p>
+      </div>
+    ) : null;
+  }
   if (value === null) {
     return (
       <button

@@ -212,6 +212,7 @@ export function EvaluationGroupCard({
         removeLabel={texts.removeNoteLabel}
         value={value}
         disabled={disabledAxis(axis)}
+        readOnly={readOnly}
         onChange={(next) =>
           onChange((current) =>
             part === "descriptive"
@@ -315,6 +316,7 @@ export function EvaluationGroupCard({
                   addLabel={texts.addNoteLabel}
                   removeLabel={texts.removeNoteLabel}
                   value={state.generalObservation}
+                  readOnly={readOnly}
                   onChange={(next) =>
                     onChange((current) => ({ ...current, generalObservation: next }))
                   }

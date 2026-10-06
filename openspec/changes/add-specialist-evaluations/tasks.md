@@ -66,7 +66,7 @@ The close flow and the closed presentation of design.md D4, D10 and the spec's c
 - [x] 7.1 Write the tests of the close flow (test before implementation). In `EvaluationForm.test.tsx`: Close evaluation saves first and then calls `closeAnEvaluation`; on success the form becomes the read-only view and the status region shows the closed message; a `409` shows the incomplete message and highlights exactly the groups `completeness.ts` reports incomplete; a `403` shows the "not yours" message with no retry. Verify: `npm run test:run` fails only on the new close assertions.
 - [x] 7.2 Implement the close flow in `FormActions.tsx` and `EvaluationForm.tsx` (design.md D4), the incomplete-group highlighting (D10) and the closed message key in the three catalogs. Verify: `npm run test:run` passes and `npx tsc --noEmit` is clean.
 - [x] 7.3 Write the tests of the read-only presentation (test before implementation). In `EvaluationForm.test.tsx`: a closed evaluation renders every control read-only (the `add-evaluation-scales` `readOnly` modes), shows existing notes as `type-body` text, offers no save, close, "Add note" or remove-note action, and keeps the layout of the editing form. Verify: `npm run test:run` fails only on the new read-only assertions.
-- [ ] 7.4 Implement the read-only presentation in `EvaluationForm.tsx`, `EvaluationGroupCard.tsx` and `NoteField.tsx` (design.md D4, D14). Verify: `npm run test:run` passes, and `npm run lint` and `npx tsc --noEmit` are clean.
+- [x] 7.4 Implement the read-only presentation in `EvaluationForm.tsx`, `EvaluationGroupCard.tsx` and `NoteField.tsx` (design.md D4, D14). Verify: `npm run test:run` passes, and `npm run lint` and `npx tsc --noEmit` are clean.
 
 ## 8. Editing an existing evaluation (data to screen)
 
