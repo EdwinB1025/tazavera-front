@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent, ReactNode } from "react";
 import { ChevronDown, ChevronRight } from "@/shared/ui/icons";
 import { cn } from "@/shared/lib/utils";
@@ -34,6 +34,7 @@ export type FlavorWheelTexts = {
   label: string;
   hint: string;
   emptyMessage: string;
+  notesToggle: string; // the note list's expand control (review round 1)
 };
 
 export type FlavorWheelProps = {
@@ -45,13 +46,15 @@ export type FlavorWheelProps = {
 // ─── Treatment classes (design.md D8; design-summary §6) ───
 
 const LAYOUT_CLASSES =
-  "flex flex-col gap-6 @2xl:grid @2xl:grid-cols-[minmax(0,25rem)_minmax(0,1fr)] @2xl:grid-rows-[auto_1fr] @2xl:gap-x-8 @2xl:gap-y-6";
+  "flex flex-col gap-6 @2xl:grid @2xl:grid-cols-[minmax(0,25rem)_minmax(0,1fr)] @2xl:grid-rows-[auto_auto_1fr] @2xl:gap-x-8 @2xl:gap-y-6";
 const WHEEL_CLASSES =
-  "mx-auto aspect-square w-full max-w-100 @2xl:row-span-2 @2xl:mx-0 @2xl:self-start";
+  "mx-auto aspect-square w-full max-w-100 @2xl:row-span-3 @2xl:mx-0 @2xl:self-start";
 const PANEL_CLASSES =
   "flex min-h-24 flex-col gap-2 rounded-field border border-border-subtle p-4";
 const ROW_CLASSES =
   "flex min-h-10 cursor-pointer items-center gap-2 rounded-field px-2 py-1 text-text-primary hover:bg-surface-section focus-visible:focus-ring";
+const TOGGLE_CLASSES =
+  "type-body flex min-h-10 cursor-pointer items-center gap-2 self-start rounded-field px-2 py-1 text-text-primary hover:bg-surface-section focus-visible:focus-ring";
 const ROW_INDENT = ["", "ms-6", "ms-12"];
 const SWATCH_CLASSES = "size-3 shrink-0 rounded-check";
 const LINE_HEIGHT = 1.2;
@@ -153,6 +156,8 @@ export function FlavorWheel({
 }: FlavorWheelProps): ReactNode {
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [listOpen, setListOpen] = useState(false);
+  const listId = useId();
   const rowElements = useRef(new Map<string, HTMLLIElement>());
 
   if (total === 0 || nodes.length === 0) {
@@ -342,7 +347,24 @@ export function FlavorWheel({
           )}
         </div>
 
+        <button
+          type="button"
+          aria-expanded={listOpen}
+          aria-controls={listId}
+          className={TOGGLE_CLASSES}
+          onClick={() => setListOpen((open) => !open)}
+        >
+          {listOpen ? (
+            <ChevronDown className="size-4 shrink-0" aria-hidden="true" />
+          ) : (
+            <ChevronRight className="size-4 shrink-0" aria-hidden="true" />
+          )}
+          {texts.notesToggle}
+        </button>
+
         <ul
+          id={listId}
+          hidden={!listOpen}
           role="tree"
           aria-label={texts.label}
           className="flex flex-col gap-1"
