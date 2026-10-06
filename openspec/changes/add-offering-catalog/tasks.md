@@ -19,7 +19,7 @@ Apply dependencies: this change applies only after `add-evaluation-scales`, `rep
 
 ## 4. Retry action move (offering-catalog)
 
-- [ ] 4.1 Move the retry action to `src/shared/ui/RetryButton.tsx` with `src/shared/ui/RetryButton.test.tsx` (design.md D4), re-export `RetryButton` and `RetryButtonProps` from `src/shared/ui/index.ts`, and update `src/widgets/offering-list/ui/RetryButton.tsx` and the widget's `index.ts` to the smallest state that keeps every existing import and test working (the widget re-export stays). The behaviour is unchanged: one `Button` whose activation calls `router.refresh()`. No existing assertion is updated, removed or weakened. Verification: `npm run test:run` (the moved test passes from its new path; `OfferingList.test.tsx`, `HomeScreen.test.tsx` and the widget's tests pass unchanged), `npm run lint` reports no unused import, and `npx tsc --noEmit` exits 0.
+- [x] 4.1 Move the retry action to `src/shared/ui/RetryButton.tsx` with `src/shared/ui/RetryButton.test.tsx` (design.md D4), re-export `RetryButton` and `RetryButtonProps` from `src/shared/ui/index.ts`, and update `src/widgets/offering-list/ui/RetryButton.tsx` and the widget's `index.ts` to the smallest state that keeps every existing import and test working (the widget re-export stays). The behaviour is unchanged: one `Button` whose activation calls `router.refresh()`. No existing assertion is updated, removed or weakened. Verification: `npm run test:run` (the moved test passes from its new path; `OfferingList.test.tsx`, `HomeScreen.test.tsx` and the widget's tests pass unchanged), `npm run lint` reports no unused import, and `npx tsc --noEmit` exits 0.
 
 ## 5. Catalog query and reads slice (offering-catalog)
 
