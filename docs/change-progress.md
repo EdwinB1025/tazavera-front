@@ -2,7 +2,7 @@
 
 Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, qué falta y quién lo tiene. Complementa `docs/general-context.md` (contexto y decisiones) y el `handoff.md` de cada cambio (detalle de cada sesión).
 
-**Última actualización:** 2026-10-06, orquestador (Claude Code).
+**Última actualización:** 2026-10-06 (tarde), orquestador (Claude Code).
 
 ## Cómo se usa
 
@@ -48,11 +48,14 @@ Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, 
 
 | Cambio | Capabilities | Rama / worktree | Fase | Estado | Siguiente fase | Agente | Bloqueo | Último commit |
 |---|---|---|---|---|---|---|---|---|
-| `add-auth` | auth, app-shell | `feature/add-auth` / `tazavera-front-auth` | Apply | 1.1–8.7 hechas; 8.8–8.16 en curso en la nube (rama `claude/add-auth-8.x`) tras dos fallos de OpenCode en 8.8 | Revisión y ff-merge de la rama de la nube; 8.17 de Product owner | Claude nube (lanzada por el orquestador) | Q-merge al mergear `develop` | `b5eedf6` |
-| `add-specialist-evaluations` | evaluations | `feature/add-specialist-evaluations` / `tazavera-front-evaluations` | Resumen — en revisión | Revisado por el design lead (sin commitear); 8 puntos bloquean el propose (handoff Q8) | Respuestas de Product owner, aprobación, Propose | Product owner | Q8; depende de `add-evaluation-scales` y del refactor del widget de ofertas | `2c39a6c` |
-| `add-evaluation-scales` | form-fields | `feature/add-evaluation-scales` / `tazavera-front-scales` | Resumen — en revisión | Borrador hecho (sin commitear); 5 puntos bloquean el propose (handoff Q1) | Respuestas de Product owner, aprobación, Propose | Product owner | Q1 (base del diálogo y otros 4) | `7176afb` |
+| `add-auth` | auth, app-shell | `feature/add-auth` / `tazavera-front-auth` | Apply | 1.1–8.16 hechas (8.8–8.16 en la nube); arreglo no planificado F1 integrado (`4947bd8`); tests 820/820, lint y tsc en verde | 8.17 (navegador), verify, archive | Product owner | — (Q-merge: se mergea `develop` en el paso de merge final) | `972f15f` |
+| `refactor-badge-geometry` | feedback | `feature/refactor-badge-geometry` / `tazavera-front-badge` | Explore | Resumen `9a574b3`; explore en curso | Propose | Arquitecto (OpenCode) | — | `ee913ca` |
+| `fix-button-boundaries` | base-controls | `feature/fix-button-boundaries` / `tazavera-front-buttons` | Explore | Resumen `ee913ca` (bordes de 1px medidos por el design lead); explore en curso | Propose | Arquitecto (OpenCode) | — | `ee913ca` |
+| `extract-offering-list-parts` | content-structure | `feature/extract-offering-list-parts` / `tazavera-front-listparts` | Explore | Resumen `424a36c`; explore en curso | Propose | Arquitecto (OpenCode) | — | `ee913ca` |
+| `add-evaluation-scales` | form-fields | `feature/add-evaluation-scales` / `tazavera-front-scales` | Explore | Puntos abiertos respondidos el 6 oct (resumen sin commitear); explore en curso | Propose | Arquitecto (OpenCode) | Apply después de `refactor-badge-geometry` | `7176afb` |
+| `add-specialist-evaluations` | evaluations | `feature/add-specialist-evaluations` / `tazavera-front-evaluations` | Resumen — en revisión | Q8 respondida el 6 oct (sin commitear); queda Q9 (referencia visual del formulario) | Propose cuando el contrato traiga `createdAt`/`closedAt` | Product owner (contrato) | Contrato; depende de scales y `extract-offering-list-parts` | `2c39a6c` |
 | `add-user-account` | user-account | — | Resumen — en revisión | Borrador revisado por el design lead (`ed92b2b`); 9 puntos bloquean el propose | Respuestas de Product owner, aprobación | Product owner | Open 1 (sin 422 en el contrato) y Open 2 (step-up, afecta a offering-management) | `ed92b2b` |
-| `add-filter-controls` | filtering | — | Resumen — en revisión | Borrador (`0de9864`); 3 puntos bloquean el propose | Respuestas de Product owner, aprobación | Product owner | Open 1–3; depende de `add-offering-catalog` | `0de9864` |
+| `add-filter-controls` | filtering, app-shell | — | Resumen — en revisión | Rehecho el 6 oct con facetas en el sidebar (sin commitear) | Respuestas de Product owner, Propose | Product owner | Librería del combobox; ranura `@sidebar`; depende de `add-auth` (shell) y `add-offering-catalog` | `0de9864` |
 | `add-offering-management` | offering-management | — | Resumen — en revisión | Borrador (`b16697e`); 7 puntos bloquean el propose | Respuestas de Product owner, aprobación | Product owner | Open 1–7; refactors compartidos con catalog y evaluations | `b16697e` |
 | `add-offering-catalog` | offering-catalog | — | Resumen — en revisión | Borrador (`1f01ce9`); 4 puntos bloquean el propose | Respuestas de Product owner, aprobación | Product owner | Open 1, 2, 5, 6; D4 de landing | `1f01ce9` |
 | `add-theme-tokens` | theming | — (rama borrada) | Merge | Archivado `e53c808`, mergeado `a3a96e2` | — | — | — | `a3a96e2` |
