@@ -3,7 +3,12 @@ import { render, screen, fireEvent, cleanup, act } from "@testing-library/react"
 import { FlavorWheel } from "./FlavorWheel";
 import type { FlavorWheelNode, FlavorWheelProps } from "./FlavorWheel";
 import { taxonomyColorRule } from "./taxonomy-color";
-import { labelPath, labelRadius, layoutWheel } from "./flavor-wheel-geometry";
+import {
+  arcPath,
+  labelPath,
+  labelRadius,
+  layoutWheel,
+} from "./flavor-wheel-geometry";
 
 // This project has no global test setup, so RTL's auto-cleanup (which relies
 // on a framework-provided afterEach) does not run. Clean up manually between
@@ -536,6 +541,27 @@ describe("FlavorWheel — expand and collapse", () => {
     expect(segmentIds(container)).toEqual(["fruity", "floral", "nutty"]);
     expect(row("Nutty").className).toBe(`${ROW_CLASSES} bg-surface-section`);
   });
+
+  it("rescales ring 0 as a root expands and after Escape", () => {
+    const { container } = renderWheel();
+    const fruityPath = (): string | null =>
+      segment(container, "fruity")!.querySelector("path")!.getAttribute("d");
+    const fruityArc = (expanded: Set<string>) =>
+      layoutWheel(NODES, expanded).segments.find(
+        (s) => s.node.id === "fruity",
+      )!;
+    const atRest = fruityArc(new Set());
+    expect(atRest).toMatchObject({ inner: 80, outer: 200 });
+    const restPath = arcPath(80, 200, atRest.start, atRest.end);
+    expect(fruityPath()).toBe(restPath);
+    fireEvent.click(segment(container, "fruity")!);
+    const expanded = fruityArc(new Set(["fruity"]));
+    expect(expanded).toMatchObject({ inner: 80, outer: 140 });
+    expect(fruityPath()).toBe(arcPath(80, 140, expanded.start, expanded.end));
+    row("Fruity").focus();
+    fireEvent.keyDown(document.activeElement as Element, { key: "Escape" });
+    expect(fruityPath()).toBe(restPath);
+  });
 });
 
 describe("FlavorWheel — segment labels", () => {
@@ -573,8 +599,8 @@ describe("FlavorWheel — segment labels", () => {
     const nodes = [note("fruity", 0, 1), note("floral", 0, 1)];
     render(<FlavorWheel nodes={nodes} total={5} texts={TEXTS} />);
     render(<FlavorWheel nodes={nodes} total={5} texts={TEXTS} />);
-    const hrefs = Array.from(document.querySelectorAll("textPath")).map(
-      (t) => t.getAttribute("href"),
+    const hrefs = Array.from(document.querySelectorAll("textPath")).map((t) =>
+      t.getAttribute("href"),
     );
     expect(hrefs).toHaveLength(8);
     expect(new Set(hrefs).size).toBe(8);
@@ -673,7 +699,9 @@ describe("FlavorWheel — name shown while active", () => {
     fireEvent.pointerEnter(segment(container, "fruity")!);
     expect(namesInWheel(container, "Floral")).toHaveLength(0);
     expect(activeName(container)).toBeNull();
-    expect(container.querySelectorAll("svg text.stroke-surface-card")).toHaveLength(0);
+    expect(
+      container.querySelectorAll("svg text.stroke-surface-card"),
+    ).toHaveLength(0);
   });
 
   it("keeps the name while the note stays active after the pointer leaves", () => {

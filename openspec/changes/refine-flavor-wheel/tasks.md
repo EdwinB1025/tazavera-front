@@ -13,7 +13,7 @@ design.md D1; spec "Flavor wheel" — "Ring 0 only at first", "Rings follow the 
 
 spec "Rings follow the deepest expanded level". The component needs no change for it (design.md D1), so this group is one `test(feedback)` commit that passes immediately.
 
-- [ ] 2.1 Add to `src/shared/ui/FlavorWheel.test.tsx` the case "rescales ring 0 as a root expands and after Escape": with `NODES` and `total` 5, the Fruity segment's path `d` equals `arcPath(80, 200, start, end)` of Fruity's arc in `layoutWheel(NODES, new Set())` at rest; after clicking the Fruity segment it equals `arcPath` of Fruity's arc in `layoutWheel(NODES, new Set(["fruity"]))` (inner 80, outer 140, asserted too); after focusing the Fruity row and pressing Escape it equals the at-rest value again (outer 200). Verifying: the case passes, and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` all exit 0
+- [x] 2.1 Add to `src/shared/ui/FlavorWheel.test.tsx` the case "rescales ring 0 as a root expands and after Escape": with `NODES` and `total` 5, the Fruity segment's path `d` equals `arcPath(80, 200, start, end)` of Fruity's arc in `layoutWheel(NODES, new Set())` at rest; after clicking the Fruity segment it equals `arcPath` of Fruity's arc in `layoutWheel(NODES, new Set(["fruity"]))` (inner 80, outer 140, asserted too); after focusing the Fruity row and pressing Escape it equals the at-rest value again (outer 200). Verifying: the case passes, and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` all exit 0
 
 ## 3. Note list inside the shared collapsible section
 
