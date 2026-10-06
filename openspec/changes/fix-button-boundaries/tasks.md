@@ -16,4 +16,4 @@
 
 ## 4. Integration verification
 
-- [ ] 4.1 Verify the complete change with `npm run test:run`, `npm run lint` and `npx tsc --noEmit`, verifying all three commands exit 0 and every test of the must-keep-passing list (design.md D6) passes with the added border classes
+- [x] 4.1 Verify the complete change with `npm run test:run`, `npm run lint` and `npx tsc --noEmit`, verifying all three commands exit 0 and every test of the must-keep-passing list (design.md D6) passes with the added border classes
