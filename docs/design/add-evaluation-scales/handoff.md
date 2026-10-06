@@ -66,3 +66,20 @@ Summary: `npm ci` run in the worktree. The architect ran the explore (OpenCode, 
 #### D4 — Q4: propose now, apply after the refactor merges
 - Decision: the propose runs against the committed `refactor-badge-geometry` summary (`git show develop:docs/design/refactor-badge-geometry/design-summary.md`); the apply starts only after that change is merged into `develop` and `develop` into this branch.
 - Why: Product owner's instruction of 6 Oct (launch every ready propose; only the apply waits); `add-specialist-evaluations` precedent.
+
+## Session 2026-10-06 (evening) — verify
+Summary: the apply was completed in the cloud and integrated (`3696411`, 16/16 tasks). `/opsx:verify` ran in a cloud routine (`trig_01WeSvvUbMmnzytGDEXbJfYp`, session `cse_01WxZ8QFHFMrDXq3oWc6wDQ5`, read-only); the `openspec` CLI was not installed in the container, so the artifacts were read directly. Stopped because: completed; ready for Product owner's browser check and the archive. MVC reachable: not needed.
+
+### Agent feedback
+- Checks: test:run 1193 passed, lint clean, tsc exit 0.
+- CRITICAL: none.
+- W1 — `DescriptorChipGroup.test.tsx:259-266`: the disabled case checks only the `disabled` attribute, not `disabled:opacity-50` / `disabled:cursor-not-allowed` (spec form-fields "Data-entry control states"; design.md D6). Path (a): unplanned coverage.
+- Suggestions: S1, the wording of design.md D8 on focus return does not match `ConfirmDialog.tsx:63-76`; the rest truncated in the run log, none blocking.
+
+### Fixes and coverage sent to the Build
+#### F1 — W1, unplanned coverage
+- Type: unplanned coverage (spec form-fields "Data-entry control states"; design.md D6), sent to the OpenCode build with the workflow §4 template.
+- Result: `9546737 test(form-fields): cover the disabled chip opacity and not-allowed cursor`. Re-run by the orchestrator: 59 files, 1193 tests passed.
+
+### Final checks
+`npm run test:run` (orchestrator, 20:36): 59 files, 1193 tests passed.
