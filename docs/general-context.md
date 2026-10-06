@@ -102,3 +102,8 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Decisión:** layout de página común: secciones a todo el ancho, contenedor centrado de 72rem como máximo, padding lateral de 1rem/2rem, vertical de 3rem/4rem, y huecos explícitos entre grupos.
 - **Por qué:** ronda 3 de add-landing.
 - **Afecta:** todos los diseños de páginas nuevas (offering-catalog, user-account, evaluations).
+
+### 2026-10-06 — cobertura del contrato
+- **Decisión:** `GET /coffees` y `GET /roasteries` los consumen `add-offering-management` (alta de ofertas) y `add-filter-controls` (filtros de la lista de ofertas).
+- **Por qué:** respuesta de Product owner del 6 oct.
+- **Afecta:** add-offering-management, add-filter-controls, add-offering-catalog (la lista que aloja esos filtros).
