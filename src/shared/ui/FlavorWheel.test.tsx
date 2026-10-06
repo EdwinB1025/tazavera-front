@@ -603,6 +603,83 @@ describe("FlavorWheel — segment labels", () => {
   });
 });
 
+describe("FlavorWheel — name shown while active", () => {
+  const NARROW = [note("fruity", 0, 200), note("floral", 0, 1)];
+  const HALO_CLASSES =
+    "pointer-events-none select-none fill-text-primary stroke-surface-card";
+
+  /** The SVG texts that read exactly `name`. */
+  function namesInWheel(container: HTMLElement, name: string): Element[] {
+    return Array.from(container.querySelectorAll("svg text")).filter(
+      (t) => t.textContent === name,
+    );
+  }
+
+  /** The active-only name: the SVG's last child when it is shown. */
+  function activeName(container: HTMLElement): Element | null {
+    const last = container.querySelector("svg")!.lastElementChild;
+    return last?.tagName === "text" ? last : null;
+  }
+
+  it("shows no name at rest for a segment whose name cannot fit", () => {
+    const { container } = renderWheel({ nodes: NARROW });
+    expect(namesInWheel(container, "Floral")).toHaveLength(0);
+  });
+
+  it("draws the name alone, haloed on the card colour, last, while the note is active", () => {
+    const { container } = renderWheel({ nodes: NARROW });
+    fireEvent.pointerEnter(segment(container, "floral")!);
+    const text = activeName(container)!;
+    expect(text).not.toBeNull();
+    expect(text.textContent).toBe("Floral");
+    expect(text.textContent).not.toContain("…");
+    expect(text.getAttribute("font-size")).toBe("13");
+    expect(text.getAttribute("text-anchor")).toBe("middle");
+    expect(text.getAttribute("dominant-baseline")).toBe("central");
+    expect(text.getAttribute("stroke-width")).toBe("4");
+    expect(text.getAttribute("paint-order")).toBe("stroke");
+    expect(text.getAttribute("stroke-linejoin")).toBe("round");
+    expect(text.getAttribute("class")).toBe(HALO_CLASSES);
+    const textPath = text.querySelector("textPath")!;
+    expect(textPath.getAttribute("startOffset")).toBe("50%");
+    const path = document.getElementById(
+      (textPath.getAttribute("href") ?? "").slice(1),
+    );
+    const arc = layoutWheel(NARROW, new Set()).segments[1];
+    const mid = (arc.start + arc.end) / 2;
+    expect(path?.getAttribute("fill")).toBe("none");
+    expect(path?.getAttribute("d")).toBe(
+      labelPath(labelRadius(arc, 0), mid - 90, mid + 90),
+    );
+  });
+
+  it("shows the name when the row is focused or clicked", () => {
+    const { container } = renderWheel({ nodes: NARROW });
+    row("Floral").focus();
+    expect(activeName(container)?.textContent).toBe("Floral");
+    fireEvent.pointerEnter(segment(container, "fruity")!);
+    fireEvent.click(row("Floral"));
+    expect(activeName(container)?.textContent).toBe("Floral");
+  });
+
+  it("hides the name when another note becomes active, and never adds one for a label that fits", () => {
+    const { container } = renderWheel({ nodes: NARROW });
+    fireEvent.pointerEnter(segment(container, "floral")!);
+    fireEvent.pointerEnter(segment(container, "fruity")!);
+    expect(namesInWheel(container, "Floral")).toHaveLength(0);
+    expect(activeName(container)).toBeNull();
+    expect(container.querySelectorAll("svg text.stroke-surface-card")).toHaveLength(0);
+  });
+
+  it("keeps the name while the note stays active after the pointer leaves", () => {
+    const { container } = renderWheel({ nodes: NARROW });
+    fireEvent.pointerEnter(segment(container, "floral")!);
+    fireEvent.pointerLeave(segment(container, "floral")!);
+    fireEvent.pointerLeave(container.querySelector("figure")!);
+    expect(activeName(container)?.textContent).toBe("Floral");
+  });
+});
+
 describe("FlavorWheel — empty state", () => {
   it.each([
     ["total 0", { total: 0 }],
