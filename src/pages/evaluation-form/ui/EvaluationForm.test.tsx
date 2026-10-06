@@ -504,3 +504,100 @@ describe("EvaluationForm: one action at a time (design.md D4)", () => {
     expect(closeAnEvaluation).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("EvaluationForm: section states (design.md D15; tasks 11.3)", () => {
+  const CLOSED = { ...OPEN_EVALUATION, status: "closed" };
+
+  function expandedByGroup(container: HTMLElement): Record<string, string | null> {
+    return Object.fromEntries(
+      Array.from(container.querySelectorAll("[data-group]")).map((card) => [
+        card.getAttribute("data-group"),
+        card.querySelector("h3 > button")!.getAttribute("aria-expanded"),
+      ]),
+    );
+  }
+
+  function allGroups(expanded: "true" | "false"): Record<string, string> {
+    return Object.fromEntries(
+      [
+        "fragranceAroma",
+        "flavorAftertaste",
+        "acidity",
+        "sweetness",
+        "mouthfeel",
+        "overall",
+        "defects",
+        "extrinsic",
+      ].map((key) => [key, expanded]),
+    );
+  }
+
+  function closeEvaluation() {
+    fireEvent.click(screen.getByRole("button", { name: "Close evaluation" }));
+  }
+
+  it("starts every group collapsed in a new form and in a loaded open evaluation", () => {
+    const fresh = renderForm();
+    expect(expandedByGroup(fresh.container)).toEqual(allGroups("false"));
+    cleanup();
+    const open = renderForm({ evaluation: OPEN_EVALUATION });
+    expect(expandedByGroup(open.container)).toEqual(allGroups("false"));
+  });
+
+  it("starts every group expanded in a closed evaluation", () => {
+    const { container } = renderForm({ evaluation: CLOSED });
+    expect(expandedByGroup(container)).toEqual(allGroups("true"));
+  });
+
+  it("expands exactly the incomplete groups on a 409 close", async () => {
+    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
+    closeAnEvaluation.mockResolvedValue({ ok: false, status: 409 });
+    const { container } = renderForm({ evaluation: OPEN_EVALUATION });
+    closeEvaluation();
+    await waitFor(() =>
+      expect(screen.getByRole("status").textContent).toBe("Complete every group before closing."),
+    );
+    // The groups the completeness rule reports incomplete for OPEN_EVALUATION.
+    expect(expandedByGroup(container)).toEqual({
+      ...allGroups("false"),
+      fragranceAroma: "true",
+      flavorAftertaste: "true",
+      acidity: "true",
+      sweetness: "true",
+      mouthfeel: "true",
+    });
+    for (const card of Array.from(container.querySelectorAll('[data-highlighted="true"]'))) {
+      expect(card.querySelector("h3 > button")!.getAttribute("aria-expanded")).toBe("true");
+    }
+  });
+
+  it("keeps a group the user expanded before a 409", async () => {
+    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
+    closeAnEvaluation.mockResolvedValue({ ok: false, status: 409 });
+    const { container } = renderForm({ evaluation: OPEN_EVALUATION });
+    fireEvent.click(screen.getByRole("button", { name: "Overall" }));
+    closeEvaluation();
+    await waitFor(() =>
+      expect(screen.getByRole("status").textContent).toBe("Complete every group before closing."),
+    );
+    expect(expandedByGroup(container).overall).toBe("true");
+  });
+
+  it("expands every group when a successful close turns the form read-only", async () => {
+    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
+    closeAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: null });
+    const { container } = renderForm({ evaluation: OPEN_EVALUATION });
+    closeEvaluation();
+    await waitFor(() => expect(screen.getByRole("status").textContent).toBe("Evaluation closed."));
+    expect(expandedByGroup(container)).toEqual(allGroups("true"));
+  });
+
+  it("changes no group's state when saving without a roast level", () => {
+    const { container } = renderForm({
+      offering: { ...OFFERING, coffeeInventory: { ...OFFERING.coffeeInventory, coffee: { name: "Finca La Esperanza" } } },
+    });
+    save();
+    expect(createAnEvaluation).not.toHaveBeenCalled();
+    expect(expandedByGroup(container)).toEqual(allGroups("false"));
+  });
+});
