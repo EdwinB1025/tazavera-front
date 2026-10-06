@@ -50,16 +50,74 @@ const ATTRIBUTE_KEYS = [
 
 const TEXTS = {
   ...Object.fromEntries(
-    [...TEXT_KEYS, ...ATTRIBUTE_KEYS, "detailAttributesHeading"].map((key) => [
-      key,
-      `texts.${key}`,
-    ]),
+    [
+      ...TEXT_KEYS,
+      ...ATTRIBUTE_KEYS,
+      "detailAttributesHeading",
+      "detailMainTastesHeading",
+      "detailDefectsHeading",
+      "detailTasteEmpty",
+    ].map((key) => [key, `texts.${key}`]),
   ),
   beanValue: "{value}/9",
   beanValueLabel: "{value} de 9",
 } as unknown as ConsensusPanelTexts;
 
-const TAXONOMIES: TaxonomyNode[] = [];
+const SWEET = "01JROOTSWEET0000000000000A";
+const SOUR = "01JROOTSOUR00000000000000A";
+const FERMENTED = "01JROOTFERMENTED000000000A";
+const VINEGAR = "01JCHILDVINEGAR0000000000A";
+const WINEY = "01JCHILDWINEY000000000000A";
+
+const TAXONOMIES: TaxonomyNode[] = [
+  {
+    ulid: SWEET,
+    level: 0,
+    nameEs: "Dulce",
+    nameEn: "Sweet",
+    nameCa: "Dolç",
+    color: "#666666",
+    categories: ["main_tastes"],
+  },
+  {
+    ulid: SOUR,
+    level: 0,
+    nameEs: "Ácido",
+    nameEn: "Sour",
+    nameCa: "Àcid",
+    color: "#777777",
+    categories: ["main_tastes"],
+  },
+  {
+    ulid: FERMENTED,
+    level: 0,
+    nameEs: "Fermentado",
+    nameEn: "Fermented",
+    nameCa: "Fermentat",
+    color: "#111111",
+    categories: ["defects"],
+    children: [
+      {
+        ulid: VINEGAR,
+        level: 1,
+        nameEs: "Vinagre",
+        nameEn: "Vinegar",
+        nameCa: "Vinagre",
+        color: "#222222",
+        categories: ["defects"],
+      },
+      {
+        ulid: WINEY,
+        level: 1,
+        nameEs: "Vinoso",
+        nameEn: "Winey",
+        nameCa: "Vinós",
+        color: "#333333",
+        categories: ["defects"],
+      },
+    ],
+  },
+];
 
 const OFFERING: OfferingDetail = {
   ulid: "01K6A3M8Q2V7XH4T9B5N1RCW0D",
@@ -284,6 +342,117 @@ describe("ConsensusPanel — SCA attributes (spec: Consensus SCA attribute avera
       expect(scales.beanValueLabel).toBe(
         locale === "en" ? "{value} of 9" : "{value} de 9",
       );
+    }
+  });
+});
+
+describe("ConsensusPanel — Main tastes and Defects (spec: Consensus Defects and Main tastes; design.md D13)", () => {
+  const IDENTIFIED: OfferingDetail = {
+    ...OFFERING,
+    evaluationCount: 5,
+    sensoryTaxonomy: [
+      { ref: SWEET, type: "main_tastes", level: 0, count: 4, children: [] },
+      { ref: SOUR, type: "main_tastes", level: 0, count: 2, children: [] },
+      {
+        ref: "01JUNRESOLVED000000000000A",
+        type: "main_tastes",
+        level: 0,
+        count: 1,
+        children: [],
+      },
+      {
+        ref: FERMENTED,
+        type: "defects",
+        level: 0,
+        count: 1,
+        children: [{ ref: VINEGAR, type: "defects", level: 1, count: 1 }],
+      },
+    ],
+  };
+
+  function cardOf(heading: string): Element {
+    return screen
+      .getByRole("heading", { level: 2, name: heading })
+      .closest(".bg-surface-card")!;
+  }
+
+  function badgesIn(element: Element): string[] {
+    return Array.from(element.querySelectorAll("[data-taxonomy]")).map(
+      (badge) => badge.textContent ?? "",
+    );
+  }
+
+  function legendBeside(card: Element): string[] {
+    const block = card.parentElement!;
+    return Array.from(block.querySelectorAll(".type-meta"))
+      .filter((line) => !card.contains(line))
+      .map((line) => line.textContent ?? "");
+  }
+
+  it("renders the identified main tastes as taxonomy badges with the group's name as the selection legend (spec: Identified notes)", () => {
+    renderPanel(IDENTIFIED);
+    const card = cardOf(TEXTS.detailMainTastesHeading);
+    expect(badgesIn(card)).toEqual(["Dulce", "Ácido"]);
+    expect(card.querySelector("fieldset legend")!.textContent).toBe(
+      TEXTS.detailMainTastesHeading,
+    );
+  });
+
+  it("renders the identified defects from the descriptor rows, level-1 notes under their level-0 row", () => {
+    renderPanel(IDENTIFIED);
+    const card = cardOf(TEXTS.detailDefectsHeading);
+    expect(badgesIn(card)).toEqual(["Vinagre"]);
+    expect(card.textContent).toContain("Fermentado");
+    expect(card.textContent).not.toContain("Vinoso");
+  });
+
+  it("renders no badge for an unresolved reference and keeps the rest (spec: Unresolved reference)", () => {
+    renderPanel(IDENTIFIED);
+    expect(badgesIn(cardOf(TEXTS.detailMainTastesHeading))).toHaveLength(2);
+  });
+
+  it("renders each card's consensus legend beside it: one type-meta line per note, {name} {count}/{total}, in card order", () => {
+    renderPanel(IDENTIFIED);
+    const tastes = cardOf(TEXTS.detailMainTastesHeading);
+    expect(legendBeside(tastes)).toEqual(["Dulce 4/5", "Ácido 2/5"]);
+    expect(legendBeside(cardOf(TEXTS.detailDefectsHeading))).toEqual([
+      "Vinagre 1/5",
+    ]);
+    const block = tastes.parentElement!;
+    expect(classTokens(block)).toEqual(
+      expect.arrayContaining([
+        "flex",
+        "flex-col",
+        "md:flex-row",
+        "lg:col-span-2",
+      ]),
+    );
+    expect(classTokens(tastes)).toContain("flex-1");
+  });
+
+  it("shows the empty text and no legend for a group with no identified note (spec: Empty group)", () => {
+    renderPanel({
+      ...IDENTIFIED,
+      sensoryTaxonomy: IDENTIFIED.sensoryTaxonomy!.filter(
+        (node) => node.type !== "defects",
+      ),
+    });
+    const card = cardOf(TEXTS.detailDefectsHeading);
+    expect(card.textContent).toContain(TEXTS.detailTasteEmpty);
+    expect(badgesIn(card)).toEqual([]);
+    expect(legendBeside(card)).toEqual([]);
+  });
+
+  it("finds the two headings and the empty text in the catalog of each locale (design.md D16)", () => {
+    for (const locale of ["es", "en", "ca"]) {
+      const catalog = getMessages("catalog", locale);
+      for (const key of [
+        "detailMainTastesHeading",
+        "detailDefectsHeading",
+        "detailTasteEmpty",
+      ]) {
+        expect(catalog[key], `${locale}.${key}`).toEqual(expect.any(String));
+      }
     }
   });
 });
