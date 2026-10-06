@@ -189,3 +189,24 @@ describe("proxy.ts on /callback (design.md D11)", () => {
     expect(bare.headers.get("location")).toBe("https://tazavera.test/es/about");
   });
 });
+
+// ─── Cross-Origin-Opener-Policy (design.md D11; app-shell spec delta) ───
+// Pages stay isolated while the sign-in popup keeps its opener; `/callback`
+// carries none, or it would be severed from its opener after returning from
+// the API origin.
+
+describe("proxy.ts Cross-Origin-Opener-Policy (design.md D11)", () => {
+  it("sets Cross-Origin-Opener-Policy: same-origin-allow-popups on a page response", () => {
+    vi.stubEnv("NEXT_PUBLIC_API_URL", API_URL);
+    const response = runProxyOn("https://tazavera.test/es/about");
+    expect(response.headers.get("Cross-Origin-Opener-Policy")).toBe(
+      "same-origin-allow-popups",
+    );
+  });
+
+  it("sets no Cross-Origin-Opener-Policy on a /callback response", () => {
+    vi.stubEnv("NEXT_PUBLIC_API_URL", API_URL);
+    const response = runProxyOn("https://tazavera.test/callback?code=c&state=s");
+    expect(response.headers.has("Cross-Origin-Opener-Policy")).toBe(false);
+  });
+});
