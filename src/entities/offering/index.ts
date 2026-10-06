@@ -13,3 +13,5 @@ export type {
 } from "./ui/OfferingCard";
 export { ratingTierFor } from "./lib/rating";
 export type { RatingTier } from "./lib/rating";
+export { fetchOffering } from "./api/offering";
+export type { OfferingResult } from "./api/offering";
