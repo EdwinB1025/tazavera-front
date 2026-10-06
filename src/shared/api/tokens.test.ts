@@ -90,12 +90,16 @@ function storedValues(): string {
 }
 
 /**
- * Every own property of `window` that is or serialises to a text containing
- * `value`. A property that cannot be read or serialised (a throwing getter, a
- * cyclic object) cannot carry the value as plain data and is skipped.
+ * Every own property of `window` not named in `before` that is or serialises
+ * to a text containing `value`. Only properties added since `before` was taken
+ * are inspected, so test-runner internals present beforehand (such as Vitest's
+ * RPC proxy, whose `toJSON` rejects asynchronously) are never serialised. A
+ * property that cannot be read or serialised (a throwing getter, a cyclic
+ * object) cannot carry the value as plain data and is skipped.
  */
-function windowPropertiesHolding(value: string): string[] {
+function windowPropertiesHolding(value: string, before: Set<string>): string[] {
   return Object.getOwnPropertyNames(window).filter((name) => {
+    if (before.has(name)) return false;
     try {
       const property: unknown = (window as unknown as Record<string, unknown>)[name];
       const text =
@@ -156,12 +160,13 @@ describe("the code exchange (design.md D5)", () => {
     localStorage.clear();
     sessionStorage.clear();
     fetchMock.mockResolvedValue(jsonResponse(GRANT));
+    const windowBefore = new Set(Object.getOwnPropertyNames(window));
 
     await exchangeCode("code-123", "verifier-123");
 
     expect(getTokens()).toEqual(GRANT);
     for (const token of [GRANT.access_token, GRANT.refresh_token]) {
-      expect(windowPropertiesHolding(token)).toEqual([]);
+      expect(windowPropertiesHolding(token, windowBefore)).toEqual([]);
       expect(storedValues()).not.toContain(token);
     }
   });
