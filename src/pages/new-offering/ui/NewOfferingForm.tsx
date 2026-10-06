@@ -4,9 +4,11 @@ import { useRef, type ReactNode } from "react";
 import { requestProfileWrite, signIn, useSession } from "@/features/auth";
 import {
   InventoryField,
+  LocationsFieldset,
   ManagementGate,
   useCreateFlow,
   type InventoryFieldTexts,
+  type LocationsFieldsetTexts,
   type ManagementGateTexts,
 } from "@/features/offering-management";
 import { Button, Link } from "@/shared/ui";
@@ -14,7 +16,8 @@ import { Button, Link } from "@/shared/ui";
 // ─── UI-specific types (declared before the component) ───
 
 export type NewOfferingFormTexts = ManagementGateTexts &
-  InventoryFieldTexts & {
+  InventoryFieldTexts &
+  LocationsFieldsetTexts & {
     inventoryRequired: string;
     submitLabel: string;
     cancelLabel: string;
@@ -74,7 +77,7 @@ type CreateFormProps = {
 
 /** The form panel of a signed-in coffeeshop, or its unavailable copy while loading. */
 function CreateForm({ locale, route, disabled = false, texts }: CreateFormProps): ReactNode {
-  const flow = useCreateFlow();
+  const flow = useCreateFlow({ enabled: !disabled });
   const fieldRef = useRef<HTMLDivElement>(null);
   const listRoute = `/${locale}/manage/offerings` as const;
   const { status } = flow;
@@ -113,6 +116,14 @@ function CreateForm({ locale, route, disabled = false, texts }: CreateFormProps)
         disabled={disabled}
         texts={texts}
       />
+      <LocationsFieldset
+        locations={flow.locations}
+        selected={flow.selectedLocations}
+        onToggle={flow.toggleLocation}
+        onRetry={flow.reloadLocations}
+        disabled={disabled}
+        texts={texts}
+      />
       {alert !== null ? (
         <div role="alert" className={ALERT_CLASSES}>
           {alert}
@@ -128,7 +139,7 @@ function CreateForm({ locale, route, disabled = false, texts }: CreateFormProps)
         <Button
           type="submit"
           variant="primary"
-          disabled={disabled}
+          disabled={disabled || flow.submitBlocked}
           loading={status.state === "pending"}
         >
           {texts.submitLabel}

@@ -3,6 +3,8 @@ import type {
   CoffeeInventoryItem,
   CoffeeInventoryPayload,
   CreateOfferingsPayload,
+  LocationItem,
+  LocationsPayload,
   OfferingsPageMeta,
   OfferingSummary,
 } from "@/shared/api";
@@ -30,6 +32,8 @@ export type CreateOutcome =
   | { outcome: "ok"; count: number }
   | { outcome: "forbidden" }
   | { outcome: "failed" };
+
+export type LocationsResult = { state: "success"; data: LocationItem[] } | { state: "error" };
 
 type OwnOfferingsPayload = {
   data?: OfferingSummary[];
@@ -127,5 +131,17 @@ export async function createOfferings(
     return { outcome: "ok", count: payload.data?.length ?? 0 };
   } catch {
     return { outcome: "failed" };
+  }
+}
+
+/** The coffeeshop's locations: `GET /locations`. */
+export async function fetchMyLocations(): Promise<LocationsResult> {
+  try {
+    const response = await request("/locations", { headers: { Accept: "application/json" } });
+    if (!response.ok) return { state: "error" };
+    const payload: LocationsPayload = await response.json();
+    return { state: "success", data: payload.data ?? [] };
+  } catch {
+    return { state: "error" };
   }
 }

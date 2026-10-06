@@ -34,3 +34,7 @@ export { useCreateFlow } from "./model/create-flow";
 export type { CreateFlow, CreateStatus } from "./model/create-flow";
 export { InventoryField } from "./ui/InventoryField";
 export type { InventoryFieldProps, InventoryFieldTexts } from "./ui/InventoryField";
+export type { LocationsResult } from "./api/management";
+export type { CreateFlowOptions, LocationsState } from "./model/create-flow";
+export { LocationsFieldset } from "./ui/LocationsFieldset";
+export type { LocationsFieldsetProps, LocationsFieldsetTexts } from "./ui/LocationsFieldset";
