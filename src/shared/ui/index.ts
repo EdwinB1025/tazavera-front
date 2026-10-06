@@ -30,6 +30,18 @@ export type {
   RadioGroupVariant,
   RadioOption,
 } from "./RadioGroup";
+export { BeanScale } from "./BeanScale";
+export type { BeanScaleProps, BeanScaleSize } from "./BeanScale";
+export { IntensitySlider } from "./IntensitySlider";
+export type { IntensitySliderProps } from "./IntensitySlider";
+export { DescriptorChipGroup } from "./DescriptorChipGroup";
+export type {
+  ChipOption,
+  ChipRow,
+  DescriptorChipGroupProps,
+} from "./DescriptorChipGroup";
+export { ConfirmDialog } from "./ConfirmDialog";
+export type { ConfirmDialogProps } from "./ConfirmDialog";
 export { Loader2, ArrowLeft, type LucideIcon } from "./icons";
 export { Logo } from "./Logo";
 export type { LogoProps, LogoVariant } from "./Logo";

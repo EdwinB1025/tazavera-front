@@ -57,3 +57,25 @@ One section per candidate, in this format:
 - **Open decision (Augusto):** keep it inside `src/features/auth` or move it to `src/shared/lib/i18n`
 - **Status:** proposed
 - **Affects:** `add-auth`
+
+## R8 — Map 422 validation errors to their fields (decisions log 2026-10-06, "escrituras, rutas protegidas y 422")
+
+- **Duplicated:** none yet; every form shows one generic form-level error for any 422
+- **Where today:** the forms of `add-user-account`, `add-offering-management` and `add-specialist-evaluations` (planned)
+- **Why it pays off now:** the API returns per-field messages, but the contract documents no 422 body; once Scribe documents it, each form can show the message under its `Field`
+- **Owning capability:** form-fields (shared mapping), consumed by each form
+- **Proposed change:** none yet — needs the 422 response documented in the API (Product owner)
+- **Open decision (Augusto):** document the 422 body in the API, then schedule the change
+- **Status:** proposed
+- **Affects:** `add-user-account`, `add-offering-management`, `add-specialist-evaluations`
+
+## R9 — Single "Clear all" filters button (add-evaluation-facets propose)
+
+- **Duplicated:** two host-side "Clear all" buttons with the same behaviour (drop every facet key from the URL, keep the sort keys)
+- **Where today:** `ClearFiltersButton` (`add-offering-facets`) and `ClearEvaluationFiltersButton` (`add-evaluation-facets`), both planned, each in its own feature slice because FSD forbids feature-to-feature imports
+- **Why it pays off now:** one shared button in `src/shared/ui` (taking the facet keys as a prop) ends the duplication before a third filtered list repeats it
+- **Owning capability:** filtering
+- **Proposed change:** a refactor after both facet changes merge, moving the button to `src/shared/ui`
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** `add-offering-facets`, `add-evaluation-facets`
