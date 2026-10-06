@@ -6,6 +6,7 @@ import { BeanScale } from "@/shared/ui/BeanScale";
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
   cleanup();
+  vi.unstubAllGlobals();
 });
 
 /**
@@ -227,6 +228,16 @@ describe("BeanScale", () => {
 
   describe("required (spec: Required)", () => {
     it("marks the group and each option required", () => {
+      // Inside a form the primitive measures each bean for its hidden native
+      // radio; jsdom has no ResizeObserver. Test infrastructure only.
+      vi.stubGlobal(
+        "ResizeObserver",
+        class {
+          observe() {}
+          unobserve() {}
+          disconnect() {}
+        },
+      );
       const { container } = render(
         <form>
           <BeanScale
@@ -337,12 +348,12 @@ describe("BeanScale", () => {
       // `npx tsc --noEmit` fails (TS2578, unused directive) if either case
       // ever becomes accepted.
       render(
+        // @ts-expect-error size sm only with readOnly
         <BeanScale
           label="Aroma"
           value={1}
           valueText="1/9"
           onChange={vi.fn()}
-          // @ts-expect-error size sm only with readOnly
           size="sm"
         />,
       );
