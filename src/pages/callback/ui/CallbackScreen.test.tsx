@@ -7,9 +7,11 @@ import { render, screen, cleanup } from "@testing-library/react";
  * to the two modes of design.md D4 and the no-text rule of design.md D6 (task
  * 3.2): with an opener of the front's origin the screen posts `{ code, state }`
  * or `{ error, state }` to the front's origin and closes itself, performing no
- * exchange; with no opener it runs the D4 outcomes, replaces the history entry
- * so the code does not remain in the URL, and opens the return route through
- * client-side navigation, never a full page load. Whatever the outcome the
+ * exchange; with no opener it runs the D4 outcomes and opens the return route
+ * through the App Router's `replace`, client-side navigation that replaces the
+ * `/callback` entry so the code does not remain in the URL, never a full page
+ * load nor a native `history` call (which only changes the URL and leaves the
+ * empty callback screen rendered). Whatever the outcome the
  * screen renders no text and no status region.
  *
  * The screen is imported fresh in every test (`vi.resetModules()`), because the
@@ -19,7 +21,7 @@ import { render, screen, cleanup } from "@testing-library/react";
  * `tazavera.pending-flow`, the storage contract of
  * `src/features/auth/model/flow.test.ts`; the exchange, the history calls and
  * the openings run through the stubbed `fetch`, `history`, `location`, `open`
- * and `close` globals.
+ * and `close` globals, and the router through a mocked `next/navigation`.
  */
 
 const FLOW_KEY = "tazavera.pending-flow";
@@ -39,6 +41,10 @@ const popupMock = { location: { assign: vi.fn<(url: string) => void>() }, closed
 const openMock = vi.fn<Window["open"]>();
 const pushMock = vi.fn<History["pushState"]>();
 const replaceMock = vi.fn<History["replaceState"]>();
+const routerReplaceMock = vi.fn<(href: string) => void>();
+const router = { replace: routerReplaceMock };
+
+vi.mock("next/navigation", () => ({ useRouter: () => router }));
 const closeMock = vi.fn<() => void>();
 const openerMock = {
   location: { origin: APP_URL },
@@ -95,6 +101,7 @@ beforeEach(() => {
   openMock.mockReturnValue(popupMock as unknown as Window);
   pushMock.mockReset();
   replaceMock.mockReset();
+  routerReplaceMock.mockReset();
   closeMock.mockReset();
   openerMock.postMessage.mockReset();
   locationMock.assign.mockReset();
@@ -168,15 +175,15 @@ describe("redirect mode — no opener (design.md D4)", () => {
     );
 
     await vi.waitFor(() => {
-      expect(pushMock).toHaveBeenCalledTimes(1);
+      expect(routerReplaceMock).toHaveBeenCalledTimes(1);
     });
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(sessionStorage.length).toBe(0);
     expect(localStorage.length).toBe(1);
-    expect(replaceMock).toHaveBeenCalledTimes(1);
-    expect(String(replaceMock.mock.calls[0]![2])).not.toContain("code");
-    expect(String(pushMock.mock.calls[0]![2])).toBe("/en/offerings/1");
+    expect(routerReplaceMock).toHaveBeenCalledWith("/en/offerings/1");
+    expect(pushMock).not.toHaveBeenCalled();
+    expect(replaceMock).not.toHaveBeenCalled();
     expect(locationMock.assign).not.toHaveBeenCalled();
     expect(locationMock.reload).not.toHaveBeenCalled();
     expect(closeMock).not.toHaveBeenCalled();
@@ -197,9 +204,10 @@ describe("redirect mode — no opener (design.md D4)", () => {
     );
 
     await vi.waitFor(() => {
-      expect(pushMock).toHaveBeenCalledTimes(1);
+      expect(routerReplaceMock).toHaveBeenCalledTimes(1);
     });
 
+    expect(routerReplaceMock).toHaveBeenCalledWith("/en/offerings/1");
     expect(container.textContent).toBe("");
     expect(screen.queryByRole("status")).toBeNull();
     expect(screen.queryByRole("alert")).toBeNull();

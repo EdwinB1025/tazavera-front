@@ -182,7 +182,7 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
     // belongs to it, so the silent restore cannot resolve the session
     // (design.md D4 outcome table) and the shell renders as anonymous.
     localStorage.setItem(MARKER_KEY, "1");
-    await completeCallback({});
+    await completeCallback({}, () => {});
     renderShell();
     await vi.waitFor(() => {
       expect(screen.getByRole("button", { name: texts.signIn })).toBeDefined();

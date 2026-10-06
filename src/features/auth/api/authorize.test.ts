@@ -15,8 +15,9 @@ import { DEFAULT_LOCALE } from "@/shared/config/locales";
  * (`vi.resetModules()`), because the callback completion runs at most once per
  * page load behind a module-level guard (design.md D4 idempotency) and each
  * test stands for one page load. Every popup opening goes through `window.open`
- * and the popup window's `location.assign`, every return through the history's
- * `pushState` (client-side navigation, never a full page load), stubbed here
+ * and the popup window's `location.assign`, every return through the
+ * `replaceRoute` navigation passed in (the App Router's `replace` on the
+ * callback page: client-side navigation, never a full page load), stubbed here
  * like `fetch`: jsdom cannot open windows or navigate. `location.pathname` is
  * set to the route sign in starts from, so `lang` is the locale of the route
  * under any reading. The "as anonymous" half of the error outcomes belongs to
@@ -44,6 +45,7 @@ const popupMock = {
 const openMock = vi.fn<Window["open"]>();
 const pushMock = vi.fn<History["pushState"]>();
 const replaceMock = vi.fn<History["replaceState"]>();
+const replaceRouteMock = vi.fn<(href: string) => void>();
 const locationMock = {
   assign: vi.fn<(url: string) => void>(),
   pathname: "/",
@@ -64,8 +66,8 @@ function openedUrl(): URL {
 
 /** The route the single client-side navigation so far opened. */
 function openedRoute(): string {
-  expect(pushMock).toHaveBeenCalledTimes(1);
-  return String(pushMock.mock.calls[0]![2]);
+  expect(replaceRouteMock).toHaveBeenCalledTimes(1);
+  return String(replaceRouteMock.mock.calls[0]![0]);
 }
 
 /**
@@ -140,6 +142,7 @@ beforeEach(() => {
   openMock.mockReturnValue(popupMock as unknown as Window);
   pushMock.mockReset();
   replaceMock.mockReset();
+  replaceRouteMock.mockReset();
   locationMock.assign.mockReset();
   locationMock.pathname = "/";
   vi.stubGlobal("fetch", fetchMock);
@@ -263,7 +266,7 @@ describe("completeCallback — the outcomes of design.md D4 (spec: Return throug
     flow.saveFlow(pending);
     fetchMock.mockResolvedValue(jsonResponse(GRANT));
 
-    await completeCallback({ code: "code-123", state: pending.state });
+    await completeCallback({ code: "code-123", state: pending.state }, replaceRouteMock);
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const tokenForm = postedTokenForm();
@@ -287,6 +290,22 @@ describe("completeCallback — the outcomes of design.md D4 (spec: Return throug
     expect(openedRoute()).toBe(route);
   });
 
+  it("opens the return route through the client-side navigation it is given, in place of the /callback entry, and never through the native history API (design.md D4; spec: Completing on the callback)", async () => {
+    const { completeCallback, flow } = await load();
+    flow.saveFlow({ verifier: "verifier-123", state: "state-123", returnRoute: route });
+
+    await completeCallback(
+      { error: "access_denied", state: "state-123" },
+      replaceRouteMock,
+    );
+
+    expect(replaceRouteMock).toHaveBeenCalledTimes(1);
+    expect(replaceRouteMock).toHaveBeenCalledWith(route);
+    expect(pushMock).not.toHaveBeenCalled();
+    expect(replaceMock).not.toHaveBeenCalled();
+    expect(locationMock.assign).not.toHaveBeenCalled();
+  });
+
   it("deletes the flow data, removes the marker and opens the return route when the authorization comes back with an error (design.md D4 outcome table)", async () => {
     const { completeCallback, flow } = await load();
     const pending = {
@@ -301,7 +320,7 @@ describe("completeCallback — the outcomes of design.md D4 (spec: Return throug
       error: "access_denied",
       error_description: "The user denied access",
       state: pending.state,
-    });
+    }, replaceRouteMock);
 
     expect(fetchMock).not.toHaveBeenCalled();
     expect(flow.readFlow()).toBeNull();
@@ -319,7 +338,7 @@ describe("completeCallback — the outcomes of design.md D4 (spec: Return throug
     flow.saveFlow(pending);
     flow.setMarker();
 
-    await completeCallback({ code: "code-123", state: "not-the-state" });
+    await completeCallback({ code: "code-123", state: "not-the-state" }, replaceRouteMock);
 
     expect(fetchMock).not.toHaveBeenCalled();
     expect(flow.readFlow()).toBeNull();
@@ -331,7 +350,7 @@ describe("completeCallback — the outcomes of design.md D4 (spec: Return throug
     const { completeCallback, flow } = await load();
     flow.setMarker();
 
-    await completeCallback({});
+    await completeCallback({}, replaceRouteMock);
 
     expect(fetchMock).not.toHaveBeenCalled();
     expect(flow.readFlow()).toBeNull();
@@ -351,8 +370,8 @@ describe("completeCallback — the outcomes of design.md D4 (spec: Return throug
     fetchMock.mockResolvedValue(jsonResponse(GRANT));
     const params = { code: "code-123", state: pending.state };
 
-    const first = completeCallback(params);
-    const second = completeCallback(params);
+    const first = completeCallback(params, replaceRouteMock);
+    const second = completeCallback(params, replaceRouteMock);
     await first;
     await second;
 

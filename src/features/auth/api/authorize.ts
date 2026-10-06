@@ -38,6 +38,14 @@ type Scope = "profile:read" | "profile:write";
 export type CallbackParams = Record<string, string | string[] | undefined>;
 
 /**
+ * The client-side navigation that opens the return route in place of the
+ * `/callback` history entry (design.md D4). The callback page passes the App
+ * Router's `replace`: a native `history.pushState` only updates the URL and
+ * would leave the callback's empty screen rendered.
+ */
+export type ReplaceRoute = (href: string) => void;
+
+/**
  * What the session module does when a flow settles (design.md D1, D4 and D5).
  * `../model/session` fills this when it loads; without it nothing settles a
  * session and the flow outcomes stay flow-level.
@@ -74,10 +82,15 @@ export function requestProfileWrite(returnRoute: string): void {
  * D4): with an opener of the front's origin the result is posted to the front's
  * origin and the window closes itself, without one the flow completes here —
  * exchange, flow data deleted, marker set or removed — and the return route
- * opens through client-side navigation, never a full page load. Runs at most
- * once per page load: the code is single-use (design.md D4 idempotency).
+ * opens through `replaceRoute`, client-side navigation that replaces the
+ * `/callback` entry so the code does not remain in the URL, never a full page
+ * load. Runs at most once per page load: the code is single-use (design.md
+ * D4 idempotency).
  */
-export async function completeCallback(params: CallbackParams): Promise<void> {
+export async function completeCallback(
+  params: CallbackParams,
+  replaceRoute: ReplaceRoute,
+): Promise<void> {
   if (handled) return;
   handled = true;
 
@@ -121,8 +134,7 @@ export async function completeCallback(params: CallbackParams): Promise<void> {
     seam?.anonymous();
   }
 
-  window.history.replaceState(null, "", window.location.pathname);
-  window.history.pushState(null, "", returnRoute);
+  replaceRoute(returnRoute);
 }
 
 /**

@@ -151,7 +151,7 @@ async function completeSignIn(loaded: Loaded): Promise<void> {
   };
   loaded.flow.saveFlow(pending);
   answerTokenAndProfile(PROFILE);
-  await loaded.completeCallback({ code: "code-123", state: pending.state });
+  await loaded.completeCallback({ code: "code-123", state: pending.state }, () => {});
 }
 
 beforeEach(() => {
@@ -199,7 +199,7 @@ describe("session states (spec: Session states and profile)", () => {
     loaded.flow.saveFlow(pending);
     answerTokenAndProfile(PROFILE);
 
-    await loaded.completeCallback({ code: "code-123", state: pending.state });
+    await loaded.completeCallback({ code: "code-123", state: pending.state }, () => {});
 
     // The consumer mounted before the flow is the one that ends authenticated
     // — no second mount — and the page never navigates (design.md D10).
@@ -220,7 +220,7 @@ describe("session states (spec: Session states and profile)", () => {
     loaded.flow.saveFlow(pending);
     answerTokenButNoProfile();
 
-    await loaded.completeCallback({ code: "code-123", state: pending.state });
+    await loaded.completeCallback({ code: "code-123", state: pending.state }, () => {});
 
     // Nothing is thrown at the consumer and the state carries no error text.
     const seen = consume(loaded);
@@ -258,7 +258,7 @@ describe("silent re-authentication (spec: Silent re-authentication)", () => {
     // (design.md D4), after which the session on the return route is read.
     const pending = loaded.flow.readFlow();
     expect(pending).not.toBeNull();
-    await loaded.completeCallback({ code: "code-123", state: pending!.state });
+    await loaded.completeCallback({ code: "code-123", state: pending!.state }, () => {});
     const restored = consume(loaded);
 
     expect(restored.current()).toEqual({ state: "authenticated", user: PROFILE });
@@ -288,7 +288,7 @@ describe("silent re-authentication (spec: Silent re-authentication)", () => {
       error: "login_required",
       error_description: "No session",
       state: pending.state,
-    });
+    }, () => {});
     const gone = consume(loaded);
 
     expect(gone.current()).toEqual({ state: "anonymous" });
@@ -304,7 +304,7 @@ describe("silent re-authentication (spec: Silent re-authentication)", () => {
     await awaitRequestStarted();
     const pending = loaded.flow.readFlow()!;
 
-    await loaded.completeCallback({ code: "code-123", state: pending.state });
+    await loaded.completeCallback({ code: "code-123", state: pending.state }, () => {});
     const gone = consume(loaded);
 
     expect(gone.current()).toEqual({ state: "anonymous" });
