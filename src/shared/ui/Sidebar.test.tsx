@@ -8,7 +8,9 @@ import {
   SidebarTrigger,
   SIDEBAR_ID,
   useSidebar,
+  SidebarMenuButton,
 } from "@/shared/ui/Sidebar";
+import { Check } from "@/shared/ui/icons";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
@@ -144,6 +146,36 @@ describe("Sidebar (design.md D6, D11)", () => {
       </SidebarProvider>,
     );
     expect(screen.getByText("absent")).toBeDefined();
+  });
+
+  it("renders the entry as a button with the hover label (design.md D7)", () => {
+    render(<SidebarMenuButton>Offerings</SidebarMenuButton>);
+    const button = screen.getByRole("button", { name: "Offerings" });
+    expect(button.className).toContain("hover:bg-nav-hover");
+    expect(button.className).toContain("hover:text-nav-text-hover");
+  });
+
+  it("renders the entry as its child link with asChild (design.md D7)", () => {
+    const { container } = render(
+      <SidebarMenuButton asChild isActive icon={Check}>
+        <a href="/es/manage/offerings" aria-current="page">
+          Offerings
+        </a>
+      </SidebarMenuButton>,
+    );
+    expect(screen.queryByRole("button")).toBeNull();
+    const link = screen.getByRole("link", { name: "Offerings" });
+    expect(link.getAttribute("href")).toBe("/es/manage/offerings");
+    expect(link.className).toContain("type-sidebar-item");
+    expect(link.className).toContain("hover:bg-nav-hover");
+    expect(link.className).toContain("hover:text-nav-text-hover");
+    expect(link.getAttribute("data-active")).toBe("true");
+    expect(link.getAttribute("aria-current")).toBe("page");
+    const icon = link.querySelector("svg");
+    expect(icon).not.toBeNull();
+    expect(link.firstChild).toBe(icon);
+    expect(link.lastChild?.textContent).toBe("Offerings");
+    expect(container.firstChild).toBe(link);
   });
 
   it("is remapped to semantic and radius tokens only", () => {
