@@ -18,6 +18,8 @@ type UserResponse =
   operations["getTheAuthenticatedUser"]["responses"][200]["content"]["application/json"];
 type ListOfferingsResponse =
   operations["listOfferings"]["responses"][200]["content"]["application/json"];
+type OfferingResponse =
+  operations["getAnOffering"]["responses"][200]["content"]["application/json"];
 type ListTaxonomiesResponse =
   operations["listOlfactoryTaxonomies"]["responses"][200]["content"]["application/json"];
 
@@ -38,6 +40,9 @@ export type OfferingSummary = NonNullable<ListOfferingsResponse["data"]>[number]
 
 /** `meta` of the offerings pagination; the list reads `current_page` and `last_page`. */
 export type OfferingsPageMeta = NonNullable<ListOfferingsResponse["meta"]>;
+
+/** `data` of `GET /offerings/{offering_ulid}`: the offering detail both detail tabs show. */
+export type OfferingDetail = NonNullable<OfferingResponse["data"]>;
 
 /** One node of an offering's `sensoryTaxonomy` tree: `ref`, `type`, `level`, `count`, `children`. */
 export type OfferingTaxonomyNode = NonNullable<
