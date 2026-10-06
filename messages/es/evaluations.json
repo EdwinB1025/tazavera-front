@@ -71,5 +71,10 @@
   "addNoteLabel": "Añadir nota",
   "removeNoteLabel": "Eliminar nota",
   "noteLabel": "Nota",
-  "extrinsicNoteLabel": "Observación general"
+  "extrinsicNoteLabel": "Observación general",
+  "saveLabel": "Guardar borrador",
+  "closeLabel": "Cerrar evaluación",
+  "savedMessage": "Borrador guardado.",
+  "alreadyClosedMessage": "Esta evaluación ya está cerrada y no se puede modificar.",
+  "roastLevelRequired": "Elige el nivel de tueste para guardar."
 }

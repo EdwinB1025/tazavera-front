@@ -6,16 +6,26 @@ import type { EvaluationItem, OfferingDetail, TaxonomyNode } from "@/shared/api"
 import {
   EVALUATION_GROUPS,
   ROAST_LEVELS,
+  buildCreateBody,
+  buildUpdateBody,
   completenessOf,
+  createAnEvaluation,
   emptyFormState,
   formStateFromEvaluation,
   toRoastLevel,
+  updateAnEvaluation,
 } from "@/entities/evaluation";
-import type { DescriptorBlockKey, EvaluationFormState } from "@/entities/evaluation";
+import type {
+  DescriptorBlockKey,
+  EvaluationCallResult,
+  EvaluationFormState,
+} from "@/entities/evaluation";
 import { Card, CardContent, Field, Link, Select } from "@/shared/ui";
 import { DescriptorBlock } from "./DescriptorBlock";
 import { EvaluationGroupCard } from "./EvaluationGroupCard";
 import type { EvaluationGroupTexts } from "./EvaluationGroupCard";
+import { FormActions } from "./FormActions";
+import type { FormBusy } from "./FormActions";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -45,6 +55,16 @@ export type EvaluationFormTexts = {
   extractionMethodLabel: string;
   extractionMethodPlaceholder: string;
   extractionLabels: Record<ExtractionMethod, string>;
+  /** The actions and their messages (design.md D4 and its error table). */
+  actions: {
+    saveLabel: string;
+    closeLabel: string;
+    savedMessage: string;
+    notYoursMessage: string;
+    alreadyClosedMessage: string;
+    failureMessage: string;
+    roastLevelRequired: string;
+  };
   /** The legends of the four descriptor blocks. */
   blockLabels: Record<DescriptorBlockKey, string>;
   group: EvaluationGroupTexts;
@@ -61,7 +81,8 @@ export type EvaluationFormProps = {
 };
 
 // ─── Layout end states (design.md D14; the summary §9) ───
-const FORM_CLASSES = ["flex", "flex-col", "gap-8"].join(" ");
+// Below `md` the page keeps room for the sticky actions bar.
+const FORM_CLASSES = ["flex", "flex-col", "gap-8", "pb-28", "md:pb-0"].join(" ");
 const HEADER_CLASSES = ["flex", "flex-col", "items-start"].join(" ");
 const CAPTIONS_CLASSES = ["flex", "flex-col", "gap-1"].join(" ");
 const CONTEXT_FIELDS_CLASSES = ["grid", "gap-4", "md:grid-cols-2", "md:gap-6"].join(" ");
@@ -80,7 +101,8 @@ function initialState(
  * The CVA combined form (design.md D3, D11, D12, D14; spec "Evaluation
  * form"): one state object for the whole form, the page header block, the
  * context card with the roast level and the extraction method, and the eight
- * group cards in CVA order with their completeness indicators.
+ * group cards in CVA order with their completeness indicators, and the
+ * actions with their status region (design.md D4).
  */
 export function EvaluationForm({
   locale,
@@ -92,6 +114,11 @@ export function EvaluationForm({
   const [state, setState] = useState<EvaluationFormState>(() =>
     initialState(offering, evaluation),
   );
+  // The evaluation's `ulid` once it exists: absent until the first save.
+  const [ulid, setUlid] = useState<string | null>(evaluation?.ulid ?? null);
+  const [busy, setBusy] = useState<FormBusy>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [roastLevelMissing, setRoastLevelMissing] = useState(false);
   const readOnly = evaluation?.status === "closed";
   const completeness = completenessOf(state);
   const coffeeshopCaption = `${texts.coffeeshopCaption} ${offering.location?.name ?? ""}`.trim();
@@ -104,6 +131,51 @@ export function EvaluationForm({
     storedMethod !== null && !EXTRACTION_METHODS.some((method) => method === storedMethod)
       ? storedMethod
       : null;
+
+  /** The failure message of a write (design.md's error table). */
+  const failureFor = (status: number | null, conflict: string) =>
+    status === 403
+      ? texts.actions.notYoursMessage
+      : status === 409
+        ? conflict
+        : texts.actions.failureMessage;
+
+  /**
+   * Save draft (design.md D4): creates the evaluation the first time and
+   * updates it afterwards. The contract's required roast level is the only
+   * client validation. On the first success the URL becomes the evaluation's
+   * own route, replaced in place so the form and its message stay.
+   */
+  const save = async (): Promise<string | null> => {
+    const roastLevel = state.roastLevel;
+    if (roastLevel === null) {
+      setRoastLevelMissing(true);
+      return null;
+    }
+    setRoastLevelMissing(false);
+    setMessage(null);
+    const sendable = { ...state, roastLevel };
+    const result: EvaluationCallResult<{ ulid?: string }> = ulid
+      ? await updateAnEvaluation(ulid, buildUpdateBody(sendable))
+      : await createAnEvaluation(buildCreateBody(sendable, offering.ulid ?? ""));
+    if (!result.ok) {
+      setMessage(failureFor(result.status, texts.actions.alreadyClosedMessage));
+      return null;
+    }
+    const saved = ulid ?? result.data.ulid ?? null;
+    if (!ulid && saved) {
+      setUlid(saved);
+      window.history.replaceState(null, "", `/${locale}/manage/evaluations/${saved}`);
+    }
+    return saved;
+  };
+
+  const onSave = async () => {
+    setBusy("save");
+    const saved = await save();
+    setBusy(null);
+    if (saved) setMessage(texts.actions.savedMessage);
+  };
 
   return (
     <form noValidate className={FORM_CLASSES} onSubmit={(event) => event.preventDefault()}>
@@ -120,7 +192,11 @@ export function EvaluationForm({
       </div>
       <Card layout="stacked">
         <CardContent className={CONTEXT_FIELDS_CLASSES}>
-          <Field label={texts.roastLevelLabel} required>
+          <Field
+            label={texts.roastLevelLabel}
+            required
+            error={roastLevelMissing ? texts.actions.roastLevelRequired : undefined}
+          >
             <Select
               value={state.roastLevel ?? ""}
               disabled={readOnly}
@@ -202,6 +278,16 @@ export function EvaluationForm({
           />
         ))}
       </div>
+      {readOnly ? null : (
+        <FormActions
+          saveLabel={texts.actions.saveLabel}
+          closeLabel={texts.actions.closeLabel}
+          onSave={onSave}
+          onClose={() => {}}
+          busy={busy}
+          message={message}
+        />
+      )}
     </form>
   );
 }

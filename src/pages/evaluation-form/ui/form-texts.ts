@@ -26,6 +26,15 @@ export function formTextsFrom(catalog: MessageCatalog): EvaluationFormTexts {
       siphon: catalog.extractionSiphon,
       kalita: catalog.extractionKalita,
     },
+    actions: {
+      saveLabel: catalog.saveLabel,
+      closeLabel: catalog.closeLabel,
+      savedMessage: catalog.savedMessage,
+      notYoursMessage: catalog.notYoursMessage,
+      alreadyClosedMessage: catalog.alreadyClosedMessage,
+      failureMessage: catalog.failureMessage,
+      roastLevelRequired: catalog.roastLevelRequired,
+    },
     blockLabels: {
       aromatics: catalog.blockAromatics,
       main_tastes: catalog.blockMainTastes,

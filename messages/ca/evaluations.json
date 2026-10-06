@@ -71,5 +71,10 @@
   "addNoteLabel": "Afegir nota",
   "removeNoteLabel": "Eliminar nota",
   "noteLabel": "Nota",
-  "extrinsicNoteLabel": "Observació general"
+  "extrinsicNoteLabel": "Observació general",
+  "saveLabel": "Desar esborrany",
+  "closeLabel": "Tancar l'avaluació",
+  "savedMessage": "Esborrany desat.",
+  "alreadyClosedMessage": "Aquesta avaluació ja està tancada i no es pot modificar.",
+  "roastLevelRequired": "Tria el nivell de torrat per desar."
 }
