@@ -399,3 +399,31 @@ function margins(element: Element): string[] {
     .split(/\s+/)
     .filter((token) => /^m[trblxyse]?-/.test(token));
 }
+
+describe("RadioGroup help and error padding (refine-facet-controls design.md D1)", () => {
+  function sorted(text: string): string[] {
+    return screen.getByText(text).getAttribute("class")!.split(/\s+/).sort();
+  }
+
+  it("row presentation: help carries type-meta mt-1 px-3", () => {
+    render(
+      <RadioGroup legend="Process" options={ROW_OPTIONS} presentation="row" value="" onChange={() => {}} help="Help" error="Error" />,
+    );
+    expect(sorted("Help")).toEqual(["mt-1", "px-3", "type-meta"]);
+  });
+
+  it("row presentation: error carries type-error mt-1 px-3", () => {
+    render(
+      <RadioGroup legend="Process" options={ROW_OPTIONS} presentation="row" value="" onChange={() => {}} help="Help" error="Error" />,
+    );
+    expect(sorted("Error")).toEqual(["mt-1", "px-3", "type-error"]);
+  });
+
+  it("field presentation: help and error keep no side padding", () => {
+    render(
+      <RadioGroup legend="Process" options={ROW_OPTIONS} value="" onChange={() => {}} help="Help" error="Error" />,
+    );
+    expect(sorted("Help")).toEqual(["mt-1", "type-meta"]);
+    expect(sorted("Error")).toEqual(["mt-1", "type-error"]);
+  });
+});

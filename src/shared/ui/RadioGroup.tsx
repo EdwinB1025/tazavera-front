@@ -3,6 +3,7 @@
 import { useId, type ReactNode } from "react";
 import {
   FACET_LEGEND_CLASSES,
+  FACET_MESSAGE_CLASSES,
   FACET_ROWS_CLASSES,
   facetRowClasses,
   withoutDisabledFade,
@@ -206,12 +207,12 @@ export function RadioGroup({
         options.map(renderOption)
       )}
       {hasHelp && (
-        <p id={helpId} className="type-meta mt-1">
+        <p id={helpId} className={isRow ? `type-meta mt-1 ${FACET_MESSAGE_CLASSES}` : "type-meta mt-1"}>
           {help}
         </p>
       )}
       {hasError && (
-        <p id={errorId} className="type-error mt-1">
+        <p id={errorId} className={isRow ? `type-error mt-1 ${FACET_MESSAGE_CLASSES}` : "type-error mt-1"}>
           {error}
         </p>
       )}

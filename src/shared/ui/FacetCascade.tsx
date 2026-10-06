@@ -3,7 +3,7 @@
 import { useId, useState, type ReactNode } from "react";
 import { ChevronDown, ChevronRight } from "@/shared/ui/icons";
 import { Checkbox } from "./Checkbox";
-import { FACET_LEGEND_CLASSES, FACET_ROWS_CLASSES } from "./facet-row";
+import { FACET_LEGEND_CLASSES, FACET_MESSAGE_CLASSES, FACET_ROWS_CLASSES } from "./facet-row";
 import { SEE_MORE_THRESHOLD, type FacetOption } from "./FacetRadioList";
 import { SeeMoreButton, type SeeMoreTexts } from "./SeeMoreButton";
 
@@ -160,7 +160,7 @@ export function FacetCascade({
         />
       )}
       {hasHelp && (
-        <p id={helpId} className="type-meta mt-1">
+        <p id={helpId} className={`type-meta mt-1 ${FACET_MESSAGE_CLASSES}`}>
           {help}
         </p>
       )}

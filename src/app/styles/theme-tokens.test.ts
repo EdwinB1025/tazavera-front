@@ -302,6 +302,10 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "text-secondary", bg: "surface-page", kind: "text" },
   { fg: "text-secondary", bg: "surface-section", kind: "text" },
   { fg: "text-accent", bg: "surface-card", kind: "text" },
+  // add-collapsible-section D8: the section title on the legend panel, at
+  // rest and on hover
+  { fg: "text-accent", bg: "surface-section", kind: "text" },
+  { fg: "text-accent", bg: "surface-section-hover", kind: "text" },
   { fg: "text-label", bg: "surface-page", kind: "text" },
   { fg: "text-strong", bg: "surface-form", kind: "text" },
   { fg: "text-placeholder", bg: "surface-input", kind: "text" },
@@ -681,6 +685,10 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "text-secondary", bg: "surface-page", kind: "text" },
   { fg: "text-secondary", bg: "surface-section", kind: "text" },
   { fg: "text-accent", bg: "surface-card", kind: "text" },
+  // add-collapsible-section D8: the section title on the legend panel, at
+  // rest and on hover
+  { fg: "text-accent", bg: "surface-section", kind: "text" },
+  { fg: "text-accent", bg: "surface-section-hover", kind: "text" },
   { fg: "text-label", bg: "surface-page", kind: "text" },
   { fg: "text-strong", bg: "surface-form", kind: "text" },
   { fg: "text-placeholder", bg: "surface-input", kind: "text" },

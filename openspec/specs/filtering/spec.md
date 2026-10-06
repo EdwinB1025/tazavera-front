@@ -44,7 +44,7 @@ Each applied facet value SHALL be shown as a chip whose visible text is the valu
 - **THEN** it renders from the shared chip geometry, and its pill corners, minimum height, padding and icon gap are its own treatments on top of that geometry, never a second definition
 
 ### Requirement: Facet rows
-Options of a radio-list facet and of a cascade facet SHALL render as facet rows: the whole row is the click target, at least 2.5rem high, with the control and its label side by side. A row whose option is an applied value SHALL show the selected look: the selected fill, a 4px left indicator, the label underlined and the selected shadow, with the control checked; it SHALL take no hover change. A row that is not applied SHALL show, on hover, a soft inner shadow and a bold label without changing its fill or label colour. The indicator, underline and shadows SHALL be decorative: the checked control carries the state. In the traditional theme the selected shadow SHALL equal a medium drop shadow and the hover shadow a small inner shadow; in the dark theme both SHALL be none.
+Options of a radio-list facet and of a cascade facet SHALL render as facet rows: the whole row is the click target, at least 2.5rem high, with the control and its label side by side. A row whose option is an applied value SHALL show the selected look: the selected fill, a 4px left indicator, the label underlined and the selected shadow, with the control checked; it SHALL take no hover change. A row that is not applied SHALL show, on hover, a soft inner shadow and a bold label without changing its fill or label colour. The indicator, underline and shadows SHALL be decorative: the checked control carries the state. The help text under a radio-list or cascade facet SHALL start 0.75rem in from the panel's content edge on both sides, aligned with the facet's legend. In the traditional theme the selected shadow SHALL equal a medium drop shadow and the hover shadow a small inner shadow; in the dark theme both SHALL be none.
 
 #### Scenario: Applied value row
 - **WHEN** a row's option is applied
@@ -61,6 +61,10 @@ Options of a radio-list facet and of a cascade facet SHALL render as facet rows:
 #### Scenario: Contrast on every row background
 - **WHEN** a row renders at rest, on hover or with the selected look in either theme
 - **THEN** its label reaches at least 4.5:1 and its control boundary and focus ring at least 3:1 against the row background
+
+#### Scenario: Help aligned with the legend
+- **WHEN** a radio-list or cascade facet shows a help text
+- **THEN** the help text has 0.75rem of side padding, so it starts at the same horizontal position as the facet's legend
 
 ### Requirement: Text facet
 A text facet SHALL be a labelled inverse text input, either a search field or a plain text field, limited to the maximum length it is given and optionally carrying a help text. It SHALL report its value when the user presses Enter or leaves the field with a changed value, trimmed; an empty value SHALL be reported as removing the facet. It SHALL show the value it is given.
@@ -159,7 +163,7 @@ A score range facet SHALL be a group named by its legend holding a two-thumb sli
 - **THEN** the thumbs are exposed with those names and their current values
 
 ### Requirement: Combobox
-A combobox SHALL be a labelled editable input exposed as a combobox with a listbox popup, rendering in the input's default variant on light surfaces or its inverse variant on dark surfaces. Typing SHALL open the popup; the up and down arrow keys SHALL move the active option, Enter SHALL choose it, and Escape SHALL close the popup; keyboard focus SHALL stay in the input while the popup is open. The input SHALL expose whether the popup is open, the listbox it controls and the active option. Choosing an option SHALL report it, put its label in the input and close the popup; the chosen option SHALL show a check mark. Emptying the input and pressing Enter or leaving it SHALL report the removal of the value. Each option SHALL show its label on a first line, with the part matching the typed text in bold, and an optional detail on a second line. With options given up front, typing SHALL keep only the options whose label contains the typed text, ignoring case. With a search, the combobox SHALL search after at least 2 characters and 300 ms without typing, cancel an older search when a newer one starts, and replace the options with the results. The state rows "Searching…", "No matches" and "Results could not be loaded" SHALL not be selectable and SHALL be announced politely. A disabled combobox SHALL reject input and show its help text.
+A combobox SHALL be a labelled editable input exposed as a combobox with a listbox popup, rendering in the input's default variant on light surfaces or its inverse variant on dark surfaces. Typing SHALL open the popup; the up and down arrow keys SHALL move the active option, Enter SHALL choose it, and Escape SHALL close the popup; keyboard focus SHALL stay in the input while the popup is open. The input SHALL expose whether the popup is open, the listbox it controls and the active option. Choosing an option SHALL report it, put its label in the input and close the popup; the chosen option SHALL show a check mark. Emptying the input and pressing Enter or leaving it SHALL report the removal of the value. Typed text that is abandoned, by pressing Escape or by leaving the input without choosing an option, SHALL be replaced without reporting anything: the input SHALL show the chosen value's label again, or become empty when no value is chosen, and the popup SHALL close without reopening. Escape SHALL do so whether or not the popup is open, also on an emptied input, which keeps the value. Each option SHALL show its label on a first line, with the part matching the typed text in bold, and an optional detail on a second line. With options given up front, typing SHALL keep only the options whose label contains the typed text, ignoring case. With a search, the combobox SHALL search for typed text after at least 2 characters and 300 ms without typing, cancel an older search when a newer one starts, and replace the options with the results. A label the combobox puts in the input itself, for its value on first render, after a choice, after a restore or when the value changes, SHALL run no search. The state rows "Searching…", "No matches" and "Results could not be loaded" SHALL not be selectable and SHALL be announced politely. A disabled combobox SHALL reject input and show its help text.
 
 #### Scenario: Popup state exposed
 - **WHEN** the user types in a closed combobox and the popup opens
@@ -200,6 +204,26 @@ A combobox SHALL be a labelled editable input exposed as a combobox with a listb
 #### Scenario: Default variant
 - **WHEN** a combobox renders in the default variant on a light surface
 - **THEN** its input looks as a default text input and its popup as on the sidebar
+
+#### Scenario: Escape after typing over a chosen value
+- **WHEN** a value "Finca A" is chosen and the user types "zz" and presses Escape
+- **THEN** the input shows "Finca A", the popup is closed and nothing is reported
+
+#### Scenario: Leaving after typing over a chosen value
+- **WHEN** a value "Finca A" is chosen and the user types "zz" and leaves the input
+- **THEN** the input shows "Finca A" and nothing is reported
+
+#### Scenario: Abandoned text with no value
+- **WHEN** no value is chosen and the user types "fin" and presses Escape or leaves the input
+- **THEN** the input is empty, the popup is closed and nothing is reported
+
+#### Scenario: Escape on an emptied input
+- **WHEN** a value "Finca A" is chosen and the user empties the input and presses Escape
+- **THEN** the input shows "Finca A" and nothing is reported
+
+#### Scenario: No search for the combobox's own label
+- **WHEN** a search is given and the input shows a label the combobox put there itself, on first render with a value, after a choice or after a restore
+- **THEN** no search runs until the user types
 
 ### Requirement: Sort control
 A list SHALL be ordered with a select labelled "Sort by" in the page body, in the default variant, whose choice applies at once without a separate action. Its text SHALL reach at least 4.5:1 against the input surface in both themes.
