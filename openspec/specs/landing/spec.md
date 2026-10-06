@@ -90,7 +90,7 @@ The entry page SHALL list the verified offerings of the API, one offering card p
 - **THEN** Previous is unavailable, and when it shows the last page Next is unavailable
 
 ### Requirement: Offering card content
-Each offering card SHALL show the offering's data as mapped from the API: the cupping score out of 100 with a rating badge classifying it — exceptional at 90 or above, excellent at 85 or above and below 90, good at 80 or above and below 85, commercial below 80; the verification state badge (verified or provisional); the coffee name; the coffeeshop name and the roaster name as labeled captions; one origin line joining country, region, process and variety and omitting any null value; the taxonomy badges of the offering; and a footer with the evaluation count, the defective evaluation count, a View link for every viewer and an Evaluate link for a signed-in specialist only.
+Each offering card SHALL show the offering's data as mapped from the API: the cupping score out of 100 with a rating badge classifying it — exceptional at 90 or above, excellent at 85 or above and below 90, good at 80 or above and below 85, commercial below 80; the verification state badge (verified or provisional); the coffee name; the coffeeshop name and the roaster name as labeled captions; one origin line joining country, region, process and variety and omitting any null value; the taxonomy badges of the offering; and a footer with the evaluation count, the defective evaluation count, a View link for every viewer and an Evaluate link for a signed-in specialist only, supplied by the entry-page list as the card's actions.
 
 #### Scenario: Score and rating tier
 - **WHEN** an offering carries a cupping average
@@ -175,3 +175,14 @@ The document metadata of both public pages SHALL carry the title exactly `Tazave
 #### Scenario: Metadata by locale
 - **WHEN** a visitor opens either page in Spanish, English or Catalan
 - **THEN** the document title is exactly `Tazavera` and the document description is the metadata description text of that locale's catalog
+
+### Requirement: Offering card actions
+The offering card's footer SHALL render, after the View link and within the same group of links, the actions its consumer supplies for that card. The card SHALL render no action of its own beyond the View link, and SHALL render no action at all when the consumer supplies none.
+
+#### Scenario: Consumer actions after View
+- **WHEN** a consumer renders offering cards and supplies actions for them
+- **THEN** each card renders those actions in the footer's group of links, right after the View link
+
+#### Scenario: No consumer actions
+- **WHEN** a consumer supplies no actions for a card
+- **THEN** only the View link renders in the footer's group of links, with no empty element and no added spacing
