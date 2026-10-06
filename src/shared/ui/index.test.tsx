@@ -32,6 +32,9 @@ import {
   BADGE_GEOMETRY_CLASSES as SEGMENT_BADGE_GEOMETRY_CLASSES,
   Pagination,
   PageSection,
+  Collapsible,
+  CollapsibleHeader,
+  CollapsibleBody,
   BeanScale,
   IntensitySlider,
   DescriptorChipGroup,
@@ -231,6 +234,17 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
   it("renders the page section exported from the segment", () => {
     render(<PageSection>SECTION CONTENT</PageSection>);
     expect(screen.getByText("SECTION CONTENT")).toBeDefined();
+  });
+
+  it("renders the collapsible section exported from the segment", () => {
+    render(
+      <Collapsible defaultOpen>
+        <CollapsibleHeader>SECTION TITLE</CollapsibleHeader>
+        <CollapsibleBody>SECTION BODY</CollapsibleBody>
+      </Collapsible>,
+    );
+    expect(screen.getByRole("button", { name: "SECTION TITLE" })).toBeDefined();
+    expect(screen.getByText("SECTION BODY")).toBeDefined();
   });
 
   it("renders the bean scale exported from the segment", () => {
