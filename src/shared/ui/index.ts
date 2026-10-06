@@ -101,3 +101,9 @@ export type {
   FacetPanelProps,
   FacetPanelTexts,
 } from "./FacetPanel";
+export { FacetTextField } from "./FacetTextField";
+export type { FacetTextFieldProps } from "./FacetTextField";
+export { SeeMoreButton } from "./SeeMoreButton";
+export type { SeeMoreButtonProps, SeeMoreTexts } from "./SeeMoreButton";
+export { FacetRadioList } from "./FacetRadioList";
+export type { FacetOption, FacetRadioListProps } from "./FacetRadioList";

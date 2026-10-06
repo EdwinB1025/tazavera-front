@@ -27,7 +27,8 @@ const EIGHT: FacetOption[] = Array.from({ length: 8 }, (_, i) => ({
 }));
 
 function rowOf(name: string): HTMLElement {
-  return screen.getByRole("radio", { name, hidden: true }).closest("label")!;
+  // By text: a hidden row's radio has no accessible name to query by role.
+  return screen.getByText(name).closest("label")!;
 }
 
 function classesOf(element: Element): string[] {
