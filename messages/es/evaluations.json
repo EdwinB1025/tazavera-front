@@ -62,5 +62,6 @@
   "preferenceScale": "/9",
   "unsetScore": "–",
   "completeLabel": "Completo",
-  "incompleteLabel": "Incompleto"
+  "incompleteLabel": "Incompleto",
+  "formLoadErrorMessage": "No se ha podido cargar esta evaluación."
 }

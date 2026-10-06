@@ -62,5 +62,6 @@
   "preferenceScale": "/9",
   "unsetScore": "–",
   "completeLabel": "Complete",
-  "incompleteLabel": "Incomplete"
+  "incompleteLabel": "Incomplete",
+  "formLoadErrorMessage": "This evaluation could not be loaded."
 }
