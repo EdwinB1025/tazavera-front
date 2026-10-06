@@ -447,6 +447,14 @@ describe("FlavorWheel — segment labels", () => {
       total: 5,
     });
     expect(segment(container, "floral")!.querySelector("text")).toBeNull();
+    // The dropped label's note stays reachable in the list with its name,
+    // its swatch and its count/total legend.
+    const [, swatch, name, count] = Array.from(row("Floral").children);
+    expect(name.textContent).toBe("Floral");
+    expect((swatch as HTMLElement).style.backgroundColor).toBe(
+      "rgb(51, 102, 153)",
+    );
+    expect(count.textContent).toBe("1/5");
   });
 });
 
