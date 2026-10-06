@@ -3,6 +3,14 @@ import type { NextRequest } from "next/server";
 import { DEFAULT_LOCALE, LOCALES } from "@/shared/config/locales";
 
 /**
+ * Cross-Origin-Opener-Policy (`add-auth` design.md D11): every response this
+ * proxy handles keeps its page isolated while the sign-in popup keeps its
+ * opener. `/callback` carries none — it would be severed from its opener after
+ * returning from the API origin.
+ */
+const COOP = "same-origin-allow-popups";
+
+/**
  * Front-wide proxy (Next 16 file convention; `middleware` is deprecated).
  *
  * Locale routing (design.md D2): a bare path is prefixed with the default
@@ -89,6 +97,7 @@ export function proxy(request: NextRequest) {
       new URL(`${target}${search}`, request.url),
     );
     response.headers.set("Content-Security-Policy", cspHeader);
+    response.headers.set("Cross-Origin-Opener-Policy", COOP);
     return response;
   }
 
@@ -103,6 +112,7 @@ export function proxy(request: NextRequest) {
     },
   });
   response.headers.set("Content-Security-Policy", cspHeader);
+  response.headers.set("Cross-Origin-Opener-Policy", COOP);
 
   return response;
 }
