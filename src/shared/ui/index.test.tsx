@@ -32,6 +32,7 @@ import {
   PageSection,
   BeanScale,
   IntensitySlider,
+  DescriptorChipGroup,
 } from "@/shared/ui";
 // Inside `src/shared/ui` the geometry comes from `./Badge` (design.md D5):
 // this is the single definition the segment entry must re-export.
@@ -243,5 +244,24 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
       />,
     );
     expect(screen.getByRole("slider", { name: "Acidity" })).toBeDefined();
+  });
+
+  it("renders the descriptor chip group exported from the segment", () => {
+    render(
+      <DescriptorChipGroup
+        legend="Aroma descriptors"
+        rows={[
+          {
+            id: "shared",
+            options: [
+              { value: "01NUTTY", label: "Nutty", color: "#7A4E2D", level: 0 },
+            ],
+          },
+        ]}
+        value={[]}
+        onValueChange={() => {}}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Nutty" })).toBeDefined();
   });
 });
