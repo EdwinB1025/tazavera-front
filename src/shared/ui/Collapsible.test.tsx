@@ -20,11 +20,11 @@ afterEach(() => {
  * behaviour are verified by the classes the build chose for them (task 2.2):
  *
  *   header  — `group flex w-full min-h-10 items-center justify-between gap-2
- *             p-2 text-start rounded-field focus-visible:focus-ring`
+ *             p-2 [text-align:start] rounded-field focus-visible:focus-ring`
  *   title   — `type-subheading` inside a block `flex min-w-0 flex-wrap
  *             gap-x-3 gap-y-1`
- *   chevron — `size-4 shrink-0 text-accent opacity-80 group-hover:opacity-100
- *             group-focus-visible:opacity-100 transition-[transform,opacity]
+ *   chevron — `size-4 shrink-0 text-text-accent opacity-80 group-hover:opacity-100
+ *             group-focus-visible:opacity-100 transition-[rotate,opacity]
  *             duration-250 ease-out motion-reduce:transition-none`, plus
  *             `rotate-180` while expanded
  *   body    — a grid whose single row animates from `grid-rows-[0fr]`
@@ -162,11 +162,11 @@ describe("Collapsible section", () => {
     for (const c of [
       "size-4",
       "shrink-0",
-      "text-accent",
+      "text-text-accent",
       "opacity-80",
       "group-hover:opacity-100",
       "group-focus-visible:opacity-100",
-      "transition-[transform,opacity]",
+      "transition-[rotate,opacity]",
       "duration-250",
       "ease-out",
       "motion-reduce:transition-none",
@@ -198,7 +198,7 @@ describe("Collapsible section", () => {
       "justify-between",
       "gap-2",
       "p-2",
-      "text-start",
+      "[text-align:start]",
       "rounded-field",
       "focus-visible:focus-ring",
     ]) {
