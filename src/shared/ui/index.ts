@@ -61,22 +61,9 @@ export {
   SheetTitle,
   SheetFooter,
 } from "./Sheet";
-export {
-  SidebarProvider,
-  Sidebar,
-  SidebarTrigger,
-  SidebarInset,
-  SidebarHeader,
-  SidebarFooter,
-  SidebarContent,
-  SidebarSeparator,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-} from "./Sidebar";
+// The whole Sidebar module (its parts, `useSidebar` and `SIDEBAR_ID`):
+// re-exported as a set so this server-safe entry names no hook itself.
+export * from "./Sidebar";
 export { Card, CardAside, CardContent, CardFooter } from "./Card";
 export type {
   CardLayout,

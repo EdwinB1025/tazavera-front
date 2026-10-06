@@ -14,7 +14,7 @@ design.md D3, D8; spec "Management sidebar" (Expanded on arrival, Closed on arri
   - presence: a probe component calling `useSidebar()` inside `SidebarProvider` reads `present === false` with no `Sidebar` mounted, `true` once a `Sidebar` is mounted (also while collapsed from `md`, when it renders nothing) and `false` again after it unmounts;
   - `src/shared/ui/index.test.tsx` (or the existing exports test): `useSidebar` and `SIDEBAR_ID` are exported from `@/shared/ui`.
   Verify: `npm run test:run` fails only on these new assertions and the missing `SIDEBAR_ID` export.
-- [ ] 2.2 Implement design.md D3 and D8 in `src/shared/ui/Sidebar.tsx` (two states, `register`/`present`, `SIDEBAR_ID`, `<aside aria-label={label}>` root, `variant-inverse` on the root and the sheet container) and export `useSidebar` and `SIDEBAR_ID` from `src/shared/ui/index.ts`. Verify: `npm run test:run` passes completely (the color, radius, focus and client-boundary guards included); `npm run lint` and `npx tsc --noEmit` are clean.
+- [x] 2.2 Implement design.md D3 and D8 in `src/shared/ui/Sidebar.tsx` (two states, `register`/`present`, `SIDEBAR_ID`, `<aside aria-label={label}>` root, `variant-inverse` on the root and the sheet container) and export `useSidebar` and `SIDEBAR_ID` from `src/shared/ui/index.ts`. Verify: `npm run test:run` passes completely (the color, radius, focus and client-boundary guards included); `npm run lint` and `npx tsc --noEmit` are clean.
 
 ## 3. Sidebar entries (shared)
 

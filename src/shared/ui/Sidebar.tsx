@@ -37,6 +37,13 @@ type SidebarContextValue = {
   register: () => () => void;
 };
 
+/**
+ * The `id` of the desktop column and of the sheet content (only one renders
+ * at a time), for the `aria-controls` of the controls outside the sidebar
+ * (design.md D3).
+ */
+const SIDEBAR_ID = "app-sidebar";
+
 const SidebarContext = React.createContext<SidebarContextValue | null>(null);
 
 function useSidebar(): SidebarContextValue {
@@ -51,11 +58,23 @@ function SidebarProvider({
   children,
   ...props
 }: React.ComponentProps<"div">) {
-  const [open, setOpen] = React.useState(true);
+  // Two states (design.md D3): expanded on arrival from `md`, closed on
+  // arrival below it.
+  const [openDesktop, setOpenDesktop] = React.useState(true);
+  const [openMobile, setOpenMobile] = React.useState(false);
+  const [count, setCount] = React.useState(0);
   const isMobile = useIsMobile();
+
+  const open = isMobile ? openMobile : openDesktop;
+  const setOpen = isMobile ? setOpenMobile : setOpenDesktop;
 
   const toggleSidebar = React.useCallback(() => {
     setOpen((value) => !value);
+  }, [setOpen]);
+
+  const register = React.useCallback(() => {
+    setCount((value) => value + 1);
+    return () => setCount((value) => value - 1);
   }, []);
 
   return (
@@ -65,10 +84,8 @@ function SidebarProvider({
         setOpen,
         toggleSidebar,
         isMobile,
-        // Presence is wired in by `Sidebar` itself later (design.md D3);
-        // until then every consumer sees no sidebar mounted.
-        present: false,
-        register: () => () => {},
+        present: count > 0,
+        register,
       }}
     >
       <div
@@ -93,6 +110,7 @@ const SIDEBAR_CLASSES = [
   "flex-col",
   "bg-nav-surface-dark",
   "text-nav-text-dark",
+  "variant-inverse",
 ].join(" ");
 
 function Sidebar({
@@ -100,17 +118,22 @@ function Sidebar({
   label,
   children,
   ...props
-}: React.ComponentProps<"div"> & { label?: string }) {
-  const { open, setOpen, isMobile } = useSidebar();
+}: React.ComponentProps<"aside"> & { label?: string }) {
+  const { open, setOpen, isMobile, register } = useSidebar();
+
+  // Presence (design.md D3): registered whatever this renders below.
+  React.useEffect(() => register(), [register]);
 
   if (isMobile) {
     return (
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="left" className="w-full p-0">
+        <SheetContent id={SIDEBAR_ID} side="left" className="w-full p-0">
           <SheetHeader className="sr-only">
             <SheetTitle>{label}</SheetTitle>
           </SheetHeader>
-          <div className="flex h-full w-full flex-col">{children}</div>
+          <div className="variant-inverse flex h-full w-full flex-col">
+            {children}
+          </div>
         </SheetContent>
       </Sheet>
     );
@@ -119,14 +142,16 @@ function Sidebar({
   if (!open) return null;
 
   return (
-    <div
+    <aside
+      id={SIDEBAR_ID}
+      aria-label={label}
       data-slot="sidebar"
       data-state="expanded"
       className={cn(SIDEBAR_CLASSES, className)}
       {...props}
     >
       {children}
-    </div>
+    </aside>
   );
 }
 
@@ -321,6 +346,7 @@ function SidebarMenuButton({
 }
 
 export {
+  SIDEBAR_ID,
   useSidebar,
   SidebarProvider,
   Sidebar,
