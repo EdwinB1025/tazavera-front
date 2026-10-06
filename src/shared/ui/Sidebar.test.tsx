@@ -158,6 +158,8 @@ describe("Sidebar (design.md D6, D11)", () => {
   it("renders the entry as its child link with asChild (design.md D7)", () => {
     const { container } = render(
       <SidebarMenuButton asChild isActive icon={Check}>
+        {/* A plain anchor stands for the area's link (task 3.1). */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a href="/es/manage/offerings" aria-current="page">
           Offerings
         </a>

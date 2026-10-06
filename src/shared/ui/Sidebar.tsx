@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Slot } from "radix-ui";
 import { cn } from "@/shared/lib/utils";
 import { useIsMobile } from "@/shared/lib/hooks";
 import { Button } from "@/shared/ui";
@@ -318,6 +319,7 @@ const MENU_BUTTON_CLASSES = [
   "px-3",
   "py-2",
   "hover:bg-nav-hover",
+  "hover:text-nav-text-hover",
   "focus-visible:focus-ring",
   "data-[active=true]:bg-nav-current-dark",
 ].join(" ");
@@ -327,21 +329,25 @@ function SidebarMenuButton({
   children,
   icon: Icon,
   isActive = false,
+  asChild = false,
   ...props
 }: React.ComponentProps<"button"> & {
   icon?: LucideIcon;
   isActive?: boolean;
+  /** Renders the child link with the entry look (design.md D7). */
+  asChild?: boolean;
 }) {
+  const Comp = asChild ? Slot.Root : "button";
   return (
-    <button
+    <Comp
       data-slot="sidebar-menu-button"
       data-active={isActive}
       className={cn(MENU_BUTTON_CLASSES, className)}
       {...props}
     >
       {Icon && <Icon className="size-4 shrink-0" />}
-      {children}
-    </button>
+      <Slot.Slottable>{children}</Slot.Slottable>
+    </Comp>
   );
 }
 
