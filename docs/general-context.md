@@ -205,3 +205,43 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Decisión:** `oauth4webapi` rechaza por defecto las peticiones que no van por HTTPS, así que el login no se completaba contra `http://localhost:8000`. Las dos peticiones de tokens (`exchangeCode`, `refreshTokens` en `src/shared/api/tokens.ts`) usan `allowInsecureRequests` solo cuando `NODE_ENV !== "production"`; en producción se sigue exigiendo HTTPS. Fix F3 de add-auth en la nube (`trig_01KCuPWQTXgQYqUshCkLMiPx`, rama `claude/add-auth-f3`).
 - **Por qué:** respuesta de Product owner (opción a) al WARNING W1 del verify de add-auth tras `4ac8129`.
 - **Afecta:** add-auth; todo cambio que pruebe el login en local (user-account, offering-management, specialist-evaluations).
+
+### 2026-10-06 — CORS de la API para el navegador (hallazgo, pendiente de Product owner en la API)
+- **Decisión:** el login real falla en el navegador porque `POST /oauth/token` desde `http://localhost:3000` no recibe `Access-Control-Allow-Origin` (consola de Product owner: "blocked by CORS policy"). Causa en `tazavera-api`: rutas sin prefijo (`bootstrap/app.php`, `apiPrefix: ''`) y sin `config/cors.php`, así que el CORS por defecto de Laravel solo cubre `api/*`. El arreglo va en la API (publicar `config/cors.php` con las rutas que el navegador llama y `allowed_origins` = `FRONT_URL`, sin credenciales); el front no cambia. Hasta entonces, cualquier llamada del navegador a la API falla.
+- **Por qué:** prueba en navegador de add-auth (8.17 bis) con `php artisan serve`, usuario `edwin.specialist@tazavera.test`.
+- **Afecta:** add-auth (prueba en navegador y archive), add-user-account, add-specialist-evaluations, add-offering-management, add-filter-controls (combobox con `?name=` desde el navegador).
+
+### 2026-10-06 — medias SCA en el detalle con la escala de granos (respuesta de Product owner)
+- **Decisión:** las medias de los atributos (1–9) del detalle de oferta se muestran con la escala de granos de solo lectura de add-evaluation-scales (un decimal, corte geométrico, valor también en texto). add-offering-catalog va después de que add-evaluation-scales esté mergeado.
+- **Por qué:** respuesta de Product owner a add-offering-catalog Open 5.
+- **Afecta:** add-offering-catalog (dependencia nueva), add-evaluation-scales (nuevo consumidor del modo `readOnly`).
+
+### 2026-10-06 — pestañas del detalle de oferta (respuesta de Product owner)
+- **Decisión:** el detalle tiene la cabecera con la ficha (como en el MVC) y debajo pestañas (Tabs de shadcn/Radix): "Datos del inventario" y "Consenso"; la pestaña activa va en la URL (`?tab=`). Una tercera pestaña con la evaluación provisional de la oferta, mostrada como el formulario de evaluación en solo lectura, queda para un cambio posterior: necesita que la API exponga esa evaluación.
+- **Por qué:** respuesta de Product owner a add-offering-catalog Open 6.
+- **Afecta:** add-offering-catalog; add-specialist-evaluations (su vista de solo lectura sería la base de la pestaña futura).
+
+### 2026-10-06 — estilo de la pestaña futura de evaluación provisional (respuesta de Product owner)
+- **Decisión:** sustituye la idea del formulario en solo lectura de la entrada anterior: la pestaña futura de la evaluación provisional usará el mismo estilo que la de Consenso (escalas de granos en solo lectura y la misma disposición). Product owner creará los seeders de la evaluación provisional.
+- **Por qué:** respuesta de Product owner sobre add-offering-catalog Open 6.
+- **Afecta:** el cambio posterior de add-offering-catalog (tercera pestaña); ya no depende de la vista de solo lectura de add-specialist-evaluations.
+
+### 2026-10-06 — landing D4: texto de la insignia de valoración (respuesta de Product owner)
+- **Decisión:** la insignia de valoración de la tarjeta de oferta deja de repetir `cuppingAvg` y muestra una palabra de nivel según la puntuación (por ejemplo "Excepcional", "Excelente", "Muy bueno"), con textos del catálogo es/en/ca. El número sigue mostrándose una vez (`type-score`). Los rangos siguen la escala SCA y deben verificarse en la fuente antes del propose (propuesta sin verificar: 90+ excepcional, 85–89,99 excelente, 80–84,99 muy bueno), junto con qué se muestra por debajo de 80 y sin puntuación. Landing está mergeado: es un cambio nuevo sobre la tarjeta.
+- **Por qué:** respuesta de Product owner a landing D4 (Q17).
+- **Afecta:** la tarjeta de oferta (`OfferingCard`, capability landing) y todo lo que la reutiliza (catálogo, gestión); el refactor de la ranura de `OfferingCard` toca la misma tarjeta.
+
+### 2026-10-06 — landing D4: valores confirmados con el MVC (decisión delegada por Product owner)
+- **Decisión:** precisa la entrada anterior. Las palabras son las del MVC (`offeringcard.blade.php:20-36`): Excepcional (≥ 90), Excelente (85–89,99), Bueno (80–84,99), Comercial (< 80); sin puntuación no hay insignia (comportamiento actual). Los rangos y las cuatro variantes ya existen en el front (`ratingTierFor`, `Badge`). Cambio nuevo `label-rating-badge`, resumen aprobado en `docs/design/label-rating-badge/`.
+- **Por qué:** Product owner delegó la decisión ("revisa el MVC y confirma").
+- **Afecta:** label-rating-badge; refactor de la ranura de `OfferingCard` (misma tarjeta).
+
+### 2026-10-06 — lecturas de evaluaciones autenticadas (respuesta de Product owner a evaluations B1)
+- **Decisión:** la API pasa `GET /evaluations` y `GET /evaluations/{ulid}` al grupo autenticado de especialistas; la lista devuelve solo las del usuario del token y el detalle responde 403/404 si no es suya. Product owner lo documenta en Scribe y regenera el contrato. En el front, lista y edición se cargan en el cliente con el token, sin `evaluatorId`; sin vista de solo lectura para no dueños (página 404); la de solo lectura queda para las cerradas propias. La evaluación provisional se define con la oferta y llegará dentro de `GET /offerings/{ulid}`: ninguna lectura pública de evaluaciones hace falta.
+- **Por qué:** respuesta de Product owner a B1 del explore de add-specialist-evaluations (el recurso no trae dueño).
+- **Afecta:** add-specialist-evaluations (punto 6 y propose, que espera al contrato), add-filter-controls (facetas de evaluaciones: sin `evaluatorId`), add-offering-catalog (pestaña provisional futura), cobertura del contrato.
+
+### 2026-10-06 — lecturas de evaluaciones: decisión final (respuesta de Product owner)
+- **Decisión:** sustituye la entrada anterior ("lecturas de evaluaciones autenticadas"), que contradecía el diseño de la API (`tazavera-documentation/end-points.md`: lecturas públicas de evaluaciones; la provisional es una evaluación `baseline` de la cafetería). Las lecturas públicas siguen públicas y anónimas. Nuevo `UserEvaluationController` en la API (rama `feature/user_evaluations`): `/user/evaluations` lista, detalle, crear, modificar, cerrar y borrar, solo del usuario del token (ajena → 404); las rutas anteriores de escritura siguen activas (`legacy.*`, fuera de la documentación). Nuevo público `GET /users/{user}/evaluations`. Contrato regenerado en inglés y tipos del front regenerados (sin commitear en `develop`, a la espera del merge de la rama de la API).
+- **Por qué:** respuesta de Product owner a B1 tras revisar el diseño de la API y la seguridad (no exponer el evaluador en respuestas públicas).
+- **Afecta:** add-specialist-evaluations (lista y edición sobre `/user/evaluations…`, sin vista de solo lectura para no dueños), add-filter-controls (facetas de evaluaciones sobre `listMyEvaluations`), cobertura del contrato (nuevas operaciones `listMyEvaluations`, `getMyEvaluation`, `listTheEvaluationsOfAUser`).
