@@ -21,3 +21,7 @@ Summary: worktree `tazavera-front-buttons` created on `feature/fix-button-bounda
 #### D3 — Wording and lists
 - 1px written plainly (A3); the +2px width is noted and shown in the mock-up (A2); the "must keep passing" list is derived from the files that render `Button` directly or through Sidebar, AppHeader and the explore buttons, including the six the explore names.
 - Open 2 (mock-up) is rendered by the design lead before the apply.
+
+## 2026-10-06 — Product owner's review of the mock-up
+- The mock-up (`docs/design/fix-button-boundaries/mockup/buttons-mockup.html`, published privately as https://claude.ai/artifact/6pbcqYrzPmVM8wcLmiK3re) was shown to Product owner with its three findings: border merging with the fill on the traditional hover of `action-1`/`action-3`; dark borders lighter than the label at rest; cream border on dark `primary`.
+- ANSWERED 2026-10-06: Product owner approves every border as rendered ("el borde se ve genial, apruebo todos los bordes"). The apply is no longer blocked by the mock-up.
