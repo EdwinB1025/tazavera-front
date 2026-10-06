@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import {
   Button,
   Link,
@@ -241,9 +241,15 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
           },
         ]}
         total={5}
-        texts={{ label: "Flavor wheel", hint: "Hint", emptyMessage: "Empty" }}
+        texts={{
+          label: "Flavor wheel",
+          hint: "Hint",
+          emptyMessage: "Empty",
+          notesToggle: "Notes",
+        }}
       />,
     );
+    fireEvent.click(screen.getByRole("button", { name: "Notes" }));
     expect(
       screen.getByRole("treeitem", { name: "Fruity, 4 of 5 evaluators" }),
     ).toBeDefined();

@@ -61,12 +61,29 @@ const TEXTS = {
   label: "texts.label",
   hint: "texts.hint",
   emptyMessage: "texts.emptyMessage",
+  notesToggle: "texts.notesToggle",
 };
 
-function renderWheel(props: Partial<FlavorWheelProps> = {}) {
-  return render(
+/** The note list's expand control (review round 1, design.md D7). */
+function notesToggle(): HTMLElement {
+  return screen.getByRole("button", { name: "texts.notesToggle" });
+}
+
+/**
+ * Renders the wheel and, unless `listOpen` is false, expands the note list
+ * (collapsed by default) so the tree and its rows are queryable.
+ */
+function renderWheel(
+  props: Partial<FlavorWheelProps> = {},
+  { listOpen = true }: { listOpen?: boolean } = {},
+) {
+  const result = render(
     <FlavorWheel nodes={NODES} total={5} texts={TEXTS} {...props} />,
   );
+  if (listOpen && screen.queryByRole("button", { name: "texts.notesToggle" })) {
+    fireEvent.click(notesToggle());
+  }
+  return result;
 }
 
 /** The segment group of a note in the SVG. */
@@ -140,16 +157,93 @@ describe("FlavorWheel — initial render", () => {
     const { container } = renderWheel();
     const layout = container.querySelector("figure > div");
     expect(layout?.className).toBe(
-      "flex flex-col gap-6 @2xl:grid @2xl:grid-cols-[minmax(0,25rem)_minmax(0,1fr)] @2xl:grid-rows-[auto_1fr] @2xl:gap-x-8 @2xl:gap-y-6",
+      "flex flex-col gap-6 @2xl:grid @2xl:grid-cols-[minmax(0,25rem)_minmax(0,1fr)] @2xl:grid-rows-[auto_auto_1fr] @2xl:gap-x-8 @2xl:gap-y-6",
     );
     const wheel = container.querySelector("svg")?.parentElement;
     expect(wheel?.className).toBe(
-      "mx-auto aspect-square w-full max-w-100 @2xl:row-span-2 @2xl:mx-0 @2xl:self-start",
+      "mx-auto aspect-square w-full max-w-100 @2xl:row-span-3 @2xl:mx-0 @2xl:self-start",
     );
+    // Column 2 stacks the panel, the note-list control and the list.
+    expect(
+      Array.from(layout?.children ?? [])
+        .slice(1)
+        .map((child) => child.getAttribute("data-slot") ?? child.tagName),
+    ).toEqual(["flavor-wheel-panel", "BUTTON", "UL"]);
     expect(panel(container).className).toBe(
       "flex min-h-24 flex-col gap-2 rounded-field border border-border-subtle p-4",
     );
     expect(screen.getByRole("tree").className).toBe("flex flex-col gap-1");
+  });
+});
+
+describe("FlavorWheel — note list disclosure", () => {
+  const TOGGLE_CLASSES =
+    "type-body flex min-h-10 cursor-pointer items-center gap-2 self-start rounded-field px-2 py-1 text-text-primary hover:bg-surface-section focus-visible:focus-ring";
+
+  it("collapses the note list at first behind its expand control", () => {
+    const { container } = renderWheel({}, { listOpen: false });
+    const toggle = notesToggle();
+    expect(toggle.tagName).toBe("BUTTON");
+    expect(toggle.getAttribute("type")).toBe("button");
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(toggle.textContent).toBe("texts.notesToggle");
+    const list = container.querySelector('ul[role="tree"]') as HTMLElement;
+    expect(list.id).not.toBe("");
+    expect(toggle.getAttribute("aria-controls")).toBe(list.id);
+    expect(list.hasAttribute("hidden")).toBe(true);
+    expect(rows()).toHaveLength(0);
+    expect(container.querySelector("svg")).not.toBeNull();
+    expect(panel(container).textContent).toBe("texts.hint");
+  });
+
+  it("expands and collapses the note list, the panel staying shown", () => {
+    const { container } = renderWheel({}, { listOpen: false });
+    const list = container.querySelector('ul[role="tree"]') as HTMLElement;
+    fireEvent.click(notesToggle());
+    expect(notesToggle().getAttribute("aria-expanded")).toBe("true");
+    expect(list.hasAttribute("hidden")).toBe(false);
+    expect(rows().map((r) => r.textContent)).toEqual([
+      "Fruity4/5",
+      "Floral3/5",
+      "Nutty1/5",
+    ]);
+    expect(panel(container).textContent).toBe("texts.hint");
+    fireEvent.click(notesToggle());
+    expect(notesToggle().getAttribute("aria-expanded")).toBe("false");
+    expect(list.hasAttribute("hidden")).toBe(true);
+    expect(panel(container).textContent).toBe("texts.hint");
+  });
+
+  it("shows a hidden chevron that follows the state, with a constant name", () => {
+    renderWheel({}, { listOpen: false });
+    const chevron = (): Element => notesToggle().querySelector("svg")!;
+    expect(chevron().getAttribute("class")).toContain("lucide-chevron-right");
+    expect(chevron().getAttribute("aria-hidden")).toBe("true");
+    fireEvent.click(notesToggle());
+    expect(chevron().getAttribute("class")).toContain("lucide-chevron-down");
+    expect(notesToggle().textContent).toBe("texts.notesToggle");
+  });
+
+  it("takes the row treatment, start-aligned at content width", () => {
+    renderWheel({}, { listOpen: false });
+    expect(notesToggle().className).toBe(TOGGLE_CLASSES);
+    expect(notesToggle().querySelector("svg")!.getAttribute("class")).toContain(
+      "size-4 shrink-0",
+    );
+  });
+
+  it("keeps the wheel's expansion and the active note across list toggles", () => {
+    const { container } = renderWheel({}, { listOpen: false });
+    fireEvent.click(segment(container, "fruity")!);
+    fireEvent.click(notesToggle());
+    fireEvent.click(notesToggle());
+    expect(segmentIds(container)).toContain("berry");
+    fireEvent.click(notesToggle());
+    expect(row("Berry")).toBeDefined();
+    expect(row("Fruity").className).toBe(`${ROW_CLASSES} bg-surface-section`);
+    expect(
+      panel(container).querySelector(".type-subheading")?.textContent,
+    ).toBe("Fruity");
   });
 });
 
