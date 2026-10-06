@@ -245,3 +245,13 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Decisión:** sustituye la entrada anterior ("lecturas de evaluaciones autenticadas"), que contradecía el diseño de la API (`tazavera-documentation/end-points.md`: lecturas públicas de evaluaciones; la provisional es una evaluación `baseline` de la cafetería). Las lecturas públicas siguen públicas y anónimas. Nuevo `UserEvaluationController` en la API (rama `feature/user_evaluations`): `/user/evaluations` lista, detalle, crear, modificar, cerrar y borrar, solo del usuario del token (ajena → 404); las rutas anteriores de escritura siguen activas (`legacy.*`, fuera de la documentación). Nuevo público `GET /users/{user}/evaluations`. Contrato regenerado en inglés y tipos del front regenerados (sin commitear en `develop`, a la espera del merge de la rama de la API).
 - **Por qué:** respuesta de Product owner a B1 tras revisar el diseño de la API y la seguridad (no exponer el evaluador en respuestas públicas).
 - **Afecta:** add-specialist-evaluations (lista y edición sobre `/user/evaluations…`, sin vista de solo lectura para no dueños), add-filter-controls (facetas de evaluaciones sobre `listMyEvaluations`), cobertura del contrato (nuevas operaciones `listMyEvaluations`, `getMyEvaluation`, `listTheEvaluationsOfAUser`).
+
+### 2026-10-06 — add-specialist-evaluations: preguntas del explore (respuestas de Product owner)
+- **Decisión:**
+  - Q1 403: las evaluaciones propias no necesitan `profile:write` ni step-up. La vista solo muestra las del usuario; si una escritura devuelve 403 (petición ajena lanzada por fuera), se muestra el mensaje de "no es tuya", sin pedir inicio de sesión. Sustituye, para este cambio, el step-up reactivo de la entrada "escrituras, rutas protegidas y 422".
+  - Q3 fecha de la fila: abierta → "Creada el" `createdAt`; cerrada → "Cerrada el" `closedAt`; en `type-meta` bajo el nombre del café.
+  - Q5 "Completo" por grupo: un grupo de puntuaciones está completo con todas sus puntuaciones; el descriptor del conjunto fragancia/aroma/sabor/retrogusto es un único requisito compartido entre esos grupos; Defectos y Extrínsecos sin indicador.
+  - Q2 entrada: "Mis evaluaciones" del menú de usuario (ya existe, `UserMenu.tsx`) lleva a `/manage/evaluations`, donde se muestra el sidebar de gestión existente con su entrada. Sin dependencia de la ranura `@sidebar` de add-filter-controls.
+  - Q4 orden por defecto `created_at desc` y Q6 propose ya (orquestador).
+- **Por qué:** respuestas de Product owner del 6 oct a las preguntas del explore.
+- **Afecta:** add-specialist-evaluations (propose); add-filter-controls (la ranura ya no la necesita evaluations); add-user-account y add-offering-management (el step-up reactivo sigue para ellos).
