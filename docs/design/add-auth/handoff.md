@@ -509,3 +509,12 @@ Summary: the cloud session (`claude/add-auth-8.x`, session `session_01LBuAC9pQiR
 ### Next
 1. F1 done (above).
 2. 8.17 is Product owner's; then verify and archive on request.
+
+## Session 2026-10-06 — 8.17 browser check
+Summary: dev server of this worktree at http://localhost:3000 with `.env.local` (API `http://localhost:8000`, app `http://localhost:3000`, public client `01a110a7-4d83-7079-8eca-3a5b2f2fa9cf` from the API's `FrontClientSeeder`); local API up. Stopped because: completed.
+
+### Result
+- Product owner, 2026-10-06: "hecho el login se llama, ok para mi" — sign in through the popup works and Product owner accepts the check. Step-up from a filled form and the silent restore on reload were not reported separately; Product owner's acceptance covers 8.17.
+
+### Next
+- The Build checks off 8.17 recording this result (`chore(auth): complete tasks for add-auth`); then `/opsx:verify add-auth`; archive only on Product owner's request.
