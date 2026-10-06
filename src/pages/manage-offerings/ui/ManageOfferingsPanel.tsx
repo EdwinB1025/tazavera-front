@@ -1,20 +1,26 @@
 "use client";
 
-import { useMemo, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import type { TaxonomyNode } from "@/shared/api";
-import { signIn, useSession } from "@/features/auth";
+import { requestProfileWrite, signIn, useSession } from "@/features/auth";
 import {
+  DeleteOfferingsDialog,
   ManagementGate,
   OfferingActions,
   SelectionToolbar,
+  previousPageAfterDelete,
+  useDeleteFlow,
   useOwnOfferings,
+  type DeleteOfferingsDialogTexts,
+  type DeleteTarget,
+  type OwnOfferings,
   type ManagementGateTexts,
   type OfferingActionsTexts,
   type SelectionToolbarTexts,
 } from "@/features/offering-management";
 import { OfferingCard, type OfferingCardTexts } from "@/entities/offering";
-import { buildTaxonomyLookup } from "@/entities/taxonomy";
+import { buildTaxonomyLookup, type TaxonomyLookup } from "@/entities/taxonomy";
 import { Button, Link, Pagination, type PaginationTexts } from "@/shared/ui";
 import { OfferingSkeletonCard } from "@/widgets/offering-list";
 import { resolveTaxonomies } from "../lib/resolve-taxonomies";
@@ -25,7 +31,9 @@ export type ManageOfferingsTexts = OfferingCardTexts &
   PaginationTexts &
   ManagementGateTexts &
   OfferingActionsTexts &
-  SelectionToolbarTexts & {
+  SelectionToolbarTexts &
+  DeleteOfferingsDialogTexts & {
+    deletedStatus: string;
     eyebrow: string;
     listHeading: string;
     newOfferingLink: string;
@@ -45,8 +53,10 @@ export type ManageOfferingsPanelProps = {
 };
 
 // ─── Layout (summary §6.2) ───
-// Header → the list: 2rem.
+// Header → status region: 2rem.
 const COLUMN_CLASSES = ["flex", "flex-col", "gap-8"].join(" ");
+// Status region → the list: 1rem; with no status line, no gap.
+const BODY_CLASSES = ["flex", "flex-col", "gap-4"].join(" ");
 // Stacked and left-aligned below `md`; one wrapping row from `md`, spread and
 // aligned to the bottom.
 const HEADER_CLASSES = [
@@ -93,6 +103,8 @@ function SkeletonGrid(): ReactNode {
 
 type OwnOfferingsListProps = {
   coffeeshopUlid: string;
+  /** A delete succeeded: the number of deleted offerings. */
+  onDeleted: (count: number) => void;
   locale: string;
   page: number;
   route: string;
@@ -103,6 +115,7 @@ type OwnOfferingsListProps = {
 /** The own list of a signed-in coffeeshop: loading, empty, error and success. */
 function OwnOfferingsList({
   coffeeshopUlid,
+  onDeleted,
   locale,
   page,
   route,
@@ -115,23 +128,88 @@ function OwnOfferingsList({
     () => buildTaxonomyLookup(taxonomies ?? [], locale),
     [taxonomies, locale],
   );
+  // The page a delete was made on: when its reload comes back empty beyond
+  // the first page, the list moves to the previous page.
+  const [deletedOnPage, setDeletedOnPage] = useState<number | null>(null);
+  const flow = useDeleteFlow({
+    onDeleted: (count) => {
+      setDeletedOnPage(page);
+      reload();
+      onDeleted(count);
+    },
+  });
+  const stepTo =
+    deletedOnPage === page ? previousPageAfterDelete(list.state, page) : null;
+  useEffect(() => {
+    if (stepTo !== null) router.push(`${route}?page=${stepTo}`);
+  }, [stepTo, route, router]);
 
+  return (
+    <>
+      <OwnOfferingsBody
+        list={list}
+        page={page}
+        route={route}
+        locale={locale}
+        lookup={lookup}
+        taxonomiesFailed={taxonomies === null}
+        onRetry={() => {
+          if (taxonomies === null) router.refresh();
+          reload();
+        }}
+        selection={selection}
+        onDelete={flow.start}
+        texts={texts}
+      />
+      <DeleteOfferingsDialog
+        target={flow.target}
+        pending={flow.pending}
+        error={flow.error}
+        onCancel={flow.cancel}
+        onConfirm={flow.confirm}
+        onStepUp={() => requestProfileWrite(route)}
+        texts={texts}
+      />
+    </>
+  );
+}
+
+type OwnOfferingsBodyProps = {
+  list: OwnOfferings["list"];
+  page: number;
+  route: string;
+  locale: string;
+  lookup: TaxonomyLookup;
+  taxonomiesFailed: boolean;
+  onRetry: () => void;
+  selection: OwnOfferings["selection"];
+  onDelete: (target: DeleteTarget) => void;
+  texts: ManageOfferingsTexts;
+};
+
+/** The list's states: loading, error, empty, and the toolbar, grid and pagination. */
+function OwnOfferingsBody({
+  list,
+  page,
+  route,
+  locale,
+  lookup,
+  taxonomiesFailed,
+  onRetry,
+  selection,
+  onDelete,
+  texts,
+}: OwnOfferingsBodyProps): ReactNode {
   if (list.state === "loading") {
     return <SkeletonGrid />;
   }
   // A taxonomy failure puts the list in its error state, as on landing; its
   // retry also reloads the server data that carries the taxonomies.
-  if (list.state === "error" || taxonomies === null) {
+  if (list.state === "error" || taxonomiesFailed) {
     return (
       <div className={MESSAGE_CLASSES}>
         <p className="type-body">{texts.listErrorMessage}</p>
-        <Button
-          variant="primary"
-          onClick={() => {
-            if (taxonomies === null) router.refresh();
-            reload();
-          }}
-        >
+        <Button variant="primary" onClick={onRetry}>
           {texts.retryLabel}
         </Button>
       </div>
@@ -156,7 +234,9 @@ function OwnOfferingsList({
         allSelected={selection.allSelected}
         selectedCount={selection.selected.size}
         onToggleAll={selection.toggleAll}
-        onDeleteSelected={() => {}}
+        onDeleteSelected={() =>
+          onDelete({ kind: "many", ulids: [...selection.selected] })
+        }
         texts={texts}
       />
       <div className={LIST_CLASSES}>
@@ -173,7 +253,7 @@ function OwnOfferingsList({
                   offering={offering}
                   selected={selection.selected.has(offering.ulid ?? "")}
                   onToggle={() => selection.toggle(offering.ulid ?? "")}
-                  onDelete={() => {}}
+                  onDelete={() => onDelete({ kind: "one", ulid: offering.ulid ?? "" })}
                   texts={texts}
                 />
               }
@@ -207,6 +287,19 @@ export function ManageOfferingsPanel({
 }: ManageOfferingsPanelProps): ReactNode {
   const session = useSession();
   const route = `/${locale}/manage/offerings`;
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const [deletedCount, setDeletedCount] = useState<number | null>(null);
+  // Bumped by each successful delete: focus moves to the heading, because
+  // the control that triggered the delete may be gone.
+  const [focusRequest, setFocusRequest] = useState(0);
+  useEffect(() => {
+    if (focusRequest === 0) return;
+    // After the confirmation has closed and returned focus to its trigger.
+    const timer = setTimeout(() => headingRef.current?.focus(), 0);
+    return () => clearTimeout(timer);
+  }, [focusRequest]);
+  const status =
+    deletedCount === null ? null : `${texts.deletedStatus} ${deletedCount}`;
   const isCoffeeshop =
     session.state === "authenticated" && session.user.role === "coffeeshop";
 
@@ -215,7 +308,7 @@ export function ManageOfferingsPanel({
       <div className={HEADER_CLASSES}>
         <div className={TITLE_GROUP_CLASSES}>
           <p className="type-eyebrow-strong">{texts.eyebrow}</p>
-          <h1 className="type-heading" tabIndex={-1}>
+          <h1 ref={headingRef} className="type-heading" tabIndex={-1}>
             {texts.listHeading}
           </h1>
         </div>
@@ -223,24 +316,35 @@ export function ManageOfferingsPanel({
           <Link href={`/${locale}/manage/offerings/new`}>{texts.newOfferingLink}</Link>
         ) : null}
       </div>
-      <ManagementGate
-        session={session}
-        route={route}
-        texts={texts}
-        onSignIn={signIn}
-        loading={<SkeletonGrid />}
-      >
-        {(user) => (
-          <OwnOfferingsList
-            coffeeshopUlid={user.ulid ?? ""}
+      <div className={BODY_CLASSES}>
+        {status !== null ? (
+          <p role="status" className="type-body">
+            {status}
+          </p>
+        ) : null}
+        <ManagementGate
+          session={session}
+          route={route}
+          texts={texts}
+          onSignIn={signIn}
+          loading={<SkeletonGrid />}
+        >
+          {(user) => (
+            <OwnOfferingsList
+              coffeeshopUlid={user.ulid ?? ""}
+              onDeleted={(count) => {
+                setDeletedCount(count);
+                setFocusRequest((value) => value + 1);
+              }}
             locale={locale}
             page={page}
             route={route}
-            taxonomies={taxonomies}
-            texts={texts}
-          />
-        )}
-      </ManagementGate>
+              taxonomies={taxonomies}
+              texts={texts}
+            />
+          )}
+        </ManagementGate>
+      </div>
     </div>
   );
 }

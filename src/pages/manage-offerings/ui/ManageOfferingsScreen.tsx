@@ -65,6 +65,16 @@ export async function ManageOfferingsScreen({
     selectLabel: catalog.selectLabel,
     deleteLabel: catalog.deleteLabel,
     deleteSelectedLabel: catalog.deleteSelectedLabel,
+    deleteOneTitle: catalog.deleteOneTitle,
+    deleteOneDescription: catalog.deleteOneDescription,
+    deleteManyTitle: catalog.deleteManyTitle,
+    deleteManyDescription: catalog.deleteManyDescription,
+    deleteConfirmLabel: catalog.deleteConfirmLabel,
+    cancelLabel: catalog.cancelLabel,
+    deleteError: catalog.deleteError,
+    deletedStatus: catalog.deletedStatus,
+    stepUpMessage: catalog.stepUpMessage,
+    stepUpLabel: catalog.stepUpLabel,
   };
 
   return (
