@@ -27,11 +27,9 @@ import {
   CardContent,
   CardFooter,
   Badge,
-<<<<<<< HEAD
   BADGE_GEOMETRY_CLASSES as SEGMENT_BADGE_GEOMETRY_CLASSES,
-=======
   Pagination,
->>>>>>> feature/extract-offering-list-parts
+  PageSection,
 } from "@/shared/ui";
 // Inside `src/shared/ui` the geometry comes from `./Badge` (design.md D5):
 // this is the single definition the segment entry must re-export.
@@ -200,13 +198,13 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
     expect(screen.getByText("Verified")).toBeDefined();
   });
 
-<<<<<<< HEAD
   it("exports the badge geometry constant from the segment", () => {
     // The geometry other compact chips import through `@/shared/ui`
     // (design.md D4) is the very value `Badge.tsx` defines.
     expect(SEGMENT_BADGE_GEOMETRY_CLASSES).toBeDefined();
     expect(SEGMENT_BADGE_GEOMETRY_CLASSES).toBe(BADGE_GEOMETRY_CLASSES);
-=======
+  });
+
   it("renders the pagination exported from the segment", () => {
     render(
       <Pagination
@@ -217,6 +215,10 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
       />,
     );
     expect(screen.getByRole("button", { name: "Next" })).toBeDefined();
->>>>>>> feature/extract-offering-list-parts
+  });
+
+  it("renders the page section exported from the segment", () => {
+    render(<PageSection>SECTION CONTENT</PageSection>);
+    expect(screen.getByText("SECTION CONTENT")).toBeDefined();
   });
 });
