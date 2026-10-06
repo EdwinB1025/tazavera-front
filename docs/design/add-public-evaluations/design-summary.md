@@ -642,3 +642,28 @@ The catalog guard checks that es, en and ca have the same keys in both areas.
     - texts split by area (catalog D16 precedent);
     - `RetryButton` from `shared/ui` (catalog D4).
   - **Blocking points:** Open 1, 2 and 3. The orchestrator may close 2 and 3 under §3.
+
+## Propose status
+
+- Change-id: `add-public-evaluations`. Date: 2026-10-06. Branch: `feature/add-public-evaluations`.
+- `openspec validate add-public-evaluations --strict`: passed ("Change 'add-public-evaluations' is valid").
+- Artifacts: `openspec/changes/add-public-evaluations/` — `proposal.md`, `specs/evaluations/spec.md`, `specs/offering-catalog/spec.md`, `design.md`, `tasks.md`.
+- Resolved (every Open, by the "Settled by the orchestrator" paragraph; decision as settled there):
+  - Open 1 (a) — the Offering facet is a radio list with "Any" and the active offering, shown only while `offeringId` is in the URL (design.md D7).
+  - Open 2 (a) — the row card moves to `src/widgets/evaluation-row` in this change, with an optional status badge and an actions slot (design.md D6).
+  - Open 3 (a) — the public facet set extends `features/evaluation-facets` (design.md D7).
+  - Open 4 (a) — the aromatic descriptors render as chips like the other blocks (proposal "Out of Scope"; design.md D8).
+  - Open 5 (a) — an open evaluation opened by URL renders the 404 page (spec delta, `evaluations`).
+  - Open 6 (a) — the baseline request orders `created_at desc` and the first item is shown (design.md D4).
+  - Open 7 (a) — no header entry for the list (proposal "Out of Scope").
+  - Open 8 (a) — "View evaluations" is a plain `Link` default beside Evaluate (design.md D9).
+  - Open 9 — the proposed texts stand (design.md D3).
+  - Open 10 (a) — "View evaluations" is always shown (spec delta, `offering-catalog`).
+  - Open 11 (a) — the ASCII mock-ups stand until the verification captures (task 5.2).
+- Dependencies (proposal "Impact"; merge gate as task 1.1): `add-offering-catalog`, `add-sidebar-slot`, `add-facet-controls`, `add-specialist-evaluations` and `add-evaluation-facets` merged into `develop`, and `develop` into this branch, before the apply.
+- Backlog: this change resolves no entry. R9 gains no third copy (Open 3 a). Finding F3 is a new candidate for `docs/backlog.md` (owning slice `entities/taxonomy`); entries are Product owner's to add.
+- Remains open (Product owner or the orchestrator):
+  - F1 (the catalog's Consensus score on `surface-section`) reaches `add-offering-catalog`'s architect before its apply, per the decisions log entry "add-public-evaluations aprobado y piezas compartidas".
+  - F7 (contract descriptions vs schema) is reported to Product owner for the Scribe annotations; the front never adapts to it.
+  - F5 (`add-flavor-wheel` summary wording) and the F6 recording: F6 is already answered by the decisions log entry of 2026-10-06; F5 is semantic drift for the orchestrator.
+  - Nothing blocks the review of the artifacts: every Open of this summary is settled.
