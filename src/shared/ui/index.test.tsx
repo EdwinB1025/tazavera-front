@@ -37,6 +37,7 @@ import {
   IntensitySlider,
   DescriptorChipGroup,
   ConfirmDialog,
+  LabelValueRow,
 } from "@/shared/ui";
 // Inside `src/shared/ui` the geometry comes from `./Badge` (design.md D5):
 // this is the single definition the segment entry must re-export.
@@ -268,7 +269,12 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
 
   it("renders the bean scale exported from the segment", () => {
     render(
-      <BeanScale label="Aroma" value={null} valueText="–/9" onChange={() => {}} />,
+      <BeanScale
+        label="Aroma"
+        value={null}
+        valueText="–/9"
+        onChange={() => {}}
+      />,
     );
     expect(screen.getByRole("radiogroup", { name: "Aroma" })).toBeDefined();
   });
@@ -321,5 +327,15 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
     expect(
       screen.getByRole("alertdialog", { name: "Delete this evaluation?" }),
     ).toBeDefined();
+  });
+
+  it("renders the label/value row exported from the segment", () => {
+    render(
+      <dl>
+        <LabelValueRow label="Country" value="Colombia" />
+      </dl>,
+    );
+    expect(screen.getByText("Country").tagName).toBe("DT");
+    expect(screen.getByText("Colombia").tagName).toBe("DD");
   });
 });
