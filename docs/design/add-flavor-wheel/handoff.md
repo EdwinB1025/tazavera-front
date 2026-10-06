@@ -82,5 +82,18 @@ OpenCode architect, `/opsx:verify` (read-only, no edits):
 - Why deferred: it is wording that contradicts a measurement (§3 lets me fix it). It stays uncommitted until Product owner commits the summary, so it is only recorded here.
 - Recommendation: fix it when the summary is next committed. It blocks nothing.
 
+### Product owner feedback — draft for corrections.md Round 1 (not yet committed by Product owner)
+To be processed after the API change `add-offering-baseline-seed`. Product owner's points, 2026-10-06:
+1. The note list is collapsed by default and the user can expand it. The description panel is not collapsed; it stays next to the wheel.
+2. With the list collapsed, the wheel gains prominence and grows in size.
+3. Every segment carries its label.
+4. A visible gap separates each segment from its neighbours, for aesthetics.
+5. The centre hole is larger.
+6. The label is arched: it follows the curve of the segment, along its edge.
+7. Each ring is thinner.
+
+Open, for Product owner before the round is written:
+- A label that does not fit even when arched, on a very narrow segment: ellipsis (today forbidden by Open 13), a smaller font, or the name only on hover or activation.
+
 ### Final checks
 `npm run test:run` (orchestrator, 19:47, after F1): 58 files, 1172 tests passed.
