@@ -1,10 +1,12 @@
 import { describe, it, expect, afterEach, beforeAll } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import NextLink from "next/link";
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve as pathResolve } from "node:path";
 import {
   SidebarProvider,
   Sidebar,
+  SidebarMenuButton,
   SidebarTrigger,
 } from "@/shared/ui/Sidebar";
 
@@ -100,5 +102,36 @@ describe("Sidebar (design.md D6, D11)", () => {
         duplicate,
       );
     }
+  });
+});
+
+describe("SidebarMenuButton link form (add-specialist-evaluations design.md D5)", () => {
+  it("renders its link child as the anchor carrying the menu button's classes", () => {
+    render(
+      <SidebarMenuButton asChild isActive>
+        <NextLink href="/es/manage/evaluations">Mis evaluaciones</NextLink>
+      </SidebarMenuButton>,
+    );
+    const link = screen.getByRole("link", { name: "Mis evaluaciones" });
+    expect(screen.queryByRole("button")).toBeNull();
+    expect(link.getAttribute("href")).toBe("/es/manage/evaluations");
+    expect(link.getAttribute("data-slot")).toBe("sidebar-menu-button");
+    expect(link.getAttribute("data-active")).toBe("true");
+    for (const token of [
+      "type-sidebar-item",
+      "flex",
+      "w-full",
+      "rounded-field",
+      "hover:bg-nav-hover",
+      "focus-visible:focus-ring",
+      "data-[active=true]:bg-nav-current-dark",
+    ]) {
+      expect(link.className.split(/\s+/)).toContain(token);
+    }
+  });
+
+  it("stays a button without asChild", () => {
+    render(<SidebarMenuButton>Entry</SidebarMenuButton>);
+    expect(screen.getByRole("button", { name: "Entry" }).tagName).toBe("BUTTON");
   });
 });
