@@ -166,3 +166,26 @@ No point blocks propose. The slot's place, shape and filling follow from the dec
   - B4 (semantic): `evaluateLabel` moves from `OfferingCardTexts` to `OfferingListTexts`; the key set reaching the widget is unchanged.
   - B5: the session plumbing left in the widget and page is removed by `add-specialist-evaluations`, not here (no live session exists before `add-auth`).
   - Findings for the orchestrator: (1) add-specialist-evaluations summary §8 line 125 ("The card change is made in this change") contradicts the later Product owner decision recorded in line 124 and the decisions log: semantic, the orchestrator may fix the wording (`.claude/CLAUDE.md` §3). (2) No `docs/backlog.md` entry records this refactor; the board has no row for it.
+
+## Propose status
+
+- Change-id: `replace-offering-card-session`. Date: 2026-10-06. Phase: propose (architect).
+- Artifacts: `openspec/changes/replace-offering-card-session/` — `proposal.md`, `specs/landing/spec.md` (delta), `design.md`, `tasks.md` (4/4 complete).
+- `openspec validate replace-offering-card-session --strict`: passing ("Change 'replace-offering-card-session' is valid").
+
+**Resolved (with its decision):**
+
+- **Q1, spec delta (orchestrator's answer, taking the architect's recommendation):** MODIFY the last clause of "Offering card content" so the Evaluate link for a signed-in specialist is the entry-page list's filling of the card's actions slot — one clause, no behaviour change — plus the ADDED requirement "Offering card actions". This supersedes §5's default of leaving "Offering card content" unmodified. The requirement keeps every scenario; the new one covers the consumer's actions after View and no actions supplied.
+- **Q2, the catalog's cards (orchestrator's answer):** out of this change's scope; `add-offering-catalog` decides its cards' filling. This supersedes the "Consumed by" line above claiming the catalog's cards get the landing's filling unchanged; design.md D5 records the end state.
+- **Explore report factual corrections (C1, C2, W1–W7), folded into the artifacts** (the summary body keeps its text and is superseded where they differ):
+  - C1: `OfferingCardTexts` keeps eleven keys after `evaluateLabel` leaves it (twelve today, including the four rating words of `label-rating-badge`), not seven (§2, §3, §6);
+  - C2: `add-auth` is merged, so the session module already exists (§1);
+  - current line references: `OfferingCard.tsx:104-105` (the role check) and `156-167` (the links group: View 157–159, Evaluate 160–166), `HomeScreen.tsx:26` and `96` (§0);
+  - `docs/backlog.md` holds R1, R3, R4, R5 and R8 (R8 added on `develop`); no entry names this change (§ "Backlog", review log finding 2);
+  - `extract-offering-list-parts` and `label-rating-badge` are merged, so this change starts from `develop` with no shared-file simulation outstanding (§11);
+  - the texts case of `OfferingCard.test.tsx` keeps five cards (the four tier fixtures plus the provisional card), whose union must cover all eleven texts (§6).
+
+**Remains open:**
+
+- Nothing blocks apply. The `/es` comparison at 375px and 1280px against the `develop` captures with the local read mock stays with the orchestrator's visual check before the archive (summary §12's captures were never taken; the change is intended to be invisible).
+- Finding (1) of the review log (add-specialist-evaluations summary §8 line 125) stays with the orchestrator; it does not affect this change's artifacts.
