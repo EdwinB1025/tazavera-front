@@ -87,3 +87,5 @@ export type {
 } from "./Card";
 export { Badge } from "./Badge";
 export type { BadgeProps, BadgeVariant } from "./Badge";
+export { PageSection } from "./PageSection";
+export type { PageSectionProps, PageSectionSurface } from "./PageSection";
