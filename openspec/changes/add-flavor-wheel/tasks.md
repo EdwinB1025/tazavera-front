@@ -81,7 +81,7 @@ Spec "Segments separated by a gap"; design.md D5 (separator stroke 2 → 4 units
 design.md D5 ring table (hole 80; `D` = 0: 80–200; `D` = 1: 80–140, 140–200; `D` = 2: 80–120, 120–160, 160–200).
 
 - [x] 12.1 Update `src/shared/ui/flavor-wheel-geometry.test.ts`: the three `ringRadii` cases expect `hole: 80` and the new ring bounds of the D5 table (their titles follow); "sizes rings by the deepest level of the whole tree, expanded or not" expects `{ inner: 80, outer: 120 }`; "places a child inside its parent's span…" expects `inner`/`outer` 80/140 for ring 0 and 140/200 for ring 1. The `arcPath`, `labelRadius`, `labelPath` and `fitLabel` cases use explicit radii and stay. Verifying: `npm run test:run` fails only on those five cases
-- [ ] 12.2 Update `RINGS_BY_DEPTH` and the hole in `src/shared/ui/flavor-wheel-geometry.ts`. Verifying: 12.1 passes, the component cases of section 10 pass unchanged, and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` all exit 0
+- [x] 12.2 Update `RINGS_BY_DEPTH` and the hole in `src/shared/ui/flavor-wheel-geometry.ts`. Verifying: 12.1 passes, the component cases of section 10 pass unchanged, and `npm run test:run`, `npm run lint` and `npx tsc --noEmit` all exit 0
 
 ## 13. Review round 1, correction 8: a name that cannot fit shows only while its note is active
 

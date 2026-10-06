@@ -5,13 +5,13 @@
 /** The constant viewBox: outer radius 200 plus a 4-unit margin. */
 export const VIEWBOX = "-204 -204 408 408";
 
-const HOLE = 40;
+const HOLE = 80;
 
 /** Ring bounds by the deepest level `D` present in the whole tree. */
 const RINGS_BY_DEPTH: Record<0 | 1 | 2, number[]> = {
-  0: [40, 200],
-  1: [40, 110, 200],
-  2: [40, 100, 150, 200],
+  0: [80, 200],
+  1: [80, 140, 200],
+  2: [80, 120, 160, 200],
 };
 
 const LABEL_FONT_SIZE = [13, 12, 12];
