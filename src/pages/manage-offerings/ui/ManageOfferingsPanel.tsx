@@ -6,8 +6,12 @@ import type { TaxonomyNode } from "@/shared/api";
 import { signIn, useSession } from "@/features/auth";
 import {
   ManagementGate,
+  OfferingActions,
+  SelectionToolbar,
   useOwnOfferings,
   type ManagementGateTexts,
+  type OfferingActionsTexts,
+  type SelectionToolbarTexts,
 } from "@/features/offering-management";
 import { OfferingCard, type OfferingCardTexts } from "@/entities/offering";
 import { buildTaxonomyLookup } from "@/entities/taxonomy";
@@ -19,7 +23,9 @@ import { resolveTaxonomies } from "../lib/resolve-taxonomies";
 
 export type ManageOfferingsTexts = OfferingCardTexts &
   PaginationTexts &
-  ManagementGateTexts & {
+  ManagementGateTexts &
+  OfferingActionsTexts &
+  SelectionToolbarTexts & {
     eyebrow: string;
     listHeading: string;
     newOfferingLink: string;
@@ -64,6 +70,8 @@ const GRID_CLASSES = [
   "lg:grid-cols-2",
   "2xl:grid-cols-3",
 ].join(" ");
+// Toolbar → grid: 1.5rem.
+const SUCCESS_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
 // Grid → pagination: 2rem.
 const LIST_CLASSES = ["flex", "flex-col", "gap-8"].join(" ");
 // Empty and error: a centred column 1rem apart, no box.
@@ -102,7 +110,7 @@ function OwnOfferingsList({
   texts,
 }: OwnOfferingsListProps): ReactNode {
   const router = useRouter();
-  const { list, reload } = useOwnOfferings(coffeeshopUlid, page);
+  const { list, reload, selection } = useOwnOfferings(coffeeshopUlid, page);
   const lookup = useMemo(
     () => buildTaxonomyLookup(taxonomies ?? [], locale),
     [taxonomies, locale],
@@ -143,24 +151,42 @@ function OwnOfferingsList({
   const currentPage = list.meta.current_page ?? page;
   const lastPage = list.meta.last_page ?? currentPage;
   return (
-    <div className={LIST_CLASSES}>
-      <div className={GRID_CLASSES}>
-        {list.data.map((offering, index) => (
-          <OfferingCard
-            key={offering.ulid ?? index}
-            offering={offering}
-            locale={locale}
-            taxonomies={resolveTaxonomies(offering.sensoryTaxonomy ?? [], lookup)}
-            texts={texts}
-          />
-        ))}
-      </div>
-      <Pagination
-        currentPage={currentPage}
-        lastPage={lastPage}
-        path={route}
+    <div className={SUCCESS_CLASSES}>
+      <SelectionToolbar
+        allSelected={selection.allSelected}
+        selectedCount={selection.selected.size}
+        onToggleAll={selection.toggleAll}
+        onDeleteSelected={() => {}}
         texts={texts}
       />
+      <div className={LIST_CLASSES}>
+        <div className={GRID_CLASSES}>
+          {list.data.map((offering, index) => (
+            <OfferingCard
+              key={offering.ulid ?? index}
+              offering={offering}
+              locale={locale}
+              taxonomies={resolveTaxonomies(offering.sensoryTaxonomy ?? [], lookup)}
+              texts={texts}
+              actions={
+                <OfferingActions
+                  offering={offering}
+                  selected={selection.selected.has(offering.ulid ?? "")}
+                  onToggle={() => selection.toggle(offering.ulid ?? "")}
+                  onDelete={() => {}}
+                  texts={texts}
+                />
+              }
+            />
+          ))}
+        </div>
+        <Pagination
+          currentPage={currentPage}
+          lastPage={lastPage}
+          path={route}
+          texts={texts}
+        />
+      </div>
     </div>
   );
 }

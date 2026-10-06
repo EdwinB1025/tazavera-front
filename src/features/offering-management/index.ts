@@ -6,6 +6,14 @@
 export { fetchOwnOfferings } from "./api/management";
 export type { OwnOfferingsResult } from "./api/management";
 export { useOwnOfferings } from "./model/own-offerings";
-export type { OwnOfferings, OwnOfferingsState } from "./model/own-offerings";
+export type {
+  OfferingSelection,
+  OwnOfferings,
+  OwnOfferingsState,
+} from "./model/own-offerings";
 export { ManagementGate } from "./ui/ManagementGate";
 export type { ManagementGateProps, ManagementGateTexts } from "./ui/ManagementGate";
+export { OfferingActions } from "./ui/OfferingActions";
+export type { OfferingActionsProps, OfferingActionsTexts } from "./ui/OfferingActions";
+export { SelectionToolbar } from "./ui/SelectionToolbar";
+export type { SelectionToolbarProps, SelectionToolbarTexts } from "./ui/SelectionToolbar";

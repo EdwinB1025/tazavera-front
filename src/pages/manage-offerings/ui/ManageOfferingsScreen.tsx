@@ -60,6 +60,11 @@ export async function ManageOfferingsScreen({
     retryLabel: catalog.retryLabel,
     signedOutMessage: catalog.signedOutMessage,
     signInLabel: catalog.signInLabel,
+    selectAllLabel: catalog.selectAllLabel,
+    selectedCount: catalog.selectedCount,
+    selectLabel: catalog.selectLabel,
+    deleteLabel: catalog.deleteLabel,
+    deleteSelectedLabel: catalog.deleteSelectedLabel,
   };
 
   return (
