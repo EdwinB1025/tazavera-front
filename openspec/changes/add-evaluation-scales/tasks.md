@@ -34,4 +34,4 @@
 
 ## 6. Integration verification
 
-- [ ] 6.1 Verify the complete change with `npm run test:run`, `npm run lint` and `npx tsc --noEmit`, verifying all three exit 0 and every guard is green over the new files: `color-guard` (including the new `fill-`/`stroke-` checks), `radius-guard`, `focus-guard`, `client-boundary`, `xss-guard`, `icons`, `badge-geometry-guard` and `theme-tokens` with the seven new pairs
+- [x] 6.1 Verify the complete change with `npm run test:run`, `npm run lint` and `npx tsc --noEmit`, verifying all three exit 0 and every guard is green over the new files: `color-guard` (including the new `fill-`/`stroke-` checks), `radius-guard`, `focus-guard`, `client-boundary`, `xss-guard`, `icons`, `badge-geometry-guard` and `theme-tokens` with the seven new pairs
