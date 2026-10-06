@@ -103,8 +103,13 @@ function jsonResponse(status: number, body: unknown): Response {
   });
 }
 
-// The create answer of each test; the other paths answer as the API would.
+const GRACIA = { ulid: "01L1", name: "Tazavera Gràcia" };
+const BORN = { ulid: "01L2", name: "Tazavera Born" };
+
+// The create and locations answers of each test; the inventory search
+// answers as the API would.
 let createAnswer: () => Promise<Response>;
+let locationsAnswer: () => Promise<Response>;
 
 beforeEach(() => {
   mocks.session = COFFEESHOP;
@@ -113,9 +118,10 @@ beforeEach(() => {
   mocks.notFound.mockReset();
   mocks.request.mockReset();
   createAnswer = async () => jsonResponse(201, { data: [{}, {}], message: "Created" });
+  locationsAnswer = async () => jsonResponse(200, { data: [GRACIA, BORN] });
   mocks.request.mockImplementation(async (path: string, init?: RequestInit) => {
     if (path.startsWith("/coffeeInventory")) return jsonResponse(200, { data: [MIRADOR] });
-    if (path === "/locations") return jsonResponse(200, { data: [] });
+    if (path === "/locations") return locationsAnswer();
     if (path === "/offerings" && init?.method === "POST") return createAnswer();
     throw new Error(`unexpected request ${path}`);
   });
@@ -148,6 +154,16 @@ async function chooseMirador(): Promise<void> {
   await act(async () => {});
   fireEvent.click(screen.getByRole("option", { name: /Huila El Mirador/ }));
   vi.useRealTimers();
+}
+
+function locationCalls() {
+  return mocks.request.mock.calls.filter(([path]) => path === "/locations");
+}
+
+/** Renders the form and lets the locations request settle. */
+async function renderLoaded() {
+  renderForm();
+  await act(async () => {});
 }
 
 async function submit(): Promise<void> {
@@ -263,5 +279,93 @@ describe("NewOfferingForm — create (design.md D5, D10)", () => {
     expect(mocks.requestProfileWrite).toHaveBeenCalledTimes(1);
     expect(mocks.requestProfileWrite).toHaveBeenCalledWith(ROUTE);
     expect(input().value).toBe("Huila El Mirador");
+  });
+});
+
+describe("NewOfferingForm — locations (design.md D10)", () => {
+  it("shows the loading line while GET /locations runs", async () => {
+    locationsAnswer = () => new Promise(() => {});
+    renderForm();
+    await act(async () => {});
+    expect(locationCalls()).toHaveLength(1);
+    expect(screen.getByText(TEXTS.locationsLoading)).toBeTruthy();
+    expect(screen.queryAllByRole("checkbox")).toHaveLength(0);
+  });
+
+  it("renders one checkbox per location under the legend, none preselected with two", async () => {
+    await renderLoaded();
+    const group = screen.getByRole("group", { name: /Locations/ });
+    expect(within(group).getByRole("checkbox", { name: "Tazavera Gràcia" })).toBeTruthy();
+    expect(within(group).getByRole("checkbox", { name: "Tazavera Born" })).toBeTruthy();
+    for (const box of within(group).getAllByRole("checkbox")) {
+      expect((box as HTMLInputElement).checked).toBe(false);
+    }
+  });
+
+  it("preselects the only location of a coffeeshop with exactly one", async () => {
+    locationsAnswer = async () => jsonResponse(200, { data: [GRACIA] });
+    await renderLoaded();
+    const boxes = screen.getAllByRole("checkbox");
+    expect(boxes).toHaveLength(1);
+    expect((boxes[0] as HTMLInputElement).checked).toBe(true);
+  });
+
+  it("with no locations, shows the empty message and the submit action is unavailable", async () => {
+    locationsAnswer = async () => jsonResponse(200, { data: [] });
+    await renderLoaded();
+    expect(screen.getByText(TEXTS.locationsEmpty)).toBeTruthy();
+    expect(submitButton().hasAttribute("disabled")).toBe(true);
+  });
+
+  it("on a failure shows the error line, and Retry refetches through the loading state", async () => {
+    locationsAnswer = async () => jsonResponse(500, { message: "Server error" });
+    await renderLoaded();
+    expect(screen.getByText(TEXTS.locationsError)).toBeTruthy();
+    expect(screen.queryByText("Server error")).toBeNull();
+
+    let resolve!: (response: Response) => void;
+    locationsAnswer = () => new Promise((res) => (resolve = res));
+    fireEvent.click(screen.getByRole("button", { name: TEXTS.retryLabel }));
+    await act(async () => {});
+    expect(locationCalls()).toHaveLength(2);
+    expect(screen.getByText(TEXTS.locationsLoading)).toBeTruthy();
+    await act(async () => {
+      resolve(jsonResponse(200, { data: [GRACIA, BORN] }));
+    });
+    expect(screen.getAllByRole("checkbox")).toHaveLength(2);
+  });
+
+  it("submits the selected locations", async () => {
+    await renderLoaded();
+    fireEvent.click(screen.getByRole("checkbox", { name: "Tazavera Born" }));
+    await chooseMirador();
+    await submit();
+    expect(JSON.parse(createCalls()[0]![1].body)).toEqual({
+      coffeeInventoryId: "01I1",
+      locations: ["01L2"],
+    });
+  });
+
+  it("with an item and no location selected the request is sent, and the API's rejection shows the form error", async () => {
+    createAnswer = async () => jsonResponse(422, { message: "The locations field is required." });
+    await renderLoaded();
+    await chooseMirador();
+    await submit();
+    expect(createCalls()).toHaveLength(1);
+    expect(JSON.parse(createCalls()[0]![1].body)).toEqual({
+      coffeeInventoryId: "01I1",
+      locations: [],
+    });
+    expect(screen.getByRole("alert").textContent).toBe(TEXTS.createError);
+  });
+
+  it("after a 201 the location checkboxes reset", async () => {
+    await renderLoaded();
+    fireEvent.click(screen.getByRole("checkbox", { name: "Tazavera Born" }));
+    await chooseMirador();
+    await submit();
+    for (const box of screen.getAllByRole("checkbox")) {
+      expect((box as HTMLInputElement).checked).toBe(false);
+    }
   });
 });
