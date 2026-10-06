@@ -31,6 +31,7 @@ import {
   Pagination,
   PageSection,
   BeanScale,
+  IntensitySlider,
 } from "@/shared/ui";
 // Inside `src/shared/ui` the geometry comes from `./Badge` (design.md D5):
 // this is the single definition the segment entry must re-export.
@@ -228,5 +229,19 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
       <BeanScale label="Aroma" value={null} valueText="–/9" onChange={() => {}} />,
     );
     expect(screen.getByRole("radiogroup", { name: "Aroma" })).toBeDefined();
+  });
+
+  it("renders the intensity slider exported from the segment", () => {
+    render(
+      <IntensitySlider
+        label="Acidity"
+        value={null}
+        valueText="0/15"
+        valueLabel="0 de 15"
+        scaleLabels={["LOW", "MEDIUM", "HIGH"]}
+        onChange={() => {}}
+      />,
+    );
+    expect(screen.getByRole("slider", { name: "Acidity" })).toBeDefined();
   });
 });
