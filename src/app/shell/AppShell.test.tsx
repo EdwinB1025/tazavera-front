@@ -353,3 +353,27 @@ describe("route files (architecture rule: routing only)", () => {
     expect(offenders).toEqual([]);
   });
 });
+
+describe("AppShell management sidebar entries (add-specialist-evaluations design.md D5)", () => {
+  it("fills the sidebar with My evaluations for a specialist on a management route", () => {
+    shellPathname = "/es/manage/evaluations";
+    renderShell({
+      state: "authenticated",
+      user: { name: "Andrés", surname: "Gómez", role: "specialist" },
+    });
+    const sidebar = screen.getByRole("complementary");
+    const entry = within(sidebar).getByRole("link", { name: texts.manageEvaluations });
+    expect(entry.getAttribute("href")).toBe("/es/manage/evaluations");
+    expect(entry.getAttribute("aria-current")).toBe("page");
+  });
+
+  it("contributes no entry for a coffeeshop", () => {
+    shellPathname = "/es/manage/offerings";
+    renderShell({
+      state: "authenticated",
+      user: { name: "Marta", surname: "Puig", role: "coffeeshop" },
+    });
+    const sidebar = screen.getByRole("complementary");
+    expect(within(sidebar).queryByRole("link")).toBeNull();
+  });
+});
