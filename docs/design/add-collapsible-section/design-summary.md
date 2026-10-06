@@ -292,3 +292,17 @@ Settled under criterion B:
 - **Compound parts instead of one component:** the existing `Card` / `CardAside` / `CardContent` composition of the first consumer requires it.
 
 Measured: title and chevron contrast on three surfaces in both themes (§5), *(computed)*.
+
+## Propose status
+
+- Change-id: `add-collapsible-section` (capability `content-structure`), proposed 2026-10-06.
+- `openspec validate add-collapsible-section --strict`: valid.
+- Resolved:
+  - Open 1: (a) built in-house, as approved by the orchestrator (design.md D7). No dependency.
+  - Ids per instance with React `useId`; the body's id always comes from the section, never from a consumer prop (design.md D3, single-component detail).
+  - In uncontrolled use, `onOpenChange` also reports each toggle when given (design.md D2).
+- Open:
+  - Open 2 (header padding inside `CardAside`): recorded for the `add-specialist-evaluations` round; not settled here.
+  - The 0.25s duration stays *unverified* against Alpine's default (design.md Risks); the browser check of task 3.2 is taken by the design lead.
+- Noted, not added: `focus-ring` / `surface-section-hover` is not a registered guard pair; §5 asks only for the two text pairs.
+- Backlog: no entry resolved or affected.
