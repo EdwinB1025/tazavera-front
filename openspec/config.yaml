@@ -29,8 +29,8 @@ context: |
   - auth: OAuth Authorization Code + PKCE flow against the API (callback, in-memory tokens, refresh, silent re-authentication with prompt=none, sign out, profile:write step-up), session state and API client
   - landing: public entry page with verified offerings and the About us page
   - user-account: registration (specialist and coffeeshop) and profile settings (view, edit, password, deactivate, delete)
-  - evaluations: specialist evaluation workflow (CVA combined form, draft and close, read-only view of closed evaluations, my evaluations list with its filter, delete)
-  - offering-catalog: public offerings listing with its filter, and offering detail
+  - evaluations: specialist evaluation workflow (CVA combined form, draft and close, read-only view of closed evaluations, my evaluations list with its filter, delete) and the public evaluations list with its filter (by offering, among others) and read-only evaluation view
+  - offering-catalog: public offerings listing with its filter, and offering detail (consensus, flavor wheel, the coffee shop's provisional evaluation, link to its evaluations)
   - offering-management: coffeeshop offerings (create from inventory by roaster and locations, list own, delete one or several)
 rules:
   proposal:
