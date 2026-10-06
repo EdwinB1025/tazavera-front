@@ -71,7 +71,7 @@ Each row SHALL offer Edit for an open evaluation, View for a closed one, and Del
 
 ### Requirement: Evaluation form
 
-The route `/{locale}/manage/evaluations/new?offering={ulid}` SHALL present the CVA combined form for a new evaluation of that offering and the route `/{locale}/manage/evaluations/{ulid}` the same form loaded from the evaluation. The form SHALL carry the header fields roast level (prefilled from the offering's `coffeeInventory.coffee.roastLevel`) and extraction method, and the eight groups in CVA order: Fragrance / Aroma, Flavor / Aftertaste, Acidity, Sweetness, Mouthfeel, Overall, Defects and Extrinsic. Every group with a descriptive part SHALL offer one intensity control per axis on the 0–15 scale and every group with an affective part one preference control per axis on the 1–9 scale, Overall having only the affective one. Defects SHALL offer only its descriptor block and Extrinsic only its optional notes field, sent as `extrinsics.generalObservation`.
+The route `/{locale}/manage/evaluations/new?offering={ulid}` SHALL present the CVA combined form for a new evaluation of that offering and the route `/{locale}/manage/evaluations/{ulid}` the same form loaded from the evaluation. The form SHALL carry the header fields roast level (prefilled from the offering's `coffeeInventory.coffee.roastLevel`) and extraction method, and the eight groups in CVA order: Fragrance / Aroma, Flavor / Aftertaste, Acidity, Sweetness, Mouthfeel, Overall, Defects and Extrinsic. Every group with a descriptive part SHALL offer one intensity control per axis on the 0–15 scale and every group with an affective part one preference control per axis on the 1–9 scale, Overall having only the affective one. Defects SHALL offer only its descriptor block and Extrinsic only its optional notes field, sent as `extrinsics.generalObservation`. At every viewport each group SHALL be a collapsible section (content-structure "Collapsible section") whose header carries the group name and its completeness indicator; every group SHALL start collapsed in an editable form and expanded in a closed one, and while a group is collapsed its card SHALL show only its header row, with no separating border under it.
 
 #### Scenario: The form header
 
@@ -87,6 +87,16 @@ The route `/{locale}/manage/evaluations/new?offering={ulid}` SHALL present the C
 
 - **WHEN** the form opens for a new evaluation
 - **THEN** every intensity control shows 0, every preference control is unset, no note is open, the "Fragrance not evaluated — use aroma values" option is unchecked and only the roast level is required to save
+
+#### Scenario: Groups of an editable form
+
+- **WHEN** the form opens for a new evaluation or an open one, at any viewport
+- **THEN** every group shows only its header row, with its name, its completeness indicator where the group has one, and the collapse control, and activating the header shows or hides that group's content
+
+#### Scenario: Groups of a closed evaluation
+
+- **WHEN** the form opens for a closed evaluation
+- **THEN** every group starts expanded and can still be collapsed from its header
 
 #### Scenario: Loading an evaluation for edit
 
@@ -200,12 +210,12 @@ Close evaluation SHALL save the form and then call `closeAnEvaluation`. On succe
 #### Scenario: Closing a complete evaluation
 
 - **WHEN** the specialist closes the evaluation and the close succeeds
-- **THEN** the read-only view replaces the form and the closed confirmation appears
+- **THEN** the read-only view replaces the form with every group expanded and the closed confirmation appears
 
 #### Scenario: Closing an incomplete evaluation
 
 - **WHEN** the close answers `409`
-- **THEN** the incomplete message appears and the groups that are incomplete are highlighted
+- **THEN** the incomplete message appears and the groups that are incomplete are highlighted and expanded, collapsed ones included
 
 #### Scenario: Closing is refused
 
