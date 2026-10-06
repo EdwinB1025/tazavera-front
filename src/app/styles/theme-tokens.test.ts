@@ -235,14 +235,20 @@ const DOCUMENTED_BASES: Record<string, string[]> = {
   "evaluation-rating-excellent": ["surface-card"],
   "evaluation-rating-good": ["surface-card"],
   "evaluation-rating-commercial": ["surface-card"],
+  // add-evaluation-scales D9: the translucent on-bean disc is documented over
+  // the content surfaces it renders on (the traditional theme)
+  "evaluation-bean-on": ["surface-form", "surface-card"],
   // border-subtle, border-filter-separator, nav-tabs-border: exempt from 3:1
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Contrast matrix (from design.md Evidence section)
 // Tokens without a defined pairing are excluded and verified in the component
-// change: text-inverse, text-input-icon, surface-checked, nav-icon, nav-underline,
-// evaluation-bean-*, evaluation-slider-*
+// change: text-inverse, text-input-icon, surface-checked, nav-icon, nav-underline.
+// add-evaluation-scales D9 registers the measured evaluation-bean-* and
+// evaluation-slider-* pairs in both matrices below; their unmeasured
+// combinations stay ungated (design summary §4), and other host surfaces are
+// registered by the consumer that uses them.
 // ═══════════════════════════════════════════════════════════════════════════════
 
 type PairKind = "text" | "bound" | "icon";
@@ -462,6 +468,24 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "text-placeholder-inverse", bg: "nav-surface-dark", kind: "text" },
   { fg: "feedback-error-inverse", bg: "nav-surface-dark", kind: "text" },
   { fg: "surface-checked", bg: "nav-surface-dark", kind: "bound" },
+
+  // ── Evaluation scales (add-evaluation-scales design.md D9) ──
+  // The seven measured pairs of the design summary §4, registered in both
+  // matrices. Only pairs the matrices do not already assert are added here:
+  // border-muted / surface-textarea and text-strong / surface-form are asserted
+  // above. The two mark pairs fail until task 1.4 defines
+  // --color-evaluation-bean-mark-on/off.
+  { fg: "evaluation-bean-mark-off", bg: "evaluation-bean-off", kind: "icon" },
+  // evaluation-bean-on is translucent: measured over its documented bases
+  { fg: "evaluation-bean-mark-on", bg: "evaluation-bean-on", kind: "icon" },
+  { fg: "evaluation-slider-thumb", bg: "surface-form", kind: "bound" },
+  { fg: "evaluation-slider-thumb", bg: "surface-card", kind: "bound" },
+  { fg: "evaluation-slider-thumb", bg: "evaluation-slider-track", kind: "bound" },
+  { fg: "border-muted", bg: "surface-form", kind: "bound" },
+  { fg: "border-muted", bg: "surface-card", kind: "bound" },
+  { fg: "text-strong", bg: "surface-card", kind: "text" },
+  // The thumb edge is decorative (design summary §4): exempt from the 3:1 rule.
+  { fg: "evaluation-slider-thumb-border", bg: "evaluation-slider-thumb", kind: "bound", exempt: true },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -774,6 +798,25 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "text-placeholder-inverse", bg: "nav-surface-dark", kind: "text" },
   { fg: "feedback-error-inverse", bg: "nav-surface-dark", kind: "text" },
   { fg: "surface-checked", bg: "nav-surface-dark", kind: "bound" },
+
+  // ── Evaluation scales (add-evaluation-scales design.md D9) ──
+  // The seven measured pairs of the design summary §4, registered in both
+  // matrices. Only pairs the matrices do not already assert are added here:
+  // border-muted / surface-textarea and text-strong / surface-form are asserted
+  // above. The two mark pairs fail until task 1.4 defines
+  // --color-evaluation-bean-mark-on/off.
+  { fg: "evaluation-bean-mark-off", bg: "evaluation-bean-off", kind: "icon" },
+  // rides the documented bases of DOCUMENTED_BASES (evaluation-bean-on is
+  // translucent in the traditional theme)
+  { fg: "evaluation-bean-mark-on", bg: "evaluation-bean-on", kind: "icon" },
+  { fg: "evaluation-slider-thumb", bg: "surface-form", kind: "bound" },
+  { fg: "evaluation-slider-thumb", bg: "surface-card", kind: "bound" },
+  { fg: "evaluation-slider-thumb", bg: "evaluation-slider-track", kind: "bound" },
+  { fg: "border-muted", bg: "surface-form", kind: "bound" },
+  { fg: "border-muted", bg: "surface-card", kind: "bound" },
+  { fg: "text-strong", bg: "surface-card", kind: "text" },
+  // The thumb edge is decorative (design summary §4): exempt from the 3:1 rule.
+  { fg: "evaluation-slider-thumb-border", bg: "evaluation-slider-thumb", kind: "bound", exempt: true },
 ];
 
 describe("Dark theme contrast matrix", () => {

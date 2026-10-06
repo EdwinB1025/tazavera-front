@@ -1061,6 +1061,16 @@ export interface operations {
                  */
                 evaluatorId?: string;
                 /**
+                 * @description Filter by offering ULID. Must match an existing stored value.
+                 * @example 01K6A3M8Q2V7XH4T9B5N1RCW0D
+                 */
+                offeringId?: string;
+                /**
+                 * @description Filter by evaluation type. One of: specialist, baseline (the coffee shop's own provisional evaluation of its offering).
+                 * @example baseline
+                 */
+                evaluationType?: "specialist" | "baseline";
+                /**
                  * @description Filter by coffee ULID. Must match an existing stored value.
                  * @example 01M35F5JEZMS845TNPAEM1V8PF
                  */
@@ -1519,6 +1529,16 @@ export interface operations {
     listTheEvaluationsOfAUser: {
         parameters: {
             query?: {
+                /**
+                 * @description Filter by offering ULID. Must match an existing stored value.
+                 * @example 01K6A3M8Q2V7XH4T9B5N1RCW0D
+                 */
+                offeringId?: string;
+                /**
+                 * @description Filter by evaluation type. One of: specialist, baseline (the coffee shop's own provisional evaluation of its offering).
+                 * @example specialist
+                 */
+                evaluationType?: "specialist" | "baseline";
                 /**
                  * @description Filter by coffee ULID. Must match an existing stored value.
                  * @example 01M35F5JEZMS845TNPAEM1V8PF
@@ -1984,6 +2004,16 @@ export interface operations {
     listMyEvaluations: {
         parameters: {
             query?: {
+                /**
+                 * @description Filter by offering ULID. Must match an existing stored value.
+                 * @example 01K6A3M8Q2V7XH4T9B5N1RCW0D
+                 */
+                offeringId?: string;
+                /**
+                 * @description Filter by evaluation type. One of: specialist, baseline (the coffee shop's own provisional evaluation of its offering).
+                 * @example specialist
+                 */
+                evaluationType?: "specialist" | "baseline";
                 /**
                  * @description Filter by coffee ULID. Must match an existing stored value.
                  * @example 01M35F5JEZMS845TNPAEM1V8PF
