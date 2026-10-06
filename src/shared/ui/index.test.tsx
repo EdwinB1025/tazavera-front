@@ -27,7 +27,11 @@ import {
   CardContent,
   CardFooter,
   Badge,
+  BADGE_GEOMETRY_CLASSES as SEGMENT_BADGE_GEOMETRY_CLASSES,
 } from "@/shared/ui";
+// Inside `src/shared/ui` the geometry comes from `./Badge` (design.md D5):
+// this is the single definition the segment entry must re-export.
+import { BADGE_GEOMETRY_CLASSES } from "./Badge";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
@@ -184,5 +188,12 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
   it("renders the badge exported from the segment", () => {
     render(<Badge variant="verified">Verified</Badge>);
     expect(screen.getByText("Verified")).toBeDefined();
+  });
+
+  it("exports the badge geometry constant from the segment", () => {
+    // The geometry other compact chips import through `@/shared/ui`
+    // (design.md D4) is the very value `Badge.tsx` defines.
+    expect(SEGMENT_BADGE_GEOMETRY_CLASSES).toBeDefined();
+    expect(SEGMENT_BADGE_GEOMETRY_CLASSES).toBe(BADGE_GEOMETRY_CLASSES);
   });
 });

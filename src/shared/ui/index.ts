@@ -86,4 +86,5 @@ export type {
   CardFooterProps,
 } from "./Card";
 export { Badge } from "./Badge";
+export { BADGE_GEOMETRY_CLASSES } from "./Badge";
 export type { BadgeProps, BadgeVariant } from "./Badge";
