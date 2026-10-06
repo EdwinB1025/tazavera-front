@@ -3,5 +3,9 @@
   "listHeading": "Descubre ofertas",
   "listEmptyMessage": "No hay ofertas que coincidan.",
   "listErrorMessage": "No se pudieron cargar las ofertas.",
-  "metaDescription": "Explora las ofertas de café evaluadas con el protocolo de cata SCA."
+  "metaDescription": "Explora las ofertas de café evaluadas con el protocolo de cata SCA.",
+  "detailBackLabel": "Volver",
+  "detailErrorMessage": "No se pudo cargar la oferta.",
+  "detailTabInventory": "Datos del inventario",
+  "detailTabConsensus": "Consenso"
 }

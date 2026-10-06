@@ -3,5 +3,9 @@
   "listHeading": "Descobreix ofertes",
   "listEmptyMessage": "No hi ha ofertes que coincideixin.",
   "listErrorMessage": "No s'han pogut carregar les ofertes.",
-  "metaDescription": "Explora les ofertes de cafè avaluades amb el protocol de tast SCA."
+  "metaDescription": "Explora les ofertes de cafè avaluades amb el protocol de tast SCA.",
+  "detailBackLabel": "Tornar",
+  "detailErrorMessage": "No s'ha pogut carregar l'oferta.",
+  "detailTabInventory": "Dades de l'inventari",
+  "detailTabConsensus": "Consens"
 }
