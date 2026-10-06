@@ -313,7 +313,7 @@ export function FlavorWheel({
                     fill={node.color}
                     fillOpacity={rule.opacity}
                     className="stroke-surface-card"
-                    strokeWidth={2}
+                    strokeWidth={4}
                   />
                   <SegmentLabel
                     segment={segment}
