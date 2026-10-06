@@ -339,3 +339,20 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
   - **Contraste en el consenso de catalog:** la puntuación sobre el fondo de sección da 4,38:1 en el nivel comercial del tema tradicional (medida del design lead). Se corrige sin token nuevo, poniendo esa fila dentro de una tarjeta. Pasa al arquitecto de catalog antes de su apply.
 - **Por qué:** mandato nocturno de Product owner; informe del design lead del 6 oct; regla de reutilizar (criterio C).
 - **Afecta:** add-public-evaluations, add-offering-catalog (D3, D13, contraste del consenso), add-specialist-evaluations (D1, D7), add-evaluation-facets (facetas públicas).
+
+### 2026-10-06 — secciones plegables, rueda y facetas (respuestas de Product owner)
+- **Decisión:**
+  - **Mecanismo compartido de sección plegable:** se toma del formulario de evaluación del MVC (`evaluation-axis.blade.php`, `evaluation-form.blade.php`).
+    - La cabecera es un botón que ocupa todo el ancho: título a la izquierda y chevron a la derecha (abajo plegado, arriba abierto).
+    - Lleva `aria-expanded` y `aria-controls`, foco visible y animación de apertura.
+    - Va en `shared/ui` (content-structure, "collapsible"), en un cambio propio, `add-collapsible-section`, antes que sus usos.
+  - **Formulario de evaluación (`add-specialist-evaluations`, ronda 1):** cada grupo del CVA y la leyenda 1–9 usan ese mecanismo, sin tocar la estructura. **Todas las secciones arrancan plegadas**, como en el MVC, **salvo en una evaluación cerrada (solo lectura), que arranca con todo abierto.**
+  - **Rueda (`refine-flavor-wheel`, feedback):**
+    - Q4 (b): los anillos se dimensionan según el nivel más profundo expandido en cada momento; la rueda se reescala al expandir.
+    - Q5: el control de la lista de notas pasa a ser la cabecera plegable con chevron.
+  - **Facetas (`refine-facet-controls`, filtering), antes del apply de `add-offering-facets`:**
+    - Q1 (F3): ayuda y error bajo las facetas de fila con 0,75rem de padding lateral, alineados con la leyenda. Decidido por el orquestador por delegación de Product owner.
+    - Q2 (F4): al salir del combobox o pulsar Escape con texto abandonado, sin haber elegido nada, el campo vuelve a mostrar la etiqueta elegida.
+  - **Landing D4: cerrado.** La tarjeta muestra la leyenda del nivel según las reglas del MVC (`label-rating-badge`, mergeado).
+- **Por qué:** respuestas de Product owner del 6 oct por la noche; formulario de evaluación del MVC.
+- **Afecta:** add-collapsible-section (nuevo, content-structure), add-specialist-evaluations (ronda 1), refine-flavor-wheel (nuevo, feedback), refine-facet-controls (nuevo, filtering), add-offering-facets y add-offering-management (combobox), add-landing (D4 cerrado).
