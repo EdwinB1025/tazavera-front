@@ -1,0 +1,16 @@
+{
+  "title": "Filtres",
+  "clearAll": "Esborra-ho tot",
+  "removeFilter": "Treu el filtre: {facet}: {value}",
+  "seeMore": "Mostra'n més ({count})",
+  "seeLess": "Mostra'n menys",
+  "any": "Qualsevol",
+  "noOptionMatches": "Cap coincidència",
+  "searching": "Cercant…",
+  "searchFailed": "No s'han pogut carregar els resultats",
+  "optionCount": "Opcions: {count}",
+  "toggleChildren": "Subopcions de {label}",
+  "rangeFrom": "Des de",
+  "rangeTo": "Fins a",
+  "optionsUnavailable": "Opcions no disponibles"
+}

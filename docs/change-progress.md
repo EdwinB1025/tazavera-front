@@ -2,7 +2,7 @@
 
 Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, qué falta y quién lo tiene. Complementa `docs/general-context.md` (contexto y decisiones) y el `handoff.md` de cada cambio (detalle de cada sesión).
 
-**Última actualización:** 2026-10-06 19:20, orquestador (Claude Code).
+**Última actualización:** 2026-10-06 22:45, orquestador (Claude Code), noche autónoma.
 
 ## Cómo se usa
 
@@ -53,18 +53,19 @@ Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, 
 | `extract-offering-list-parts` | content-structure | — (rama borrada) | Merge | Archivado `350792a` (R7 fuera); mergeado `4ccf9b8` | — | — | — | `4ccf9b8` |
 | `extract-page-section` | content-structure | — (rama borrada) | Merge | Archivado `cb8a3b4`; mergeado `fdff5e4` | — | — | — | `fdff5e4` |
 | `fix-button-boundaries` | base-controls | — (rama borrada) | Merge | Verify en la nube sin hallazgos (Chromium: 40px, `border-box`, borde 1px, +2px de ancho). Archivado `3969e50`; mergeado `756c58b` | — | — | — | `756c58b` |
-| `add-evaluation-scales` | form-fields, feedback | `feature/add-evaluation-scales` / `tazavera-front-scales` | Verify | Apply completo en la nube, integrado (`3696411`) | Verify; capturas; navegador de Product owner; archive | Arquitecto (OpenCode) | — | `3696411` |
-| `add-flavor-wheel` | feedback | `feature/add-flavor-wheel` / `tazavera-front-wheel` | Verify | Apply completo en la nube, integrado (`91ad0e4`) | Verify; capturas; navegador de Product owner; archive | Arquitecto (OpenCode) | — | `91ad0e4` |
-| `add-sidebar-slot` | app-shell | `feature/add-sidebar-slot` / `tazavera-front-sidebarslot` | Apply | Apply en la nube integrado hasta `128dd36`; quedan 6.3 y 7.1 | Apply (6.3, 7.1); verify; archive | Build (OpenCode) | — | `128dd36` |
-| `add-facet-controls` | filtering, form-fields | `feature/add-facet-controls` / `tazavera-front-facetctl` | Verify | Apply completo en la nube, integrado (`21ff097`) | Verify; capturas; navegador de Product owner; archive | Arquitecto (OpenCode) | — | `21ff097` |
-| `add-specialist-evaluations` | evaluations | `feature/add-specialist-evaluations` / `tazavera-front-evaluations` | Propose → Apply | Propose `eadf858` | Apply | Build | Merge de scales | `eadf858` |
-| `add-user-account` | user-account, app-shell, auth | `feature/add-user-account` / `tazavera-front-account` | Propose → Apply | Propose `59a3ec1`/`061492e`/`a65058f` (B1/B2 cerrados por el orquestador) | Apply | Build | Merge de scales (`ConfirmDialog`) | `a65058f` |
-| `add-offering-catalog` | offering-catalog, content-structure | `feature/add-offering-catalog` / `tazavera-front-catalog` | Propose → Apply | Propose `ba6f642`/`c9408b4`; sin dividir | Apply | Build | Merge de scales y flavor-wheel | `c9408b4` |
-| `add-offering-management` | offering-management | `feature/add-offering-management` / `tazavera-front-management` | Propose → Apply | Propose `30c878f`; erratas S1–S6 `2121983` | Apply | Build | Merge de scales, sidebar-slot y facet-controls | `2121983` |
+| `add-flavor-wheel` | feedback | `feature/add-flavor-wheel` / `tazavera-front-wheel` | Archive → Merge | Ronda 1 integrada `4186ca9`; prueba del design lead (delegada) OK; fix del botón `f25b478`; archivado `3c3a3ab`. Merge con develop en conflicto aditivo en `openspec/specs/feedback` | Merge de develop en la nube (`trig_01NzH6pqU9a9YVH5RkatxZya`, `claude/add-flavor-wheel-merge`); merge a develop | Claude nube | Q4, Q5 (no bloquean) | `2f7429d` |
+| `add-specialist-evaluations` | evaluations | `feature/add-specialist-evaluations` / `tazavera-front-evaluations` | Verify | Apply 41/42 en la nube, integrado `6e7034c` (1320 tests); falta 10.2 (navegador) | Verify en la nube (`trig_01BFGUxWqToP6iU6WPuaJzxH`); prueba del design lead; archive | Claude nube | — | `6e7034c` |
+| `add-user-account` | user-account, app-shell, auth | `feature/add-user-account` / `tazavera-front-account` | Verify | Apply 17/18 integrado `86edaf0` (1287 tests); verify: 0 CRITICAL, W1 `refreshProfile` frente a un cierre de sesión | Fix en la nube (`trig_01LMPPzZAUJHQauKCiM28MaQ`, `claude/add-user-account-fix`); prueba 9.2 del design lead; archive | Claude nube | — | `86edaf0` |
+| `add-offering-catalog` | offering-catalog, content-structure | `feature/add-offering-catalog` / `tazavera-front-catalog` | Propose → Apply | Artefactos ajustados `30ea60d` (consenso en tarjeta, `fetchOffering` único, constructor de descriptores en entities/taxonomy) | Apply | Claude nube | Merge de flavor-wheel | `30ea60d` |
+| `add-offering-management` | offering-management | `feature/add-offering-management` / `tazavera-front-management` | Apply | `develop` (scales, sidebar-slot, facet-controls) mergeado `cf242d0` | Apply en la nube (`trig_01C4sERVWrEYBk3rNSbbSvsu`, `claude/add-offering-management-apply`) | Claude nube | — | `cf242d0` |
+| `add-public-evaluations` | evaluations, offering-catalog | `feature/add-public-evaluations` / `tazavera-front-pubevals` | Propose → Apply | Resumen aprobado por el orquestador `4d08864`; propose `265cd9d` | Apply | Claude nube | Merge de catalog, specialist-evaluations y evaluation-facets | `265cd9d` |
 | `add-offering-facets` | filtering | `feature/add-offering-facets` / `tazavera-front-offacets` | Propose → Apply | Propose en la nube `360c5bc` | Apply | Build | Merge de catalog, sidebar-slot y facet-controls | `360c5bc` |
 | `add-evaluation-facets` | filtering | `feature/add-evaluation-facets` / `tazavera-front-evfacets` | Propose → Apply | Propose `8b8f0c0` | Apply | Build | Merge de sidebar-slot, facet-controls y specialist-evaluations | `8b8f0c0` |
 | `add-filter-controls` | — | — (rama y worktree borrados) | Sustituido | Dividido por Product owner en sidebar-slot, facet-controls, offering-facets y evaluation-facets | — | — | — | `ea7648c` |
-| `label-rating-badge` | landing | — (rama borrada) | Merge | Archivado `c5d7d00`; mergeado `b1037be` | — | — | — | `b1037be` |
+| `add-facet-controls` | filtering, form-fields | — (rama borrada) | Merge | Verify con arreglos (combobox, coberturas); prueba del design lead (delegada) con F1/F2 arreglados `785c346`/`6b3a8f3`; archivado `e85c529`; mergeado `e85c529` (6 oct, noche), 1352 tests. Q1/Q2 (F3/F4) para Product owner | — | — | Q1, Q2 | `e85c529` |
+| `add-sidebar-slot` | app-shell | — (rama borrada) | Merge | D2 cerrado por el orquestador (`@sidebar/page.tsx` + `[...rest]`); verify sin CRITICAL, W2 cubierto `e5a9298`, W1 diferido; archivado `3124e65`; mergeado `be2fe47` (6 oct, noche), 1223 tests | — | — | — | `be2fe47` |
+| `add-evaluation-scales` | form-fields, feedback | — (rama borrada) | Merge | Verify en la nube sin CRITICAL; W1 cubierto `9546737`; archivado `16aeae5` (arquitecto local); mergeado `39d945c` (6 oct), 1197 tests | — | — | — | `39d945c` |
+| `label-rating-badge` | landing | — (rama borrada) | Merge | Archivado `c5d7d00`; mergeado `b1037be` | — | — | — | `b1037be` |
 | `replace-offering-card-session` | landing | — (rama borrada) | Merge | Archivado `07a1992`; mergeado `68123d0` (6 oct), 1101 tests | — | — | — | `68123d0` |
 | `add-theme-tokens` | theming | — (rama borrada) | Merge | Archivado `e53c808`, mergeado `a3a96e2` | — | — | — | `a3a96e2` |
 | `add-base-control` | base-controls | — (rama borrada) | Merge | Archivado `d492481`, mergeado `c4f70ad` | — | — | — | `c4f70ad` |

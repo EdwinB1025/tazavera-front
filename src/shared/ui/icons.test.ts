@@ -15,6 +15,8 @@ import {
   Check,
   Clock,
   Globe,
+  SlidersHorizontal,
+  X,
   BeanMark,
   type LucideIcon,
 } from "@/shared/ui/icons";
@@ -55,6 +57,14 @@ describe("icon entry point (src/shared/ui/icons.ts)", () => {
     // The language control's globe icon. It is not exported yet, so this test
     // runs and fails until task 2.2 re-exports it beside `ChevronDown`.
     expect(Globe).toBeDefined();
+  });
+
+  it("exports SlidersHorizontal and X (add-facet-controls design.md D10)", () => {
+    // The facet sets' "Filters" trigger icon and the applied-filter chip's
+    // remove icon. They are not exported yet, so this test fails until task
+    // 2.2 re-exports them.
+    expect(SlidersHorizontal).toBeDefined();
+    expect(X).toBeDefined();
   });
 
   it("is the only module under src/ that imports lucide-react", () => {

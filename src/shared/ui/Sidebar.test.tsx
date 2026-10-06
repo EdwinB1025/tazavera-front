@@ -1,19 +1,33 @@
 import { describe, it, expect, afterEach, beforeAll } from "vitest";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
-import NextLink from "next/link";
+import { render, screen, cleanup, fireEvent, act } from "@testing-library/react";
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve as pathResolve } from "node:path";
 import {
   SidebarProvider,
   Sidebar,
-  SidebarMenuButton,
   SidebarTrigger,
+  SIDEBAR_ID,
+  useSidebar,
+  SidebarMenuButton,
 } from "@/shared/ui/Sidebar";
+import { Check } from "@/shared/ui/icons";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
   cleanup();
+  mobile = false;
 });
+
+// matchMedia mock whose viewport can be switched per case; listeners are
+// notified so `useIsMobile` re-reads it. Test infrastructure only.
+let mobile = false;
+const mediaListeners = new Set<() => void>();
+function setMobile(value: boolean) {
+  mobile = value;
+  act(() => {
+    for (const listener of mediaListeners) listener();
+  });
+}
 
 // Test infrastructure only (the Radix measurements and timers jsdom lacks,
 // and matchMedia, which the sidebar reads the md breakpoint through).
@@ -24,11 +38,13 @@ beforeAll(() => {
     disconnect() {}
   };
   window.matchMedia = ((query: string) => ({
-    matches: false,
+    matches: mobile,
     media: query,
     onchange: null,
-    addEventListener: () => {},
-    removeEventListener: () => {},
+    addEventListener: (_: string, listener: () => void) =>
+      mediaListeners.add(listener),
+    removeEventListener: (_: string, listener: () => void) =>
+      mediaListeners.delete(listener),
     addListener: () => {},
     removeListener: () => {},
     dispatchEvent: () => false,
@@ -58,6 +74,110 @@ describe("Sidebar (design.md D6, D11)", () => {
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
     fireEvent.click(toggle);
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("renders a labelled aside expanded on arrival from md (design.md D3, D8)", () => {
+    render(
+      <SidebarProvider>
+        <Sidebar label="Sidebar">Navigation</Sidebar>
+        <SidebarTrigger>Toggle</SidebarTrigger>
+      </SidebarProvider>,
+    );
+    const aside = screen.getByRole("complementary", { name: "Sidebar" });
+    expect(aside.tagName).toBe("ASIDE");
+    expect(aside.id).toBe(SIDEBAR_ID);
+    expect(aside.className).toContain("variant-inverse");
+    expect(
+      screen.getByRole("button", { name: "Toggle" }).getAttribute("aria-expanded"),
+    ).toBe("true");
+  });
+
+  it("is closed on arrival below md and opens as a dialog (design.md D3, D8)", () => {
+    mobile = true;
+    render(
+      <SidebarProvider>
+        <Sidebar label="Sidebar">Navigation</Sidebar>
+        <SidebarTrigger>Toggle</SidebarTrigger>
+      </SidebarProvider>,
+    );
+    expect(screen.queryByRole("dialog")).toBeNull();
+    const toggle = screen.getByRole("button", { name: "Toggle" });
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(toggle);
+    const dialog = screen.getByRole("dialog");
+    expect(dialog.id).toBe(SIDEBAR_ID);
+    const inner = screen.getByText("Navigation");
+    expect(dialog.contains(inner)).toBe(true);
+    expect(inner.className).toContain("variant-inverse");
+    // the mobile toggle leaves the desktop state untouched
+    setMobile(false);
+    expect(screen.getByRole("complementary", { name: "Sidebar" })).toBeDefined();
+    expect(
+      screen.getByRole("button", { name: "Toggle" }).getAttribute("aria-expanded"),
+    ).toBe("true");
+  });
+
+  it("reports whether a sidebar is mounted (design.md D3)", () => {
+    function Probe() {
+      const { present } = useSidebar();
+      return <p>{present ? "present" : "absent"}</p>;
+    }
+    const { rerender } = render(
+      <SidebarProvider>
+        <Probe />
+      </SidebarProvider>,
+    );
+    expect(screen.getByText("absent")).toBeDefined();
+    rerender(
+      <SidebarProvider>
+        <Probe />
+        <Sidebar label="Sidebar">Navigation</Sidebar>
+        <SidebarTrigger>Toggle</SidebarTrigger>
+      </SidebarProvider>,
+    );
+    expect(screen.getByText("present")).toBeDefined();
+    // collapsed from md it renders nothing but stays registered
+    fireEvent.click(screen.getByRole("button", { name: "Toggle" }));
+    expect(screen.queryByRole("complementary")).toBeNull();
+    expect(screen.getByText("present")).toBeDefined();
+    rerender(
+      <SidebarProvider>
+        <Probe />
+      </SidebarProvider>,
+    );
+    expect(screen.getByText("absent")).toBeDefined();
+  });
+
+  it("renders the entry as a button with the hover label (design.md D7)", () => {
+    render(<SidebarMenuButton>Offerings</SidebarMenuButton>);
+    const button = screen.getByRole("button", { name: "Offerings" });
+    expect(button.className).toContain("hover:bg-nav-hover");
+    expect(button.className).toContain("hover:text-nav-text-hover");
+  });
+
+  it("renders the entry as its child link with asChild (design.md D7)", () => {
+    const { container } = render(
+      <SidebarMenuButton asChild isActive icon={Check}>
+        {/* A plain anchor stands for the area's link (task 3.1). */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+        <a href="/es/manage/offerings" aria-current="page">
+          Offerings
+        </a>
+      </SidebarMenuButton>,
+    );
+    expect(screen.queryByRole("button")).toBeNull();
+    const link = screen.getByRole("link", { name: "Offerings" });
+    expect(link.getAttribute("href")).toBe("/es/manage/offerings");
+    expect(link.className).toContain("type-sidebar-item");
+    expect(link.className).toContain("hover:bg-nav-hover");
+    expect(link.className).toContain("hover:text-nav-text-hover");
+    expect(link.getAttribute("data-active")).toBe("true");
+    expect(link.getAttribute("aria-current")).toBe("page");
+    const icon = link.querySelector("svg");
+    expect(icon).not.toBeNull();
+    expect(link.firstChild).toBe(icon);
+    expect(link.lastChild?.textContent).toBe("Offerings");
+    expect(container.firstChild).toBe(link);
   });
 
   it("is remapped to semantic and radius tokens only", () => {
@@ -102,36 +222,5 @@ describe("Sidebar (design.md D6, D11)", () => {
         duplicate,
       );
     }
-  });
-});
-
-describe("SidebarMenuButton link form (add-specialist-evaluations design.md D5)", () => {
-  it("renders its link child as the anchor carrying the menu button's classes", () => {
-    render(
-      <SidebarMenuButton asChild isActive>
-        <NextLink href="/es/manage/evaluations">Mis evaluaciones</NextLink>
-      </SidebarMenuButton>,
-    );
-    const link = screen.getByRole("link", { name: "Mis evaluaciones" });
-    expect(screen.queryByRole("button")).toBeNull();
-    expect(link.getAttribute("href")).toBe("/es/manage/evaluations");
-    expect(link.getAttribute("data-slot")).toBe("sidebar-menu-button");
-    expect(link.getAttribute("data-active")).toBe("true");
-    for (const token of [
-      "type-sidebar-item",
-      "flex",
-      "w-full",
-      "rounded-field",
-      "hover:bg-nav-hover",
-      "focus-visible:focus-ring",
-      "data-[active=true]:bg-nav-current-dark",
-    ]) {
-      expect(link.className.split(/\s+/)).toContain(token);
-    }
-  });
-
-  it("stays a button without asChild", () => {
-    render(<SidebarMenuButton>Entry</SidebarMenuButton>);
-    expect(screen.getByRole("button", { name: "Entry" }).tagName).toBe("BUTTON");
   });
 });

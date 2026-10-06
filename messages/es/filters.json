@@ -1,0 +1,16 @@
+{
+  "title": "Filtros",
+  "clearAll": "Borrar todo",
+  "removeFilter": "Quitar filtro: {facet}: {value}",
+  "seeMore": "Ver más ({count})",
+  "seeLess": "Ver menos",
+  "any": "Cualquiera",
+  "noOptionMatches": "Sin coincidencias",
+  "searching": "Buscando…",
+  "searchFailed": "No se han podido cargar los resultados",
+  "optionCount": "Opciones: {count}",
+  "toggleChildren": "Subopciones de {label}",
+  "rangeFrom": "Desde",
+  "rangeTo": "Hasta",
+  "optionsUnavailable": "Opciones no disponibles"
+}

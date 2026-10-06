@@ -325,3 +325,50 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Datos de ejemplo:** `migrate:fresh --seed` recrea el cliente OAuth del front, así que hay que actualizar `NEXT_PUBLIC_OAUTH_CLIENT_ID` en cada `.env.local` después de sembrar.
 - **Por qué:** respuestas de Product owner del 6 oct.
 - **Afecta:** add-public-evaluations, add-offering-catalog (pestaña provisional y botón), toda prueba en navegador con datos (ahora hay ofertas verificadas).
+
+### 2026-10-06 — add-public-evaluations aprobado y piezas compartidas (decidido por el orquestador en ausencia de Product owner)
+- **Decisión:**
+  - **Resumen de `add-public-evaluations` aprobado** con todas las recomendaciones del design lead:
+    - el botón "Ver evaluaciones" y la pestaña provisional van en este cambio, no en uno aparte, como dijo Product owner;
+    - faceta de oferta como lista de opción ("Cualquiera" + la oferta activa);
+    - la tarjeta de fila pasa a `src/widgets/evaluation-row`;
+    - las facetas públicas amplían `features/evaluation-facets`;
+    - descriptores como chips; una evaluación abierta abierta por URL da 404; la baseline más reciente primero; sin entrada en la cabecera; "Ver evaluaciones" como enlace simple, siempre visible.
+  - **`fetchOffering` único:** catalog (D3, lanza error) y specialist-evaluations (D1, `publicRequest` con encontrado / no encontrado / fallo) crean el mismo `src/entities/offering/api/offering.ts`. Vale una sola función con el contrato de D1. El segundo cambio que se mergee adapta su llamada.
+  - **Constructor de filas de descriptores:** el primer cambio que lo aplique (catalog D13 o specialist-evaluations D7) lo deja en `src/entities/taxonomy`, y el otro lo reutiliza.
+  - **Contraste en el consenso de catalog:** la puntuación sobre el fondo de sección da 4,38:1 en el nivel comercial del tema tradicional (medida del design lead). Se corrige sin token nuevo, poniendo esa fila dentro de una tarjeta. Pasa al arquitecto de catalog antes de su apply.
+- **Por qué:** mandato nocturno de Product owner; informe del design lead del 6 oct; regla de reutilizar (criterio C).
+- **Afecta:** add-public-evaluations, add-offering-catalog (D3, D13, contraste del consenso), add-specialist-evaluations (D1, D7), add-evaluation-facets (facetas públicas).
+
+### 2026-10-06 — secciones plegables, rueda y facetas (respuestas de Product owner)
+- **Decisión:**
+  - **Mecanismo compartido de sección plegable:** se toma del formulario de evaluación del MVC (`evaluation-axis.blade.php`, `evaluation-form.blade.php`).
+    - La cabecera es un botón que ocupa todo el ancho: título a la izquierda y chevron a la derecha (abajo plegado, arriba abierto).
+    - Lleva `aria-expanded` y `aria-controls`, foco visible y animación de apertura.
+    - Va en `shared/ui` (content-structure, "collapsible"), en un cambio propio, `add-collapsible-section`, antes que sus usos.
+  - **Formulario de evaluación (`add-specialist-evaluations`, ronda 1):** cada grupo del CVA y la leyenda 1–9 usan ese mecanismo, sin tocar la estructura. **Todas las secciones arrancan plegadas**, como en el MVC, **salvo en una evaluación cerrada (solo lectura), que arranca con todo abierto.**
+  - **Rueda (`refine-flavor-wheel`, feedback):**
+    - Q4 (b): los anillos se dimensionan según el nivel más profundo expandido en cada momento; la rueda se reescala al expandir.
+    - Q5: el control de la lista de notas pasa a ser la cabecera plegable con chevron.
+  - **Facetas (`refine-facet-controls`, filtering), antes del apply de `add-offering-facets`:**
+    - Q1 (F3): ayuda y error bajo las facetas de fila con 0,75rem de padding lateral, alineados con la leyenda. Decidido por el orquestador por delegación de Product owner.
+    - Q2 (F4): al salir del combobox o pulsar Escape con texto abandonado, sin haber elegido nada, el campo vuelve a mostrar la etiqueta elegida.
+  - **Landing D4: cerrado.** La tarjeta muestra la leyenda del nivel según las reglas del MVC (`label-rating-badge`, mergeado).
+- **Por qué:** respuestas de Product owner del 6 oct por la noche; formulario de evaluación del MVC.
+- **Afecta:** add-collapsible-section (nuevo, content-structure), add-specialist-evaluations (ronda 1), refine-flavor-wheel (nuevo, feedback), refine-facet-controls (nuevo, filtering), add-offering-facets y add-offering-management (combobox), add-landing (D4 cerrado).
+
+### 2026-10-06 — contactos y locales (respuestas de Product owner)
+- **Decisión:**
+  - **API, cambio `add-contacts-and-locations`** (rama `feature/add-contacts-and-locations` desde `dev`; el orquestador mergea a `dev` y `PROD` y actualiza documentación y tipos):
+    - `GET` y `POST /users/{user}/contacts`: un solo contacto principal por usuario, `409` si ya existe; solo para el propio usuario.
+    - `GET /users/{user}/locations`: solo el propio usuario.
+    - `POST /locations`: rol `coffeeshop`; local y contacto en una transacción.
+    - **Todos autenticados**: los datos solo se muestran a usuarios autenticados, como parte del perfil.
+    - Migración: `latitud`, `longitud` y `description` pasan a ser opcionales.
+    - Factories con direcciones reales de Barcelona.
+  - **Coordenadas:** las calcula **el front** con una librería de geocodificación a partir de la dirección, y las envía en `latitud`/`longitud`. El API no geocodifica.
+  - **Registro de cafetería:** como los endpoints son autenticados, el local no se envía en `POST /register`. La cafetería completa su local en el perfil tras su primer inicio de sesión, igual que la sección de contacto: si no hay datos, mensaje y botón que abre el formulario en la misma vista.
+  - **Front:** `add-user-contact` (sección de contacto en el perfil) y `add-coffeeshop-location` (local de la cafetería en el perfil, con geocodificación).
+- **Pendiente:** la geocodificación en el navegador llama a un servicio externo, lo que exige abrir `connect-src` de la CSP (seguridad: decisión de Product owner).
+- **Por qué:** respuestas de Product owner del 6 oct por la noche.
+- **Afecta:** add-user-account (perfil), add-user-contact, add-coffeeshop-location, la CSP de app-shell.

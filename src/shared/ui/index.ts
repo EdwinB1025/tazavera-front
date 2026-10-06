@@ -30,6 +30,7 @@ export type {
   RadioGroupVariant,
   RadioOption,
 } from "./RadioGroup";
+export type { ControlPresentation } from "./facet-row";
 export { BeanScale } from "./BeanScale";
 export type { BeanScaleProps, BeanScaleSize } from "./BeanScale";
 export { IntensitySlider } from "./IntensitySlider";
@@ -73,22 +74,9 @@ export {
   SheetTitle,
   SheetFooter,
 } from "./Sheet";
-export {
-  SidebarProvider,
-  Sidebar,
-  SidebarTrigger,
-  SidebarInset,
-  SidebarHeader,
-  SidebarFooter,
-  SidebarContent,
-  SidebarSeparator,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-} from "./Sidebar";
+// The whole Sidebar module (its parts, `useSidebar` and `SIDEBAR_ID`):
+// re-exported as a set so this server-safe entry names no hook itself.
+export * from "./Sidebar";
 export { Card, CardAside, CardContent, CardFooter } from "./Card";
 export type {
   CardLayout,
@@ -104,3 +92,36 @@ export { Pagination } from "./Pagination";
 export type { PaginationProps, PaginationTexts } from "./Pagination";
 export { PageSection } from "./PageSection";
 export type { PageSectionProps, PageSectionSurface } from "./PageSection";
+export { FilterChip } from "./FilterChip";
+export type { FilterChipProps } from "./FilterChip";
+export { FacetPanel } from "./FacetPanel";
+export type {
+  AppliedFilter,
+  FacetPanelProps,
+  FacetPanelTexts,
+} from "./FacetPanel";
+export { FacetTextField } from "./FacetTextField";
+export type { FacetTextFieldProps } from "./FacetTextField";
+export { SeeMoreButton } from "./SeeMoreButton";
+export type { SeeMoreButtonProps, SeeMoreTexts } from "./SeeMoreButton";
+export { FacetRadioList } from "./FacetRadioList";
+export type { FacetOption, FacetRadioListProps } from "./FacetRadioList";
+export { FacetCascade } from "./FacetCascade";
+export type {
+  CascadeOption,
+  FacetCascadeProps,
+  FacetCascadeTexts,
+} from "./FacetCascade";
+export { ScoreRangeFacet } from "./ScoreRangeFacet";
+export type {
+  ScoreRange,
+  ScoreRangeFacetProps,
+  ScoreRangeTexts,
+} from "./ScoreRangeFacet";
+export { Combobox } from "./Combobox";
+export type {
+  ComboboxOption,
+  ComboboxProps,
+  ComboboxSearch,
+  ComboboxTexts,
+} from "./Combobox";
