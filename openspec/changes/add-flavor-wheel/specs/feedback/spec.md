@@ -21,6 +21,10 @@ The system SHALL present an offering's aromatic consensus as an interactive flav
 - **WHEN** the notes render
 - **THEN** each root's span is proportional to its `count` over the sum of the root counts, each child's span is proportional to its `count` among its siblings and fills the parent's span, and a single note draws the full ring
 
+#### Scenario: Segments separated by a gap
+- **WHEN** the notes render
+- **THEN** a visible gap in the card colour separates each segment from its neighbours and from the next ring
+
 #### Scenario: Consensus legend
 - **WHEN** a note renders in the wheel or in the note list
 - **THEN** its visible legend is its `count` over the `evaluationCount` total, for example `4/5`
@@ -41,9 +45,13 @@ The system SHALL present an offering's aromatic consensus as an interactive flav
 - **WHEN** a segment or a swatch renders for a note
 - **THEN** it carries the note's taxonomy colour with the depth opacity and the white/black label rule the "Taxonomy badge" requirement states, and its labels keep the contrast "Badge label contrast" states
 
-#### Scenario: Labels only where they fit
-- **WHEN** a segment is too narrow or too short for its label
-- **THEN** the wheel draws no label for that note, with no ellipsis, and the note stays reachable in the note list
+#### Scenario: Every segment carries an arched label
+- **WHEN** a segment renders
+- **THEN** its label follows the curve of the segment along its outer edge, with its name and, where it fits, its legend
+
+#### Scenario: Name shown on activation when it cannot fit
+- **WHEN** a segment is too narrow for its name even when arched
+- **THEN** the wheel shows that note's name only while the note is active, never truncated with an ellipsis and never in a smaller font, and the note stays reachable in the note list
 
 #### Scenario: Unresolved or colourless notes are skipped
 - **WHEN** a note's reference matches no taxonomy or its taxonomy carries no colour
@@ -65,7 +73,7 @@ The system SHALL present an offering's aromatic consensus as an interactive flav
 The wheel SHALL carry a text alternative that is a note list structured as a tree: one row per visible note in wheel order, each carrying the note's name, a colour swatch and its `count` over the `evaluationCount` total, with its accessible name combining the note's name and its consensus legend. The list SHALL be operable by keyboard through a single tab stop, parents SHALL expose whether they are expanded, and colour SHALL never be the only carrier of meaning.
 
 #### Scenario: Every note is reachable
-- **WHEN** a segment is too narrow or too short for its label
+- **WHEN** a segment is too narrow to show its name at rest
 - **THEN** its note's row in the list still carries the name, the swatch and the legend
 
 #### Scenario: Keyboard navigation
@@ -77,7 +85,7 @@ The wheel SHALL carry a text alternative that is a note list structured as a tre
 - **THEN** its expansion toggles and its note's segments follow in the wheel
 
 #### Scenario: One tab stop
-- **WHEN** the viewer tabs into the list
+- **WHEN** the viewer tabs into the expanded list
 - **THEN** focus lands on the last active note's row, or on the first row before any interaction, and the whole list is one tab stop
 
 #### Scenario: Escape returns to the centre
@@ -91,3 +99,14 @@ The wheel SHALL carry a text alternative that is a note list structured as a tre
 #### Scenario: Activation without moving focus
 - **WHEN** the viewer clicks or taps a segment or a row
 - **THEN** its note becomes active and the list's active row without moving focus
+
+### Requirement: Flavor wheel note list disclosure
+The note list SHALL be collapsed by default behind a visible expand control that exposes whether the list is expanded and which list it controls. Only the note list SHALL collapse: the description panel SHALL never collapse and stays beside the wheel.
+
+#### Scenario: Note list collapsed at first
+- **WHEN** the wheel first renders with resolved notes
+- **THEN** the note list is collapsed, its expand control shows collapsed, and the wheel and the description panel show
+
+#### Scenario: Expanding and collapsing the note list
+- **WHEN** the viewer activates the note list's expand control
+- **THEN** the note list toggles between expanded and collapsed and the control exposes the new state, while the description panel stays shown

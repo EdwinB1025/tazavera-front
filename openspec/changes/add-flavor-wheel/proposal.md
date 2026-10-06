@@ -10,7 +10,7 @@ The offering detail's Consensus tab replaces its taste-profile tree with an inte
 - **A text alternative of the wheel**: a keyboard-operable note list (WAI-ARIA APG Tree View pattern) with name, colour swatch and `n/total` per note, so colour is never the only carrier and every note is reachable even when its segment is too small for a label. Escape collapses everything back to the centre and returns focus to the outer note.
 - **The data mapping** from the API to the wheel: a pure helper `buildFlavorWheelNodes` in `src/entities/taxonomy`, plus a localized `description` added to the taxonomy lookup it resolves through. Unresolved references (and empty-colour nodes) are skipped with their subtrees.
 - **One shared taxonomy colour rule**: the badge's data-colour rule (depth opacities and the white/black label choice) is extracted from `Badge.tsx` into one shared helper consumed by the badge, the wheel's segments and its swatches. No visible change: the badge's rendered output and `Badge.test.tsx` stay exactly as they are.
-- **Specification**: `feedback` gains the requirements "Flavor wheel" (sunburst, legends, description panel, states) and "Flavor wheel note list" (text alternative, keyboard tree pattern, Escape) with their scenarios.
+- **Specification**: `feedback` gains the requirements "Flavor wheel" (sunburst, legends, description panel, states) "Flavor wheel note list" (text alternative, keyboard tree pattern, Escape) and "Flavor wheel note list disclosure" (the list collapsed by default behind an expand control; review round 1) with their scenarios.
 
 No breaking changes: nothing already rendered changes; the lookup's new `description` field is additive and no generated API type is edited or redefined.
 
@@ -22,7 +22,7 @@ None.
 
 ### Modified Capabilities
 
-- `feedback`: adds the requirements "Flavor wheel" and "Flavor wheel note list" with their scenarios. The wheel's segment and label colours follow the same taxonomy colour treatment the existing "Taxonomy badge" and "Badge label contrast" requirements state; those two and the other existing requirements (Badge presentation, Rating badge, Verification status badge, Shared chip geometry) keep their meaning unchanged.
+- `feedback`: adds the requirements "Flavor wheel", "Flavor wheel note list" and "Flavor wheel note list disclosure" with their scenarios. The wheel's segment and label colours follow the same taxonomy colour treatment the existing "Taxonomy badge" and "Badge label contrast" requirements state; those two and the other existing requirements (Badge presentation, Rating badge, Verification status badge, Shared chip geometry) keep their meaning unchanged.
 
 ## Out of Scope (non-goals)
 
