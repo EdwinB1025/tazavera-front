@@ -17,5 +17,5 @@
 
 ## 4. Integration verification
 
-- [ ] 4.1 Verify the complete change per design.md D9 and design-summary §6: `npm run test:run`, `npm run lint` and `npx tsc --noEmit` all exit 0 with no test removed or weakened; every guard stays green (`client-boundary`, `color-guard`, `focus-guard`, `xss-guard`, `catalog-guard`, `radius-guard`); and `src/shared/api/schema.ts` and `contracts/openapi.yaml` are untouched
+- [x] 4.1 Verify the complete change per design.md D9 and design-summary §6: `npm run test:run`, `npm run lint` and `npx tsc --noEmit` all exit 0 with no test removed or weakened; every guard stays green (`client-boundary`, `color-guard`, `focus-guard`, `xss-guard`, `catalog-guard`, `radius-guard`); and `src/shared/api/schema.ts` and `contracts/openapi.yaml` are untouched
 - [ ] 4.2 Visual reference of design-summary §12, taken by the orchestrator (Product owner, 2026-10-06: the Build has no browser): the landing `/es` at 375px and 1280px on `develop` and on this branch, saved as `docs/design/extract-offering-list-parts/captures/es-{375,1280}-{develop,branch}.png`, with the result of comparing each pair recorded in the handoff. The Build checks this task off when the four files exist and the handoff records that each pair matches; it changes no other file
