@@ -1,4 +1,4 @@
-Status: draft — pending Product owner review
+Status: withdrawn — Product owner, 2026-10-06: the public view of evaluations is the "Top rated" offerings list (add-offering-catalog: verified offerings ordered by score); a specialist's public page is out of the current scope. Kept for reference only; no propose.
 
 # Design summary — add-public-evaluations
 
