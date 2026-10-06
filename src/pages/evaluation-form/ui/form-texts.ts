@@ -61,6 +61,10 @@ export function formTextsFrom(catalog: MessageCatalog): EvaluationFormTexts {
       unsetScore: catalog.unsetScore,
       completeLabel: catalog.completeLabel,
       incompleteLabel: catalog.incompleteLabel,
+      addNoteLabel: catalog.addNoteLabel,
+      removeNoteLabel: catalog.removeNoteLabel,
+      noteLabel: catalog.noteLabel,
+      extrinsicNoteLabel: catalog.extrinsicNoteLabel,
     },
   };
 }

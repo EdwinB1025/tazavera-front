@@ -62,6 +62,10 @@ export const FORM_TEXTS: EvaluationFormTexts = {
     unsetScore: "–",
     completeLabel: "Complete",
     incompleteLabel: "Incomplete",
+    addNoteLabel: "Add note",
+    removeNoteLabel: "Remove note",
+    noteLabel: "Note",
+    extrinsicNoteLabel: "General observation",
   },
 };
 

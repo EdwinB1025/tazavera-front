@@ -67,5 +67,9 @@
   "blockAromatics": "Aromàtics",
   "blockMainTastes": "Gustos bàsics",
   "blockMouthfeel": "Descriptors de cos",
-  "blockDefects": "Defectes"
+  "blockDefects": "Defectes",
+  "addNoteLabel": "Afegir nota",
+  "removeNoteLabel": "Eliminar nota",
+  "noteLabel": "Nota",
+  "extrinsicNoteLabel": "Observació general"
 }

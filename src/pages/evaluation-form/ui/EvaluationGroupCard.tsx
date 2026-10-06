@@ -14,6 +14,7 @@ import { BeanScale, Card, CardAside, CardContent, IntensitySlider } from "@/shar
 import { ChevronDown } from "@/shared/ui/icons";
 import { cn } from "@/shared/lib/utils";
 import { CompletenessIndicator } from "./CompletenessIndicator";
+import { NoteField } from "./NoteField";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -33,6 +34,12 @@ export type EvaluationGroupTexts = {
   unsetScore: string;
   completeLabel: string;
   incompleteLabel: string;
+  addNoteLabel: string;
+  removeNoteLabel: string;
+  /** The note field's label, followed by the axis name. */
+  noteLabel: string;
+  /** The label of the Extrinsic group's notes field. */
+  extrinsicNoteLabel: string;
 };
 
 export type FormStateUpdate = (update: (state: EvaluationFormState) => EvaluationFormState) => void;
@@ -175,6 +182,43 @@ export function EvaluationGroupCard({
     );
   };
 
+  // In a part with two axes the "Add note" text names its axis.
+  const note = (part: "descriptive" | "affective", axis: AxisKey, pair: boolean) => {
+    const label = `${texts.noteLabel} (${texts.axisLabels[axis]})`;
+    const value =
+      part === "descriptive"
+        ? state.descriptive[axis as DescriptiveAxisKey].note
+        : state.affective[axis].note;
+    return (
+      <NoteField
+        key={`${part}-${axis}-note`}
+        label={label}
+        addLabel={pair ? `${texts.addNoteLabel} (${texts.axisLabels[axis]})` : texts.addNoteLabel}
+        removeLabel={texts.removeNoteLabel}
+        value={value}
+        onChange={(next) =>
+          onChange((current) =>
+            part === "descriptive"
+              ? {
+                  ...current,
+                  descriptive: {
+                    ...current.descriptive,
+                    [axis]: { ...current.descriptive[axis as DescriptiveAxisKey], note: next },
+                  },
+                }
+              : {
+                  ...current,
+                  affective: {
+                    ...current.affective,
+                    [axis]: { ...current.affective[axis], note: next },
+                  },
+                },
+          )
+        }
+      />
+    );
+  };
+
   const both = group.descriptive !== null && group.affective !== null;
   const blocks = (part: { blocks: BlockDefinition[] }) =>
     renderBlock
@@ -224,6 +268,9 @@ export function EvaluationGroupCard({
                 <div className={PANEL_CLASSES}>{group.descriptive.axes.map(intensity)}</div>
               ) : null}
               {blocks(group.descriptive)}
+              {group.descriptive.axes.map((axis) =>
+                note("descriptive", axis, group.descriptive!.axes.length > 1),
+              )}
             </div>
           ) : null}
           {group.affective ? (
@@ -233,6 +280,22 @@ export function EvaluationGroupCard({
                 <div className={PANEL_CLASSES}>{group.affective.axes.map(preference)}</div>
               ) : null}
               {blocks(group.affective)}
+              {group.affective.axes.map((axis) =>
+                note("affective", axis, group.affective!.axes.length > 1),
+              )}
+            </div>
+          ) : null}
+          {group.notes === "generalObservation" ? (
+            <div data-part="notes" className={PART_CLASSES}>
+              <NoteField
+                label={texts.extrinsicNoteLabel}
+                addLabel={texts.addNoteLabel}
+                removeLabel={texts.removeNoteLabel}
+                value={state.generalObservation}
+                onChange={(next) =>
+                  onChange((current) => ({ ...current, generalObservation: next }))
+                }
+              />
             </div>
           ) : null}
         </div>
