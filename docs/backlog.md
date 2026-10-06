@@ -57,3 +57,14 @@ One section per candidate, in this format:
 - **Open decision (Augusto):** keep it inside `src/features/auth` or move it to `src/shared/lib/i18n`
 - **Status:** proposed
 - **Affects:** `add-auth`
+
+## R8 — Map 422 validation errors to their fields (decisions log 2026-10-06, "escrituras, rutas protegidas y 422")
+
+- **Duplicated:** none yet; every form shows one generic form-level error for any 422
+- **Where today:** the forms of `add-user-account`, `add-offering-management` and `add-specialist-evaluations` (planned)
+- **Why it pays off now:** the API returns per-field messages, but the contract documents no 422 body; once Scribe documents it, each form can show the message under its `Field`
+- **Owning capability:** form-fields (shared mapping), consumed by each form
+- **Proposed change:** none yet — needs the 422 response documented in the API (Product owner)
+- **Open decision (Augusto):** document the 422 body in the API, then schedule the change
+- **Status:** proposed
+- **Affects:** `add-user-account`, `add-offering-management`, `add-specialist-evaluations`
