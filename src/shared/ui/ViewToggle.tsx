@@ -58,7 +58,7 @@ export function ViewToggle({ label, value, items, onValueChange }: ViewTogglePro
       className={GROUP_CLASSES}
     >
       {items.map(({ value: itemValue, label: itemLabel, icon: Icon }) => (
-        <ToggleGroupItem key={itemValue} value={itemValue} className={ITEM_CLASSES}>
+        <ToggleGroupItem key={itemValue} value={itemValue} data-view={itemValue} className={ITEM_CLASSES}>
           <Icon className="size-4" aria-hidden="true" />
           {itemLabel}
         </ToggleGroupItem>

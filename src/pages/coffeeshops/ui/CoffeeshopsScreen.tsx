@@ -12,6 +12,8 @@ import { OfferingSkeletonCard } from "@/widgets/offering-list";
 import {
   COFFEESHOP_COLUMN_CLASSES,
   Coffeeshops,
+  CoffeeshopsViewToggle,
+  type CoffeeshopListMapTexts,
   buildCoffeeshopsQuery,
   type CoffeeshopListTexts,
   type CoffeeshopsQuery,
@@ -23,8 +25,6 @@ export type CoffeeshopsScreenProps = {
   locale: string;
   /** The route's raw search params; only the contract's names are requested. */
   searchParams: CoffeeshopsQuery;
-  /** The view control of the toolbar (design.md D13); none until the map slice. */
-  viewSlot?: ReactNode;
 };
 
 // The heading block and the toolbar, 2rem apart.
@@ -34,6 +34,10 @@ const HEADING_BLOCK_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
 
 const SKELETON_CARD_KEYS = [0, 1, 2] as const;
 
+function firstValue(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
+
 /**
  * The coffee shop directory screen (add-coffeeshop-directory design.md D7;
  * specs "Directory heading and results column" and "Coffee shop directory
@@ -41,7 +45,7 @@ const SKELETON_CARD_KEYS = [0, 1, 2] as const;
  * the list inside a `Suspense` boundary whose fallback is three skeleton cards
  * in the directory column.
  */
-export function CoffeeshopsScreen({ locale, searchParams, viewSlot }: CoffeeshopsScreenProps): ReactNode {
+export function CoffeeshopsScreen({ locale, searchParams }: CoffeeshopsScreenProps): ReactNode {
   const coffeeshops = getMessages("coffeeshops", locale);
   const landing = getMessages("landing", locale);
   const filters = getMessages("filters", locale);
@@ -63,7 +67,24 @@ export function CoffeeshopsScreen({ locale, searchParams, viewSlot }: Coffeeshop
     resultCount: catalog.resultCount,
     noMatches: filters.noMatches,
     clearAll: filters.clearAll,
+    showOnMapLabel: coffeeshops.showOnMapLabel,
   };
+  const mapTexts: CoffeeshopListMapTexts = {
+    mapLabel: coffeeshops.mapLabel,
+    mapHelp: coffeeshops.mapHelp,
+    mapEmpty: coffeeshops.mapEmpty,
+    unlocatedCount: coffeeshops.unlocatedCount,
+    zoomIn: coffeeshops.zoomIn,
+    zoomOut: coffeeshops.zoomOut,
+    closePanel: coffeeshops.closePanel,
+    viewCoffeeshop: coffeeshops.viewCoffeeshop,
+    osmAttribution: coffeeshops.osmAttribution,
+    osmContributors: coffeeshops.osmContributors,
+    backToList: coffeeshops.backToList,
+    mapLoading: coffeeshops.mapLoading,
+  };
+  const view = firstValue(searchParams.view) === "map" ? "map" : undefined;
+  const focus = firstValue(searchParams.focus);
   const query = sanitizeCoffeeshopQuery(buildCoffeeshopsQuery(searchParams));
 
   return (
@@ -78,7 +99,15 @@ export function CoffeeshopsScreen({ locale, searchParams, viewSlot }: Coffeeshop
           count={applied.length}
           sort={values.sort}
           texts={filterTexts}
-          viewSlot={viewSlot}
+          viewSlot={
+            <CoffeeshopsViewToggle
+              texts={{
+                viewToggleLabel: coffeeshops.viewToggleLabel,
+                viewList: coffeeshops.viewList,
+                viewMap: coffeeshops.viewMap,
+              }}
+            />
+          }
         />
       </PageSection>
       <PageSection surface="page">
@@ -91,7 +120,15 @@ export function CoffeeshopsScreen({ locale, searchParams, viewSlot }: Coffeeshop
             </div>
           }
         >
-          <Coffeeshops locale={locale} query={query} filtered={applied.length > 0} texts={texts} />
+          <Coffeeshops
+            locale={locale}
+            query={query}
+            filtered={applied.length > 0}
+            view={view}
+            focus={focus}
+            texts={texts}
+            mapTexts={mapTexts}
+          />
         </Suspense>
       </PageSection>
     </div>

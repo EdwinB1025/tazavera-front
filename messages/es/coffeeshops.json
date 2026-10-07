@@ -23,5 +23,21 @@
   "tabLocations": "Ubicaciones",
   "detailError": "No se pudo cargar la cafetería.",
   "locationNoMap": "Sin posición en el mapa",
-  "metaDescription": "Directorio de cafeterías de especialidad."
+  "metaDescription": "Directorio de cafeterías de especialidad.",
+  "viewToggleLabel": "Vista",
+  "viewList": "Lista",
+  "viewMap": "Mapa",
+  "showOnMapLabel": "Ver {name} en el mapa",
+  "mapLabel": "Mapa de cafeterías",
+  "mapHelp": "Muévete con las flechas y acerca con + / −. La lista muestra la misma información.",
+  "mapEmpty": "Ninguna de estas cafeterías tiene ubicación en el mapa.",
+  "unlocatedCount": "{count} ubicaciones sin posición en el mapa",
+  "zoomIn": "Acercar",
+  "zoomOut": "Alejar",
+  "closePanel": "Cerrar",
+  "viewCoffeeshop": "Ver cafetería",
+  "osmAttribution": "© {link}",
+  "osmContributors": "OpenStreetMap contributors",
+  "backToList": "Volver a la lista",
+  "mapLoading": "Cargando el mapa…"
 }

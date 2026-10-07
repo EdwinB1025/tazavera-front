@@ -23,5 +23,21 @@
   "tabLocations": "Ubicacions",
   "detailError": "No s'ha pogut carregar la cafeteria.",
   "locationNoMap": "Sense posició al mapa",
-  "metaDescription": "Directori de cafeteries d'especialitat."
+  "metaDescription": "Directori de cafeteries d'especialitat.",
+  "viewToggleLabel": "Vista",
+  "viewList": "Llista",
+  "viewMap": "Mapa",
+  "showOnMapLabel": "Mostra {name} al mapa",
+  "mapLabel": "Mapa de cafeteries",
+  "mapHelp": "Mou-te amb les fletxes i apropa amb + / −. La llista mostra la mateixa informació.",
+  "mapEmpty": "Cap d'aquestes cafeteries té ubicació al mapa.",
+  "unlocatedCount": "{count} ubicacions sense posició al mapa",
+  "zoomIn": "Apropa",
+  "zoomOut": "Allunya",
+  "closePanel": "Tanca",
+  "viewCoffeeshop": "Veure la cafeteria",
+  "osmAttribution": "© {link}",
+  "osmContributors": "OpenStreetMap contributors",
+  "backToList": "Torna a la llista",
+  "mapLoading": "Carregant el mapa…"
 }

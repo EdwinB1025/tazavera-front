@@ -1,9 +1,11 @@
 import type { ReactNode } from "react";
 import type { CoffeeshopsPageMeta, CoffeeshopSummary } from "@/shared/api";
-import { CoffeeshopCard, type CoffeeshopCardTexts } from "@/entities/coffeeshop";
+import { CoffeeshopCard, hasLocatedLocation, type CoffeeshopCardTexts } from "@/entities/coffeeshop";
 import { COFFEESHOP_CLEAR_KEEP } from "@/features/coffeeshop-facets";
 import { ClearFiltersButton, Pagination, RetryButton, type PaginationTexts } from "@/shared/ui";
 import { COFFEESHOP_COLUMN_CLASSES } from "../lib/column";
+import { CoffeeshopsMapView, type CoffeeshopsMapTexts } from "./CoffeeshopsMapView";
+import { ShowOnMapButton } from "./ShowOnMapButton";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -16,7 +18,12 @@ export type CoffeeshopListTexts = CoffeeshopCardTexts &
     resultCount: string;
     noMatches: string;
     clearAll: string;
+    /** "Show {name} on the map" (design.md D13). */
+    showOnMapLabel: string;
   };
+
+/** The map view's texts besides the pagination's (design.md D13). */
+export type CoffeeshopListMapTexts = Omit<CoffeeshopsMapTexts, "previousLabel" | "nextLabel">;
 
 /** The fetch result, mapped before it reaches this view (design.md D7). */
 export type CoffeeshopListResult =
@@ -31,7 +38,13 @@ export type CoffeeshopListProps = {
   query: Record<string, string>;
   /** At least one coffee shop filter is applied: the empty state is "no matches" (design.md D6). */
   filtered?: boolean;
+  /** The address's view: the map replaces the cards of a non-empty page (design.md D13). */
+  view?: "map";
+  /** The address's `focus` (design.md D13). */
+  focus?: string;
   texts: CoffeeshopListTexts;
+  /** Needed for the map view only. */
+  mapTexts?: CoffeeshopListMapTexts;
 };
 
 // The column, then the pagination 2rem below it.
@@ -52,12 +65,10 @@ function pagingQuery(query: Record<string, string>): Record<string, string> {
  * the error message with the retry action. Every text arrives as a prop.
  */
 export function CoffeeshopList({
-  result,
-  locale,
-  query,
   filtered = false,
-  texts,
+  ...props
 }: CoffeeshopListProps): ReactNode {
+  const { result, texts } = props;
   const total = result.state === "success" ? (result.meta.total ?? 0) : 0;
   return (
     <div className={BLOCK_CLASSES}>
@@ -66,7 +77,7 @@ export function CoffeeshopList({
           {texts.resultCount.replace("{count}", String(total))}
         </div>
       ) : null}
-      <CoffeeshopListBody result={result} locale={locale} query={query} filtered={filtered} texts={texts} />
+      <CoffeeshopListBody {...props} filtered={filtered} />
     </div>
   );
 }
@@ -76,7 +87,10 @@ function CoffeeshopListBody({
   locale,
   query,
   filtered,
+  view,
+  focus,
   texts,
+  mapTexts,
 }: CoffeeshopListProps): ReactNode {
   if (result.state === "empty") {
     return filtered ? (
@@ -98,12 +112,34 @@ function CoffeeshopListBody({
   }
   const currentPage = result.meta.current_page ?? 1;
   const lastPage = result.meta.last_page ?? currentPage;
+  if (view === "map" && mapTexts) {
+    return (
+      <CoffeeshopsMapView
+        items={result.items}
+        currentPage={currentPage}
+        lastPage={lastPage}
+        locale={locale}
+        query={query}
+        focus={focus}
+        texts={{ ...mapTexts, previousLabel: texts.previousLabel, nextLabel: texts.nextLabel }}
+      />
+    );
+  }
   return (
     <>
       <ul className={COFFEESHOP_COLUMN_CLASSES}>
         {result.items.map((coffeeshop, index) => (
           <li key={coffeeshop.ulid ?? index}>
-            <CoffeeshopCard coffeeshop={coffeeshop} locale={locale} texts={texts} />
+            <CoffeeshopCard
+              coffeeshop={coffeeshop}
+              locale={locale}
+              texts={texts}
+              actions={
+                hasLocatedLocation(coffeeshop) ? (
+                  <ShowOnMapButton ulid={coffeeshop.ulid ?? ""} name={coffeeshop.name ?? ""} label={texts.showOnMapLabel} />
+                ) : undefined
+              }
+            />
           </li>
         ))}
       </ul>

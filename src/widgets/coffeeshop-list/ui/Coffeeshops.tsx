@@ -1,6 +1,11 @@
 import type { ReactNode } from "react";
 import { fetchCoffeeshops } from "../api/coffeeshops";
-import { CoffeeshopList, type CoffeeshopListResult, type CoffeeshopListTexts } from "./CoffeeshopList";
+import {
+  CoffeeshopList,
+  type CoffeeshopListMapTexts,
+  type CoffeeshopListResult,
+  type CoffeeshopListTexts,
+} from "./CoffeeshopList";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -10,7 +15,10 @@ export type CoffeeshopsProps = {
   query: Record<string, string>;
   /** At least one coffee shop filter is applied (design.md D6). */
   filtered?: boolean;
+  view?: "map";
+  focus?: string;
   texts: CoffeeshopListTexts;
+  mapTexts?: CoffeeshopListMapTexts;
 };
 
 /**
@@ -18,7 +26,7 @@ export type CoffeeshopsProps = {
  * fetch and its mapping into success, empty or error; every branch is the sync
  * presentation's.
  */
-export async function Coffeeshops({ locale, query, filtered, texts }: CoffeeshopsProps): Promise<ReactNode> {
+export async function Coffeeshops({ query, ...props }: CoffeeshopsProps): Promise<ReactNode> {
   let result: CoffeeshopListResult;
   try {
     const page = await fetchCoffeeshops(query);
@@ -26,5 +34,5 @@ export async function Coffeeshops({ locale, query, filtered, texts }: Coffeeshop
   } catch {
     result = { state: "error" };
   }
-  return <CoffeeshopList result={result} locale={locale} query={query} filtered={filtered} texts={texts} />;
+  return <CoffeeshopList {...props} result={result} query={query} />;
 }

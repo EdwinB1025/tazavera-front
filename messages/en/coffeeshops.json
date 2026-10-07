@@ -23,5 +23,21 @@
   "tabLocations": "Locations",
   "detailError": "The coffee shop could not be loaded.",
   "locationNoMap": "Not on the map",
-  "metaDescription": "Directory of specialty coffee shops."
+  "metaDescription": "Directory of specialty coffee shops.",
+  "viewToggleLabel": "View",
+  "viewList": "List",
+  "viewMap": "Map",
+  "showOnMapLabel": "Show {name} on the map",
+  "mapLabel": "Coffee shop map",
+  "mapHelp": "Move with the arrow keys and zoom with + / −. The list shows the same information.",
+  "mapEmpty": "None of these coffee shops has a location on the map.",
+  "unlocatedCount": "{count} locations not on the map",
+  "zoomIn": "Zoom in",
+  "zoomOut": "Zoom out",
+  "closePanel": "Close",
+  "viewCoffeeshop": "View coffee shop",
+  "osmAttribution": "© {link}",
+  "osmContributors": "OpenStreetMap contributors",
+  "backToList": "Back to the list",
+  "mapLoading": "Loading the map…"
 }
