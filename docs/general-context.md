@@ -429,3 +429,13 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Decisión:** dentro de un `Field`, el `Combobox` compartido no pinta etiqueta ni ayuda propias y su input toma el id del `Field`; fuera de un `Field` (paneles de facetas) no cambia.
 - **Por qué:** la tarea 6.2 de add-offering-management no se podía construir tal como estaba escrita (etiqueta duplicada y sin enlazar); la opción mantiene el texto de la tarea y el diseño de una sola etiqueta.
 - **Afecta:** add-offering-management (D14, tareas 6.0a/6.0b), add-coffeeshop-location y cualquier formulario futuro con combobox.
+
+### 2026-10-07 — API: borrar una oferta con evaluaciones (Product owner)
+- **Decisión:**
+  - Migración nueva en `tazavera-api` (`2026_10_07_083627_make_evaluation_offering_nullable_on_delete`): `evaluations.offering_id` pasa a nullable con `nullOnDelete()` (antes `restrictOnDelete()`, que daba 500 al borrar una oferta con evaluaciones).
+  - `OfferingController::destroy` y `massDestroy` borran la evaluación baseline de la oferta en la misma transacción; las evaluaciones de especialistas se conservan con `offering_id` nulo.
+  - El usuario que lista evaluaciones con oferta nula ve "oferta inexistente"; **se maneja en el front**.
+  - Todo en la rama `feature/add-contacts-and-locations` (sin commitear; el commit lo hace Product owner). El directorio de cafeterías se retrabajó al estilo de `offerings` (`5874407`, `b8b7fe5`).
+- **Pendiente en el API:** `update` y `close` de una evaluación con oferta nula (el servicio lee `evaluation->offering`) y `EvaluationResource` con oferta nula; el `configure()` del `OfferingFactory` de Product owner crea una baseline en todas las ofertas y deja 4 tests de `SpecialistTest` en rojo.
+- **Por qué:** decisión de Product owner del 7 oct.
+- **Afecta:** contrato (`offering` nulo en las evaluaciones); add-specialist-evaluations (lista, detalle y formulario: estado "oferta inexistente", sin editar ni cerrar) y add-public-evaluations (listados públicos) — corrección o ajuste de diseño cuando llegue el contrato.
