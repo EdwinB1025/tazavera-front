@@ -12,7 +12,7 @@ import {
 
 /**
  * Flavor wheel geometry tests (design.md D5; design-summary §4.2, §10). Pure
- * functions with no React: ring radii by the deepest level of the whole tree,
+ * functions with no React: ring radii by the deepest expanded level,
  * proportional spans from 12 o'clock clockwise, arc path data, label
  * orientation and the estimated label fit (`characters × 0.6 × font size`).
  * Angles are in degrees, 0 at 12 o'clock, growing clockwise.
@@ -82,12 +82,50 @@ describe("layoutWheel", () => {
     ]);
   });
 
-  it("sizes rings by the deepest level of the whole tree, expanded or not", () => {
+  describe("sizes rings by the deepest expanded level", () => {
     const tree = [node("a", 2, [node("a1", 2, [node("a11", 1)])])];
-    const { radii, segments } = layoutWheel(tree, NONE);
-    expect(radii).toEqual(ringRadii(2));
-    expect(segments).toHaveLength(1);
-    expect(segments[0]).toMatchObject({ inner: 80, outer: 120 });
+    const bounds = (expanded: ReadonlySet<string>) =>
+      layoutWheel(tree, expanded).segments.map(({ node: n, inner, outer }) => ({
+        id: n.id,
+        inner,
+        outer,
+      }));
+
+    it("fills ring 0 from 80 to 200 with nothing expanded", () => {
+      expect(layoutWheel(tree, NONE).radii).toEqual(ringRadii(0));
+      expect(bounds(NONE)).toEqual([{ id: "a", inner: 80, outer: 200 }]);
+    });
+
+    it("splits two rings with a root expanded", () => {
+      const expanded = new Set(["a"]);
+      expect(layoutWheel(tree, expanded).radii).toEqual(ringRadii(1));
+      expect(bounds(expanded)).toEqual([
+        { id: "a", inner: 80, outer: 140 },
+        { id: "a1", inner: 140, outer: 200 },
+      ]);
+    });
+
+    it("splits three rings with a level-1 note expanded", () => {
+      const expanded = new Set(["a", "a1"]);
+      expect(layoutWheel(tree, expanded).radii).toEqual(ringRadii(2));
+      expect(bounds(expanded)).toEqual([
+        { id: "a", inner: 80, outer: 120 },
+        { id: "a1", inner: 120, outer: 160 },
+        { id: "a11", inner: 160, outer: 200 },
+      ]);
+    });
+
+    it("ignores an expanded note under a collapsed parent", () => {
+      const expanded = new Set(["a1"]);
+      expect(layoutWheel(tree, expanded).radii).toEqual(ringRadii(0));
+      expect(bounds(expanded)).toEqual([{ id: "a", inner: 80, outer: 200 }]);
+    });
+
+    it("returns to one ring when collapsing back", () => {
+      layoutWheel(tree, new Set(["a"]));
+      expect(layoutWheel(tree, NONE).radii).toEqual(ringRadii(0));
+      expect(bounds(NONE)).toEqual([{ id: "a", inner: 80, outer: 200 }]);
+    });
   });
 
   it("places a child inside its parent's span, proportional among siblings and filling it", () => {

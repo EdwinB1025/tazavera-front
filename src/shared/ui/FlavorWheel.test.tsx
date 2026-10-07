@@ -3,7 +3,12 @@ import { render, screen, fireEvent, cleanup, act } from "@testing-library/react"
 import { FlavorWheel } from "./FlavorWheel";
 import type { FlavorWheelNode, FlavorWheelProps } from "./FlavorWheel";
 import { taxonomyColorRule } from "./taxonomy-color";
-import { labelPath, labelRadius, layoutWheel } from "./flavor-wheel-geometry";
+import {
+  arcPath,
+  labelPath,
+  labelRadius,
+  layoutWheel,
+} from "./flavor-wheel-geometry";
 
 // This project has no global test setup, so RTL's auto-cleanup (which relies
 // on a framework-provided afterEach) does not run. Clean up manually between
@@ -158,28 +163,40 @@ describe("FlavorWheel — initial render", () => {
     const { container } = renderWheel();
     const layout = container.querySelector("figure > div");
     expect(layout?.className).toBe(
-      "flex flex-col gap-6 @2xl:grid @2xl:grid-cols-[minmax(0,32rem)_minmax(16rem,1fr)] @2xl:grid-rows-[auto_auto_1fr] @2xl:gap-x-8 @2xl:gap-y-6",
+      "flex flex-col gap-6 @2xl:grid @2xl:grid-cols-[minmax(0,32rem)_minmax(16rem,1fr)] @2xl:grid-rows-[auto_1fr] @2xl:gap-x-8 @2xl:gap-y-6",
     );
     const wheel = container.querySelector("svg")?.parentElement;
     expect(wheel?.className).toBe(
-      "mx-auto aspect-square w-full max-w-128 @2xl:row-span-3 @2xl:mx-0 @2xl:self-start",
+      "mx-auto aspect-square w-full max-w-128 @2xl:row-span-2 @2xl:mx-0 @2xl:self-start",
     );
-    // Column 2 stacks the panel, the note-list control and the list.
+    // Column 2 stacks the panel and the note-list section.
     expect(
       Array.from(layout?.children ?? [])
         .slice(1)
         .map((child) => child.getAttribute("data-slot") ?? child.tagName),
-    ).toEqual(["flavor-wheel-panel", "BUTTON", "UL"]);
+    ).toEqual(["flavor-wheel-panel", "DIV"]);
+    const section = layout?.children[2] as HTMLElement;
+    expect(section.className).toBe("flex flex-col");
+    expect(section.children[0].tagName).toBe("BUTTON");
+    expect(section.children[0]).toBe(notesToggle());
+    expect(section.children[1].contains(screen.getByRole("tree"))).toBe(true);
+    expect(section.children[1].id).toBe(
+      notesToggle().getAttribute("aria-controls"),
+    );
     expect(panel(container).className).toBe(
       "flex min-h-24 flex-col gap-2 rounded-field border border-border-subtle p-4",
     );
-    expect(screen.getByRole("tree").className).toBe("flex flex-col gap-1");
+    expect(screen.getByRole("tree").className).toBe("flex flex-col gap-1 pt-2");
   });
 });
 
 describe("FlavorWheel — note list disclosure", () => {
-  const TOGGLE_CLASSES =
-    "type-body flex min-h-10 cursor-pointer items-center gap-2 self-start rounded-field px-2 py-1 text-text-primary hover:bg-surface-section focus-visible:focus-ring @2xl:justify-self-start";
+  /** The collapsible body named by the header's aria-controls. */
+  function body(container: HTMLElement): HTMLElement {
+    const id = notesToggle().getAttribute("aria-controls") ?? "";
+    expect(id).not.toBe("");
+    return container.ownerDocument.getElementById(id) as HTMLElement;
+  }
 
   it("collapses the note list at first behind its expand control", () => {
     const { container } = renderWheel({}, { listOpen: false });
@@ -189,20 +206,17 @@ describe("FlavorWheel — note list disclosure", () => {
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
     expect(toggle.textContent).toBe("texts.notesToggle");
     const list = container.querySelector('ul[role="tree"]') as HTMLElement;
-    expect(list.id).not.toBe("");
-    expect(toggle.getAttribute("aria-controls")).toBe(list.id);
-    expect(list.hasAttribute("hidden")).toBe(true);
-    expect(rows()).toHaveLength(0);
+    expect(body(container).contains(list)).toBe(true);
+    expect(body(container).hasAttribute("inert")).toBe(true);
     expect(container.querySelector("svg")).not.toBeNull();
     expect(panel(container).textContent).toBe("texts.hint");
   });
 
   it("expands and collapses the note list, the panel staying shown", () => {
     const { container } = renderWheel({}, { listOpen: false });
-    const list = container.querySelector('ul[role="tree"]') as HTMLElement;
     fireEvent.click(notesToggle());
     expect(notesToggle().getAttribute("aria-expanded")).toBe("true");
-    expect(list.hasAttribute("hidden")).toBe(false);
+    expect(body(container).hasAttribute("inert")).toBe(false);
     expect(rows().map((r) => r.textContent)).toEqual([
       "Fruity4/5",
       "Floral3/5",
@@ -211,29 +225,31 @@ describe("FlavorWheel — note list disclosure", () => {
     expect(panel(container).textContent).toBe("texts.hint");
     fireEvent.click(notesToggle());
     expect(notesToggle().getAttribute("aria-expanded")).toBe("false");
-    expect(list.hasAttribute("hidden")).toBe(true);
+    expect(body(container).hasAttribute("inert")).toBe(true);
     expect(panel(container).textContent).toBe("texts.hint");
   });
 
   it("shows a hidden chevron that follows the state, with a constant name", () => {
     renderWheel({}, { listOpen: false });
     const chevron = (): Element => notesToggle().querySelector("svg")!;
-    expect(chevron().getAttribute("class")).toContain("lucide-chevron-right");
     expect(chevron().getAttribute("aria-hidden")).toBe("true");
+    expect(chevron().classList.contains("lucide-chevron-down")).toBe(true);
+    expect(chevron().classList.contains("rotate-180")).toBe(false);
     fireEvent.click(notesToggle());
-    expect(chevron().getAttribute("class")).toContain("lucide-chevron-down");
+    expect(chevron().getAttribute("aria-hidden")).toBe("true");
+    expect(chevron().classList.contains("lucide-chevron-down")).toBe(true);
+    expect(chevron().classList.contains("rotate-180")).toBe(true);
     expect(notesToggle().textContent).toBe("texts.notesToggle");
   });
 
-  it("takes the row treatment, start-aligned at content width", () => {
+  it("is the shared full-width collapsible header", () => {
     renderWheel({}, { listOpen: false });
-    expect(notesToggle().className).toBe(TOGGLE_CLASSES);
-    expect(notesToggle().classList.contains("@2xl:justify-self-start")).toBe(
-      true,
-    );
-    expect(notesToggle().querySelector("svg")!.getAttribute("class")).toContain(
-      "size-4 shrink-0",
-    );
+    const classes = notesToggle().classList;
+    expect(classes.contains("w-full")).toBe(true);
+    expect(classes.contains("justify-between")).toBe(true);
+    expect(classes.contains("focus-visible:focus-ring")).toBe(true);
+    expect(classes.contains("@2xl:justify-self-start")).toBe(false);
+    expect(notesToggle().textContent).toBe("texts.notesToggle");
   });
 
   it("keeps the wheel's expansion and the active note across list toggles", () => {
@@ -536,6 +552,27 @@ describe("FlavorWheel — expand and collapse", () => {
     expect(segmentIds(container)).toEqual(["fruity", "floral", "nutty"]);
     expect(row("Nutty").className).toBe(`${ROW_CLASSES} bg-surface-section`);
   });
+
+  it("rescales ring 0 as a root expands and after Escape", () => {
+    const { container } = renderWheel();
+    const fruityPath = (): string | null =>
+      segment(container, "fruity")!.querySelector("path")!.getAttribute("d");
+    const fruityArc = (expanded: Set<string>) =>
+      layoutWheel(NODES, expanded).segments.find(
+        (s) => s.node.id === "fruity",
+      )!;
+    const atRest = fruityArc(new Set());
+    expect(atRest).toMatchObject({ inner: 80, outer: 200 });
+    const restPath = arcPath(80, 200, atRest.start, atRest.end);
+    expect(fruityPath()).toBe(restPath);
+    fireEvent.click(segment(container, "fruity")!);
+    const expanded = fruityArc(new Set(["fruity"]));
+    expect(expanded).toMatchObject({ inner: 80, outer: 140 });
+    expect(fruityPath()).toBe(arcPath(80, 140, expanded.start, expanded.end));
+    row("Fruity").focus();
+    fireEvent.keyDown(document.activeElement as Element, { key: "Escape" });
+    expect(fruityPath()).toBe(restPath);
+  });
 });
 
 describe("FlavorWheel — segment labels", () => {
@@ -573,8 +610,8 @@ describe("FlavorWheel — segment labels", () => {
     const nodes = [note("fruity", 0, 1), note("floral", 0, 1)];
     render(<FlavorWheel nodes={nodes} total={5} texts={TEXTS} />);
     render(<FlavorWheel nodes={nodes} total={5} texts={TEXTS} />);
-    const hrefs = Array.from(document.querySelectorAll("textPath")).map(
-      (t) => t.getAttribute("href"),
+    const hrefs = Array.from(document.querySelectorAll("textPath")).map((t) =>
+      t.getAttribute("href"),
     );
     expect(hrefs).toHaveLength(8);
     expect(new Set(hrefs).size).toBe(8);
@@ -673,7 +710,9 @@ describe("FlavorWheel — name shown while active", () => {
     fireEvent.pointerEnter(segment(container, "fruity")!);
     expect(namesInWheel(container, "Floral")).toHaveLength(0);
     expect(activeName(container)).toBeNull();
-    expect(container.querySelectorAll("svg text.stroke-surface-card")).toHaveLength(0);
+    expect(
+      container.querySelectorAll("svg text.stroke-surface-card"),
+    ).toHaveLength(0);
   });
 
   it("keeps the name while the note stays active after the pointer leaves", () => {

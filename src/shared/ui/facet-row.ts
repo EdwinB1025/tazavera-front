@@ -35,6 +35,12 @@ export function withoutDisabledFade(classes: string): string {
 
 export const FACET_LEGEND_CLASSES = "type-label mb-1 px-3 py-1";
 
+/**
+ * Side padding of the help and error paragraphs under a row facet, aligned
+ * with the legend's `px-3` (refine-facet-controls design.md D1).
+ */
+export const FACET_MESSAGE_CLASSES = "px-3";
+
 /** Row column: rows sit in a `flex flex-col gap-1` column. */
 export const FACET_ROWS_CLASSES = "flex flex-col gap-1";
 
