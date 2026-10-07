@@ -12,6 +12,19 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: () => {}, refresh: () => {} }),
 }));
 
+// The client-only map is replaced by a stub that records its props.
+const map = vi.hoisted(() => ({ props: null as null | Record<string, unknown> }));
+vi.mock("@/shared/ui", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/shared/ui")>();
+  return {
+    ...actual,
+    LocationsMapLoader: (props: Record<string, unknown>) => {
+      map.props = props;
+      return <div data-testid="map" />;
+    },
+  };
+});
+
 /**
  * Coffee shop detail presentation (add-coffeeshop-directory design.md D8,
  * D10, D11; specs "Coffee shop detail page", "Coffee shop detail tabs in the
@@ -118,6 +131,22 @@ describe("CoffeeshopDetailContent", () => {
     expect(card("Nomad Raval")).toBeDefined();
   });
 
+  it("shows the help line and the map of the located locations before the cards (spec: Locations and map)", () => {
+    const located = {
+      ...NOMAD,
+      locations: NOMAD.locations!.map((location) => ({ ...location, latitud: "41.38", longitud: "2.17" })),
+    };
+    renderDetail("locations", located);
+    const help = screen.getByText("Muévete con las flechas y acerca con + / −. La lista muestra la misma información.");
+    expect(map.props?.helpId).toBe(help.id);
+    expect((map.props?.points as unknown[]).length).toBe(2);
+    expect(map.props?.renderPanelLink).toBeUndefined();
+    expect(map.props?.focusGroupId).toBeUndefined();
+    expect(
+      screen.getByTestId("map").compareDocumentPosition(screen.getByRole("list")) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
   it("shows no phone row and no description for null values (spec: Null values)", () => {
     renderDetail("locations");
     const raval = card("Nomad Raval");
@@ -135,6 +164,8 @@ describe("CoffeeshopDetailContent", () => {
 
   it("shows the not-on-the-map line on a location without both coordinates (spec: Location without coordinates)", () => {
     renderDetail("locations");
+    expect(screen.getByText("1 ubicaciones sin posición en el mapa").className).toContain("type-meta");
+    expect((map.props?.points as unknown[]).length).toBe(1);
     expect(within(card("Nomad Raval")).getByText("Sin posición en el mapa").className).toContain("type-meta");
     expect(within(card("Nomad Born")).queryByText("Sin posición en el mapa")).toBeNull();
   });
