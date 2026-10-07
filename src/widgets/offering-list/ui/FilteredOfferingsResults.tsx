@@ -28,6 +28,8 @@ export type FilteredOfferingsResultsProps = {
   path: string;
   /** Keys forced on the request, over the same keys of the address. */
   fixedQuery?: OfferingsQuery;
+  /** Keys added to the pagination links only, never to the request (add-coffeeshop-directory design.md D17). */
+  paginationQuery?: OfferingsQuery;
   texts: FilteredOfferingsResultsTexts;
 };
 
@@ -47,6 +49,7 @@ export function FilteredOfferingsResults({
   searchParams,
   path,
   fixedQuery,
+  paginationQuery,
   texts,
 }: FilteredOfferingsResultsProps): ReactNode {
   const query = { ...sanitizeOfferingQuery(buildOfferingsQuery(searchParams)), ...fixedQuery };
@@ -70,6 +73,7 @@ export function FilteredOfferingsResults({
         query={query}
         texts={filtered ? { ...listTexts, emptyMessage: noMatches } : listTexts}
         path={path}
+        paginationQuery={paginationQuery}
         gridClassName={CATALOG_GRID_CLASSES}
         emptyAction={filtered ? <ClearFiltersButton label={clearAll} keep={OFFERING_SORT_KEYS} /> : undefined}
       />
