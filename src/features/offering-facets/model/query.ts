@@ -19,7 +19,13 @@ export type OfferingSortId =
 export type OfferingSortOption = {
   id: OfferingSortId;
   /** Key of the `filters` texts. */
-  textKey: string;
+  textKey:
+    | "sortDefault"
+    | "sortScoreDesc"
+    | "sortScoreAsc"
+    | "sortMostEvaluated"
+    | "sortNewest"
+    | "sortOldest";
   orderBy: string | undefined;
   orderDirection: "asc" | "desc" | undefined;
 };

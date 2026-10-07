@@ -4,6 +4,8 @@
  */
 export { OfferingFacets, OFFERING_SORT_KEYS } from "./ui/OfferingFacets";
 export type { OfferingFacetsProps } from "./ui/OfferingFacets";
+export { OfferingsToolbar } from "./ui/OfferingsToolbar";
+export type { OfferingsToolbarProps } from "./ui/OfferingsToolbar";
 export { offeringFacetOptions, tasteNoteOptions } from "./model/options";
 export type { OfferingFacetOptions, TasteNoteOption } from "./model/options";
 export {

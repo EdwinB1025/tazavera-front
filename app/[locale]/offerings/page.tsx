@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getMessages } from "@/shared/lib/i18n";
-import { OfferingsScreen } from "@/pages/offerings";
+import { OfferingsScreen, OfferingsToolbarScreen } from "@/pages/offerings";
 
 export async function generateMetadata({
   params,
@@ -14,5 +14,12 @@ export default async function OfferingsPage({
   searchParams,
 }: PageProps<"/[locale]/offerings">) {
   const { locale } = await params;
-  return <OfferingsScreen locale={locale} searchParams={await searchParams} />;
+  const query = await searchParams;
+  return (
+    <OfferingsScreen
+      locale={locale}
+      searchParams={query}
+      toolbar={<OfferingsToolbarScreen locale={locale} searchParams={query} />}
+    />
+  );
 }
