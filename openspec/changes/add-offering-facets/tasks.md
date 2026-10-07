@@ -4,11 +4,11 @@ Apply preconditions (met on 2026-10-07): `add-offering-catalog`, `add-sidebar-sl
 
 ## 0. Preconditions
 
-- [ ] 0.1 Check the interfaces of design.md D2 (as revised on 2026-10-07) against the code on this branch: the `@sidebar` slot files, `OfferingsSidebarScreen` and `AppSidebar`'s `children`; `useSidebar` and `SIDEBAR_ID` from `@/shared/ui`; the props of `FacetPanel`, `FacetTextField`, `FacetRadioList`, `FacetCascade`, `ScoreRangeFacet` and `Combobox`; `SlidersHorizontal` and `X` in `src/shared/ui/icons.ts`; the `filters` keys; `OfferingsScreen`'s `toolbar` prop, `buildOfferingsQuery`, `Offerings` and `OfferingList`'s result states. Expected: every D2 interface matches. If any differs, stop without changing files and report each difference to Product owner. This task changes no files: check it off in the commit of 1.1.
+- [x] 0.1 Check the interfaces of design.md D2 (as revised on 2026-10-07) against the code on this branch: the `@sidebar` slot files, `OfferingsSidebarScreen` and `AppSidebar`'s `children`; `useSidebar` and `SIDEBAR_ID` from `@/shared/ui`; the props of `FacetPanel`, `FacetTextField`, `FacetRadioList`, `FacetCascade`, `ScoreRangeFacet` and `Combobox`; `SlidersHorizontal` and `X` in `src/shared/ui/icons.ts`; the `filters` keys; `OfferingsScreen`'s `toolbar` prop, `buildOfferingsQuery`, `Offerings` and `OfferingList`'s result states. Expected: every D2 interface matches. If any differs, stop without changing files and report each difference to Product owner. This task changes no files: check it off in the commit of 1.1.
 
 ## 1. Derived types
 
-- [ ] 1.1 In `src/shared/api/index.ts`, add `CoffeeSummary` and `RoasterySummary` (design.md D11) from the generated `operations["listCoffees"]` and `operations["listRoasteries"]`. Verify: `npx tsc --noEmit` and `npm run lint` pass. Commit `feat(filtering): add types for coffees and roasteries`.
+- [x] 1.1 In `src/shared/api/index.ts`, add `CoffeeSummary` and `RoasterySummary` (design.md D11) from the generated `operations["listCoffees"]` and `operations["listRoasteries"]`. Verify: `npx tsc --noEmit` and `npm run lint` pass. Commit `feat(filtering): add types for coffees and roasteries`.
 
 ## 2. URL writes (shared)
 
