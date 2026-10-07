@@ -7,7 +7,29 @@ Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`.
 - `AGENTS.md` y `.claude/workflow_sdd.md`: reglas y flujo de los agentes OpenCode.
 - El `handoff.md` y el `corrections.md` de cada cambio.
 
-**Actualizado:** 2026-10-06 17:40.
+**Actualizado:** 2026-10-07 02:40.
+
+## Revisión de la noche (6–7 oct) — para Product owner
+
+**Mergeado en `develop`** (cada uno con verify sin hallazgos y revisión del design lead en navegador, por el mandato de la noche): `add-flavor-wheel` (`2bc37aa`), `add-collapsible-section` (`9364ced`), `refine-facet-controls` (`59f3bfb`), `refine-flavor-wheel` (`1642a8a`). Antes: `add-evaluation-scales`, `add-sidebar-slot`, `add-facet-controls`, `label-rating-badge`, `replace-offering-card-session`.
+
+**Construidos, esperando tu revisión** (rama al día, tests verdes):
+- `add-offering-catalog` (1547 tests): falta la 10.2. La revisión con mock encontró F1–F5 → handoff Q1–Q5. **Bloquean el archive:** Q1 (la rueda "Perfil sensorial" nunca se pinta; recomendado quitarla y dejar la de CATA) y Q2 (nunca 3 columnas; recomendado bajar el umbral).
+- `add-specialist-evaluations` (1586 tests, ronda 1 de secciones plegables aplicada): faltan 10.2 y 11.5 (navegador con sesión de especialista contra el API). Handoff Q10 (la leyenda 1–9 no existe en este formulario), Q11 (puntos 4 y 5 de la ronda, añadidos míos).
+- `add-offering-management` (1466 tests, tareas 1–7): las tareas 8–10 esperan Q1 del handoff (barra lateral "Administrar ofertas" / "Administrar ubicaciones").
+- `add-user-account`: falta la 9.2 (navegador con el API).
+
+**Decisiones mías para revisar** (handoffs, "Closed for review" / "Decisions taken", y el registro de decisiones):
+- `Combobox` dentro de `Field`: sin etiqueta ni ayuda propias (management C1).
+- La rueda reescalada deja activa la nota bajo el puntero (refine-flavor-wheel D1).
+- Ronda 1 de evaluaciones escrita por mí desde tu respuesta (`corrections.md`, puntos 4 y 5 míos).
+- Llamada de catalog a `FlavorWheel` con la interfaz real (catalog D1).
+
+**Bloqueado fuera del front:**
+- **API `add-contacts-and-locations`:** construido en la nube (6 commits, 148 tests, estilo de los endpoints existentes) pero **no subido**: la app de GitHub de Claude no tiene escritura en `tazzavera-api` (403). Da permiso en https://claude.ai/connect-github y pide en https://claude.ai/code/session_017cwm4zpoxHgpytrjcdRP9G `git push -u origin feature/add-contacts-and-locations`; si el contenedor ya no existe, relanzo la rutina.
+- Los tres resúmenes nuevos (`add-user-contact`, `add-coffeeshop-location`, `add-coffeeshop-directory`) están en borrador en `develop`; sus puntos que bloquean el propose dependen del contrato nuevo.
+
+**Siguientes en cola cuando se desbloqueen:** `add-offering-facets` (tras catalog), `add-evaluation-facets` y `add-public-evaluations` (tras evaluations).
 
 ## Estado
 
