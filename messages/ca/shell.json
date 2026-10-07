@@ -10,5 +10,8 @@
   "manageEvaluations": "Gestionar avaluacions",
   "signOut": "Tancar sessió",
   "brandLink": "Tazavera, anar a l'inici",
-  "toggleSidebar": "Mostrar o amagar la navegació"
+  "toggleSidebar": "Mostrar o amagar la navegació",
+  "notFoundTitle": "Pàgina no trobada",
+  "notFoundText": "La pàgina que cerques no existeix o no hi tens accés.",
+  "notFoundHomeLink": "Tornar a l'inici"
 }
