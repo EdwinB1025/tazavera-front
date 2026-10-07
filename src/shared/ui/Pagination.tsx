@@ -11,6 +11,11 @@ export type PaginationTexts = {
   nextLabel: string;
 };
 
+/** One position of the number list and the widths it shows at (D3). */
+export type PageSlot =
+  | { kind: "page"; page: number; narrow: boolean; wide: boolean }
+  | { kind: "ellipsis"; narrow: boolean; wide: boolean };
+
 export type PaginationProps = {
   currentPage: number;
   lastPage: number;
