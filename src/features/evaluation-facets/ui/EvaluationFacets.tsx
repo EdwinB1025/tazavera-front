@@ -2,13 +2,25 @@
 
 import type { ReactNode } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { clearFiltersHref, useFilterNavigation } from "@/shared/lib/filter-query";
-import { FacetPanel, FacetRadioList, FacetTextField, ScoreRangeFacet } from "@/shared/ui";
-import { appliedEvaluationFilters, type AppliedEvaluationTexts } from "../model/applied";
+import {
+  clearFiltersHref,
+  useFilterNavigation,
+} from "@/shared/lib/filter-query";
+import {
+  FacetPanel,
+  FacetRadioList,
+  FacetTextField,
+  ScoreRangeFacet,
+} from "@/shared/ui";
+import {
+  appliedEvaluationFilters,
+  type AppliedEvaluationTexts,
+} from "../model/applied";
 import {
   SCORE_MAX,
   SCORE_MIN,
   scoreRangeChanges,
+  type EvaluationFacetSet,
   type EvaluationFilterValues,
 } from "../model/query";
 
@@ -33,9 +45,16 @@ export type EvaluationFacetsTexts = AppliedEvaluationTexts & {
 export type EvaluationFacetsOptions = {
   /** `null` = unavailable: the Process facet renders disabled. */
   processes: string[] | null;
+  /**
+   * The public set's active offering; `null` when its read failed, so its
+   * option and chip read `offeringFilterFallback`.
+   */
+  offering?: { name: string; coffeeshop: string } | null;
 };
 
 export type EvaluationFacetsProps = {
+  /** `mine` (Status, Score, Process, City) by default; `public` (Offering, Score, Process, City). */
+  set?: EvaluationFacetSet;
   values: EvaluationFilterValues;
   options: EvaluationFacetsOptions;
   texts: EvaluationFacetsTexts;
@@ -46,16 +65,31 @@ export const EVALUATION_SORT_KEYS = ["orderBy", "orderDirection"] as const;
 
 /**
  * The evaluation facet panel (design.md D7; spec "Evaluation facets in the
- * sidebar"): Status, Score, Process and City inside the shared facet panel,
+ * sidebar"): Status, Score, Process and City inside the shared facet panel
+ * (the public set of add-public-evaluations D7: Offering, shown only while
+ * `offeringId` is in the URL, instead of Status),
  * each writing its query key on commit. When the coffees failed, Process
  * renders disabled with "Options unavailable".
  */
-export function EvaluationFacets({ values, options, texts }: EvaluationFacetsProps): ReactNode {
+export function EvaluationFacets({
+  set = "mine",
+  values,
+  options,
+  texts,
+}: EvaluationFacetsProps): ReactNode {
   const { navigate, navigateTo } = useFilterNavigation();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const applied = appliedEvaluationFilters(values, texts);
+  const isPublic = set === "public";
+  const offeringLabel = options.offering
+    ? `${options.offering.name} · ${options.offering.coffeeshop}`
+    : (texts.offeringFilterFallback ?? "");
+  const applied = appliedEvaluationFilters(
+    values,
+    texts,
+    options.offering?.name ?? null,
+  );
   const seeMoreTexts = { seeMore: texts.seeMore, seeLess: texts.seeLess };
   const unavailable = options.processes === null;
 
@@ -83,17 +117,29 @@ export function EvaluationFacets({ values, options, texts }: EvaluationFacetsPro
         }
         texts={{ clearAll: texts.clearAll, removeFilter: texts.removeFilter }}
       >
-        <FacetRadioList
-          legend={texts.status}
-          options={[
-            { value: "open", label: texts.statusOpen },
-            { value: "closed", label: texts.statusClosed },
-          ]}
-          value={values.status}
-          onChange={(value) => navigate({ status: value })}
-          anyLabel={texts.any}
-          texts={seeMoreTexts}
-        />
+        {isPublic && values.offeringId !== undefined ? (
+          <FacetRadioList
+            legend={texts.offering ?? ""}
+            options={[{ value: values.offeringId, label: offeringLabel }]}
+            value={values.offeringId}
+            onChange={(value) => navigate({ offeringId: value })}
+            anyLabel={texts.any}
+            texts={seeMoreTexts}
+          />
+        ) : null}
+        {isPublic ? null : (
+          <FacetRadioList
+            legend={texts.status}
+            options={[
+              { value: "open", label: texts.statusOpen },
+              { value: "closed", label: texts.statusClosed },
+            ]}
+            value={values.status}
+            onChange={(value) => navigate({ status: value })}
+            anyLabel={texts.any}
+            texts={seeMoreTexts}
+          />
+        )}
         <ScoreRangeFacet
           legend={texts.score}
           min={SCORE_MIN}
@@ -109,7 +155,10 @@ export function EvaluationFacets({ values, options, texts }: EvaluationFacetsPro
         />
         <FacetRadioList
           legend={texts.process}
-          options={(options.processes ?? []).map((value) => ({ value, label: value }))}
+          options={(options.processes ?? []).map((value) => ({
+            value,
+            label: value,
+          }))}
           value={values.process}
           onChange={(value) => navigate({ process: value })}
           anyLabel={texts.any}

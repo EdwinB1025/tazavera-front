@@ -15,7 +15,13 @@ export {
   EVALUATION_SORT_OPTIONS,
   evaluationListQuery,
   parseEvaluationFilters,
+  publicEvaluationsQuery,
 } from "./model/query";
-export type { EvaluationFilterValues, EvaluationSortId } from "./model/query";
+export type {
+  EvaluationFacetSet,
+  EvaluationFilterValues,
+  EvaluationSortId,
+  PublicEvaluationFilters,
+} from "./model/query";
 export { appliedEvaluationFilters } from "./model/applied";
 export type { AppliedEvaluationTexts, EvaluationAppliedFilter } from "./model/applied";

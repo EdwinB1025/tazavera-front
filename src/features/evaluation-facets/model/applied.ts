@@ -23,13 +23,27 @@ export type AppliedEvaluationTexts = {
   scoreRange: string;
   process: string;
   city: string;
+  /** The public set's Offering facet (add-public-evaluations design.md D7). */
+  offering?: string;
+  /** The Offering chip's value when the offering read failed. */
+  offeringFilterFallback?: string;
 };
 
 export function appliedEvaluationFilters(
   values: EvaluationFilterValues,
   texts: AppliedEvaluationTexts,
+  /** The active offering's coffee name; `null` when its read failed. */
+  offeringName?: string | null,
 ): EvaluationAppliedFilter[] {
   const list: EvaluationAppliedFilter[] = [];
+  if (values.offeringId !== undefined) {
+    list.push({
+      id: "offeringId",
+      facet: texts.offering ?? "",
+      value: offeringName ?? texts.offeringFilterFallback ?? "",
+      remove: { offeringId: undefined },
+    });
+  }
   const single = (key: "status" | "process" | "city", facet: string, value: string | undefined) => {
     if (value !== undefined) list.push({ id: key, facet, value, remove: { [key]: undefined } });
   };

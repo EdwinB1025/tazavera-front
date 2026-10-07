@@ -1,4 +1,5 @@
 import type { FilterChanges, QueryRecord } from "@/shared/lib/filter-query";
+import type { EvaluationsQuery } from "@/entities/evaluation";
 
 /**
  * Evaluation filter state in the URL (design.md D4, D6). The query is the
@@ -19,6 +20,8 @@ export type EvaluationSortOption = {
 };
 
 export type EvaluationFilterValues = {
+  /** The public set only (add-public-evaluations design.md D7). */
+  offeringId?: string;
   status?: "open" | "closed";
   scoreMin?: number;
   scoreMax?: number;
@@ -82,6 +85,7 @@ function inScoreRange(value: number | undefined): number | undefined {
 /** The facet values and sort of a query (design.md D4). */
 export function parseEvaluationFilters(
   params: URLSearchParams | QueryRecord,
+  set: EvaluationFacetSet = "mine",
 ): EvaluationFilterValues {
   const status = firstValue(params, "status");
   let scoreMin = parseNumber(firstValue(params, "scoreMin"));
@@ -103,7 +107,14 @@ export function parseEvaluationFilters(
     )?.id ?? "default";
 
   const values: EvaluationFilterValues = { sort };
-  if (status === "open" || status === "closed") values.status = status;
+  if (set === "public") {
+    // The public list has no Status facet; `offeringId` is never validated
+    // here (add-public-evaluations design.md D4, D7).
+    const offeringId = firstValue(params, "offeringId")?.trim();
+    if (offeringId) values.offeringId = offeringId;
+  } else if (status === "open" || status === "closed") {
+    values.status = status;
+  }
   if (scoreMin !== undefined) values.scoreMin = scoreMin;
   if (scoreMax !== undefined) values.scoreMax = scoreMax;
   const process = parseText(firstValue(params, "process"));
@@ -131,6 +142,30 @@ export function evaluationListQuery(values: EvaluationFilterValues, page: number
   query.set("orderDirection", sort?.orderDirection ?? DEFAULT_ORDER.orderDirection);
   query.set("page", String(page));
   return query.toString();
+}
+
+/**
+ * The public `GET /evaluations` request from the parsed values: always
+ * `evaluationType=specialist` and `status=closed`, whatever the URL held,
+ * the `default` sort as `created_at desc` and the full score range as no
+ * bound (add-public-evaluations design.md D4).
+ */
+export function publicEvaluationsQuery(
+  values: EvaluationFilterValues,
+  page: number,
+): EvaluationsQuery {
+  const bounds = scoreRangeChanges([values.scoreMin ?? SCORE_MIN, values.scoreMax ?? SCORE_MAX]);
+  const sort = EVALUATION_SORT_OPTIONS.find((option) => option.id === values.sort);
+  const query: EvaluationsQuery = { evaluationType: "specialist", status: "closed" };
+  if (values.offeringId !== undefined) query.offeringId = values.offeringId;
+  if (values.city !== undefined) query.city = values.city;
+  if (values.process !== undefined) query.process = values.process;
+  if (bounds.scoreMin !== undefined) query.scoreMin = Number(bounds.scoreMin);
+  if (bounds.scoreMax !== undefined) query.scoreMax = Number(bounds.scoreMax);
+  query.orderBy = (sort?.orderBy ?? DEFAULT_ORDER.orderBy) as EvaluationsQuery["orderBy"];
+  query.orderDirection = sort?.orderDirection ?? DEFAULT_ORDER.orderDirection;
+  query.page = page;
+  return query;
 }
 
 /** The score bounds to write: each only when it differs from its end. */
