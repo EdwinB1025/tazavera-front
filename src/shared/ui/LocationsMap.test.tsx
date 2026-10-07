@@ -10,6 +10,8 @@ import { LocationsMap, type LocationsMapPoint, type LocationsMapTexts } from "./
  * that records the calls and builds the marker element as Leaflet 1.9.4 does:
  * a div holding the icon's `html` element, with `tabindex="0"` and
  * `role="button"` for a keyboard marker, whose Enter fires the marker's click.
+ * As in Leaflet, a marker added before the map has a view gets its element
+ * only once the view is set (`whenReady`).
  */
 
 type Handler = () => void;
@@ -17,6 +19,8 @@ type Handler = () => void;
 const fake = vi.hoisted(() => ({
   map: null as null | {
     container: HTMLElement;
+    loaded: boolean;
+    whenReady: Array<() => void>;
     options: Record<string, unknown>;
     fitBounds: ReturnType<typeof vi.fn>;
     setView: ReturnType<typeof vi.fn>;
@@ -30,11 +34,18 @@ const fake = vi.hoisted(() => ({
 vi.mock("@/shared/lib/leaflet", () => {
   const L = {
     map: (container: HTMLElement, options: Record<string, unknown>) => {
+      const load = () => {
+        if (fake.map!.loaded) return;
+        fake.map!.loaded = true;
+        fake.map!.whenReady.splice(0).forEach((run) => run());
+      };
       fake.map = {
         container,
         options,
-        fitBounds: vi.fn(),
-        setView: vi.fn(),
+        loaded: false,
+        whenReady: [],
+        fitBounds: vi.fn(load),
+        setView: vi.fn(load),
         zoomIn: vi.fn(),
         zoomOut: vi.fn(),
         remove: vi.fn(),
@@ -60,17 +71,23 @@ vi.mock("@/shared/lib/leaflet", () => {
       element.addEventListener("keypress", (event) => {
         if ((event as KeyboardEvent).key === "Enter") handlers.click?.();
       });
+      let added = false;
       const marker = {
         latlng,
-        addTo: (map: { container: HTMLElement }) => {
-          map.container.appendChild(element);
+        addTo: (map: { container: HTMLElement; loaded: boolean; whenReady: Array<() => void> }) => {
+          const add = () => {
+            map.container.appendChild(element);
+            added = true;
+          };
+          if (map.loaded) add();
+          else map.whenReady.push(add);
           return marker;
         },
         on: (name: string, handler: Handler) => {
           handlers[name] = handler;
           return marker;
         },
-        getElement: () => element,
+        getElement: () => (added ? element : undefined),
       };
       return marker;
     },

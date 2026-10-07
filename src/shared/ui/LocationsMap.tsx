@@ -126,6 +126,17 @@ export function LocationsMap({
     mapRef.current = map;
     L.tileLayer(TILE_URL, { maxZoom: MAX_ZOOM }).addTo(map);
 
+    // The view comes first: Leaflet builds a marker's element only once the
+    // map has a view, and the loop below names and wires those elements.
+    const target = points.some((point) => point.groupId === focusGroupId)
+      ? points.filter((point) => point.groupId === focusGroupId)
+      : points;
+    if (target.length === 1) {
+      map.setView(latLng(target[0]!), SINGLE_POINT_ZOOM);
+    } else if (target.length > 1) {
+      map.fitBounds(L.latLngBounds(target.map(latLng)), { padding: FIT_PADDING });
+    }
+
     const markers = markersRef.current;
     const roots: Root[] = [];
     for (const point of points) {
@@ -156,15 +167,6 @@ export function LocationsMap({
           element.focus();
         }
       });
-    }
-
-    const target = points.some((point) => point.groupId === focusGroupId)
-      ? points.filter((point) => point.groupId === focusGroupId)
-      : points;
-    if (target.length === 1) {
-      map.setView(latLng(target[0]!), SINGLE_POINT_ZOOM);
-    } else if (target.length > 1) {
-      map.fitBounds(L.latLngBounds(target.map(latLng)), { padding: FIT_PADDING });
     }
 
     return () => {
