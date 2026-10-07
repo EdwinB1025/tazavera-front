@@ -1,4 +1,4 @@
-Status: draft — pending Product owner review
+Status: approved
 
 # Design summary — add-coffeeshop-directory
 
