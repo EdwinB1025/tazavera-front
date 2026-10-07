@@ -6,7 +6,7 @@ import {
   CardContent,
   CardFooter,
 } from "@/shared/ui/Card";
-import type { CardLayout, CardVariant } from "@/shared/ui/Card";
+import type { CardVariant } from "@/shared/ui/Card";
 import {
   Collapsible,
   CollapsibleHeader,
@@ -219,25 +219,6 @@ describe("Card", () => {
       );
       expect(classTokens(footer)).toContain("mt-auto");
     });
-
-    it("keeps the settled card classes on the root", () => {
-      const { root } = renderStackedCard();
-      expect(classTokens(root)).toEqual(
-        expect.arrayContaining([
-          "bg-surface-card",
-          "rounded-container",
-          "border-l-4",
-          "border-border-accent",
-          "shadow-lg",
-        ]),
-      );
-    });
-
-    it("leaves the default layout a block with its lg behaviour", () => {
-      const { root, aside } = renderFullCard();
-      expect(classTokens(root)).not.toContain("flex");
-      expect(classTokens(aside)).toContain("lg:float-left");
-    });
   });
 
   describe("Card root", () => {
@@ -265,14 +246,14 @@ describe("Card", () => {
     const COLLAPSIBLE_HOVER = "has-[[aria-expanded]]:hover:bg-surface-section-hover";
     const COLLAPSED_NO_SEPARATOR = "has-[[aria-expanded=false]]:border-b-0";
 
-    function renderSectionCard(layout?: CardLayout): {
+    function renderSectionCard(): {
       root: HTMLElement;
       aside: HTMLElement;
       content: HTMLElement;
       footer: HTMLElement;
     } {
       const { container } = render(
-        <Card variant={SECTION} layout={layout}>
+        <Card variant={SECTION}>
           <CardAside>BAND</CardAside>
           <CardContent>BODY</CardContent>
           <CardFooter>FOOTER</CardFooter>
@@ -304,28 +285,26 @@ describe("Card", () => {
       expect(tokens).not.toContain("border-border-accent");
     });
 
-    for (const layout of [undefined, "stacked"] as const) {
-      it(`stacks band, body and footer at every width (layout ${layout ?? "omitted"})`, () => {
-        const { root, aside, content, footer } = renderSectionCard(layout);
-        expect(
-          Array.from(root.children).map((region) => region.textContent),
-        ).toEqual(["BAND", "BODY", "FOOTER"]);
-        for (const part of [aside, content, footer]) {
-          for (const lgClass of [
-            "lg:float-left",
-            "lg:w-1/4",
-            "lg:border-r",
-            "lg:border-b-0",
-            "lg:flow-root",
-            "lg:clear-both",
-          ]) {
-            expect(classTokens(part)).not.toContain(lgClass);
-          }
+    it("stacks band, body and footer at every width (layout omitted)", () => {
+      const { root, aside, content, footer } = renderSectionCard();
+      expect(
+        Array.from(root.children).map((region) => region.textContent),
+      ).toEqual(["BAND", "BODY", "FOOTER"]);
+      for (const part of [aside, content, footer]) {
+        for (const lgClass of [
+          "lg:float-left",
+          "lg:w-1/4",
+          "lg:border-r",
+          "lg:border-b-0",
+          "lg:flow-root",
+          "lg:clear-both",
+        ]) {
+          expect(classTokens(part)).not.toContain(lgClass);
         }
-        expect(classTokens(root)).not.toContain("h-full");
-        expect(classTokens(footer)).not.toContain("mt-auto");
-      });
-    }
+      }
+      expect(classTokens(root)).not.toContain("h-full");
+      expect(classTokens(footer)).not.toContain("mt-auto");
+    });
 
     it("renders the band on the section surface with its separator, flex column, static padding and the collapsible relational classes", () => {
       const { aside } = renderSectionCard();

@@ -19,6 +19,11 @@ vi.mock("@/pages/manage-offerings", () => ({
     <div data-testid="manage-offerings-sidebar" data-locale={locale} />
   ),
 }));
+vi.mock("@/pages/manage-locations", () => ({
+  ManageLocationsSidebarEntries: ({ locale }: { locale: string }) => (
+    <div data-testid="manage-locations-sidebar" data-locale={locale} />
+  ),
+}));
 vi.mock("@/pages/new-offering", () => ({
   NewOfferingSidebarEntries: ({ locale }: { locale: string }) => (
     <div data-testid="new-offering-sidebar" data-locale={locale} />
@@ -86,6 +91,7 @@ describe("the management @sidebar slot route files (add-offering-management D8)"
   it.each([
     ["manage/offerings/page.tsx", "manage-offerings-sidebar"],
     ["manage/offerings/new/page.tsx", "new-offering-sidebar"],
+    ["manage/locations/page.tsx", "manage-locations-sidebar"],
   ])("app/[locale]/@sidebar/%s exists and renders its entry block", async (file, testId) => {
     expect(existsSync(slotFile(file))).toBe(true);
     const route = (await import(`./${file}`)) as LocaleSlotRoute;

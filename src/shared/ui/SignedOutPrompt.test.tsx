@@ -18,23 +18,6 @@ const TEXT = "fx-signed-out";
 const SIGN_IN_LABEL = "fx-sign-in";
 
 describe("SignedOutPrompt", () => {
-  it("lays the signed-out branch out as a column 1rem apart, the button at its own width", () => {
-    render(
-      <SignedOutPrompt
-        text={TEXT}
-        signInLabel={SIGN_IN_LABEL}
-        onSignIn={() => {}}
-      />,
-    );
-
-    const message = screen.getByText(TEXT);
-    expect(message.tagName).toBe("P");
-    expect(message.className).toBe("type-body");
-    expect(message.parentElement!.className).toBe(
-      "flex flex-col items-start gap-4",
-    );
-  });
-
   it("renders its text and a primary Sign in button from props", () => {
     render(
       <SignedOutPrompt

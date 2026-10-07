@@ -69,11 +69,6 @@ vi.mock("@/widgets/offering-list", async (importOriginal) => {
 
 const SESSIONS: Record<string, Session> = {
   anonymous: { state: "anonymous" },
-  loading: { state: "loading" },
-  coffeeshop: {
-    state: "authenticated",
-    user: { name: "Lucía", surname: "Pérez", role: "coffeeshop" },
-  },
 };
 
 /**

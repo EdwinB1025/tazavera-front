@@ -21,6 +21,8 @@ import {
   Trash2,
   List,
   Plus,
+  MapPin,
+  MapPinOff,
   BeanMark,
   type LucideIcon,
 } from "@/shared/ui/icons";
@@ -91,6 +93,11 @@ describe("icon entry point (src/shared/ui/icons.ts)", () => {
 
   it("exports Plus (add-user-contact design.md D8)", () => {
     expect(Plus).toBeDefined();
+  });
+
+  it("exports MapPin and MapPinOff (add-coffeeshop-location design.md D8, D9)", () => {
+    expect(MapPin).toBeDefined();
+    expect(MapPinOff).toBeDefined();
   });
 
   it("is the only module under src/ that imports lucide-react", () => {

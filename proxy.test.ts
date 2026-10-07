@@ -34,7 +34,7 @@ function expectedCsp(nonce: string, dev: boolean): string {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' blob: data:",
     "font-src 'self'",
-    `connect-src 'self' ${API_ORIGIN}`,
+    `connect-src 'self' ${API_ORIGIN} https://nominatim.openstreetmap.org`,
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -75,6 +75,12 @@ describe("proxy.ts Content-Security-Policy (design.md D9)", () => {
     expect(first.nonce).not.toBe("");
     expect(second.nonce).not.toBe("");
     expect(second.nonce).not.toBe(first.nonce);
+  });
+
+  it("writes connect-src 'self' and the Nominatim origin when NEXT_PUBLIC_API_URL is unset", () => {
+    vi.stubEnv("NEXT_PUBLIC_API_URL", undefined);
+    const { csp } = runProxy();
+    expect(csp).toContain("connect-src 'self' https://nominatim.openstreetmap.org;");
   });
 
   it("appends 'unsafe-eval' to script-src only in development", () => {

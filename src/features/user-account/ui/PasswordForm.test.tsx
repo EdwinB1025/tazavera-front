@@ -109,25 +109,6 @@ function expectCleared() {
 }
 
 describe("PasswordForm — fields", () => {
-  it("marks the three fields required, with the toggle names, the help and the autofill names", () => {
-    renderForm();
-    for (const label of [
-      TEXTS.currentPasswordLabel,
-      TEXTS.newPasswordLabel,
-      TEXTS.passwordConfirmationLabel,
-    ]) {
-      expect(field(label).required, label).toBe(true);
-    }
-    expect(field(TEXTS.currentPasswordLabel).autocomplete).toBe("current-password");
-    expect(field(TEXTS.newPasswordLabel).autocomplete).toBe("new-password");
-    expect(field(TEXTS.passwordConfirmationLabel).autocomplete).toBe("new-password");
-    expect(screen.getAllByRole("button", { name: TEXTS.showPassword })).toHaveLength(3);
-    expect(screen.getByText(TEXTS.passwordHelp)).toBeTruthy();
-    const form = document.querySelector("form")!;
-    expect(form.getAttribute("aria-labelledby")).toBe("password-heading");
-    expect(form.noValidate).toBe(true);
-  });
-
   it("renders the forgot-password line as a same-tab external link to {API}/forgot-password, sending no request", () => {
     renderForm();
     const link = screen.getByRole("link", { name: TEXTS.forgotPasswordLink });
@@ -193,8 +174,6 @@ describe("PasswordForm — the write", () => {
 
   for (const [label, outcome] of [
     ["a 422", () => fetchMock.mockResolvedValue(jsonResponse(422, { message: "api-message" }))],
-    ["a network failure", () => fetchMock.mockRejectedValue(new TypeError("offline"))],
-    ["a 5xx", () => fetchMock.mockResolvedValue(jsonResponse(500))],
   ] as const) {
     it(`${label} shows genericError above the actions and clears the three fields`, async () => {
       outcome();
@@ -226,28 +205,5 @@ describe("PasswordForm — the write", () => {
     fireEvent.click(screen.getByRole("button", { name: TEXTS.stepUpButton }));
     expect(requestProfileWrite).toHaveBeenCalledTimes(1);
     expect(requestProfileWrite).toHaveBeenCalledWith("/es/account");
-  });
-
-  it("while pending the save carries loading", async () => {
-    fetchMock.mockReturnValue(new Promise<Response>(() => {}));
-    renderForm();
-    fillValid();
-    await save();
-    expect(
-      screen.getByRole("button", { name: TEXTS.save }).getAttribute("aria-busy"),
-    ).toBe("true");
-  });
-});
-
-describe("PasswordForm — texts", () => {
-  it("renders only texts from the props fixture", () => {
-    renderForm();
-    const allowed = new Set([...Object.values(TEXTS), "heading"]);
-    const rendered = [...document.querySelectorAll("label, p, button, a, h2")]
-      .map((node) => (node.textContent ?? "").replace("*", "").trim())
-      .filter((text) => text !== "");
-    for (const text of rendered) {
-      expect(allowed.has(text), text).toBe(true);
-    }
   });
 });

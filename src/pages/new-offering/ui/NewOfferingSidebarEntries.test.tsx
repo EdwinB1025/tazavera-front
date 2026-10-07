@@ -40,6 +40,12 @@ const LABELS: Record<string, string> = {
   ca: "Gestionar ofertes",
 };
 
+const LOCATION_LABELS: Record<string, string> = {
+  es: "Administrar ubicaciones",
+  en: "Manage locations",
+  ca: "Administra les ubicacions",
+};
+
 const REMOVED = [
   "Mis ofertas",
   "My offerings",
@@ -67,6 +73,11 @@ describe("NewOfferingSidebarEntries (design.md D8)", () => {
     const link = screen.getByRole("link", { name: LABELS[locale]! });
     expect(link.getAttribute("href")).toBe(`/${locale}/manage/offerings`);
     expect(link.getAttribute("aria-current")).toBe("page");
+    // Two entries in order, only "Manage offerings" current (add-coffeeshop-location D8).
+    const entries = Array.from(link.closest("ul")!.querySelectorAll("a"));
+    expect(entries.map((a) => a.textContent)).toEqual([LABELS[locale], LOCATION_LABELS[locale]]);
+    expect(entries[1].getAttribute("href")).toBe(`/${locale}/manage/locations`);
+    expect(entries[1].hasAttribute("aria-current")).toBe(false);
     expect(
       screen
         .queryAllByRole("link")

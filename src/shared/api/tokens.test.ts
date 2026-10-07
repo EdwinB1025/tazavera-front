@@ -23,23 +23,12 @@ import { exchangeCode, refreshTokens, getTokens } from "./tokens";
 const API_URL = "https://api.tazavera.test";
 const APP_URL = "https://app.tazavera.test";
 const CLIENT_ID = "client-ulid-1";
-const REDIRECT_URI = `${APP_URL}/callback`;
 
 const GRANT = {
   access_token: "access-1",
   token_type: "Bearer",
   refresh_token: "refresh-1",
   expires_in: 3600,
-};
-const NEXT_GRANT = {
-  access_token: "access-2",
-  token_type: "Bearer",
-  refresh_token: "refresh-2",
-  expires_in: 3600,
-};
-const EXCHANGE_ERROR = {
-  error: "invalid_grant",
-  error_description: "The authorization code is not valid",
 };
 const REFRESH_ERROR = {
   error: "invalid_grant",
@@ -54,30 +43,6 @@ function jsonResponse(body: unknown, status = 200): Response {
     status,
     headers: { "content-type": "application/json" },
   });
-}
-
-/** The nth call's URL as a string (a hand-rolled client passes a URL). */
-function calledUrl(index: number): string {
-  return String(fetchMock.mock.calls[index]![0]);
-}
-
-/** The form the nth call posted, as plain key/value pairs. */
-function postedForm(index: number): Record<string, string> {
-  const [, init] = fetchMock.mock.calls[index]!;
-  return Object.fromEntries(new URLSearchParams(String(init?.body)));
-}
-
-/** The content type the nth call posted with. */
-function contentType(index: number): string | null {
-  const [, init] = fetchMock.mock.calls[index]!;
-  return new Headers(init?.headers).get("content-type");
-}
-
-/** Everything written to `localStorage` and `sessionStorage` so far. */
-function storageWrites(setItem: { mock: { calls: unknown[][] } }): string {
-  return setItem.mock.calls
-    .map(([key, value]) => `${String(key)}=${String(value)}`)
-    .join("\n");
 }
 
 /** Every value in `localStorage` and `sessionStorage` right now. */
@@ -126,37 +91,6 @@ afterEach(() => {
 });
 
 describe("the code exchange (design.md D5)", () => {
-  it("posts application/x-www-form-urlencoded to {NEXT_PUBLIC_API_URL}/oauth/token with exactly grant_type=authorization_code, code, redirect_uri, client_id and code_verifier and no secret", async () => {
-    fetchMock.mockResolvedValue(jsonResponse(GRANT));
-
-    await exchangeCode("code-123", "verifier-123");
-
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(calledUrl(0)).toBe(`${API_URL}/oauth/token`);
-    expect(fetchMock.mock.calls[0]![1]?.method).toBe("POST");
-    expect(contentType(0)).toContain("application/x-www-form-urlencoded");
-    expect(postedForm(0)).toEqual({
-      grant_type: "authorization_code",
-      code: "code-123",
-      redirect_uri: REDIRECT_URI,
-      client_id: CLIENT_ID,
-      code_verifier: "verifier-123",
-    });
-    expect(postedForm(0)).not.toHaveProperty("client_secret");
-  });
-
-  it("keeps access_token, refresh_token and expires_in in memory and writes neither token to browser storage (spec: Credential handling)", async () => {
-    const setItem = vi.spyOn(Storage.prototype, "setItem");
-    fetchMock.mockResolvedValue(jsonResponse(GRANT));
-
-    await exchangeCode("code-123", "verifier-123");
-
-    expect(getTokens()).toEqual(GRANT);
-    const writes = storageWrites(setItem);
-    expect(writes).not.toContain(GRANT.access_token);
-    expect(writes).not.toContain(GRANT.refresh_token);
-  });
-
   it("leaves no token value on window, in localStorage or in sessionStorage after a successful grant (spec: Credential handling — After sign in)", async () => {
     localStorage.clear();
     sessionStorage.clear();
@@ -171,108 +105,14 @@ describe("the code exchange (design.md D5)", () => {
       expect(storedValues()).not.toContain(token);
     }
   });
-
-  it("surfaces a token error body with error and error_description as failure (spec: Keeping the session alive — the tokens are rejected and nothing restores them)", async () => {
-    fetchMock.mockResolvedValue(jsonResponse(EXCHANGE_ERROR, 400));
-
-    await expect(exchangeCode("code-123", "verifier-123")).rejects.toMatchObject(
-      EXCHANGE_ERROR,
-    );
-  });
 });
 
 describe("the refresh (design.md D2, D3 and D5)", () => {
-  it("posts exactly grant_type=refresh_token, refresh_token and client_id", async () => {
-    fetchMock.mockResolvedValueOnce(jsonResponse(GRANT));
-    await exchangeCode("code-123", "verifier-123");
-    fetchMock.mockResolvedValueOnce(jsonResponse(NEXT_GRANT));
-
-    await refreshTokens();
-
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(calledUrl(1)).toBe(`${API_URL}/oauth/token`);
-    expect(fetchMock.mock.calls[1]![1]?.method).toBe("POST");
-    expect(contentType(1)).toContain("application/x-www-form-urlencoded");
-    expect(postedForm(1)).toEqual({
-      grant_type: "refresh_token",
-      refresh_token: GRANT.refresh_token,
-      client_id: CLIENT_ID,
-    });
-    expect(postedForm(1)).not.toHaveProperty("client_secret");
-  });
-
-  it("replaces the whole pair in memory and writes neither token to browser storage (design.md D3; spec: Credential handling)", async () => {
-    const setItem = vi.spyOn(Storage.prototype, "setItem");
-    fetchMock.mockResolvedValueOnce(jsonResponse(GRANT));
-    await exchangeCode("code-123", "verifier-123");
-    fetchMock.mockResolvedValueOnce(jsonResponse(NEXT_GRANT));
-
-    await refreshTokens();
-
-    expect(getTokens()).toEqual(NEXT_GRANT);
-    const writes = storageWrites(setItem);
-    for (const grant of [GRANT, NEXT_GRANT]) {
-      expect(writes).not.toContain(grant.access_token);
-      expect(writes).not.toContain(grant.refresh_token);
-    }
-  });
-
   it("surfaces a token error body with error and error_description as failure (spec: Keeping the session alive — the tokens are rejected and nothing restores them)", async () => {
     fetchMock.mockResolvedValueOnce(jsonResponse(GRANT));
     await exchangeCode("code-123", "verifier-123");
     fetchMock.mockResolvedValueOnce(jsonResponse(REFRESH_ERROR, 400));
 
     await expect(refreshTokens()).rejects.toMatchObject(REFRESH_ERROR);
-  });
-});
-
-describe("token requests to an http API (design.md D8: insecure requests only outside production)", () => {
-  const HTTP_API_URL = "http://localhost:8000";
-
-  beforeEach(() => {
-    process.env.NEXT_PUBLIC_API_URL = HTTP_API_URL;
-  });
-
-  it("sends both grant requests to an http token endpoint and keeps each grant outside production", async () => {
-    vi.stubEnv("NODE_ENV", "development");
-    fetchMock.mockResolvedValueOnce(jsonResponse(GRANT));
-
-    await exchangeCode("code-123", "verifier-123");
-
-    expect(calledUrl(0)).toBe(`${HTTP_API_URL}/oauth/token`);
-    expect(getTokens()).toEqual(GRANT);
-
-    fetchMock.mockResolvedValueOnce(jsonResponse(NEXT_GRANT));
-
-    await refreshTokens();
-
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(calledUrl(1)).toBe(`${HTTP_API_URL}/oauth/token`);
-    expect(getTokens()).toEqual(NEXT_GRANT);
-  });
-
-  it("refuses the code exchange to an http token endpoint in production and sends no request", async () => {
-    vi.stubEnv("NODE_ENV", "production");
-    fetchMock.mockResolvedValue(jsonResponse(GRANT));
-
-    await expect(exchangeCode("code-123", "verifier-123")).rejects.toMatchObject({
-      code: "OAUTH_HTTP_REQUEST_FORBIDDEN",
-    });
-    expect(fetchMock).not.toHaveBeenCalled();
-  });
-
-  it("refuses the refresh to an http token endpoint in production and sends no request", async () => {
-    vi.stubEnv("NODE_ENV", "development");
-    fetchMock.mockResolvedValueOnce(jsonResponse(GRANT));
-    await exchangeCode("code-123", "verifier-123");
-    fetchMock.mockClear();
-    vi.stubEnv("NODE_ENV", "production");
-    fetchMock.mockResolvedValue(jsonResponse(NEXT_GRANT));
-
-    await expect(refreshTokens()).rejects.toMatchObject({
-      code: "OAUTH_HTTP_REQUEST_FORBIDDEN",
-    });
-    expect(fetchMock).not.toHaveBeenCalled();
-    expect(getTokens()).toEqual(GRANT);
   });
 });

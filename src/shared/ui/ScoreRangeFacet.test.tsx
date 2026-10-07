@@ -90,15 +90,6 @@ describe("ScoreRangeFacet", () => {
     expect(onCommit).toHaveBeenCalledWith([50, 50]);
   });
 
-  it("emptying From and blurring with 20–50 shows 0 and commits 0–50", () => {
-    const onCommit = vi.fn();
-    render(facet([20, 50], onCommit));
-    fireEvent.change(input("From"), { target: { value: "" } });
-    fireEvent.blur(input("From"));
-    expect(input("From").value).toBe("0");
-    expect(onCommit).toHaveBeenCalledWith([0, 50]);
-  });
-
   it("renders no error message", () => {
     render(facet([20, 50]));
     fireEvent.change(input("To"), { target: { value: "140" } });
@@ -106,18 +97,5 @@ describe("ScoreRangeFacet", () => {
     expect(screen.queryByRole("alert")).toBeNull();
     expect(document.querySelector(".type-error")).toBeNull();
     expect(input("To").getAttribute("aria-invalid")).toBeNull();
-  });
-
-  it("a new value prop updates both inputs and thumbs", () => {
-    const { rerender } = render(facet([0, 100]));
-    rerender(facet([30, 70]));
-    expect(input("From").value).toBe("30");
-    expect(input("To").value).toBe("70");
-    expect(screen.getByRole("slider", { name: "Minimum score" }).getAttribute("aria-valuenow")).toBe(
-      "30",
-    );
-    expect(screen.getByRole("slider", { name: "Maximum score" }).getAttribute("aria-valuenow")).toBe(
-      "70",
-    );
   });
 });

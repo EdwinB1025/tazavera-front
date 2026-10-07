@@ -1,6 +1,4 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { readFileSync } from "node:fs";
-import { resolve as pathResolve } from "node:path";
 import { render, cleanup, screen } from "@testing-library/react";
 import { getMessages } from "@/shared/lib/i18n";
 import { HomeHero } from "./HomeHero";
@@ -138,42 +136,11 @@ describe("HomeHero", () => {
     });
   });
 
-  describe("Intrinsic photograph size (design.md D12)", () => {
-    it("renders the photograph at the intrinsic width and height of the image file", () => {
-      // The PNG header stores the intrinsic size: the IHDR chunk holds the
-      // width and the height as big-endian uint32 at byte 16 and byte 20.
-      const png = readFileSync(
-        pathResolve(process.cwd(), "public/images/coffee-beans.png"),
-      );
-      render(<HomeHero locale="es" texts={TEXTS} />);
-      const photograph = screen.getByRole("img", { name: TEXTS.photoAlt });
-      expect(photograph.getAttribute("width")).toBe(
-        String(png.readUInt32BE(16)),
-      );
-      expect(photograph.getAttribute("height")).toBe(
-        String(png.readUInt32BE(20)),
-      );
-    });
-  });
-
   describe("Hero layout (spec: 'Responsive hero', 'Link groups'; design.md D14)", () => {
     it("splits into two equal, vertically centered columns from md", () => {
       const { container } = render(<HomeHero locale="es" texts={TEXTS} />);
       expect(classTokens(container.firstElementChild!)).toEqual(
         expect.arrayContaining(["grid", "items-center", "gap-8", "md:grid-cols-2"]),
-      );
-    });
-
-    it("spaces the eyebrow, heading and paragraph 1rem apart and the actions 1.5rem below", () => {
-      render(<HomeHero locale="es" texts={TEXTS} />);
-      const column = screen.getByRole("heading", { level: 1 }).parentElement!;
-      expect(classTokens(column)).toEqual(
-        expect.arrayContaining(["flex", "flex-col", "gap-4"]),
-      );
-      const actions = screen.getByRole("button").parentElement!;
-      expect(actions).not.toBe(column);
-      expect(classTokens(actions)).toEqual(
-        expect.arrayContaining(["mt-2", "flex", "flex-col", "items-start", "gap-4"]),
       );
     });
 

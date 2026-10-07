@@ -15,6 +15,8 @@ export type ContactFieldsProps = {
   onChange: (key: ContactFieldKey, value: string) => void;
   texts: ContactTexts;
   disabled?: boolean;
+  /** `paired`: Postal code + City, Phone + Email, Web + Social share a row from `md` (add-coffeeshop-location D12). */
+  layout?: "stacked" | "paired";
 };
 
 type FieldSpec = {
@@ -38,6 +40,17 @@ const FIELDS: readonly FieldSpec[] = [
   { key: "social", label: "contactSocialLabel", type: "text", autoComplete: "off", maxLength: 255, required: false },
 ];
 
+/** add-coffeeshop-location D12: the fields that share a row in the paired layout. */
+const PAIRED_ROWS: readonly (readonly ContactFieldKey[])[] = [
+  ["address"],
+  ["postalCode", "city"],
+  ["country"],
+  ["phone", "email"],
+  ["web", "social"],
+];
+
+const PAIRED_ROW_CLASSES = "grid gap-6 md:grid-cols-2";
+
 /**
  * The contact field group (spec "Contact details form"; design.md D1): the
  * eight fields as a fragment, so the consuming form's stack spaces them. It
@@ -50,27 +63,43 @@ export function ContactFields({
   onChange,
   texts,
   disabled,
+  layout = "stacked",
 }: ContactFieldsProps): ReactNode {
-  return (
-    <>
-      {FIELDS.map((field) => (
-        <Field
-          key={field.key}
-          label={texts[field.label]}
-          error={errors[field.key]}
-          required={field.required}
-        >
-          <Input
-            name={field.key}
-            type={field.type}
-            autoComplete={field.autoComplete}
-            maxLength={field.maxLength}
-            value={values[field.key]}
-            disabled={disabled}
-            onChange={(event) => onChange(field.key, event.target.value)}
-          />
-        </Field>
-      ))}
-    </>
+  const renderField = (field: FieldSpec) => (
+    <Field
+      key={field.key}
+      label={texts[field.label]}
+      error={errors[field.key]}
+      required={field.required}
+    >
+      <Input
+        name={field.key}
+        type={field.type}
+        autoComplete={field.autoComplete}
+        maxLength={field.maxLength}
+        value={values[field.key]}
+        disabled={disabled}
+        onChange={(event) => onChange(field.key, event.target.value)}
+      />
+    </Field>
   );
+
+  if (layout === "paired") {
+    return (
+      <>
+        {PAIRED_ROWS.map((keys) => {
+          const fields = FIELDS.filter((field) => keys.includes(field.key));
+          return fields.length === 1 ? (
+            renderField(fields[0])
+          ) : (
+            <div key={keys.join("-")} className={PAIRED_ROW_CLASSES}>
+              {fields.map(renderField)}
+            </div>
+          );
+        })}
+      </>
+    );
+  }
+
+  return <>{FIELDS.map(renderField)}</>;
 }
