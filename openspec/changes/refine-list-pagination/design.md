@@ -71,7 +71,7 @@ Worked results (`lastPage` 20), as `pageSlots` returns them (n = narrow only, w 
 | 1 | `1`, `…`(n), `2`(w), `…`(w), `20` — read: narrow `1 … 20`, wide `1 2 … 20` |
 | 3 | `1`, `2`, `3`, `…`(n), `4`(w), `…`(w), `20` — narrow `1 2 3 … 20`, wide `1 2 3 4 … 20` |
 | 4 | `1`, `…`(n), `2`(w), `3`(w), `4`, `…`(n), `5`(w), `…`(w), `20` — narrow `1 … 4 … 20`, wide `1 2 3 4 5 … 20` |
-| 10 | `1`, `…`, `9`(w), `10`, `11`(w), `…`, `20` — narrow `1 … 10 … 20`, wide `1 … 9 10 11 … 20` |
+| 10 | `1`, `…`, `9`(w), `10`, `…`(n), `11`(w), `…`(w), `20` — narrow `1 … 10 … 20`, wide `1 … 9 10 11 … 20` |
 | 20 | `1`, `…`, `19`(w), `20` — narrow `1 … 20`, wide `1 … 19 20` |
 
 `lastPage` 1 → one slot `1`; `lastPage` 3 → `1 2 3` at both widths, no ellipsis. `currentPage` outside 1 … `lastPage` is not handled (the hosts' `meta` fallbacks keep it inside).
