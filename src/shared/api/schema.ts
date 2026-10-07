@@ -236,7 +236,7 @@ export interface paths {
             path: {
                 /**
                  * @description The evaluation.
-                 * @example 01M497E37SFA9YD2GSV2QNC60N
+                 * @example architecto
                  */
                 evaluation: string;
                 /**
@@ -446,6 +446,8 @@ export interface paths {
         /**
          * Delete an offering
          * @description Permanently deletes a single offering. This action cannot be undone.
+         *     The offering's baseline (provisional) evaluation is deleted with it;
+         *     specialists' evaluations are kept without an offering.
          *
          *     **Authorization:** requires the `coffeeshop` role and the `profile:write`
          *     scope. The authenticated user must own the offering (`owns.offering`).
@@ -486,7 +488,9 @@ export interface paths {
         /**
          * Delete multiple offerings
          * @description Permanently deletes several offerings in one request, identified by their
-         *     ULIDs (maximum 50). This action cannot be undone.
+         *     ULIDs (maximum 50). This action cannot be undone. Each offering's
+         *     baseline (provisional) evaluation is deleted with it; specialists'
+         *     evaluations are kept without an offering.
          *
          *     **Authorization:** requires the `coffeeshop` role and the `profile:write`
          *     scope. The authenticated user must own all referenced offerings
@@ -3456,7 +3460,7 @@ export interface operations {
             path: {
                 /**
                  * @description The evaluation.
-                 * @example 01M497E37SFA9YD2GSV2QNC60N
+                 * @example architecto
                  */
                 evaluation: string;
                 /**
