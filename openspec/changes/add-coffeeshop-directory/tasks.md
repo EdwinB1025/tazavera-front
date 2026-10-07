@@ -53,7 +53,7 @@ Each group is a vertical slice; its heading names the commit scope. Tests are co
 ## 10. Locations tab map (offering-catalog)
 
 - [x] 10.1 Extend the Locations tests of `CoffeeshopDetailContent.test.tsx` (design.md D11, D14): "Locations and map" (map part: help line and `LocationsMapLoader` with two points, no `renderPanelLink`, before the two cards) and "Location without coordinates" (map part: "1 ubicaciones sin posición en el mapa"). Verification: `npm run test:run` fails only on these tests.
-- [ ] 10.2 Add the map block to `LocationsPanel` (20rem high; `mapEmpty` when no location is located). Verification: 10.1 passes; the usual checks pass.
+- [x] 10.2 Add the map block to `LocationsPanel` (20rem high; `mapEmpty` when no location is located). Verification: 10.1 passes; the usual checks pass.
 
 ## 11. Tile images in the CSP (app-shell)
 

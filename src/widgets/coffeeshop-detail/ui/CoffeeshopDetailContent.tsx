@@ -75,7 +75,14 @@ export function CoffeeshopDetailContent({
         ulid={ulid}
         labels={{ offerings: texts.tabOfferings, locations: texts.tabLocations }}
         offerings={offerings}
-        locations={<LocationsPanel locations={result.coffeeshop.locations ?? []} texts={texts} />}
+        locations={
+          <LocationsPanel
+            ulid={ulid}
+            name={result.coffeeshop.name ?? ""}
+            locations={result.coffeeshop.locations ?? []}
+            texts={texts}
+          />
+        }
       />
     </PageSection>
   );

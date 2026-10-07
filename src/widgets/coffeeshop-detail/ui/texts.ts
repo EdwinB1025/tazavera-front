@@ -13,6 +13,16 @@ export type CoffeeshopDetailTexts = ContactTexts & {
   tabOfferings: string;
   tabLocations: string;
   locationNoMap: string;
+  mapLabel: string;
+  mapHelp: string;
+  mapEmpty: string;
+  unlocatedCount: string;
+  zoomIn: string;
+  zoomOut: string;
+  closePanel: string;
+  osmAttribution: string;
+  osmContributors: string;
+  mapLoading: string;
 };
 
 /** The detail texts from the `coffeeshops`, `contact` and `landing` catalogs of one locale. */
@@ -40,5 +50,15 @@ export function coffeeshopDetailTexts(
     tabOfferings: coffeeshops.tabOfferings,
     tabLocations: coffeeshops.tabLocations,
     locationNoMap: coffeeshops.locationNoMap,
+    mapLabel: coffeeshops.mapLabel,
+    mapHelp: coffeeshops.mapHelp,
+    mapEmpty: coffeeshops.mapEmpty,
+    unlocatedCount: coffeeshops.unlocatedCount,
+    zoomIn: coffeeshops.zoomIn,
+    zoomOut: coffeeshops.zoomOut,
+    closePanel: coffeeshops.closePanel,
+    osmAttribution: coffeeshops.osmAttribution,
+    osmContributors: coffeeshops.osmContributors,
+    mapLoading: coffeeshops.mapLoading,
   };
 }
