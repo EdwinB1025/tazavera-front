@@ -153,3 +153,7 @@ export { FormStatus } from "./FormStatus";
 export type { FormStatusKind, FormStatusProps } from "./FormStatus";
 export { StepUpNotice } from "./StepUpNotice";
 export type { StepUpNoticeProps } from "./StepUpNotice";
+export { SessionGate } from "./SessionGate";
+export type { SessionGateProps } from "./SessionGate";
+export { SignedOutPrompt } from "./SignedOutPrompt";
+export type { SignedOutPromptProps } from "./SignedOutPrompt";
