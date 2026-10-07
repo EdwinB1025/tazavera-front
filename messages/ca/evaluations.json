@@ -90,5 +90,6 @@
   "roastLevelRequired": "Tria el nivell de torrat per desar.",
   "fragranceNotEvaluatedLabel": "Fragància no avaluada — fer servir els valors d'aroma",
   "closedMessage": "Avaluació tancada.",
-  "incompleteMessage": "Encara no es pot tancar l'avaluació: completa els grups ressaltats."
+  "incompleteMessage": "Encara no es pot tancar l'avaluació: completa els grups ressaltats.",
+  "resultCount": "Resultats: {count}"
 }

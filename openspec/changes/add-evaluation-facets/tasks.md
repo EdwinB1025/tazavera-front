@@ -26,7 +26,7 @@ Apply preconditions: `extract-clear-filters-button` is merged into `develop` (de
 
 ## 5. Texts
 
-- [ ] 5.1 Make `messages/{es,en,ca}/filters.json` contain every key of design.md D10 with the strings stated there, and add `resultCount` to `messages/{es,en,ca}/evaluations.json` (design.md D10 table). Keys already present are left unchanged. Verify: `src/shared/lib/i18n/catalog-guard.test.ts` and the full suite pass. Commit `feat(filtering): add the evaluation filter texts`.
+- [x] 5.1 Make `messages/{es,en,ca}/filters.json` contain every key of design.md D10 with the strings stated there, and add `resultCount` to `messages/{es,en,ca}/evaluations.json` (design.md D10 table). Keys already present are left unchanged. Verify: `src/shared/lib/i18n/catalog-guard.test.ts` and the full suite pass. Commit `feat(filtering): add the evaluation filter texts`.
 
 ## 6. Facet panel and sidebar slot
 
