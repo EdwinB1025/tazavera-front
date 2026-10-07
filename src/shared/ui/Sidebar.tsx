@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Slot } from "radix-ui";
 import { cn } from "@/shared/lib/utils";
 import { useIsMobile } from "@/shared/lib/hooks";
 import { Button } from "@/shared/ui";
@@ -25,7 +26,24 @@ type SidebarContextValue = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   toggleSidebar: () => void;
   isMobile: boolean;
+  /**
+   * Whether a `Sidebar` is mounted under the provider (design.md D3): the
+   * shell reads it to know whether the route in view has a sidebar at all.
+   */
+  present: boolean;
+  /**
+   * Called by `Sidebar` on mount; the returned function decrements the
+   * mounted-sidebar count again (design.md D3).
+   */
+  register: () => () => void;
 };
+
+/**
+ * The `id` of the desktop column and of the sheet content (only one renders
+ * at a time), for the `aria-controls` of the controls outside the sidebar
+ * (design.md D3).
+ */
+const SIDEBAR_ID = "app-sidebar";
 
 const SidebarContext = React.createContext<SidebarContextValue | null>(null);
 
@@ -41,15 +59,36 @@ function SidebarProvider({
   children,
   ...props
 }: React.ComponentProps<"div">) {
-  const [open, setOpen] = React.useState(true);
+  // Two states (design.md D3): expanded on arrival from `md`, closed on
+  // arrival below it.
+  const [openDesktop, setOpenDesktop] = React.useState(true);
+  const [openMobile, setOpenMobile] = React.useState(false);
+  const [count, setCount] = React.useState(0);
   const isMobile = useIsMobile();
+
+  const open = isMobile ? openMobile : openDesktop;
+  const setOpen = isMobile ? setOpenMobile : setOpenDesktop;
 
   const toggleSidebar = React.useCallback(() => {
     setOpen((value) => !value);
+  }, [setOpen]);
+
+  const register = React.useCallback(() => {
+    setCount((value) => value + 1);
+    return () => setCount((value) => value - 1);
   }, []);
 
   return (
-    <SidebarContext.Provider value={{ open, setOpen, toggleSidebar, isMobile }}>
+    <SidebarContext.Provider
+      value={{
+        open,
+        setOpen,
+        toggleSidebar,
+        isMobile,
+        present: count > 0,
+        register,
+      }}
+    >
       <div
         data-slot="sidebar-provider"
         className="flex min-h-full w-full flex-col"
@@ -72,6 +111,7 @@ const SIDEBAR_CLASSES = [
   "flex-col",
   "bg-nav-surface-dark",
   "text-nav-text-dark",
+  "variant-inverse",
 ].join(" ");
 
 function Sidebar({
@@ -79,17 +119,39 @@ function Sidebar({
   label,
   children,
   ...props
-}: React.ComponentProps<"div"> & { label?: string }) {
-  const { open, setOpen, isMobile } = useSidebar();
+}: React.ComponentProps<"aside"> & { label?: string }) {
+  const { open, setOpen, isMobile, register } = useSidebar();
+
+  // The control that opened the sheet sits outside it, so the sheet returns
+  // focus to whatever held it on opening (design.md D6: dismissing returns
+  // focus to the re-open control).
+  const returnFocusRef = React.useRef<HTMLElement | null>(null);
+
+  // Presence (design.md D3): registered whatever this renders below.
+  React.useEffect(() => register(), [register]);
 
   if (isMobile) {
     return (
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="left" className="w-full p-0">
+        <SheetContent
+          id={SIDEBAR_ID}
+          side="left"
+          className="w-full p-0"
+          onOpenAutoFocus={() => {
+            returnFocusRef.current = document.activeElement as HTMLElement | null;
+          }}
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            returnFocusRef.current?.focus();
+            returnFocusRef.current = null;
+          }}
+        >
           <SheetHeader className="sr-only">
             <SheetTitle>{label}</SheetTitle>
           </SheetHeader>
-          <div className="flex h-full w-full flex-col">{children}</div>
+          <div className="variant-inverse flex h-full w-full flex-col">
+            {children}
+          </div>
         </SheetContent>
       </Sheet>
     );
@@ -98,14 +160,16 @@ function Sidebar({
   if (!open) return null;
 
   return (
-    <div
+    <aside
+      id={SIDEBAR_ID}
+      aria-label={label}
       data-slot="sidebar"
       data-state="expanded"
       className={cn(SIDEBAR_CLASSES, className)}
       {...props}
     >
       {children}
-    </div>
+    </aside>
   );
 }
 
@@ -272,6 +336,7 @@ const MENU_BUTTON_CLASSES = [
   "px-3",
   "py-2",
   "hover:bg-nav-hover",
+  "hover:text-nav-text-hover",
   "focus-visible:focus-ring",
   "data-[active=true]:bg-nav-current-dark",
 ].join(" ");
@@ -281,25 +346,30 @@ function SidebarMenuButton({
   children,
   icon: Icon,
   isActive = false,
+  asChild = false,
   ...props
 }: React.ComponentProps<"button"> & {
   icon?: LucideIcon;
   isActive?: boolean;
+  /** Renders the child link with the entry look (design.md D7). */
+  asChild?: boolean;
 }) {
+  const Comp = asChild ? Slot.Root : "button";
   return (
-    <button
+    <Comp
       data-slot="sidebar-menu-button"
       data-active={isActive}
       className={cn(MENU_BUTTON_CLASSES, className)}
       {...props}
     >
       {Icon && <Icon className="size-4 shrink-0" />}
-      {children}
-    </button>
+      <Slot.Slottable>{children}</Slot.Slottable>
+    </Comp>
   );
 }
 
 export {
+  SIDEBAR_ID,
   useSidebar,
   SidebarProvider,
   Sidebar,

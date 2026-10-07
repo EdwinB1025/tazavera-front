@@ -48,6 +48,11 @@ export type AppHeaderProps = {
   onLocaleChange: (locale: string) => void;
   /** The current route path, for the navigation's current entry (refine-app-header design.md D14). */
   currentPath?: string;
+  /**
+   * Rendered first in the left group, before the logotype: the shell's
+   * sidebar re-open control (add-sidebar-slot design.md D6).
+   */
+  leading?: ReactNode;
 };
 
 const HEADER_CLASSES = ["flex", "h-16", "items-center", "gap-4", "bg-nav-surface", "px-4"].join(" ");
@@ -83,10 +88,12 @@ export function AppHeader({
   onSignOut,
   onLocaleChange,
   currentPath,
+  leading,
 }: AppHeaderProps): ReactNode {
   return (
     <header className={HEADER_CLASSES}>
       <div className={LEFT_GROUP_CLASSES}>
+        {leading}
         <span className="md:hidden">
           <Logo
             variant="icon"
