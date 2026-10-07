@@ -2,7 +2,7 @@
 
 ## 1. Not-found page (app-shell)
 
-- [ ] 1.1 Write the tests of the not-found screen in `src/pages/not-found/ui/NotFoundScreen.test.tsx` (spec "Not-found page"; design.md D6), test first, one test per scenario, rendering `NotFoundScreen` from `./NotFoundScreen` with `locale="es"`:
+- [x] 1.1 Write the tests of the not-found screen in `src/pages/not-found/ui/NotFoundScreen.test.tsx` (spec "Not-found page"; design.md D6), test first, one test per scenario, rendering `NotFoundScreen` from `./NotFoundScreen` with `locale="es"`:
   - "Not-found page content": a `heading` of level 1 named "Página no encontrada" is present, and the text "La página que buscas no existe o no tienes acceso a ella." is shown.
   - "Back to the home page": the `link` named "Volver al inicio" has `href` `/es`.
   No other test and no guard test is added. Verification: `npm run test:run` fails only in this file, because `NotFoundScreen.tsx` does not exist; every other test passes; `npm run lint` passes and `npx tsc --noEmit` reports only the missing module. Commit `test(app-shell): show the not-found page content and the way home`.
