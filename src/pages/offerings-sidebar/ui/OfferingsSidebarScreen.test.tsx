@@ -4,12 +4,14 @@ import type { Session } from "@/shared/api";
 import { SidebarProvider } from "@/shared/ui";
 import { AppSidebarProvider } from "@/widgets/app-sidebar";
 import { getMessages } from "@/shared/lib/i18n";
-import { offeringFacetsTexts, parseOfferingFilters } from "@/features/offering-facets";
-import { OfferingsSidebar } from "@/pages/offerings-sidebar";
+import { offeringFacetsTexts } from "@/features/offering-facets";
+import type { FilteredOfferingsFacetsProps } from "@/widgets/offering-list";
+import { OfferingsSidebarScreen } from "@/pages/offerings-sidebar";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
   cleanup();
+  facets.props = null;
 });
 
 // jsdom has no matchMedia; the sidebar reads the md breakpoint through it.
@@ -44,18 +46,26 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
-const FACETS = {
-  values: parseOfferingFilters({}),
-  options: {
-    countries: [],
-    regions: [],
-    processes: [],
-    varieties: [],
-    producers: [],
-    tasteNotes: [],
-  },
-  texts: offeringFacetsTexts(getMessages("filters", "es")),
-};
+/**
+ * The facet composition is an async Server Component — untestable in Vitest —
+ * so it is replaced at the widget's public API by a stub that renders a
+ * marker and records its props.
+ */
+const facets = vi.hoisted(() => ({
+  props: null as FilteredOfferingsFacetsProps | null,
+}));
+
+vi.mock("@/widgets/offering-list", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@/widgets/offering-list")>();
+  return {
+    ...actual,
+    FilteredOfferingsFacets: (props: FilteredOfferingsFacetsProps) => {
+      facets.props = props;
+      return <div data-testid="filtered-offerings-facets" />;
+    },
+  };
+});
 
 const SESSIONS: Record<string, Session> = {
   anonymous: { state: "anonymous" },
@@ -67,24 +77,30 @@ const SESSIONS: Record<string, Session> = {
 };
 
 /**
- * The offerings sidebar (add-sidebar-slot design.md D9; spec "Shown on the
- * offerings list"): the sidebar for every session state, with no navigation
- * entries, holding the offering facet panel (add-offering-facets design.md D7).
+ * The offerings slot screen (add-sidebar-slot design.md D9; spec "Shown on
+ * the offerings list"; extract-filtered-offerings design.md D5, D7): the
+ * sidebar for every session state, with no navigation entries, holding the
+ * filtered offerings facets.
  */
-describe("OfferingsSidebar (design.md D9; add-offering-facets D7)", () => {
+describe("OfferingsSidebarScreen (extract-filtered-offerings design.md D5, D7)", () => {
   it.each(Object.keys(SESSIONS))(
-    "renders the sidebar with no navigation for a %s session",
+    "renders the sidebar with no navigation and the facets for a %s session",
     (key) => {
+      const searchParams = { process: "washed" };
       render(
         <SidebarProvider>
           <AppSidebarProvider session={SESSIONS[key]!} toggleLabel="sidebar.toggle">
-            <OfferingsSidebar {...FACETS} />
+            <OfferingsSidebarScreen locale="es" searchParams={searchParams} />
           </AppSidebarProvider>
         </SidebarProvider>,
       );
-      const sidebar = screen.getByRole("complementary");
+      const sidebars = screen.getAllByRole("complementary");
+      expect(sidebars).toHaveLength(1);
       expect(screen.queryByRole("navigation")).toBeNull();
-      expect(within(sidebar).getByRole("search", { name: "Filtros" })).toBeDefined();
+      expect(within(sidebars[0]!).getByTestId("filtered-offerings-facets")).toBeDefined();
+      expect(facets.props?.locale).toBe("es");
+      expect(facets.props?.searchParams).toBe(searchParams);
+      expect(facets.props?.texts).toEqual(offeringFacetsTexts(getMessages("filters", "es")));
     },
   );
 });

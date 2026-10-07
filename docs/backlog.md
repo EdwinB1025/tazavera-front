@@ -69,17 +69,6 @@ One section per candidate, in this format:
 - **Status:** proposed
 - **Affects:** `add-user-account`, `add-offering-management`, `add-specialist-evaluations`
 
-## R9 — Single "Clear all" filters button (add-evaluation-facets propose)
-
-- **Duplicated:** two host-side "Clear all" buttons with the same behaviour (drop every facet key from the URL, keep the sort keys)
-- **Where today:** `ClearFiltersButton` (`add-offering-facets`) and `ClearEvaluationFiltersButton` (`add-evaluation-facets`), both planned, each in its own feature slice because FSD forbids feature-to-feature imports
-- **Why it pays off now:** one shared button in `src/shared/ui` (taking the facet keys as a prop) ends the duplication before a third filtered list repeats it
-- **Owning capability:** filtering
-- **Proposed change:** a refactor after both facet changes merge, moving the button to `src/shared/ui`
-- **Open decision (Augusto):** none
-- **Status:** proposed
-- **Affects:** `add-offering-facets`, `add-evaluation-facets`, `add-coffeeshop-directory` (a third copy; run R9 before it)
-
 ## R10 — Error boundary of the row facets in the traditional theme (refine-facet-controls Q2)
 
 - **Duplicated:** none; the row facets' radio and checkbox boxes take the error boundary colour in the dark theme only — in the traditional theme they keep the cream boundary under an error
@@ -90,17 +79,6 @@ One section per candidate, in this format:
 - **Open decision (Augusto):** none
 - **Status:** accepted
 - **Affects:** `add-offering-facets`, `add-evaluation-facets`
-
-## R12 — Filtered-offerings widget (add-coffeeshop-directory summary, Open 4)
-
-- **Duplicated:** the filtered offerings body and its sidebar composition (`OfferingsScreen` body, `OfferingsSidebarScreen` in `src/pages/offerings`); the coffee shop detail's offerings tab would copy them, because a page slice cannot import another page slice
-- **Where today:** `src/pages/offerings` (`add-offering-catalog`, `add-offering-facets`)
-- **Why it pays off now:** a widget (`src/widgets/filtered-offerings`, with a fixed-query prop for `coffeeshopUlid`) lets the directory reuse the catalog's list and filters without a copy, keeping the `?tab=` pattern; nothing the user sees changes
-- **Owning capability:** offering-catalog
-- **Proposed change:** a refactor after `add-offering-catalog` and `add-offering-facets` merge; before `add-coffeeshop-directory`
-- **Open decision (Augusto):** none
-- **Status:** proposed
-- **Affects:** `add-offering-catalog`, `add-offering-facets`, `add-coffeeshop-directory`
 
 ## R13 — Move `EvaluationsAccess` onto the shared session gate (extract-access-and-status-pieces, verify W1)
 
@@ -120,8 +98,8 @@ One section per candidate, in this format:
 - **Why it pays off now:** every role-gated route added (management, evaluations, location) sends users there
 - **Owning capability:** app-shell
 - **Proposed change:** none yet — a new change with its design summary
-- **Open decision (Augusto):** whether it belongs in the delivery
-- **Status:** proposed
+- **Open decision (Augusto):** none — answered 2026-10-07: kept in the backlog at the lowest priority; nothing is built until Product owner authorizes it
+- **Status:** deferred (lowest priority)
 - **Affects:** none
 
 ## R15 — Slow `EvaluationForm` tests under load (add-user-contact checks)
@@ -131,6 +109,17 @@ One section per candidate, in this format:
 - **Why it pays off now:** a flaky timeout breaks the checks of unrelated changes
 - **Owning capability:** evaluations
 - **Proposed change:** none yet — unplanned coverage fix (split the file or reduce user-event typing)
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** none
+
+## R16 — Unused `fetchVerifiedOfferings` (refine-list-pagination verify W1)
+
+- **Duplicated:** two paths to the landing request. Since the unplanned fix `65ca95a`, `VerifiedOfferings` adds `perPage` and `Offerings` sends the request. `fetchVerifiedOfferings(page)` is now called only by its own tests.
+- **Where today:** `src/widgets/offering-list/api/offerings.ts` (`fetchVerifiedOfferings`), `offerings.test.ts` (its cases), and the comment in `src/entities/taxonomy/api/taxonomies.test.ts:8`
+- **Why it pays off now:** dead code with tests of its own suggests a path the landing does not use
+- **Owning capability:** landing
+- **Proposed change:** none yet; it can go into the test-suite reduction (it removes tests)
 - **Open decision (Augusto):** none
 - **Status:** proposed
 - **Affects:** none
