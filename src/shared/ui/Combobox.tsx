@@ -81,9 +81,10 @@ const NO_SEARCH: ComboboxSearch = async () => [];
  * `useComboboxSearch`. cmdk fixes `aria-expanded="true"` and its own input
  * id, so a layout effect after every render sets `aria-expanded` to the
  * popup state and the visible label's `for` to the input id. Inside a
- * `Field` (design.md D14) it renders no label or help of its own: the
- * input takes the Field's control id and drops cmdk's `aria-labelledby`, so
- * the Field's label names it and the Field's help and error describe it.
+ * `Field` (design.md D14) it renders no label or help of its own: the input
+ * keeps cmdk's id, which cmdk needs to refocus it when results change, and
+ * drops cmdk's `aria-labelledby`; the same effect points the Field's label
+ * at that id, so the Field's label names it and its help and error describe it.
  */
 export function Combobox({
   label,
@@ -102,7 +103,7 @@ export function Combobox({
   const inField = field !== null;
   const helpId = useId();
   const hasHelp = !inField && help != null && help !== "";
-  const labelRef = useRef<HTMLLabelElement>(null);
+  const labelRef = useRef<HTMLLabelElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const searchMode = search !== undefined;
   // cmdk highlights the first option as soon as the rows change; the next
@@ -148,6 +149,12 @@ export function Combobox({
     const input = inputRef.current;
     if (!input) return;
     input.setAttribute("aria-expanded", String(open));
+    if (inField && labelRef.current === null) {
+      labelRef.current =
+        Array.from(document.getElementsByTagName("label")).find(
+          (label) => label.htmlFor === field.controlId,
+        ) ?? null;
+    }
     labelRef.current?.setAttribute("for", input.id);
   });
 
@@ -221,7 +228,7 @@ export function Combobox({
                 maxLength={maxLength}
                 disabled={disabled}
                 aria-describedby={hasHelp ? helpId : undefined}
-                {...(inField && { id: field.controlId, "aria-labelledby": undefined })}
+                {...(inField && { "aria-labelledby": undefined })}
               />
             </Command.Input>
           </Popover.Anchor>

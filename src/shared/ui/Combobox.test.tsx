@@ -458,3 +458,61 @@ describe("Combobox — inside a Field (design.md D14)", () => {
     expect(screen.queryByText("Own help")).toBeNull();
   });
 });
+
+describe("Combobox — search mode inside a Field (spec keyboard and pointer choice)", () => {
+  const RESULTS: ComboboxOption[] = [
+    { value: "1", label: "Café Uno" },
+    { value: "2", label: "Café Dos" },
+  ];
+
+  async function typeAndLoad(onChange: (option: ComboboxOption | null) => void) {
+    vi.useFakeTimers();
+    let resolve!: (options: ComboboxOption[]) => void;
+    const search = vi.fn<ComboboxSearch>(
+      () => new Promise<ComboboxOption[]>((res) => (resolve = res)),
+    );
+    render(
+      <Field label="Coffee" required help="Field help">
+        <Combobox label="Coffee" search={search} value={null} onChange={onChange} texts={TEXTS} />
+      </Field>,
+    );
+    const box = screen.getByRole("combobox", { name: "Coffee" }) as HTMLInputElement;
+    act(() => box.focus());
+    fireEvent.change(box, { target: { value: "caf" } });
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    await act(async () => {
+      resolve(RESULTS);
+    });
+    return box;
+  }
+
+  it("when results render, the input keeps focus, its text and the open list", async () => {
+    const box = await typeAndLoad(() => {});
+    expect(document.activeElement).toBe(box);
+    expect(box.value).toBe("caf");
+    expect(box.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getAllByRole("option")).toHaveLength(2);
+    const label = screen.getByText("Coffee");
+    expect(label.getAttribute("for")).toBe(box.id);
+    expect(box.getAttribute("aria-describedby")).toBe(screen.getByText("Field help").id);
+  });
+
+  it("a click on a result chooses it", async () => {
+    const onChange = vi.fn();
+    const box = await typeAndLoad(onChange);
+    fireEvent.click(screen.getByRole("option", { name: /Café Dos/ }));
+    expect(onChange).toHaveBeenCalledWith(RESULTS[1]);
+    expect(box.value).toBe("Café Dos");
+  });
+
+  it("ArrowDown, Enter chooses the first result", async () => {
+    const onChange = vi.fn();
+    const box = await typeAndLoad(onChange);
+    fireEvent.keyDown(box, { key: "ArrowDown" });
+    fireEvent.keyDown(box, { key: "Enter" });
+    expect(onChange).toHaveBeenCalledWith(RESULTS[0]);
+    expect(box.value).toBe("Café Uno");
+  });
+});
