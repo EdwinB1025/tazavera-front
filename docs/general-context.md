@@ -491,3 +491,11 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
   - Orquestador: el propose de add-coffeeshop-directory y add-coffeeshop-location puede ir antes de que se mergeen R9/R12 y R11; solo su apply espera a los refactors. Listas de directory y location en una columna.
 - **Por qué:** respuestas de Product owner del 7 oct (P1a, P2a, P3a); resúmenes del design lead (`2ce2cd8`).
 - **Afecta:** refine-page-surfaces; add-offering-catalog, add-specialist-evaluations, add-offering-management (ronda de adopción); add-user-account; add-user-contact; add-public-evaluations; add-coffeeshop-location; add-coffeeshop-directory.
+
+### 2026-10-07 — mapa del directorio con Leaflet y `perPage` (Product owner)
+- **Decisión:**
+  - Se aprueba la dependencia `leaflet@1.9.4` + `@types/leaflet@1.9.22` (BSD-2-Clause) para el mapa del directorio de cafeterías (add-coffeeshop-directory D16): conmutador lista/mapa, vista de mapa, botón de mapa en la tarjeta, mapa a pantalla completa en móvil, mapa de la pestaña Ubicaciones, y la línea `img-src` de la CSP para las teselas.
+  - API: `page` y `perPage` (estándar 15, máximo 50) en las cinco listas paginadas (hotfix `6eb8d0f`/`e84b444`). Product owner decide no documentarlo en Scribe: el front lo trata como comunicado por Product owner, igual que `offeringId` nullable. La landing pide `perPage=6` (refine-list-pagination, Q1 opción A).
+  - `openspec/config.yaml` actualizado por Product owner (`bbf5e66`): `offering-catalog` incluye el directorio; `offering-management`, las ubicaciones; `user-account`, los datos de contacto.
+- **Por qué:** respuestas de Product owner del 7 oct.
+- **Afecta:** add-coffeeshop-directory (actualización de artefactos: tareas del mapa); refine-list-pagination; add-coffeeshop-location; add-user-contact.
