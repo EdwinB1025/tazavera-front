@@ -13,7 +13,7 @@ Apply preconditions (met on 2026-10-07): `add-offering-catalog`, `add-sidebar-sl
 ## 2. URL writes (shared)
 
 - [ ] 2.1 Write `src/shared/lib/filter-query/filter-query.test.ts` for `buildFilterHref` and `clearFiltersHref` (design.md D4). Cases: a string change replaces one key and keeps the others in order; an array writes one repeated key per element (`cataRef=a&cataRef=b`); `undefined`, `""` and `[]` remove the key; `page` is always removed; no remaining key returns the bare pathname; a new key is appended; `clearFiltersHref` with `["orderBy","orderDirection"]` on `?process=washed&orderBy=cupping_avg&orderDirection=desc&page=2` returns `?orderBy=cupping_avg&orderDirection=desc`. Test `useFilterNavigation` with `next/navigation` mocked: `navigate({ process: "natural" })` on `/es/offerings?process=washed&page=3` calls `push("/es/offerings?process=natural", { scroll: false })`; `navigateTo("/es/offerings")` calls `push("/es/offerings", { scroll: false })`. Expected: fails only because the module or its exports are missing. Commit `test(filtering): verify the filter href builder and navigation`.
-- [ ] 2.2 Implement `src/shared/lib/filter-query/index.ts` (design.md D4) with the types `FilterChanges` and `QueryRecord`. Verify: 2.1 passes; full suite, lint and typecheck pass. Commit `feat(filtering): add the filter href builder and navigation`.
+- [x] 2.2 Implement `src/shared/lib/filter-query/index.ts` (design.md D4) with the types `FilterChanges` and `QueryRecord`. Verify: 2.1 passes; full suite, lint and typecheck pass. Commit `feat(filtering): add the filter href builder and navigation`.
 
 ## 3. Option data
 
