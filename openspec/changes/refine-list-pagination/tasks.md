@@ -26,8 +26,8 @@
 
 ## 4. Landing page size
 
-- [ ] 4.1 Write the test (landing spec "Page size"; design.md D8), test first. In `src/widgets/offering-list/api/offerings.test.ts`, the `fetchVerifiedOfferings(2)` case expects the URL `${API_URL}/offerings?verified=1&page=2&perPage=6`. The `fetchOfferings` cases do not change (no `perPage` is added to the catalog). Verification: `npm run test:run` fails only in that case; lint and typecheck pass. Commit `test(landing): request six verified offerings per page`.
-- [ ] 4.2 Implement the page size (design.md D8): `LANDING_PAGE_SIZE = 6` in `src/widgets/offering-list/api/offerings.ts`, and `fetchVerifiedOfferings` passes `{ verified: "1", page: String(page), perPage: String(LANDING_PAGE_SIZE) }` to `fetchOfferings`. `contracts/openapi.yaml` and `src/shared/api/schema.ts` are not touched. Verification: `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0. Commit `feat(landing): show six verified offerings per page`.
+- [x] 4.1 Write the test (landing spec "Page size"; design.md D8), test first. In `src/widgets/offering-list/api/offerings.test.ts`, the `fetchVerifiedOfferings(2)` case expects the URL `${API_URL}/offerings?verified=1&page=2&perPage=6`. The `fetchOfferings` cases do not change (no `perPage` is added to the catalog). Verification: `npm run test:run` fails only in that case; lint and typecheck pass. Commit `test(landing): request six verified offerings per page`.
+- [x] 4.2 Implement the page size (design.md D8): `LANDING_PAGE_SIZE = 6` in `src/widgets/offering-list/api/offerings.ts`, and `fetchVerifiedOfferings` passes `{ verified: "1", page: String(page), perPage: String(LANDING_PAGE_SIZE) }` to `fetchOfferings`. `contracts/openapi.yaml` and `src/shared/api/schema.ts` are not touched. Verification: `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0. Commit `feat(landing): show six verified offerings per page`.
 
 ## 5. Verification
 
