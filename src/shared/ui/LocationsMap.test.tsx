@@ -9,7 +9,9 @@ import { LocationsMap, type LocationsMapPoint, type LocationsMapTexts } from "./
  * coffee shop on the map"). Leaflet is replaced at its entry point by a fake
  * that records the calls and builds the marker element as Leaflet 1.9.4 does:
  * a div holding the icon's `html` element, with `tabindex="0"` and
- * `role="button"` for a keyboard marker, whose Enter fires the marker's click.
+ * `role="button"` for a keyboard marker. Leaflet turns Enter on a marker into
+ * opening a bound popup only (`Popup.js` `_onKeyPress`), never into a click,
+ * so the fake fires nothing for it.
  * As in Leaflet, a marker added before the map has a view gets its element
  * only once the view is set (`whenReady`).
  */
@@ -68,9 +70,6 @@ vi.mock("@/shared/lib/leaflet", () => {
         element.setAttribute("role", "button");
       }
       element.addEventListener("click", () => handlers.click?.());
-      element.addEventListener("keypress", (event) => {
-        if ((event as KeyboardEvent).key === "Enter") handlers.click?.();
-      });
       let added = false;
       const marker = {
         latlng,
@@ -195,7 +194,7 @@ describe("LocationsMap", () => {
     renderMap();
     for (const activate of [
       (element: HTMLElement) => fireEvent.click(element),
-      (element: HTMLElement) => fireEvent.keyPress(element, { key: "Enter", charCode: 13 }),
+      (element: HTMLElement) => fireEvent.keyDown(element, { key: "Enter" }),
       (element: HTMLElement) => fireEvent.keyDown(element, { key: " " }),
     ]) {
       const pujades = marker("Nomad Coffee — Pujades");

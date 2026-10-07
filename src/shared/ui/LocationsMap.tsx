@@ -158,7 +158,8 @@ export function LocationsMap({
       };
       marker.on("click", open);
       element.addEventListener("keydown", (event) => {
-        if (event.key === " ") {
+        // Leaflet maps Enter only to a bound popup, so both keys are ours.
+        if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
           open();
         } else if (event.key === "Escape") {
