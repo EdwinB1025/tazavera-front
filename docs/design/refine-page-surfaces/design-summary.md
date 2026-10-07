@@ -309,3 +309,17 @@ The view in the mock-up is an evaluation form: header block on the backdrop, a s
 - Open 1: option (b) `surface-inverse` withdrawn as equivalent in effect to (a) (same light value, `sage-100`); §9.3 note updated. Open 1 and Open 2 stay open with unchanged recommendations.
 - Open 3 replaced by the question "when the running changes adopt the section card" (options (a) adoption round per change before archive, user-account in a later small change; (b) one follow-up change); superseded text kept under it. Recorded that the three rounds launched 2026-10-07 carry no adoption point except catalog round 1 point 4, and that catalog round 1 point 3 builds its per-axis sections without the variant, switching in its adoption round.
 - §9.2 (catalog, evaluations, management, account and the three drafts' rows) and §9.4 (order) updated to the new Open 3. No spacing value changed.
+
+## Propose status
+
+- Change-id: `refine-page-surfaces`. Date: 2026-10-07 (architect).
+- `openspec validate refine-page-surfaces --strict`: valid.
+- Artifacts: `openspec/changes/refine-page-surfaces/` (proposal, design, specs `content-structure` and `app-shell`, tasks: 6 tasks in 3 groups). `theming` has no delta spec: its contrast requirements already cover the new pairs (design.md D6).
+- Resolved in design.md (implementation details of one component, `Card`):
+  - Prop: `variant?: "content" | "section"`, default `"content"`, type `CardVariant` (D2). The section variant stacks its parts at every width, ignoring `layout`, without the stacked layout's height filling.
+  - Band corners (§5.3): the section card clips its content to its own `radius-container` corners and the band takes no radius, because the radius guard forbids `rounded-t-*` / `rounded-b-*` (D3). Same visible end state.
+  - Static versus collapsible band, hover and collapsed separator: styled through CSS `:has()` on the collapsible header's `aria-expanded`, with no prop and no change to `Collapsible` (D4).
+  - Six matrix pairs of §4.3 in both matrices, plus a guard on the raw backdrop values (`sage-100` traditional, `night-petrol-950` dark) as the failing test of the token task (D6).
+- Open 1–3: applied as answered (a). Open 4–6: option (a) applies; nothing in this change.
+- Backlog: no entry resolved.
+- Remains open: none for this change.
