@@ -317,6 +317,35 @@ describe("completeCallback — the outcomes of design.md D4 (spec: Return throug
     expect(openedRoute()).toBe(route);
   });
 
+  it.each([
+    ["/es/manage/evaluations/new?offering=01J0", "/es/manage/evaluations/new?offering=01J0"],
+    ["/es/offerings?next=https://evil.example", "/es/offerings?next=https://evil.example"],
+    ["https://evil.example/es", "/es"],
+    ["//evil.example/es", "/es"],
+    ["/\\evil.example", "/es"],
+  ])("completes the flow and opens the stored return route %j only as an application route, else the default-locale root (fix-auth-return-query; spec: The return destination keeps the query, A return destination that is not an application route)", async (stored, opened) => {
+    const { completeCallback, flow } = await load();
+    flow.saveFlow({ verifier: "verifier-123", state: "state-123", returnRoute: stored });
+    fetchMock.mockResolvedValue(jsonResponse(GRANT));
+
+    await completeCallback({ code: "code-123", state: "state-123" }, replaceRouteMock);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(flow.readFlow()).toBeNull();
+    expect(flow.hasMarker()).toBe(true);
+    expect(replaceRouteMock).toHaveBeenCalledTimes(1);
+    expect(replaceRouteMock).toHaveBeenCalledWith(opened);
+  });
+
+  it("opens the default-locale root for a stored return route that is not an application route when the authorization comes back with an error (fix-auth-return-query; spec: A return destination that is not an application route)", async () => {
+    const { completeCallback, flow } = await load();
+    flow.saveFlow({ verifier: "verifier-123", state: "state-123", returnRoute: "//evil.example/es" });
+
+    await completeCallback({ error: "access_denied", state: "state-123" }, replaceRouteMock);
+
+    expect(replaceRouteMock).toHaveBeenCalledWith("/es");
+  });
+
   it("opens the return route through the client-side navigation it is given, in place of the /callback entry, and never through the native history API (design.md D4; spec: Completing on the callback)", async () => {
     const { completeCallback, flow } = await load();
     flow.saveFlow({ verifier: "verifier-123", state: "state-123", returnRoute: route });
