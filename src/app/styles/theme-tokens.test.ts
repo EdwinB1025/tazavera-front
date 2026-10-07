@@ -515,6 +515,10 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "badge-text", bg: "evaluation-rating-good", kind: "text" },
   { fg: "badge-text", bg: "evaluation-rating-commercial", kind: "text" },
   { fg: "text-label", bg: "surface-section", kind: "text" },
+  // Review round 2: the tab bar sits on the page background; the selected
+  // tab's 2px edge there (its labels and focus ring on surface-page are
+  // registered above).
+  { fg: "border-accent", bg: "surface-page", kind: "bound" },
   // ── Page backdrop and section card band (refine-page-surfaces D6; the
   // pairs the catalog block above already registers are not repeated) ──
   { fg: "text-accent", bg: "surface-page", kind: "text" },
@@ -880,6 +884,10 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "badge-text", bg: "evaluation-rating-good", kind: "text" },
   { fg: "badge-text", bg: "evaluation-rating-commercial", kind: "text" },
   { fg: "text-label", bg: "surface-section", kind: "text" },
+  // Review round 2: the tab bar sits on the page background; the selected
+  // tab's 2px edge there (its labels and focus ring on surface-page are
+  // registered above).
+  { fg: "border-accent", bg: "surface-page", kind: "bound" },
   // ── Page backdrop and section card band (refine-page-surfaces D6; the
   // pairs the catalog block above already registers are not repeated) ──
   { fg: "text-accent", bg: "surface-page", kind: "text" },

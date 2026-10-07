@@ -40,14 +40,19 @@ export type OfferingDetailContentProps = {
 // The back link and the block below it, 1.5rem apart (design.md D9).
 const TOP_CONTAINER_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
 
+// The view's top-level blocks on the page background, 2rem apart: the header
+// block, then the tabs (design.md D9; content-structure "Page sections").
+const BLOCKS_CLASSES = ["flex", "flex-col", "gap-8"].join(" ");
+
 // The error message with its retry action, 1rem apart; the button keeps its
 // own width.
 const ERROR_CLASSES = ["flex", "flex-col", "items-start", "gap-4"].join(" ");
 
 /**
  * The offering detail's presentation (add-offering-catalog design.md D8, D9;
- * spec "Offering detail page"). On success, the back link and the header on
- * the page background and the two tabs on the section background; on an
+ * spec "Offering detail page"). On success, one section on the page
+ * background holds the header block (the back link and the header) and the
+ * two tabs, whose panels' cards hang from that background; on an
  * error, the back link and, below it, the message with the retry action
  * instead of the tabs. Every text arrives as a prop.
  */
@@ -78,8 +83,8 @@ export function OfferingDetailContent({
   }
 
   return (
-    <>
-      <PageSection surface="page" containerClassName={TOP_CONTAINER_CLASSES}>
+    <PageSection surface="page" containerClassName={BLOCKS_CLASSES}>
+      <div className={TOP_CONTAINER_CLASSES}>
         {backLink}
         <DetailHeader
           offering={result.offering}
@@ -87,30 +92,26 @@ export function OfferingDetailContent({
           session={session}
           texts={texts}
         />
-      </PageSection>
-      <PageSection surface="section">
-        <DetailTabs
-          key={tab}
-          active={tab}
-          locale={locale}
-          ulid={ulid}
-          labels={{
-            inventory: texts.tabInventory,
-            consensus: texts.tabConsensus,
-          }}
-          inventory={
-            <InventoryPanel offering={result.offering} texts={texts} />
-          }
-          consensus={
-            <ConsensusPanel
-              offering={result.offering}
-              taxonomies={result.taxonomies}
-              locale={locale}
-              texts={texts}
-            />
-          }
-        />
-      </PageSection>
-    </>
+      </div>
+      <DetailTabs
+        key={tab}
+        active={tab}
+        locale={locale}
+        ulid={ulid}
+        labels={{
+          inventory: texts.tabInventory,
+          consensus: texts.tabConsensus,
+        }}
+        inventory={<InventoryPanel offering={result.offering} texts={texts} />}
+        consensus={
+          <ConsensusPanel
+            offering={result.offering}
+            taxonomies={result.taxonomies}
+            locale={locale}
+            texts={texts}
+          />
+        }
+      />
+    </PageSection>
   );
 }

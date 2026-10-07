@@ -26,6 +26,10 @@ const ANONYMOUS_SESSION: Session = { state: "anonymous" };
 // The back link and the header's place, 1.5rem apart (design.md D9).
 const TOP_CONTAINER_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
 
+// The header block and the tabs' place on the page background, 2rem apart,
+// as the loaded detail lays them out (design.md D9).
+const BLOCKS_CLASSES = ["flex", "flex-col", "gap-8"].join(" ");
+
 // The placeholder bars in the header's place, 0.5rem apart, shaped like
 // `OfferingSkeletonCard`'s: the badge, the title and a caption.
 const BARS_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
@@ -127,11 +131,8 @@ export function OfferingDetailScreen({
     <div className="flex-1">
       <Suspense
         fallback={
-          <>
-            <PageSection
-              surface="page"
-              containerClassName={TOP_CONTAINER_CLASSES}
-            >
+          <PageSection surface="page" containerClassName={BLOCKS_CLASSES}>
+            <div className={TOP_CONTAINER_CLASSES}>
               <Link variant="back" href={`/${locale}/offerings`}>
                 {texts.backLabel}
               </Link>
@@ -140,15 +141,13 @@ export function OfferingDetailScreen({
                   <div key={size} className={cn(PLACEHOLDER_CLASSES, size)} />
                 ))}
               </div>
-            </PageSection>
-            <PageSection surface="section">
-              <div className={SKELETON_GRID_CLASSES}>
-                {SKELETON_CARD_KEYS.map((key) => (
-                  <OfferingSkeletonCard key={key} />
-                ))}
-              </div>
-            </PageSection>
-          </>
+            </div>
+            <div className={SKELETON_GRID_CLASSES}>
+              {SKELETON_CARD_KEYS.map((key) => (
+                <OfferingSkeletonCard key={key} />
+              ))}
+            </div>
+          </PageSection>
         }
       >
         <OfferingDetail
