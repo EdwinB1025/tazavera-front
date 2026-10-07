@@ -13,6 +13,7 @@ import {
   labelPath,
   labelRadius,
   layoutWheel,
+  groupRuns,
   type WheelSegment,
 } from "./flavor-wheel-geometry";
 import { taxonomyColorRule } from "./taxonomy-color";
@@ -29,20 +30,27 @@ export type FlavorWheelNode = {
   level: 0 | 1 | 2; // from the offering node's own level
   count: number; // evaluators who identified the note
   countLabel: string; // host-composed accessible text
+  group?: string; // the root's group id (add-offering-catalog D19); roots only
   children: FlavorWheelNode[];
 };
+
+/** A group of roots set apart on the wheel, in wheel order (D19). */
+export type FlavorWheelGroup = { id: string; name: string };
 
 export type FlavorWheelTexts = {
   label: string;
   hint: string;
   emptyMessage: string;
   notesToggle: string; // the note list's expand control (review round 1)
+  groupsLabel?: string; // the general group legend's accessible name (D19)
 };
 
 export type FlavorWheelProps = {
   nodes: FlavorWheelNode[];
   total: number;
   texts: FlavorWheelTexts;
+  /** Optional groups of roots; with two or more holding roots they are set apart (D19). */
+  groups?: FlavorWheelGroup[];
 };
 
 // ─── Treatment classes (design.md D8; design-summary §6) ───
@@ -51,6 +59,18 @@ const LAYOUT_CLASSES =
   "flex flex-col gap-6 @2xl:grid @2xl:grid-cols-[minmax(0,32rem)_minmax(16rem,1fr)] @2xl:grid-rows-[auto_1fr] @2xl:gap-x-8 @2xl:gap-y-6";
 const WHEEL_CLASSES =
   "mx-auto aspect-square w-full max-w-128 @2xl:row-span-2 @2xl:mx-0 @2xl:self-start";
+// With the general group legend, the side column grows one row (D19).
+const GROUPED_LAYOUT_CLASSES =
+  "flex flex-col gap-6 @2xl:grid @2xl:grid-cols-[minmax(0,32rem)_minmax(16rem,1fr)] @2xl:grid-rows-[auto_auto_1fr] @2xl:gap-x-8 @2xl:gap-y-6";
+const GROUPED_WHEEL_CLASSES =
+  "mx-auto aspect-square w-full max-w-128 @2xl:row-span-3 @2xl:mx-0 @2xl:self-start";
+const GROUP_LEGEND_CLASSES = "flex flex-wrap gap-x-4 gap-y-1";
+
+// The inner group legend inside the centre hole (D19, chosen values): the
+// group's arc at radius 74, 2 units wide, and its name at radius 62.
+const GROUP_ARC_RADIUS = 74;
+const GROUP_NAME_RADIUS = 62;
+const GROUP_NAME_FONT_SIZE = 11;
 const PANEL_CLASSES =
   "flex min-h-24 flex-col gap-2 rounded-field border border-border-subtle p-4";
 const ROW_CLASSES =
@@ -213,20 +233,36 @@ function ActiveName({
  * only (design.md D6–D7).
  */
 export function FlavorWheel({
-  nodes,
+  nodes: givenNodes,
   total,
   texts,
+  groups,
 }: FlavorWheelProps): ReactNode {
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
   const [activeId, setActiveId] = useState<string | null>(null);
   const idPrefix = useId();
   const rowElements = useRef(new Map<string, HTMLLIElement>());
 
-  if (total === 0 || nodes.length === 0) {
+  if (total === 0 || givenNodes.length === 0) {
     return <p className="type-body">{texts.emptyMessage}</p>;
   }
 
-  const { segments } = layoutWheel(nodes, expanded);
+  // Groups set apart only when two or more of them hold roots (D19); the
+  // roots then follow the group order around the wheel and down the list.
+  const groupOrder = (groups ?? []).map((group) => group.id);
+  const runs = groups ? groupRuns(givenNodes, groupOrder) : [];
+  const grouped = runs.length >= 2;
+  const nodes = grouped ? runs.flatMap((run) => run.roots) : givenNodes;
+  const { segments, groupArcs } = layoutWheel(
+    nodes,
+    expanded,
+    grouped ? groupOrder : undefined,
+  );
+  const groupName = (id: string): string =>
+    groups?.find((group) => group.id === id)?.name ?? "";
+  const legendGroups = runs
+    .map((run) => groups?.find((group) => group.id === run.id))
+    .filter((group): group is FlavorWheelGroup => group !== undefined);
   const rows = visibleRows(nodes, expanded);
   const active = activeId === null ? null : findNode(nodes, activeId);
   const activeSegment = segments.find((s) => s.node.id === activeId);
@@ -317,8 +353,8 @@ export function FlavorWheel({
   return (
     <figure className="@container">
       <figcaption className="sr-only">{texts.label}</figcaption>
-      <div className={LAYOUT_CLASSES}>
-        <div className={WHEEL_CLASSES}>
+      <div className={grouped ? GROUPED_LAYOUT_CLASSES : LAYOUT_CLASSES}>
+        <div className={grouped ? GROUPED_WHEEL_CLASSES : WHEEL_CLASSES}>
           <svg
             viewBox={VIEWBOX}
             aria-hidden="true"
@@ -363,6 +399,35 @@ export function FlavorWheel({
                 </g>
               );
             })}
+            {groupArcs.map((arc) => {
+              const mid = (arc.start + arc.end) / 2;
+              const nameId = `${idPrefix}-group-${arc.id}`;
+              return (
+                <g key={arc.id} data-group-legend={arc.id}>
+                  <path
+                    d={labelPath(GROUP_ARC_RADIUS, arc.start, arc.end)}
+                    fill="none"
+                    strokeWidth={2}
+                    className="stroke-text-secondary"
+                  />
+                  <path
+                    id={nameId}
+                    d={labelPath(GROUP_NAME_RADIUS, mid - 90, mid + 90)}
+                    fill="none"
+                  />
+                  <text
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fontSize={GROUP_NAME_FONT_SIZE}
+                    className="pointer-events-none select-none fill-text-secondary"
+                  >
+                    <textPath href={`#${nameId}`} startOffset="50%">
+                      {groupName(arc.id)}
+                    </textPath>
+                  </text>
+                </g>
+              );
+            })}
             <text
               x={0}
               y={0}
@@ -395,6 +460,16 @@ export function FlavorWheel({
             ) : null}
           </svg>
         </div>
+
+        {grouped ? (
+          <ul aria-label={texts.groupsLabel} className={GROUP_LEGEND_CLASSES}>
+            {legendGroups.map((group) => (
+              <li key={group.id} className="type-meta">
+                {group.name}
+              </li>
+            ))}
+          </ul>
+        ) : null}
 
         <div data-slot="flavor-wheel-panel" className={PANEL_CLASSES}>
           {active ? (

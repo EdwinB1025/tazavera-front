@@ -97,6 +97,7 @@ export type {
 } from "./Collapsible";
 export { FlavorWheel } from "./FlavorWheel";
 export type {
+  FlavorWheelGroup,
   FlavorWheelNode,
   FlavorWheelTexts,
   FlavorWheelProps,
