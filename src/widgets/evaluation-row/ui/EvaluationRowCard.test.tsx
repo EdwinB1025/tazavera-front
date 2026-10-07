@@ -89,7 +89,7 @@ describe("EvaluationRowCard, public variant (design.md D6)", () => {
     expect(view.getAttribute("href")).toBe(`/en/evaluations/${CLOSED.ulid}`);
     const offering = screen.getByRole("link", { name: "View offering Finca La Esperanza" });
     expect(offering.getAttribute("href")).toBe(`/en/offerings/${OFFERING.ulid}`);
-    expect(offering.querySelector(".sr-only")?.textContent).toBe(" Finca La Esperanza");
+    expect(offering.querySelector(".sr-only")?.textContent).toBe("Finca La Esperanza");
   });
 
   it("shows offeringUnavailable with no captions and no View offering when the offering read failed", () => {

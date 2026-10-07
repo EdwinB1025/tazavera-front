@@ -10,8 +10,8 @@ import { fetchOffering } from "@/entities/offering";
 import { Button, Card, CardContent, Pagination } from "@/shared/ui";
 import type { PaginationTexts } from "@/shared/ui";
 import { cn } from "@/shared/lib/utils";
-import { EvaluationRowCard } from "./EvaluationRowCard";
-import type { EvaluationRowTexts } from "./EvaluationRowCard";
+import { SpecialistEvaluationRow } from "./SpecialistEvaluationRow";
+import type { EvaluationRowTexts } from "./SpecialistEvaluationRow";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -199,7 +199,7 @@ export function EvaluationsList({
           <ul className={ROWS_CLASSES}>
             {list.rows.map((row, index) => (
               <li key={row.evaluation.ulid ?? index}>
-                <EvaluationRowCard
+                <SpecialistEvaluationRow
                   evaluation={row.evaluation}
                   offering={row.offering}
                   locale={locale}

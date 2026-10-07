@@ -12,8 +12,8 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push, refresh: vi.fn(), replace: vi.fn() }),
 }));
 
-import { EvaluationRowCard } from "./EvaluationRowCard";
-import type { EvaluationRowTexts } from "./EvaluationRowCard";
+import { SpecialistEvaluationRow as EvaluationRowCard } from "./SpecialistEvaluationRow";
+import type { EvaluationRowTexts } from "./SpecialistEvaluationRow";
 
 const TEXTS: EvaluationRowTexts = {
   openLabel: "Open",
