@@ -27,3 +27,19 @@ Design lead (5.2), condensed:
 
 ### Final checks
 2178/2179 tests on `2060b73` (R15 timeout; the file passes when run alone), lint and tsc green. `65ca95a`: cloud checks only (see F1); local re-run pending until memory allows. Pending: retake the four landing captures, then check off 5.1 + 5.2.
+
+## Session 2026-10-07 — landing captures (cloud)
+Summary: the four landing captures of task 5.2 retaken after F1 (`65ca95a`), on `5ef4841`, from `npm run build` + `npm run start` with `NEXT_PUBLIC_API_URL` pointing to a local read mock (scratch folder, outside the repo) serving `GET /offerings` (62 verified offerings built from the `listOfferings` example, paged by `page` and `perPage`, default 15, max 50) and `GET /taxonomies` (the `listOlfactoryTaxonomies` example). Theme set through the `theme` cookie (`traditional` / `dark`), as `src/shared/lib/theme.ts` does. Captures: `captures/landing-{375,1280}-{light,dark}.png`, full page, of `/es?page=4`.
+
+### Landing checks
+- Request: PASS. The mock's request log shows `/offerings?verified=1&page=4&perPage=6` and `/taxonomies` for each render.
+- 6 cards: PASS in all four captures; one column at 375px (6 rows), two rows of three at 1280px.
+- Pagination 2rem below the grid: PASS (32px measured between grid bottom and `nav` top, all four).
+- 375px Previous/Next: PASS, 40×40px chevron buttons with the label hidden (round in the traditional theme, square in the dark theme, where `--radius-pill` is 0).
+- 1280px Previous/Next: PASS, labels "Anterior" / "Siguiente" shown.
+- Page window: PASS against task 5.2 / design.md D3. With 62 offerings at 6 per page, `last_page` is 11: 375px shows `1 … [4] … 11`, 1280px shows `1 2 3 [4] 5 … 11`. The routine's literal windows (`1 … [4] 5`, `1 2 3 [4] 5`) assume a last page of 5, which "at least 60 verified offerings" at 6 per page cannot produce; the rendered windows follow the D3 rule for 11 pages.
+- Current page filled and distinct from the tinted numbers: PASS in both themes (visual).
+- No horizontal scroll at 375px: PASS (`scrollWidth` 375 in both themes).
+- Focus ring: not retaken here (already PASS in the design lead's 5.2 run).
+
+Result: landing PASS. With the 12 captures already committed, task 5.2 is complete.
