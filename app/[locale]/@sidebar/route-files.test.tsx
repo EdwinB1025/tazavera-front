@@ -25,6 +25,12 @@ vi.mock("@/pages/new-offering", () => ({
   ),
 }));
 
+vi.mock("@/pages/evaluations-list", () => ({
+  EvaluationsSidebarScreen: ({ locale }: { locale: string }) => (
+    <div data-testid="evaluations-sidebar" data-locale={locale} />
+  ),
+}));
+
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
   cleanup();
@@ -91,5 +97,30 @@ describe("the management @sidebar slot route files (add-offering-management D8)"
     const route = (await import(`./${file}`)) as LocaleSlotRoute;
     render(await route.default({ params: Promise.resolve({ locale: "en" }) }));
     expect(screen.getByTestId(testId).getAttribute("data-locale")).toBe("en");
+  });
+});
+
+type LocaleSearchSlotRoute = {
+  default: (props: {
+    params: Promise<{ locale: string }>;
+    searchParams: Promise<Record<string, string | string[] | undefined>>;
+  }) => Promise<ReactNode>;
+};
+
+/**
+ * The evaluations slot page (add-evaluation-facets spec "Form routes have no
+ * facets"): only the list route renders the facets; the form routes have no
+ * slot page, so the catch-all default sidebar renders.
+ */
+describe("the evaluations @sidebar slot route files (add-evaluation-facets)", () => {
+  it("renders the facets on manage/evaluations only, not on its form routes", async () => {
+    const file = "manage/evaluations/page.tsx";
+    const route = (await import(`./${file}`)) as LocaleSearchSlotRoute;
+    render(
+      await route.default({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({}) }),
+    );
+    expect(screen.getByTestId("evaluations-sidebar").getAttribute("data-locale")).toBe("en");
+    expect(existsSync(slotFile("manage/evaluations/new/page.tsx"))).toBe(false);
+    expect(existsSync(slotFile("manage/evaluations/[ulid]/page.tsx"))).toBe(false);
   });
 });
