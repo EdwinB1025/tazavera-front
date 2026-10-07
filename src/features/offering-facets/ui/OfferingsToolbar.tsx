@@ -19,9 +19,10 @@ export type OfferingsToolbarProps = {
 // sort field at the end; no padding, border or radius (summary §6.4).
 const TOOLBAR_CLASSES = "flex flex-wrap items-end justify-between gap-x-4 gap-y-3";
 
-// The sort field grows between 12rem and 16rem and stays at the end when the
-// trigger is hidden.
-const SORT_CLASSES = "ml-auto min-w-48 max-w-64 grow";
+// The sort field starts at 12rem (`basis-48`, not its content width), grows up
+// to 16rem and stays at the end when the trigger is hidden, so the trigger and
+// the sort field share one row at 375px.
+const SORT_CLASSES = "ml-auto min-w-48 max-w-64 grow basis-48";
 
 /**
  * The offerings body toolbar (design.md D6, D8; spec "Offering sort",

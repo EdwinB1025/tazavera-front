@@ -85,6 +85,15 @@ describe("OfferingsToolbar (design.md D8)", () => {
     );
   });
 
+  it("starts the sort field at 12rem and lets it grow to 16rem, so the toolbar keeps one row at 375px", () => {
+    const select = renderToolbar("", 1);
+    const field = select.closest("div.grow");
+    expect(field).not.toBeNull();
+    expect(field!.className.split(" ")).toEqual(
+      expect.arrayContaining(["basis-48", "min-w-48", "max-w-64", "grow", "ml-auto"]),
+    );
+  });
+
   it("removes both keys for Default order", () => {
     const select = renderToolbar("orderBy=cupping_avg&orderDirection=desc&city=Lima");
     fireEvent.change(select, { target: { value: "default" } });
