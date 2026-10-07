@@ -3,7 +3,7 @@
 ## 1. Collapsed body takes up no space
 
 - [x] 1.1 In `src/shared/ui/Collapsible.test.tsx`, add the test of design.md D2 ("clips the collapsed body's overflow"): the inner wrapper `body.firstElementChild` has the class tokens `min-h-0` and `overflow-hidden` while collapsed; after clicking the header it has `min-h-0` and not `overflow-hidden`; after clicking it again it has `overflow-hidden`. Verify: `npm run test:run -- src/shared/ui/Collapsible.test.tsx` fails only on this new test (missing `overflow-hidden`); every other test passes. Commit as `test(content-structure): ...`.
-- [ ] 1.2 In `src/shared/ui/Collapsible.tsx`, give `CollapsibleBody`'s inner wrapper `overflow-hidden` while collapsed only (design.md D1), keeping `min-h-0` in both states; no prop, outer class or token changes. Verify: the 1.1 test passes and `npm run test:run` is fully green.
+- [x] 1.2 In `src/shared/ui/Collapsible.tsx`, give `CollapsibleBody`'s inner wrapper `overflow-hidden` while collapsed only (design.md D1), keeping `min-h-0` in both states; no prop, outer class or token changes. Verify: the 1.1 test passes and `npm run test:run` is fully green.
 
 ## 2. Verification
 
