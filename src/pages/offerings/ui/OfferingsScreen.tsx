@@ -44,7 +44,7 @@ const HEADING_BLOCK_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
  * loads the `catalog` and `landing` texts of the route's locale, keeps the
  * contract's query names of the address, and renders the heading block, the
  * toolbar region and the query-driven list inside a `Suspense` boundary whose
- * fallback is the skeleton cards in the catalog grid.
+ * fallback is the skeleton cards in the catalog column, on the page background.
  */
 export function OfferingsScreen({
   locale,
@@ -84,7 +84,7 @@ export function OfferingsScreen({
         </div>
         {toolbar ? <div>{toolbar}</div> : null}
       </PageSection>
-      <PageSection surface="section">
+      <PageSection surface="page">
         <Suspense
           fallback={
             <div className="@container">

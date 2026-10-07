@@ -13,16 +13,9 @@ export const OFFERING_GRID_CLASSES = [
 ].join(" ");
 
 /**
- * The catalog grid (add-offering-catalog design.md D10; spec "Catalog grid by
- * available width"): the columns follow the width of the results region, not
- * the viewport — one column, two from a 768px region and three from 1280px,
- * with a 1.5rem gap — so content beside the region narrows the columns. An
- * ancestor carries `@container`, since a container cannot query itself.
+ * The catalog column (add-offering-catalog design.md D10; spec "Catalog single
+ * column"): the cards render in one column at every width, 1.5rem apart. The
+ * column takes the width its `PageSection` container leaves, so it is centered
+ * with the page background in the side margins.
  */
-export const CATALOG_GRID_CLASSES = [
-  "grid",
-  "grid-cols-1",
-  "gap-6",
-  "@min-[768px]:grid-cols-2",
-  "@min-[1280px]:grid-cols-3",
-].join(" ");
+export const CATALOG_GRID_CLASSES = ["grid", "grid-cols-1", "gap-6"].join(" ");
