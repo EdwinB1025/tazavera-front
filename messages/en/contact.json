@@ -1,0 +1,10 @@
+{
+  "contactAddressLabel": "Address",
+  "contactPostalCodeLabel": "Postal code",
+  "contactCityLabel": "City",
+  "contactCountryLabel": "Country",
+  "contactPhoneLabel": "Phone",
+  "contactEmailLabel": "Email",
+  "contactWebLabel": "Website",
+  "contactSocialLabel": "Social media"
+}

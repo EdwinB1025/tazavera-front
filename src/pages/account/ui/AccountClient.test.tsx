@@ -54,6 +54,20 @@ const TEXTS = {
   securityDescription: "fx-security-description",
   securityLink: "fx-security-link",
   dangerZoneHeading: "fx-danger",
+  contactHeading: "fx-contact",
+  contactDescription: "fx-contact-description",
+  contactEmptyText: "fx-contact-empty",
+  contactAddButton: "fx-contact-add",
+  contactLoadError: "fx-contact-load-error",
+  retry: "fx-retry",
+  contactAddressLabel: "fx-address",
+  contactPostalCodeLabel: "fx-postal-code",
+  contactCityLabel: "fx-city",
+  contactCountryLabel: "fx-country",
+  contactPhoneLabel: "fx-phone",
+  contactEmailLabel: "fx-email",
+  contactWebLabel: "fx-web",
+  contactSocialLabel: "fx-social",
 } as AccountClientTexts;
 
 const USER = {
@@ -84,7 +98,7 @@ describe("AccountClient — the session gate", () => {
     expect(auth.signIn).toHaveBeenCalledTimes(1);
   });
 
-  it("while authenticated shows Profile, Password, Security and Danger zone in order, each named by its heading", () => {
+  it("while authenticated shows Profile, Contact details, Password, Security and Danger zone in order, each named by its heading", () => {
     auth.session = { state: "authenticated", user: USER };
     renderClient();
     const names = screen
@@ -93,6 +107,7 @@ describe("AccountClient — the session gate", () => {
       .map((id) => document.getElementById(id!)?.textContent);
     expect(names).toEqual([
       TEXTS.profileHeading,
+      TEXTS.contactHeading,
       TEXTS.passwordHeading,
       TEXTS.securityHeading,
       TEXTS.dangerZoneHeading,
@@ -102,16 +117,32 @@ describe("AccountClient — the session gate", () => {
   it("shows the signed-out state when the session turns anonymous while the page is open", () => {
     auth.session = { state: "authenticated", user: USER };
     const { rerender } = renderClient();
-    expect(screen.getAllByRole("region")).toHaveLength(4);
+    expect(screen.getAllByRole("region")).toHaveLength(5);
     auth.session = { state: "anonymous" };
     rerender(<AccountClient locale="es" texts={TEXTS} />);
     expect(screen.queryAllByRole("region")).toHaveLength(0);
     expect(screen.getByText(TEXTS.signedOutText)).toBeTruthy();
   });
+
+  it("while loading and while anonymous shows a section card with a subtle border, no accent edge and no header band", () => {
+    for (const session of [
+      { state: "loading" },
+      { state: "anonymous" },
+    ] satisfies Session[]) {
+      auth.session = session;
+      const { container } = renderClient();
+      const card = container.firstElementChild!;
+      expect(card.classList.contains("border")).toBe(true);
+      expect(card.classList.contains("border-border-subtle")).toBe(true);
+      expect(card.classList.contains("border-l-4")).toBe(false);
+      expect(container.querySelector(".bg-surface-section")).toBeNull();
+      cleanup();
+    }
+  });
 });
 
 describe("AccountClient — sections group", () => {
-  it("places the four sections as the children of one flex column 1rem apart", () => {
+  it("places the five sections as the children of one flex column 1rem apart", () => {
     auth.session = { state: "authenticated", user: USER };
     renderClient();
     const regions = screen.getAllByRole("region");

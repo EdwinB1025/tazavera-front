@@ -19,6 +19,7 @@ import {
   X,
   Trash2,
   List,
+  Plus,
   BeanMark,
   type LucideIcon,
 } from "@/shared/ui/icons";
@@ -79,6 +80,10 @@ describe("icon entry point (src/shared/ui/icons.ts)", () => {
     // The "Manage offerings" sidebar entry's icon. It is not exported yet,
     // so this test fails until task 8.2 re-exports it.
     expect(List).toBeDefined();
+  });
+
+  it("exports Plus (add-user-contact design.md D8)", () => {
+    expect(Plus).toBeDefined();
   });
 
   it("is the only module under src/ that imports lucide-react", () => {
