@@ -548,3 +548,13 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Decisión:** R14 (página 404 localizada y con tema) entra si queda tiempo, después de public-evaluations, coffeeshop-directory y la reducción de tests. Cambio nuevo `add-not-found-page` (app-shell): el design lead redacta el resumen solo con componentes y tokens existentes; el orquestador lo aprueba si no deja puntos abiertos.
 - **Por qué:** Product owner, 7 oct noche ("si te queda tiempo incluirá R14").
 - **Afecta:** add-not-found-page (nuevo); backlog R14 (sale al archivar ese cambio).
+
+### 2026-10-08 — reducción de la suite aprobada, con prioridad alta (Product owner)
+- **Decisión:**
+  - Se aprueba el plan `docs/testing/test-reduction-plan.md` (rama `claude/test-reduction-plan`): de 2.239 casos quedan en el repo solo los que verifican escenarios de `openspec/specs/` (uno por escenario) y las guardas; el resto pasa a `../tazavera-front-qa` o se borra.
+  - Las guardas se simplifican a un test general por regla: `theme-tokens` pasa de 707 casos a 4 (temas completos, contraste de los pares registrados, tipografía, radios y foco); `icons` pasa de 13 a 1. Los valores de diseño sin escenario van a QA. Objetivo: unos 820 casos en total.
+  - No se crean guardas nuevas. Un token nuevo solo registra su par en la matriz existente.
+  - Esto autoriza la excepción a `.claude/CLAUDE.md` §3 ("never remove or weaken a test") para lo que mueve o borra este plan.
+  - Se aplica en dos pasadas: ahora sobre `develop`, sin tocar los tests que modifican las ramas en vuelo; la segunda pasada, cuando esas ramas estén mergeadas.
+- **Por qué:** Product owner, 8 oct ("esa cantidad de test no es manejable", "OK con alta prioridad").
+- **Afecta:** todos los cambios abiertos (sus prompts de build: no crear guardas); AGENTS.md `## Testing` (viñeta "no new guard tests", pendiente de Product owner); `.claude/CLAUDE.md` §3.
