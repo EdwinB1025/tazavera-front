@@ -322,3 +322,25 @@ Detail, 1280px (updated 2026-10-07): back link; badge, `h1`, captions; tab list 
 - Open 4 closed (R12 first) and Open 5 closed (R9 first, directory in its "Affects"): §4, §10.
 - Contradictions fixed (criterion B, against add-offering-catalog round 1 point 4 and refine-page-surfaces §5.2): the coffee shop list and the offerings tab are one centred column, never `CATALOG_GRID_CLASSES`; location cards one column; the detail's tab bar sits on the backdrop, not in `PageSection surface="section"` (§5.2, §5.7, §8, §12).
 - Adoption of refine-page-surfaces: backdrop for list and detail, no section band; no directory view has a section with a header, so no section card (§5.7, §8); backdrop contrast note in §7. New Open 13 (`LocationCard` vs the flat directory locations; not blocking).
+
+## Propose status
+
+- **Change-id:** `add-coffeeshop-directory`. **Date:** 2026-10-07. **`openspec validate add-coffeeshop-directory --strict`:** valid.
+- **Artifacts:** `proposal.md`, `design.md` (D1–D16), `tasks.md` (24 tasks in 6 groups), deltas `specs/offering-catalog`, `specs/filtering`, `specs/app-shell`.
+- **Backlog:** R9 and R12 affect this change; per the orchestrator (decisions log 2026-10-07) they run as their own refactors before this change's apply. design.md D3 states the interfaces taken from them; task 1.1 checks them. This change resolves no backlog entry.
+- **Resolved here:**
+  - Leaflet stylesheet import (§6 unverified): allowed; the local Next docs say external package stylesheets "can be imported anywhere in the `app` directory" (`11-css.md`, "External stylesheets"). D16.
+  - Marker `role="button"` (§5.5 unverified): `leaflet@1.9.4` sets `tabindex="0"` and `role="button"` on keyboard markers (`Marker.js` 236–238); `DivIcon.html` accepts an `Element` (`@types/leaflet@1.9.22`). Space is not a Leaflet key, so the component handles it. D14.
+  - Leaflet size and license: 42.6 kB gzipped, BSD-2-Clause (measured on the npm tarball). D16.
+  - `422` of `listCoffeeShops` (§3 unverified): documented (invalid `orderBy`) → the list's error state. D1.
+  - Facet limits (§5.4 unverified): `name` 150, `city` 90, `postalCode` 12, from the contract. D4.
+  - Open 13: option (a); `LocationCard` takes a view model (`LocationCardData`), and the directory maps flat locations into it. D11.
+  - Nullable location fields: widened to `string | null` at one alias (`CoffeeshopLocation`), as the `offeringId` precedent. D2.
+  - Pagination keeps `view` and drops `focus`; the map view's empty and error states are the list's; a tab switch drops the other keys. D4, D13, D8.
+  - `perPage`: not sent (the API default page size). Context.
+  - Non-blocking Opens 6, 8, 9, 10, 11, 12 take their recommendation.
+- **Open:**
+  - Open 3 / D16: Product owner's approval of `leaflet@1.9.4` + `@types/leaflet@1.9.22`. The map slice (toggle, map view, card map action, full-screen sheet, detail map, `img-src`) is designed but has no tasks until approval.
+  - Open 1: the `config.yaml` line for `offering-catalog` (Product owner's file).
+  - The en/ca drafts and the new `mapLoading` and `locationNoMap` drafts (D11, D15).
+  - Scope: larger than one implementation session; the slices are separable.
