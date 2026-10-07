@@ -36,6 +36,6 @@ describe("LocationsMapLoader", () => {
     expect(status.querySelector("svg")).not.toBeNull();
     const placeholder = status.parentElement!;
     expect(placeholder.className).toContain("bg-surface-section");
-    expect(placeholder.className).toContain("h-80");
+    expect(placeholder.parentElement!.className).toContain("h-80");
   });
 });
