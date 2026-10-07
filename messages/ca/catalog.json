@@ -51,5 +51,9 @@
   "wheelNotesToggle": "Notes",
   "wheelGroupsLabel": "Grups de notes",
   "wheelGroupAromatics": "Aromàtics",
-  "resultCount": "Resultats: {count}"
+  "resultCount": "Resultats: {count}",
+  "detailViewEvaluations": "Mostra les avaluacions",
+  "detailTabProvisional": "Avaluació provisional",
+  "detailProvisionalEmpty": "Aquesta oferta encara no té avaluació provisional.",
+  "detailProvisionalError": "No s'ha pogut carregar l'avaluació provisional."
 }
