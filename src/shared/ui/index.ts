@@ -77,6 +77,7 @@ export * from "./Sidebar";
 export { Card, CardAside, CardContent, CardFooter } from "./Card";
 export type {
   CardLayout,
+  CardVariant,
   CardProps,
   CardAsideProps,
   CardContentProps,
