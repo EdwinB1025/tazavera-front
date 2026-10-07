@@ -109,3 +109,17 @@ Shared files: `AccountClient.tsx` with R11 (sequential); `AccountSection.tsx` wi
 - Drafted from the decisions log (2026-10-07), refine-page-surfaces §5.3 and §9.2, the merged `content-structure` and `user-account` specs and the code on `develop`.
 - Settled: band holds `h2` + description, static (no hover); card, band and body values from §5.3; sections 1rem apart and 2rem below the heading block from the merged "Page sections" requirement (it replaces user-account D10's 2rem between cards); column width unchanged; contrast pairs already registered; MODIFIED user-account requirement as the spec delta; order before `add-user-contact` and R11.
 - Computed content widths and the list of visible changes (§3).
+
+## Propose status
+
+- Change-id: `adopt-section-card-in-account`. Date: 2026-10-07 (architect).
+- `openspec validate adopt-section-card-in-account --strict`: valid.
+- Artifacts: `openspec/changes/adopt-section-card-in-account/` (proposal, design, specs `user-account`, tasks: 6 tasks in 4 groups). `content-structure` has no delta spec: its "Section card" requirement already covers the banded card and the body-only card (proposal, Capabilities).
+- Resolved in design.md (implementation details, one component each):
+  - `AccountSection` renders `Card variant="section"` with `CardAside` holding the heading block and `CardContent` holding the children (`flex flex-col gap-6`); props, `useId` fallback and the `section` landmark unchanged (D1).
+  - `AccountClient` wraps the four sections in one group element with exactly `flex flex-col gap-4` (D2, §6).
+  - `SessionGate` and `RegisterClient` render `Card variant="section"` with only `CardContent`, the body-only form-panel treatment of `NewOfferingForm.tsx` (D3, D4).
+  - The test assertions of §6, extended to the three band-less cards by the same class pair (`border`, `border-border-subtle`, no `border-l-4`, no `bg-surface-section` element) (D5).
+- Open 1: closed as (b) before propose (the note under the title) and applied as answered — the account's loading and signed-out cards and the register form card join the change as section cards without a band, which supersedes the §1 "Out" line that listed them out. The delta adds the "Registration routes" sentence and scenario alongside the "Account page and its session gate" ones.
+- Backlog: no entry resolved. R11 (`share-access-and-status-pieces`) runs after this change and is untouched.
+- Remains open: none for this change.
