@@ -51,3 +51,12 @@ Source: Product owner's decisions of 2026-10-07, written down by the orchestrato
 2. **The 1–9 legend card is a section card** with its collapsible header in the band, like the groups.
 3. **The context card** (roast level and extraction method, no title) becomes a section card with no band: body only (refine-page-surfaces Open 6, option a).
 4. **Number inside the bean.** In the 1–9 legend, each number sits inside its bean mark, as in the MVC (`resources/views/flux/icon/coffee-bean.blade.php:36-39`): bold, light text with a thin dark outline over the bean. The number stays part of each item's text for assistive technology (the bean stays `aria-hidden`). The text-on-bean pair is registered in the theme contrast matrix and passes the text gate (4.5:1) in both themes.
+
+### Status
+
+2026-10-07. `openspec validate add-specialist-evaluations --strict`: valid ("Change 'add-specialist-evaluations' is valid") with OpenSpec 1.14.0.
+
+1. Group cards as section cards: spec.md "Evaluation form" (section cards, band with the indicator, 1rem / 2rem spacing, a collapsed card shows only its band; new scenario "Form sections"); design.md D18 (new), D14, D15 (header spacing: the section card's collapsible-band padding, 1rem below 768px and 1.5rem at the sides from 768px, replacing round 1's 1rem; collapsed separator by the section card) and the Files table. Tasks 13.1, 13.2 and 13.5; task 11.5's spacing check (unchecked) reworded to the new values.
+2. Legend card as a section card: spec.md "Evaluation form" (the legend as a section card); design.md D16 (composition) and D18. Tasks 13.1, 13.2 and 13.5.
+3. Context card with no band: spec.md "Evaluation form" and scenario "Form sections"; design.md D14 and D18. Tasks 13.1, 13.2 and 13.5.
+4. Number inside the bean: spec.md "Evaluation form" and scenario "The 1–9 legend" (the number inside the bean, still part of the item's text); design.md D16 and D18 (bold `text-inverse` with a thin outline in `evaluation-bean-on`; pair `text-inverse` / `evaluation-bean-on` registered in both matrices: traditional 7.40 over `surface-card` and 7.29 over `surface-form`, dark 4.89; no token added). `text-inverse` is the only text token that passes in both themes (dark: `text-strong` 3.26, `text-primary` 2.92); in the dark theme it is dark (`night-petrol-950`), so the number is light only in the traditional theme, following the bean drawing's colour in each theme. Product owner may prefer otherwise. Tasks 13.3, 13.4 and 13.5.
