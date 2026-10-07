@@ -11,7 +11,7 @@ import {
   type LocationsFieldsetTexts,
   type ManagementGateTexts,
 } from "@/features/offering-management";
-import { Button, Link } from "@/shared/ui";
+import { Button, Card, CardContent, Link } from "@/shared/ui";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -33,25 +33,12 @@ export type NewOfferingFormProps = {
   texts: NewOfferingFormTexts;
 };
 
-// ─── Layout (summary §6.3) ───
-// The form panel: full width below `md`, at most 40rem from `md`; padding
-// 1rem with 1.25rem at the bottom below `md`, 1.5rem from `md`; its children
-// a column 1.5rem apart.
-const PANEL_CLASSES = [
-  "flex",
-  "flex-col",
-  "gap-6",
-  "w-full",
-  "md:max-w-160",
-  "bg-surface-form",
-  "border-2",
-  "border-border-subtle",
-  "rounded-container",
-  "shadow-lg",
-  "p-4",
-  "pb-5",
-  "md:p-6",
-].join(" ");
+// ─── Layout (summary §6.3; design.md D15) ───
+// The form panel is the shared section card with no header band, whose body
+// supplies the padding: full width below `md`, at most 40rem from `md`.
+const PANEL_CLASSES = ["w-full", "md:max-w-160"].join(" ");
+// The form's children: a column 1.5rem apart.
+const FORM_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
 // The error or the step-up: a column of the text and its button 0.75rem
 // apart, no box.
 const ALERT_CLASSES = ["type-error", "flex", "flex-col", "items-start", "gap-3"].join(" ");
@@ -99,54 +86,58 @@ function CreateForm({ locale, route, disabled = false, texts }: CreateFormProps)
   }
 
   return (
-    <form
-      noValidate
-      className={PANEL_CLASSES}
-      onSubmit={(event) => {
-        event.preventDefault();
-        if (disabled) return;
-        if (!flow.submit()) fieldRef.current?.querySelector("input")?.focus();
-      }}
-    >
-      <InventoryField
-        ref={fieldRef}
-        value={flow.item}
-        onChange={flow.choose}
-        error={flow.itemMissing ? texts.inventoryRequired : undefined}
-        disabled={disabled}
-        texts={texts}
-      />
-      <LocationsFieldset
-        locations={flow.locations}
-        selected={flow.selectedLocations}
-        onToggle={flow.toggleLocation}
-        onRetry={flow.reloadLocations}
-        disabled={disabled}
-        texts={texts}
-      />
-      {alert !== null ? (
-        <div role="alert" className={ALERT_CLASSES}>
-          {alert}
-        </div>
-      ) : null}
-      {created !== null ? (
-        <div role="status" className={STATUS_CLASSES}>
-          <span>{created}</span>
-          <Link href={listRoute}>{texts.viewMyOfferings}</Link>
-        </div>
-      ) : null}
-      <div className={ACTIONS_CLASSES}>
-        <Button
-          type="submit"
-          variant="primary"
-          disabled={disabled || flow.submitBlocked}
-          loading={status.state === "pending"}
+    <Card variant="section" className={PANEL_CLASSES}>
+      <CardContent>
+        <form
+          noValidate
+          className={FORM_CLASSES}
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (disabled) return;
+            if (!flow.submit()) fieldRef.current?.querySelector("input")?.focus();
+          }}
         >
-          {texts.submitLabel}
-        </Button>
-        <Link href={listRoute}>{texts.cancelLabel}</Link>
-      </div>
-    </form>
+          <InventoryField
+            ref={fieldRef}
+            value={flow.item}
+            onChange={flow.choose}
+            error={flow.itemMissing ? texts.inventoryRequired : undefined}
+            disabled={disabled}
+            texts={texts}
+          />
+          <LocationsFieldset
+            locations={flow.locations}
+            selected={flow.selectedLocations}
+            onToggle={flow.toggleLocation}
+            onRetry={flow.reloadLocations}
+            disabled={disabled}
+            texts={texts}
+          />
+          {alert !== null ? (
+            <div role="alert" className={ALERT_CLASSES}>
+              {alert}
+            </div>
+          ) : null}
+          {created !== null ? (
+            <div role="status" className={STATUS_CLASSES}>
+              <span>{created}</span>
+              <Link href={listRoute}>{texts.viewMyOfferings}</Link>
+            </div>
+          ) : null}
+          <div className={ACTIONS_CLASSES}>
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={disabled || flow.submitBlocked}
+              loading={status.state === "pending"}
+            >
+              {texts.submitLabel}
+            </Button>
+            <Link href={listRoute}>{texts.cancelLabel}</Link>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
 
