@@ -1,8 +1,8 @@
 import { Suspense, type ReactNode } from "react";
 import { getMessages } from "@/shared/lib/i18n";
-import { PageSection } from "@/shared/ui";
+import { ClearFiltersButton, PageSection } from "@/shared/ui";
 import {
-  ClearFiltersButton,
+  OFFERING_SORT_KEYS,
   hasOfferingFilters,
   parseOfferingFilters,
   sanitizeOfferingQuery,
@@ -109,7 +109,9 @@ export function OfferingsScreen({
             path={`/${locale}/offerings`}
             gridClassName={CATALOG_GRID_CLASSES}
             emptyAction={
-              filtered ? <ClearFiltersButton label={filters.clearAll} /> : undefined
+              filtered ? (
+                <ClearFiltersButton label={filters.clearAll} keep={OFFERING_SORT_KEYS} />
+              ) : undefined
             }
           />
         </Suspense>

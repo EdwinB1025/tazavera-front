@@ -159,3 +159,5 @@ export { SessionGate } from "./SessionGate";
 export type { SessionGateProps } from "./SessionGate";
 export { SignedOutPrompt } from "./SignedOutPrompt";
 export type { SignedOutPromptProps } from "./SignedOutPrompt";
+export { ClearFiltersButton } from "./ClearFiltersButton";
+export type { ClearFiltersButtonProps } from "./ClearFiltersButton";

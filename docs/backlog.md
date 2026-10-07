@@ -69,17 +69,6 @@ One section per candidate, in this format:
 - **Status:** proposed
 - **Affects:** `add-user-account`, `add-offering-management`, `add-specialist-evaluations`
 
-## R9 — Single "Clear all" filters button (add-evaluation-facets propose)
-
-- **Duplicated:** two host-side "Clear all" buttons with the same behaviour (drop every facet key from the URL, keep the sort keys)
-- **Where today:** `ClearFiltersButton` (`add-offering-facets`) and `ClearEvaluationFiltersButton` (`add-evaluation-facets`), both planned, each in its own feature slice because FSD forbids feature-to-feature imports
-- **Why it pays off now:** one shared button in `src/shared/ui` (taking the facet keys as a prop) ends the duplication before a third filtered list repeats it
-- **Owning capability:** filtering
-- **Proposed change:** a refactor after both facet changes merge, moving the button to `src/shared/ui`
-- **Open decision (Augusto):** none
-- **Status:** proposed
-- **Affects:** `add-offering-facets`, `add-evaluation-facets`, `add-coffeeshop-directory` (a third copy; run R9 before it)
-
 ## R10 — Error boundary of the row facets in the traditional theme (refine-facet-controls Q2)
 
 - **Duplicated:** none; the row facets' radio and checkbox boxes take the error boundary colour in the dark theme only — in the traditional theme they keep the cream boundary under an error
@@ -120,8 +109,8 @@ One section per candidate, in this format:
 - **Why it pays off now:** every role-gated route added (management, evaluations, location) sends users there
 - **Owning capability:** app-shell
 - **Proposed change:** none yet — a new change with its design summary
-- **Open decision (Augusto):** whether it belongs in the delivery
-- **Status:** proposed
+- **Open decision (Augusto):** none — answered 2026-10-07: kept in the backlog at the lowest priority; nothing is built until Product owner authorizes it
+- **Status:** deferred (lowest priority)
 - **Affects:** none
 
 ## R15 — Slow `EvaluationForm` tests under load (add-user-contact checks)
