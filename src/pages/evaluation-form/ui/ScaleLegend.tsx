@@ -11,7 +11,6 @@ import {
   CollapsibleHeader,
 } from "@/shared/ui";
 import { BeanMark } from "@/shared/ui/icons";
-import { cn } from "@/shared/lib/utils";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -31,11 +30,8 @@ export type ScaleLegendProps = {
   onOpenChange?: (open: boolean) => void;
 };
 
-// ─── Layout end states (design.md D15, D16) ───
-// The header aside of the group card: 0.5rem around the header's own 0.5rem,
-// no bottom border while collapsed.
-const ASIDE_CLASSES = ["px-2", "py-2"].join(" ");
-const ASIDE_COLLAPSED_CLASSES = "border-b-0";
+// ─── Layout end states (design.md D16, D18) ───
+// The section card pads the band and drops its separator while collapsed.
 const LIST_CLASSES = ["grid", "gap-2", "md:grid-cols-3", "md:grid-flow-col", "md:grid-rows-3"].join(
   " ",
 );
@@ -64,8 +60,8 @@ export function ScaleLegend({
 
   return (
     <Collapsible open={open} onOpenChange={changeOpen}>
-      <Card layout="stacked" data-legend="affective">
-        <CardAside className={cn(ASIDE_CLASSES, !open && ASIDE_COLLAPSED_CLASSES)}>
+      <Card variant="section" data-legend="affective">
+        <CardAside>
           <CollapsibleHeader headingLevel={3}>{texts.title}</CollapsibleHeader>
         </CardAside>
         <CollapsibleBody>

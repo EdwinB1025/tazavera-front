@@ -262,7 +262,7 @@ export function EvaluationForm({
           </div>
         ) : null}
       </div>
-      <Card layout="stacked">
+      <Card variant="section">
         <CardContent className={CONTEXT_FIELDS_CLASSES}>
           {/* The roast level comes from the offering's coffee (design.md D11, D17). */}
           {offering ? (

@@ -75,13 +75,9 @@ export type EvaluationGroupCardProps = {
   onOpenChange?: (open: boolean) => void;
 };
 
-// ─── Layout end states (design.md D14; the summary §9) ───
-// The header's 0.5rem plus the aside's 0.5rem: 1rem from the card's edges
-// (design.md D15). `px-2`/`py-2` follow the Card's `p-6` in the generated CSS
-// and override it; `border-b-0` likewise drops the aside's bottom border while
-// the body is collapsed, so a collapsed card is its header row only.
-const ASIDE_CLASSES = ["px-2", "py-2"].join(" ");
-const ASIDE_COLLAPSED_CLASSES = "border-b-0";
+// ─── Layout end states (design.md D14, D18; the summary §9) ───
+// The section card pads the band and drops its separator while collapsed
+// (design.md D15, D18): the aside takes no class of its own.
 // An incomplete group after a refused close: a ring in the error colour; the
 // indicator's "Incomplete" carries the state in words.
 const HIGHLIGHT_CLASSES = ["ring-2", "ring-feedback-error"].join(" ");
@@ -263,12 +259,12 @@ export function EvaluationGroupCard({
   return (
     <Collapsible open={open} onOpenChange={changeOpen}>
       <Card
-        layout="stacked"
+        variant="section"
         data-group={group.key}
         data-highlighted={highlighted ? "true" : undefined}
         className={highlighted ? HIGHLIGHT_CLASSES : undefined}
       >
-        <CardAside className={cn(ASIDE_CLASSES, !open && ASIDE_COLLAPSED_CLASSES)}>
+        <CardAside>
           <CollapsibleHeader headingLevel={3} aside={indicator}>
             {name}
           </CollapsibleHeader>
