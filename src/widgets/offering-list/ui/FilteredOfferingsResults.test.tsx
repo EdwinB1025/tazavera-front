@@ -1,5 +1,7 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
+import type { ReactElement } from "react";
 import { render, cleanup, screen } from "@testing-library/react";
+import { ClearFiltersButton } from "@/shared/ui";
 import { CATALOG_GRID_CLASSES } from "../lib/grid";
 import type { OfferingsProps } from "./Offerings";
 import {
@@ -149,7 +151,13 @@ describe("FilteredOfferingsResults", () => {
       />,
     );
     expect(block.props?.texts.emptyMessage).toBe("noMatches");
-    expect(block.props?.emptyAction).toBeDefined();
+    const action = block.props?.emptyAction as ReactElement<{
+      label: string;
+      keep: readonly string[];
+    }>;
+    expect(action.type).toBe(ClearFiltersButton);
+    expect(action.props.label).toBe(TEXTS.clearAll);
+    expect(action.props.keep).toEqual(["orderBy", "orderDirection"]);
   });
 
   it("keeps the unfiltered empty message and no action with only a sort (add-offering-facets design.md D9)", () => {

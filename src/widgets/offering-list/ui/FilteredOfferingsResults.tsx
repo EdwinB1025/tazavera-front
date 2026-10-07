@@ -1,10 +1,11 @@
 import { Suspense, type ReactNode } from "react";
 import {
-  ClearFiltersButton,
+  OFFERING_SORT_KEYS,
   hasOfferingFilters,
   parseOfferingFilters,
   sanitizeOfferingQuery,
 } from "@/features/offering-facets";
+import { ClearFiltersButton } from "@/shared/ui";
 import { CATALOG_GRID_CLASSES } from "../lib/grid";
 import { buildOfferingsQuery, type OfferingsQuery } from "../lib/query";
 import type { OfferingListTexts } from "./OfferingList";
@@ -70,7 +71,7 @@ export function FilteredOfferingsResults({
         texts={filtered ? { ...listTexts, emptyMessage: noMatches } : listTexts}
         path={path}
         gridClassName={CATALOG_GRID_CLASSES}
-        emptyAction={filtered ? <ClearFiltersButton label={clearAll} /> : undefined}
+        emptyAction={filtered ? <ClearFiltersButton label={clearAll} keep={OFFERING_SORT_KEYS} /> : undefined}
       />
     </Suspense>
   );
