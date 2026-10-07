@@ -25,6 +25,16 @@ vi.mock("@/pages/new-offering", () => ({
   ),
 }));
 
+vi.mock("@/pages/coffeeshops", () => ({
+  CoffeeshopsSidebarScreen: ({
+    locale,
+    searchParams,
+  }: {
+    locale: string;
+    searchParams: Record<string, string>;
+  }) => <div data-testid="coffeeshops-sidebar" data-locale={locale} data-name={searchParams.name} />,
+}));
+
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
   cleanup();
@@ -91,5 +101,30 @@ describe("the management @sidebar slot route files (add-offering-management D8)"
     const route = (await import(`./${file}`)) as LocaleSlotRoute;
     render(await route.default({ params: Promise.resolve({ locale: "en" }) }));
     expect(screen.getByTestId(testId).getAttribute("data-locale")).toBe("en");
+  });
+});
+
+/**
+ * The directory's slot page (add-coffeeshop-directory design.md D9): it
+ * renders the directory's slot screen with the locale and the search params.
+ */
+describe("the coffee shop @sidebar slot route files (add-coffeeshop-directory D9)", () => {
+  it("app/[locale]/@sidebar/coffeeshops/page.tsx renders the directory's facets screen", async () => {
+    expect(existsSync(slotFile("coffeeshops/page.tsx"))).toBe(true);
+    const route = (await importSlotRoute("./coffeeshops/page.tsx")) as unknown as {
+      default: (props: {
+        params: Promise<{ locale: string }>;
+        searchParams: Promise<Record<string, string>>;
+      }) => Promise<ReactNode>;
+    };
+    render(
+      await route.default({
+        params: Promise.resolve({ locale: "en" }),
+        searchParams: Promise.resolve({ name: "nomad" }),
+      }),
+    );
+    const marker = screen.getByTestId("coffeeshops-sidebar");
+    expect(marker.getAttribute("data-locale")).toBe("en");
+    expect(marker.getAttribute("data-name")).toBe("nomad");
   });
 });

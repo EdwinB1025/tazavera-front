@@ -14,10 +14,11 @@ afterEach(() => {
  */
 
 const router = { push: vi.fn(), refresh: vi.fn() };
+const nav = vi.hoisted(() => ({ search: "" }));
 vi.mock("next/navigation", () => ({
   useRouter: () => router,
   usePathname: () => "/es/coffeeshops",
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => new URLSearchParams(nav.search),
 }));
 
 beforeEach(() => {
@@ -36,6 +37,9 @@ const TEXTS: CoffeeshopListTexts = {
   emptyMessage: "Todavía no hay cafeterías.",
   errorMessage: "No se pudieron cargar las cafeterías.",
   retryLabel: "Reintentar",
+  resultCount: "Resultados: {count}",
+  noMatches: "Ningún resultado coincide con estos filtros.",
+  clearAll: "Borrar todo",
 };
 
 function shop(ulid: string, name: string): CoffeeshopSummary {
@@ -102,5 +106,32 @@ describe("CoffeeshopList", () => {
     expect(screen.getByRole("button", { name: "Reintentar" })).toBeTruthy();
     expect(screen.queryByRole("listitem")).toBeNull();
     expect(screen.queryByRole("button", { name: "Siguiente" })).toBeNull();
+  });
+
+  it("shows no matches with Clear all keeping the sort and the view when a filter matches nothing (spec: Filtered empty)", () => {
+    nav.search = "city=Girona&orderBy=name&orderDirection=desc&view=map&page=2";
+    render(<CoffeeshopList result={{ state: "empty" }} filtered locale="es" query={{ city: "Girona" }} texts={TEXTS} />);
+    expect(screen.getByText("Ningún resultado coincide con estos filtros.")).toBeTruthy();
+    expect(screen.queryByText("Todavía no hay cafeterías.")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Borrar todo" }));
+    expect(router.push).toHaveBeenCalledWith("/es/coffeeshops?orderBy=name&orderDirection=desc&view=map", {
+      scroll: false,
+    });
+    nav.search = "";
+  });
+
+  it("announces the total as a visually hidden status (spec: Result count announced)", () => {
+    render(
+      <CoffeeshopList
+        result={{ state: "success", items: ITEMS, meta: { current_page: 1, last_page: 1, total: 12 } }}
+        filtered
+        locale="es"
+        query={{ city: "Barcelona" }}
+        texts={TEXTS}
+      />,
+    );
+    const status = screen.getByRole("status");
+    expect(status.textContent).toBe("Resultados: 12");
+    expect(status.className).toContain("sr-only");
   });
 });
