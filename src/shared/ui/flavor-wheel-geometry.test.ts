@@ -266,3 +266,68 @@ describe("fitLabel", () => {
     expect(fitLabel(full, "Fruity", "5/5")).toBe("both");
   });
 });
+
+describe("layoutWheel — groups (add-offering-catalog design.md D19)", () => {
+  function grouped(
+    id: string,
+    count: number,
+    group: string,
+    children: WheelGeometryNode[] = [],
+  ): WheelGeometryNode {
+    return { id, count, group, children };
+  }
+
+  it("leaves a 6° gap at each group boundary, one centred at 12 o'clock, and spans the rest by count", () => {
+    const { segments, groupArcs } = layoutWheel(
+      [
+        grouped("body", 2, "mouthfeel"),
+        grouped("fruity", 3, "aromatics"),
+        grouped("floral", 1, "aromatics"),
+      ],
+      NONE,
+      ["aromatics", "mouthfeel"],
+    );
+    const spans = segments.map(({ node: n, start, end }) => ({
+      id: n.id,
+      start: Math.round(start * 1000) / 1000,
+      end: Math.round(end * 1000) / 1000,
+    }));
+    // 360 − 2 × 6 = 348° shared by count 6: 58° per count.
+    expect(spans).toEqual([
+      { id: "fruity", start: 3, end: 177 },
+      { id: "floral", start: 177, end: 235 },
+      { id: "body", start: 241, end: 357 },
+    ]);
+    expect(groupArcs).toEqual([
+      { id: "aromatics", start: 3, end: 235 },
+      { id: "mouthfeel", start: 241, end: 357 },
+    ]);
+  });
+
+  it("fills a grouped parent's span with its children as today", () => {
+    const { segments } = layoutWheel(
+      [
+        grouped("fruity", 1, "aromatics", [node("berry", 1), node("citrus", 1)]),
+        grouped("body", 1, "mouthfeel"),
+      ],
+      new Set(["fruity"]),
+      ["aromatics", "mouthfeel"],
+    );
+    const children = segments.filter((s) => s.ring === 1);
+    expect(children.map((s) => [s.node.id, s.start, s.end])).toEqual([
+      ["berry", 3, 90],
+      ["citrus", 90, 177],
+    ]);
+  });
+
+  it("lays out exactly as without groups when the roots hold one group only", () => {
+    const roots = [grouped("a", 1, "aromatics"), grouped("b", 3, "aromatics")];
+    const withGroups = layoutWheel(roots, NONE, ["aromatics", "mouthfeel"]);
+    expect(withGroups.segments).toEqual(layoutWheel(roots, NONE).segments);
+    expect(withGroups.groupArcs).toEqual([]);
+  });
+
+  it("returns no group arcs without a group order", () => {
+    expect(layoutWheel([node("a", 1)], NONE).groupArcs).toEqual([]);
+  });
+});
