@@ -36,8 +36,10 @@ beforeEach(() => {
 });
 
 const TEXTS = {
+  navigationLabel: "texts.navigationLabel",
   previousLabel: "texts.previousLabel",
   nextLabel: "texts.nextLabel",
+  pageLabel: "texts.pageLabel {page}",
 };
 
 function renderPagination(props: Omit<PaginationProps, "texts">) {

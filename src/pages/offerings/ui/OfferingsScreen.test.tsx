@@ -140,6 +140,8 @@ describe("OfferingsScreen", () => {
       ratingCommercialLabel: landing.cardRatingCommercialLabel,
       previousLabel: landing.paginationPreviousLabel,
       nextLabel: landing.paginationNextLabel,
+      navigationLabel: landing.paginationNavigationLabel,
+      pageLabel: landing.paginationPageLabel,
       emptyMessage: catalog.listEmptyMessage,
       errorMessage: catalog.listErrorMessage,
       retryLabel: landing.listRetryLabel,
