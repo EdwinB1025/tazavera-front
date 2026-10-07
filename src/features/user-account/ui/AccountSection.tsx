@@ -1,4 +1,4 @@
-import { useId, type ReactNode } from "react";
+import { useId, type ReactNode, type Ref } from "react";
 import { Card, CardAside, CardContent } from "@/shared/ui";
 
 // ─── UI-specific types (declared before the component) ───
@@ -8,6 +8,11 @@ export type AccountSectionProps = {
   /** The heading's id, when the content needs it to name a form (design.md D9). */
   headingId?: string;
   description?: string;
+  /**
+   * Given when the content moves focus to the heading (add-user-contact D3):
+   * the `h2` receives the ref and `tabIndex={-1}`.
+   */
+  headingRef?: Ref<HTMLHeadingElement>;
   children: ReactNode;
 };
 
@@ -21,6 +26,7 @@ export function AccountSection({
   heading,
   headingId: headingIdProp,
   description,
+  headingRef,
   children,
 }: AccountSectionProps): ReactNode {
   const generatedId = useId();
@@ -29,7 +35,12 @@ export function AccountSection({
     <section aria-labelledby={headingId}>
       <Card variant="section">
         <CardAside>
-          <h2 id={headingId} className="type-subheading">
+          <h2
+            ref={headingRef}
+            id={headingId}
+            tabIndex={headingRef ? -1 : undefined}
+            className="type-subheading"
+          >
             {heading}
           </h2>
           {description && <p className="type-body">{description}</p>}

@@ -10,10 +10,12 @@ import {
 } from "@/features/auth";
 import {
   AccountSection,
+  ContactSection,
   DangerZone,
   ExternalLink,
   PasswordForm,
   ProfileForm,
+  type ContactSectionTexts,
   type DangerZoneTexts,
   type PasswordFormTexts,
   type ProfileFormTexts,
@@ -28,7 +30,8 @@ import {
 
 // ─── UI-specific types (declared before the component) ───
 
-export type AccountClientTexts = DangerZoneTexts &
+export type AccountClientTexts = ContactSectionTexts &
+  DangerZoneTexts &
   PasswordFormTexts &
   ProfileFormTexts & {
     loading: string;
@@ -53,7 +56,7 @@ export type AccountClientProps = {
  * "Account page and its session gate"). It is the injection seam: the session
  * comes from `useSession()` and the auth actions from `@/features/auth`,
  * passed to the user-account pieces as props. An authenticated session shows
- * the four sections in order; the page never redirects on its own.
+ * the five sections in order; the page never redirects on its own.
  */
 export function AccountClient({ locale, texts }: AccountClientProps): ReactNode {
   const session = useSession();
@@ -99,6 +102,12 @@ export function AccountClient({ locale, texts }: AccountClientProps): ReactNode 
               requestProfileWrite={requestProfileWrite}
             />
           </AccountSection>
+          <ContactSection
+            ulid={user.ulid ?? ""}
+            locale={locale}
+            texts={texts}
+            requestProfileWrite={requestProfileWrite}
+          />
           <AccountSection
             heading={texts.passwordHeading}
             headingId={passwordHeadingId}

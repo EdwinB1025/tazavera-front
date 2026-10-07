@@ -28,3 +28,8 @@ export { ProfileForm } from "./ui/ProfileForm";
 export type { ProfileFormProps, ProfileFormTexts } from "./ui/ProfileForm";
 export { PasswordForm } from "./ui/PasswordForm";
 export type { PasswordFormProps, PasswordFormTexts } from "./ui/PasswordForm";
+export { ContactSection } from "./ui/ContactSection";
+export type {
+  ContactSectionProps,
+  ContactSectionTexts,
+} from "./ui/ContactSection";
