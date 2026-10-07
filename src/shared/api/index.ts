@@ -144,6 +144,14 @@ export type EvaluationExtrinsics = NonNullable<EvaluationItem["extrinsics"]>;
 /** One item of an evaluation's `tastes`: `{ref, type}`. */
 export type EvaluationTaste = NonNullable<EvaluationItem["tastes"]>[number];
 
+type ListEvaluationsQuery = NonNullable<operations["listEvaluations"]["parameters"]["query"]>;
+
+/** The `evaluationType` values `GET /evaluations` accepts: `specialist` or `baseline`. */
+export type EvaluationType = NonNullable<ListEvaluationsQuery["evaluationType"]>;
+
+/** The `orderBy` values `GET /evaluations` accepts. */
+export type EvaluationSortField = NonNullable<ListEvaluationsQuery["orderBy"]>;
+
 /** The request body of `POST /user/evaluations`. */
 export type EvaluationCreateBody =
   operations["createAnEvaluation"]["requestBody"]["content"]["application/json"];
