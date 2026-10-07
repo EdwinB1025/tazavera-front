@@ -8,7 +8,7 @@ Lets a signed-in specialist record the sensory evaluations of an offering with t
 
 ### Requirement: My evaluations list
 
-The route `/{locale}/manage/evaluations` SHALL show the evaluations of the signed-in specialist and no others, 15 per page and ordered by `created_at` descending. Each row SHALL show the evaluation's `cuppingScore` with its "/100" scale and a rating badge carrying the tier word of that score, the status of the evaluation as a badge labelled "Open" or "Closed", the coffee name of the offering, the date of the row's state ("Created on" `createdAt` when the evaluation is open, "Closed on" `closedAt` when it is closed), and the coffeeshop and roaster captions built from the offering's `location.name` and `coffeeInventory.roastery.name`.
+The route `/{locale}/manage/evaluations` SHALL show the evaluations of the signed-in specialist and no others, 15 per page and ordered by `created_at` descending. Each row SHALL show the evaluation's `cuppingScore` with its "/100" scale and a rating badge carrying the tier word of that score, the status of the evaluation as a badge labelled "Open" or "Closed", the coffee name of the offering, the date of the row's state ("Created on" `createdAt` when the evaluation is open, "Closed on" `closedAt` when it is closed), and the coffeeshop and roaster captions built from the offering's `location.name` and `coffeeInventory.roastery.name`. An evaluation whose `offeringId` is `null` (its offering was deleted) SHALL show the "Offering no longer exists" message in place of the coffee name and the captions, and no offering SHALL be requested for it.
 
 #### Scenario: Loading the list
 
@@ -24,6 +24,11 @@ The route `/{locale}/manage/evaluations` SHALL show the evaluations of the signe
 
 - **WHEN** a row's evaluation is open and its `cuppingScore` is absent
 - **THEN** the row shows no score, no "/100" and no rating badge, and keeps the rest of its content
+
+#### Scenario: A row whose offering was deleted
+
+- **WHEN** an evaluation of the page arrives with `offeringId` `null`
+- **THEN** its row shows the "Offering no longer exists" message in place of the coffee name and the coffeeshop and roaster captions, keeps its score, status badge and date, and no offering is requested for it while the other rows' offerings are
 
 #### Scenario: Newest first across pages
 
@@ -42,7 +47,7 @@ The route `/{locale}/manage/evaluations` SHALL show the evaluations of the signe
 
 ### Requirement: Row actions
 
-Each row SHALL offer Edit for an open evaluation, View for a closed one, and Delete with an explicit confirmation for both.
+Each row SHALL offer Edit for an open evaluation, View for a closed one or for any evaluation whose `offeringId` is `null`, and Delete with an explicit confirmation for all of them.
 
 #### Scenario: Editing an open evaluation
 
@@ -53,6 +58,11 @@ Each row SHALL offer Edit for an open evaluation, View for a closed one, and Del
 
 - **WHEN** the specialist activates View on a closed row
 - **THEN** the same form route opens read-only
+
+#### Scenario: A row whose offering was deleted
+
+- **WHEN** a row's evaluation has `offeringId` `null`, open or closed
+- **THEN** the row offers View, which opens the form route read-only, and Delete
 
 #### Scenario: Deleting after confirmation
 
@@ -71,7 +81,7 @@ Each row SHALL offer Edit for an open evaluation, View for a closed one, and Del
 
 ### Requirement: Evaluation form
 
-The route `/{locale}/manage/evaluations/new?offering={ulid}` SHALL present the CVA combined form for a new evaluation of that offering and the route `/{locale}/manage/evaluations/{ulid}` the same form loaded from the evaluation. The form SHALL carry the header fields roast level (prefilled from the offering's `coffeeInventory.coffee.roastLevel`) and extraction method, and the eight groups in CVA order: Fragrance / Aroma, Flavor / Aftertaste, Acidity, Sweetness, Mouthfeel, Overall, Defects and Extrinsic. Every group with a descriptive part SHALL offer one intensity control per axis on the 0–15 scale and every group with an affective part one preference control per axis on the 1–9 scale, Overall having only the affective one. Defects SHALL offer only its descriptor block and Extrinsic only its optional notes field, sent as `extrinsics.generalObservation`. At every viewport each group SHALL be a collapsible section (content-structure "Collapsible section") whose header carries the group name and its completeness indicator; every group SHALL start collapsed in an editable form and expanded in a closed one, and while a group is collapsed its card SHALL show only its header row, with no separating border under it.
+The route `/{locale}/manage/evaluations/new?offering={ulid}` SHALL present the CVA combined form for a new evaluation of that offering and the route `/{locale}/manage/evaluations/{ulid}` the same form loaded from the evaluation. The form SHALL carry the header fields roast level (prefilled from the offering's `coffeeInventory.coffee.roastLevel`) and extraction method, and the eight groups in CVA order: Fragrance / Aroma, Flavor / Aftertaste, Acidity, Sweetness, Mouthfeel, Overall, Defects and Extrinsic. Every group with a descriptive part SHALL offer one intensity control per axis on the 0–15 scale and every group with an affective part one preference control per axis on the 1–9 scale, Overall having only the affective one. Defects SHALL offer only its descriptor block and Extrinsic only its optional notes field, sent as `extrinsics.generalObservation`. At every viewport each group SHALL be a collapsible section (content-structure "Collapsible section") whose header carries the group name and its completeness indicator; every group SHALL start collapsed in an editable form and expanded in a closed one, and while a group is collapsed its card SHALL show only its header row, with no separating border under it. Right after the Flavor / Aftertaste group, which holds Main tastes, the form SHALL show the informative collapsible section "Affective quality impression", the 1–9 legend: the nine values in order, each with a bean mark, its number and its label (1 Extremely low, 2 Very low, 3 Moderately low, 4 Slightly low, 5 Neither high nor low, 6 Slightly high, 7 Moderately high, 8 Very high, 9 Extremely high); it follows the groups' initial-state rule and has no completeness indicator. An evaluation whose `offeringId` is `null` SHALL open read-only, with the "Offering no longer exists" message in place of the offering header and the roast level, and keeps its extraction method.
 
 #### Scenario: The form header
 
@@ -97,6 +107,16 @@ The route `/{locale}/manage/evaluations/new?offering={ulid}` SHALL present the C
 
 - **WHEN** the form opens for a closed evaluation
 - **THEN** every group starts expanded and can still be collapsed from its header
+
+#### Scenario: The 1–9 legend
+
+- **WHEN** the form opens
+- **THEN** the "Affective quality impression" section sits between the Flavor / Aftertaste and Acidity groups, collapsed in an editable form and expanded in a closed one, and once expanded it lists the nine values from 1 to 9, each with its bean mark, its number and its label
+
+#### Scenario: An evaluation of a deleted offering
+
+- **WHEN** the evaluation route opens an evaluation whose `offeringId` is `null`, open or closed
+- **THEN** no offering is requested, the form is shown read-only with every group and the legend expanded, the "Offering no longer exists" message replaces the coffee name, the coffeeshop and roaster captions and the roast level, the extraction method is shown read-only, and no save or close action is offered
 
 #### Scenario: Loading an evaluation for edit
 

@@ -35,3 +35,10 @@ Source: Product owner's answer of 2026-10-07 to handoff Q10 (option b) and Produ
    - the en and ca texts are proposed; Product owner may change them.
    - when there is no offering, "Oferta inexistente" replaces the offering header together with the roast level that comes from the offering's coffee; the extraction method stays.
    Contract: the `deleteAnOffering` / `deleteMultipleOfferings` descriptions (contract `290d22e`) communicate the case, but the response schema still types `offeringId` as a non-nullable string; the front narrows the type to `string | null` at one read point (no edit to `schema.ts`). No task waits for the contract.
+
+### Status
+
+2026-10-07. `openspec validate add-specialist-evaluations --strict`: valid ("Change 'add-specialist-evaluations' is valid") with OpenSpec 1.14.0. OpenSpec 1.14.1 rejects the change in strict mode for four requirement texts longer than 500 characters ("My evaluations list", "Evaluation form", "Descriptor blocks", "Completeness indicator"); it rejected the artifacts of round 1 the same way before this round's edits.
+
+1. 1–9 legend: spec.md "Evaluation form" (the legend section, its place, values and initial state; scenario "The 1–9 legend"); design.md D16 (new), the Files table (`ScaleLegend.tsx`) and Open Questions (round 1's open legend closed). "Right after Main tastes" is read as its own card right after the Flavor / Aftertaste group, which holds Main tastes, and before Acidity (D16); the number sits beside the bean mark, not on it, so no new contrast pair is introduced. Tasks 12.2, 12.3 and 12.8.
+2. Evaluation of a deleted offering: spec.md "My evaluations list" (scenario "A row whose offering was deleted"), "Row actions" (View and Delete for a row with `offeringId` `null`) and "Evaluation form" (scenario "An evaluation of a deleted offering"); design.md "Derived types" (`EvaluationItem["offeringId"]` narrowed to `string | null`), D1, the card field mapping and D17 (new). Tasks 12.1, 12.4–12.7 and 12.8.
