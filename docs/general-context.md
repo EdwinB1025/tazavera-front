@@ -448,3 +448,10 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
   - **Backlog:** R10 (borde de error de las facetas de fila en el tema tradicional). El refactor de piezas de acceso y estado propuesto por add-coffeeshop-location pasa a R11.
 - **Por qué:** respuestas de Product owner del 7 oct (handoffs de add-offering-catalog Q1–Q5, add-offering-management Q1, add-specialist-evaluations Q10, refine-facet-controls Q1–Q2).
 - **Afecta:** add-offering-catalog (ronda 1); add-public-evaluations (si reutiliza el panel de consenso o la pestaña "Evaluación provisional": solo `cataConcordance`, ejes como secciones plegables); add-offering-management (ronda 1, tareas 8–10); add-coffeeshop-location (resumen, Open 3: añade su entrada junto a "Administrar ofertas"; Open 4 → R11); add-specialist-evaluations (ronda 2); add-offering-facets y add-evaluation-facets (R10).
+
+### 2026-10-07 — catálogo en una columna y `offeringId` nulo (respuestas de Product owner)
+- **Decisión:**
+  - **Catálogo:** la lista de ofertas pasa a una sola columna centrada y más estrecha que la región; varias columnas eran solo para la landing. Sustituye "3 columnas con un umbral más bajo" de la entrada anterior. Ancho: pendiente de una decisión complementaria de Product owner.
+  - **Evaluación de una oferta borrada:** el front asume `offeringId` nullable en las evaluaciones (Product owner actualiza el API y pasa el contrato). La fila muestra "Oferta inexistente" sin pedir la oferta; la evaluación se abre en solo lectura, sin editar ni cerrar, y se puede borrar.
+- **Por qué:** respuestas de Product owner del 7 oct.
+- **Afecta:** add-offering-catalog (ronda 1, punto 4); add-specialist-evaluations (ronda 2, punto 2; las tareas que necesiten el tipo regenerado esperan al contrato); add-public-evaluations (filas y detalle públicos con `offeringId` nulo); add-coffeeshop-directory (la pestaña de ofertas de la cafetería sigue el mismo patrón de una columna).
