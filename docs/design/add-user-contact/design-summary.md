@@ -238,3 +238,21 @@ None (the code it extends is not merged).
 
 - §3 rewritten on the contract (`290d22e`): `listMyContacts`, `createMyPrimaryContact`, paths with `{user_ulid}`, scopes; `schema.ts` on `develop` already has them. Open 1 closed by the contract (`{ data: [] }` = empty). Open 6 closed by verification (contract + API routes on `PROD`).
 - §7 and §9: the section renders `AccountSection` as it stands when the apply starts; the apply runs after `add-user-account` adopts the section card (refine-page-surfaces Open 3 a); the section card's padding, border, radius and band values stated from refine-page-surfaces §5.3. No blocking point left.
+
+## Propose status
+
+- **Change-id:** `add-user-contact` (`openspec/changes/add-user-contact/`).
+- **Date:** 2026-10-07.
+- **`openspec validate add-user-contact --strict`:** valid.
+- **Capability:** `user-account` only (MODIFIED "Account page and its session gate", the original "The four sections" scenario kept as validate requires plus "Contact details is the second section"; ADDED "Contact details" and "Contact details form").
+- **Resolved, with decision:**
+  - Open 2 → (a): the section is second, after Profile (design.md D5).
+  - Open 3 → (a): read-only after saving; no edit or delete.
+  - Open 4 → (a): the apply waits for `add-offering-catalog` (`LabelValueRow`); no local row.
+  - Open 5 → (b): new `contact` catalog area with the eight labels, loaded by the account screen beside `account` (design.md D2).
+  - §5.4 client checks, from the contract's `requestBody`: Address and City required (marker + `requiredError`), email format (`emailFormatError`), web as an absolute URL (new key `urlFormatError`: es "Introduce una URL válida.", en "Enter a valid URL.", ca "Introdueix un URL vàlid." — draft copy, not in §8), maximum lengths through the native `maxLength` attribute (no message). Empty optional values are sent as `null`; the body key is `postal_code` (design.md D4).
+  - Focus after `409` and after "Try again": the section heading, as after `201` (design.md D3); `AccountSection` gains an optional `headingRef` that makes its `h2` focusable.
+  - `409` re-read: the "already exists" status shows above the re-read contact; an empty or failed re-read drops it (design.md D3).
+- **Backlog:** R11 and R8 checked, not folded in (proposal "Out of scope"); no backlog entry resolved by this change.
+- **Remains open (non-blocking):** copy confirmation of en/ca and `urlFormatError`; contract observation — the `listMyContacts` and `createMyPrimaryContact` response schemas type `phone`, `email`, `social`, `country`, `postalCode` as non-nullable although the request accepts `null` (the front treats absent and `null` alike, no type widened); the contact checks live in `features/user-account`, so `add-coffeeshop-location` will need its own copy or a shared home (an R11-like refactor candidate).
+- **Apply order:** after `add-offering-catalog` merges and after `add-user-account` adopts the section card.
