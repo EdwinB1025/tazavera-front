@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { FacetCascade, type CascadeOption } from "@/shared/ui";
+import { FACET_MESSAGE_CLASSES } from "@/shared/ui/facet-row";
 
 afterEach(() => {
   cleanup();
@@ -134,5 +135,21 @@ describe("FacetCascade", () => {
       .map((o) => o.label);
     expect(hidden).toEqual(["Top 6", "Top 7"]);
     expect(screen.getByRole("button", { name: "See more (2)" })).toBeTruthy();
+  });
+
+  it("the help paragraph carries the facet message padding (refine-facet-controls D1)", () => {
+    render(
+      <FacetCascade
+        legend="Flavour"
+        options={OPTIONS}
+        value={[]}
+        onChange={() => {}}
+        texts={TEXTS}
+        help="Options unavailable"
+      />,
+    );
+    const help = screen.getByText("Options unavailable");
+    expect(help.getAttribute("class")!.split(/\s+/).sort()).toEqual(["mt-1", "px-3", "type-meta"]);
+    expect(FACET_MESSAGE_CLASSES).toBe("px-3");
   });
 });

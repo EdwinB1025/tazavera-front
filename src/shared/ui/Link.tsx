@@ -26,7 +26,11 @@ export type LinkProps<H extends `/${string}` = `/${string}`> = {
   children: ReactNode;
 } & Omit<ComponentProps<typeof NextLink>, "href" | "children">;
 
-const BASE_CLASSES = [
+/**
+ * The link treatment. Exported so a native anchor to an external destination,
+ * which this component refuses by type, can carry the same treatment.
+ */
+export const LINK_CLASSES = [
   // Correction 6 (review round 1): the default link stays a plain inline text
   // run so its text wraps with the surrounding text; inline-flex/items-center/
   // gap-2 belong to the back variant only (see BACK_CLASSES).
@@ -73,7 +77,7 @@ export function Link<H extends `/${string}` = `/${string}`>({
       {...rest}
       href={href}
       className={[
-        BASE_CLASSES,
+        LINK_CLASSES,
         variant === "back" ? BACK_CLASSES : "",
         className,
       ]

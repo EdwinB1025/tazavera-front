@@ -154,3 +154,15 @@ Settled under criterion B:
 - **Q2, restoring opens no popup:** the decision restores the label and says nothing about reopening.
 
 Recorded the interaction with `add-offering-management` (§7), and one finding on existing code (§8 → Open 1).
+
+## Propose status
+
+- Change-id: `refine-facet-controls` (`openspec/changes/refine-facet-controls/`), capability `filtering` with a `form-fields` delta.
+- Date: 2026-10-06.
+- `openspec validate refine-facet-controls --strict`: valid.
+- Resolved:
+  - Open 1: (a), as approved by the orchestrator. Spec "Combobox" now says only typed text searches; a label the combobox puts in the input itself (first render with a value, a choice, a restore, a new value) runs no search. design.md D3; tasks 5.1–5.2. The first-render case is a consequence of "only typed text searches", recorded in D3.
+  - §4.1 shared constant named `FACET_MESSAGE_CLASSES = "px-3"` in `facet-row.ts` (design.md D1); spec deltas MODIFY filtering "Facet rows" and form-fields "Facet row presentation".
+  - §4.2 recorded as design.md D2 and spec "Combobox" scenarios; the existing test "Escape closes the popup" gains the empty-input assertion (task 4.1).
+- Backlog: no entry affected or resolved (R8, R9 do not touch these files).
+- Open: none.

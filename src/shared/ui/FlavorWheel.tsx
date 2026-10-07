@@ -3,6 +3,7 @@
 import { Fragment, useId, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent, ReactNode } from "react";
 import { ChevronDown, ChevronRight } from "@/shared/ui/icons";
+import { Collapsible, CollapsibleBody, CollapsibleHeader } from "./Collapsible";
 import { cn } from "@/shared/lib/utils";
 import {
   VIEWBOX,
@@ -47,15 +48,13 @@ export type FlavorWheelProps = {
 // ─── Treatment classes (design.md D8; design-summary §6) ───
 
 const LAYOUT_CLASSES =
-  "flex flex-col gap-6 @2xl:grid @2xl:grid-cols-[minmax(0,32rem)_minmax(16rem,1fr)] @2xl:grid-rows-[auto_auto_1fr] @2xl:gap-x-8 @2xl:gap-y-6";
+  "flex flex-col gap-6 @2xl:grid @2xl:grid-cols-[minmax(0,32rem)_minmax(16rem,1fr)] @2xl:grid-rows-[auto_1fr] @2xl:gap-x-8 @2xl:gap-y-6";
 const WHEEL_CLASSES =
-  "mx-auto aspect-square w-full max-w-128 @2xl:row-span-3 @2xl:mx-0 @2xl:self-start";
+  "mx-auto aspect-square w-full max-w-128 @2xl:row-span-2 @2xl:mx-0 @2xl:self-start";
 const PANEL_CLASSES =
   "flex min-h-24 flex-col gap-2 rounded-field border border-border-subtle p-4";
 const ROW_CLASSES =
   "flex min-h-10 cursor-pointer items-center gap-2 rounded-field px-2 py-1 text-text-primary hover:bg-surface-section focus-visible:focus-ring";
-const TOGGLE_CLASSES =
-  "type-body flex min-h-10 cursor-pointer items-center gap-2 self-start rounded-field px-2 py-1 text-text-primary hover:bg-surface-section focus-visible:focus-ring @2xl:justify-self-start";
 const ROW_INDENT = ["", "ms-6", "ms-12"];
 const SWATCH_CLASSES = "size-3 shrink-0 rounded-check";
 
@@ -220,8 +219,6 @@ export function FlavorWheel({
 }: FlavorWheelProps): ReactNode {
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [listOpen, setListOpen] = useState(false);
-  const listId = useId();
   const idPrefix = useId();
   const rowElements = useRef(new Map<string, HTMLLIElement>());
 
@@ -424,82 +421,75 @@ export function FlavorWheel({
           )}
         </div>
 
-        <button
-          type="button"
-          aria-expanded={listOpen}
-          aria-controls={listId}
-          className={TOGGLE_CLASSES}
-          onClick={() => setListOpen((open) => !open)}
-        >
-          {listOpen ? (
-            <ChevronDown className="size-4 shrink-0" aria-hidden="true" />
-          ) : (
-            <ChevronRight className="size-4 shrink-0" aria-hidden="true" />
-          )}
-          {texts.notesToggle}
-        </button>
-
-        <ul
-          id={listId}
-          hidden={!listOpen}
-          role="tree"
-          aria-label={texts.label}
-          className="flex flex-col gap-1"
-        >
-          {rows.map(({ node, depth, setSize, position }, index) => {
-            const isParent = node.children.length > 0;
-            const isExpanded = expanded.has(node.id);
-            const isActive = node.id === activeId;
-            const Chevron = isExpanded ? ChevronDown : ChevronRight;
-            return (
-              <li
-                key={node.id}
-                role="treeitem"
-                aria-label={`${node.name}, ${node.countLabel}`}
-                aria-level={depth + 1}
-                aria-setsize={setSize}
-                aria-posinset={position}
-                aria-expanded={isParent ? isExpanded : undefined}
-                aria-describedby={
-                  isActive && node.description !== null
-                    ? descriptionId(node.id)
-                    : undefined
-                }
-                tabIndex={node.id === tabStop ? 0 : -1}
-                ref={(element) => {
-                  if (element) rowElements.current.set(node.id, element);
-                  else rowElements.current.delete(node.id);
-                }}
-                className={cn(
-                  ROW_CLASSES,
-                  isActive && "bg-surface-section",
-                  ROW_INDENT[depth],
-                )}
-                onPointerEnter={() => setActiveId(node.id)}
-                onFocus={() => setActiveId(node.id)}
-                onClick={() => activate(node)}
-                onKeyDown={(event) => handleKeyDown(event, index)}
+        <div className="flex flex-col">
+          <Collapsible>
+            <CollapsibleHeader>{texts.notesToggle}</CollapsibleHeader>
+            <CollapsibleBody>
+              <ul
+                role="tree"
+                aria-label={texts.label}
+                className="flex flex-col gap-1 pt-2"
               >
-                {isParent ? (
-                  <Chevron className="size-4 shrink-0" aria-hidden="true" />
-                ) : (
-                  <span className="size-4 shrink-0" aria-hidden="true" />
-                )}
-                <span
-                  className={SWATCH_CLASSES}
-                  style={swatchStyle(node)}
-                  aria-hidden="true"
-                />
-                <span className="type-body min-w-0 flex-1 break-words">
-                  {node.name}
-                </span>
-                <span className="type-body shrink-0 tabular-nums">
-                  {legend(node)}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
+                {rows.map(({ node, depth, setSize, position }, index) => {
+                  const isParent = node.children.length > 0;
+                  const isExpanded = expanded.has(node.id);
+                  const isActive = node.id === activeId;
+                  const Chevron = isExpanded ? ChevronDown : ChevronRight;
+                  return (
+                    <li
+                      key={node.id}
+                      role="treeitem"
+                      aria-label={`${node.name}, ${node.countLabel}`}
+                      aria-level={depth + 1}
+                      aria-setsize={setSize}
+                      aria-posinset={position}
+                      aria-expanded={isParent ? isExpanded : undefined}
+                      aria-describedby={
+                        isActive && node.description !== null
+                          ? descriptionId(node.id)
+                          : undefined
+                      }
+                      tabIndex={node.id === tabStop ? 0 : -1}
+                      ref={(element) => {
+                        if (element) rowElements.current.set(node.id, element);
+                        else rowElements.current.delete(node.id);
+                      }}
+                      className={cn(
+                        ROW_CLASSES,
+                        isActive && "bg-surface-section",
+                        ROW_INDENT[depth],
+                      )}
+                      onPointerEnter={() => setActiveId(node.id)}
+                      onFocus={() => setActiveId(node.id)}
+                      onClick={() => activate(node)}
+                      onKeyDown={(event) => handleKeyDown(event, index)}
+                    >
+                      {isParent ? (
+                        <Chevron
+                          className="size-4 shrink-0"
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        <span className="size-4 shrink-0" aria-hidden="true" />
+                      )}
+                      <span
+                        className={SWATCH_CLASSES}
+                        style={swatchStyle(node)}
+                        aria-hidden="true"
+                      />
+                      <span className="type-body min-w-0 flex-1 break-words">
+                        {node.name}
+                      </span>
+                      <span className="type-body shrink-0 tabular-nums">
+                        {legend(node)}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </CollapsibleBody>
+          </Collapsible>
+        </div>
       </div>
     </figure>
   );

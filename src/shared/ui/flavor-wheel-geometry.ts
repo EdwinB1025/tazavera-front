@@ -7,7 +7,7 @@ export const VIEWBOX = "-204 -204 408 408";
 
 const HOLE = 80;
 
-/** Ring bounds by the deepest level `D` present in the whole tree. */
+/** Ring bounds by the visible depth `V`: the deepest expanded level. */
 const RINGS_BY_DEPTH: Record<0 | 1 | 2, number[]> = {
   0: [80, 200],
   1: [80, 140, 200],
@@ -51,10 +51,19 @@ export function ringRadii(depth: 0 | 1 | 2): RingRadii {
   };
 }
 
-function treeDepth(nodes: WheelGeometryNode[]): number {
+/** The deepest expanded level, counting only notes under expanded parents. */
+function visibleDepth(
+  nodes: WheelGeometryNode[],
+  expanded: ReadonlySet<string>,
+): number {
   return nodes.reduce(
     (deepest, n) =>
-      Math.max(deepest, n.children.length ? 1 + treeDepth(n.children) : 0),
+      Math.max(
+        deepest,
+        expanded.has(n.id) && n.children.length
+          ? 1 + visibleDepth(n.children, expanded)
+          : 0,
+      ),
     0,
   );
 }
@@ -68,7 +77,9 @@ export function layoutWheel<T extends WheelGeometryNode>(
   nodes: T[],
   expanded: ReadonlySet<string>,
 ): { radii: RingRadii; segments: WheelSegment<T>[] } {
-  const radii = ringRadii(Math.min(treeDepth(nodes), 2) as 0 | 1 | 2);
+  const radii = ringRadii(
+    Math.min(visibleDepth(nodes, expanded), 2) as 0 | 1 | 2,
+  );
   const segments: WheelSegment<T>[] = [];
 
   const place = (siblings: T[], ring: number, start: number, end: number) => {
