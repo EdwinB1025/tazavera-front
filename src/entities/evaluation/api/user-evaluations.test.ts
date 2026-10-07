@@ -46,7 +46,7 @@ beforeEach(() => {
 describe("listMyEvaluations", () => {
   it("requests the page newest first and returns data and meta", async () => {
     request.mockResolvedValue(jsonResponse(200, { data: [ITEM], meta: META }));
-    const result = await listMyEvaluations(2);
+    const result = await listMyEvaluations("orderBy=created_at&orderDirection=desc&page=2");
     expect(request).toHaveBeenCalledWith(
       "/user/evaluations?orderBy=created_at&orderDirection=desc&page=2",
     );
@@ -55,9 +55,9 @@ describe("listMyEvaluations", () => {
 
   it("reports a failed status and a transport failure", async () => {
     request.mockResolvedValueOnce(jsonResponse(500));
-    expect(await listMyEvaluations(1)).toEqual({ ok: false, status: 500 });
+    expect(await listMyEvaluations("orderBy=created_at&orderDirection=desc&page=1")).toEqual({ ok: false, status: 500 });
     request.mockRejectedValueOnce(new TypeError("network down"));
-    expect(await listMyEvaluations(1)).toEqual({ ok: false, status: null });
+    expect(await listMyEvaluations("orderBy=created_at&orderDirection=desc&page=1")).toEqual({ ok: false, status: null });
   });
 });
 
