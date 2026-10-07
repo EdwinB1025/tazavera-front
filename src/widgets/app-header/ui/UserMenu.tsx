@@ -19,11 +19,7 @@ import { ThemeSelect } from "./ThemeSelect";
 // `data.name` and `data.surname` (design.md D5 field mapping).
 
 export type UserMenuTexts = {
-  profile: string;
-  editProfile: string;
-  changePassword: string;
-  deactivateAccount: string;
-  deleteAccount: string;
+  myAccount: string;
   security: string;
   themeSelector: string;
   manageOfferings: string;
@@ -78,16 +74,8 @@ const CIRCLE_CLASSES = [
   "border-nav-avatar-border",
 ].join(" ");
 
-const ITEM_HREFS = {
-  profile: "account/profile",
-  editProfile: "account/edit",
-  changePassword: "account/password",
-  deactivateAccount: "account/deactivate",
-  deleteAccount: "account/delete",
-} as const;
-
 // ─── Entry destinations ───
-// `/[locale]/account/*` and `/[locale]/manage/*` are internal routes: they get
+// `/[locale]/account` and `/[locale]/manage/*` are internal routes: they get
 // the internal `Link` treatment (`base-controls`: internal routes only), so
 // they navigate client-side and a reload — which would wipe the in-memory
 // tokens `add-auth` keeps — never happens. Only the API's `/user/security` is
@@ -97,8 +85,8 @@ const ITEM_HREFS = {
  * User menu (design.md D5; spec "Signed-in header and user menu").
  *
  * Opens from the avatar control carrying the user's initials and accessible
- * name. It offers the profile settings entries pointing at
- * `/[locale]/account/*`, the security entry as the API's web page rendered
+ * name. It offers the account entry pointing at `/[locale]/account`, the
+ * security entry as the API's web page rendered
  * natively (an external destination, not the internal link treatment per
  * `base-controls`), the theme selector, the management entry for the user's
  * role, and sign out.
@@ -127,13 +115,9 @@ export function UserMenu({
         <ChevronDown className="hidden md:block size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" surface="nav">
-        {(Object.keys(ITEM_HREFS) as Array<keyof typeof ITEM_HREFS>).map(
-          (key) => (
-            <DropdownMenuItem key={key} asChild>
-              <Link href={`/${locale}/${ITEM_HREFS[key]}`}>{texts[key]}</Link>
-            </DropdownMenuItem>
-          ),
-        )}
+        <DropdownMenuItem asChild>
+          <Link href={`/${locale}/account`}>{texts.myAccount}</Link>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <a href={securityUrl}>{texts.security}</a>
