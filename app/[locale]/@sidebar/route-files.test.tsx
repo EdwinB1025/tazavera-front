@@ -25,6 +25,15 @@ vi.mock("@/pages/new-offering", () => ({
   ),
 }));
 
+vi.mock("@/pages/coffeeshop-detail", () => ({
+  CoffeeshopDetailSidebarScreen: ({
+    locale,
+    searchParams,
+  }: {
+    locale: string;
+    searchParams: Record<string, string>;
+  }) => <div data-testid="coffeeshop-detail-sidebar" data-locale={locale} data-tab={searchParams.tab} />,
+}));
 vi.mock("@/pages/coffeeshops", () => ({
   CoffeeshopsSidebarScreen: ({
     locale,
@@ -126,5 +135,24 @@ describe("the coffee shop @sidebar slot route files (add-coffeeshop-directory D9
     const marker = screen.getByTestId("coffeeshops-sidebar");
     expect(marker.getAttribute("data-locale")).toBe("en");
     expect(marker.getAttribute("data-name")).toBe("nomad");
+  });
+
+  it("app/[locale]/@sidebar/coffeeshops/[ulid]/page.tsx renders the detail's slot screen with the raw tab", async () => {
+    expect(existsSync(slotFile("coffeeshops/[ulid]/page.tsx"))).toBe(true);
+    const route = (await importSlotRoute("./coffeeshops/[ulid]/page.tsx")) as unknown as {
+      default: (props: {
+        params: Promise<{ locale: string; ulid: string }>;
+        searchParams: Promise<Record<string, string>>;
+      }) => Promise<ReactNode>;
+    };
+    render(
+      await route.default({
+        params: Promise.resolve({ locale: "en", ulid: "01SHOP" }),
+        searchParams: Promise.resolve({ tab: "locations" }),
+      }),
+    );
+    const marker = screen.getByTestId("coffeeshop-detail-sidebar");
+    expect(marker.getAttribute("data-locale")).toBe("en");
+    expect(marker.getAttribute("data-tab")).toBe("locations");
   });
 });
