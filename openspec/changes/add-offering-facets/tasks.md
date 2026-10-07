@@ -28,7 +28,7 @@ Apply preconditions (met on 2026-10-07): `add-offering-catalog`, `add-sidebar-sl
 ## 5. Applied filters
 
 - [ ] 5.1 Write `src/features/offering-facets/model/applied.test.ts` for `appliedOfferingFilters` (design.md D5). Cases: no value → empty list; one entry per applied value in facet order, each with a distinct `id`; `verified=1` → value "Verified", `0` → "Provisional"; the score pair → one entry "60–100" from the `scoreRange` text; a listed taste note → its locale name, and its `remove` keeps the other `cataRef` values; an unlisted `cataRef` → no entry; `tasteNotes: null` → no `cataRef` entry; each other entry's `remove` sets only its key (both score keys for the score entry) to `undefined`; the sort never produces an entry. Expected: fails only for the missing module. Commit `test(filtering): verify the applied offering filters`.
-- [ ] 5.2 Implement `src/features/offering-facets/model/applied.ts`. Verify: 5.1 passes; full suite, lint and typecheck pass. Commit `feat(filtering): list the applied offering filters`.
+- [x] 5.2 Implement `src/features/offering-facets/model/applied.ts`. Verify: 5.1 passes; full suite, lint and typecheck pass. Commit `feat(filtering): list the applied offering filters`.
 
 ## 6. Texts
 
