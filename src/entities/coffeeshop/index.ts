@@ -7,3 +7,5 @@
 export { CoffeeshopCard } from "./ui/CoffeeshopCard";
 export type { CoffeeshopCardProps, CoffeeshopCardTexts } from "./ui/CoffeeshopCard";
 export { isLocated, uniqueCities } from "./model/locations";
+export { fetchCoffeeshop } from "./api/coffeeshop";
+export type { CoffeeshopResult } from "./api/coffeeshop";
