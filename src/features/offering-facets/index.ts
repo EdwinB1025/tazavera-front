@@ -5,6 +5,8 @@
 export { OfferingFacets, OFFERING_SORT_KEYS } from "./ui/OfferingFacets";
 export type { OfferingFacetsProps } from "./ui/OfferingFacets";
 export { OfferingsToolbar } from "./ui/OfferingsToolbar";
+export { ClearFiltersButton } from "./ui/ClearFiltersButton";
+export type { ClearFiltersButtonProps } from "./ui/ClearFiltersButton";
 export type { OfferingsToolbarProps } from "./ui/OfferingsToolbar";
 export { offeringFacetOptions, tasteNoteOptions } from "./model/options";
 export type { OfferingFacetOptions, TasteNoteOption } from "./model/options";

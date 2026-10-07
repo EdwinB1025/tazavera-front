@@ -3,6 +3,12 @@ import type { Session } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
 import { PageSection } from "@/shared/ui";
 import {
+  ClearFiltersButton,
+  hasOfferingFilters,
+  parseOfferingFilters,
+  sanitizeOfferingQuery,
+} from "@/features/offering-facets";
+import {
   CATALOG_GRID_CLASSES,
   OfferingSkeletonCard,
   Offerings,
@@ -53,7 +59,11 @@ export function OfferingsScreen({
 }: OfferingsScreenProps): ReactNode {
   const catalog = getMessages("catalog", locale);
   const landing = getMessages("landing", locale);
-  const query = buildOfferingsQuery(searchParams);
+  const filters = getMessages("filters", locale);
+  // The kept query with out-of-limit facet values dropped (add-offering-facets
+  // design.md D4, D9); the request and the pagination carry the same keys.
+  const query = sanitizeOfferingQuery(buildOfferingsQuery(searchParams));
+  const filtered = hasOfferingFilters(parseOfferingFilters(searchParams));
 
   const listTexts: OfferingListTexts = {
     coffeeshopCaption: landing.cardCoffeeshopCaption,
@@ -70,7 +80,8 @@ export function OfferingsScreen({
     ratingCommercialLabel: landing.cardRatingCommercialLabel,
     previousLabel: landing.paginationPreviousLabel,
     nextLabel: landing.paginationNextLabel,
-    emptyMessage: catalog.listEmptyMessage,
+    emptyMessage: filtered ? filters.noMatches : catalog.listEmptyMessage,
+    resultCount: catalog.resultCount,
     errorMessage: catalog.listErrorMessage,
     retryLabel: landing.listRetryLabel,
   };
@@ -103,6 +114,9 @@ export function OfferingsScreen({
             texts={listTexts}
             path={`/${locale}/offerings`}
             gridClassName={CATALOG_GRID_CLASSES}
+            emptyAction={
+              filtered ? <ClearFiltersButton label={filters.clearAll} /> : undefined
+            }
           />
         </Suspense>
       </PageSection>
