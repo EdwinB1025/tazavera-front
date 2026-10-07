@@ -43,3 +43,26 @@ Summary: the four landing captures of task 5.2 retaken after F1 (`65ca95a`), on 
 - Focus ring: not retaken here (already PASS in the design lead's 5.2 run).
 
 Result: landing PASS. With the 12 captures already committed, task 5.2 is complete.
+
+## Session 2026-10-07 — verify (cloud, findings rebuilt by a local architect)
+Summary: cloud verify on `da9d847`: 0 CRITICAL, 3 WARNING. Its report was truncated in the run log, so a local architect (read-only) rebuilt the findings on `5ef4841`; `da9d847` adds only captures, the handoff and checkboxes. Checks in the cloud: 2180/2180 tests, lint (1 known warning), tsc, build, `openspec validate --strict` all pass. Stopped because: waiting for W2 coverage, then archive.
+
+### Artifact fixes
+#### A1 — design.md names a landing fetch the code no longer uses (W1)
+- Phase: verify. Conflict: design.md Context and D8 named `fetchVerifiedOfferings(page)` as the landing request; since F1 (`65ca95a`, already accepted) `VerifiedOfferings` adds `perPage` and `Offerings` requests it.
+- Fix: Context and D8 now describe the code as built. What the user sees and what the spec requires do not change.
+- Result: `docs(content-structure): fix artifacts for refine-list-pagination (verify)`. The unused `fetchVerifiedOfferings` is now backlog R16.
+
+### Fixes and coverage sent to the Build
+#### F2 — Width switch of Previous and Next has no test (W2)
+- Type: unplanned coverage (content-structure spec, "Compact Previous and Next": "Chevrons below 768px", "Labels from 768px").
+- Message sent: cloud routine, branch `claude/refine-list-pagination-coverage`.
+- Result: pending.
+
+### Closed for review
+#### C1 — "My evaluations" hides the paginator on a single page (W3)
+- Point: `EvaluationsList.tsx:164-171` renders `Pagination` only when `last_page > 1`. The other three hosts always render it (`‹ 1 ›` with both arrows disabled on one page). The content-structure spec does not mention the omission.
+- Options: (a) keep the behaviour and leave the spec as it is; (b) add the omission to the spec; (c) make "My evaluations" always show the paginator, which changes what the user sees.
+- Choice: (a).
+- Why: the behaviour predates this change and design.md Context marks it "(kept)". Options (b) and (c) are a correction for Product owner.
+- Result: no change.
