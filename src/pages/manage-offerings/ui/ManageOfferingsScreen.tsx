@@ -51,6 +51,8 @@ export async function ManageOfferingsScreen({
     ratingCommercialLabel: landing.cardRatingCommercialLabel,
     previousLabel: landing.paginationPreviousLabel,
     nextLabel: landing.paginationNextLabel,
+    navigationLabel: landing.paginationNavigationLabel,
+    pageLabel: landing.paginationPageLabel,
     eyebrow: catalog.eyebrow,
     listHeading: catalog.listHeading,
     newOfferingLink: catalog.newOfferingLink,

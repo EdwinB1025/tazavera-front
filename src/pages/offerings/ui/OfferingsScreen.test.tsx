@@ -1,31 +1,24 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, cleanup, screen } from "@testing-library/react";
 import { getMessages } from "@/shared/lib/i18n";
-import {
-  CATALOG_GRID_CLASSES,
-  type OfferingsProps,
-} from "@/widgets/offering-list";
+import type { FilteredOfferingsResultsProps } from "@/widgets/offering-list";
 import { OfferingsScreen } from "@/pages/offerings";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
   cleanup();
-  block.suspend = false;
-  block.props = null;
+  results.props = null;
 });
 
 /**
- * Catalog screen tests (add-offering-catalog design.md D8, D9, D10; specs
- * "Catalog heading and toolbar slot", "Offering catalog page" — "Loading" —
- * and "Catalog query pass-through"). The query-driven block is an async
- * Server Component — untestable in Vitest — so it is replaced at the widget's
- * public API by a stub that records its props; the skeleton card stub counts
- * the fallback.
+ * Catalog screen tests (add-offering-catalog design.md D8, D9; spec "Catalog
+ * heading and toolbar slot"; extract-filtered-offerings design.md D5, D7).
+ * The results composition is tested in its widget, so it is replaced at the
+ * widget's public API by a stub that records its props.
  */
 
-const block = vi.hoisted(() => ({
-  suspend: false,
-  props: null as OfferingsProps | null,
+const results = vi.hoisted(() => ({
+  props: null as FilteredOfferingsResultsProps | null,
 }));
 
 vi.mock("@/widgets/offering-list", async (importOriginal) => {
@@ -33,13 +26,10 @@ vi.mock("@/widgets/offering-list", async (importOriginal) => {
     await importOriginal<typeof import("@/widgets/offering-list")>();
   return {
     ...actual,
-    Offerings: (props: OfferingsProps) => {
-      block.props = props;
-      // Never settles, so the boundary keeps showing its fallback.
-      if (block.suspend) throw new Promise<void>(() => {});
-      return <div data-testid="offerings-block" />;
+    FilteredOfferingsResults: (props: FilteredOfferingsResultsProps) => {
+      results.props = props;
+      return <div data-testid="filtered-offerings-results" />;
     },
-    OfferingSkeletonCard: () => <div data-testid="skeleton-card" />,
   };
 });
 
@@ -70,62 +60,27 @@ describe("OfferingsScreen", () => {
     expect(headingBlock.parentElement!.childElementCount).toBe(1);
   });
 
-  it("shows three skeleton cards in the catalog grid inside a container while the list loads (spec: Loading)", () => {
-    block.suspend = true;
-    render(<OfferingsScreen locale="es" searchParams={{}} />);
-    const skeletons = screen.getAllByTestId("skeleton-card");
-    expect(skeletons).toHaveLength(3);
-    const grid = skeletons[0].parentElement!;
-    expect(grid.getAttribute("class")).toBe(CATALOG_GRID_CLASSES);
-    expect(grid.parentElement!.getAttribute("class")).toBe("@container");
-    expect(screen.queryByTestId("offerings-block")).toBeNull();
-  });
-
   it("places the results on the page background (spec: Centered column on the page background)", () => {
-    block.suspend = true;
     render(<OfferingsScreen locale="es" searchParams={{}} />);
-    const section = screen.getAllByTestId("skeleton-card")[0].closest("section")!;
+    const section = screen
+      .getByTestId("filtered-offerings-results")
+      .closest("section")!;
     const classes = (section.getAttribute("class") ?? "").split(/\s+/);
     expect(classes).toContain("bg-surface-page");
     expect(classes).not.toContain("bg-surface-section");
   });
 
-  it("passes the path /{locale}/offerings and the kept query to the list (design.md D1, D10)", () => {
-    render(
-      <OfferingsScreen
-        locale="es"
-        searchParams={{
-          verified: "1",
-          orderBy: "cupping_avg",
-          cataRef: ["01JREFA", "01JREFB"],
-          foo: "1",
-          page: "2",
-        }}
-      />,
-    );
-    expect(block.props?.locale).toBe("es");
-    expect(block.props?.path).toBe("/es/offerings");
-    // The `orderBy` without a direction is dropped (add-offering-facets
-    // design.md D4).
-    expect(block.props?.query).toEqual({
-      verified: "1",
-      cataRef: ["01JREFA", "01JREFB"],
-      page: "2",
-    });
-    expect(block.props?.gridClassName).toBe(CATALOG_GRID_CLASSES);
-  });
-
-  it("passes no session to the block (add-specialist-evaluations design.md D6)", () => {
-    render(<OfferingsScreen locale="es" searchParams={{}} />);
-    expect(block.props).not.toBeNull();
-    expect(block.props).not.toHaveProperty("session");
-  });
-
-  it("feeds the catalog's list messages and landing's card, pagination and retry texts to the list (design.md D16)", () => {
-    render(<OfferingsScreen locale="es" searchParams={{}} />);
+  it("renders the results with the route's locale, address, path and texts and no fixed query (extract-filtered-offerings design.md D5)", () => {
+    const searchParams = { process: "washed", page: "2" };
+    render(<OfferingsScreen locale="es" searchParams={searchParams} />);
     const landing = getMessages("landing", "es");
     const catalog = getMessages("catalog", "es");
-    expect(block.props?.texts).toEqual({
+    const filters = getMessages("filters", "es");
+    expect(results.props?.locale).toBe("es");
+    expect(results.props?.searchParams).toBe(searchParams);
+    expect(results.props?.path).toBe("/es/offerings");
+    expect(results.props).not.toHaveProperty("fixedQuery");
+    expect(results.props?.texts).toEqual({
       coffeeshopCaption: landing.cardCoffeeshopCaption,
       roasterCaption: landing.cardRoasterCaption,
       evaluationsLabel: landing.cardEvaluationsLabel,
@@ -140,27 +95,14 @@ describe("OfferingsScreen", () => {
       ratingCommercialLabel: landing.cardRatingCommercialLabel,
       previousLabel: landing.paginationPreviousLabel,
       nextLabel: landing.paginationNextLabel,
+      navigationLabel: landing.paginationNavigationLabel,
+      pageLabel: landing.paginationPageLabel,
       emptyMessage: catalog.listEmptyMessage,
       errorMessage: catalog.listErrorMessage,
       retryLabel: landing.listRetryLabel,
       resultCount: catalog.resultCount,
+      noMatches: filters.noMatches,
+      clearAll: filters.clearAll,
     });
-  });
-
-  it("shows the filtered empty message and Clear all when a filter is applied (add-offering-facets design.md D9)", () => {
-    render(<OfferingsScreen locale="es" searchParams={{ process: "washed" }} />);
-    expect(block.props?.texts.emptyMessage).toBe(getMessages("filters", "es").noMatches);
-    expect(block.props?.emptyAction).toBeDefined();
-  });
-
-  it("keeps the catalog's empty message and no action with only a sort (add-offering-facets design.md D9)", () => {
-    render(
-      <OfferingsScreen
-        locale="es"
-        searchParams={{ orderBy: "cupping_avg", orderDirection: "desc" }}
-      />,
-    );
-    expect(block.props?.texts.emptyMessage).toBe(getMessages("catalog", "es").listEmptyMessage);
-    expect(block.props?.emptyAction).toBeUndefined();
   });
 });

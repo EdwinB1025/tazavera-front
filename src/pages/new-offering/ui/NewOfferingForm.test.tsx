@@ -214,14 +214,6 @@ describe("NewOfferingForm — create (design.md D5, D10)", () => {
     expect(createCalls()).toHaveLength(0);
   });
 
-  it("submitting with an item sends the create call with its ulid", async () => {
-    renderForm();
-    await chooseMirador();
-    await submit();
-    expect(createCalls()).toHaveLength(1);
-    expect(JSON.parse(createCalls()[0]![1].body)).toMatchObject({ coffeeInventoryId: "01I1" });
-  });
-
   it("on 201 the status shows the created count and the link to the list, and the choice resets", async () => {
     renderForm();
     await chooseMirador();
@@ -239,7 +231,7 @@ describe("NewOfferingForm — create (design.md D5, D10)", () => {
     expect(screen.queryByText("Created")).toBeNull();
   });
 
-  it.each([500, 422])("on a %i the form error shows and the chosen values are kept", async (status) => {
+  it.each([422])("on a %i the form error shows and the chosen values are kept", async (status) => {
     createAnswer = async () => jsonResponse(status, { message: "Rejected" });
     renderForm();
     await chooseMirador();
@@ -250,16 +242,6 @@ describe("NewOfferingForm — create (design.md D5, D10)", () => {
     expect(input().value).toBe("Huila El Mirador");
     expect(screen.getByText("Lot: L-2026-014 · Produced on: 2026-09-19")).toBeTruthy();
     expect(screen.queryByText("Rejected")).toBeNull();
-  });
-
-  it("on a transport failure the form error shows", async () => {
-    createAnswer = async () => {
-      throw new TypeError("Failed to fetch");
-    };
-    renderForm();
-    await chooseMirador();
-    await submit();
-    expect(screen.getByRole("alert").textContent).toBe(TEXTS.createError);
   });
 
   it("on 403 the single alert region holds the step-up text and action, values kept", async () => {

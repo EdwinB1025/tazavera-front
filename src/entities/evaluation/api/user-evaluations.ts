@@ -51,10 +51,13 @@ function json(method: "POST" | "PUT", body: unknown): RequestInit {
 
 const item = (payload: Record<string, unknown>) => payload.data as EvaluationItem;
 
-/** `GET /user/evaluations`, newest first (design.md endpoint 1). */
-export function listMyEvaluations(page: number): Promise<EvaluationCallResult<EvaluationPage>> {
+/**
+ * `GET /user/evaluations` with the serialized request query, its sort pair
+ * and `page` included (design.md endpoint 1; add-evaluation-facets D1).
+ */
+export function listMyEvaluations(query: string): Promise<EvaluationCallResult<EvaluationPage>> {
   return call(
-    `/user/evaluations?orderBy=created_at&orderDirection=desc&page=${page}`,
+    `/user/evaluations?${query}`,
     undefined,
     (payload) => ({
       data: (payload.data as EvaluationItem[] | undefined) ?? [],

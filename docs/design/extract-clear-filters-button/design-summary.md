@@ -103,3 +103,19 @@ None new. `filters.clearAll` already exists (add-facet-controls). No token, no c
 - Drafted from backlog R9, the two facet changes' proposes (`360c5bc`, `8b8f0c0`; no code yet on either branch), the `filtering` main spec and the directory summary.
 - Settled: placement `src/shared/ui` (backlog R9); props `label` + `keep` (reuse of the settled `clearFiltersHref` signature; deviation from the backlog's "facet keys" wording explained in §2.1); `Button` `primary` `base` with no class of its own (both copies' stated end state); one ADDED `filtering` requirement (precedent `extract-offering-list-parts`); no visible change.
 - Proposed change-id `extract-clear-filters-button`.
+
+## Propose status
+
+- **Change-id:** `extract-clear-filters-button` (branch `feature/extract-clear-filters-button`, from `develop` `8f1e416`).
+- **Date:** 2026-10-07.
+- **`openspec validate extract-clear-filters-button --strict`:** valid.
+- **Backlog:** resolves **R9** (remove the entry when this change is archived).
+- **Resolved:**
+  - Consumers (Open 1 (b)): one consumer, `OfferingsScreen`; the feature copy `src/features/offering-facets/ui/ClearFiltersButton.tsx` takes only `label` and keeps `OFFERING_SORT_KEYS` (`["orderBy", "orderDirection"]`) internally. Its behaviour matches §0.2–0.3; only the interface differs, which is what this refactor changes, so the propose continued (§3).
+  - Props `label` + `keep` as §2.1; render and activation copied from the merged component (design.md D2–D3).
+  - Host wiring: `keep={OFFERING_SORT_KEYS}` (the same value as §3's array, and the constant the panel's own "Clear all" uses) (design.md D4).
+  - Tests: the feature test's one case moves to `src/shared/ui/ClearFiltersButton.test.tsx` plus a no-key case; the `OfferingsScreen` filtered-empty case asserts the action's type, label and `keep`; no host test mocks `@/features/offering-facets`, so no mock moves (design.md D5).
+  - Spec delta: one ADDED `filtering` requirement, "Clear all action for an empty filtered list" (§2.2).
+- **Open (outside this change):**
+  - `add-evaluation-facets` (D3, D9, Files table, Risk 6, tasks 8.1–8.2) and `add-public-evaluations` (Open 3, D7, tasks 1.1, 2.5, 2.8) still plan and reuse `ClearEvaluationFiltersButton`; each needs its artifact update to consume `ClearFiltersButton` from `@/shared/ui` with `keep={["orderBy", "orderDirection"]}` before its apply.
+  - `extract-filtered-offerings` (R12) edits the same wiring; whichever merges second keeps the shared import (design.md, Risks).

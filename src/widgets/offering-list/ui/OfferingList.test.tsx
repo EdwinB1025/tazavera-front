@@ -71,8 +71,10 @@ const TEXTS = {
   emptyMessage: "texts.emptyMessage",
   errorMessage: "texts.errorMessage",
   retryLabel: "texts.retryLabel",
+  navigationLabel: "texts.navigationLabel",
   previousLabel: "texts.previousLabel",
   nextLabel: "texts.nextLabel",
+  pageLabel: "texts.pageLabel {page}",
 };
 
 // ─── Result fixtures (design.md D9's result mapping) ────────────────────────

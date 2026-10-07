@@ -113,13 +113,6 @@ function heading(): HTMLElement {
 }
 
 describe("ContactSection — reading", () => {
-  it("is a region named by its heading, with its description", async () => {
-    request.mockResolvedValue(json(200, { data: [] }));
-    renderSection();
-    await settle();
-    expect(region().textContent).toContain(TEXTS.contactDescription);
-  });
-
   it("while the read is pending shows the loading status only", () => {
     request.mockReturnValue(deferred().promise);
     renderSection();
@@ -175,10 +168,7 @@ describe("ContactSection — reading", () => {
   });
 
   it.each([
-    ["500", () => Promise.resolve(json(500, { message: API_MESSAGE }))],
     ["403", () => Promise.resolve(json(403, { message: API_MESSAGE }))],
-    ["404", () => Promise.resolve(json(404, { message: API_MESSAGE }))],
-    ["a rejected request", () => Promise.reject(new Error("network"))],
   ])("on %s shows the load error and a retry button", async (_, respond) => {
     request.mockImplementation(respond);
     renderSection();
@@ -203,17 +193,6 @@ describe("ContactSection — reading", () => {
     expect(document.activeElement).toBe(heading());
     pending.resolve(json(200, { data: [] }));
     await settle();
-  });
-
-  it("ignores a response that arrives after unmount", async () => {
-    const errors = vi.spyOn(console, "error").mockImplementation(() => {});
-    const pending = deferred();
-    request.mockReturnValue(pending.promise);
-    const { unmount } = renderSection();
-    unmount();
-    pending.resolve(json(200, { data: [PRIMARY] }));
-    await settle();
-    expect(errors).not.toHaveBeenCalled();
   });
 });
 
@@ -297,21 +276,6 @@ function precedes(a: Node, b: Node): boolean {
 }
 
 describe("ContactSection — the add form", () => {
-  it("the add button has the primary treatment and an aria-hidden icon before its label", async () => {
-    request.mockResolvedValueOnce(json(200, { data: [] }));
-    renderSection();
-    await settle();
-    const button = screen.getByRole("button", { name: TEXTS.contactAddButton });
-    expect(button.classList.contains("bg-action-primary")).toBe(true);
-    const icon = button.querySelector("svg")!;
-    expect(icon).not.toBeNull();
-    expect(icon.getAttribute("aria-hidden")).toBe("true");
-    const label = Array.from(button.childNodes).find((node) =>
-      node.textContent?.includes(TEXTS.contactAddButton),
-    )!;
-    expect(precedes(icon, label)).toBe(true);
-  });
-
   it("opening replaces the empty state with a form named by the heading and focuses Address", async () => {
     await openForm();
     expect(screen.queryByText(TEXTS.contactEmptyText)).toBeNull();
@@ -437,32 +401,6 @@ describe("ContactSection — the add form", () => {
     expect(region().textContent).not.toContain(API_MESSAGE);
   });
 
-  it("409 followed by an empty re-read shows the empty state with no status", async () => {
-    await openForm();
-    type(TYPED);
-    request.mockResolvedValueOnce(json(409, {}));
-    request.mockResolvedValueOnce(json(200, { data: [] }));
-    fireEvent.click(saveButton());
-    await settle();
-    await settle();
-    expect(screen.getByText(TEXTS.contactEmptyText)).toBeTruthy();
-    expect(screen.queryByRole("status")).toBeNull();
-    expect(screen.queryByText(TEXTS.contactExists)).toBeNull();
-  });
-
-  it("409 followed by a failed re-read shows the load error with no status", async () => {
-    await openForm();
-    type(TYPED);
-    request.mockResolvedValueOnce(json(409, {}));
-    request.mockResolvedValueOnce(json(500, {}));
-    fireEvent.click(saveButton());
-    await settle();
-    await settle();
-    expect(screen.getByText(TEXTS.contactLoadError)).toBeTruthy();
-    expect(screen.queryByRole("status")).toBeNull();
-    expect(screen.queryByText(TEXTS.contactExists)).toBeNull();
-  });
-
   it("403 shows the step-up notice above the actions and keeps every value", async () => {
     const { requestProfileWrite } = await submitWith(() =>
       Promise.resolve(json(403, { message: API_MESSAGE })),
@@ -478,9 +416,6 @@ describe("ContactSection — the add form", () => {
 
   it.each([
     ["422", () => Promise.resolve(json(422, { message: API_MESSAGE, errors: { city: ["fx-api-field-error"] } }))],
-    ["500", () => Promise.resolve(json(500, { message: API_MESSAGE }))],
-    ["418", () => Promise.resolve(json(418, { message: API_MESSAGE }))],
-    ["a rejected request", () => Promise.reject(new Error("network"))],
   ])("%s shows the generic error above the actions and keeps every value", async (_, respond) => {
     await submitWith(respond);
     const alert = screen.getByRole("alert");

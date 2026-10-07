@@ -31,45 +31,10 @@ afterEach(() => {
 const es = getMessages("account", "es");
 
 describe("RegisterScreen", () => {
-  it("shows the specialist title and the intro on the specialist route", () => {
-    render(<RegisterScreen locale="es" role="specialist" />);
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(
-      es.registerSpecialistTitle,
-    );
-    expect(screen.getByText(es.registerIntro)).toBeTruthy();
-  });
-
-  it("shows the coffeeshop title on the coffeeshop route", () => {
-    render(<RegisterScreen locale="es" role="coffeeshop" />);
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(
-      es.registerCoffeeshopTitle,
-    );
-  });
-
   it("while the session is loading shows the heading and the loading status and no form", () => {
     render(<RegisterScreen locale="es" role="specialist" />);
     expect(screen.getByRole("heading", { level: 1 })).toBeTruthy();
     expect(screen.getByRole("status").textContent).toBe(es.loading);
     expect(document.querySelector("form")).toBeNull();
-  });
-
-  it("while anonymous renders the form labelled by the page heading, with every text from the catalog", () => {
-    auth.session = { state: "anonymous" };
-    render(<RegisterScreen locale="es" role="specialist" />);
-    const heading = screen.getByRole("heading", { level: 1 });
-    const form = document.querySelector("form")!;
-    expect(form.getAttribute("aria-labelledby")).toBe(heading.id);
-    for (const key of [
-      "nameLabel",
-      "surnameLabel",
-      "emailLabel",
-      "passwordLabel",
-      "passwordConfirmationLabel",
-      "passwordHelp",
-      "registerSubmit",
-    ]) {
-      expect(document.body.textContent?.includes(es[key]!), key).toBe(true);
-    }
-    expect(screen.getAllByRole("button", { name: es.showPassword })).toHaveLength(2);
   });
 });

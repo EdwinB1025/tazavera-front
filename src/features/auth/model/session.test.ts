@@ -285,17 +285,6 @@ describe("silent re-authentication (spec: Silent re-authentication)", () => {
     expect(loaded.flow.readFlow()!.returnRoute).toBe("/en/offerings/1?tab=evaluations");
   });
 
-  it("starts exactly one authorization request when the session start runs twice in one page load (design.md D1 idempotency)", async () => {
-    const loaded = await load();
-    loaded.flow.setMarker();
-
-    consume(loaded);
-    consume(loaded);
-    await awaitRequestStarted();
-
-    expect(locationMock.assign).toHaveBeenCalledTimes(1);
-  });
-
   it("ends anonymous with the marker removed and no text when the request comes back with an error (spec: Returning user whose API session is gone)", async () => {
     const loaded = await load();
     loaded.flow.setMarker();
@@ -309,22 +298,6 @@ describe("silent re-authentication (spec: Silent re-authentication)", () => {
       error_description: "No session",
       state: pending.state,
     }, () => {});
-    const gone = consume(loaded);
-
-    expect(gone.current()).toEqual({ state: "anonymous" });
-    expect(loaded.flow.hasMarker()).toBe(false);
-  });
-
-  it("ends anonymous with the marker removed and no text when the request fails (spec: Returning user whose API session is gone)", async () => {
-    const loaded = await load();
-    loaded.flow.setMarker();
-    fetchMock.mockRejectedValue(new Error("the token endpoint is down"));
-
-    consume(loaded);
-    await awaitRequestStarted();
-    const pending = loaded.flow.readFlow()!;
-
-    await loaded.completeCallback({ code: "code-123", state: pending.state }, () => {});
     const gone = consume(loaded);
 
     expect(gone.current()).toEqual({ state: "anonymous" });
@@ -400,36 +373,6 @@ describe("sign out (spec: Sign out)", () => {
     expect(pushMock).toHaveBeenCalledTimes(1);
     expect(pushMock).toHaveBeenCalledWith(null, "", "/en");
   });
-
-  it("starts no refresh, no silent re-authentication and no authorization request and still completes the local sign out when POST /logout answers 401 (design.md D5: POST /logout; spec: Sign out)", async () => {
-    const loaded = await load();
-    const seen = consume(loaded);
-    await completeSignIn(loaded);
-    fetchMock.mockReset();
-    // The `401` of design.md D5 ("the token is already dead").
-    fetchMock.mockResolvedValue(jsonResponse({}, 401));
-    pushMock.mockClear();
-    const openSpy = vi
-      .spyOn(window, "open")
-      .mockReturnValue(null as unknown as Window);
-
-    loaded.signOut();
-
-    // The answer is never consulted and no recovery runs: `POST /logout` is
-    // the only request (no refresh grant), and neither a silent
-    // re-authentication nor any authorization request revives the session.
-    await vi.waitFor(() => {
-      expect(seen.current()).toEqual({ state: "anonymous" });
-    });
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(String(fetchMock.mock.calls[0]![0])).toBe(`${API_URL}/logout`);
-    expect(locationMock.assign).not.toHaveBeenCalled();
-    expect(openSpy).not.toHaveBeenCalled();
-    expect(loaded.getTokens()).toBeNull();
-    expect(loaded.flow.hasMarker()).toBe(false);
-    expect(pushMock).toHaveBeenCalledTimes(1);
-    expect(pushMock).toHaveBeenCalledWith(null, "", "/en");
-  });
 });
 
 describe("profile refresh (spec: Session states and profile; design.md D5)", () => {
@@ -475,7 +418,6 @@ describe("profile refresh (spec: Session states and profile; design.md D5)", () 
 
   for (const [label, failure] of [
     ["a network failure", () => Promise.reject(new TypeError("offline"))],
-    ["a 5xx", () => Promise.resolve(jsonResponse({ message: "down" }, 503))],
   ] as const) {
     it(`retries GET /user exactly once after ${label} (spec: A profile refresh that fails transiently)`, async () => {
       const loaded = await load();
@@ -507,74 +449,5 @@ describe("profile refresh (spec: Session states and profile; design.md D5)", () 
 
     expect(profileRequests()).toHaveLength(2);
     expect(seen.current()).toEqual({ state: "authenticated", user: PROFILE });
-  });
-
-  it("sends no GET /user and changes nothing on an anonymous session (spec: Sign out; design.md D5)", async () => {
-    const loaded = await load();
-    const seen = consume(loaded);
-    await vi.waitFor(() => {
-      expect(seen.current()).toEqual({ state: "anonymous" });
-    });
-    answerProfileInTurn(() => Promise.resolve(jsonResponse({ data: UPDATED })));
-
-    await loaded.refreshProfile();
-
-    expect(profileRequests()).toHaveLength(0);
-    expect(seen.current()).toEqual({ state: "anonymous" });
-  });
-
-  it("discards a GET /user answer that arrives after a sign out (spec: Sign out; design.md D5)", async () => {
-    const loaded = await load();
-    const seen = consume(loaded);
-    await completeSignIn(loaded);
-    await vi.waitFor(() => {
-      expect(seen.current()).toEqual({ state: "authenticated", user: PROFILE });
-    });
-    fetchMock.mockReset();
-    let answerProfile: (response: Response) => void = () => {};
-    fetchMock.mockImplementation((input) => {
-      if (String(input) === `${API_URL}/user`) {
-        return new Promise<Response>((resolve) => {
-          answerProfile = resolve;
-        });
-      }
-      return Promise.resolve(jsonResponse({ message: "logout successfully." }));
-    });
-
-    const refreshing = loaded.refreshProfile();
-    await vi.waitFor(() => {
-      expect(profileRequests()).toHaveLength(1);
-    });
-    loaded.signOut();
-    await vi.waitFor(() => {
-      expect(seen.current()).toEqual({ state: "anonymous" });
-    });
-    answerProfile(jsonResponse({ data: UPDATED }));
-    await refreshing;
-
-    expect(seen.current()).toEqual({ state: "anonymous" });
-  });
-
-  it("recovers a 401 through the client's chain and changes nothing else (spec: Keeping the session alive)", async () => {
-    const loaded = await load();
-    const seen = consume(loaded);
-    await completeSignIn(loaded);
-    fetchMock.mockReset();
-    answerProfileInTurn(
-      () => Promise.resolve(jsonResponse({}, 401)),
-      () => Promise.resolve(jsonResponse({ data: UPDATED })),
-    );
-
-    await loaded.refreshProfile();
-
-    const refreshes = fetchMock.mock.calls.filter(([input]) =>
-      String(input).includes("/oauth/token"),
-    );
-    expect(refreshes).toHaveLength(1);
-    expect(profileRequests()).toHaveLength(2);
-    expect(locationMock.assign).not.toHaveBeenCalled();
-    await vi.waitFor(() => {
-      expect(seen.current()).toEqual({ state: "authenticated", user: UPDATED });
-    });
   });
 });

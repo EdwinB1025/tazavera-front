@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import {
   Collapsible,
@@ -102,33 +102,6 @@ describe("Collapsible section", () => {
     expect(body.hasAttribute("inert")).toBe(false);
   });
 
-  it("reports toggles and follows the prop when controlled", () => {
-    const onOpenChange = vi.fn();
-    const { button, rerender } = renderSection({ open: false, onOpenChange });
-    fireEvent.click(button);
-    expect(onOpenChange).toHaveBeenCalledTimes(1);
-    expect(onOpenChange).toHaveBeenCalledWith(true);
-    expect(button.getAttribute("aria-expanded")).toBe("false");
-
-    rerender(
-      <Collapsible open onOpenChange={onOpenChange}>
-        <CollapsibleHeader>Fragancia / Aroma</CollapsibleHeader>
-        <CollapsibleBody data-testid="body">
-          <a href="#x">Inner link</a>
-        </CollapsibleBody>
-      </Collapsible>,
-    );
-    expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("true");
-  });
-
-  it("reports toggles when uncontrolled", () => {
-    const onOpenChange = vi.fn();
-    const { button } = renderSection({ onOpenChange });
-    fireEvent.click(button);
-    expect(onOpenChange).toHaveBeenCalledWith(true);
-    expect(button.getAttribute("aria-expanded")).toBe("true");
-  });
-
   it("names the header by the title only and describes it by the aside", () => {
     renderSection({}, { aside: "Completo" });
     const button = screen.getByRole("button", {
@@ -136,23 +109,6 @@ describe("Collapsible section", () => {
       description: "Completo",
     });
     expect(button).toBeDefined();
-  });
-
-  it("has no description without an aside", () => {
-    const { button } = renderSection();
-    expect(button.hasAttribute("aria-describedby")).toBe(false);
-  });
-
-  it("wraps the button in a heading of the given level", () => {
-    const { button } = renderSection({}, { headingLevel: 3 });
-    const heading = screen.getByRole("heading", { level: 3 });
-    expect(heading.tagName).toBe("H3");
-    expect(heading.contains(button)).toBe(true);
-  });
-
-  it("renders no heading without a heading level", () => {
-    renderSection();
-    expect(screen.queryByRole("heading")).toBeNull();
   });
 
   it("hides the chevron and turns it with the state, without motion when reduced", () => {

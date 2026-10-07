@@ -19,9 +19,20 @@ vi.mock("@/pages/manage-offerings", () => ({
     <div data-testid="manage-offerings-sidebar" data-locale={locale} />
   ),
 }));
+vi.mock("@/pages/manage-locations", () => ({
+  ManageLocationsSidebarEntries: ({ locale }: { locale: string }) => (
+    <div data-testid="manage-locations-sidebar" data-locale={locale} />
+  ),
+}));
 vi.mock("@/pages/new-offering", () => ({
   NewOfferingSidebarEntries: ({ locale }: { locale: string }) => (
     <div data-testid="new-offering-sidebar" data-locale={locale} />
+  ),
+}));
+
+vi.mock("@/pages/evaluations-list", () => ({
+  EvaluationsSidebarScreen: ({ locale }: { locale: string }) => (
+    <div data-testid="evaluations-sidebar" data-locale={locale} />
   ),
 }));
 
@@ -86,10 +97,36 @@ describe("the management @sidebar slot route files (add-offering-management D8)"
   it.each([
     ["manage/offerings/page.tsx", "manage-offerings-sidebar"],
     ["manage/offerings/new/page.tsx", "new-offering-sidebar"],
+    ["manage/locations/page.tsx", "manage-locations-sidebar"],
   ])("app/[locale]/@sidebar/%s exists and renders its entry block", async (file, testId) => {
     expect(existsSync(slotFile(file))).toBe(true);
     const route = (await import(`./${file}`)) as LocaleSlotRoute;
     render(await route.default({ params: Promise.resolve({ locale: "en" }) }));
     expect(screen.getByTestId(testId).getAttribute("data-locale")).toBe("en");
+  });
+});
+
+type LocaleSearchSlotRoute = {
+  default: (props: {
+    params: Promise<{ locale: string }>;
+    searchParams: Promise<Record<string, string | string[] | undefined>>;
+  }) => Promise<ReactNode>;
+};
+
+/**
+ * The evaluations slot page (add-evaluation-facets spec "Form routes have no
+ * facets"): only the list route renders the facets; the form routes have no
+ * slot page, so the catch-all default sidebar renders.
+ */
+describe("the evaluations @sidebar slot route files (add-evaluation-facets)", () => {
+  it("renders the facets on manage/evaluations only, not on its form routes", async () => {
+    const file = "manage/evaluations/page.tsx";
+    const route = (await import(`./${file}`)) as LocaleSearchSlotRoute;
+    render(
+      await route.default({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({}) }),
+    );
+    expect(screen.getByTestId("evaluations-sidebar").getAttribute("data-locale")).toBe("en");
+    expect(existsSync(slotFile("manage/evaluations/new/page.tsx"))).toBe(false);
+    expect(existsSync(slotFile("manage/evaluations/[ulid]/page.tsx"))).toBe(false);
   });
 });

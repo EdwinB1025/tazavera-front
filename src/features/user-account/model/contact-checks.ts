@@ -1,6 +1,6 @@
 import type { ContactCreatePayload } from "@/shared/api";
 import type { ContactFieldErrors, ContactFieldValues } from "@/entities/contact";
-import { isValidEmail } from "./email";
+import { isValidEmail } from "@/entities/contact";
 
 // ─── UI-specific types (declared before the functions) ───
 

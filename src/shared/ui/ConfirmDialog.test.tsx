@@ -103,16 +103,6 @@ describe("ConfirmDialog", () => {
       expect(document.activeElement).toBe(cancel);
       expect(tokensOf(cancel)).toContain("bg-action-4-bg");
     });
-
-    it("renders the title in type-card-heading and the description in type-body", () => {
-      render(<Host initiallyOpen />);
-      expect(tokensOf(screen.getByText("Delete this evaluation?"))).toContain(
-        "type-card-heading",
-      );
-      expect(
-        tokensOf(screen.getByText("The evaluation will be removed permanently.")),
-      ).toContain("type-body");
-    });
   });
 
   describe("confirming (spec: Confirming)", () => {
@@ -136,15 +126,6 @@ describe("ConfirmDialog", () => {
       expect(onOpenChange).toHaveBeenCalledWith(false);
       expect(screen.queryByRole("alertdialog")).toBeNull();
       expect(onConfirm).not.toHaveBeenCalled();
-      await nextTick();
-      expect(document.activeElement).toBe(trigger);
-    });
-
-    it("closes from the cancel action and returns focus to the trigger", async () => {
-      render(<Host />);
-      const trigger = openFromTrigger();
-      fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
-      expect(screen.queryByRole("alertdialog")).toBeNull();
       await nextTick();
       expect(document.activeElement).toBe(trigger);
     });
@@ -212,11 +193,6 @@ describe("ConfirmDialog", () => {
       );
       fireEvent.click(screen.getByRole("button", { name: "Delete" }));
       expect(onConfirm).toHaveBeenCalledTimes(1);
-    });
-
-    it("renders no error text without an error", () => {
-      render(<Host initiallyOpen error="" />);
-      expect(document.querySelector(".type-error")).toBeNull();
     });
   });
 

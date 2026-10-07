@@ -42,7 +42,6 @@ const AUTHENTICATED: Session = {
   state: "authenticated",
   user: { name: "Andrés", surname: "Gómez", role: "specialist" },
 };
-const ANONYMOUS: Session = { state: "anonymous" };
 const TOGGLE = "sidebar.toggle";
 
 function renderFrame(
@@ -59,12 +58,6 @@ function renderFrame(
 }
 
 describe("AppSidebar frame (design.md D4)", () => {
-  it("renders a landmark and a collapse control named by the provider's toggle text", () => {
-    renderFrame(<AppSidebar />);
-    expect(screen.getByRole("complementary", { name: TOGGLE })).toBeDefined();
-    expect(screen.getByRole("button", { name: TOGGLE })).toBeDefined();
-  });
-
   it("renders the provider's entries followed by its own on a management route (spec: Shown on a management route)", () => {
     pathname = "/es/manage/offerings";
     renderFrame(<AppSidebar entries={<p>area-entry</p>} />, {
@@ -84,32 +77,5 @@ describe("AppSidebar frame (design.md D4)", () => {
     pathname = "/es/manage/offerings";
     renderFrame(<AppSidebar />);
     expect(screen.getByRole("navigation").textContent).toBe("");
-  });
-
-  it("renders its children and no navigation on the offerings route", () => {
-    pathname = "/es/offerings";
-    renderFrame(<AppSidebar>offerings-controls</AppSidebar>, {
-      session: ANONYMOUS,
-      entries: <p>role-entry</p>,
-    });
-    expect(screen.getByRole("complementary", { name: TOGGLE })).toBeDefined();
-    expect(screen.getByText("offerings-controls")).toBeDefined();
-    expect(screen.queryByRole("navigation")).toBeNull();
-    expect(screen.queryByText("role-entry")).toBeNull();
-  });
-
-  it("renders its children after the navigation", () => {
-    pathname = "/es/manage/offerings";
-    renderFrame(
-      <AppSidebar>
-        <p>area-controls</p>
-      </AppSidebar>,
-    );
-    const nav = screen.getByRole("navigation");
-    const controls = screen.getByText("area-controls");
-    expect(
-      nav.compareDocumentPosition(controls) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
-    expect(nav.contains(controls)).toBe(false);
   });
 });

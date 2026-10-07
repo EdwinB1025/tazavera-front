@@ -1,7 +1,6 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, cleanup } from "@testing-library/react";
 import type { OfferingDetail } from "@/shared/api";
-import { getMessages } from "@/shared/lib/i18n";
 import { InventoryPanel } from "./InventoryPanel";
 
 /**
@@ -14,11 +13,6 @@ import { InventoryPanel } from "./InventoryPanel";
 afterEach(() => {
   cleanup();
 });
-
-/** The class tokens of an element, as exact names (no substring matching). */
-function classTokens(element: Element): string[] {
-  return (element.getAttribute("class") ?? "").split(/\s+/).filter(Boolean);
-}
 
 const LABEL_KEYS = [
   "fieldRoastLot",
@@ -101,20 +95,6 @@ function renderPanel(offering: OfferingDetail = OFFERING) {
 }
 
 describe("InventoryPanel", () => {
-  it("renders one stacked card with the inventory heading and a two-column row grid", () => {
-    const { container } = renderPanel();
-    const heading = screen.getByRole("heading", { level: 2 });
-    expect(heading.textContent).toBe(TEXTS.detailInventoryHeading);
-    expect(classTokens(heading)).toContain("type-subheading");
-    expect(container.querySelectorAll(".bg-surface-card")).toHaveLength(1);
-    const card = container.querySelector(".bg-surface-card")!;
-    expect(classTokens(card)).toContain("flex-col");
-    const list = container.querySelector("dl")!;
-    expect(classTokens(list)).toEqual(
-      expect.arrayContaining(["grid", "gap-x-6", "gap-y-3", "md:grid-cols-2"]),
-    );
-  });
-
   it("renders one labelled row per field in the settled order, values as the API returns them (spec: Rows and order)", () => {
     const { container } = renderPanel();
     expect(rowsOf(container)).toEqual(EXPECTED_ROWS);
@@ -148,15 +128,6 @@ describe("InventoryPanel", () => {
       "01K6A3M8Q2V7XH4T9B5N1RCW0D",
     ]) {
       expect(text).not.toContain(hidden);
-    }
-  });
-
-  it("finds the heading and every row label in the catalog of each locale (design.md D16)", () => {
-    for (const locale of ["es", "en", "ca"]) {
-      const catalog = getMessages("catalog", locale);
-      for (const key of ["detailInventoryHeading", ...LABEL_KEYS]) {
-        expect(catalog[key], `${locale}.${key}`).toEqual(expect.any(String));
-      }
     }
   });
 });

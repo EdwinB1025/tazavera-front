@@ -115,6 +115,8 @@ describe("HomeScreen", () => {
       ratingCommercialLabel: es.cardRatingCommercialLabel,
       previousLabel: es.paginationPreviousLabel,
       nextLabel: es.paginationNextLabel,
+      navigationLabel: es.paginationNavigationLabel,
+      pageLabel: es.paginationPageLabel,
       emptyMessage: es.listEmptyMessage,
       errorMessage: es.listErrorMessage,
       retryLabel: es.listRetryLabel,

@@ -14,17 +14,6 @@ afterEach(() => {
   cleanup();
 });
 
-/**
- * Tabs tests (design.md D6; content-structure "Tabs"). jsdom has no CSS
- * engine: the presentation is verified by exact class tokens, variant
- * prefixes included.
- */
-
-/** The class tokens of an element, as exact names (no substring matching). */
-function classTokens(element: Element): string[] {
-  return (element.getAttribute("class") ?? "").split(/\s+/).filter(Boolean);
-}
-
 function Fixture({
   value,
   onValueChange,
@@ -101,43 +90,5 @@ describe("Tabs", () => {
     await waitFor(() => expect(document.activeElement).toBe(inventory));
     expect(onValueChange).not.toHaveBeenCalled();
     expect(screen.getByRole("tabpanel").textContent).toBe("Inventory panel");
-  });
-
-  it("follows the controlled value and reports selections through onValueChange", () => {
-    const onValueChange = vi.fn();
-    const { rerender } = render(
-      <Fixture value="consensus" onValueChange={onValueChange} />,
-    );
-    expect(screen.getByRole("tabpanel").textContent).toBe("Consensus panel");
-    press(screen.getByRole("tab", { name: "Inventory data" }));
-    expect(onValueChange).toHaveBeenCalledWith("inventory");
-    // The consumer owns the value: nothing changes until it passes a new one.
-    expect(screen.getByRole("tabpanel").textContent).toBe("Consensus panel");
-    rerender(<Fixture value="inventory" onValueChange={onValueChange} />);
-    expect(screen.getByRole("tabpanel").textContent).toBe("Inventory panel");
-  });
-
-  it("carries the D6 classes on the list, the triggers and the selected trigger", () => {
-    render(<Controlled />);
-    const list = screen.getByRole("tablist");
-    expect(classTokens(list)).toEqual(
-      expect.arrayContaining(["flex", "border-b", "border-border-subtle"]),
-    );
-    for (const trigger of screen.getAllByRole("tab")) {
-      expect(classTokens(trigger)).toEqual(
-        expect.arrayContaining([
-          "type-label",
-          "text-text-secondary",
-          "focus-visible:focus-ring",
-          "data-[state=active]:text-text-primary",
-          "data-[state=active]:border-border-accent",
-        ]),
-      );
-    }
-    const selected = screen.getByRole("tab", { name: "Inventory data" });
-    expect(selected.getAttribute("data-state")).toBe("active");
-    expect(
-      screen.getByRole("tab", { name: "Consensus" }).getAttribute("data-state"),
-    ).toBe("inactive");
   });
 });

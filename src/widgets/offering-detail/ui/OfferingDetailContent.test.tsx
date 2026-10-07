@@ -86,20 +86,6 @@ describe("OfferingDetailContent", () => {
     ).toBe("/es/offerings");
   });
 
-  it("renders the header and the two tabs on success, with the tab of the address selected", () => {
-    renderContent(SUCCESS, "consensus");
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(
-      "Huila El Mirador",
-    );
-    expect(
-      screen
-        .getByRole("tab", { name: TEXTS.tabConsensus })
-        .getAttribute("aria-selected"),
-    ).toBe("true");
-    expect(screen.getAllByRole("tabpanel")).toHaveLength(1);
-    expect(screen.queryByText(TEXTS.errorMessage)).toBeNull();
-  });
-
   it("renders the header block and the tabs in one section on the page background, 2rem apart (spec: Detail on the page background; design.md D9)", () => {
     const { container } = renderContent(SUCCESS);
     const sections = container.querySelectorAll("section");

@@ -309,7 +309,7 @@ The application SHALL NOT render markup injected as raw HTML.
 - **THEN** verification fails naming the file and the rendering
 
 ### Requirement: Content-Security-Policy
-Every document response of the application SHALL carry a Content-Security-Policy that allows scripts only from the application itself and allows connections to the API origin. Static assets — framework paths under `/_next/` and file paths — are intentionally excluded from the policy, and `/callback` gets its policy from `add-auth`, which owns that route.
+Every document response of the application SHALL carry a Content-Security-Policy that allows scripts only from the application itself and allows connections to the API origin and to the address geocoding service's origin (`https://nominatim.openstreetmap.org`). Static assets — framework paths under `/_next/` and file paths — are intentionally excluded from the policy, and `/callback` gets its policy from `add-auth`, which owns that route.
 
 #### Scenario: Own scripts run
 - **WHEN** the application's own scripts load on a page
@@ -322,6 +322,10 @@ Every document response of the application SHALL carry a Content-Security-Policy
 #### Scenario: Connections to the API are allowed
 - **WHEN** the application connects to the API origin
 - **THEN** the policy allows the connection
+
+#### Scenario: Connections to the geocoding service are allowed
+- **WHEN** the application looks up an address at `https://nominatim.openstreetmap.org`
+- **THEN** the policy allows the connection, and connections to any other origin outside the application, the API and that service stay blocked
 
 #### Scenario: Policy present on every document response
 - **WHEN** verification inspects the responses of the application
