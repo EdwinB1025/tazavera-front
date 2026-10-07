@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import type { ReactNode } from "react";
 import type { EvaluationItem, OfferingDetail, TaxonomyNode } from "@/shared/api";
 import {
@@ -28,6 +28,8 @@ import { EvaluationGroupCard } from "./EvaluationGroupCard";
 import type { EvaluationGroupTexts } from "./EvaluationGroupCard";
 import { FormActions } from "./FormActions";
 import type { FormBusy } from "./FormActions";
+import { ScaleLegend } from "./ScaleLegend";
+import type { ScaleLegendTexts } from "./ScaleLegend";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -71,6 +73,8 @@ export type EvaluationFormTexts = {
   };
   /** The option of design.md D9. */
   fragranceNotEvaluatedLabel: string;
+  /** The 1–9 legend (design.md D16). */
+  legend: ScaleLegendTexts;
   /** The legends of the four descriptor blocks. */
   blockLabels: Record<DescriptorBlockKey, string>;
   group: EvaluationGroupTexts;
@@ -140,6 +144,8 @@ export function EvaluationForm({
   const [openGroups, setOpenGroups] = useState<Record<GroupKey, boolean>>(() =>
     allGroups(evaluation?.status === "closed"),
   );
+  // The 1–9 legend follows the groups' initial-state rule (design.md D16).
+  const [legendOpen, setLegendOpen] = useState(evaluation?.status === "closed");
   const readOnly = closed;
   const completeness = completenessOf(state);
   const coffeeshopCaption = `${texts.coffeeshopCaption} ${offering.location?.name ?? ""}`.trim();
@@ -216,6 +222,7 @@ export function EvaluationForm({
     if (result.ok) {
       setClosed(true);
       setOpenGroups(allGroups(true));
+      setLegendOpen(true);
       setMessage(texts.actions.closedMessage);
       return;
     }
@@ -297,60 +304,65 @@ export function EvaluationForm({
       </Card>
       <div className={GROUPS_CLASSES}>
         {EVALUATION_GROUPS.map((group) => (
-          <EvaluationGroupCard
-            key={group.key}
-            group={group}
-            state={state}
-            onChange={setState}
-            texts={texts.group}
-            complete={completeness[group.key]}
-            readOnly={readOnly}
-            highlighted={highlighted && completeness[group.key] === false}
-            open={openGroups[group.key]}
-            onOpenChange={(open) =>
-              setOpenGroups((current) => ({ ...current, [group.key]: open }))
-            }
-            top={
-              group.key === "fragranceAroma" && !readOnly ? (
-                <Checkbox
-                  label={texts.fragranceNotEvaluatedLabel}
-                  checked={state.fragranceNotEvaluated}
-                  onChange={(event) =>
-                    setState((current) => ({
-                      ...current,
-                      fragranceNotEvaluated: event.target.checked,
-                    }))
-                  }
-                />
-              ) : undefined
-            }
-            renderBlock={(block) =>
-              readOnly ? (
-                <DescriptorBlock
-                  legend={texts.blockLabels[block.key]}
-                  nodes={taxonomies}
-                  category={block.key}
-                  locale={locale}
-                  value={state.descriptors[block.selection]}
-                  readOnly
-                />
-              ) : (
-                <DescriptorBlock
-                  legend={texts.blockLabels[block.key]}
-                  nodes={taxonomies}
-                  category={block.key}
-                  locale={locale}
-                  value={state.descriptors[block.selection]}
-                  onValueChange={(value) =>
-                    setState((current) => ({
-                      ...current,
-                      descriptors: { ...current.descriptors, [block.selection]: value },
-                    }))
-                  }
-                />
-              )
-            }
-          />
+          <Fragment key={group.key}>
+            <EvaluationGroupCard
+              group={group}
+              state={state}
+              onChange={setState}
+              texts={texts.group}
+              complete={completeness[group.key]}
+              readOnly={readOnly}
+              highlighted={highlighted && completeness[group.key] === false}
+              open={openGroups[group.key]}
+              onOpenChange={(open) =>
+                setOpenGroups((current) => ({ ...current, [group.key]: open }))
+              }
+              top={
+                group.key === "fragranceAroma" && !readOnly ? (
+                  <Checkbox
+                    label={texts.fragranceNotEvaluatedLabel}
+                    checked={state.fragranceNotEvaluated}
+                    onChange={(event) =>
+                      setState((current) => ({
+                        ...current,
+                        fragranceNotEvaluated: event.target.checked,
+                      }))
+                    }
+                  />
+                ) : undefined
+              }
+              renderBlock={(block) =>
+                readOnly ? (
+                  <DescriptorBlock
+                    legend={texts.blockLabels[block.key]}
+                    nodes={taxonomies}
+                    category={block.key}
+                    locale={locale}
+                    value={state.descriptors[block.selection]}
+                    readOnly
+                  />
+                ) : (
+                  <DescriptorBlock
+                    legend={texts.blockLabels[block.key]}
+                    nodes={taxonomies}
+                    category={block.key}
+                    locale={locale}
+                    value={state.descriptors[block.selection]}
+                    onValueChange={(value) =>
+                      setState((current) => ({
+                        ...current,
+                        descriptors: { ...current.descriptors, [block.selection]: value },
+                      }))
+                    }
+                  />
+                )
+              }
+            />
+            {/* The legend follows the group holding Main tastes (design.md D16). */}
+            {group.key === "flavorAftertaste" ? (
+              <ScaleLegend texts={texts.legend} open={legendOpen} onOpenChange={setLegendOpen} />
+            ) : null}
+          </Fragment>
         ))}
       </div>
       {readOnly ? (

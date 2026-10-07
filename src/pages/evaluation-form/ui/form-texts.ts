@@ -38,6 +38,20 @@ export function formTextsFrom(catalog: MessageCatalog): EvaluationFormTexts {
       roastLevelRequired: catalog.roastLevelRequired,
     },
     fragranceNotEvaluatedLabel: catalog.fragranceNotEvaluatedLabel,
+    legend: {
+      title: catalog.legendTitle,
+      labels: [
+        catalog.legend1,
+        catalog.legend2,
+        catalog.legend3,
+        catalog.legend4,
+        catalog.legend5,
+        catalog.legend6,
+        catalog.legend7,
+        catalog.legend8,
+        catalog.legend9,
+      ],
+    },
     blockLabels: {
       aromatics: catalog.blockAromatics,
       main_tastes: catalog.blockMainTastes,
