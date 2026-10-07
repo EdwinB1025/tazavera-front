@@ -212,3 +212,13 @@ None. Every point is settled by an existing artifact, a decision-log entry or th
   - `Link variant="back"` (existing variant and icon) for the way home;
   - texts in the `shell` area; title wording from the MVC's Laravel translation;
   - no metadata change (not supported by `not-found.js`), no root `not-found`, no `global-not-found`.
+
+## Propose status
+
+- **Change-id:** `add-not-found-page` (capability `app-shell`; backlog R14)
+- **Date:** 2026-10-07
+- **`openspec validate add-not-found-page --strict`:** valid
+- **Artifacts:** `openspec/changes/add-not-found-page/` — `proposal.md`, `design.md` (D1–D6), `specs/app-shell/spec.md` (ADDED "Not-found page", two scenarios), `tasks.md` (1.1 tests, 1.2 screen and texts, 1.3 route file, 2.1 checks, 2.2 visual verification with Playwright at 375/1280 in both themes, captures under `captures/`, result appended to `handoff.md`).
+- **Resolved:** nothing was open. One wording-only change to the §10 requirement to meet the 500-character limit: "a short text that tells the user the page does not exist" became "a short text saying the page does not exist" (494 characters); meaning unchanged.
+- **Backlog:** resolves R14 (removed from `docs/backlog.md` when the change is archived).
+- **Open:** none.
