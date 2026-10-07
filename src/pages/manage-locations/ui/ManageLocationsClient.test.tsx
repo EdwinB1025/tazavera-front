@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent, act } from "@testing-library/react";
-import type { Session } from "@/shared/api";
+import { configureClient, type Session } from "@/shared/api";
 import {
   ManageLocationsClient,
   type ManageLocationsClientTexts,
@@ -45,6 +45,17 @@ beforeEach(() => {
   );
   vi.stubGlobal("fetch", fetchMock);
   vi.stubEnv("NEXT_PUBLIC_API_URL", API);
+  // The token client needs its seam to send; `@/features/auth` fills it in the app.
+  configureClient({
+    getTokens: () => ({
+      access_token: "fx-access",
+      token_type: "Bearer",
+      refresh_token: "fx-refresh",
+      expires_in: 3600,
+    }),
+    refresh: async () => {},
+    onUnrecoverable: () => {},
+  });
 });
 
 afterEach(() => {
