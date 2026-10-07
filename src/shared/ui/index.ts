@@ -74,6 +74,8 @@ export {
 // The whole Sidebar module (its parts, `useSidebar` and `SIDEBAR_ID`):
 // re-exported as a set so this server-safe entry names no hook itself.
 export * from "./Sidebar";
+export { FiltersTrigger } from "./FiltersTrigger";
+export type { FiltersTriggerProps } from "./FiltersTrigger";
 export { Card, CardAside, CardContent, CardFooter } from "./Card";
 export type {
   CardLayout,

@@ -105,18 +105,20 @@ describe("OfferingsScreen", () => {
     );
     expect(block.props?.locale).toBe("es");
     expect(block.props?.path).toBe("/es/offerings");
+    // The `orderBy` without a direction is dropped (add-offering-facets
+    // design.md D4).
     expect(block.props?.query).toEqual({
       verified: "1",
-      orderBy: "cupping_avg",
       cataRef: ["01JREFA", "01JREFB"],
       page: "2",
     });
     expect(block.props?.gridClassName).toBe(CATALOG_GRID_CLASSES);
   });
 
-  it("supplies the session at one expression as the anonymous Session constant", () => {
+  it("passes no session to the block (add-specialist-evaluations design.md D6)", () => {
     render(<OfferingsScreen locale="es" searchParams={{}} />);
-    expect(block.props?.session).toEqual({ state: "anonymous" });
+    expect(block.props).not.toBeNull();
+    expect(block.props).not.toHaveProperty("session");
   });
 
   it("feeds the catalog's list messages and landing's card, pagination and retry texts to the list (design.md D16)", () => {
@@ -141,6 +143,24 @@ describe("OfferingsScreen", () => {
       emptyMessage: catalog.listEmptyMessage,
       errorMessage: catalog.listErrorMessage,
       retryLabel: landing.listRetryLabel,
+      resultCount: catalog.resultCount,
     });
+  });
+
+  it("shows the filtered empty message and Clear all when a filter is applied (add-offering-facets design.md D9)", () => {
+    render(<OfferingsScreen locale="es" searchParams={{ process: "washed" }} />);
+    expect(block.props?.texts.emptyMessage).toBe(getMessages("filters", "es").noMatches);
+    expect(block.props?.emptyAction).toBeDefined();
+  });
+
+  it("keeps the catalog's empty message and no action with only a sort (add-offering-facets design.md D9)", () => {
+    render(
+      <OfferingsScreen
+        locale="es"
+        searchParams={{ orderBy: "cupping_avg", orderDirection: "desc" }}
+      />,
+    );
+    expect(block.props?.texts.emptyMessage).toBe(getMessages("catalog", "es").listEmptyMessage);
+    expect(block.props?.emptyAction).toBeUndefined();
   });
 });

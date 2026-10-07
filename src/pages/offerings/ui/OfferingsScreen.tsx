@@ -1,7 +1,12 @@
 import { Suspense, type ReactNode } from "react";
-import type { Session } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
 import { PageSection } from "@/shared/ui";
+import {
+  ClearFiltersButton,
+  hasOfferingFilters,
+  parseOfferingFilters,
+  sanitizeOfferingQuery,
+} from "@/features/offering-facets";
 import {
   CATALOG_GRID_CLASSES,
   OfferingSkeletonCard,
@@ -23,10 +28,6 @@ export type OfferingsScreenProps = {
    */
   toolbar?: ReactNode;
 };
-
-// The session supply expression (the `HomeScreen` pattern): one anonymous
-// `Session` constant, at this single expression.
-const ANONYMOUS_SESSION: Session = { state: "anonymous" };
 
 // Placeholder cards rendered while the list loads (spec "Loading").
 const SKELETON_CARD_KEYS = [0, 1, 2] as const;
@@ -53,7 +54,11 @@ export function OfferingsScreen({
 }: OfferingsScreenProps): ReactNode {
   const catalog = getMessages("catalog", locale);
   const landing = getMessages("landing", locale);
-  const query = buildOfferingsQuery(searchParams);
+  const filters = getMessages("filters", locale);
+  // The kept query with out-of-limit facet values dropped (add-offering-facets
+  // design.md D4, D9); the request and the pagination carry the same keys.
+  const query = sanitizeOfferingQuery(buildOfferingsQuery(searchParams));
+  const filtered = hasOfferingFilters(parseOfferingFilters(searchParams));
 
   const listTexts: OfferingListTexts = {
     coffeeshopCaption: landing.cardCoffeeshopCaption,
@@ -70,7 +75,8 @@ export function OfferingsScreen({
     ratingCommercialLabel: landing.cardRatingCommercialLabel,
     previousLabel: landing.paginationPreviousLabel,
     nextLabel: landing.paginationNextLabel,
-    emptyMessage: catalog.listEmptyMessage,
+    emptyMessage: filtered ? filters.noMatches : catalog.listEmptyMessage,
+    resultCount: catalog.resultCount,
     errorMessage: catalog.listErrorMessage,
     retryLabel: landing.listRetryLabel,
   };
@@ -99,10 +105,12 @@ export function OfferingsScreen({
           <Offerings
             locale={locale}
             query={query}
-            session={ANONYMOUS_SESSION}
             texts={listTexts}
             path={`/${locale}/offerings`}
             gridClassName={CATALOG_GRID_CLASSES}
+            emptyAction={
+              filtered ? <ClearFiltersButton label={filters.clearAll} /> : undefined
+            }
           />
         </Suspense>
       </PageSection>

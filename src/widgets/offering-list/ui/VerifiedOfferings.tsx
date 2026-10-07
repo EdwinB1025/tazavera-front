@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import type { Session } from "@/shared/api";
 import { Offerings } from "./Offerings";
 import type { OfferingListTexts } from "./OfferingList";
 
@@ -8,7 +7,6 @@ import type { OfferingListTexts } from "./OfferingList";
 export type VerifiedOfferingsProps = {
   locale: string;
   page: number;
-  session: Session;
   texts: OfferingListTexts;
 };
 
@@ -22,14 +20,12 @@ export type VerifiedOfferingsProps = {
 export function VerifiedOfferings({
   locale,
   page,
-  session,
   texts,
 }: VerifiedOfferingsProps): ReactNode {
   return (
     <Offerings
       locale={locale}
       query={{ verified: "1", page: String(page) }}
-      session={session}
       texts={texts}
     />
   );

@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import type { Session } from "@/shared/api";
 import { buildTaxonomyLookup, fetchTaxonomies } from "@/entities/taxonomy";
 import { fetchOfferings } from "../api/offerings";
 import type { OfferingsQuery } from "../lib/query";
@@ -17,7 +16,6 @@ export type OfferingsProps = {
   locale: string;
   /** The kept query the request carries (add-offering-catalog design.md D1). */
   query: OfferingsQuery;
-  session: Session;
   texts: OfferingListTexts;
   /**
    * The pagination's address. When passed, the pagination keeps `query` and
@@ -26,6 +24,8 @@ export type OfferingsProps = {
   path?: string;
   /** Replaces the grid classes; landing's grid by default. */
   gridClassName?: string;
+  /** Rendered below the empty message (add-offering-facets design.md D9). */
+  emptyAction?: ReactNode;
 };
 
 /**
@@ -38,10 +38,10 @@ export type OfferingsProps = {
 export async function Offerings({
   locale,
   query,
-  session,
   texts,
   path,
   gridClassName,
+  emptyAction,
 }: OfferingsProps): Promise<ReactNode> {
   let result: OfferingListResult;
   try {
@@ -64,11 +64,11 @@ export async function Offerings({
     <OfferingList
       result={result}
       locale={locale}
-      session={session}
       texts={texts}
       path={path}
       query={path === undefined ? undefined : query}
       gridClassName={gridClassName}
+      emptyAction={emptyAction}
     />
   );
 }
