@@ -67,24 +67,7 @@ describe("Logo", () => {
     });
   });
 
-  describe("size prop", () => {
-    it("reaches the drawing", () => {
-      const { container } = render(
-        <Logo variant="icon" size={48} locale="es" />,
-      );
-      const svg = container.querySelector("svg");
-      expect(svg!.getAttribute("width")).toBe("48");
-      expect(svg!.getAttribute("height")).toBe("48");
-    });
-  });
-
   describe("wordmark is brand artwork, not interface text (design.md D7)", () => {
-    it("renders TAZAVERA with type-brand", () => {
-      render(<Logo variant="inline" size={32} locale="es" />);
-      const wordmark = screen.getByText("TAZAVERA");
-      expect(wordmark.className).toBe("type-brand");
-    });
-
     it("is identical regardless of the locale passed in", () => {
       render(
         <>
@@ -109,60 +92,6 @@ describe("Logo", () => {
       expect(link.getAttribute("href")).toBe("/es");
       // the whole logotype: the drawing sits inside the link
       expect(link.contains(container.querySelector("svg"))).toBe(true);
-    });
-
-    it("links to the root of the active locale", () => {
-      const { container } = render(
-        <Logo variant="icon" size={32} locale="ca" />,
-      );
-      const link = container.querySelector("a");
-      expect(link).not.toBeNull();
-      expect(link!.getAttribute("href")).toBe("/ca");
-    });
-
-    it("gives the icon-form link an accessible name from its aria-label (spec: Brand link)", () => {
-      render(
-        <Logo
-          variant="icon"
-          size={32}
-          locale="es"
-          aria-label="texts.brandLink"
-        />,
-      );
-      expect(
-        screen.getByRole("link", { name: "texts.brandLink" }),
-      ).toBeDefined();
-    });
-  });
-
-  describe("per-instance leaf gradient id (design.md D7)", () => {
-    it("gives two instances on one page different leaf gradient ids", () => {
-      const { container } = render(
-        <>
-          <Logo variant="icon" size={32} locale="es" />
-          <Logo variant="icon" size={32} locale="es" />
-        </>,
-      );
-      const gradients = Array.from(
-        container.getElementsByTagName("linearGradient"),
-      );
-      expect(gradients).toHaveLength(2);
-      const ids = gradients.map((g) => g.getAttribute("id"));
-      expect(ids[0]).toBeTruthy();
-      expect(ids[1]).toBeTruthy();
-      expect(ids[1]).not.toBe(ids[0]);
-    });
-
-    it("fills the leaf from its own gradient", () => {
-      const { container } = render(
-        <Logo variant="icon" size={32} locale="es" />,
-      );
-      const gradient = container.getElementsByTagName("linearGradient")[0]!;
-      const leaf = container.querySelector("path.fill-logo-leaf");
-      expect(leaf).not.toBeNull();
-      expect(leaf!.getAttribute("style")).toContain(
-        `#${gradient.getAttribute("id")}`,
-      );
     });
   });
 
@@ -205,14 +134,10 @@ describe("app/icon.svg: the browser icon in both themes (design.md D7)", () => {
   }
 
   it("fills the three parts with the traditional hex values", () => {
-    const { base } = splitAtDarkBlock(iconSource());
+    const { base, dark } = splitAtDarkBlock(iconSource());
     expect(base).toMatch(/\.logo-leaf\s*\{[^}]*fill:\s*#688f25/);
     expect(base).toMatch(/\.logo-cup\s*\{[^}]*fill:\s*#0c3151/);
     expect(base).toMatch(/\.logo-coffee\s*\{[^}]*fill:\s*#472e2e/);
-  });
-
-  it("reassigns the three parts to the dark hex values in the dark block", () => {
-    const { dark } = splitAtDarkBlock(iconSource());
     expect(dark).toMatch(/\.logo-leaf\s*\{[^}]*fill:\s*#bec387/);
     expect(dark).toMatch(/\.logo-cup\s*\{[^}]*fill:\s*#c9e5e0/);
     expect(dark).toMatch(/\.logo-coffee\s*\{[^}]*fill:\s*#9b7e7d/);

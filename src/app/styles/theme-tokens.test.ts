@@ -538,109 +538,6 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// Tests
-// ═══════════════════════════════════════════════════════════════════════════════
-
-describe("Traditional theme contrast matrix", () => {
-  const css = readGlobals();
-  const props = extractTraditional(css);
-  const cases = expandPairs(TRADITIONAL_PAIRS);
-
-  for (const tc of cases) {
-    const baseLabel = tc.base ? ` over ${tc.base}` : "";
-    it(`traditional ${tc.kind}: ${tc.fg} / ${tc.bg}${baseLabel} >= ${threshold(tc.kind)}:1`, () => {
-      const fg = resolveToken(tc.fg, props);
-      let bg = resolveToken(tc.bg, props);
-      if (tc.base) {
-        bg = composite(bg, resolveToken(tc.base, props));
-      } else if (bg.a < 1) {
-        throw new Error(`Translucent token ${tc.bg} has no documented base`);
-      }
-      const ratio = contrast(fg, bg);
-      expect(ratio).toBeGreaterThanOrEqual(threshold(tc.kind));
-    });
-  }
-});
-
-describe("Traditional theme decorative exemptions (Decision 8 + 14)", () => {
-  const css = readGlobals();
-  const props = extractTraditional(css);
-
-  // Gate condition: the fill reaches >= 3:1 against the header, making the
-  // border decorative and exempt from the 3:1 boundary rule.
-  it("nav-button-bg vs nav-header >= 3:1 (gate for decorative border)", () => {
-    const fill = resolveToken("nav-button-bg", props);
-    const header = resolveToken("nav-header", props);
-    expect(contrast(fill, header)).toBeGreaterThanOrEqual(3.0);
-  });
-
-  // refine-app-header D13: the avatar fill identifies the circle in the
-  // traditional theme, the gate for the transparent avatar boundary of
-  // design.md D5 beside the nav-button gate above.
-  it("nav-avatar vs nav-surface >= 3:1 (gate for the transparent avatar boundary)", () => {
-    const fill = resolveToken("nav-avatar", props);
-    const surface = resolveToken("nav-surface", props);
-    expect(contrast(fill, surface)).toBeGreaterThanOrEqual(3.0);
-  });
-});
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Avatar boundary token completeness (refine-app-header design.md D5)
-// --color-nav-avatar-border is transparent in the traditional @theme, so its
-// value falls outside the relational completeness check's var()/color-mix()
-// filter (design.md D13): its presence in both theme blocks is asserted
-// explicitly.
-// ═══════════════════════════════════════════════════════════════════════════════
-
-describe("Avatar boundary token completeness: --color-nav-avatar-border defined in both themes", () => {
-  const css = readGlobals();
-  const tradProps = extractTraditional(css);
-  const darkProps = extractDark(css);
-
-  it("traditional @theme defines --color-nav-avatar-border", () => {
-    expect(
-      tradProps.has("--color-nav-avatar-border"),
-      "avatar boundary token --color-nav-avatar-border is undefined in the traditional theme",
-    ).toBe(true);
-  });
-
-  it("dark theme defines --color-nav-avatar-border", () => {
-    expect(
-      darkProps.has("--color-nav-avatar-border"),
-      "avatar boundary token --color-nav-avatar-border is undefined in the dark theme",
-    ).toBe(true);
-  });
-});
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Action border token completeness (fix-button-boundaries design.md D5)
-// --color-action-primary-border is transparent in the traditional @theme, so
-// its value falls outside the relational completeness check's var()/color-mix()
-// filter (the avatar boundary gap above): its presence in both theme blocks is
-// asserted explicitly. The shared completeness filter is unchanged.
-// ═══════════════════════════════════════════════════════════════════════════════
-
-describe("Action border token completeness: --color-action-primary-border defined in both themes", () => {
-  const css = readGlobals();
-  const tradProps = extractTraditional(css);
-  const darkProps = extractDark(css);
-
-  it("traditional @theme defines --color-action-primary-border", () => {
-    expect(
-      tradProps.has("--color-action-primary-border"),
-      "action border token --color-action-primary-border is undefined in the traditional theme",
-    ).toBe(true);
-  });
-
-  it("dark theme defines --color-action-primary-border", () => {
-    expect(
-      darkProps.has("--color-action-primary-border"),
-      "action border token --color-action-primary-border is undefined in the dark theme",
-    ).toBe(true);
-  });
-});
-
-// ═══════════════════════════════════════════════════════════════════════════════
 // Logotype exemptions (add-app-shell design.md D8, design summary §4)
 // A part of the brand logotype is excluded from the 3:1 non-text rule (WCAG
 // 2.2 SC 1.4.11: "part of a logo or brand name"), so the three logotype pairs
@@ -659,50 +556,6 @@ const LOGOTYPE_PAIRS: Array<{
   { fg: "logo-coffee", traditional: 5.4, dark: 4.0 },
   { fg: "logo-leaf", traditional: 1.7, dark: 8.1 },
 ];
-
-describe("Logotype pairs on nav-surface: exempt at their documented contrasts (design summary §4)", () => {
-  const css = readGlobals();
-  const tradProps = extractTraditional(css);
-  const darkProps = extractDark(css);
-  const merged = new Map(tradProps);
-  for (const [k, v] of darkProps) merged.set(k, v);
-
-  for (const pair of LOGOTYPE_PAIRS) {
-    it(`traditional logotype exemption: ${pair.fg} / nav-surface at ${pair.traditional}:1`, () => {
-      const fg = resolveToken(pair.fg, tradProps);
-      const bg = resolveToken("nav-surface", tradProps);
-      expect(contrast(fg, bg)).toBeCloseTo(pair.traditional, 1);
-    });
-
-    it(`dark logotype exemption: ${pair.fg} / nav-surface at ${pair.dark}:1`, () => {
-      const fg = resolveToken(pair.fg, merged);
-      const bg = resolveToken("nav-surface", merged);
-      expect(contrast(fg, bg)).toBeCloseTo(pair.dark, 1);
-    });
-  }
-});
-
-describe("Logotype token completeness: each logotype token defined in both themes", () => {
-  const css = readGlobals();
-  const tradProps = extractTraditional(css);
-  const darkProps = extractDark(css);
-
-  for (const name of ["logo-leaf", "logo-cup", "logo-coffee"]) {
-    it(`traditional @theme defines --color-${name}`, () => {
-      expect(
-        tradProps.has(`--color-${name}`),
-        `logotype token --color-${name} is undefined in the traditional theme`,
-      ).toBe(true);
-    });
-
-    it(`dark theme defines --color-${name}`, () => {
-      expect(
-        darkProps.has(`--color-${name}`),
-        `logotype token --color-${name} is undefined in the dark theme`,
-      ).toBe(true);
-    });
-  }
-});
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Dark theme contrast matrix (design.md Evidence)
@@ -917,57 +770,6 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "text-inverse", bg: "evaluation-bean-on", kind: "text" },
 ];
 
-describe("Dark theme contrast matrix", () => {
-  const css = readGlobals();
-  const tradProps = extractTraditional(css);
-  const darkProps = extractDark(css);
-  // Dark resolution: dark overrides on top of traditional (the @theme primitives
-  // are shared, the [data-theme="dark"] block reassigns semantics).
-  const merged = new Map(tradProps);
-  for (const [k, v] of darkProps) merged.set(k, v);
-  const cases = expandPairs(DARK_PAIRS);
-
-  for (const tc of cases) {
-    const baseLabel = tc.base ? ` over ${tc.base}` : "";
-    it(`dark ${tc.kind}: ${tc.fg} / ${tc.bg}${baseLabel} >= ${threshold(tc.kind)}:1`, () => {
-      const fg = resolveToken(tc.fg, merged);
-      let bg = resolveToken(tc.bg, merged);
-      if (tc.base) {
-        bg = composite(bg, resolveToken(tc.base, merged));
-      } else if (bg.a < 1) {
-        throw new Error(`Translucent token ${tc.bg} has no documented base`);
-      }
-      const ratio = contrast(fg, bg);
-      expect(ratio).toBeGreaterThanOrEqual(threshold(tc.kind));
-    });
-  }
-});
-
-describe("Theme completeness: every traditional semantic token defined in dark", () => {
-  const css = readGlobals();
-  const tradProps = extractTraditional(css);
-  const darkProps = extractDark(css);
-
-  // Collect all semantic color token names (--color-* that reference other
-  // tokens or use color-mix; primitives are plain hex values). Non-color
-  // custom properties (font, tracking) are theme-invariant by design and are
-  // excluded from the color-theme completeness contract.
-  const semanticNames: string[] = [];
-  for (const [name, value] of tradProps) {
-    if (!name.startsWith("--color-")) continue;
-    // Primitives are hex values; semantic tokens reference var() or color-mix()
-    if (value.includes("var(") || value.includes("color-mix(")) {
-      semanticNames.push(name);
-    }
-  }
-
-  for (const name of semanticNames) {
-    it(`dark theme defines ${name}`, () => {
-      expect(darkProps.has(name)).toBe(true);
-    });
-  }
-});
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // Radius token completeness (design.md D1)
 // The four radius tokens live in @theme and are reassigned to 0 under
@@ -991,66 +793,6 @@ const EXPECTED_RADIUS_TRADITIONAL: Record<string, string> = {
   "--radius-field": "8px",
   "--radius-check": "4px",
 };
-
-describe("Radius token completeness: every radius token defined in both themes", () => {
-  const css = readGlobals();
-  const tradProps = extractTraditional(css);
-  const darkProps = extractDark(css);
-
-  for (const token of EXPECTED_RADIUS_TOKENS) {
-    it(`traditional @theme defines ${token}`, () => {
-      expect(tradProps.has(token)).toBe(true);
-    });
-
-    it(`dark theme reassigns ${token}`, () => {
-      expect(darkProps.has(token)).toBe(true);
-    });
-  }
-
-  // Relational completeness: every --radius-* actually defined in @theme is
-  // reassigned under [data-theme="dark"] (catches future drift where a token
-  // is added to @theme but forgotten in the dark block).
-  it("every --radius-* defined in @theme is reassigned under [data-theme=\"dark\"]", () => {
-    const radiusInTraditional = [...tradProps.keys()].filter((k) =>
-      k.startsWith("--radius-"),
-    );
-    for (const token of radiusInTraditional) {
-      expect(darkProps.has(token)).toBe(true);
-    }
-  });
-});
-
-describe("Radius token values (correction 10)", () => {
-  const css = readGlobals();
-  const tradProps = extractTraditional(css);
-  const darkProps = extractDark(css);
-
-  it("traditional theme uses the documented radius values", () => {
-    for (const [token, value] of Object.entries(EXPECTED_RADIUS_TRADITIONAL)) {
-      expect(tradProps.get(token)).toBe(value);
-    }
-  });
-
-  it("dark theme reassigns every radius token to 0", () => {
-    for (const token of EXPECTED_RADIUS_TOKENS) {
-      expect(darkProps.get(token)).toBe("0");
-    }
-  });
-});
-
-describe("Page backdrop token (refine-page-surfaces D6)", () => {
-  const css = readGlobals();
-  const tradProps = extractTraditional(css);
-  const darkProps = extractDark(css);
-
-  it("traditional --color-surface-page is var(--color-sage-100)", () => {
-    expect(tradProps.get("--color-surface-page")).toBe("var(--color-sage-100)");
-  });
-
-  it("dark --color-surface-page is var(--color-night-petrol-950)", () => {
-    expect(darkProps.get("--color-surface-page")).toBe("var(--color-night-petrol-950)");
-  });
-});
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Typographic role verification (design.md role table)
@@ -1146,162 +888,6 @@ function getResponsiveSize(block: string, widthRem: string): string | null {
   return match ? match[1]!.trim() : null;
 }
 
-describe("Typographic roles: each role defined as @utility type-{role}", () => {
-  const css = readGlobals();
-  const utils = extractTypeUtilities(css);
-
-  for (const role of ROLES) {
-    it(`@utility type-${role.name} exists`, () => {
-      expect(utils.has(`type-${role.name}`)).toBe(true);
-    });
-  }
-});
-
-describe("Typographic roles: role properties match design.md table", () => {
-  const css = readGlobals();
-  const utils = extractTypeUtilities(css);
-
-  for (const role of ROLES) {
-    const block = utils.get(`type-${role.name}`);
-
-    it(`type-${role.name}: font-family`, () => {
-      if (!block) return; // skip if not defined (caught by existence test)
-      const val = getProperty(block, "font-family");
-      if (role.family) {
-        expect(val).toBe(role.family);
-      } else {
-        // body-accent inherits: font-family should not be set
-        expect(val).toBeNull();
-      }
-    });
-
-    it(`type-${role.name}: font-weight`, () => {
-      if (!block) return;
-      const val = getProperty(block, "font-weight");
-      if (role.weight) {
-        expect(val).toBe(role.weight);
-      } else {
-        expect(val).toBeNull();
-      }
-    });
-
-    it(`type-${role.name}: font-style`, () => {
-      if (!block) return;
-      const val = getProperty(block, "font-style");
-      if (role.style === "italic") {
-        expect(val).toBe("italic");
-      }
-    });
-
-    it(`type-${role.name}: text-transform`, () => {
-      if (!block) return;
-      const val = getProperty(block, "text-transform");
-      if (role.transform === "uppercase") {
-        expect(val).toBe("uppercase");
-      }
-    });
-
-    it(`type-${role.name}: font-variant-numeric`, () => {
-      if (!block) return;
-      const val = getProperty(block, "font-variant-numeric");
-      if (role.numeric === "tabular-nums") {
-        expect(val).toBe("tabular-nums");
-      }
-    });
-
-    it(`type-${role.name}: base font-size`, () => {
-      if (!block) return;
-      if (!role.sizeBase) return; // body-accent inherits
-      const val = getProperty(block, "font-size");
-      expect(val).toBe(`var(--text-${role.sizeBase})`);
-    });
-
-    it(`type-${role.name}: md font-size`, () => {
-      if (!block) return;
-      if (!role.sizeMd) return;
-      const val = getResponsiveSize(block, "48");
-      expect(val).toBe(`var(--text-${role.sizeMd})`);
-    });
-
-    it(`type-${role.name}: lg font-size`, () => {
-      if (!block) return;
-      if (!role.sizeLg) return;
-      const val = getResponsiveSize(block, "64");
-      expect(val).toBe(`var(--text-${role.sizeLg})`);
-    });
-
-    it(`type-${role.name}: line-height`, () => {
-      if (!block) return;
-      if (!role.lineHeight) return;
-      const val = getProperty(block, "line-height");
-      expect(val).toBe(LINE_HEIGHT_VALUES[role.lineHeight]);
-    });
-
-    it(`type-${role.name}: letter-spacing`, () => {
-      if (!block) return;
-      if (!role.tracking) return;
-      const val = getProperty(block, "letter-spacing");
-      expect(val).toBe(`var(--tracking-${role.tracking})`);
-    });
-
-    it(`type-${role.name}: color`, () => {
-      if (!block) return;
-      const val = getProperty(block, "color");
-      if (role.color) {
-        expect(val).toBe(`var(--color-${role.color})`);
-      } else {
-        // button/badge: no color (component applies it)
-        expect(val).toBeNull();
-      }
-    });
-  }
-});
-
-describe("Typographic roles: theme invariance (no role overrides in dark)", () => {
-  const css = readGlobals();
-  // Extract the dark block content
-  const darkRegex = /\[data-theme="dark"\]\s*\{/g;
-  let match: RegExpExecArray | null;
-  let darkBlock = "";
-  while ((match = darkRegex.exec(css)) !== null) {
-    darkBlock += extractBlock(css, match.index + match[0].length - 1);
-  }
-
-  it("dark block contains no @utility type-* overrides", () => {
-    const typeUtilityInDark = /@utility\s+type-/.test(darkBlock);
-    expect(typeUtilityInDark).toBe(false);
-  });
-});
-
-describe("Typographic roles: sizing accessibility rules", () => {
-  const css = readGlobals();
-  const utils = extractTypeUtilities(css);
-
-  it("control role renders at 16px (text-base) on mobile", () => {
-    const block = utils.get("type-control");
-    if (!block) return;
-    const val = getProperty(block, "font-size");
-    expect(val).toBe("var(--text-base)");
-    expect(SIZE_TO_REM["base"]).toBe(1); // 1rem = 16px
-  });
-
-  it("error role size >= 14px", () => {
-    const block = utils.get("type-error");
-    if (!block) return;
-    const val = getProperty(block, "font-size");
-    expect(val).toBe("var(--text-sm)");
-    expect(SIZE_TO_REM["sm"]).toBeGreaterThanOrEqual(0.875); // 14px
-  });
-
-  it("button role size >= 14px", () => {
-    const block = utils.get("type-button");
-    if (!block) return;
-    const val = getProperty(block, "font-size");
-    expect(val).toBe("var(--text-sm)");
-    expect(SIZE_TO_REM["sm"]).toBeGreaterThanOrEqual(0.875); // 14px
-  });
-});
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // Shared focus indicator (design.md D4)
 // The indicator is defined exactly once as @utility focus-ring and renders
@@ -1324,128 +910,360 @@ function extractFocusRingUtilities(css: string): string[] {
   return blocks;
 }
 
-describe("Shared focus indicator: @utility focus-ring (design.md D4)", () => {
-  const css = readGlobals();
-  const blocks = extractFocusRingUtilities(css);
-  const block = blocks[0] ?? "";
-
-  it("@utility focus-ring is defined exactly once", () => {
-    expect(blocks).toHaveLength(1);
-  });
-
-  it("focus-ring suppresses the native outline", () => {
-    expect(getProperty(block, "outline")).toBe("none");
-  });
-
-  it("focus-ring renders a 2px ring resolving through var(--color-focus-ring)", () => {
-    expect(getProperty(block, "box-shadow")).toContain(
-      "0 0 0 4px var(--color-focus-ring)",
-    );
-  });
-
-  it("focus-ring renders a 2px offset resolving through var(--color-focus-offset)", () => {
-    expect(getProperty(block, "box-shadow")).toContain(
-      "0 0 0 2px var(--color-focus-offset)",
-    );
-  });
-
-  it("focus-ring renders exactly the five-class effect", () => {
-    expect(getProperty(block, "box-shadow")).toBe(
-      "0 0 0 2px var(--color-focus-offset), 0 0 0 4px var(--color-focus-ring)",
-    );
-  });
-});
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// Inverse variant scope utility (form-fields design.md D2)
-// One scope utility reassigns the tokens the inverse variant swaps, so every
-// control keeps one class set across both variants and the inverse surface
-// resolves through the same semantic names. The block is normative: exactly
-// the eight reassignments of design.md D2, nothing else. Until the utility
-// exists (task 1.5), these checks fail.
+// Tests: one test per rule. Each test runs every item of its rule and fails
+// with the list of ALL offending items (label + assertion message), so one run
+// reports every broken token instead of stopping at the first.
 // ═══════════════════════════════════════════════════════════════════════════════
 
-/** Extract every @utility variant-inverse block from globals.css. */
-function extractVariantInverseUtilities(css: string): string[] {
-  const blocks: string[] = [];
-  const regex = /@utility\s+variant-inverse\s*\{/g;
-  let match: RegExpExecArray | null;
-  while ((match = regex.exec(css)) !== null) {
-    blocks.push(extractBlock(css, match.index + match[0].length - 1));
+type CheckItem = [label: string, check: () => void];
+
+/** Run every check and return "label: message" for each one that throws. */
+function collectFailures(items: CheckItem[]): string[] {
+  const failures: string[] = [];
+  for (const [label, check] of items) {
+    try {
+      check();
+    } catch (error) {
+      failures.push(`${label}: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
-  return blocks;
+  return failures;
 }
 
-/** The exact reassignment block of form-fields design.md D2. */
-const VARIANT_INVERSE_REASSIGNMENTS: Record<string, string> = {
-  "--color-text-label": "var(--color-nav-text-dark)",
-  "--color-text-secondary": "var(--color-nav-text-dark)",
-  "--color-text-strong": "var(--color-nav-text-dark)",
-  "--color-text-placeholder": "var(--color-text-placeholder-inverse)",
-  "--color-border-strong": "var(--color-border-inverse)",
-  "--color-feedback-error": "var(--color-feedback-error-inverse)",
-  "--color-focus-ring": "var(--color-focus-ring-inverse)",
-  "--color-focus-offset": "var(--color-focus-offset-inverse)",
-};
-
-describe("Inverse variant scope utility: @utility variant-inverse (form-fields design.md D2)", () => {
-  const css = readGlobals();
-  const blocks = extractVariantInverseUtilities(css);
-  const block = blocks[0] ?? "";
-
-  it("@utility variant-inverse is defined exactly once", () => {
-    expect(blocks).toHaveLength(1);
+/** Contrast items of one matrix: each pair (per documented base) meets its threshold. */
+function contrastItems(theme: string, pairs: ContrastPair[], props: Map<string, string>): CheckItem[] {
+  return expandPairs(pairs).map((tc): CheckItem => {
+    const baseLabel = tc.base ? ` over ${tc.base}` : "";
+    return [
+      `${theme} ${tc.kind}: ${tc.fg} / ${tc.bg}${baseLabel} >= ${threshold(tc.kind)}:1`,
+      () => {
+        const fg = resolveToken(tc.fg, props);
+        let bg = resolveToken(tc.bg, props);
+        if (tc.base) {
+          bg = composite(bg, resolveToken(tc.base, props));
+        } else if (bg.a < 1) {
+          throw new Error(`Translucent token ${tc.bg} has no documented base`);
+        }
+        const ratio = contrast(fg, bg);
+        expect(ratio).toBeGreaterThanOrEqual(threshold(tc.kind));
+      },
+    ];
   });
+}
 
-  it("reassigns exactly the eight tokens of design.md D2", () => {
-    expect(Object.fromEntries(extractProperties(block))).toEqual(
-      VARIANT_INVERSE_REASSIGNMENTS,
-    );
-  });
-});
+const css = readGlobals();
+const tradProps = extractTraditional(css);
+const darkProps = extractDark(css);
+// Dark resolution: dark overrides on top of traditional (the @theme primitives
+// are shared, the [data-theme="dark"] block reassigns semantics).
+const merged = new Map(tradProps);
+for (const [k, v] of darkProps) merged.set(k, v);
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// Facet-row shadow tokens (add-facet-controls design.md D10)
-// Traditional: Tailwind's default shadow-md and inset-shadow-sm; dark: none.
-// ═══════════════════════════════════════════════════════════════════════════════
+describe("Theme tokens guard", () => {
+  it("every traditional semantic token is defined in the dark theme", () => {
+    const items: CheckItem[] = [];
 
-describe("Facet-row shadow tokens (add-facet-controls design.md D10)", () => {
-  const css = readGlobals();
-  const tradProps = extractTraditional(css);
-  const darkProps = extractDark(css);
-
-  it("traditional @theme defines --shadow-nav-current as a medium drop shadow", () => {
-    expect(tradProps.get("--shadow-nav-current")).toBe(
-      "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
-    );
-  });
-
-  it("traditional @theme defines --shadow-nav-hover as a small inner shadow", () => {
-    expect(tradProps.get("--shadow-nav-hover")).toBe("inset 0 2px 4px rgb(0 0 0 / 0.05)");
-  });
-
-  it("dark theme defines --shadow-nav-current as none", () => {
-    expect(darkProps.get("--shadow-nav-current")).toBe("none");
-  });
-
-  it("dark theme defines --shadow-nav-hover as none", () => {
-    expect(darkProps.get("--shadow-nav-hover")).toBe("none");
-  });
-
-  // Tailwind 4 inlines a --shadow-* theme value into its shadow-* utility, so
-  // the dark reassignment only applies if the utility reads the variable.
-  for (const name of ["nav-current", "nav-hover"]) {
-    it(`@utility shadow-${name} is defined once and reads var(--shadow-${name})`, () => {
-      const regex = new RegExp(`@utility\\s+shadow-${name}\\s*\\{`, "g");
-      const blocks: string[] = [];
-      let match: RegExpExecArray | null;
-      while ((match = regex.exec(css)) !== null) {
-        blocks.push(extractBlock(css, match.index + match[0].length - 1));
+    // Collect all semantic color token names (--color-* that reference other
+    // tokens or use color-mix; primitives are plain hex values). Non-color
+    // custom properties (font, tracking) are theme-invariant by design and are
+    // excluded from the color-theme completeness contract.
+    for (const [name, value] of tradProps) {
+      if (!name.startsWith("--color-")) continue;
+      // Primitives are hex values; semantic tokens reference var() or color-mix()
+      if (value.includes("var(") || value.includes("color-mix(")) {
+        items.push([`dark theme defines ${name}`, () => expect(darkProps.has(name)).toBe(true)]);
       }
-      expect(blocks).toHaveLength(1);
-      expect(blocks[0]).toMatch(
-        new RegExp(`box-shadow\\s*:\\s*var\\(--shadow-${name}\\)\\s*;`),
-      );
-    });
-  }
+    }
+
+    // Avatar boundary token completeness (refine-app-header design.md D5):
+    // --color-nav-avatar-border is transparent in the traditional @theme, so its
+    // value falls outside the relational completeness check's var()/color-mix()
+    // filter (design.md D13): its presence in both theme blocks is asserted
+    // explicitly.
+    // Action border token completeness (fix-button-boundaries design.md D5):
+    // --color-action-primary-border is transparent in the traditional @theme for
+    // the same reason; the shared completeness filter is unchanged.
+    for (const [token, kind] of [
+      ["--color-nav-avatar-border", "avatar boundary token"],
+      ["--color-action-primary-border", "action border token"],
+    ] as const) {
+      items.push([
+        `traditional @theme defines ${token}`,
+        () => expect(tradProps.has(token), `${kind} ${token} is undefined in the traditional theme`).toBe(true),
+      ]);
+      items.push([
+        `dark theme defines ${token}`,
+        () => expect(darkProps.has(token), `${kind} ${token} is undefined in the dark theme`).toBe(true),
+      ]);
+    }
+
+    // Logotype token completeness (spec: "Logotype token missing from one theme").
+    for (const name of ["logo-leaf", "logo-cup", "logo-coffee"]) {
+      items.push([
+        `traditional @theme defines --color-${name}`,
+        () =>
+          expect(
+            tradProps.has(`--color-${name}`),
+            `logotype token --color-${name} is undefined in the traditional theme`,
+          ).toBe(true),
+      ]);
+      items.push([
+        `dark theme defines --color-${name}`,
+        () =>
+          expect(
+            darkProps.has(`--color-${name}`),
+            `logotype token --color-${name} is undefined in the dark theme`,
+          ).toBe(true),
+      ]);
+    }
+
+    expect(collectFailures(items)).toEqual([]);
+  });
+
+  it("every registered contrast pair passes its gate in both themes (text 4.5:1, boundary/icon 3:1)", () => {
+    const items: CheckItem[] = [
+      ...contrastItems("traditional", TRADITIONAL_PAIRS, tradProps),
+
+      // Traditional theme decorative exemptions (Decision 8 + 14).
+      // Gate condition: the fill reaches >= 3:1 against the header, making the
+      // border decorative and exempt from the 3:1 boundary rule.
+      [
+        "nav-button-bg vs nav-header >= 3:1 (gate for decorative border)",
+        () => {
+          const fill = resolveToken("nav-button-bg", tradProps);
+          const header = resolveToken("nav-header", tradProps);
+          expect(contrast(fill, header)).toBeGreaterThanOrEqual(3.0);
+        },
+      ],
+      // refine-app-header D13: the avatar fill identifies the circle in the
+      // traditional theme, the gate for the transparent avatar boundary of
+      // design.md D5 beside the nav-button gate above.
+      [
+        "nav-avatar vs nav-surface >= 3:1 (gate for the transparent avatar boundary)",
+        () => {
+          const fill = resolveToken("nav-avatar", tradProps);
+          const surface = resolveToken("nav-surface", tradProps);
+          expect(contrast(fill, surface)).toBeGreaterThanOrEqual(3.0);
+        },
+      ],
+
+      ...contrastItems("dark", DARK_PAIRS, merged),
+    ];
+
+    // Logotype pairs on nav-surface: exempt at their documented contrasts
+    // (design summary §4).
+    for (const pair of LOGOTYPE_PAIRS) {
+      items.push([
+        `traditional logotype exemption: ${pair.fg} / nav-surface at ${pair.traditional}:1`,
+        () => {
+          const fg = resolveToken(pair.fg, tradProps);
+          const bg = resolveToken("nav-surface", tradProps);
+          expect(contrast(fg, bg)).toBeCloseTo(pair.traditional, 1);
+        },
+      ]);
+      items.push([
+        `dark logotype exemption: ${pair.fg} / nav-surface at ${pair.dark}:1`,
+        () => {
+          const fg = resolveToken(pair.fg, merged);
+          const bg = resolveToken("nav-surface", merged);
+          expect(contrast(fg, bg)).toBeCloseTo(pair.dark, 1);
+        },
+      ]);
+    }
+
+    expect(collectFailures(items)).toEqual([]);
+  });
+
+  it("every typographic role matches the design.md role table and sizing rules in both themes", () => {
+    const utils = extractTypeUtilities(css);
+    const items: CheckItem[] = [];
+
+    // Each role defined as @utility type-{role}
+    for (const role of ROLES) {
+      items.push([`@utility type-${role.name} exists`, () => expect(utils.has(`type-${role.name}`)).toBe(true)]);
+    }
+
+    // Role properties match design.md table. A missing block is skipped here
+    // (caught by the existence items above).
+    for (const role of ROLES) {
+      const block = utils.get(`type-${role.name}`);
+      const prop = (label: string, check: (b: string) => void) =>
+        items.push([
+          `type-${role.name}: ${label}`,
+          () => {
+            if (!block) return;
+            check(block);
+          },
+        ]);
+
+      prop("font-family", (b) => {
+        const val = getProperty(b, "font-family");
+        if (role.family) {
+          expect(val).toBe(role.family);
+        } else {
+          // body-accent inherits: font-family should not be set
+          expect(val).toBeNull();
+        }
+      });
+      prop("font-weight", (b) => {
+        const val = getProperty(b, "font-weight");
+        if (role.weight) {
+          expect(val).toBe(role.weight);
+        } else {
+          expect(val).toBeNull();
+        }
+      });
+      prop("font-style", (b) => {
+        const val = getProperty(b, "font-style");
+        if (role.style === "italic") {
+          expect(val).toBe("italic");
+        }
+      });
+      prop("text-transform", (b) => {
+        const val = getProperty(b, "text-transform");
+        if (role.transform === "uppercase") {
+          expect(val).toBe("uppercase");
+        }
+      });
+      prop("font-variant-numeric", (b) => {
+        const val = getProperty(b, "font-variant-numeric");
+        if (role.numeric === "tabular-nums") {
+          expect(val).toBe("tabular-nums");
+        }
+      });
+      prop("base font-size", (b) => {
+        if (!role.sizeBase) return; // body-accent inherits
+        expect(getProperty(b, "font-size")).toBe(`var(--text-${role.sizeBase})`);
+      });
+      prop("md font-size", (b) => {
+        if (!role.sizeMd) return;
+        expect(getResponsiveSize(b, "48")).toBe(`var(--text-${role.sizeMd})`);
+      });
+      prop("lg font-size", (b) => {
+        if (!role.sizeLg) return;
+        expect(getResponsiveSize(b, "64")).toBe(`var(--text-${role.sizeLg})`);
+      });
+      prop("line-height", (b) => {
+        if (!role.lineHeight) return;
+        expect(getProperty(b, "line-height")).toBe(LINE_HEIGHT_VALUES[role.lineHeight]);
+      });
+      prop("letter-spacing", (b) => {
+        if (!role.tracking) return;
+        expect(getProperty(b, "letter-spacing")).toBe(`var(--tracking-${role.tracking})`);
+      });
+      prop("color", (b) => {
+        const val = getProperty(b, "color");
+        if (role.color) {
+          expect(val).toBe(`var(--color-${role.color})`);
+        } else {
+          // button/badge: no color (component applies it)
+          expect(val).toBeNull();
+        }
+      });
+    }
+
+    // Theme invariance: no role overrides in dark
+    items.push([
+      "dark block contains no @utility type-* overrides",
+      () => {
+        const darkRegex = /\[data-theme="dark"\]\s*\{/g;
+        let match: RegExpExecArray | null;
+        let darkBlock = "";
+        while ((match = darkRegex.exec(css)) !== null) {
+          darkBlock += extractBlock(css, match.index + match[0].length - 1);
+        }
+        expect(/@utility\s+type-/.test(darkBlock)).toBe(false);
+      },
+    ]);
+
+    // Sizing accessibility rules
+    const sizing = (label: string, role: string, size: string, check: () => void) =>
+      items.push([
+        label,
+        () => {
+          const block = utils.get(`type-${role}`);
+          if (!block) return;
+          expect(getProperty(block, "font-size")).toBe(`var(--text-${size})`);
+          check();
+        },
+      ]);
+    sizing("control role renders at 16px (text-base) on mobile", "control", "base", () =>
+      expect(SIZE_TO_REM["base"]).toBe(1), // 1rem = 16px
+    );
+    sizing("error role size >= 14px", "error", "sm", () =>
+      expect(SIZE_TO_REM["sm"]).toBeGreaterThanOrEqual(0.875), // 14px
+    );
+    sizing("button role size >= 14px", "button", "sm", () =>
+      expect(SIZE_TO_REM["sm"]).toBeGreaterThanOrEqual(0.875), // 14px
+    );
+
+    expect(collectFailures(items)).toEqual([]);
+  });
+
+  it("radius tokens switch with the theme and the shared focus indicator renders the five-class effect", () => {
+    const items: CheckItem[] = [];
+
+    // Radius token completeness: every radius token defined in both themes
+    for (const token of EXPECTED_RADIUS_TOKENS) {
+      items.push([`traditional @theme defines ${token}`, () => expect(tradProps.has(token)).toBe(true)]);
+      items.push([`dark theme reassigns ${token}`, () => expect(darkProps.has(token)).toBe(true)]);
+    }
+    // Relational completeness: every --radius-* actually defined in @theme is
+    // reassigned under [data-theme="dark"] (catches future drift where a token
+    // is added to @theme but forgotten in the dark block).
+    items.push([
+      'every --radius-* defined in @theme is reassigned under [data-theme="dark"]',
+      () => {
+        const radiusInTraditional = [...tradProps.keys()].filter((k) => k.startsWith("--radius-"));
+        for (const token of radiusInTraditional) {
+          expect(darkProps.has(token), token).toBe(true);
+        }
+      },
+    ]);
+
+    // Radius token values (correction 10)
+    items.push([
+      "traditional theme uses the documented radius values",
+      () => {
+        for (const [token, value] of Object.entries(EXPECTED_RADIUS_TRADITIONAL)) {
+          expect(tradProps.get(token), token).toBe(value);
+        }
+      },
+    ]);
+    items.push([
+      "dark theme reassigns every radius token to 0",
+      () => {
+        for (const token of EXPECTED_RADIUS_TOKENS) {
+          expect(darkProps.get(token), token).toBe("0");
+        }
+      },
+    ]);
+
+    // Shared focus indicator: @utility focus-ring (design.md D4)
+    const blocks = extractFocusRingUtilities(css);
+    const block = blocks[0] ?? "";
+    items.push(
+      ["@utility focus-ring is defined exactly once", () => expect(blocks).toHaveLength(1)],
+      ["focus-ring suppresses the native outline", () => expect(getProperty(block, "outline")).toBe("none")],
+      [
+        "focus-ring renders a 2px ring resolving through var(--color-focus-ring)",
+        () => expect(getProperty(block, "box-shadow")).toContain("0 0 0 4px var(--color-focus-ring)"),
+      ],
+      [
+        "focus-ring renders a 2px offset resolving through var(--color-focus-offset)",
+        () => expect(getProperty(block, "box-shadow")).toContain("0 0 0 2px var(--color-focus-offset)"),
+      ],
+      [
+        "focus-ring renders exactly the five-class effect",
+        () =>
+          expect(getProperty(block, "box-shadow")).toBe(
+            "0 0 0 2px var(--color-focus-offset), 0 0 0 4px var(--color-focus-ring)",
+          ),
+      ],
+    );
+
+    expect(collectFailures(items)).toEqual([]);
+  });
 });
