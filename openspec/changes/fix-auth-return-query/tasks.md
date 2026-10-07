@@ -6,7 +6,7 @@
 ## 2. Recording the path and the query
 
 - [x] 2.1 Tests. Add `search: ""` to the `location` mocks of `src/features/auth/api/authorize.test.ts`, `src/features/auth/model/session.test.ts` and `src/pages/callback/ui/CallbackScreen.test.tsx` (reset in their `beforeEach` where `pathname` is reset), keeping every existing assertion. New cases: in `authorize.test.ts`, `signIn()` with no argument on `/es/manage/evaluations/new` with search `?offering=01J0` and `window.open` returning `null` saves `returnRoute` `/es/manage/evaluations/new?offering=01J0`, and with a popup holds the same route; in `session.test.ts`, the startup silent restore on `/en/offerings/1` with search `?tab=evaluations` saves `returnRoute` `/en/offerings/1?tab=evaluations`; in `src/app/shell/AppShell.test.tsx`, the "Sign in" click asserts `signIn` was called with no argument (`toHaveBeenCalledWith()`). They fail today on the recorded route and on the `signIn` argument.
-- [ ] 2.2 Implement design.md D1: `currentRoute()` in `authorize.ts` as `signIn`'s default, both `startSilent` calls in `session.ts`, and `signIn()` in `ShellChrome.tsx`. Verify: 2.1 passes; `npm run test:run`, `npm run lint`, `npx tsc --noEmit` pass.
+- [x] 2.2 Implement design.md D1: `currentRoute()` in `authorize.ts` as `signIn`'s default, both `startSilent` calls in `session.ts`, and `signIn()` in `ShellChrome.tsx`. Verify: 2.1 passes; `npm run test:run`, `npm run lint`, `npx tsc --noEmit` pass.
 
 ## 3. Opening only an application route at the callback
 

@@ -67,9 +67,17 @@ export function configureSession(next: SessionSeam): void {
 /** The completion has run in this page load (design.md D4 idempotency). */
 let handled = false;
 
+/**
+ * The route the user is on: path plus query, never the hash
+ * (fix-auth-return-query design.md D1).
+ */
+export function currentRoute(): string {
+  return window.location.pathname + window.location.search;
+}
+
 /** Starts sign in; the return route defaults to the route the user is on. */
 export function signIn(returnRoute?: string): void {
-  startInteractive("profile:read", returnRoute ?? window.location.pathname);
+  startInteractive("profile:read", returnRoute ?? currentRoute());
 }
 
 /** Step-up: forces a fresh sign in requesting `profile:write`. */
