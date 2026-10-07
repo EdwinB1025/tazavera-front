@@ -112,6 +112,12 @@ export function OfferingDetailScreen({
     detailMainTastesHeading: catalog.detailMainTastesHeading,
     detailDefectsHeading: catalog.detailDefectsHeading,
     detailTasteEmpty: catalog.detailTasteEmpty,
+    detailSensoryHeading: catalog.detailSensoryHeading,
+    detailCataHeading: catalog.detailCataHeading,
+    wheelLabel: catalog.wheelLabel,
+    wheelHint: catalog.wheelHint,
+    wheelCount: catalog.wheelCount,
+    wheelNotesToggle: catalog.wheelNotesToggle,
   };
 
   return (

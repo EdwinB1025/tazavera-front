@@ -5,13 +5,18 @@ import type {
   TaxonomyNode,
 } from "@/shared/api";
 import { ratingTierFor } from "@/entities/offering";
-import { buildDescriptorRows } from "@/entities/taxonomy";
+import {
+  buildDescriptorRows,
+  buildFlavorWheelNodes,
+  buildTaxonomyLookup,
+} from "@/entities/taxonomy";
 import {
   Badge,
   BeanScale,
   Card,
   CardContent,
   DescriptorChipGroup,
+  FlavorWheel,
   LabelValueRow,
 } from "@/shared/ui";
 import { concordanceBand } from "../lib/concordance";
@@ -49,6 +54,13 @@ export type ConsensusPanelTexts = {
   detailMainTastesHeading: string;
   detailDefectsHeading: string;
   detailTasteEmpty: string;
+  detailSensoryHeading: string;
+  detailCataHeading: string;
+  wheelLabel: string;
+  wheelHint: string;
+  /** `{count} de {total} evaluadores`: a wheel note's accessible count. */
+  wheelCount: string;
+  wheelNotesToggle: string;
 };
 
 export type ConsensusPanelProps = {
@@ -249,6 +261,44 @@ export function ConsensusPanel({
     );
   }
 
+  // The two trees (design.md D14): one `FlavorWheel` per tree, fed the nodes
+  // the taxonomy entity builds; an empty tree shows the empty text instead.
+  const lookup = buildTaxonomyLookup(taxonomies, locale);
+  const wheelTexts = {
+    label: texts.wheelLabel,
+    hint: texts.wheelHint,
+    emptyMessage: texts.detailTasteEmpty,
+    notesToggle: texts.wheelNotesToggle,
+  };
+  function countLabel(count: number, of: number): string {
+    return texts.wheelCount
+      .replace("{count}", String(count))
+      .replace("{total}", String(of));
+  }
+
+  function treeBlock(
+    tree: OfferingTaxonomyNode[] | undefined,
+    heading: string,
+  ): ReactNode {
+    const nodes = tree ?? [];
+    return (
+      <Card layout="stacked">
+        <CardContent className={CONTENT_CLASSES}>
+          <h2 className="type-subheading">{heading}</h2>
+          {nodes.length > 0 ? (
+            <FlavorWheel
+              nodes={buildFlavorWheelNodes(nodes, lookup, total, countLabel)}
+              total={total}
+              texts={wheelTexts}
+            />
+          ) : (
+            <p className="type-body">{texts.detailTasteEmpty}</p>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className={PANEL_CLASSES}>
       {tier !== null ? (
@@ -314,6 +364,8 @@ export function ConsensusPanel({
         </Card>
         {selectionBlock("main_tastes", texts.detailMainTastesHeading)}
         {selectionBlock("defects", texts.detailDefectsHeading)}
+        {treeBlock(offering.sensoryTaxonomy, texts.detailSensoryHeading)}
+        {treeBlock(offering.cataConcordance, texts.detailCataHeading)}
       </div>
     </div>
   );

@@ -41,5 +41,11 @@
   "attrOverall": "Overall",
   "detailMainTastesHeading": "Main tastes",
   "detailDefectsHeading": "Defects",
-  "detailTasteEmpty": "No cupping data available."
+  "detailTasteEmpty": "No cupping data available.",
+  "detailSensoryHeading": "Sensory profile",
+  "detailCataHeading": "CATA concordance",
+  "wheelLabel": "Flavor wheel",
+  "wheelHint": "Hover over or focus a note to see its description.",
+  "wheelCount": "{count} of {total} evaluators",
+  "wheelNotesToggle": "Notes"
 }
