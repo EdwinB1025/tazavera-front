@@ -186,6 +186,19 @@ describe("FilteredOfferingsResults", () => {
     expect(block.props?.query).toEqual({ coffeeshopUlid: "Y", process: "washed" });
   });
 
+  it("keeps the fixed key when the address only carries a page (spec: Fixed key survives Clear all and paging)", () => {
+    render(
+      <FilteredOfferingsResults
+        locale="es"
+        searchParams={{ page: "2" }}
+        path="/es/offerings"
+        fixedQuery={{ coffeeshopUlid: "Y" }}
+        texts={TEXTS}
+      />,
+    );
+    expect(block.props?.query).toEqual({ coffeeshopUlid: "Y", page: "2" });
+  });
+
   it("does not count a fixed key as a filter (design.md D3)", () => {
     render(
       <FilteredOfferingsResults
