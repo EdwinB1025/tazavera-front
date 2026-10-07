@@ -57,10 +57,14 @@ function parseText(raw: string | undefined): string | undefined {
   return value && value.length <= TEXT_LIMIT ? value : undefined;
 }
 
-function parseScore(raw: string | undefined): number | undefined {
+function parseNumber(raw: string | undefined): number | undefined {
   if (raw === undefined || raw.trim() === "") return undefined;
   const value = Number(raw);
-  return Number.isFinite(value) && value >= SCORE_MIN && value <= SCORE_MAX ? value : undefined;
+  return Number.isFinite(value) ? value : undefined;
+}
+
+function inScoreRange(value: number | undefined): number | undefined {
+  return value !== undefined && value >= SCORE_MIN && value <= SCORE_MAX ? value : undefined;
 }
 
 /** The facet values and sort of a query (design.md D4). */
@@ -68,12 +72,14 @@ export function parseEvaluationFilters(
   params: URLSearchParams | QueryRecord,
 ): EvaluationFilterValues {
   const status = firstValue(params, "status");
-  let scoreMin = parseScore(firstValue(params, "scoreMin"));
-  let scoreMax = parseScore(firstValue(params, "scoreMax"));
+  let scoreMin = parseNumber(firstValue(params, "scoreMin"));
+  let scoreMax = parseNumber(firstValue(params, "scoreMax"));
   if (scoreMin !== undefined && scoreMax !== undefined && scoreMin > scoreMax) {
     scoreMin = undefined;
     scoreMax = undefined;
   }
+  scoreMin = inScoreRange(scoreMin);
+  scoreMax = inScoreRange(scoreMax);
   const orderBy = firstValue(params, "orderBy");
   const orderDirection = firstValue(params, "orderDirection");
   const sort =

@@ -100,6 +100,11 @@ describe("evaluationListQuery (design.md D4)", () => {
     expect(evaluationListQuery(values, 1)).toBe("orderBy=created_at&orderDirection=desc&page=1");
   });
 
+  it("sends no status or score bound for ?status=draft&scoreMin=120&scoreMax=80", () => {
+    const values = parseEvaluationFilters(new URLSearchParams("status=draft&scoreMin=120&scoreMax=80"));
+    expect(evaluationListQuery(values, 1)).toBe("orderBy=created_at&orderDirection=desc&page=1");
+  });
+
   it("never sends a dropped or unknown key", () => {
     const values = parseEvaluationFilters({ status: "draft", evaluatorId: "x", scoreMin: "120" });
     expect(evaluationListQuery(values, 1)).toBe("orderBy=created_at&orderDirection=desc&page=1");
