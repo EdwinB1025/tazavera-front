@@ -13,6 +13,8 @@ import type { operations } from "./schema";
 
 export { configureClient, publicRequest, request } from "./client";
 export { clearTokens, exchangeCode, getTokens, refreshTokens } from "./tokens";
+export { distinctCoffeeValues, fetchCoffees } from "./coffees";
+export type { CoffeeFacetField } from "./coffees";
 
 type UserResponse =
   operations["getTheAuthenticatedUser"]["responses"][200]["content"]["application/json"];

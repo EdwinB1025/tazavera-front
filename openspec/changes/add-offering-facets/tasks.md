@@ -18,7 +18,7 @@ Apply preconditions (met on 2026-10-07): `add-offering-catalog`, `add-sidebar-sl
 ## 3. Option data
 
 - [ ] 3.1 Write tests for `src/shared/api/coffees.ts` (`fetchCoffees`: requests `${NEXT_PUBLIC_API_URL}/coffees` with no credential header, returns `data`, throws on a non-2xx status and on a transport failure; `distinctCoffeeValues(coffees, field)`: removes duplicates, `null` and empty strings, sorts alphabetically) and for `src/features/offering-facets/model/options.ts` (`tasteNoteOptions(tree, locale)`: level-0 nodes in API order with their level-1 children, `value` = `ulid`, `label` by locale for es, en and ca, level-2 nodes absent; `offeringFacetOptions(coffeesResult, taxonomiesResult, locale)` over `Promise.allSettled` results: fulfilled reads give the five sorted lists and the taste notes; a rejected coffees read gives `null` for the five coffee lists and keeps the taste notes; a rejected taxonomy read gives `tasteNotes: null` and keeps the five lists). Expected: fails only for the missing modules. Commit `test(filtering): verify the offering facet options`.
-- [ ] 3.2 Implement `src/shared/api/coffees.ts` (exported through `@/shared/api`) and `src/features/offering-facets/model/options.ts` (design.md D1, D7). Verify: 3.1 passes; full suite, lint and typecheck pass. Commit `feat(filtering): add the offering facet options`.
+- [x] 3.2 Implement `src/shared/api/coffees.ts` (exported through `@/shared/api`) and `src/features/offering-facets/model/options.ts` (design.md D1, D7). Verify: 3.1 passes; full suite, lint and typecheck pass. Commit `feat(filtering): add the offering facet options`.
 
 ## 4. Query parsing and sort
 
