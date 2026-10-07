@@ -65,6 +65,17 @@ Contract gaps (reported in §11, never adapted to):
 - only `200` is documented for `listEvaluations`, `getAnEvaluation` and `getAnOffering`;
 - the descriptions say the offering is "included", but the resource carries only `offeringId`.
 
+### Assumption: `offeringId` may be null (2026-10-07)
+
+- **Assumption.** The front treats `offeringId` in every evaluation response as `string | null`. A specialist's evaluation whose offering was deleted is kept, can be closed, and comes back with `offeringId: null`, so it can appear in the public list and the view.
+- **Contract source.** `contracts/openapi.yaml` on `develop` at `290d22e`: the descriptions of `deleteAnOffering` and `deleteMultipleOfferings` say "The offering's baseline (provisional) evaluation is deleted with it; specialists' evaluations are kept without an offering". Product owner's decision of 2026-10-07 (decisions log, "catálogo en una columna y `offeringId` nulo"): this is how the contract communicates the case.
+- **Schema gap.** The evaluation response schemas still type `offeringId` as `type: string` without `nullable: true`, so `src/shared/api/schema.ts` types it `string`. The front does not edit `schema.ts`. It narrows the generated `string` to `string | null` once, at the single point where the evaluation resource enters the front (the `EvaluationItem` / `EvaluationDetail` aliases, shared with `add-specialist-evaluations`: one narrowing for both changes), so every consumer sees the nullable type. When the contract adds `nullable: true`, the narrowing becomes redundant and is removed.
+- **What the interface shows**, following the same decision as `add-specialist-evaluations` (corrections.md Round 2, point 2):
+  - **List row:** the row's heading is `offeringMissing` ("Oferta inexistente"), with no captions (coffeeshop, roaster) and no "View offering" link; the score row, the date and the "View" link stay. No `getAnOffering` request is made for it, and it does not count among the "distinct `offeringId`s" of the page.
+  - **View:** the h1 is `offeringMissing`, with no captions and no "View offering" link; no `getAnOffering` request; the back link and the presentation (§4.3) render as usual. The view is read-only already, so there is nothing to remove.
+  - **Not affected:** the provisional tab (the baseline is deleted with its offering, and the offering's detail page no longer exists) and the Offering facet (a deleted offering's ULID in the URL ends in the existing `offeringFilterFallback`).
+  - No new element: the row and the header are the same parts as the `offeringUnavailable` state, with the spacing of §5.2 and §5.3.
+
 ### Response states
 
 **Public list**
@@ -76,6 +87,7 @@ Contract gaps (reported in §11, never adapted to):
 | 200 with `data: []`, no facet applied | `listEmptyMessage` |
 | 200 with `data: []`, with a facet applied | `filters.noMatches` and the "Clear all" button (`add-evaluation-facets` D9). This includes "View evaluations" for an offering without evaluations. |
 | One row's `getAnOffering` fails | That row shows `offeringUnavailable` as its heading, with no captions and no "View offering" link. Other rows are unaffected. |
+| A row with `offeringId: null` | No `getAnOffering` for it. The row shows `offeringMissing` as its heading, with no captions and no "View offering" link (§2, "Assumption"). Other rows are unaffected. |
 | Any non-2xx (422 included) or transport failure | `listErrorMessage` with Retry. The facets keep their values. |
 
 **Read-only view**
@@ -86,6 +98,7 @@ Contract gaps (reported in §11, never adapted to):
 | 200, `status` closed | Header and presentation |
 | 200, `status` not closed | The 404 page (Open 5) |
 | `getAnOffering` fails | The h1 shows `offeringUnavailable`, with no captions and no "View offering" link. The presentation still renders. |
+| 200 with `offeringId: null` | No `getAnOffering`. The h1 shows `offeringMissing`, with no captions and no "View offering" link. The presentation still renders. |
 | Non-2xx or transport failure of `getAnEvaluation` or `listOlfactoryTaxonomies` | Section 1 keeps the back link; section 2 shows `viewErrorMessage` with Retry. An unknown ULID falls here: its 404 is undocumented, so the catalog's no-`notFound()` rule applies (`add-offering-catalog` design.md, `getAnOffering` row). |
 
 **Provisional tab**
@@ -430,6 +443,7 @@ Reused areas (no new keys):
 - `scales`: the bean `valueText` and `valueLabel`;
 - `landing`: tier words, coffeeshop and roaster captions, pagination and retry labels;
 - `filters`: every generic facet, sort and chip text.
+- `evaluations`, added by `add-specialist-evaluations` corrections.md Round 2 point 2: "Oferta inexistente" (en "Offering no longer exists", ca "Oferta inexistent"; en and ca proposed). Written `offeringMissing` in this summary; the key name is the one that change's architect sets. One text for both changes (criterion C), so this change adds no key for it.
 
 The English and Catalan strings below, and every Spanish string not cited to the MVC, are proposals (Open 9).
 
@@ -620,6 +634,17 @@ The catalog guard checks that es, en and ca have the same keys in both areas.
     - Recommendation: (a).
     - Blocks propose: no.
 
+**Open after propose (2026-10-07, design lead):**
+
+12. **Unique link names on a row without a coffee name.**
+    - Question: the spec gives each row's "View" and "View offering" links the visible text plus a visually hidden " {coffee name}", "so no two rows share a link name" (§4.1; spec "evaluations"). A row with `offeringId: null` (and, already today, a row whose `getAnOffering` failed) has no coffee name, and two such rows on one page would share "View". What is the hidden suffix?
+    - Options:
+      - (a) the row's heading text plus its closed date, both already visible in the row ("Ver Oferta inexistente, 3 oct 2026"); the spec's uniqueness wording is limited to rows with an offering, since two rows without one could still match;
+      - (b) the heading text only, accepting duplicates on those rows (WCAG 2.4.4 is met by the card context; the spec's uniqueness wording is limited the same way);
+      - (c) `aria-describedby` to the row's score and date, keeping the name as the visible text plus the heading.
+    - Recommendation: (a). It uses only text already in the row, keeps the name starting with the visible text (WCAG 2.5.3), and makes a clash need the same heading and the same day. Source: §4.1 and the spec scenario on link names.
+    - Blocks propose: no (the change is proposed). It changes a spec scenario, so it goes with the round that adds the null-offering states.
+
 ## Review log
 
 - **2026-10-06, design lead, regeneration after the withdrawal.**
@@ -642,6 +667,11 @@ The catalog guard checks that es, en and ca have the same keys in both areas.
     - texts split by area (catalog D16 precedent);
     - `RetryButton` from `shared/ui` (catalog D4).
   - **Blocking points:** Open 1, 2 and 3. The orchestrator may close 2 and 3 under §3.
+- **2026-10-07, design lead, note on `offeringId` null** (orchestrator's request).
+  - Added §2 "Assumption: `offeringId` may be null": the contract source (the `deleteAnOffering` and `deleteMultipleOfferings` descriptions, `290d22e`), the schema gap (no `nullable: true`), the narrowing to `string | null` at the shared evaluation aliases instead of editing `schema.ts`, and what the list row and the view show, following Product owner's decision of 2026-10-07 and `add-specialist-evaluations` corrections.md Round 2 point 2.
+  - Added the two null-offering rows to "Response states" and the reused `evaluations` text to §8 (no new key: criterion C).
+  - Added Open 12 (link names on a row without a coffee name).
+  - The null-offering states are not in this change's spec or tasks: they reach the artifacts through a correction round, not through this summary.
 
 ## Propose status
 
@@ -667,3 +697,14 @@ The catalog guard checks that es, en and ca have the same keys in both areas.
   - F7 (contract descriptions vs schema) is reported to Product owner for the Scribe annotations; the front never adapts to it.
   - F5 (`add-flavor-wheel` summary wording) and the F6 recording: F6 is already answered by the decisions log entry of 2026-10-06; F5 is semantic drift for the orchestrator.
   - Nothing blocks the review of the artifacts: every Open of this summary is settled.
+
+### Artifact review — 2026-10-07 (Product owner's message)
+
+- `openspec validate add-public-evaluations --strict`: passed ("Change 'add-public-evaluations' is valid"), run by the orchestrator from the worktree on 2026-10-07.
+- Point 1, evaluations whose offering was deleted (§2 "Assumption: `offeringId` may be null", "Response states"; decisions log 2026-10-07): applied.
+  - spec.md (`evaluations`): the list requirement gains the null-offering row (offering-missing heading, no captions, no "View offering" link, no offering request) with the scenario "A row whose offering was deleted"; the view requirement gains the null-offering header with the scenario "Viewing an evaluation whose offering was deleted". The provisional tab and the Offering facet are unchanged.
+  - design.md: Context (contract `290d22e` and the schema gap), D1 (operation and error tables), D2 (the single `string | null` narrowing at `EvaluationItem` / `EvaluationDetail`, shared with `add-specialist-evaluations`; `schema.ts` untouched), D3 (the offering-missing text reused from the `evaluations` area added by `add-specialist-evaluations` Round 2 point 2, no new key; dependency verified by the merge gate), D4 (no `getAnOffering` for a null `offeringId`), D6 (the card's offering-missing state), Risks (schema gap).
+  - tasks.md: tasks 1.1, 1.2, 1.3, 2.3, 2.4, 2.5, 2.6, 3.3 and 3.4 updated in place (no task was checked; no new task).
+- Point 2, Open 12: answered (a). The hidden suffix on a row without a coffee name (offering deleted or offering request failed) is " {row heading}, {closed date}", the date omitted with its comma when `closedAt` is null; the uniqueness wording applies only to rows with an offering. spec.md: the list requirement and the scenario "Unique row link names" narrowed to rows with an offering, new scenario "Link name on a row without a coffee name"; design.md D6 and D11; tasks 2.3 and 2.4.
+- The design lead's uncommitted edits of 2026-10-07 to this summary (§2 "Assumption", "Response states" rows, §8 reused text, Open 12, review log) are part of this update.
+- Remains open: the key name of the offering-missing text, set by `add-specialist-evaluations`' architect when it processes its Round 2; this change consumes it as named there.

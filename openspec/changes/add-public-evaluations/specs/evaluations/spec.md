@@ -3,7 +3,7 @@
 ## ADDED Requirements
 
 ### Requirement: Public evaluations list
-The system SHALL show, at `/{locale}/evaluations`, a list of the closed specialist evaluations open to any visitor with or without a session, ordered newest first by default. Each row SHALL show the evaluation's `cuppingScore` with its rating word (absent when the score is null), its `closedAt` as a date in the route's locale under a "Closed on" label (absent when null), and, from the offering, the coffee name as the row heading with the coffeeshop and the roaster as captions. Every listing request SHALL carry `evaluationType=specialist` and `status=closed` regardless of the URL, and any `status` or `evaluationType` value in the URL SHALL be ignored. Each row SHALL link to its evaluation and to its offering, each link's accessible name being its visible text plus a visually hidden coffee name so that the names are unique and start with the visible text. The list SHALL paginate with Previous/Next controls that keep every current query key and replace only the page.
+The system SHALL show, at `/{locale}/evaluations`, a list of the closed specialist evaluations open to any visitor with or without a session, ordered newest first by default. Each row SHALL show the evaluation's `cuppingScore` with its rating word (absent when the score is null), its `closedAt` as a date in the route's locale under a "Closed on" label (absent when null), and, from the offering, the coffee name as the row heading with the coffeeshop and the roaster as captions. Every listing request SHALL carry `evaluationType=specialist` and `status=closed` regardless of the URL, and any `status` or `evaluationType` value in the URL SHALL be ignored. Each row SHALL link to its evaluation and to its offering, each link's accessible name being its visible text plus a visually hidden coffee name so that the names are unique and start with the visible text. A row without a coffee name (its `offeringId` is null or its offering request failed) SHALL use as hidden suffix its heading text plus its closed date. A row whose `offeringId` is null SHALL show the offering-missing message as its heading with no captions and no "View offering" link, and no offering request SHALL be made for it. The list SHALL paginate with Previous/Next controls that keep every current query key and replace only the page.
 
 #### Scenario: Loading the list
 - **WHEN** the list is being loaded
@@ -18,8 +18,12 @@ The system SHALL show, at `/{locale}/evaluations`, a list of the closed speciali
 - **THEN** the request carries `evaluationType=specialist` and `status=closed` together with the applied facet keys and the sort keys
 
 #### Scenario: Unique row link names
-- **WHEN** the rows render their two links
-- **THEN** each link's accessible name is its visible text followed by a visually hidden " {coffee name}", so no two rows share a link name and no link name is ambiguous
+- **WHEN** rows with an offering render their two links
+- **THEN** each link's accessible name is its visible text followed by a visually hidden " {coffee name}", so no two of those rows share a link name and no link name is ambiguous
+
+#### Scenario: Link name on a row without a coffee name
+- **WHEN** a row whose `offeringId` is null or whose offering request failed renders its "View" link
+- **THEN** the link's accessible name is its visible text followed by a visually hidden " {row heading}, {closed date}"
 
 #### Scenario: Paging
 - **WHEN** the visitor activates Previous or Next
@@ -36,6 +40,10 @@ The system SHALL show, at `/{locale}/evaluations`, a list of the closed speciali
 #### Scenario: One offering cannot be loaded
 - **WHEN** the offering request of one row fails while the others succeed
 - **THEN** that row shows the offering-unavailable message as its heading with no captions and no "View offering" link, and the other rows are unaffected
+
+#### Scenario: A row whose offering was deleted
+- **WHEN** the list returns an evaluation with `offeringId` null
+- **THEN** no offering request is made for it, and that row shows the offering-missing message as its heading with no captions and no "View offering" link, keeping its score, closing date and "View" link, and the other rows are unaffected
 
 #### Scenario: Request failure
 - **WHEN** the listing request fails with any non-2xx status (422 included) or a transport failure
@@ -96,7 +104,7 @@ The list body SHALL offer a sort choice labelled for assistive technology, whose
 - **THEN** the list falls back to the default order
 
 ### Requirement: Read-only evaluation view
-The system SHALL show, at `/{locale}/evaluations/{ulid}` to any visitor, one closed specialist evaluation: a header with the offering's identity (coffee name as the page heading, the coffeeshop and roaster captions, the "Closed on" line and a "View offering" link) and the read-only evaluation presentation below. The route SHALL offer a back link to the plain list with no query. When the offering cannot be loaded, the header SHALL show the offering-unavailable message as the heading with no captions and no "View offering" link while the presentation still renders.
+The system SHALL show, at `/{locale}/evaluations/{ulid}` to any visitor, one closed specialist evaluation: a header with the offering's identity (coffee name as the page heading, the coffeeshop and roaster captions, the "Closed on" line and a "View offering" link) and the read-only evaluation presentation below. The route SHALL offer a back link to the plain list with no query. When the offering cannot be loaded, the header SHALL show the offering-unavailable message as the heading with no captions and no "View offering" link while the presentation still renders. When the evaluation's `offeringId` is null, no offering request SHALL be made and the header SHALL show the offering-missing message as the heading with no captions and no "View offering" link while the back link and the presentation still render.
 
 #### Scenario: Loading the view
 - **WHEN** the view is being loaded
@@ -113,6 +121,10 @@ The system SHALL show, at `/{locale}/evaluations/{ulid}` to any visitor, one clo
 #### Scenario: The offering cannot be loaded
 - **WHEN** the evaluation loads but its offering request fails
 - **THEN** the heading shows the offering-unavailable message with no captions and no "View offering" link, and the presentation renders the evaluation's results
+
+#### Scenario: Viewing an evaluation whose offering was deleted
+- **WHEN** the evaluation loads with `status` closed and `offeringId` null
+- **THEN** no offering request is made, the heading shows the offering-missing message with no captions and no "View offering" link, and the back link and the presentation render as usual
 
 #### Scenario: The evaluation cannot be loaded
 - **WHEN** the evaluation request or the taxonomy request fails with any non-2xx status (an unknown ULID included, whose 404 is undocumented) or a transport failure

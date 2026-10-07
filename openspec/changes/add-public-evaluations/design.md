@@ -5,6 +5,7 @@
 See proposal.md for motivation. The settled product source is `docs/design/add-public-evaluations/design-summary.md` (Status: approved; every Open settled in its "Settled by the orchestrator" paragraph) and the decisions-log entries it cites; this document records how those end states are reached in code and settles only the single-component details the summary leaves free. Current state that shapes the approach:
 
 - The contract (`contracts/openapi.yaml`, `92328fc`) documents `listEvaluations` (with `offeringId` and `evaluationType`), `getAnEvaluation`, `getAnOffering`, `listOlfactoryTaxonomies` and `listCoffees`, all public (`security: []`). `src/shared/api/schema.ts` is generated from it (`npm run types:api`) and is never edited.
+- Since `290d22e`, the `deleteAnOffering` and `deleteMultipleOfferings` descriptions state that specialists' evaluations are kept without an offering, while the evaluation response schemas still type `offeringId` as a non-nullable string. The front treats `offeringId` as `string | null` (summary §2 "Assumption: `offeringId` may be null"; decisions log 2026-10-07; Product owner's artifact review of 2026-10-07).
 - The five dependency changes (`add-offering-catalog`, `add-sidebar-slot`, `add-facet-controls`, `add-specialist-evaluations`, `add-evaluation-facets`) are not merged yet; every piece this change takes from them is listed in the summary §10 and verified by the merge gate (tasks 1.1).
 - `src/shared/ui` will hold, after those merges, `Card` (`layout="default" | "stacked"`), `PageSection`, `Pagination` (`path`, `query`, `currentPage`, `lastPage`, texts), `Tabs`, `LabelValueRow`, `Link`, `Button`, `Badge`, `RetryButton`, the three read-only scales (`BeanScale`, `IntensitySlider`, `DescriptorChipGroup`) and the facet controls' host surfaces. No new shared component is created here (summary §4.3).
 - FSD rules the composition relies on: a layer imports only from layers below, and no two slices of one layer import each other (AGENTS.md; `fsd-architecture`). This is why the provisional tab's panel is composed in `src/pages/offering-detail` and passed down as a slot.
@@ -37,7 +38,7 @@ All reads run on the server with plain `fetch` against `NEXT_PUBLIC_API_URL` and
 |---|---|---|---|---|---|
 | `listEvaluations` | `GET /evaluations` | none (`security: []`) | query, in this key order: `offeringId` (ULID string), `evaluationType` (`"specialist"` \| `"baseline"`), `city`, `process`, `status`, `scoreMin`, `scoreMax` (numbers), `orderBy` (`"cupping_score"` \| `"created_at"` \| `"status"`), `orderDirection` (`"asc"` \| `"desc"`), `page` (number) | `data[]` of evaluation resources, `meta` (`current_page`, `last_page`) and `links` | only `200` is documented (gap F7); the front never adapts to an error body |
 | `getAnEvaluation` | `GET /evaluations/{evaluation_ulid}` | none | path ULID | `data` of the evaluation resource | only `200` is documented; an unknown ULID's `404` is undocumented, so it lands in the generic error state |
-| `getAnOffering` | `GET /offerings/{offering_ulid}` | none | path ULID | `data` of the offering resource (`coffeeInventory.coffee.name`, `location.name`, `coffeeInventory.roastery.name` are the fields read) | not-found and failure both map to the offering-unavailable fallback (D6, D8) |
+| `getAnOffering` | `GET /offerings/{offering_ulid}` | none | path ULID | `data` of the offering resource (`coffeeInventory.coffee.name`, `location.name`, `coffeeInventory.roastery.name` are the fields read) | not-found and failure both map to the offering-unavailable fallback (D6, D8); never requested for a null `offeringId` |
 | `listOlfactoryTaxonomies` | `GET /taxonomies` | none | none | `data[]` of taxonomy nodes (`ulid`, `level`, `nameEs`, `nameEn`, `nameCa`, `color`, `children`) | a failure joins the host error state of the view or of the provisional panel |
 | `listCoffees` | `GET /coffees` | none | `name` is accepted but not sent | `data[]` of coffees (`process` is the field read) | a failure disables the Process facet only (D7) |
 
@@ -49,8 +50,10 @@ The evaluation resource fields this change reads: `cuppingScore`, `closedAt`, `e
 |---|---|
 | The list request (any non-2xx, 422 included, or transport) | `listErrorMessage` with Retry in the list area; the facet values stay in the URL and in the controls |
 | One row's `getAnOffering` | `offeringUnavailable` as that row's heading, no captions, no "View offering" link; other rows unaffected |
+| A row with `offeringId: null` (not a failure: the offering was deleted) | no `getAnOffering`; the offering-missing text of the `evaluations` area (D3) as that row's heading, no captions, no "View offering" link; score, date and "View" stay; other rows unaffected |
 | `getAnEvaluation` or `fetchTaxonomies` on the view | section 1 keeps the back link; section 2 shows `viewErrorMessage` with Retry |
 | The view's `getAnOffering` | the `h1` shows `offeringUnavailable` with no captions and no "View offering" link; the presentation still renders |
+| The view's evaluation with `offeringId: null` | no `getAnOffering`; the `h1` shows the offering-missing text with no captions and no "View offering" link; the back link and the presentation render as usual |
 | The provisional panel's baseline request | `detailProvisionalError` with Retry inside the panel only (its own `Suspense` boundary); header and other tabs unaffected |
 | The sidebar's `listCoffees` | the Process facet renders disabled with `filters.optionsUnavailable` |
 | The sidebar's `getAnOffering` for the active `offeringId` | the Offering option and its chip read `offeringFilterFallback` |
@@ -66,10 +69,14 @@ type GetEvaluationResponse =
 type ListEvaluationsResponse =
   operations["listEvaluations"]["responses"][200]["content"]["application/json"];
 
+/** Widens the generated `offeringId: string` to `string | null` (offering deleted). */
+type WithNullableOffering<T extends { offeringId?: unknown }> =
+  Omit<T, "offeringId"> & { offeringId?: string | null };
+
 /** `data` of `GET /evaluations/{ulid}`: the evaluation resource. */
-export type EvaluationDetail = NonNullable<GetEvaluationResponse["data"]>;
+export type EvaluationDetail = WithNullableOffering<NonNullable<GetEvaluationResponse["data"]>>;
 /** One item of `GET /evaluations` `data`. */
-export type EvaluationItem = NonNullable<ListEvaluationsResponse["data"]>[number];
+export type EvaluationItem = WithNullableOffering<NonNullable<ListEvaluationsResponse["data"]>[number]>;
 /** `meta` of the evaluations pagination (`current_page`, `last_page`). */
 export type EvaluationsPageMeta = NonNullable<ListEvaluationsResponse["meta"]>;
 /** The `evaluationType` values the contract accepts. */
@@ -110,6 +117,8 @@ export type PublicEvaluationFilters = {
 export type EvaluationFacetSet = "mine" | "public";
 ```
 
+The `offeringId` narrowing is the single point where the front widens the generated type (summary §2 "Assumption"; decisions log 2026-10-07): `schema.ts` stays untouched, every consumer reads the nullable type through these two aliases, and no other file re-declares it. The aliases are shared with `add-specialist-evaluations` (its correction round 2, point 2): if that change already exports them narrowed, this change reuses them; if it exports them un-narrowed, this change adds the narrowing there, once. When the contract adds `nullable: true` and the types are regenerated, the narrowing becomes redundant and is removed.
+
 Widget prop types (`EvaluationRowProps`, `EvaluationSheetProps`, the async wrapper props) are declared above their components in their own files. The reads are `fetchEvaluations(query: EvaluationsQuery)` and `fetchEvaluation(ulid: string)` in `src/entities/evaluation/api`, both `Promise`-returning, throwing on non-2xx, typed with `EvaluationsPageMeta`/`EvaluationItem` and `EvaluationDetail`.
 
 ### D3 — Messages and document metadata
@@ -118,7 +127,9 @@ Texts are props throughout; the catalogs are the message areas of `messages/{loc
 
 - a new area `public-evaluations` (`messages/{locale}/public-evaluations.json`) with every key of summary §8 (`listEyebrow` … `offeringFilterFallback`, `metaDescription`), the MVC-cited Spanish strings as they stand and the rest as the approved proposals (Open 9, answered "the proposed texts stand");
 - four additions to the `catalog` area owned by the offering detail: `detailViewEvaluations`, `detailTabProvisional`, `detailProvisionalEmpty`, `detailProvisionalError`;
-- reused areas unchanged: `evaluations` (group, part and axis names, descriptor block names, LOW/MEDIUM/HIGH, "/15", the nine extraction labels, `closedOnLabel`, `resultCount`), `scales` (bean `valueText`/`valueLabel`), `landing` (tier words, captions, pagination and retry labels), `filters` (facet, sort and chip texts).
+- reused areas unchanged: `evaluations` (group, part and axis names, descriptor block names, LOW/MEDIUM/HIGH, "/15", the nine extraction labels, `closedOnLabel`, `resultCount`, and the offering-missing text — es "Oferta inexistente", en "Offering no longer exists", ca "Oferta inexistent" — added by `add-specialist-evaluations` corrections.md Round 2 point 2 under the key name its architect sets, written `offeringMissing` in the summary), `scales` (bean `valueText`/`valueLabel`), `landing` (tier words, captions, pagination and retry labels), `filters` (facet, sort and chip texts).
+
+Dependency: this change adds no key for the offering-missing text; it consumes the `evaluations` key that `add-specialist-evaluations` Round 2 adds, which the merge gate (task 1.1) verifies exists before any work. If it does not exist when this change is built, the build stops and reports instead of adding it.
 
 The existing message guard keeps es, en and ca key-identical in both areas. The document title is the catalog metadata rule of `add-offering-catalog` D17: `Tazavera` plus the `metaDescription` of `public-evaluations`.
 
@@ -128,7 +139,8 @@ The existing message guard keeps es, en and ca key-identical in both areas. The 
 - Fixed keys: the request always carries `evaluationType=specialist` and `status=closed`; URL values for those two keys are ignored. The query emits keys in the order of D1's table.
 - URL writes go through `src/shared/lib/filter-query`: every facet or sort change removes `page` and pushes with `scroll: false`; pagination keeps every other key and replaces `page`.
 - The provisional panel's request is `offeringId` + `evaluationType=baseline` + `orderBy=created_at` + `orderDirection=desc`, and the first item is shown (Open 6, answered a).
-- Offerings per row: after the list returns, one `getAnOffering` per distinct `offeringId` on the page, in parallel, on the server. The view runs `getAnEvaluation` first, then `getAnOffering(offeringId)` and `fetchTaxonomies()` in parallel.
+- Offerings per row: after the list returns, one `getAnOffering` per distinct non-null `offeringId` on the page, in parallel, on the server; a null `offeringId` is never requested and marks its row as offering-missing. The view runs `getAnEvaluation` first, then `getAnOffering(offeringId)` and `fetchTaxonomies()` in parallel; when `offeringId` is null it runs only `fetchTaxonomies()` and renders the offering-missing header.
+- The provisional tab and the Offering facet are unaffected by null `offeringId`s: the baseline is deleted with its offering, and a deleted offering's ULID in the URL ends in `offeringFilterFallback` (summary §2 "Assumption").
 - `closedAt` formats with `Intl.DateTimeFormat` in the route's locale, medium date style, no time (the row date of `add-specialist-evaluations`). Taxonomy names follow the route's locale (`nameEs`, `nameEn`, `nameCa`). Taste notes map by `type` with `add-specialist-evaluations` D7; level 2 is not shown.
 
 ### D5 — Files, layers and entry points
@@ -169,7 +181,9 @@ The public row is `add-specialist-evaluations`'s row card without the status bad
 | `CardContent` | `h2` coffee name (`type-card-heading`); the date line (`type-meta`, "{closedOnLabel} {date}"); the coffeeshop caption and the roaster caption (`type-label`) | offering `coffeeInventory.coffee.name`; `closedAt`; offering `location.name`; offering `coffeeInventory.roastery.name` |
 | `CardFooter` | the actions slot: "View" → `/{locale}/evaluations/{ulid}`, "View offering" → `/{locale}/offerings/{offeringId}`, each `Link` default with a visually hidden " {coffee name}"; the specialist variant keeps its own actions and may show the status badge | `ulid`; `offeringId` |
 
-The date, "/100" and tier word come from the reused areas (D3). The offering fields reach the card as props from the list's per-row offering read; when that read failed the card takes an "unavailable" flag and renders `offeringUnavailable` as its heading with no captions and no "View offering" link (D1).
+The date, "/100" and tier word come from the reused areas (D3). The offering fields reach the card as props from the list's per-row offering read; when that read failed the card takes an "unavailable" flag and renders `offeringUnavailable` as its heading with no captions and no "View offering" link (D1). When the row's `offeringId` is null, the card renders the offering-missing text (D3) the same way: same parts and spacing, no captions, no "View offering" link, score row, date line and "View" kept.
+
+Link names (Open 12, answered a by Product owner's artifact review of 2026-10-07): on a row with an offering the hidden suffix is " {coffee name}"; on a row without a coffee name (offering-missing or offering-unavailable) the hidden suffix is " {row heading}, {closed date}", the date being the same formatted text as the row's date line and omitted with its comma when `closedAt` is null. Uniqueness is guaranteed only for rows with an offering.
 
 ### D7 — The public facet set in `features/evaluation-facets`
 
@@ -210,11 +224,12 @@ Summary §5 (page sections, list, view, detail delta, `EvaluationSheet`, the 375
 
 ### D11 — Accessibility and metadata
 
-Summary §9 is the end state: one `h1` per route (`h2` per row and per card, `legend`s for the chip groups), unique link names via the visually hidden " {coffee name}", read-only `meter`s with `aria-valuetext` whose value is also visible text, no state by colour alone (the tier word beside the score, Yes/No text for Defective cup, named chips), the facet and tab contracts of their capabilities, `focus-visible:focus-ring` on every interactive element (inside the sidebar it resolves to the inverse ring, `add-sidebar-slot` D8), and the document title of D3.
+Summary §9 is the end state: one `h1` per route (`h2` per row and per card, `legend`s for the chip groups), unique link names via the visually hidden " {coffee name}" (" {row heading}, {closed date}" on a row without a coffee name, D6), read-only `meter`s with `aria-valuetext` whose value is also visible text, no state by colour alone (the tier word beside the score, Yes/No text for Defective cup, named chips), the facet and tab contracts of their capabilities, `focus-visible:focus-ring` on every interactive element (inside the sidebar it resolves to the inverse ring, `add-sidebar-slot` D8), and the document title of D3.
 
 ## Risks / Trade-offs
 
 - [Contract gaps (F7): only `200` documented for the three reads; the descriptions claim an embedded offering while the resource carries only `offeringId`; `getAnEvaluation` returns open evaluations] → the front never adapts: every non-2xx goes to the error state of D1, the offering is always a second read per row or per view, and `status` other than closed renders the 404 page. Routed to Product owner for the Scribe annotations.
+- [Schema gap: `offeringId` is typed non-nullable while the contract describes evaluations kept without an offering] → the front narrows the type once at the D2 aliases and never edits `schema.ts`; the narrowing is removed when the contract adds `nullable: true`.
 - [An unknown ULID's `404` is undocumented] → no `notFound()` (the catalog's rule); the unknown ULID lands in the error state with Retry. Revisit only if Scribe documents the 404.
 - [Baseline uniqueness is guaranteed only by the API seeder] → the panel sends `orderBy=created_at&orderDirection=desc` and shows the first item (Open 6 answered a), so several baselines still render deterministically (the newest).
 - [`src/entities/evaluation/model` exports are *(unverified)* until `add-specialist-evaluations` is applied] → task 1.1 (the merge gate) verifies the exact exports (`groups.ts` group and axis order, `load.ts` `tastes` mapping) before any work and stops to report if they differ; no task assumes a name the summary does not state.
