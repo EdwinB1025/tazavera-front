@@ -31,12 +31,12 @@ const USER = {
 };
 
 function renderGate(session: Session, signIn = vi.fn<() => void>()) {
-  render(
+  const { container } = render(
     <SessionGate session={session} texts={TEXTS} signIn={signIn}>
       {(user) => <p data-testid="content">{user.name}</p>}
     </SessionGate>,
   );
-  return { signIn };
+  return { signIn, container };
 }
 
 describe("SessionGate", () => {
@@ -70,5 +70,20 @@ describe("SessionGate", () => {
     renderGate({ state: "authenticated", user: USER });
     expect(screen.getByTestId("content").textContent).toBe("Ana");
     expect(screen.queryByRole("status")).toBeNull();
+  });
+
+  it("while loading and while anonymous shows a section card with a subtle border, no accent edge and no header band", () => {
+    for (const session of [
+      { state: "loading" },
+      { state: "anonymous" },
+    ] satisfies Session[]) {
+      const { container } = renderGate(session);
+      const card = container.firstElementChild!;
+      expect(card.classList.contains("border")).toBe(true);
+      expect(card.classList.contains("border-border-subtle")).toBe(true);
+      expect(card.classList.contains("border-l-4")).toBe(false);
+      expect(container.querySelector(".bg-surface-section")).toBeNull();
+      cleanup();
+    }
   });
 });
