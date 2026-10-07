@@ -32,6 +32,13 @@ A signed-in specialist creates, edits, closes, lists and deletes their own evalu
 - Writes (`POST`, `PUT`, `PATCH …/close`, `DELETE`) need the `specialist` role and, except `POST`, ownership (policy). The contract requires no `profile:write` scope for them, so the plain token is enough and there is no step-up.
 - An evaluation carries only `offeringId` (a ULID string), not the offering. The list recovers each offering with `GET /offerings/{ulid}`, one request per distinct `offeringId` on the page.
 
+### Assumption: `offeringId` may be null (2026-10-07)
+
+- **Assumption.** The front treats `offeringId` in every evaluation response as `string | null`. A specialist's evaluation whose offering was deleted comes back with `offeringId: null`.
+- **Contract source.** `contracts/openapi.yaml` on `develop` at `290d22e`: the descriptions of `deleteAnOffering` and `deleteMultipleOfferings` say "The offering's baseline (provisional) evaluation is deleted with it; specialists' evaluations are kept without an offering". Product owner's decision of 2026-10-07 (decisions log, "catálogo en una columna y `offeringId` nulo"): this is how the contract communicates the case.
+- **Schema gap.** The evaluation response schemas still type `offeringId` as `type: string` without `nullable: true`, so `src/shared/api/schema.ts` types it `string`. The front does not edit `schema.ts` and does not wait for a regenerated type. It narrows the generated `string` to `string | null` once, at the single point where the evaluation resource enters the front (the evaluation alias or read function the architect names in design.md), so every consumer sees the nullable type. When the contract adds `nullable: true`, that narrowing becomes redundant and is removed.
+- **What the interface shows** (corrections.md Round 2, point 2): the list row shows "Oferta inexistente" in place of the offering's data and requests no offering; the evaluation opens read-only with the same message in place of the offering's context, with no edit or close; delete stays available. No new element: the row and the context card keep the spacing of §9.
+
 ## 2. Form structure (CVA Combined Form)
 
 Header: roast level (`descriptive.roastLevel`, required by `POST` and `PUT`, five values: `light`, `medium_light`, `medium`, `medium_dark`, `dark`) and extraction method (`extractionMethod`, optional select, at most 60 characters).
@@ -222,6 +229,17 @@ This change adds no colour token. Its own text roles sit on `surface-page`, `sur
    - Closed by Product owner, 2026-10-06: no captures or mock-up; Product owner verifies the form and the list in the browser (§11).
 13. **a)** A refactor change first moves the taxonomy read and lookup to `entities/taxonomy` and makes the pagination route-agnostic in `shared/ui`.
 
+### Open after propose (2026-10-07)
+
+14. **Roast level of an evaluation without an offering.**
+    - Question: the read-only view shows the roast level prefilled from the offering's coffee (§2), because the evaluation reads do not return `descriptive.roastLevel`. With `offeringId: null` there is no offering to read it from. What does the context card show?
+    - Options:
+      - (a) the roast level is part of the offering's context, so "Oferta inexistente" replaces it together with the offering header; the extraction method (a field of the evaluation) stays;
+      - (b) keep the roast level row with an empty-value text;
+      - (c) ask the API to return `descriptive.roastLevel` on the evaluation reads (already reported as a gap, D11).
+    - Recommendation: (a). It is the reading of corrections.md Round 2 point 2 ("the same message in place of the offering's context") and needs no new text; (c) stays as the API gap already reported.
+    - Blocks propose: no (the change is proposed). It blocks the round 2 tasks of point 2 only if the architect does not read "the offering's context" as including the roast level.
+
 ## Review log
 
 ### 2026-10-06 — design lead review
@@ -235,6 +253,11 @@ Settled (criterion B), with the source:
 - §7: the user menu already links to the list route (add-app-shell `UserMenu`).
 - Added: status line, response states table, page layout and spacing (§9, from the MVC and D14), texts by catalog area (§10), visual reference (§11), contrast (§12), Open list, this log.
 Changed since the last review: the Product owner's 6 Oct descriptor rules (§3) and dependency on the chip group and dialog were already in the file and are kept as written.
+
+### 2026-10-07 — design lead note
+- Added §1 "Assumption: `offeringId` may be null", on the orchestrator's request: the contract source (the two delete descriptions, `290d22e`), the schema gap (no `nullable: true`), and the narrowing to `string | null` at one read point instead of editing `schema.ts`. Source: Product owner's decision of 2026-10-07 (decisions log).
+- Added Open 14 (roast level of an evaluation without an offering).
+- Not edited: corrections.md. Its Round 2 point 2 "Dependency" sentence (tasks wait for a contract that documents `offeringId` as nullable and the regenerated type) predates the decision that the contract already communicates the case; reported to the orchestrator.
 
 ## Propose status
 
