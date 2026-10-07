@@ -15,7 +15,7 @@ The offerings route SHALL render, in the locale of the route and with no sign-in
 
 #### Scenario: Loading
 - **WHEN** the offerings are loading
-- **THEN** skeleton cards render in the grid's place and no empty or error message renders
+- **THEN** skeleton cards render in the list's place and no empty or error message renders
 
 #### Scenario: Empty
 - **WHEN** the API returns no offering for the query
@@ -70,16 +70,16 @@ The catalog page SHALL render an eyebrow label and a heading above its results, 
 - **WHEN** no capability fills the toolbar region
 - **THEN** it renders nothing and adds no space between the heading block and the results
 
-### Requirement: Catalog grid by available width
-The catalog's cards SHALL fill one column, two columns when the width available to the results region reaches 768px, and three columns when it reaches 1280px, separated by a 1.5rem gap, with the cards of one row sharing the same height. The columns SHALL follow the width available to the results region, so content beside the region narrows the columns instead of squeezing the cards.
+### Requirement: Catalog single column
+The catalog's cards SHALL render in a single column at every viewport width, 1.5rem apart, centered in the results region. The column SHALL have no fixed width: it takes the width the results region's side margins leave, and the results region SHALL sit on the page background, so the page background shows in those margins on both sides.
 
-#### Scenario: Columns by region width
-- **WHEN** the results region renders at some width
-- **THEN** the cards fill one, two or three columns according to that width's thresholds, whatever the viewport width
+#### Scenario: One column at every width
+- **WHEN** the results region renders at any viewport width, with or without content beside it
+- **THEN** the cards render one below the other in a single column, never side by side
 
-#### Scenario: Equal card heights
-- **WHEN** one row of cards renders
-- **THEN** the cards of that row share the same height
+#### Scenario: Centered column on the page background
+- **WHEN** the results region renders
+- **THEN** the column is centered in the region and the page background shows in the side margins on both sides of it
 
 ### Requirement: Offering detail page
 The offering detail route SHALL render one offering of the API, in the locale of the route and with no sign-in required: a back link to the offerings route, the verification state badge, the coffee name as the page heading, the coffeeshop name and the roaster name as labeled captions, an Evaluate link for a signed-in specialist only, and the offering's tabs below the header. It SHALL show no score in the header and SHALL cover loading, success and error states.
@@ -155,14 +155,14 @@ When the offering is verified and carries a cupping average, the Consensus tab S
 
 #### Scenario: Provisional offering
 - **WHEN** the Consensus tab renders for a provisional offering, with or without a cupping average
-- **THEN** no score renders and the rest of the tab renders normally
+- **THEN** no score renders and the rest of the tab renders as its own requirements state
 
 #### Scenario: No score
 - **WHEN** the Consensus tab renders for a verified offering carrying no cupping average
 - **THEN** no score renders and the rest of the tab renders normally
 
 ### Requirement: Consensus SCA attribute averages
-The Consensus tab SHALL show the eight SCA attribute averages — fragrance, aroma, flavor, aftertaste, acidity, sweetness, mouthfeel and overall — each labelled with its attribute name in the active locale, on a read-only nine-bean scale that fills the beans up to the average and fills the last bean only to the value's fraction when it is not whole. Each scale SHALL state its value as text beside the beans and SHALL change nothing on interaction.
+For a verified offering, the Consensus tab SHALL show the eight SCA attribute averages — fragrance, aroma, flavor, aftertaste, acidity, sweetness, mouthfeel and overall — each labelled in the active locale on a read-only nine-bean scale filled up to the average, the last bean filled to the value's fraction, with the value as text. For an offering that is not verified, it SHALL show instead a message that the offering is not verified yet.
 
 #### Scenario: Averages as bean scales
 - **WHEN** the Consensus tab renders for an offering carrying attribute averages
@@ -175,6 +175,10 @@ The Consensus tab SHALL show the eight SCA attribute averages — fragrance, aro
 #### Scenario: Missing average
 - **WHEN** an attribute average is absent
 - **THEN** its scale renders nothing and the remaining scales render normally
+
+#### Scenario: Offering not verified
+- **WHEN** the Consensus tab renders for an offering that is not verified
+- **THEN** no attribute scale and no attribute card render, and the not-verified message renders in their place
 
 ### Requirement: Consensus counts and concordances
 The Consensus tab SHALL show the offering's evaluation count and defective evaluation count as labelled values, and its affective and descriptive concordances as labelled values that state the 0–1 value as text together with the word of its scale: below 0.50 Low, 0.50 to below 0.75 Moderate, 0.75 to below 0.90 High, 0.90 and above Excellent. The scale word SHALL never be conveyed by colour alone.
@@ -196,10 +200,10 @@ The Consensus tab SHALL show the offering's evaluation count and defective evalu
 - **THEN** its row renders nothing and the remaining rows render normally
 
 ### Requirement: Consensus Defects and Main tastes
-The Consensus tab SHALL show the main tastes and the defects the consensus identified as read-only selections of taxonomy badges — the identified notes of each group only — and beside each of those two cards SHALL show its consensus legend listing every note of the card with its `n/total` share, the evaluations that identified the note over the offering's total evaluations. A group with no identified note SHALL show an empty text in its card and no legend beside it.
+The Consensus tab SHALL show the main tastes and the defects the CATA concordance identified as read-only selections of taxonomy badges — the identified notes of each group only — and beside each of those two cards SHALL show its consensus legend listing every note of the card with its `n/total` share, the evaluations that identified the note over the offering's total evaluations. A group with no identified note SHALL show an empty text in its card and no legend beside it.
 
 #### Scenario: Identified notes
-- **WHEN** the consensus identified main tastes or defects
+- **WHEN** the CATA concordance identified main tastes or defects
 - **THEN** each identified note renders as its taxonomy badge in its group's card, and the legend beside the card lists each note with its `n/total` share
 
 #### Scenario: Empty group
@@ -211,23 +215,53 @@ The Consensus tab SHALL show the main tastes and the defects the consensus ident
 - **THEN** no badge renders for that note and the remaining notes render normally
 
 ### Requirement: Consensus taste trees
-The Consensus tab SHALL present the offering's sensory taxonomy tree and CATA concordance tree as interactive flavor wheels — circular diagrams laid out from the center outward by level — one wheel per tree. Each segment SHALL carry the `n/total` legend of its note, and hovering a segment or focusing it with the keyboard SHALL show the description of that olfactory taxonomy. A reference that resolves to no taxonomy SHALL show no segment, and an empty tree SHALL show the empty text instead of a wheel.
+The Consensus tab SHALL present one interactive flavor wheel fed only the `aromatics` group of the offering's CATA concordance, and no wheel for the sensory taxonomy. Each segment SHALL carry the `n/total` legend of its note, and hovering or focusing it SHALL show the description of its olfactory taxonomy. An unresolved reference SHALL show no segment, and an empty concordance SHALL show the empty text instead of a wheel.
 
-#### Scenario: One wheel per tree
-- **WHEN** the Consensus tab renders for an offering carrying taxonomy trees
-- **THEN** one flavor wheel renders for the sensory taxonomy and one for the CATA concordance
+#### Scenario: One wheel from the CATA concordance
+- **WHEN** the Consensus tab renders for an offering carrying a CATA concordance
+- **THEN** exactly one flavor wheel renders, built from the concordance's `aromatics` group, and no sensory-profile wheel or heading renders
 
 #### Scenario: Segment legend and description
 - **WHEN** the visitor hovers a segment or focuses it with the keyboard
 - **THEN** that segment's `n/total` legend and the description of its olfactory taxonomy show
 
 #### Scenario: Unresolved reference
-- **WHEN** a tree reference matches no taxonomy
+- **WHEN** a concordance reference matches no taxonomy
 - **THEN** no segment renders for that reference and the remaining segments render normally
 
 #### Scenario: Empty tree
-- **WHEN** a tree is empty
+- **WHEN** the concordance is empty
 - **THEN** its card shows the empty text and no wheel renders
+
+### Requirement: Mouthfeel group in the CATA wheel
+When the CATA wheel holds aromatic and mouthfeel notes — a note is mouthfeel when its top-level taxonomy is in the mouthfeel category — each group SHALL occupy one contiguous arc, the arcs separated by a gap wider than between ordinary segments; a legend inside the wheel SHALL mark and name each arc, and a general legend beside it SHALL name the groups as text. With notes of one group only, no gap or group legend SHALL show.
+
+#### Scenario: Two groups
+- **WHEN** the CATA concordance carries aromatic and mouthfeel notes
+- **THEN** the wheel shows the aromatic notes on one arc and the mouthfeel notes on another, the two arcs separated by gaps wider than the separation between ordinary segments, the inner legend marks and names each arc, and the general legend names both groups
+
+#### Scenario: One group only
+- **WHEN** the CATA concordance carries no mouthfeel note, or only mouthfeel notes
+- **THEN** the wheel shows no group gap, no inner legend and no general legend
+
+#### Scenario: Groups never by colour alone
+- **WHEN** the two groups render
+- **THEN** each group is named as text in the general legend, so telling the groups apart never rests on colour
+
+### Requirement: Consensus detail by axis
+Below a heading, the Consensus tab SHALL show one collapsible section per sensory-taxonomy axis — fragrance, aroma, flavor, aftertaste, mouthfeel, in that order — titled with the axis name and collapsed by default. Each SHALL show the axis's identified notes as read-only taxonomy badges in descriptor rows (level 2 not shown) and beside them a legend with each shown note's `n/total` share; an axis with no identified note SHALL show the empty text and no legend.
+
+#### Scenario: Sections collapsed by default
+- **WHEN** the Consensus tab renders
+- **THEN** five sections render in the axis order, each titled with its axis name, and each is collapsed with its content out of the tab order
+
+#### Scenario: Identified notes of an axis
+- **WHEN** the visitor expands an axis section whose axis carries identified notes
+- **THEN** each identified note shown by the descriptor rows renders as its taxonomy badge and the legend beside the selection lists each of them with its `n/total` share
+
+#### Scenario: Empty axis
+- **WHEN** the visitor expands an axis section whose axis carries no identified note
+- **THEN** the section shows the empty text and no legend
 
 ### Requirement: Catalog and detail texts and metadata
 Every text of the two screens — labels, captions, headings, messages and badge words — SHALL render in the active locale (Spanish, English or Catalan) from the message catalog, and no page text SHALL be hardcoded. Both pages SHALL carry the document title exactly `Tazavera` and a description drawn from the message catalog of the active locale.

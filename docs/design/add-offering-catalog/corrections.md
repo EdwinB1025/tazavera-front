@@ -12,3 +12,16 @@ Source: Product owner's answers of 2026-10-07 to handoff Q1–Q5 (the entries ma
 6. **Status card at `lg`.** The status card is paired with another one-column card instead of leaving half a row empty.
 7. **Equal selection cards.** The two selection cards measure the same width: the consensus legend column has a fixed width from `md`, the same in both blocks.
 8. **Wording (F7).** design.md D15 names `text-label` where `text-secondary` renders; the design text is aligned with the registered pair.
+
+### Status
+- Date: 2026-10-07 (architect agent, scheduled cloud session).
+- `openspec validate add-offering-catalog --strict`: valid (`Change 'add-offering-catalog' is valid`).
+1. spec.md "Consensus taste trees" (one wheel from `cataConcordance`), "Consensus Defects and Main tastes" (read from the CATA concordance); design.md D12, D13, D14, D16 → tasks 11.5, 11.6.
+2. spec.md new "Mouthfeel group in the CATA wheel"; design.md D19 (values chosen without a mock-up: 6° gap at each group boundary; inner legend arc at radius 74, 2 units, and group name at radius 62, font size 11, `text-secondary`; general legend first in the wheel's side column), D16 → tasks 11.3, 11.4 (wheel and helper), 11.5, 11.6 (panel).
+3. spec.md new "Consensus detail by axis"; design.md D12, D16, D18 → tasks 11.7, 11.8.
+4. spec.md "Catalog grid by available width" replaced by "Catalog single column", "Offering catalog page" Loading wording; design.md D10, Context (side margins and background left to `refine-page-surfaces`) → tasks 11.1, 11.2.
+5. spec.md "Consensus SCA attribute averages" (new scenario "Offering not verified"), "Consensus score" Provisional scenario wording; design.md D20, D16 → tasks 11.5, 11.6.
+6. design.md D12 (the SCA or not-verified card is one column from `lg`, paired with the status card; the CATA wheel spans both columns) → tasks 11.5, 11.6.
+7. design.md D13 (fixed 14rem legend column from `md`, a value chosen here; also used by D18) → tasks 11.5, 11.6.
+8. design.md D15 (row aligned to `text-secondary` / `surface-section`, 5.39 / 7.18); wording only, no task.
+- Browser check of the round: task 11.9.
