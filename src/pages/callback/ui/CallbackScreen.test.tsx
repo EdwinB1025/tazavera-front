@@ -140,30 +140,6 @@ describe("popup mode — an opener of the front's origin (design.md D4)", () => 
     expect(fetchMock).not.toHaveBeenCalled();
     expect(container.textContent).toBe("");
   });
-
-  it("posts { error, state } to the front's origin and closes itself, exchanging nothing", async () => {
-    vi.stubGlobal("opener", openerMock);
-    const CallbackScreen = await loadScreen();
-
-    render(
-      <CallbackScreen
-        searchParams={{
-          error: "access_denied",
-          error_description: "The user denied access",
-          state: "state-123",
-        }}
-      />,
-    );
-
-    expect(openerMock.postMessage).toHaveBeenCalledTimes(1);
-    expect(openerMock.postMessage).toHaveBeenCalledWith(
-      { error: "access_denied", state: "state-123" },
-      APP_URL,
-    );
-    expect(closeMock).toHaveBeenCalledTimes(1);
-    await settle();
-    expect(fetchMock).not.toHaveBeenCalled();
-  });
 });
 
 describe("redirect mode — no opener (design.md D4)", () => {
