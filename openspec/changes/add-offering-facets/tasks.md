@@ -32,7 +32,7 @@ Apply preconditions (met on 2026-10-07): `add-offering-catalog`, `add-sidebar-sl
 
 ## 6. Texts
 
-- [ ] 6.1 Make `messages/{es,en,ca}/filters.json` contain every key of design.md D10 with the summary §10 strings, and add `resultCount` to `messages/{es,en,ca}/catalog.json` with the D10 strings. Keys already present are left unchanged. Verify: `src/shared/lib/i18n/catalog-guard.test.ts` and the full suite pass. Commit `feat(filtering): add the offering filter texts`.
+- [x] 6.1 Make `messages/{es,en,ca}/filters.json` contain every key of design.md D10 with the summary §10 strings, and add `resultCount` to `messages/{es,en,ca}/catalog.json` with the D10 strings. Keys already present are left unchanged. Verify: `src/shared/lib/i18n/catalog-guard.test.ts` and the full suite pass. Commit `feat(filtering): add the offering filter texts`.
 
 ## 7. Roastery search
 
