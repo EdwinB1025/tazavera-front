@@ -3,15 +3,15 @@
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import { request } from "@/shared/api";
 import type { ProfileUpdatePayload, SessionUser } from "@/shared/api";
-import { Button, Field, Input } from "@/shared/ui";
+import { Button, Field, Input, FormStatus, StepUpNotice } from "@/shared/ui";
 import { isValidEmail } from "../model/email";
-import { FormStatus } from "./FormStatus";
 import { RoleRow } from "./RoleRow";
-import { StepUpNotice, type StepUpNoticeTexts } from "./StepUpNotice";
 
 // ─── UI-specific types (declared before the component) ───
 
-export type ProfileFormTexts = StepUpNoticeTexts & {
+export type ProfileFormTexts = {
+  stepUpText: string;
+  stepUpButton: string;
   roleLabel: string;
   nameLabel: string;
   surnameLabel: string;
@@ -153,9 +153,9 @@ export function ProfileForm({
         )}
         {outcome === "stepUp" && (
           <StepUpNotice
-            locale={locale}
-            texts={texts}
-            requestProfileWrite={requestProfileWrite}
+            text={texts.stepUpText}
+            actionLabel={texts.stepUpButton}
+            onConfirm={() => requestProfileWrite(`/${locale}/account`)}
           />
         )}
         <div className="flex flex-wrap gap-3">
