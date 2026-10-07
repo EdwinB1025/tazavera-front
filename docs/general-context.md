@@ -7,16 +7,17 @@ Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`.
 - `AGENTS.md` y `.claude/workflow_sdd.md`: reglas y flujo de los agentes OpenCode.
 - El `handoff.md` y el `corrections.md` de cada cambio.
 
-**Actualizado:** 2026-10-07 11:30.
+**Actualizado:** 2026-10-07 12:15.
 
 ## Revisión de la noche (6–7 oct) — para Product owner
 
 **Mergeado en `develop`** (cada uno con verify sin hallazgos y revisión del design lead en navegador, por el mandato de la noche): `add-flavor-wheel` (`2bc37aa`), `add-collapsible-section` (`9364ced`), `refine-facet-controls` (`59f3bfb`), `refine-flavor-wheel` (`1642a8a`). Antes: `add-evaluation-scales`, `add-sidebar-slot`, `add-facet-controls`, `label-rating-badge`, `replace-offering-card-session`.
 
-**Construidos, esperando tu revisión** (rama al día, tests verdes):
-- `add-offering-catalog` (1547 tests): falta la 10.2. La revisión con mock encontró F1–F5 → handoff Q1–Q5. **Bloquean el archive:** Q1 (la rueda "Perfil sensorial" nunca se pinta; recomendado quitarla y dejar la de CATA) y Q2 (nunca 3 columnas; recomendado bajar el umbral).
-- `add-specialist-evaluations` (1586 tests, ronda 1 de secciones plegables aplicada): faltan 10.2 y 11.5 (navegador con sesión de especialista contra el API). Handoff Q10 (la leyenda 1–9 no existe en este formulario), Q11 (puntos 4 y 5 de la ronda, añadidos míos).
-- `add-offering-management` (1466 tests, tareas 1–7): las tareas 8–10 esperan Q1 del handoff (barra lateral "Administrar ofertas" / "Administrar ubicaciones").
+**Respuestas de Product owner del 7 oct** (handoffs con `ANSWERED 2026-10-07`, registro de decisiones del mismo día):
+- `add-offering-catalog`: Q1–Q5 respondidos → ronda 1 de corrección.
+- `add-offering-management`: Q1 respondido (una entrada "Administrar ofertas") → ronda 1; desbloquea las tareas 8–10.
+- `add-specialist-evaluations`: Q10 respondido (leyenda 1–9) → ronda 2. Q11 y Q12 siguen abiertos: pruebas en navegador de Product owner con `especialista.prueba@tazavera.test` en el API local.
+- `refine-facet-controls`: Q1 confirmado (mergeado); Q2 → backlog R10. El refactor de piezas de acceso y estado del resumen de `add-coffeeshop-location` pasa a ser R11.
 - `add-user-account`: falta la 9.2 (navegador con el API).
 
 **Decisiones mías para revisar** (handoffs, "Closed for review" / "Decisions taken", y el registro de decisiones):
@@ -25,7 +26,7 @@ Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`.
 - Ronda 1 de evaluaciones escrita por mí desde tu respuesta (`corrections.md`, puntos 4 y 5 míos).
 - Llamada de catalog a `FlavorWheel` con la interfaz real (catalog D1).
 
-**API `add-contacts-and-locations` en producción (7 oct):** `PROD ce52210` (PR #39); contrato y `schema.ts` en `develop` `eb3c8fa` (6 operaciones nuevas, solo añade). Los tres resúmenes nuevos (`add-user-contact`, `add-coffeeshop-location`, `add-coffeeshop-directory`) siguen en borrador: el contrato cierra contact 1 (`{ data: [] }` sin contacto), directory 2 (`locations[]` con coordenadas en la lista) y orienta location 2 (`listAUsersLocations` documentado para "Administrar ubicaciones"). Siguen bloqueando el propose: location 3 (= management Q1) y 4 (R10), directory 4 (widget de ofertas filtradas) y 5 (R9).
+**API `add-contacts-and-locations` en producción (7 oct):** `PROD ce52210` (PR #39); contrato y `schema.ts` en `develop` `eb3c8fa` (6 operaciones nuevas, solo añade). Los tres resúmenes nuevos (`add-user-contact`, `add-coffeeshop-location`, `add-coffeeshop-directory`) siguen en borrador: el contrato cierra contact 1 (`{ data: [] }` sin contacto), directory 2 (`locations[]` con coordenadas en la lista) y orienta location 2 (`listAUsersLocations` documentado para "Administrar ubicaciones"). Location 3 queda respondido con management Q1. Siguen bloqueando el propose: location 4 (R11), directory 4 (widget de ofertas filtradas) y 5 (R9).
 
 **Siguientes en cola cuando se desbloqueen:** `add-offering-facets` (tras catalog), `add-evaluation-facets` y `add-public-evaluations` (tras evaluations).
 
@@ -437,3 +438,13 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Pendiente en el API:** `update` y `close` de una evaluación con oferta nula (el servicio lee `evaluation->offering`) y `EvaluationResource` con oferta nula; el `configure()` del `OfferingFactory` de Product owner crea una baseline en todas las ofertas y deja 4 tests de `SpecialistTest` en rojo.
 - **Por qué:** decisión de Product owner del 7 oct.
 - **Afecta:** contrato (`offering` nulo en las evaluaciones); add-specialist-evaluations (lista, detalle y formulario: estado "oferta inexistente", sin editar ni cerrar) y add-public-evaluations (listados públicos) — corrección o ajuste de diseño cuando llegue el contrato.
+
+### 2026-10-07 — consenso, barra lateral de gestión y leyenda 1–9 (respuestas de Product owner)
+- **Decisión:**
+  - **Consenso de la oferta:** la pestaña "Consenso" usa solo `cataConcordance` para la rueda y las tarjetas: una sola rueda (CATA, grupo `aromatics`), sin rueda "Perfil sensorial"; Main tastes y Defects leen `cataConcordance`. `mouthfeel` sigue en la rueda CATA como grupo de referencia aparte (separación más marcada, leyenda general de grupos, leyenda interna aromáticos/mouthfeel). `sensoryTaxonomy` se muestra como secciones plegables por eje (fragrance, aroma, flavor, aftertaste, mouthfeel), colapsadas, con el `Collapsible` compartido y `DescriptorChipGroup readOnly` sobre el constructor de filas compartido, con leyenda `n/total` por nota. Una oferta no verificada no muestra la tarjeta SCA, sino un mensaje de "aún no verificada".
+  - **Rejilla del catálogo:** 3 columnas con un umbral de región más bajo (valor no fijado por Product owner; recomendado ~960px).
+  - **Barra lateral de gestión de la cafetería:** una sola entrada "Administrar ofertas" (en "Manage offerings", ca "Gestionar ofertes"), hacia la lista y marcada como actual también en la ruta de crear; "Nueva oferta" desaparece de la barra (crear sigue accesible desde la lista). "Administrar ubicaciones" la añade add-coffeeshop-location junto a ella.
+  - **Leyenda 1–9 del formulario de evaluación:** sección plegable informativa "Impresión de calidad afectiva" tras Main tastes, con las nueve etiquetas en orden SCA (textos es/en/ca en el handoff de add-specialist-evaluations, Q10); sigue la regla de estado inicial de la ronda 1.
+  - **Backlog:** R10 (borde de error de las facetas de fila en el tema tradicional). El refactor de piezas de acceso y estado propuesto por add-coffeeshop-location pasa a R11.
+- **Por qué:** respuestas de Product owner del 7 oct (handoffs de add-offering-catalog Q1–Q5, add-offering-management Q1, add-specialist-evaluations Q10, refine-facet-controls Q1–Q2).
+- **Afecta:** add-offering-catalog (ronda 1); add-public-evaluations (si reutiliza el panel de consenso o la pestaña "Evaluación provisional": solo `cataConcordance`, ejes como secciones plegables); add-offering-management (ronda 1, tareas 8–10); add-coffeeshop-location (resumen, Open 3: añade su entrada junto a "Administrar ofertas"; Open 4 → R11); add-specialist-evaluations (ronda 2); add-offering-facets y add-evaluation-facets (R10).
