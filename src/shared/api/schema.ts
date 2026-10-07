@@ -57,6 +57,60 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/coffeeshops": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List coffee shops
+         * @description Returns a paginated list of coffee shops (businesses) that have at least
+         *     one location, each with its counters and all its locations (the map
+         *     shows every location of the filtered coffee shops). Only business data
+         *     is returned: never the owner's email, surname, personal contacts or
+         *     account data. Sorted by name ascending by default.
+         */
+        get: operations["listCoffeeShops"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/coffeeshops/{user_ulid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description The ULID of the coffee shop (its user ULID).
+                 * @example 01M35F5RX4ADGC3CSDXXYB08DA
+                 */
+                user_ulid: string;
+            };
+            cookie?: never;
+        };
+        /**
+         * Get a coffee shop
+         * @description Returns one coffee shop (business) by its ULID, with its counters and
+         *     locations. The detail page shows two tabs: **Offerings**, read with
+         *     `GET /offerings?coffeeshopUlid={ulid}`, and **Locations**, the
+         *     `locations` array of this response. A ULID that does not exist, or that
+         *     is not a coffee shop with at least one location, returns `404 Not Found`.
+         */
+        get: operations["getACoffeeShop"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/evaluations/{evaluation_ulid}": {
         parameters: {
             query?: never;
@@ -300,6 +354,37 @@ export interface paths {
         patch: operations["closeAnEvaluation"];
         trace?: never;
     };
+    "/users/{user_ulid}/locations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description The ULID of the authenticated user.
+                 * @example 01M35F5RX4ADGC3CSDXXYB08DA
+                 */
+                user_ulid: string;
+            };
+            cookie?: never;
+        };
+        /**
+         * List a user's locations
+         * @description Returns the locations owned by the given user, each with its contact
+         *     details. Used by the coffeeshop's 'Manage locations' page.
+         *
+         *     **Authorization:** requires the `profile:read` or `profile:write` scope
+         *     and the user must be the authenticated user (policy). Another user
+         *     receives `403 Forbidden`.
+         */
+        get: operations["listAUsersLocations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/locations": {
         parameters: {
             query?: never;
@@ -318,7 +403,18 @@ export interface paths {
          */
         get: operations["listMyLocations"];
         put?: never;
-        post?: never;
+        /**
+         * Create a location
+         * @description Creates a location of the authenticated coffeeshop together with its
+         *     primary contact, in a single database transaction (all-or-nothing). The
+         *     owner is always the authenticated user, never a value from the body.
+         *     The coordinates are optional and computed by the client; when one is
+         *     sent, the other is required.
+         *
+         *     **Authorization:** requires the `coffeeshop` role and the `profile:write`
+         *     scope.
+         */
+        post: operations["createALocation"];
         delete?: never;
         options?: never;
         head?: never;
@@ -350,6 +446,8 @@ export interface paths {
         /**
          * Delete an offering
          * @description Permanently deletes a single offering. This action cannot be undone.
+         *     The offering's baseline (provisional) evaluation is deleted with it;
+         *     specialists' evaluations are kept without an offering.
          *
          *     **Authorization:** requires the `coffeeshop` role and the `profile:write`
          *     scope. The authenticated user must own the offering (`owns.offering`).
@@ -390,7 +488,9 @@ export interface paths {
         /**
          * Delete multiple offerings
          * @description Permanently deletes several offerings in one request, identified by their
-         *     ULIDs (maximum 50). This action cannot be undone.
+         *     ULIDs (maximum 50). This action cannot be undone. Each offering's
+         *     baseline (provisional) evaluation is deleted with it; specialists'
+         *     evaluations are kept without an offering.
          *
          *     **Authorization:** requires the `coffeeshop` role and the `profile:write`
          *     scope. The authenticated user must own all referenced offerings
@@ -511,6 +611,47 @@ export interface paths {
         get: operations["getTheAuthenticatedUser"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{user_ulid}/contacts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description The ULID of the authenticated user.
+                 * @example 01M35F5RX4ADGC3CSDXXYB08DA
+                 */
+                user_ulid: string;
+            };
+            cookie?: never;
+        };
+        /**
+         * List my contacts
+         * @description Returns the contacts of the authenticated user (personal contact data,
+         *     not the contacts of their locations).
+         *
+         *     **Authorization:** requires the `profile:read` or `profile:write` scope
+         *     and the user must be the authenticated user (policy). Another user
+         *     receives `403 Forbidden`.
+         */
+        get: operations["listMyContacts"];
+        put?: never;
+        /**
+         * Create my primary contact
+         * @description Creates the primary contact of the authenticated user. A user has a
+         *     single primary contact: if it already exists the request fails with
+         *     `409 Conflict`. `isPrimary` is always set by the API, never taken from
+         *     the body.
+         *
+         *     **Authorization:** requires the `profile:write` scope and permission to
+         *     update this user (policy). Another user receives `403 Forbidden`.
+         */
+        post: operations["createMyPrimaryContact"];
         delete?: never;
         options?: never;
         head?: never;
@@ -882,6 +1023,375 @@ export interface operations {
             };
         };
     };
+    listCoffeeShops: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Filter by the coffee shop (business) name. Partial, case-insensitive match. Must not be greater than 150 characters.
+                 * @example nomad
+                 */
+                name?: string;
+                /**
+                 * @description Filter coffee shops with at least one location whose primary contact is in this city. Must not be greater than 90 characters.
+                 * @example Barcelona
+                 */
+                city?: string;
+                /**
+                 * @description Filter coffee shops with at least one location whose primary contact has this postal code. Must not be greater than 12 characters.
+                 * @example 08001
+                 */
+                postalCode?: string;
+                /**
+                 * @description Filter by verified offerings: 1 returns only coffee shops with at least one verified offering in any of their locations, 0 only those without any. Omit it to return both.
+                 * @example true
+                 */
+                verified?: boolean;
+                /**
+                 * @description Sort field. One of: name. Default: name (applied when omitted, with orderDirection asc unless given).
+                 * @example name
+                 */
+                orderBy?: "name";
+                /**
+                 * @description Sort direction. One of: asc, desc. Default: asc.
+                 * @example asc
+                 */
+                orderDirection?: "asc" | "desc";
+                /**
+                 * @description Page number. Default: 1. Must be at least 1.
+                 * @example 1
+                 */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @example [
+                         *       {
+                         *         "ulid": "01K9C0FFEE0NMD000000000001",
+                         *         "name": "Nomad Coffee",
+                         *         "locationsCount": 2,
+                         *         "offeringsCount": 4,
+                         *         "verifiedOfferingsCount": 1,
+                         *         "locations": [
+                         *           {
+                         *             "ulid": "01K9C0FFEE0NMD0L0C00000001",
+                         *             "name": "Nomad Coffee Born",
+                         *             "description": "Nomad Coffee al Born.",
+                         *             "latitud": "41.38610000",
+                         *             "longitud": "2.17940000",
+                         *             "address": "Passatge Sert 12",
+                         *             "city": "Barcelona",
+                         *             "postalCode": "08003",
+                         *             "country": "España",
+                         *             "phone": "+34 933 000 001",
+                         *             "web": "https://nomad.example",
+                         *             "social": "@nomad.bcn"
+                         *           },
+                         *           {
+                         *             "ulid": "01K9C0FFEE0NMD0L0C00000002",
+                         *             "name": "Nomad Coffee Raval",
+                         *             "description": "Nomad Coffee al Raval.",
+                         *             "latitud": "41.37990000",
+                         *             "longitud": "2.16770000",
+                         *             "address": "Carrer de la Riereta 13",
+                         *             "city": "Barcelona",
+                         *             "postalCode": "08001",
+                         *             "country": "España",
+                         *             "phone": null,
+                         *             "web": "https://nomad.example",
+                         *             "social": "@nomad.bcn"
+                         *           }
+                         *         ]
+                         *       },
+                         *       {
+                         *         "ulid": "01K9C0FFEE0SYR000000000001",
+                         *         "name": "Syra Coffee",
+                         *         "locationsCount": 1,
+                         *         "offeringsCount": 2,
+                         *         "verifiedOfferingsCount": 0,
+                         *         "locations": [
+                         *           {
+                         *             "ulid": "01K9C0FFEE0SYR0L0C00000001",
+                         *             "name": "Syra Coffee Gràcia",
+                         *             "description": "Syra Coffee a Gràcia.",
+                         *             "latitud": "41.40210000",
+                         *             "longitud": "2.15800000",
+                         *             "address": "Carrer de Sant Domènec 1",
+                         *             "city": "Barcelona",
+                         *             "postalCode": "08012",
+                         *             "country": "España",
+                         *             "phone": null,
+                         *             "web": null,
+                         *             "social": "@syra.coffee"
+                         *           }
+                         *         ]
+                         *       }
+                         *     ]
+                         */
+                        data?: {
+                            /** @example 01K9C0FFEE0NMD000000000001 */
+                            ulid?: string;
+                            /** @example Nomad Coffee */
+                            name?: string;
+                            /** @example 2 */
+                            locationsCount?: number;
+                            /** @example 4 */
+                            offeringsCount?: number;
+                            /** @example 1 */
+                            verifiedOfferingsCount?: number;
+                            /**
+                             * @example [
+                             *       {
+                             *         "ulid": "01K9C0FFEE0NMD0L0C00000001",
+                             *         "name": "Nomad Coffee Born",
+                             *         "description": "Nomad Coffee al Born.",
+                             *         "latitud": "41.38610000",
+                             *         "longitud": "2.17940000",
+                             *         "address": "Passatge Sert 12",
+                             *         "city": "Barcelona",
+                             *         "postalCode": "08003",
+                             *         "country": "España",
+                             *         "phone": "+34 933 000 001",
+                             *         "web": "https://nomad.example",
+                             *         "social": "@nomad.bcn"
+                             *       },
+                             *       {
+                             *         "ulid": "01K9C0FFEE0NMD0L0C00000002",
+                             *         "name": "Nomad Coffee Raval",
+                             *         "description": "Nomad Coffee al Raval.",
+                             *         "latitud": "41.37990000",
+                             *         "longitud": "2.16770000",
+                             *         "address": "Carrer de la Riereta 13",
+                             *         "city": "Barcelona",
+                             *         "postalCode": "08001",
+                             *         "country": "España",
+                             *         "phone": null,
+                             *         "web": "https://nomad.example",
+                             *         "social": "@nomad.bcn"
+                             *       }
+                             *     ]
+                             */
+                            locations?: {
+                                /** @example 01K9C0FFEE0NMD0L0C00000001 */
+                                ulid?: string;
+                                /** @example Nomad Coffee Born */
+                                name?: string;
+                                /** @example Nomad Coffee al Born. */
+                                description?: string;
+                                /** @example 41.38610000 */
+                                latitud?: string;
+                                /** @example 2.17940000 */
+                                longitud?: string;
+                                /** @example Passatge Sert 12 */
+                                address?: string;
+                                /** @example Barcelona */
+                                city?: string;
+                                /** @example 08003 */
+                                postalCode?: string;
+                                /** @example España */
+                                country?: string;
+                                /** @example +34 933 000 001 */
+                                phone?: string;
+                                /** @example https://nomad.example */
+                                web?: string;
+                                /** @example @nomad.bcn */
+                                social?: string;
+                            }[];
+                        }[];
+                        links?: {
+                            /** @example http://localhost/coffeeshops?page=1 */
+                            first?: string;
+                            /** @example http://localhost/coffeeshops?page=1 */
+                            last?: string;
+                            /** @example null */
+                            prev?: string | null;
+                            /** @example null */
+                            next?: string | null;
+                        };
+                        meta?: {
+                            /** @example 1 */
+                            current_page?: number;
+                            /** @example 1 */
+                            from?: number;
+                            /** @example 1 */
+                            last_page?: number;
+                            /**
+                             * @example [
+                             *       {
+                             *         "url": null,
+                             *         "label": "&laquo; Previous",
+                             *         "active": false
+                             *       },
+                             *       {
+                             *         "url": "http://localhost/coffeeshops?page=1",
+                             *         "label": "1",
+                             *         "active": true
+                             *       },
+                             *       {
+                             *         "url": null,
+                             *         "label": "Next &raquo;",
+                             *         "active": false
+                             *       }
+                             *     ]
+                             */
+                            links?: {
+                                /** @example null */
+                                url?: string | null;
+                                /** @example &laquo; Previous */
+                                label?: string;
+                                /** @example false */
+                                active?: boolean;
+                            }[];
+                            /** @example http://localhost/coffeeshops */
+                            path?: string;
+                            /** @example 15 */
+                            per_page?: number;
+                            /** @example 2 */
+                            to?: number;
+                            /** @example 2 */
+                            total?: number;
+                        };
+                    };
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The selected order by is invalid. */
+                        message?: string;
+                        errors?: {
+                            /**
+                             * @example [
+                             *       "The selected order by is invalid."
+                             *     ]
+                             */
+                            orderBy?: string[];
+                        };
+                    };
+                };
+            };
+        };
+    };
+    getACoffeeShop: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description The ULID of the coffee shop (its user ULID).
+                 * @example 01M35F5RX4ADGC3CSDXXYB08DA
+                 */
+                user_ulid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: {
+                            /** @example 01K9C0FFEE0NMD000000000001 */
+                            ulid?: string;
+                            /** @example Nomad Coffee */
+                            name?: string;
+                            /** @example 2 */
+                            locationsCount?: number;
+                            /** @example 4 */
+                            offeringsCount?: number;
+                            /** @example 1 */
+                            verifiedOfferingsCount?: number;
+                            /**
+                             * @example [
+                             *       {
+                             *         "ulid": "01K9C0FFEE0NMD0L0C00000001",
+                             *         "name": "Nomad Coffee Born",
+                             *         "description": "Nomad Coffee al Born.",
+                             *         "latitud": "41.38610000",
+                             *         "longitud": "2.17940000",
+                             *         "address": "Passatge Sert 12",
+                             *         "city": "Barcelona",
+                             *         "postalCode": "08003",
+                             *         "country": "España",
+                             *         "phone": "+34 933 000 001",
+                             *         "web": "https://nomad.example",
+                             *         "social": "@nomad.bcn"
+                             *       },
+                             *       {
+                             *         "ulid": "01K9C0FFEE0NMD0L0C00000002",
+                             *         "name": "Nomad Coffee Raval",
+                             *         "description": "Nomad Coffee al Raval.",
+                             *         "latitud": "41.37990000",
+                             *         "longitud": "2.16770000",
+                             *         "address": "Carrer de la Riereta 13",
+                             *         "city": "Barcelona",
+                             *         "postalCode": "08001",
+                             *         "country": "España",
+                             *         "phone": null,
+                             *         "web": "https://nomad.example",
+                             *         "social": "@nomad.bcn"
+                             *       }
+                             *     ]
+                             */
+                            locations?: {
+                                /** @example 01K9C0FFEE0NMD0L0C00000001 */
+                                ulid?: string;
+                                /** @example Nomad Coffee Born */
+                                name?: string;
+                                /** @example Nomad Coffee al Born. */
+                                description?: string;
+                                /** @example 41.38610000 */
+                                latitud?: string;
+                                /** @example 2.17940000 */
+                                longitud?: string;
+                                /** @example Passatge Sert 12 */
+                                address?: string;
+                                /** @example Barcelona */
+                                city?: string;
+                                /** @example 08003 */
+                                postalCode?: string;
+                                /** @example España */
+                                country?: string;
+                                /** @example +34 933 000 001 */
+                                phone?: string;
+                                /** @example https://nomad.example */
+                                web?: string;
+                                /** @example @nomad.bcn */
+                                social?: string;
+                            }[];
+                        };
+                    };
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example No query results for model [App\Models\User] 01M35F5RX4ADGC3CSDXXYB08DA */
+                        message?: string;
+                    };
+                };
+            };
+        };
+    };
     getAnEvaluation: {
         parameters: {
             query?: never;
@@ -906,8 +1416,11 @@ export interface operations {
                         data?: {
                             /** @example 01M35F5RX4ADGC3CSDXXYB08DB */
                             ulid?: string;
-                            /** @example 01K6A3M8Q2V7XH4T9B5N1RCW0D */
-                            offeringId?: string;
+                            /**
+                             * @description The ULID of the evaluated offering. `null` when the offering was deleted: specialists' evaluations are kept without an offering.
+                             * @example 01K6A3M8Q2V7XH4T9B5N1RCW0D
+                             */
+                            offeringId: string | null;
                             /** @example specialist */
                             evaluationType?: string;
                             /** @example open */
@@ -1060,6 +1573,16 @@ export interface operations {
                  * @example 01M35F5RX4ADGC3CSDXXYB08DA
                  */
                 evaluatorId?: string;
+                /**
+                 * @description Filter by offering ULID. Must match an existing stored value.
+                 * @example 01K6A3M8Q2V7XH4T9B5N1RCW0D
+                 */
+                offeringId?: string;
+                /**
+                 * @description Filter by evaluation type. One of: specialist, baseline (the coffee shop's own provisional evaluation of its offering).
+                 * @example baseline
+                 */
+                evaluationType?: "specialist" | "baseline";
                 /**
                  * @description Filter by coffee ULID. Must match an existing stored value.
                  * @example 01M35F5JEZMS845TNPAEM1V8PF
@@ -1317,8 +1840,11 @@ export interface operations {
                         data?: {
                             /** @example 01M35F5RX4ADGC3CSDXXYB08DB */
                             ulid?: string;
-                            /** @example 01K6A3M8Q2V7XH4T9B5N1RCW0D */
-                            offeringId?: string;
+                            /**
+                             * @description The ULID of the evaluated offering. `null` when the offering was deleted: specialists' evaluations are kept without an offering.
+                             * @example 01K6A3M8Q2V7XH4T9B5N1RCW0D
+                             */
+                            offeringId: string | null;
                             /** @example specialist */
                             evaluationType?: string;
                             /** @example open */
@@ -1519,6 +2045,16 @@ export interface operations {
     listTheEvaluationsOfAUser: {
         parameters: {
             query?: {
+                /**
+                 * @description Filter by offering ULID. Must match an existing stored value.
+                 * @example 01K6A3M8Q2V7XH4T9B5N1RCW0D
+                 */
+                offeringId?: string;
+                /**
+                 * @description Filter by evaluation type. One of: specialist, baseline (the coffee shop's own provisional evaluation of its offering).
+                 * @example specialist
+                 */
+                evaluationType?: "specialist" | "baseline";
                 /**
                  * @description Filter by coffee ULID. Must match an existing stored value.
                  * @example 01M35F5JEZMS845TNPAEM1V8PF
@@ -1782,8 +2318,11 @@ export interface operations {
                         data?: {
                             /** @example 01M35F5RX4ADGC3CSDXXYB08DB */
                             ulid?: string;
-                            /** @example 01K6A3M8Q2V7XH4T9B5N1RCW0D */
-                            offeringId?: string;
+                            /**
+                             * @description The ULID of the evaluated offering. `null` when the offering was deleted: specialists' evaluations are kept without an offering.
+                             * @example 01K6A3M8Q2V7XH4T9B5N1RCW0D
+                             */
+                            offeringId: string | null;
                             /** @example specialist */
                             evaluationType?: string;
                             /** @example open */
@@ -1984,6 +2523,16 @@ export interface operations {
     listMyEvaluations: {
         parameters: {
             query?: {
+                /**
+                 * @description Filter by offering ULID. Must match an existing stored value.
+                 * @example 01K6A3M8Q2V7XH4T9B5N1RCW0D
+                 */
+                offeringId?: string;
+                /**
+                 * @description Filter by evaluation type. One of: specialist, baseline (the coffee shop's own provisional evaluation of its offering).
+                 * @example specialist
+                 */
+                evaluationType?: "specialist" | "baseline";
                 /**
                  * @description Filter by coffee ULID. Must match an existing stored value.
                  * @example 01M35F5JEZMS845TNPAEM1V8PF
@@ -2241,8 +2790,11 @@ export interface operations {
                         data?: {
                             /** @example 01M35F5RX4ADGC3CSDXXYB08DB */
                             ulid?: string;
-                            /** @example 01K6A3M8Q2V7XH4T9B5N1RCW0D */
-                            offeringId?: string;
+                            /**
+                             * @description The ULID of the evaluated offering. `null` when the offering was deleted: specialists' evaluations are kept without an offering.
+                             * @example 01K6A3M8Q2V7XH4T9B5N1RCW0D
+                             */
+                            offeringId: string | null;
                             /** @example specialist */
                             evaluationType?: string;
                             /** @example open */
@@ -2765,8 +3317,11 @@ export interface operations {
                         data?: {
                             /** @example 01M35F5RX4ADGC3CSDXXYB08DB */
                             ulid?: string;
-                            /** @example 01K6A3M8Q2V7XH4T9B5N1RCW0D */
-                            offeringId?: string;
+                            /**
+                             * @description The ULID of the evaluated offering. `null` when the offering was deleted: specialists' evaluations are kept without an offering.
+                             * @example 01K6A3M8Q2V7XH4T9B5N1RCW0D
+                             */
+                            offeringId: string | null;
                             /** @example specialist */
                             evaluationType?: string;
                             /** @example open */
@@ -2942,8 +3497,11 @@ export interface operations {
                         data?: {
                             /** @example 01M35F5RX4ADGC3CSDXXYB08DB */
                             ulid?: string;
-                            /** @example 01K6A3M8Q2V7XH4T9B5N1RCW0D */
-                            offeringId?: string;
+                            /**
+                             * @description The ULID of the evaluated offering. `null` when the offering was deleted: specialists' evaluations are kept without an offering.
+                             * @example 01K6A3M8Q2V7XH4T9B5N1RCW0D
+                             */
+                            offeringId: string | null;
                             /** @example specialist */
                             evaluationType?: string;
                             /** @example open */
@@ -3374,8 +3932,11 @@ export interface operations {
                         data?: {
                             /** @example 01M35F5RX4ADGC3CSDXXYB08DB */
                             ulid?: string;
-                            /** @example 01K6A3M8Q2V7XH4T9B5N1RCW0D */
-                            offeringId?: string;
+                            /**
+                             * @description The ULID of the evaluated offering. `null` when the offering was deleted: specialists' evaluations are kept without an offering.
+                             * @example 01K6A3M8Q2V7XH4T9B5N1RCW0D
+                             */
+                            offeringId: string | null;
                             /** @example specialist */
                             evaluationType?: string;
                             /** @example open */
@@ -3642,6 +4203,150 @@ export interface operations {
             };
         };
     };
+    listAUsersLocations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description The ULID of the authenticated user.
+                 * @example 01M35F5RX4ADGC3CSDXXYB08DA
+                 */
+                user_ulid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @example [
+                         *       {
+                         *         "ulid": "01K5Z9C2T6H8M3Q7V1X4B9N2PA",
+                         *         "name": "Nomad Coffee Born",
+                         *         "description": "Nomad Coffee al Born.",
+                         *         "latitud": "41.38610000",
+                         *         "longitud": "2.17940000",
+                         *         "contacts": [
+                         *           {
+                         *             "ulid": "01K5ZC0NT4C7A1H8M3Q7V1X4B9",
+                         *             "isPrimary": true,
+                         *             "phone": "+34 932 123 456",
+                         *             "email": "hola@cafeteria.example",
+                         *             "web": "https://cafeteria.example",
+                         *             "social": "@cafeteria.bcn",
+                         *             "address": "Carrer de la Riereta 1",
+                         *             "country": "España",
+                         *             "city": "Barcelona",
+                         *             "postalCode": "08001"
+                         *           }
+                         *         ]
+                         *       },
+                         *       {
+                         *         "ulid": "01K5Z9C2T6H8M3Q7V1X4B9N2PB",
+                         *         "name": "Nomad Coffee Gràcia",
+                         *         "description": null,
+                         *         "latitud": null,
+                         *         "longitud": null,
+                         *         "contacts": [
+                         *           {
+                         *             "ulid": "01K5ZC0NT4C7A1H8M3Q7V1X4BB",
+                         *             "isPrimary": true,
+                         *             "phone": null,
+                         *             "email": null,
+                         *             "web": null,
+                         *             "social": null,
+                         *             "address": "Carrer de Verdi 12",
+                         *             "country": "España",
+                         *             "city": "Barcelona",
+                         *             "postalCode": "08012"
+                         *           }
+                         *         ]
+                         *       }
+                         *     ]
+                         */
+                        data?: {
+                            /** @example 01K5Z9C2T6H8M3Q7V1X4B9N2PA */
+                            ulid?: string;
+                            /** @example Nomad Coffee Born */
+                            name?: string;
+                            /** @example Nomad Coffee al Born. */
+                            description?: string;
+                            /** @example 41.38610000 */
+                            latitud?: string;
+                            /** @example 2.17940000 */
+                            longitud?: string;
+                            /**
+                             * @example [
+                             *       {
+                             *         "ulid": "01K5ZC0NT4C7A1H8M3Q7V1X4B9",
+                             *         "isPrimary": true,
+                             *         "phone": "+34 932 123 456",
+                             *         "email": "hola@cafeteria.example",
+                             *         "web": "https://cafeteria.example",
+                             *         "social": "@cafeteria.bcn",
+                             *         "address": "Carrer de la Riereta 1",
+                             *         "country": "España",
+                             *         "city": "Barcelona",
+                             *         "postalCode": "08001"
+                             *       }
+                             *     ]
+                             */
+                            contacts?: {
+                                /** @example 01K5ZC0NT4C7A1H8M3Q7V1X4B9 */
+                                ulid?: string;
+                                /** @example true */
+                                isPrimary?: boolean;
+                                /** @example +34 932 123 456 */
+                                phone?: string;
+                                /** @example hola@cafeteria.example */
+                                email?: string;
+                                /** @example https://cafeteria.example */
+                                web?: string;
+                                /** @example @cafeteria.bcn */
+                                social?: string;
+                                /** @example Carrer de la Riereta 1 */
+                                address?: string;
+                                /** @example España */
+                                country?: string;
+                                /** @example Barcelona */
+                                city?: string;
+                                /** @example 08001 */
+                                postalCode?: string;
+                            }[];
+                        }[];
+                    };
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example Unauthenticated. */
+                        message?: string;
+                    };
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example This action is unauthorized. */
+                        message?: string;
+                    };
+                };
+            };
+        };
+    };
     listMyLocations: {
         parameters: {
             query?: never;
@@ -3777,6 +4482,202 @@ export interface operations {
                                 postalCode?: string | null;
                             }[];
                         }[];
+                    };
+                };
+            };
+        };
+    };
+    createALocation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @description Location name (max 150 characters). Must not be greater than 150 characters.
+                     * @example Cafeteria Gràcia
+                     */
+                    name: string;
+                    /**
+                     * @description Optional. Short description (max 255 characters). Must not be greater than 255 characters.
+                     * @example Barra de especialidad en Gràcia.
+                     */
+                    description?: string | null;
+                    /**
+                     * @description Optional. Latitude (-90 to 90), computed by the client. Required when longitud is sent. This field is required when <code>longitud</code> is present. Must be between -90 and 90.
+                     * @example 41.4029
+                     */
+                    latitud?: number | null;
+                    /**
+                     * @description Optional. Longitude (-180 to 180), computed by the client. Required when latitud is sent. This field is required when <code>latitud</code> is present. Must be between -180 and 180.
+                     * @example 2.1565
+                     */
+                    longitud?: number | null;
+                    /**
+                     * @description Primary contact of the location. address and city are required.
+                     * @example []
+                     */
+                    contact: {
+                        /**
+                         * @description Optional. Phone number (max 25 characters). Must not be greater than 25 characters.
+                         * @example +34 932 123 456
+                         */
+                        phone?: string | null;
+                        /**
+                         * @description Optional. Contact email address (max 255 characters). Must be a valid email address. Must not be greater than 255 characters.
+                         * @example hola@cafeteria.example
+                         */
+                        email?: string | null;
+                        /**
+                         * @description Optional. Website URL (max 255 characters). Must be a valid URL. Must not be greater than 255 characters.
+                         * @example https://cafeteria.example
+                         */
+                        web?: string | null;
+                        /**
+                         * @description Optional. Social media handle or URL (max 255 characters). Must not be greater than 255 characters.
+                         * @example @cafeteria.bcn
+                         */
+                        social?: string | null;
+                        /**
+                         * @description Street address (max 255 characters). Must not be greater than 255 characters.
+                         * @example Carrer de Verdi 12
+                         */
+                        address: string;
+                        /**
+                         * @description Optional. Country (max 60 characters). Must not be greater than 60 characters.
+                         * @example España
+                         */
+                        country?: string | null;
+                        /**
+                         * @description City (max 90 characters). Must not be greater than 90 characters.
+                         * @example Barcelona
+                         */
+                        city: string;
+                        /**
+                         * @description Optional. Postal code (max 12 characters). Must not be greater than 12 characters.
+                         * @example 08012
+                         */
+                        postal_code?: string | null;
+                    };
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: {
+                            /** @example 01K9B2C4D6E8F0G2H4J6K8M0NQ */
+                            ulid?: string;
+                            /** @example Cafeteria Gràcia */
+                            name?: string;
+                            /** @example Barra de especialidad en Gràcia. */
+                            description?: string;
+                            /** @example 41.40290000 */
+                            latitud?: string;
+                            /** @example 2.15650000 */
+                            longitud?: string;
+                            /**
+                             * @example [
+                             *       {
+                             *         "ulid": "01K9B2C4D6E8F0G2H4J6K8M0NR",
+                             *         "isPrimary": true,
+                             *         "phone": "+34 932 123 456",
+                             *         "email": "hola@cafeteria.example",
+                             *         "web": "https://cafeteria.example",
+                             *         "social": "@cafeteria.bcn",
+                             *         "address": "Carrer de Verdi 12",
+                             *         "country": "España",
+                             *         "city": "Barcelona",
+                             *         "postalCode": "08012"
+                             *       }
+                             *     ]
+                             */
+                            contacts?: {
+                                /** @example 01K9B2C4D6E8F0G2H4J6K8M0NR */
+                                ulid?: string;
+                                /** @example true */
+                                isPrimary?: boolean;
+                                /** @example +34 932 123 456 */
+                                phone?: string;
+                                /** @example hola@cafeteria.example */
+                                email?: string;
+                                /** @example https://cafeteria.example */
+                                web?: string;
+                                /** @example @cafeteria.bcn */
+                                social?: string;
+                                /** @example Carrer de Verdi 12 */
+                                address?: string;
+                                /** @example España */
+                                country?: string;
+                                /** @example Barcelona */
+                                city?: string;
+                                /** @example 08012 */
+                                postalCode?: string;
+                            }[];
+                        };
+                        /** @example Location created. */
+                        message?: string;
+                    };
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example Unauthenticated. */
+                        message?: string;
+                    };
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example This action is unauthorized. */
+                        message?: string;
+                    };
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The latitud field must be between -90 and 90. (and 2 more errors) */
+                        message?: string;
+                        errors?: {
+                            /**
+                             * @example [
+                             *       "The latitud field must be between -90 and 90."
+                             *     ]
+                             */
+                            latitud?: string[];
+                            /**
+                             * @example [
+                             *       "The contact.address field is required."
+                             *     ]
+                             */
+                            "contact.address"?: string[];
+                            /**
+                             * @example [
+                             *       "The contact.city field is required."
+                             *     ]
+                             */
+                            "contact.city"?: string[];
+                        };
                     };
                 };
             };
@@ -4275,8 +5176,8 @@ export interface operations {
                  */
                 city?: string;
                 /**
-                 * @description Filter by coffeeshop (user) ULID. Must match an existing stored value.
-                 * @example 01J8ZK...
+                 * @description Filter by coffee shop: the `ulid` returned by GET /coffeeshops (the coffee shop user ULID). Returns the offerings of all its locations; used by the Offerings tab of the coffee shop detail. Must match an existing stored value.
+                 * @example 01M35F5RX4ADGC3CSDXXYB08DA
                  */
                 coffeeshopUlid?: string;
                 /**
@@ -5767,6 +6668,245 @@ export interface operations {
                             email?: string;
                             /** @example specialist */
                             role?: string;
+                        };
+                    };
+                };
+            };
+        };
+    };
+    listMyContacts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description The ULID of the authenticated user.
+                 * @example 01M35F5RX4ADGC3CSDXXYB08DA
+                 */
+                user_ulid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @example [
+                         *       {
+                         *         "ulid": "01K9B2C4D6E8F0G2H4J6K8M0NP",
+                         *         "isPrimary": true,
+                         *         "phone": "+34 600 123 456",
+                         *         "email": "augusto@example.com",
+                         *         "web": null,
+                         *         "social": "@augusto.cafe",
+                         *         "address": "Carrer de Verdi 12",
+                         *         "country": "España",
+                         *         "city": "Barcelona",
+                         *         "postalCode": "08012"
+                         *       }
+                         *     ]
+                         */
+                        data?: {
+                            /** @example 01K9B2C4D6E8F0G2H4J6K8M0NP */
+                            ulid?: string;
+                            /** @example true */
+                            isPrimary?: boolean;
+                            /** @example +34 600 123 456 */
+                            phone?: string;
+                            /** @example augusto@example.com */
+                            email?: string;
+                            /** @example null */
+                            web?: string | null;
+                            /** @example @augusto.cafe */
+                            social?: string;
+                            /** @example Carrer de Verdi 12 */
+                            address?: string;
+                            /** @example España */
+                            country?: string;
+                            /** @example Barcelona */
+                            city?: string;
+                            /** @example 08012 */
+                            postalCode?: string;
+                        }[];
+                    };
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example Unauthenticated. */
+                        message?: string;
+                    };
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example This action is unauthorized. */
+                        message?: string;
+                    };
+                };
+            };
+        };
+    };
+    createMyPrimaryContact: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description The ULID of the authenticated user.
+                 * @example 01M35F5RX4ADGC3CSDXXYB08DA
+                 */
+                user_ulid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @description Optional. Phone number (max 25 characters). Must not be greater than 25 characters.
+                     * @example +34 932 123 456
+                     */
+                    phone?: string | null;
+                    /**
+                     * @description Optional. Contact email address (max 255 characters). Must be a valid email address. Must not be greater than 255 characters.
+                     * @example hola@cafeteria.example
+                     */
+                    email?: string | null;
+                    /**
+                     * @description Optional. Website URL (max 255 characters). Must be a valid URL. Must not be greater than 255 characters.
+                     * @example https://cafeteria.example
+                     */
+                    web?: string | null;
+                    /**
+                     * @description Optional. Social media handle or URL (max 255 characters). Must not be greater than 255 characters.
+                     * @example @cafeteria.bcn
+                     */
+                    social?: string | null;
+                    /**
+                     * @description Street address (max 255 characters). Must not be greater than 255 characters.
+                     * @example Carrer de Verdi 12
+                     */
+                    address: string;
+                    /**
+                     * @description Optional. Country (max 60 characters). Must not be greater than 60 characters.
+                     * @example España
+                     */
+                    country?: string | null;
+                    /**
+                     * @description City (max 90 characters). Must not be greater than 90 characters.
+                     * @example Barcelona
+                     */
+                    city: string;
+                    /**
+                     * @description Optional. Postal code (max 12 characters). Must not be greater than 12 characters.
+                     * @example 08012
+                     */
+                    postal_code?: string | null;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: {
+                            /** @example 01K9B2C4D6E8F0G2H4J6K8M0NP */
+                            ulid?: string;
+                            /** @example true */
+                            isPrimary?: boolean;
+                            /** @example +34 932 123 456 */
+                            phone?: string;
+                            /** @example hola@cafeteria.example */
+                            email?: string;
+                            /** @example https://cafeteria.example */
+                            web?: string;
+                            /** @example @cafeteria.bcn */
+                            social?: string;
+                            /** @example Carrer de Verdi 12 */
+                            address?: string;
+                            /** @example España */
+                            country?: string;
+                            /** @example Barcelona */
+                            city?: string;
+                            /** @example 08012 */
+                            postalCode?: string;
+                        };
+                        /** @example Contact created. */
+                        message?: string;
+                    };
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example Unauthenticated. */
+                        message?: string;
+                    };
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example This action is unauthorized. */
+                        message?: string;
+                    };
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The user already has a primary contact. */
+                        message?: string;
+                    };
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The address field is required. (and 1 more error) */
+                        message?: string;
+                        errors?: {
+                            /**
+                             * @example [
+                             *       "The address field is required."
+                             *     ]
+                             */
+                            address?: string[];
+                            /**
+                             * @example [
+                             *       "The city field is required."
+                             *     ]
+                             */
+                            city?: string[];
                         };
                     };
                 };

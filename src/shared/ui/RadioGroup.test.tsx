@@ -307,9 +307,123 @@ function checkedValues(): string[] {
     .map((input) => input.getAttribute("value")!);
 }
 
+/**
+ * Facet-row presentation (add-facet-controls; spec form-fields "Facet row
+ * presentation"; design.md D3). A row is selected when `value` equals its
+ * option and the option is not neutral.
+ */
+const ROW_REST_TOKENS = ["border-transparent", "hover:shadow-nav-hover"];
+const ROW_SELECTED_TOKENS = [
+  "border-nav-indicator",
+  "bg-nav-current-dark",
+  "shadow-nav-current",
+];
+
+function classesOf(element: Element): string[] {
+  return (element.getAttribute("class") ?? "").split(/\s+/).filter(Boolean);
+}
+
+const ROW_OPTIONS: RadioOption[] = [
+  { value: "", label: "Any", neutral: true },
+  { value: "washed", label: "Washed" },
+  { value: "natural", label: "Natural" },
+  { value: "honey", label: "Honey", hidden: true },
+];
+
+describe("RadioGroup facet-row presentation (add-facet-controls design.md D3)", () => {
+  it("legend carries the facet legend classes", () => {
+    render(
+      <RadioGroup legend="Process" options={ROW_OPTIONS} presentation="row" value="" onChange={() => {}} />,
+    );
+    expect(classesOf(screen.getByText("Process"))).toEqual([
+      "type-label",
+      "mb-1",
+      "px-3",
+      "py-1",
+    ]);
+  });
+
+  it("the row of the option equal to value carries the selected set", () => {
+    render(
+      <RadioGroup legend="Process" options={ROW_OPTIONS} presentation="row" value="washed" onChange={() => {}} />,
+    );
+    const selected = screen.getByText("Washed").closest("label")!;
+    expect(classesOf(selected)).toEqual(expect.arrayContaining(ROW_SELECTED_TOKENS));
+    expect(classesOf(selected)).not.toContain("hover:shadow-nav-hover");
+    const rest = screen.getByText("Natural").closest("label")!;
+    expect(classesOf(rest)).toEqual(expect.arrayContaining(ROW_REST_TOKENS));
+  });
+
+  it("a neutral option equal to value carries the rest set", () => {
+    render(
+      <RadioGroup legend="Process" options={ROW_OPTIONS} presentation="row" value="" onChange={() => {}} />,
+    );
+    const any = screen.getByText("Any").closest("label")!;
+    expect((screen.getByRole("radio", { name: "Any" }) as HTMLInputElement).checked).toBe(true);
+    expect(classesOf(any)).toEqual(expect.arrayContaining(ROW_REST_TOKENS));
+    for (const token of ROW_SELECTED_TOKENS) {
+      expect(classesOf(any)).not.toContain(token);
+    }
+  });
+
+  it("a hidden option renders its row with the hidden attribute and stays in the group", () => {
+    const { container } = render(
+      <RadioGroup legend="Process" options={ROW_OPTIONS} presentation="row" value="" onChange={() => {}} />,
+    );
+    const honey = container.querySelector<HTMLInputElement>('input[value="honey"]')!;
+    expect(honey.closest("label")!.hasAttribute("hidden")).toBe(true);
+    expect(honey.closest("fieldset")).toBe(screen.getByRole("radiogroup"));
+    expect(screen.getByText("Washed").closest("label")!.hasAttribute("hidden")).toBe(false);
+  });
+
+  it("id sets the fieldset id", () => {
+    render(
+      <RadioGroup id="g" legend="Process" options={ROW_OPTIONS} presentation="row" value="" onChange={() => {}} />,
+    );
+    expect(screen.getByRole("radiogroup").id).toBe("g");
+  });
+
+  it("clicking a row's label text chooses its option", () => {
+    const onChange = vi.fn();
+    render(
+      <RadioGroup legend="Process" options={ROW_OPTIONS} presentation="row" value="" onChange={onChange} />,
+    );
+    fireEvent.click(screen.getByText("Natural"));
+    expect(onChange).toHaveBeenCalledWith("natural");
+  });
+});
+
 /** The margin utilities of an element (design.md D10 pins them exactly). */
 function margins(element: Element): string[] {
   return element.className
     .split(/\s+/)
     .filter((token) => /^m[trblxyse]?-/.test(token));
 }
+
+describe("RadioGroup help and error padding (refine-facet-controls design.md D1)", () => {
+  function sorted(text: string): string[] {
+    return screen.getByText(text).getAttribute("class")!.split(/\s+/).sort();
+  }
+
+  it("row presentation: help carries type-meta mt-1 px-3", () => {
+    render(
+      <RadioGroup legend="Process" options={ROW_OPTIONS} presentation="row" value="" onChange={() => {}} help="Help" error="Error" />,
+    );
+    expect(sorted("Help")).toEqual(["mt-1", "px-3", "type-meta"]);
+  });
+
+  it("row presentation: error carries type-error mt-1 px-3", () => {
+    render(
+      <RadioGroup legend="Process" options={ROW_OPTIONS} presentation="row" value="" onChange={() => {}} help="Help" error="Error" />,
+    );
+    expect(sorted("Error")).toEqual(["mt-1", "px-3", "type-error"]);
+  });
+
+  it("field presentation: help and error keep no side padding", () => {
+    render(
+      <RadioGroup legend="Process" options={ROW_OPTIONS} value="" onChange={() => {}} help="Help" error="Error" />,
+    );
+    expect(sorted("Help")).toEqual(["mt-1", "type-meta"]);
+    expect(sorted("Error")).toEqual(["mt-1", "type-error"]);
+  });
+});

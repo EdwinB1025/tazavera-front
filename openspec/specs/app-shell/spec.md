@@ -25,19 +25,23 @@ Every application route SHALL live under a locale prefix, for the supported loca
 - **THEN** the application redirects it to the same path under the default locale, where it resolves to a not-found page, instead of rendering a screen in an unknown locale
 
 ### Requirement: Shell layout and main area
-The shell SHALL present the header above a main area that holds the content of the current route. The main area SHALL be a single column when no sidebar is present, and SHALL give the sidebar its own column beside the content when the sidebar is present. The shell SHALL occupy at least the viewport height, and the main area SHALL extend from the header to the bottom of the viewport whatever the height of its content.
+The shell SHALL present the header above a main area that holds the content of the current route. The main area SHALL be a single column when no sidebar is present, and SHALL give the sidebar its own column beside the content when the route in view has a sidebar. The shell SHALL occupy at least the viewport height, and the main area SHALL extend from the header to the bottom of the viewport whatever the height of its content. The main area SHALL show the page backdrop: in the traditional theme a light blue-green surface distinct from the cream card surface, and in the dark theme a surface darker than the card surface.
 
 #### Scenario: Single column
 - **WHEN** a route renders with no sidebar
 - **THEN** the main area holds the content in one column below the header
 
 #### Scenario: Sidebar column
-- **WHEN** a route renders with the management sidebar present on a medium or larger viewport
+- **WHEN** a route renders with its sidebar expanded on a medium or larger viewport
 - **THEN** the sidebar occupies its own column beside the content and the content region keeps the remaining width
 
 #### Scenario: Main area fills the viewport
 - **WHEN** a route renders content shorter than the viewport, in either theme
 - **THEN** the main area, with the page surface, reaches from the header to the bottom of the viewport and no other background shows below it
+
+#### Scenario: Page backdrop
+- **WHEN** a route renders in the traditional theme
+- **THEN** the main area shows the light blue-green backdrop, and cards on it show the cream card surface; and in the dark theme the backdrop is darker than the cards on it
 
 ### Requirement: Header brand and primary navigation
 The header SHALL show the brand logotype, linking to the root of the active locale. The brand logotype and the primary navigation SHALL sit in one group on the left, and the language selector and the session control SHALL sit in one group on the right, on every viewport. On medium and larger viewports it SHALL also show the "Top rated" and "About us" entries; on small viewports those two entries SHALL NOT be shown. The primary navigation entries SHALL be presented as navigation items of the header, not as inline text links, and the entry of the current route SHALL be marked as the current page.
@@ -86,7 +90,7 @@ While the session is anonymous, the header SHALL show the language selector and 
 - **THEN** signing in starts for the route the user is on
 
 ### Requirement: Signed-in header and user menu
-While the session is authenticated, the header SHALL show the brand logotype, the language selector and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The control SHALL show an initials circle and, on a medium or larger viewport, the user's name and a chevron after the circle; below that viewport it SHALL show the circle alone. The menu SHALL offer the profile settings entries, the security entry as an external link to the API's security page, a theme selector, the management entry for the user's role, and sign out.
+While the session is authenticated, the header SHALL show the brand logotype, the language selector and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The control SHALL show an initials circle and, on a medium or larger viewport, the user's name and a chevron after the circle; below that viewport it SHALL show the circle alone. The menu SHALL offer one account entry pointing at the account page, the security entry as an external link to the API's security page, a theme selector, the management entry for the user's role, and sign out.
 
 #### Scenario: User control carries the user's initials
 - **WHEN** the session is authenticated
@@ -114,7 +118,11 @@ While the session is authenticated, the header SHALL show the brand logotype, th
 
 #### Scenario: Menu content
 - **WHEN** the user opens the user menu
-- **THEN** it offers the profile settings entries, the external security entry, the management entry for the user's role and the sign out action
+- **THEN** it offers the account entry, the external security entry, the management entry for the user's role and the sign out action
+
+#### Scenario: The account entry points at the account page
+- **WHEN** the user opens the user menu
+- **THEN** its account entry points at `/{locale}/account`
 
 #### Scenario: Management entry for a coffeeshop
 - **WHEN** the authenticated user's `data.role` from `GET /user` is `coffeeshop`
@@ -126,7 +134,7 @@ While the session is authenticated, the header SHALL show the brand logotype, th
 
 #### Scenario: No management entry for the role
 - **WHEN** the authenticated user's `data.role` is neither `coffeeshop` nor `specialist`
-- **THEN** the menu offers the profile settings entries and sign out with no management entry
+- **THEN** the menu offers the account entry and sign out with no management entry
 
 #### Scenario: Sign out
 - **WHEN** the user activates "Sign out"
@@ -221,22 +229,42 @@ The brand logotype SHALL render in three forms: the drawing alone, the drawing w
 - **THEN** the icon still follows the operating-system appearance, and a browser with no support for a dark icon shows the traditional colors
 
 ### Requirement: Management sidebar
-The management sidebar SHALL appear only for an authenticated user on a management route. On medium and larger viewports it SHALL be collapsible, and on small viewports it SHALL open as a full-screen overlay. This capability defines the region and its presentation; the navigation entries come from the capability that owns the management area in view.
+The sidebar SHALL appear for an authenticated user on a management route and, for every session state, on the offerings list route; on every other route there SHALL be no sidebar. The content of the sidebar SHALL come from the route in view: the navigation entries of a management area, or the controls of a list, supplied by the capability that owns that route; this capability defines the region, its presentation and its controls. On medium and larger viewports the sidebar SHALL be expanded on arrival and collapsible; on small viewports it SHALL be closed on arrival and SHALL open as a full-screen overlay. When the user navigates within the application, the sidebar SHALL follow the route reached, never keeping the content of the previous route.
 
 #### Scenario: Shown on a management route
 - **WHEN** an authenticated user is on a management route
 - **THEN** the sidebar appears with the navigation entries of that management area
 
+#### Scenario: Shown on the offerings list
+- **WHEN** a visitor, signed in or not, is on the offerings list route, with or without a query
+- **THEN** the sidebar appears with the content the offerings list supplies and no navigation entries
+
 #### Scenario: Hidden outside the management area
-- **WHEN** the user is on a route outside the management area, or the session is anonymous
+- **WHEN** the user is on a route that is neither a management route nor the offerings list, or the session is not authenticated on a management route
 - **THEN** the sidebar is not shown and the main area uses a single column
+
+#### Scenario: Sidebar follows in-app navigation
+- **WHEN** the user moves within the application from a route with a sidebar to a route without one, and back again
+- **THEN** the sidebar disappears on the second route and appears again, with the first route's content, on returning to it
+
+#### Scenario: Unknown route stays not found
+- **WHEN** the user opens a path under a supported locale that no route defines
+- **THEN** the application reports the page as not found, without a sidebar
 
 #### Scenario: Collapsible on a medium or larger viewport
 - **WHEN** the user collapses the sidebar on a medium or larger viewport
 - **THEN** the main area returns to a single column until the user expands the sidebar again
 
+#### Scenario: Expanded on arrival on a medium or larger viewport
+- **WHEN** the user arrives on a route with a sidebar on a medium or larger viewport
+- **THEN** the sidebar is expanded beside the content
+
+#### Scenario: Closed on arrival on a small viewport
+- **WHEN** the user arrives on a route with a sidebar on a small viewport
+- **THEN** the sidebar is closed and the content of the route is visible, not covered by the overlay
+
 #### Scenario: Full-screen overlay on a small viewport
-- **WHEN** the user opens the navigation on a small viewport
+- **WHEN** the user opens the sidebar on a small viewport
 - **THEN** the sidebar covers the screen and returns to the content when it is dismissed
 
 #### Scenario: No entries contributed
@@ -347,3 +375,76 @@ Every document response of the application except the callback route SHALL carry
 #### Scenario: Opener kept outside the callback
 - **WHEN** a page other than the callback route answers a request
 - **THEN** its response carries `Cross-Origin-Opener-Policy: same-origin-allow-popups`
+
+### Requirement: Sidebar re-open control
+On a route that has a sidebar, the header SHALL offer a control that opens the sidebar whenever the sidebar is collapsed on a medium or larger viewport, and on a small viewport, where the sidebar is closed until the user opens it. The control SHALL be presented as the header's navigation buttons are, SHALL carry an accessible name from the message catalog of the active locale and SHALL report that the sidebar is not expanded. On a route without a sidebar the header SHALL NOT show it.
+
+#### Scenario: Control shown while collapsed
+- **WHEN** the user collapses the sidebar on a medium or larger viewport
+- **THEN** the header shows the re-open control, named and reporting the sidebar as not expanded, and keyboard focus moves to it
+
+#### Scenario: Re-opening the sidebar
+- **WHEN** the user activates the re-open control on a medium or larger viewport
+- **THEN** the sidebar is expanded again, the re-open control is no longer shown and keyboard focus moves to the sidebar's collapse control
+
+#### Scenario: Control hidden while expanded
+- **WHEN** the sidebar is expanded on a medium or larger viewport
+- **THEN** the header shows no re-open control, the sidebar's own collapse control being available
+
+#### Scenario: Opening on a small viewport
+- **WHEN** the user activates the re-open control on a small viewport
+- **THEN** the sidebar opens as the full-screen overlay, and dismissing it returns keyboard focus to the re-open control
+
+#### Scenario: No control without a sidebar
+- **WHEN** the route in view has no sidebar, on any viewport
+- **THEN** the header shows no re-open control
+
+#### Scenario: Control named in every locale
+- **WHEN** the shell renders the re-open control in `es`, `en` or `ca`
+- **THEN** its accessible name is the sidebar toggle text of that locale's catalog
+
+### Requirement: Sidebar entry presentation
+A navigation entry in the sidebar SHALL be a link to its route, and the entry of the current route SHALL be marked as the current page. On hover, an entry that is not the current one SHALL show the navigation hover fill with its label in the navigation hover text colour, meeting the 4.5:1 text contrast in both themes. Every control inside the sidebar SHALL show the inverse focus indicator, meeting 3:1 against the sidebar surface in both themes.
+
+#### Scenario: Entry is a link
+- **WHEN** a management area contributes an entry to the sidebar
+- **THEN** the entry is a link to its route, keeps the sidebar entry look and can carry an icon before its label
+
+#### Scenario: Current entry marked
+- **WHEN** the user is on the route of a sidebar entry
+- **THEN** that entry is marked as the current page
+
+#### Scenario: Entry hover label
+- **WHEN** the user hovers an entry that is not the current one
+- **THEN** the entry shows the navigation hover fill and its label turns to the navigation hover text colour
+
+#### Scenario: Focus inside the sidebar
+- **WHEN** a control inside the sidebar receives keyboard focus, in either theme
+- **THEN** it shows the inverse focus indicator, which meets 3:1 against the sidebar surface
+
+### Requirement: Protected content gate
+A protected view SHALL show its loading presentation while the session resolves; while the session is anonymous it SHALL show the view's signed-out message and a "Sign in" action in place of the content, with no redirect and sign in starting synchronously inside the click; for a signed-in user the route does not allow it SHALL show the application's not-found page; and for an allowed signed-in user it SHALL show the view's content. The gate SHALL add no text of its own.
+
+#### Scenario: Session resolving
+- **WHEN** a protected view opens while the session is still resolving
+- **THEN** the view's loading presentation renders in place of the content and no signed-out message shows
+
+#### Scenario: Anonymous visitor
+- **WHEN** a protected view is open and the session is anonymous
+- **THEN** the view's signed-out message and its "Sign in" action render in place of the content, no content renders, and the view does not redirect
+
+#### Scenario: Signing in from the gate
+- **WHEN** the visitor activates "Sign in" on a protected view
+- **THEN** sign in starts synchronously inside that click for the route the user is on, and the user stays on the route
+
+#### Scenario: Role the route does not allow
+- **WHEN** the session is authenticated and the route does not allow the signed-in user
+- **THEN** the application's not-found page renders instead of the content
+
+#### Scenario: Allowed signed-in user
+- **WHEN** the session is authenticated and the route allows the signed-in user
+- **THEN** the view's content renders for that user and no loading presentation or signed-out message renders
+
+#### Scenario: The gate adds no text of its own
+- **WHEN** any state of a protected view renders
+- **THEN** every visible text comes from the consuming capability's message catalog and no text, frame or layout comes from the gate itself

@@ -235,14 +235,20 @@ const DOCUMENTED_BASES: Record<string, string[]> = {
   "evaluation-rating-excellent": ["surface-card"],
   "evaluation-rating-good": ["surface-card"],
   "evaluation-rating-commercial": ["surface-card"],
+  // add-evaluation-scales D9: the translucent on-bean disc is documented over
+  // the content surfaces it renders on (the traditional theme)
+  "evaluation-bean-on": ["surface-form", "surface-card"],
   // border-subtle, border-filter-separator, nav-tabs-border: exempt from 3:1
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Contrast matrix (from design.md Evidence section)
 // Tokens without a defined pairing are excluded and verified in the component
-// change: text-inverse, text-input-icon, surface-checked, nav-icon, nav-underline,
-// evaluation-bean-*, evaluation-slider-*
+// change: text-inverse, text-input-icon, surface-checked, nav-icon, nav-underline.
+// add-evaluation-scales D9 registers the measured evaluation-bean-* and
+// evaluation-slider-* pairs in both matrices below; their unmeasured
+// combinations stay ungated (design summary §4), and other host surfaces are
+// registered by the consumer that uses them.
 // ═══════════════════════════════════════════════════════════════════════════════
 
 type PairKind = "text" | "bound" | "icon";
@@ -295,12 +301,27 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "text-primary", bg: "surface-section-hover", kind: "text" },
   { fg: "text-secondary", bg: "surface-page", kind: "text" },
   { fg: "text-secondary", bg: "surface-section", kind: "text" },
+  // add-offering-management design.md D12
+  { fg: "text-secondary", bg: "surface-form", kind: "text" },
   { fg: "text-accent", bg: "surface-card", kind: "text" },
+  // add-collapsible-section D8: the section title on the legend panel, at
+  // rest and on hover
+  { fg: "text-accent", bg: "surface-section", kind: "text" },
+  { fg: "text-accent", bg: "surface-section-hover", kind: "text" },
   { fg: "text-label", bg: "surface-page", kind: "text" },
+  // add-offering-management design.md D12 and add-user-account design.md D11
+  // (field labels and help on cards)
+  { fg: "text-label", bg: "surface-card", kind: "text" },
+  { fg: "text-label", bg: "surface-form", kind: "text" },
+  { fg: "text-secondary", bg: "surface-card", kind: "text" },
   { fg: "text-strong", bg: "surface-form", kind: "text" },
   { fg: "text-placeholder", bg: "surface-input", kind: "text" },
   { fg: "text-link", bg: "surface-card", kind: "text" },
   { fg: "text-link-hover", bg: "surface-card", kind: "text" },
+  // add-offering-management design.md D12
+  { fg: "text-link", bg: "surface-page", kind: "text" },
+  { fg: "text-link", bg: "surface-form", kind: "text" },
+  { fg: "text-link-hover", bg: "surface-form", kind: "text" },
   { fg: "action-primary-text", bg: "action-primary", kind: "text" },
   { fg: "action-primary-text", bg: "action-primary-hover", kind: "text" },
   { fg: "action-1-text", bg: "action-1-bg", kind: "text" },
@@ -462,6 +483,58 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "text-placeholder-inverse", bg: "nav-surface-dark", kind: "text" },
   { fg: "feedback-error-inverse", bg: "nav-surface-dark", kind: "text" },
   { fg: "surface-checked", bg: "nav-surface-dark", kind: "bound" },
+
+  // ── Facet rows and sort control (add-facet-controls design.md D12) ──
+  { fg: "nav-button-border", bg: "nav-surface-dark", kind: "bound" },
+  { fg: "nav-button-border", bg: "nav-current-dark", kind: "bound" },
+  { fg: "focus-ring-inverse", bg: "nav-current-dark", kind: "bound" },
+  { fg: "focus-ring-inverse", bg: "focus-offset-inverse", kind: "bound" },
+  { fg: "text-strong", bg: "surface-input", kind: "text" },
+
+  // ── Evaluation scales (add-evaluation-scales design.md D9) ──
+  // The seven measured pairs of the design summary §4, registered in both
+  // matrices. Only pairs the matrices do not already assert are added here:
+  // border-muted / surface-textarea and text-strong / surface-form are asserted
+  // above. The two mark pairs fail until task 1.4 defines
+  // --color-evaluation-bean-mark-on/off.
+  { fg: "evaluation-bean-mark-off", bg: "evaluation-bean-off", kind: "icon" },
+  // evaluation-bean-on is translucent: measured over its documented bases
+  { fg: "evaluation-bean-mark-on", bg: "evaluation-bean-on", kind: "icon" },
+  { fg: "evaluation-slider-thumb", bg: "surface-form", kind: "bound" },
+  { fg: "evaluation-slider-thumb", bg: "surface-card", kind: "bound" },
+  { fg: "evaluation-slider-thumb", bg: "evaluation-slider-track", kind: "bound" },
+  { fg: "border-muted", bg: "surface-form", kind: "bound" },
+  { fg: "border-muted", bg: "surface-card", kind: "bound" },
+  { fg: "text-strong", bg: "surface-card", kind: "text" },
+  // The thumb edge is decorative (design summary §4): exempt from the 3:1 rule.
+  { fg: "evaluation-slider-thumb-border", bg: "evaluation-slider-thumb", kind: "bound", exempt: true },
+
+  // ── Offering catalog (add-offering-catalog design.md D15) ──
+  // The detail's meta and labels on the card, the back link on the page, the
+  // rating badge words on the consensus score card (each rating background
+  // rides its documented surface-card base) and the tab labels and legends on
+  // the section surface.
+  { fg: "text-secondary", bg: "surface-card", kind: "text" },
+  { fg: "text-label", bg: "surface-card", kind: "text" },
+  { fg: "text-link", bg: "surface-page", kind: "text" },
+  { fg: "text-link-hover", bg: "surface-page", kind: "text" },
+  { fg: "badge-text", bg: "evaluation-rating-exceptional", kind: "text" },
+  { fg: "badge-text", bg: "evaluation-rating-excellent", kind: "text" },
+  { fg: "badge-text", bg: "evaluation-rating-good", kind: "text" },
+  { fg: "badge-text", bg: "evaluation-rating-commercial", kind: "text" },
+  { fg: "text-label", bg: "surface-section", kind: "text" },
+  // Review round 2: the tab bar sits on the page background; the selected
+  // tab's 2px edge there (its labels and focus ring on surface-page are
+  // registered above).
+  { fg: "border-accent", bg: "surface-page", kind: "bound" },
+  // ── Page backdrop and section card band (refine-page-surfaces D6; the
+  // pairs the catalog block above already registers are not repeated) ──
+  { fg: "text-accent", bg: "surface-page", kind: "text" },
+  { fg: "text-label", bg: "surface-section-hover", kind: "text" },
+  { fg: "focus-ring", bg: "surface-section-hover", kind: "bound" },
+
+  // ── The 1–9 legend's number inside the bean (add-specialist-evaluations D18) ──
+  { fg: "text-inverse", bg: "evaluation-bean-on", kind: "text" },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -649,12 +722,27 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "text-primary", bg: "surface-section-hover", kind: "text" },
   { fg: "text-secondary", bg: "surface-page", kind: "text" },
   { fg: "text-secondary", bg: "surface-section", kind: "text" },
+  // add-offering-management design.md D12
+  { fg: "text-secondary", bg: "surface-form", kind: "text" },
   { fg: "text-accent", bg: "surface-card", kind: "text" },
+  // add-collapsible-section D8: the section title on the legend panel, at
+  // rest and on hover
+  { fg: "text-accent", bg: "surface-section", kind: "text" },
+  { fg: "text-accent", bg: "surface-section-hover", kind: "text" },
   { fg: "text-label", bg: "surface-page", kind: "text" },
+  // add-offering-management design.md D12 and add-user-account design.md D11
+  // (field labels and help on cards)
+  { fg: "text-label", bg: "surface-card", kind: "text" },
+  { fg: "text-label", bg: "surface-form", kind: "text" },
+  { fg: "text-secondary", bg: "surface-card", kind: "text" },
   { fg: "text-strong", bg: "surface-form", kind: "text" },
   { fg: "text-placeholder", bg: "surface-input", kind: "text" },
   { fg: "text-link", bg: "surface-card", kind: "text" },
   { fg: "text-link-hover", bg: "surface-card", kind: "text" },
+  // add-offering-management design.md D12
+  { fg: "text-link", bg: "surface-page", kind: "text" },
+  { fg: "text-link", bg: "surface-form", kind: "text" },
+  { fg: "text-link-hover", bg: "surface-form", kind: "text" },
   { fg: "action-primary-text", bg: "action-primary", kind: "text" },
   { fg: "action-primary-text", bg: "action-primary-hover", kind: "text" },
   { fg: "action-1-text", bg: "action-1-bg", kind: "text" },
@@ -774,6 +862,59 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "text-placeholder-inverse", bg: "nav-surface-dark", kind: "text" },
   { fg: "feedback-error-inverse", bg: "nav-surface-dark", kind: "text" },
   { fg: "surface-checked", bg: "nav-surface-dark", kind: "bound" },
+
+  // ── Facet rows and sort control (add-facet-controls design.md D12) ──
+  { fg: "nav-button-border", bg: "nav-surface-dark", kind: "bound" },
+  { fg: "nav-button-border", bg: "nav-current-dark", kind: "bound" },
+  { fg: "focus-ring-inverse", bg: "nav-current-dark", kind: "bound" },
+  { fg: "focus-ring-inverse", bg: "focus-offset-inverse", kind: "bound" },
+  { fg: "text-strong", bg: "surface-input", kind: "text" },
+
+  // ── Evaluation scales (add-evaluation-scales design.md D9) ──
+  // The seven measured pairs of the design summary §4, registered in both
+  // matrices. Only pairs the matrices do not already assert are added here:
+  // border-muted / surface-textarea and text-strong / surface-form are asserted
+  // above. The two mark pairs fail until task 1.4 defines
+  // --color-evaluation-bean-mark-on/off.
+  { fg: "evaluation-bean-mark-off", bg: "evaluation-bean-off", kind: "icon" },
+  // rides the documented bases of DOCUMENTED_BASES (evaluation-bean-on is
+  // translucent in the traditional theme)
+  { fg: "evaluation-bean-mark-on", bg: "evaluation-bean-on", kind: "icon" },
+  { fg: "evaluation-slider-thumb", bg: "surface-form", kind: "bound" },
+  { fg: "evaluation-slider-thumb", bg: "surface-card", kind: "bound" },
+  { fg: "evaluation-slider-thumb", bg: "evaluation-slider-track", kind: "bound" },
+  { fg: "border-muted", bg: "surface-form", kind: "bound" },
+  { fg: "border-muted", bg: "surface-card", kind: "bound" },
+  { fg: "text-strong", bg: "surface-card", kind: "text" },
+  // The thumb edge is decorative (design summary §4): exempt from the 3:1 rule.
+  { fg: "evaluation-slider-thumb-border", bg: "evaluation-slider-thumb", kind: "bound", exempt: true },
+
+  // ── Offering catalog (add-offering-catalog design.md D15) ──
+  // The detail's meta and labels on the card, the back link on the page, the
+  // rating badge words on the consensus score card (each rating background
+  // rides its documented surface-card base) and the tab labels and legends on
+  // the section surface.
+  { fg: "text-secondary", bg: "surface-card", kind: "text" },
+  { fg: "text-label", bg: "surface-card", kind: "text" },
+  { fg: "text-link", bg: "surface-page", kind: "text" },
+  { fg: "text-link-hover", bg: "surface-page", kind: "text" },
+  { fg: "badge-text", bg: "evaluation-rating-exceptional", kind: "text" },
+  { fg: "badge-text", bg: "evaluation-rating-excellent", kind: "text" },
+  { fg: "badge-text", bg: "evaluation-rating-good", kind: "text" },
+  { fg: "badge-text", bg: "evaluation-rating-commercial", kind: "text" },
+  { fg: "text-label", bg: "surface-section", kind: "text" },
+  // Review round 2: the tab bar sits on the page background; the selected
+  // tab's 2px edge there (its labels and focus ring on surface-page are
+  // registered above).
+  { fg: "border-accent", bg: "surface-page", kind: "bound" },
+  // ── Page backdrop and section card band (refine-page-surfaces D6; the
+  // pairs the catalog block above already registers are not repeated) ──
+  { fg: "text-accent", bg: "surface-page", kind: "text" },
+  { fg: "text-label", bg: "surface-section-hover", kind: "text" },
+  { fg: "focus-ring", bg: "surface-section-hover", kind: "bound" },
+
+  // ── The 1–9 legend's number inside the bean (add-specialist-evaluations D18) ──
+  { fg: "text-inverse", bg: "evaluation-bean-on", kind: "text" },
 ];
 
 describe("Dark theme contrast matrix", () => {
@@ -897,6 +1038,20 @@ describe("Radius token values (correction 10)", () => {
   });
 });
 
+describe("Page backdrop token (refine-page-surfaces D6)", () => {
+  const css = readGlobals();
+  const tradProps = extractTraditional(css);
+  const darkProps = extractDark(css);
+
+  it("traditional --color-surface-page is var(--color-sage-100)", () => {
+    expect(tradProps.get("--color-surface-page")).toBe("var(--color-sage-100)");
+  });
+
+  it("dark --color-surface-page is var(--color-night-petrol-950)", () => {
+    expect(darkProps.get("--color-surface-page")).toBe("var(--color-night-petrol-950)");
+  });
+});
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // Typographic role verification (design.md role table)
 // Each role is an @utility type-{role} combining family, weight, style, size,
@@ -957,6 +1112,9 @@ const ROLES: RoleSpec[] = [
   { name: "sidebar-item", family: "var(--font-sans)", weight: "400", sizeBase: "base", lineHeight: "default", color: "nav-text-dark" },
   { name: "button", family: "var(--font-sans)", weight: "600", sizeBase: "sm", lineHeight: "default" },
   { name: "badge", family: "var(--font-sans)", weight: "600", sizeBase: "sm", lineHeight: "default" },
+  // Combobox option lines (add-facet-controls design.md D10): no colour.
+  { name: "option", family: "var(--font-sans)", weight: "600", sizeBase: "sm", lineHeight: "tight" },
+  { name: "option-detail", family: "var(--font-sans)", weight: "400", sizeBase: "xs", lineHeight: "default" },
 ];
 
 /** Extract @utility type-{role} blocks: returns map of role name -> block content. */
@@ -1244,4 +1402,50 @@ describe("Inverse variant scope utility: @utility variant-inverse (form-fields d
       VARIANT_INVERSE_REASSIGNMENTS,
     );
   });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Facet-row shadow tokens (add-facet-controls design.md D10)
+// Traditional: Tailwind's default shadow-md and inset-shadow-sm; dark: none.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+describe("Facet-row shadow tokens (add-facet-controls design.md D10)", () => {
+  const css = readGlobals();
+  const tradProps = extractTraditional(css);
+  const darkProps = extractDark(css);
+
+  it("traditional @theme defines --shadow-nav-current as a medium drop shadow", () => {
+    expect(tradProps.get("--shadow-nav-current")).toBe(
+      "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+    );
+  });
+
+  it("traditional @theme defines --shadow-nav-hover as a small inner shadow", () => {
+    expect(tradProps.get("--shadow-nav-hover")).toBe("inset 0 2px 4px rgb(0 0 0 / 0.05)");
+  });
+
+  it("dark theme defines --shadow-nav-current as none", () => {
+    expect(darkProps.get("--shadow-nav-current")).toBe("none");
+  });
+
+  it("dark theme defines --shadow-nav-hover as none", () => {
+    expect(darkProps.get("--shadow-nav-hover")).toBe("none");
+  });
+
+  // Tailwind 4 inlines a --shadow-* theme value into its shadow-* utility, so
+  // the dark reassignment only applies if the utility reads the variable.
+  for (const name of ["nav-current", "nav-hover"]) {
+    it(`@utility shadow-${name} is defined once and reads var(--shadow-${name})`, () => {
+      const regex = new RegExp(`@utility\\s+shadow-${name}\\s*\\{`, "g");
+      const blocks: string[] = [];
+      let match: RegExpExecArray | null;
+      while ((match = regex.exec(css)) !== null) {
+        blocks.push(extractBlock(css, match.index + match[0].length - 1));
+      }
+      expect(blocks).toHaveLength(1);
+      expect(blocks[0]).toMatch(
+        new RegExp(`box-shadow\\s*:\\s*var\\(--shadow-${name}\\)\\s*;`),
+      );
+    });
+  }
 });

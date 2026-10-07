@@ -22,6 +22,8 @@ export type ShellChromeProps = {
   locale: string;
   locales: string[];
   texts: AppHeaderTexts;
+  /** Rendered first in the header (add-sidebar-slot design.md D6). */
+  leading?: ReactNode;
 };
 
 export function ShellChrome({
@@ -29,6 +31,7 @@ export function ShellChrome({
   locale,
   locales,
   texts,
+  leading,
 }: ShellChromeProps): ReactNode {
   const router = useRouter();
   const pathname = usePathname();
@@ -40,10 +43,11 @@ export function ShellChrome({
   };
 
   const handleSignIn = () => {
-    // Sign in starts from the route the user is on (spec: "Sign in starts
-    // from the current route"); the popup opens within this click (design.md
-    // D10).
-    signIn(pathname ?? `/${locale}`);
+    // Sign in starts from the route the user is on, path and query, through
+    // `signIn`'s default (spec: "Sign in starts from the current route";
+    // fix-auth-return-query design.md D1); the popup opens within this click
+    // (design.md D10).
+    signIn();
   };
 
   const handleSignOut = () => {
@@ -62,6 +66,7 @@ export function ShellChrome({
       onSignOut={handleSignOut}
       onLocaleChange={handleLocaleChange}
       currentPath={pathname ?? undefined}
+      leading={leading}
     />
   );
 }

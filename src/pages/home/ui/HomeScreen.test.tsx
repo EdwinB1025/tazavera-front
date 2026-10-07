@@ -15,8 +15,8 @@ afterEach(() => {
  * Home screen tests (design.md D9, D10, D11; the landing spec "Entry page
  * hero" and "Localized page texts"). The screen is a thin composition: it
  * loads the `landing` catalog of the route's locale and feeds every text down
- * as props (design.md D10, D11), supplies the session at one expression as the
- * anonymous `Session` constant (design.md D10), and wraps the offerings block
+ * as props (design.md D10, D11), passes no session (add-specialist-evaluations
+ * design.md D6: the Evaluate link reads it itself), and wraps the offerings block
  * in a `Suspense` boundary whose fallback is the skeleton cards (design.md
  * D9). The block is replaced at its public API: it is an async Server
  * Component — untestable in Vitest (the testing rule) — and the stub records
@@ -89,9 +89,10 @@ describe("HomeScreen", () => {
     expect(rendered.includes(es.heroEyebrow)).toBe(false);
   });
 
-  it("supplies the session at one expression as the anonymous Session constant (design.md D10)", () => {
+  it("passes no session to the block (add-specialist-evaluations design.md D6)", () => {
     render(<HomeScreen locale="es" page={undefined} />);
-    expect(block.props?.session).toEqual({ state: "anonymous" });
+    expect(block.props).not.toBeNull();
+    expect(block.props).not.toHaveProperty("session");
   });
 
   it("passes the route's locale, the requested page and every list text to the block (design.md D10, D11)", () => {
