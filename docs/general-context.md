@@ -507,3 +507,11 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
   - Textos propuestos en en/ca de los proposes del 7 oct (`urlFormatError`, `signedOutText`, `mapLoading`, `locationNoMap`, "Administra les ubicacions") se aceptan tal cual.
 - **Por qué:** mandato de Product owner; resumen de add-coffeeshop-location (Open 5 ofrece C); recomendación del arquitecto.
 - **Afecta:** add-coffeeshop-location (D5 cerrado; sin tarea de librería); add-user-contact; add-coffeeshop-directory.
+
+### 2026-10-07 — revisión visual previa al archive: arreglos compartidos (orquestador y Product owner)
+- **Decisión:**
+  - Catalog pasa la revisión del design lead y se archiva y mergea (`589b358`). Evaluations y management cumplen sus rondas, pero esperan a dos arreglos de componentes compartidos ya mergeados, cada uno en su propio cambio: `fix-collapsible-overflow` (un `Collapsible` plegado sigue ocupando altura: hueco en blanco a 375 px) y `fix-combobox-blur` (el `Combobox` se cierra y vacía al llegar los resultados; impide elegir inventario al crear una oferta).
+  - Product owner aprueba `fix-auth-return-query`: la ruta de vuelta tras iniciar sesión conserva la query (`pathname + search`), validada como ruta interna igual que hoy; sin tocar tokens, PKCE, CSP ni `proxy.ts`.
+  - Catalog D13: si un bloque de selección no tiene notas, su tarjeta se ensancha (sin columna de leyenda); se mantiene como dice el diseño.
+- **Por qué:** informe del design lead del 7 oct; mandato de autonomía; respuesta de Product owner ("sí, procede").
+- **Afecta:** add-specialist-evaluations y add-offering-management (archive tras los arreglos); add-offering-facets, add-evaluation-facets y add-coffeeshop-location (usan `Combobox`/`Collapsible`); auth.

@@ -55,6 +55,16 @@ describe("FacetCascade", () => {
     expect(screen.getByRole("group", { name: "Flavour" })).toBeTruthy();
   });
 
+  it("keeps rows within the panel width: the fieldset and the label cell may shrink and long labels wrap", () => {
+    render(cascade([]));
+    const fieldset = screen.getByRole("group", { name: "Flavour" });
+    expect(fieldset.className.split(" ")).toEqual(
+      expect.arrayContaining(["min-w-0", "wrap-anywhere"]),
+    );
+    const cell = toggle("Fruity").previousElementSibling as HTMLElement;
+    expect(cell.className.split(" ")).toEqual(expect.arrayContaining(["min-w-0", "flex-1"]));
+  });
+
   it("with no value both toggles are collapsed and control hidden groups", () => {
     render(cascade([]));
     for (const label of ["Fruity", "Floral"]) {

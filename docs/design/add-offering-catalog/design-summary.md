@@ -456,3 +456,54 @@ Notes:
     - spacing values from the MVC partials cited in section 6.
   - **Measured:** every gated pair in section 5, in both themes (script in the design lead's scratch directory).
   - **Board assumption:** confirmed for the detail page; corrected for the header entry, which already exists in `app-shell` and only needs this change's route.
+
+## Propose status
+
+- Change-id: `add-offering-catalog`. Date: 2026-10-06. Phase: propose, completed by the architect agent (`/opsx:propose`).
+- `openspec validate add-offering-catalog --strict`: **valid** (`Change 'add-offering-catalog' is valid`, run after every artifact).
+- Artifacts in `openspec/changes/add-offering-catalog/`: `proposal.md`; `specs/offering-catalog/spec.md` (new capability, `## Purpose` plus 15 ADDED requirements covering both screens, their states and every field shown); `specs/content-structure/spec.md` (ADDED "Label/value row", "Tabs"); `design.md` (D1–D17, with the API table, the derived types, the error presentation, the file map and the card field mappings); `tasks.md` (ten groups, 22 tasks, test-first, the apply preconditions in task 1.1). Commits are one per capability: `docs(offering-catalog)` with the shared artifacts and this section, `docs(content-structure)` with its delta.
+
+**Product owner's answers of 2026-10-06 (recorded as given):**
+
+- **Q1:** the detail header shows no score. The Consensus tab shows the offering's `cuppingAvg` (the card's score, with the tier-word badge) only when the offering is verified; the SCA attribute averages with the read-only bean scale of `add-evaluation-scales`; the evaluation and defective counts; the concordances with a named scale (a 0–1 value from the API: below 0.50 Low, 0.50–0.75 Moderate, 0.75–0.90 High, 0.90 and above Excellent) and the value also as text; Defects and Main tastes through the evaluation's selector components in read-only mode with a consensus legend next to each card; and the `sensoryTaxonomy` and `cataConcordance` trees rendered by the `FlavorWheel` component of `add-flavor-wheel`. The Inventory data tab shows the roast lot, the production date, the coffee's fields, and the roastery and location by name only.
+- **Q2:** `LabelValueRow` and `Tabs` become shared content-structure containers in `src/shared/ui` in this change, with their own delta and commit scope. → `specs/content-structure/spec.md`, design.md D5–D6, tasks groups 2–3.
+
+**FlavorWheel source:** the branch `claude/add-flavor-wheel-propose` does not exist in this repository (`git show` reports an unknown revision), so the change is designed against the fallback interface `<FlavorWheel tree counts total texts />` with the per-segment legend `n/total` and the hover/focus description (design.md D14).
+
+**Source note:** the explore report of 2026-10-06 is not present in this worktree, so its settled corrections 1–17 and defaults Q3–Q14 could not be re-read in this session. The orchestrator states they apply; everything traceable through the decisions log (its newest entry, "catálogo: detalle y consenso; filtros: cascada y división", overriding older text) and through this summary's recommendations was applied as those defaults, listed below.
+
+**Resolved, with its decision:**
+
+1. Open 1 → the offerings fetch takes a query (decisions log, "petición de ofertas con query"); landing delegates with `verified=1` and keeps its behaviour and tests (design.md D2).
+2. Open 2 → already resolved by `extract-page-section` (merged): both screens render through `PageSection`.
+3. Open 3 → (a): card, pagination and retry labels stay in the `landing` area; the screens' own texts go in a new `catalog` area (design.md D16).
+4. Open 4 → (a) with Q1's wording: the descriptions, coordinates and ULIDs are out; the Inventory data tab shows the roastery and location by name only (design.md D11).
+5. Open 5 → superseded by Q1: the averages render on the read-only bean scale, with the value as text (design.md D12).
+6. Open 6 → superseded by the tab decision and Q1: two tabs, "Inventory data" and "Consensus", with the active tab in `?tab=`; the provisional-evaluation tab stays a later change (design.md D7, D11–D14).
+7. Open 7 → (a): every failure — an undocumented `404` of `getAnOffering` included — shows the one error state with Retry (design.md, "How errors reach the user").
+8. Open 8 → (a): the back link targets `/{locale}/offerings`.
+9. Open 9 → (a): the detail shows the Evaluate link with the card's rule and target (design.md D9).
+10. Open 10 → (a): the four `badge-text`/rating pairs join this change's guard task (design.md D15).
+11. Open 11 → (a): the catalog is the "Top rated" destination; no `app-shell` change.
+12. Open 12 → (a): document title `Tazavera` on both screens (design.md D17).
+13. Open 13 → (a): one heading whatever the query.
+14. Open 14 → the English and Catalan strings and the new Spanish keys remain proposals (design.md D16).
+15. add-filter-controls Open 14 (a), decided here: the catalog grid follows the width available to the results region (CSS container queries), so the sidebar narrows the columns instead of squeezing the cards (design.md D10).
+16. add-public-evaluations Open 7 (a) and Open 8 (a), passed to this propose: the single-offering fetch lives in `src/entities/offering/api` (design.md D3) and `RetryButton` moves to `src/shared/ui` (design.md D4).
+17. Design details settled in design.md (no product decision changes): the consensus legend beside each selection card is one `{name} {count}/{total}` line per identified note, by parallel with the wheel's segment legend (D13, Open Questions); the tab values `inventory` (default) and `consensus` (D7); the tabs' presentation and manual keyboard activation (D6); the Consensus panel's card grouping and the Inventory panel's single card (D11–D12).
+
+**Apply dependencies (tasks.md §0):** `add-evaluation-scales`, `replace-offering-card-session` and `add-flavor-wheel` merged into `develop`, and `develop` merged into this branch, before any other work. `add-offering-facets` fills the body toolbar slot later and is not needed to apply.
+
+**Scope:** the change covers two screens, the two shared containers and the widget generalization, which exceeds one implementation session. `tasks.md` keeps the smallest split boundary explicit — groups 6 (catalog list page) against groups 7–9 (detail page) — so the change can be split there without rewriting the artifacts. Product owner decides whether to split.
+
+**Remaining open (nothing blocking propose or apply):** the two Open Questions of `design.md` — the consensus legend's wording and content (settled here by parallel with the wheel's legend), and `FlavorWheel`'s final prop names at its merge (only the call site adapts). Backlog: no entry in `docs/backlog.md` names this change (R1, R3, R4, R5, R8), and the change resolves none.
+
+**Artifact review 2026-10-06 (orchestrator mandate in Product owner's absence; decisions log on `develop`, "add-public-evaluations aprobado y piezas compartidas"):** Product owner may reopen these points.
+
+1. **Consensus score contrast** (design lead's measurement: `badge-text` of the rating badge at 4.38:1 for the commercial tier and 4.53:1 for the exceptional tier in the traditional theme, with the score row on the section background). Without any new token, the Consensus score row renders inside its own `Card layout="stacked"` on the card surface, where the `badge-text`/rating pairs are already registered and pass (4.69–5.12 over `surface-card`). → design.md D12 (the "no box" layout is replaced, with the measured values and the reason), tasks 9.1–9.2 (the test expectations and the implementation name the card).
+2. **One `fetchOffering` contract shared with `add-specialist-evaluations` (its D1).** Through `publicRequest`, resolving found / not-found / failed and never throwing; whichever change merges second adapts only its call. → design.md D3 (rewritten around this contract) and, for coherence, "How errors reach the user" and D8 (reconciled with the non-throwing read); tasks 5.1–5.2 (the tested outcomes and the conditional reuse).
+3. **Descriptor-row builder in `src/entities/taxonomy` (design.md D13).** Shared with `add-specialist-evaluations` (its D7) and `add-public-evaluations`; if `develop` already provides it when this change applies, it is reused instead of created. → design.md D13, the derived types (`ChipRow` is declared with the builder) and the file map; tasks 9.5–9.6 (the builder's rule cases and the conditional reuse); proposal.md's change list and impact follow points 2 and 3.
+
+- `specs/offering-catalog/spec.md` and `specs/content-structure/spec.md` are unchanged: the three points change no scenario (point 1 only moves the score into a card).
+- Superseded in this summary (the summary is not edited outside this section, and design.md governs per its Context): §4 "Score row … No box of its own" and §6.3 "Score row: as the card's … No box of its own" — the score row now renders inside a card.
+- `openspec validate add-offering-catalog --strict`: **valid** (`Change 'add-offering-catalog' is valid`, run after the artifact edits).

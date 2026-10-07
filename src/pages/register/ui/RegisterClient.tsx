@@ -50,7 +50,7 @@ export function RegisterClient({
   if (authenticated) return null;
 
   return (
-    <Card>
+    <Card variant="section">
       <CardContent>
         {session.state === "loading" ? (
           <LoadingStatus text={texts.loading} />
