@@ -33,3 +33,11 @@ Source: Product owner's decision of 2026-10-07 (decisions log, "superficies de p
 1. **Per-axis sections are section cards.** The five per-axis sections of the Consensus tab (round 1 point 3) become `Card variant="section"` with the collapsible header in the band, in the sections group's 1rem gap.
 2. **Detail on the backdrop.** On the offering detail, the header block and the tab bar sit on the page backdrop (not in a `surface="section"` band); the tab panels' cards hang from it. Every gated pair of the tab bar that moves onto `surface-page` is registered in the theme contrast matrix and passes.
 3. **List margins.** The single column of the catalog list fills its container on the backdrop, with the side margins of the refine-page-surfaces §5.5 table (round 1 point 4 already placed the results in `PageSection surface="page"`).
+
+### Status
+- Date: 2026-10-07 (architect agent, scheduled cloud session).
+- `openspec validate add-offering-catalog --strict`: valid (`Change 'add-offering-catalog' is valid`).
+1. spec.md "Consensus detail by axis" (section cards with the collapsible header in the band, 1rem apart, no card around them); design.md D18, D12 (row and card note) → tasks 12.1, 12.2.
+2. spec.md "Offering detail page" (new scenario "Detail on the page background"); design.md D6 (tab bar on `surface-page`), D9 (one `PageSection surface="page"`, header block and tabs 2rem apart; loading fallback alike), D15 (new row `border-accent` / `surface-page`, bound, 6.64 / 4.89; `text-secondary` 5.86 / 8.57, `text-primary` 6.21 / 14.28 and `focus-ring` 11.17 / 14.28 on `surface-page` already registered; all pass, no token added) → tasks 12.1, 12.2.
+3. design.md D10 (side margins of the `refine-page-surfaces` §5.5 table, now merged); no spec change and no code task: tasks 11.1–11.2 already render the column filling the `PageSection surface="page"` container. Browser check in task 12.3.
+- Browser check of the round: task 12.3.

@@ -82,11 +82,15 @@ The catalog's cards SHALL render in a single column at every viewport width, 1.5
 - **THEN** the column is centered in the region and the page background shows in the side margins on both sides of it
 
 ### Requirement: Offering detail page
-The offering detail route SHALL render one offering of the API, in the locale of the route and with no sign-in required: a back link to the offerings route, the verification state badge, the coffee name as the page heading, the coffeeshop name and the roaster name as labeled captions, an Evaluate link for a signed-in specialist only, and the offering's tabs below the header. It SHALL show no score in the header and SHALL cover loading, success and error states.
+The offering detail route SHALL render one offering of the API, in the locale of the route and with no sign-in required: a back link to the offerings route, the verification state badge, the coffee name as the page heading, the coffeeshop name and the roaster name as labeled captions, an Evaluate link for a signed-in specialist only, and the offering's tabs below the header. The header and the tabs SHALL sit on the page background, with the tab panels' cards hanging from it. It SHALL show no score in the header and SHALL cover loading, success and error states.
 
 #### Scenario: Header
 - **WHEN** the visitor opens the detail route of an offering
 - **THEN** the verification badge, the coffee name heading and the coffeeshop and roaster captions render with the API's names, and no score renders in the header
+
+#### Scenario: Detail on the page background
+- **WHEN** the detail of an offering renders
+- **THEN** the back link, the header, the tab bar and the panels' cards render on the page background, and no section background renders on the page
 
 #### Scenario: Evaluate link for specialists
 - **WHEN** the viewer is signed in with the specialist role
@@ -249,11 +253,11 @@ When the CATA wheel holds aromatic and mouthfeel notes — a note is mouthfeel w
 - **THEN** each group is named as text in the general legend, so telling the groups apart never rests on colour
 
 ### Requirement: Consensus detail by axis
-Below a heading, the Consensus tab SHALL show one collapsible section per sensory-taxonomy axis — fragrance, aroma, flavor, aftertaste, mouthfeel, in that order — titled with the axis name and collapsed by default. Each SHALL show the axis's identified notes as read-only taxonomy badges in descriptor rows (level 2 not shown) and beside them a legend with each shown note's `n/total` share; an axis with no identified note SHALL show the empty text and no legend.
+Below a heading, the Consensus tab SHALL show one collapsible section per sensory-taxonomy axis — fragrance, aroma, flavor, aftertaste, mouthfeel, in that order — titled with the axis name and collapsed by default. Each section SHALL be a section card whose header band holds its collapsible header, the five cards 1rem apart on the page background with no card around them. Each SHALL show the axis's identified notes as read-only taxonomy badges in descriptor rows (level 2 not shown) and beside them a legend with each shown note's `n/total` share; an axis with no identified note SHALL show the empty text and no legend.
 
 #### Scenario: Sections collapsed by default
 - **WHEN** the Consensus tab renders
-- **THEN** five sections render in the axis order, each titled with its axis name, and each is collapsed with its content out of the tab order
+- **THEN** five section cards render in the axis order, 1rem apart, each with its axis name in its header band, and each is collapsed with its content out of the tab order
 
 #### Scenario: Identified notes of an axis
 - **WHEN** the visitor expands an axis section whose axis carries identified notes
