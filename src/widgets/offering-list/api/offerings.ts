@@ -50,7 +50,7 @@ export async function fetchOfferings(
 }
 
 /** Offerings per landing page (refine-list-pagination design.md D8). */
-const LANDING_PAGE_SIZE = 6;
+export const LANDING_PAGE_SIZE = 6;
 
 /**
  * One page of verified offerings:
