@@ -1,0 +1,35 @@
+import type { CoffeeSummary } from "./index";
+
+/**
+ * The public coffee catalog read (add-offering-facets design.md D1). The
+ * contract attaches no security scheme, so it runs on the server with plain
+ * `fetch` against `NEXT_PUBLIC_API_URL` and no credential header. Any non-2xx
+ * status or transport failure throws; the facets map it to "Options
+ * unavailable".
+ */
+
+/** The coffee fields the facets list. */
+export type CoffeeFacetField = "country" | "region" | "process" | "variety" | "producer";
+
+/** Every coffee of the catalog: `GET /coffees` `data`. */
+export async function fetchCoffees(): Promise<CoffeeSummary[]> {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/coffees`);
+  if (!response.ok) {
+    throw new Error("coffees request failed");
+  }
+  const payload: { data?: CoffeeSummary[] } = await response.json();
+  return payload.data ?? [];
+}
+
+/** The distinct non-empty values of one field, sorted alphabetically. */
+export function distinctCoffeeValues(
+  coffees: readonly CoffeeSummary[],
+  field: CoffeeFacetField,
+): string[] {
+  const values = new Set<string>();
+  for (const coffee of coffees) {
+    const value = coffee[field];
+    if (typeof value === "string" && value !== "") values.add(value);
+  }
+  return [...values].sort((a, b) => a.localeCompare(b));
+}

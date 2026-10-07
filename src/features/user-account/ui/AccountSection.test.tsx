@@ -1,4 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
+import { createRef } from "react";
 import { render, screen, cleanup } from "@testing-library/react";
 import { AccountSection } from "@/features/user-account";
 
@@ -35,5 +36,69 @@ describe("AccountSection", () => {
     );
     const region = screen.getByRole("region", { name: "fx-heading" });
     expect(region.querySelectorAll("p")).toHaveLength(1);
+  });
+
+  it("is a section card with a subtle border and no accent edge", () => {
+    render(
+      <AccountSection heading="fx-heading">
+        <p>fx-content</p>
+      </AccountSection>,
+    );
+    const card = screen.getByRole("region", { name: "fx-heading" })
+      .firstElementChild!;
+    expect(card.classList.contains("border")).toBe(true);
+    expect(card.classList.contains("border-border-subtle")).toBe(true);
+    expect(card.classList.contains("border-l-4")).toBe(false);
+  });
+
+  it("holds the heading block in the header band, and the content outside it", () => {
+    const { unmount } = render(
+      <AccountSection heading="fx-heading" description="fx-description">
+        <p>fx-content</p>
+      </AccountSection>,
+    );
+    let band = screen
+      .getByRole("heading", { level: 2, name: "fx-heading" })
+      .closest(".bg-surface-section");
+    expect(band).not.toBeNull();
+    expect(band!.contains(screen.getByText("fx-description"))).toBe(true);
+    expect(band!.contains(screen.getByText("fx-content"))).toBe(false);
+    unmount();
+
+    render(
+      <AccountSection heading="fx-heading">
+        <p>fx-content</p>
+      </AccountSection>,
+    );
+    band = screen
+      .getByRole("heading", { level: 2, name: "fx-heading" })
+      .closest(".bg-surface-section");
+    expect(band).not.toBeNull();
+    expect(band!.textContent).toBe("fx-heading");
+    expect(band!.contains(screen.getByText("fx-content"))).toBe(false);
+  });
+});
+
+describe("AccountSection — headingRef", () => {
+  it("gives the h2 the ref and tabIndex -1 when headingRef is given", () => {
+    const headingRef = createRef<HTMLHeadingElement>();
+    render(
+      <AccountSection heading="fx-heading" headingRef={headingRef}>
+        <p>fx-content</p>
+      </AccountSection>,
+    );
+    const heading = screen.getByRole("heading", { level: 2, name: "fx-heading" });
+    expect(headingRef.current).toBe(heading);
+    expect(heading.getAttribute("tabindex")).toBe("-1");
+  });
+
+  it("renders the h2 with no tabIndex without headingRef", () => {
+    render(
+      <AccountSection heading="fx-heading">
+        <p>fx-content</p>
+      </AccountSection>,
+    );
+    const heading = screen.getByRole("heading", { level: 2, name: "fx-heading" });
+    expect(heading.hasAttribute("tabindex")).toBe(false);
   });
 });

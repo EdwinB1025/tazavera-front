@@ -1,9 +1,10 @@
 "use client";
 
-import { useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useContext, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Command } from "cmdk";
 import { Popover } from "radix-ui";
 import { Check } from "@/shared/ui/icons";
+import { FieldContext } from "@/shared/ui/field-context";
 import { Input, type InputVariant } from "./Input";
 import {
   MIN_SEARCH_LENGTH,
@@ -79,7 +80,11 @@ const NO_SEARCH: ComboboxSearch = async () => [];
  * "contains"; search mode runs the consumer's search through
  * `useComboboxSearch`. cmdk fixes `aria-expanded="true"` and its own input
  * id, so a layout effect after every render sets `aria-expanded` to the
- * popup state and the visible label's `for` to the input id.
+ * popup state and the visible label's `for` to the input id. Inside a
+ * `Field` (design.md D14) it renders no label or help of its own: the input
+ * keeps cmdk's id, which cmdk needs to refocus it when results change, and
+ * drops cmdk's `aria-labelledby`; the same effect points the Field's label
+ * at that id, so the Field's label names it and its help and error describe it.
  */
 export function Combobox({
   label,
@@ -94,9 +99,11 @@ export function Combobox({
   options,
   search,
 }: ComboboxProps): ReactNode {
+  const field = useContext(FieldContext);
+  const inField = field !== null;
   const helpId = useId();
-  const hasHelp = help != null && help !== "";
-  const labelRef = useRef<HTMLLabelElement>(null);
+  const hasHelp = !inField && help != null && help !== "";
+  const labelRef = useRef<HTMLLabelElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const searchMode = search !== undefined;
   // cmdk highlights the first option as soon as the rows change; the next
@@ -142,6 +149,12 @@ export function Combobox({
     const input = inputRef.current;
     if (!input) return;
     input.setAttribute("aria-expanded", String(open));
+    if (inField && labelRef.current === null) {
+      labelRef.current =
+        Array.from(document.getElementsByTagName("label")).find(
+          (label) => label.htmlFor === field.controlId,
+        ) ?? null;
+    }
     labelRef.current?.setAttribute("for", input.id);
   });
 
@@ -173,10 +186,12 @@ export function Combobox({
 
   return (
     <div className={variant === "inverse" ? "variant-inverse" : undefined}>
-      <label ref={labelRef} className="type-label">
-        {label}
-      </label>
-      <Command label={label} shouldFilter={false} vimBindings={false}>
+      {!inField && (
+        <label ref={labelRef} className="type-label">
+          {label}
+        </label>
+      )}
+      <Command label={inField ? undefined : label} shouldFilter={false} vimBindings={false}>
         <Popover.Root open={open} onOpenChange={setOpen} modal={false}>
           <Popover.Anchor>
             <Command.Input
@@ -213,6 +228,7 @@ export function Combobox({
                 maxLength={maxLength}
                 disabled={disabled}
                 aria-describedby={hasHelp ? helpId : undefined}
+                {...(inField && { "aria-labelledby": undefined })}
               />
             </Command.Input>
           </Popover.Anchor>

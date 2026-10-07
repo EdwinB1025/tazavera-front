@@ -4,12 +4,11 @@ import { useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { signIn, useSession } from "@/features/auth";
 import {
-  LoadingStatus,
   RegisterForm,
   type RegisterFormTexts,
   type RegisterRole,
 } from "@/features/user-account";
-import { Card, CardContent } from "@/shared/ui";
+import { Card, CardContent, LoadingStatus } from "@/shared/ui";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -50,7 +49,7 @@ export function RegisterClient({
   if (authenticated) return null;
 
   return (
-    <Card>
+    <Card variant="section">
       <CardContent>
         {session.state === "loading" ? (
           <LoadingStatus text={texts.loading} />

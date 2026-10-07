@@ -40,6 +40,16 @@ import {
   IntensitySlider,
   DescriptorChipGroup,
   ConfirmDialog,
+  LabelValueRow,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  LoadingStatus,
+  FormStatus,
+  StepUpNotice,
+  SessionGate,
+  SignedOutPrompt,
 } from "@/shared/ui";
 // Inside `src/shared/ui` the geometry comes from `./Badge` (design.md D5):
 // this is the single definition the segment entry must re-export.
@@ -282,7 +292,12 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
 
   it("renders the bean scale exported from the segment", () => {
     render(
-      <BeanScale label="Aroma" value={null} valueText="–/9" onChange={() => {}} />,
+      <BeanScale
+        label="Aroma"
+        value={null}
+        valueText="–/9"
+        onChange={() => {}}
+      />,
     );
     expect(screen.getByRole("radiogroup", { name: "Aroma" })).toBeDefined();
   });
@@ -335,5 +350,77 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
     expect(
       screen.getByRole("alertdialog", { name: "Delete this evaluation?" }),
     ).toBeDefined();
+  });
+
+  it("renders the label/value row exported from the segment", () => {
+    render(
+      <dl>
+        <LabelValueRow label="Country" value="Colombia" />
+      </dl>,
+    );
+    expect(screen.getByText("Country").tagName).toBe("DT");
+    expect(screen.getByText("Colombia").tagName).toBe("DD");
+  });
+
+  it("renders the tabs exported from the segment", () => {
+    render(
+      <Tabs value="one" onValueChange={() => {}}>
+        <TabsList>
+          <TabsTrigger value="one">One</TabsTrigger>
+          <TabsTrigger value="two">Two</TabsTrigger>
+        </TabsList>
+        <TabsContent value="one">Panel one</TabsContent>
+        <TabsContent value="two">Panel two</TabsContent>
+      </Tabs>,
+    );
+    expect(screen.getByRole("tab", { name: "One" })).toBeDefined();
+    expect(screen.getByRole("tabpanel").textContent).toBe("Panel one");
+  });
+
+  it("renders the loading status exported from the segment", () => {
+    render(<LoadingStatus text="Loading" />);
+    expect(screen.getByRole("status").textContent).toBe("Loading");
+  });
+
+  it("renders the form status exported from the segment", () => {
+    render(<FormStatus kind="error" text="Something failed" />);
+    expect(screen.getByRole("alert").textContent).toBe("Something failed");
+  });
+
+  it("renders the step-up notice exported from the segment", () => {
+    render(
+      <StepUpNotice
+        text="Confirm it is you"
+        actionLabel="Confirm identity"
+        onConfirm={() => {}}
+      />,
+    );
+    expect(
+      screen.getByRole("button", { name: "Confirm identity" }),
+    ).toBeDefined();
+  });
+
+  it("renders the session gate exported from the segment", () => {
+    render(
+      <SessionGate
+        session={{ state: "anonymous" }}
+        loading={<p>Loading</p>}
+        signedOut={<p>Signed out</p>}
+      >
+        {() => <p>Content</p>}
+      </SessionGate>,
+    );
+    expect(screen.getByText("Signed out")).toBeDefined();
+  });
+
+  it("renders the signed-out prompt exported from the segment", () => {
+    render(
+      <SignedOutPrompt
+        text="Sign in to continue"
+        signInLabel="Sign in"
+        onSignIn={() => {}}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Sign in" })).toBeDefined();
   });
 });

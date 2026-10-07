@@ -74,6 +74,8 @@ export {
 // The whole Sidebar module (its parts, `useSidebar` and `SIDEBAR_ID`):
 // re-exported as a set so this server-safe entry names no hook itself.
 export * from "./Sidebar";
+export { FiltersTrigger } from "./FiltersTrigger";
+export type { FiltersTriggerProps } from "./FiltersTrigger";
 export { Card, CardAside, CardContent, CardFooter } from "./Card";
 export type {
   CardLayout,
@@ -98,6 +100,7 @@ export type {
 } from "./Collapsible";
 export { FlavorWheel } from "./FlavorWheel";
 export type {
+  FlavorWheelGroup,
   FlavorWheelNode,
   FlavorWheelTexts,
   FlavorWheelProps,
@@ -135,3 +138,26 @@ export type {
   ComboboxSearch,
   ComboboxTexts,
 } from "./Combobox";
+export { LabelValueRow } from "./LabelValueRow";
+export type { LabelValueRowProps } from "./LabelValueRow";
+export { Tabs, TabsList, TabsTrigger, TabsContent } from "./Tabs";
+export type {
+  TabsProps,
+  TabsListProps,
+  TabsTriggerProps,
+  TabsContentProps,
+} from "./Tabs";
+export { RetryButton } from "./RetryButton";
+export type { RetryButtonProps } from "./RetryButton";
+export { LoadingStatus } from "./LoadingStatus";
+export type { LoadingStatusProps } from "./LoadingStatus";
+export { FormStatus } from "./FormStatus";
+export type { FormStatusKind, FormStatusProps } from "./FormStatus";
+export { StepUpNotice } from "./StepUpNotice";
+export type { StepUpNoticeProps } from "./StepUpNotice";
+export { SessionGate } from "./SessionGate";
+export type { SessionGateProps } from "./SessionGate";
+export { SignedOutPrompt } from "./SignedOutPrompt";
+export type { SignedOutPromptProps } from "./SignedOutPrompt";
+export { ClearFiltersButton } from "./ClearFiltersButton";
+export type { ClearFiltersButtonProps } from "./ClearFiltersButton";

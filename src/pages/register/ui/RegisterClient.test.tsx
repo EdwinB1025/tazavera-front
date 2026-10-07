@@ -112,6 +112,24 @@ describe("RegisterClient — the session gate", () => {
   });
 });
 
+describe("RegisterClient — the card", () => {
+  it("while loading and while anonymous is a section card with a subtle border, no accent edge and no header band", () => {
+    for (const session of [
+      { state: "loading" },
+      { state: "anonymous" },
+    ] satisfies Session[]) {
+      auth.session = session;
+      const { container } = renderClient();
+      const card = container.firstElementChild!;
+      expect(card.classList.contains("border")).toBe(true);
+      expect(card.classList.contains("border-border-subtle")).toBe(true);
+      expect(card.classList.contains("border-l-4")).toBe(false);
+      expect(container.querySelector(".bg-surface-section")).toBeNull();
+      cleanup();
+    }
+  });
+});
+
 describe("RegisterClient — injection", () => {
   it("passes the route's role to the form", async () => {
     auth.session = { state: "anonymous" };
