@@ -19,3 +19,19 @@ Source: Product owner's answers of 2026-10-06 (decisions log, "secciones plegabl
 3. design.md D15 (1rem header spacing, `CardAside` padding 0.5rem); tasks 11.1–11.2 and 11.5.
 4. spec.md "Evaluation form" (collapsed card shows only its header row, no border under it); design.md D15; tasks 11.1–11.2 and 11.5.
 5. spec.md "Closing an incomplete evaluation" (incomplete groups highlighted and expanded); design.md D15 (a `409` on close is the only submit that reveals missing values inside groups; the roast level is in the non-collapsible context card); tasks 11.3–11.4.
+
+## Round 2
+
+Source: Product owner's answer of 2026-10-07 to handoff Q10 (option b) and Product owner's decision of 2026-10-07 on evaluations of a deleted offering, written down by the orchestrator. Visual reference: the MVC form, `resources/views/livewire/evaluations/evaluation-form.blade.php:67-89`.
+
+1. **1–9 legend.** The evaluation form gains an informative collapsible section, "Impresión de calidad afectiva" (en "Affective quality impression", ca "Impressió de qualitat afectiva"), placed right after Main tastes. It uses the shared `Collapsible` and follows the round 1 initial-state rule (collapsed in an editable evaluation, expanded in a closed one). It lists the nine values, each with its numbered bean icon, in the SCA order (not the MVC's, whose 3-column grid pairs labels with the wrong numbers):
+   - es: 1 Extremadamente baja, 2 Muy baja, 3 Moderadamente baja, 4 Ligeramente baja, 5 Ni alta ni baja, 6 Ligeramente alta, 7 Moderadamente alta, 8 Muy alta, 9 Extremadamente alta.
+   - en: Extremely low, Very low, Moderately low, Slightly low, Neither high nor low, Slightly high, Moderately high, Very high, Extremely high.
+   - ca: Extremadament baixa, Molt baixa, Moderadament baixa, Lleugerament baixa, Ni alta ni baixa, Lleugerament alta, Moderadament alta, Molt alta, Extremadament alta.
+   The en and ca texts are proposed; Product owner may change them.
+2. **Evaluation of a deleted offering.** Product owner's decision of 2026-10-07 (decisions log, "API: borrar una oferta con evaluaciones"; confirmed the same day: assume it nullable): when an offering is deleted, the API keeps its specialist evaluations and returns them with `offeringId: null`. The front handles it:
+   - the list row shows "Oferta inexistente" (en "Offering no longer exists", ca "Oferta inexistent") in place of the offering's data, and requests no offering for that row;
+   - opening such an evaluation shows it read-only, with the same message in place of the offering's context: it cannot be edited or closed (the API's `update` and `close` need the offering); deleting it stays available;
+   - the en and ca texts are proposed; Product owner may change them.
+   - when there is no offering, "Oferta inexistente" replaces the offering header together with the roast level that comes from the offering's coffee; the extraction method stays.
+   Contract: the `deleteAnOffering` / `deleteMultipleOfferings` descriptions (contract `290d22e`) communicate the case, but the response schema still types `offeringId` as a non-nullable string; the front narrows the type to `string | null` at one read point (no edit to `schema.ts`). No task waits for the contract.
