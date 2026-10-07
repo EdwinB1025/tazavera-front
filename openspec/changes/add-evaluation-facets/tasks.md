@@ -21,7 +21,7 @@ Apply preconditions: `extract-clear-filters-button` is merged into `develop` (de
 
 ## 4. Applied filters
 
-- [ ] 4.1 Write `src/features/evaluation-facets/model/applied.test.ts` for `appliedEvaluationFilters` (design.md D5). Cases: no value → empty list; one entry per applied value in facet order (Status, Score, Process, City); `status=open` → value "Open" and `status=closed` → "Closed" from the texts; the score pair → one entry "80–100" from the `scoreRange` text whose `remove` drops both keys; each other entry's `remove` sets only its key to `undefined`; the sort never produces an entry. Expected: fails only for the missing module. Commit `test(filtering): verify the applied evaluation filters`.
+- [x] 4.1 Write `src/features/evaluation-facets/model/applied.test.ts` for `appliedEvaluationFilters` (design.md D5). Cases: no value → empty list; one entry per applied value in facet order (Status, Score, Process, City); `status=open` → value "Open" and `status=closed` → "Closed" from the texts; the score pair → one entry "80–100" from the `scoreRange` text whose `remove` drops both keys; each other entry's `remove` sets only its key to `undefined`; the sort never produces an entry. Expected: fails only for the missing module. Commit `test(filtering): verify the applied evaluation filters`.
 - [ ] 4.2 Implement `src/features/evaluation-facets/model/applied.ts`. Verify: 4.1 passes; full suite, lint and typecheck pass. Commit `feat(filtering): list the applied evaluation filters`.
 
 ## 5. Texts
