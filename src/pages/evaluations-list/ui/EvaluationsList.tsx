@@ -52,6 +52,7 @@ async function loadPage(page: number): Promise<ListState> {
   if (!result.ok) {
     return { state: "error" };
   }
+  // A `null` id is a deleted offering: nothing to request (design.md D17).
   const ids = [...new Set(result.data.data.map((item) => item.offeringId ?? ""))].filter(Boolean);
   const offerings = new Map<string, OfferingDetail>();
   await Promise.all(

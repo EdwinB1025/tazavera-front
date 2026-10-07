@@ -47,6 +47,7 @@ export function EvaluationsListScreen({ locale }: EvaluationsListScreenProps): R
     deleteCancelLabel: catalog.deleteCancelLabel,
     notYoursMessage: catalog.notYoursMessage,
     failureMessage: catalog.failureMessage,
+    offeringMissingLabel: catalog.offeringMissingLabel,
   };
 
   return (

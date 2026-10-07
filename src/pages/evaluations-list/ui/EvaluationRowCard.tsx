@@ -24,6 +24,8 @@ export type EvaluationRowTexts = DeleteEvaluationTexts & {
   ratingExcellentLabel: string;
   ratingGoodLabel: string;
   ratingCommercialLabel: string;
+  /** Shown in place of the offering when its `offeringId` is `null` (design.md D17). */
+  offeringMissingLabel: string;
 };
 
 export type EvaluationRowCardProps = {
@@ -72,6 +74,8 @@ export function EvaluationRowCard({
     "rating-commercial": texts.ratingCommercialLabel,
   };
   const closed = evaluation.status === "closed";
+  // The offering was deleted: the evaluation can only be viewed (design.md D17).
+  const orphan = evaluation.offeringId === null;
   const dateValue = closed ? evaluation.closedAt : evaluation.createdAt;
   const dateLabel = closed ? texts.closedOnLabel : texts.createdOnLabel;
   const coffeeshopCaption = `${texts.coffeeshopCaption} ${offering?.location?.name ?? ""}`.trim();
@@ -94,19 +98,23 @@ export function EvaluationRowCard({
         <Badge variant={closed ? "verified" : "provisional"}>
           {closed ? texts.closedLabel : texts.openLabel}
         </Badge>
-        <h3 className="type-card-heading">{offering?.coffeeInventory?.coffee?.name}</h3>
+        <h3 className="type-card-heading">
+          {orphan ? texts.offeringMissingLabel : offering?.coffeeInventory?.coffee?.name}
+        </h3>
         <p className="type-meta">
           {dateLabel}{" "}
           {dateValue ? <time dateTime={dateValue}>{datePart(dateValue)}</time> : null}
         </p>
-        <div>
-          <p className="type-label">{coffeeshopCaption}</p>
-          <p className="type-label">{roasterCaption}</p>
-        </div>
+        {orphan ? null : (
+          <div>
+            <p className="type-label">{coffeeshopCaption}</p>
+            <p className="type-label">{roasterCaption}</p>
+          </div>
+        )}
       </CardContent>
       <CardFooter className={FOOTER_CLASSES}>
         <Button variant="action-3" onClick={() => router.push(formRoute)}>
-          {closed ? texts.viewLabel : texts.editLabel}
+          {closed || orphan ? texts.viewLabel : texts.editLabel}
         </Button>
         <DeleteEvaluationAction
           ulid={evaluation.ulid ?? ""}
