@@ -16,8 +16,10 @@ Summary: a cloud session (routine trig_01MrBr2mSFjbbh1rHSyLaW1L, branch `claude/
 - Context: the cloud branch was based on develop f177e6c. / Decision: worktree `tazavera-front-refacet` created on `feature/refine-facet-controls` at `58629af`; local develop (wheel included) merged without conflicts (`8457a6c`). / Why: section 6 step 7.2, clean merge. / Result: `npm run test:run` 79 files, 1451 tests passed; pushed.
 
 ### Deferred to Product owner
+#### Q1 — ANSWERED 2026-10-07: archive and merge to develop; the design lead's browser review stands in for Product owner's check. Original entry below.
 #### Q1 — Archive
 - Question: archive and merge to develop after your browser check. / Why deferred: UI change; the overnight mandate archives only non-UI changes. / Recommendation: archive; must land before the apply of `add-offering-facets`. / Blocks: add-offering-facets apply.
+#### Q2 — ANSWERED 2026-10-07: backlog entry (R10, filtering, status accepted, affects add-offering-facets and add-evaluation-facets). Edit on `docs/backlog.md` is denied in the Product owner's session, so the entry text was handed to Product owner to add. Original entry below.
 #### Q2 — Row facet error boundary in light theme (outside this change)
 - Question: under an error, the row radio/checkbox boxes show the error boundary in dark but the cream boundary in light (`375-light.png` vs `375-dark.png`, "Proceso", "Solo disponibles"). Code from `add-facet-controls`; no consumer passes an error today. / Options: new change, or backlog entry. / Recommendation: backlog entry until a facet consumer shows errors. / Blocks: nothing.
 
