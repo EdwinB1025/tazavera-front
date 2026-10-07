@@ -26,7 +26,7 @@ Commit scope: `offering-management` for every task except 2.3 and 2.4 (`app-shel
 ## 4. Location card
 
 - [x] 4.1 Write `src/entities/location/ui/LocationCard.test.tsx` (D9; spec "Own locations list"): renders a stacked content card with an `h2` holding `name`; renders `description` only when it is a non-empty string (absent for `null` and `undefined`); renders the `details` slot after the description; renders the no-map line with `noMapText` and an `aria-hidden` icon only when `noMapText` is given; asserts the classes the build chooses for the summary §8 spacing. Verification: fails only because the component does not exist.
-- [ ] 4.2 Implement `LocationCard` and `src/entities/location/index.ts`. Verification: 4.1 passes; the color, radius and focus guards pass; all tests, lint and typecheck pass.
+- [x] 4.2 Implement `LocationCard` and `src/entities/location/index.ts`. Verification: 4.1 passes; the color, radius and focus guards pass; all tests, lint and typecheck pass.
 
 ## 5. Paired contact fields layout
 
