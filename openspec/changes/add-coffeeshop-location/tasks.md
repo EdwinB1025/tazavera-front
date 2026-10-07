@@ -46,7 +46,7 @@ Commit scope: `offering-management` for every task except 2.3 and 2.4 (`app-shel
 ## 8. Locations panel
 
 - [x] 8.1 Write `src/features/location-management/ui/LocationsPanel.test.tsx` (D3, D4; specs "Own locations list", "Empty locations state", "Location form", "Location creation"), `fetch` stubbed with the contract examples of `listAUsersLocations`: pending → `LoadingStatus`; 500 and a rejected fetch → `locationsLoadError` and "Try again", which reads again; `{ data: [] }` → one card with `locationsEmptyText` and "Add location", no list; with items → "Add location" above a `<ul>` labelled by the heading id with one `<li>` per location in order, each card showing the primary contact's non-null values and `locationNoMap` only for the location with null coordinates; "Add location" reveals the form in its place and focuses Name; Cancel restores the button and focuses it, in both the empty and the list states; a submit answered 201 with geocoding `found` closes the form, renders `locationCreated` only, re-reads the list and focuses the heading; with geocoding `not-found` renders `locationCreated` and `locationCreatedNoMap`; activating "Add location" clears the status; no geocoding request is sent while typing. Verification: fails only because the component does not exist.
-- [ ] 8.2 Implement `LocationsPanel` and `src/features/location-management/index.ts`. Verification: 8.1 passes; all tests, lint and typecheck pass.
+- [x] 8.2 Implement `LocationsPanel` and `src/features/location-management/index.ts`. Verification: 8.1 passes; all tests, lint and typecheck pass.
 
 ## 9. Locations page and its gate
 
