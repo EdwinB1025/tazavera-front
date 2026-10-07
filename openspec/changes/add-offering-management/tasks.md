@@ -46,7 +46,7 @@ Review round 1 replaces the two entries "My offerings" and "New offering" with o
 
 ## 9. Contrast guard pairs
 
-- [ ] 9.1 Register the six token pairs of design.md D12 in both contrast matrices of `src/app/styles/theme-tokens.test.ts`, beside their existing neighbours and only when not already registered by `add-offering-catalog` or `add-user-account`: `text-label`/`surface-card`, `text-label`/`surface-form`, `text-secondary`/`surface-form`, `text-link`/`surface-page`, `text-link`/`surface-form`, `text-link-hover`/`surface-form` (4.5 gate each). Verify: `npm run test:run` passes with the two matrices green in both themes (the pairs pass their gates per the summary's §5 measurements) and no other pair is added, removed or changed.
+- [x] 9.1 Register the six token pairs of design.md D12 in both contrast matrices of `src/app/styles/theme-tokens.test.ts`, beside their existing neighbours and only when not already registered by `add-offering-catalog` or `add-user-account`: `text-label`/`surface-card`, `text-label`/`surface-form`, `text-secondary`/`surface-form`, `text-link`/`surface-page`, `text-link`/`surface-form`, `text-link-hover`/`surface-form` (4.5 gate each). Verify: `npm run test:run` passes with the two matrices green in both themes (the pairs pass their gates per the summary's §5 measurements) and no other pair is added, removed or changed.
 
 ## 10. Integration checks
 

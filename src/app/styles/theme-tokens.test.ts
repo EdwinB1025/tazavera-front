@@ -301,12 +301,21 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "text-primary", bg: "surface-section-hover", kind: "text" },
   { fg: "text-secondary", bg: "surface-page", kind: "text" },
   { fg: "text-secondary", bg: "surface-section", kind: "text" },
+  // add-offering-management design.md D12
+  { fg: "text-secondary", bg: "surface-form", kind: "text" },
   { fg: "text-accent", bg: "surface-card", kind: "text" },
   { fg: "text-label", bg: "surface-page", kind: "text" },
+  // add-offering-management design.md D12
+  { fg: "text-label", bg: "surface-card", kind: "text" },
+  { fg: "text-label", bg: "surface-form", kind: "text" },
   { fg: "text-strong", bg: "surface-form", kind: "text" },
   { fg: "text-placeholder", bg: "surface-input", kind: "text" },
   { fg: "text-link", bg: "surface-card", kind: "text" },
   { fg: "text-link-hover", bg: "surface-card", kind: "text" },
+  // add-offering-management design.md D12
+  { fg: "text-link", bg: "surface-page", kind: "text" },
+  { fg: "text-link", bg: "surface-form", kind: "text" },
+  { fg: "text-link-hover", bg: "surface-form", kind: "text" },
   { fg: "action-primary-text", bg: "action-primary", kind: "text" },
   { fg: "action-primary-text", bg: "action-primary-hover", kind: "text" },
   { fg: "action-1-text", bg: "action-1-bg", kind: "text" },
@@ -680,12 +689,21 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "text-primary", bg: "surface-section-hover", kind: "text" },
   { fg: "text-secondary", bg: "surface-page", kind: "text" },
   { fg: "text-secondary", bg: "surface-section", kind: "text" },
+  // add-offering-management design.md D12
+  { fg: "text-secondary", bg: "surface-form", kind: "text" },
   { fg: "text-accent", bg: "surface-card", kind: "text" },
   { fg: "text-label", bg: "surface-page", kind: "text" },
+  // add-offering-management design.md D12
+  { fg: "text-label", bg: "surface-card", kind: "text" },
+  { fg: "text-label", bg: "surface-form", kind: "text" },
   { fg: "text-strong", bg: "surface-form", kind: "text" },
   { fg: "text-placeholder", bg: "surface-input", kind: "text" },
   { fg: "text-link", bg: "surface-card", kind: "text" },
   { fg: "text-link-hover", bg: "surface-card", kind: "text" },
+  // add-offering-management design.md D12
+  { fg: "text-link", bg: "surface-page", kind: "text" },
+  { fg: "text-link", bg: "surface-form", kind: "text" },
+  { fg: "text-link-hover", bg: "surface-form", kind: "text" },
   { fg: "action-primary-text", bg: "action-primary", kind: "text" },
   { fg: "action-primary-text", bg: "action-primary-hover", kind: "text" },
   { fg: "action-1-text", bg: "action-1-bg", kind: "text" },
