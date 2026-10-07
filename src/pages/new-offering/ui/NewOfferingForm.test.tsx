@@ -199,7 +199,7 @@ describe("NewOfferingForm — gate (design.md D6)", () => {
       user: { ulid: "01SPEC", role: "specialist", name: "Ana" },
     } as Session;
     renderForm();
-    expect(mocks.notFound).toHaveBeenCalled();
+    expect(mocks.notFound).toHaveBeenCalledTimes(1);
   });
 });
 
