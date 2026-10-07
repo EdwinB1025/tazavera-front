@@ -1,0 +1,73 @@
+import type { ReactNode } from "react";
+import type { OfferingDetail } from "@/shared/api";
+import { fetchEvaluations } from "@/entities/evaluation";
+import type { EvaluationsQuery } from "@/entities/evaluation";
+import { fetchOffering } from "@/entities/offering";
+import { EvaluationListPresentation } from "./EvaluationListPresentation";
+import type { EvaluationListResult, EvaluationListTexts } from "./EvaluationListPresentation";
+
+// ─── UI-specific types (declared before the component) ───
+
+export type PublicEvaluationListProps = {
+  locale: string;
+  /** The request query, fixed keys included (design.md D4). */
+  query: EvaluationsQuery;
+  /** The URL's search params, kept by the pagination. */
+  searchParams: Record<string, string | string[] | undefined>;
+  /** Whether a facet is applied. */
+  filtered: boolean;
+  texts: EvaluationListTexts;
+};
+
+/**
+ * The public evaluations block as a thin async Server Component (design.md
+ * D1, D4, D6): the list read, then one offering read per distinct non-null
+ * `offeringId` in parallel. A not-found or failed offering leaves its rows
+ * without an offering (offering unavailable); a `null` `offeringId` is never
+ * requested (offering missing). Every branch is delegated to the presentation.
+ */
+export async function PublicEvaluationList({
+  locale,
+  query,
+  searchParams,
+  filtered,
+  texts,
+}: PublicEvaluationListProps): Promise<ReactNode> {
+  let result: EvaluationListResult;
+  try {
+    const page = await fetchEvaluations(query);
+    const ids = [
+      ...new Set(page.data.flatMap((item) => (item.offeringId ? [item.offeringId] : []))),
+    ];
+    const offerings = new Map<string, OfferingDetail>();
+    await Promise.all(
+      ids.map(async (id) => {
+        const read = await fetchOffering(id);
+        if (read.status === "found") offerings.set(id, read.offering);
+      }),
+    );
+    result =
+      page.data.length === 0
+        ? { state: "empty" }
+        : {
+            state: "success",
+            rows: page.data.map((evaluation) => ({
+              evaluation,
+              offering: evaluation.offeringId ? (offerings.get(evaluation.offeringId) ?? null) : null,
+            })),
+            meta: page.meta,
+          };
+  } catch {
+    result = { state: "error" };
+  }
+
+  return (
+    <EvaluationListPresentation
+      result={result}
+      filtered={filtered}
+      locale={locale}
+      query={searchParams}
+      texts={texts}
+    />
+  );
+}
