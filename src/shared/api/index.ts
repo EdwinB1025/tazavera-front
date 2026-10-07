@@ -57,11 +57,20 @@ type ListMyEvaluationsResponse =
 type GetAnOfferingResponse =
   operations["getAnOffering"]["responses"][200]["content"]["application/json"];
 
+type GeneratedEvaluationItem = NonNullable<ListMyEvaluationsResponse["data"]>[number];
+
 /**
  * One item of `GET /user/evaluations` `data`. The `data` of `getMyEvaluation`,
  * `createAnEvaluation` and `updateAnEvaluation` has the same shape and reuses it.
+ *
+ * `offeringId` is narrowed to `string | null`: deleting an offering keeps its
+ * specialists' evaluations without an offering, as the `deleteAnOffering` and
+ * `deleteMultipleOfferings` descriptions state, while the response schema still
+ * types it as a string. This alias is the one read point that widens it.
  */
-export type EvaluationItem = NonNullable<ListMyEvaluationsResponse["data"]>[number];
+export type EvaluationItem = Omit<GeneratedEvaluationItem, "offeringId"> & {
+  offeringId?: string | null;
+};
 
 /** `meta` of `GET /user/evaluations`: `current_page`, `last_page`, `per_page`, `total`. */
 export type EvaluationPageMeta = NonNullable<ListMyEvaluationsResponse["meta"]>;
