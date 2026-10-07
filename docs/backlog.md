@@ -112,3 +112,14 @@ One section per candidate, in this format:
 - **Open decision (Augusto):** none
 - **Status:** proposed
 - **Affects:** none
+
+## R16 — Unused `fetchVerifiedOfferings` (refine-list-pagination verify W1)
+
+- **Duplicated:** two paths to the landing request. Since the unplanned fix `65ca95a`, `VerifiedOfferings` adds `perPage` and `Offerings` sends the request. `fetchVerifiedOfferings(page)` is now called only by its own tests.
+- **Where today:** `src/widgets/offering-list/api/offerings.ts` (`fetchVerifiedOfferings`), `offerings.test.ts` (its cases), and the comment in `src/entities/taxonomy/api/taxonomies.test.ts:8`
+- **Why it pays off now:** dead code with tests of its own suggests a path the landing does not use
+- **Owning capability:** landing
+- **Proposed change:** none yet; it can go into the test-suite reduction (it removes tests)
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** none
