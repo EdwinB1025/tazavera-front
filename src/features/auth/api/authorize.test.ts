@@ -49,6 +49,7 @@ const replaceRouteMock = vi.fn<(href: string) => void>();
 const locationMock = {
   assign: vi.fn<(url: string) => void>(),
   pathname: "/",
+  search: "",
 };
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -145,6 +146,7 @@ beforeEach(() => {
   replaceRouteMock.mockReset();
   locationMock.assign.mockReset();
   locationMock.pathname = "/";
+  locationMock.search = "";
   vi.stubGlobal("fetch", fetchMock);
   vi.stubGlobal("location", locationMock);
   vi.spyOn(crypto.subtle, "digest").mockImplementation(realmDigest);
@@ -250,6 +252,31 @@ describe("signIn — the popup start of design.md D10 (spec: Sign in)", () => {
     expect(pending).not.toBeNull();
     expect(pending!.returnRoute).toBe(route);
     expect(url.searchParams.get("state")).toBe(pending!.state);
+  });
+
+  it("keeps the path and the query of the current route as the default return route when the popup is blocked (fix-auth-return-query; spec: The return destination keeps the query)", async () => {
+    const { signIn, flow } = await load();
+    locationMock.pathname = "/es/manage/evaluations/new";
+    locationMock.search = "?offering=01J0";
+    openMock.mockReturnValue(null);
+
+    signIn();
+    await vi.waitFor(() => {
+      expect(locationMock.assign).toHaveBeenCalledTimes(1);
+    });
+
+    expect(flow.readFlow()!.returnRoute).toBe("/es/manage/evaluations/new?offering=01J0");
+  });
+
+  it("holds the path and the query of the current route as the default return route of a popup flow (fix-auth-return-query; spec: The return destination keeps the query)", async () => {
+    const { signIn, flow } = await load();
+    locationMock.pathname = "/es/manage/evaluations/new";
+    locationMock.search = "?offering=01J0";
+
+    signIn();
+    await awaitChallenge();
+
+    expect(flow.readHeldFlow()!.returnRoute).toBe("/es/manage/evaluations/new?offering=01J0");
   });
 });
 
