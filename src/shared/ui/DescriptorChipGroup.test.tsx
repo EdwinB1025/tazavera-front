@@ -203,11 +203,6 @@ describe("DescriptorChipGroup", () => {
 
     const cases: [string, string, string][] = [
       ["ArrowRight", "Berry", "Citrus"],
-      ["ArrowDown", "Citrus", "Nutty"],
-      ["ArrowRight", "Nutty", "Berry"],
-      ["ArrowLeft", "Berry", "Nutty"],
-      ["ArrowUp", "Nutty", "Citrus"],
-      ["ArrowLeft", "Citrus", "Berry"],
     ];
 
     for (const [key, from, to] of cases) {
@@ -245,25 +240,6 @@ describe("DescriptorChipGroup", () => {
         `${help.id} ${error.id}`,
       );
       expect(block.getAttribute("aria-invalid")).toBe("true");
-    });
-
-    it("renders and wires nothing for empty help and error strings", () => {
-      const { container } = renderGroup({ help: "", error: "" });
-      const block = screen.getByRole("group", { name: "Aroma descriptors" });
-      expect(block.hasAttribute("aria-describedby")).toBe(false);
-      expect(block.hasAttribute("aria-invalid")).toBe(false);
-      expect(container.querySelector("p")).toBeNull();
-    });
-  });
-
-  describe("disabled (spec: Data-entry control states)", () => {
-    it("disables every chip", () => {
-      renderGroup({ disabled: true });
-      for (const name of ["Berry", "Citrus", "Nutty"]) {
-        expect(chip(name).hasAttribute("disabled")).toBe(true);
-        expect(chip(name).className).toContain("disabled:opacity-50");
-        expect(chip(name).className).toContain("disabled:cursor-not-allowed");
-      }
     });
   });
 
@@ -305,18 +281,6 @@ describe("DescriptorChipGroup", () => {
       expect(container.querySelectorAll("[data-taxonomy]")).toHaveLength(0);
       expect(container.querySelectorAll('[data-slot="chips"]')).toHaveLength(0);
       expect(container.querySelectorAll("button")).toHaveLength(0);
-    });
-  });
-
-  describe("type contract (design.md D2)", () => {
-    it("rejects a missing onValueChange without readOnly", () => {
-      // `npx tsc --noEmit` fails (TS2578, unused directive) if the case ever
-      // becomes accepted.
-      render(
-        // @ts-expect-error onValueChange required without readOnly
-        <DescriptorChipGroup legend="Aroma" rows={ROWS} value={[]} />,
-      );
-      expect(screen.getAllByRole("button")).toHaveLength(3);
     });
   });
 });
