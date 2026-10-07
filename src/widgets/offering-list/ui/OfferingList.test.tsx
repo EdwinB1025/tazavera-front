@@ -369,4 +369,59 @@ describe("OfferingList", () => {
       );
     });
   });
+
+  describe("Filtered states (add-offering-facets design.md D9)", () => {
+    const COUNT_TEXTS = { ...TEXTS, resultCount: "Results: {count}" };
+
+    it("shows the empty action centered below the empty message, 1rem apart", () => {
+      render(
+        <OfferingList
+          result={{ state: "empty" }}
+          locale="es"
+          session={SPECIALIST}
+          texts={TEXTS}
+          emptyAction={<button type="button">Clear all</button>}
+        />,
+      );
+      const message = screen.getByText(TEXTS.emptyMessage);
+      const action = screen.getByRole("button", { name: "Clear all" });
+      expect(message.nextElementSibling).toBe(action);
+      expect(classTokens(message)).toEqual(expect.arrayContaining(["text-center", "text-text-primary"]));
+      expect(classTokens(message.parentElement!)).toEqual(
+        expect.arrayContaining(["flex", "flex-col", "items-center", "gap-4"]),
+      );
+    });
+
+    it("announces meta.total in a status element on success", () => {
+      render(
+        <OfferingList
+          result={{
+            state: "success",
+            items: [ITEM_ONE],
+            meta: { current_page: 1, last_page: 1, total: 12 },
+          }}
+          locale="es"
+          session={SPECIALIST}
+          texts={COUNT_TEXTS}
+        />,
+      );
+      expect(screen.getByRole("status").textContent).toBe("Results: 12");
+    });
+
+    it("announces 0 in the empty state", () => {
+      render(
+        <OfferingList result={{ state: "empty" }} locale="es" session={SPECIALIST} texts={COUNT_TEXTS} />,
+      );
+      expect(screen.getByRole("status").textContent).toBe("Results: 0");
+    });
+
+    it("renders no status and no action without the new props", () => {
+      renderList({ state: "empty" });
+      expect(screen.queryByRole("status")).toBeNull();
+      expect(screen.queryByRole("button")).toBeNull();
+      cleanup();
+      renderList({ state: "success", items: [ITEM_ONE], meta: { current_page: 1, last_page: 1, total: 1 } });
+      expect(screen.queryByRole("status")).toBeNull();
+    });
+  });
 });
