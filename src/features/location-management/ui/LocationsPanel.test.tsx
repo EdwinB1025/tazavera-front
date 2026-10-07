@@ -216,6 +216,17 @@ describe("LocationsPanel — reading (spec: Own locations list)", () => {
     expect(items[0].textContent).not.toContain(TEXTS.locationNoMap);
     expect(items[1].textContent).toContain(TEXTS.locationNoMap);
   });
+
+  it("shows the primary contact on the card, not the first one", async () => {
+    const primary = LOCATIONS[0].contacts[0];
+    const other = { ...primary, ulid: "01K5ZC0NT4C7A1H8M3Q7V1X4BC", isPrimary: false, address: "fx-other-address" };
+    request.mockResolvedValue(json(200, { data: [{ ...LOCATIONS[0], contacts: [other, primary] }] }));
+    renderPanel();
+    await settle();
+    const item = screen.getByRole("listitem");
+    expect(item.textContent).toContain(primary.address);
+    expect(item.textContent).not.toContain(other.address);
+  });
 });
 
 describe("LocationsPanel — reveal (spec: Location form)", () => {
