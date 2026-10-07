@@ -41,7 +41,7 @@ Commit scope: `offering-management` for every task except 2.3 and 2.4 (`app-shel
 ## 7. Location form
 
 - [x] 7.1 Write `src/features/location-management/ui/LocationForm.test.tsx` (D7; specs "Location form", "Location form checks", "Location creation failures"): section card with the band `h2` `newLocationHeading` naming the `<form noValidate>`; two `fieldset`s with legends `locationGroupLegend` and `contactGroupLegend`; Name (`autocomplete="organization"`, required, `maxLength` 150), Description (`Textarea`, `maxLength` 255) and the eight contact fields with Address and City required and the D7 `maxLength`s, `layout="paired"`; help `geocodingHelp`; attribution with one anchor `osmContributors` → `https://www.openstreetmap.org/copyright`, no `target`; submitting with empty Name/Address/City shows `requiredError` under each, `aria-invalid="true"`, focus on Name, and `onSubmit` not called; invalid Email → `emailFormatError`, focus on Email; while `submitting`, Save is busy and Cancel disabled; `error` renders `genericError` and `step-up` renders the step-up notice, each inside one `role="alert"` region above the actions, never both; "Confirm identity" calls the injected `requestProfileWrite` once with `/es/manage/locations` inside the click; values are kept after `error` and `step-up`; Cancel calls `onCancel`. Verification: fails only because the component does not exist.
-- [ ] 7.2 Implement `LocationForm`. Verification: 7.1 passes; the literal-text, XSS and client-boundary guards pass; all tests, lint and typecheck pass.
+- [x] 7.2 Implement `LocationForm`. Verification: 7.1 passes; the literal-text, XSS and client-boundary guards pass; all tests, lint and typecheck pass.
 
 ## 8. Locations panel
 
