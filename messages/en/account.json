@@ -46,5 +46,11 @@
   "forgotPasswordLink": "Forgot your password?",
   "newPasswordLabel": "New password",
   "currentPasswordLabel": "Current password",
-  "passwordUpdated": "Password changed"
+  "passwordUpdated": "Password changed",
+  "contactHeading": "Contact details",
+  "contactDescription": "Your personal contact information.",
+  "contactEmptyText": "You have not added your contact details yet.",
+  "contactAddButton": "Add contact details",
+  "contactLoadError": "Your contact details could not be loaded.",
+  "retry": "Try again"
 }

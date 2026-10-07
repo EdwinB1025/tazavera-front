@@ -11,12 +11,13 @@ export type AccountScreenProps = {
 
 /**
  * Account screen (design.md D1, D3 and D10; spec "Account page and its
- * session gate"). A server composition: it loads the `account` catalog of the
- * route's locale, renders the heading block and the client sections region,
- * which receives every text as props.
+ * session gate"). A server composition: it loads the `account` and `contact`
+ * catalogs of the route's locale, renders the heading block and the client
+ * sections region, which receives every text as props.
  */
 export function AccountScreen({ locale }: AccountScreenProps): ReactNode {
   const catalog = getMessages("account", locale);
+  const contactCatalog = getMessages("contact", locale);
 
   const texts: AccountClientTexts = {
     loading: catalog.loading,
@@ -58,6 +59,20 @@ export function AccountScreen({ locale }: AccountScreenProps): ReactNode {
     genericError: catalog.genericError,
     stepUpText: catalog.stepUpText,
     stepUpButton: catalog.stepUpButton,
+    contactHeading: catalog.contactHeading,
+    contactDescription: catalog.contactDescription,
+    contactEmptyText: catalog.contactEmptyText,
+    contactAddButton: catalog.contactAddButton,
+    contactLoadError: catalog.contactLoadError,
+    retry: catalog.retry,
+    contactAddressLabel: contactCatalog.contactAddressLabel,
+    contactPostalCodeLabel: contactCatalog.contactPostalCodeLabel,
+    contactCityLabel: contactCatalog.contactCityLabel,
+    contactCountryLabel: contactCatalog.contactCountryLabel,
+    contactPhoneLabel: contactCatalog.contactPhoneLabel,
+    contactEmailLabel: contactCatalog.contactEmailLabel,
+    contactWebLabel: contactCatalog.contactWebLabel,
+    contactSocialLabel: contactCatalog.contactSocialLabel,
   };
 
   return (
