@@ -52,3 +52,11 @@ R5 (single active-locale derivation in `src/features/auth`) touches the same fil
 - `src/features/auth/api/authorize.test.ts`, `src/features/auth/model/session.test.ts`, `src/features/auth/model/flow.test.ts`, `src/pages/callback/ui/CallbackScreen.test.tsx`, `src/app/shell/AppShell.test.tsx` (their `location` mocks gain `search`).
 - The guards: `src/shared/ui/xss-guard.test.ts`, `proxy.test.ts`, `src/shared/api/tokens.test.ts`, and the colour and radius guards.
 - `npm run test:run`, `npm run lint`, `npx tsc --noEmit`, `npm run build`.
+
+## Propose status
+
+- Change-id: `fix-auth-return-query`; date: 2026-10-07.
+- `openspec validate fix-auth-return-query --strict`: valid.
+- Resolved: the validation rule is new code (none exists today), in one pure module of `src/features/auth`, applied once where the callback consumes the route (design.md D2, D3); the header's sign in uses `signIn()`'s default instead of `useSearchParams()` (D1); an invalid route opens the default-locale root.
+- Backlog: R5 is not resolved and not extended.
+- Open: none. The browser check (tasks.md 4.2) is left to Product owner or the design lead.
