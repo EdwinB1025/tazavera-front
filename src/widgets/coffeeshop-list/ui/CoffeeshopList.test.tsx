@@ -40,6 +40,7 @@ const TEXTS: CoffeeshopListTexts = {
   resultCount: "Resultados: {count}",
   noMatches: "Ningún resultado coincide con estos filtros.",
   clearAll: "Borrar todo",
+  showOnMapLabel: "Ver {name} en el mapa",
 };
 
 function shop(ulid: string, name: string): CoffeeshopSummary {
@@ -133,5 +134,22 @@ describe("CoffeeshopList", () => {
     const status = screen.getByRole("status");
     expect(status.textContent).toBe("Resultados: 12");
     expect(status.className).toContain("sr-only");
+  });
+
+  it("offers the map action only on a card with a located location (spec: Map action only with coordinates)", () => {
+    const located: CoffeeshopSummary = {
+      ...shop("01C", "Satan's Coffee"),
+      locations: [{ ulid: "01CL", name: "Gòtic", latitud: "41.38", longitud: "2.17" }],
+    };
+    render(
+      <CoffeeshopList
+        result={{ state: "success", items: [...ITEMS, located], meta: { current_page: 1, last_page: 1, total: 3 } }}
+        locale="es"
+        query={{}}
+        texts={TEXTS}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Ver Satan's Coffee en el mapa" })).toBeDefined();
+    expect(screen.queryByRole("button", { name: "Ver Nomad Coffee en el mapa" })).toBeNull();
   });
 });
