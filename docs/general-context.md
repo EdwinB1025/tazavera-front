@@ -568,3 +568,4 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
   - Herramientas solo con `npx`, sin dependencias nuevas.
 - **Por qué:** petición de Product owner, 8 oct.
 - **Afecta:** cierre del proyecto; backlog.
+- **Orden (Product owner, 8 oct):** directory y public-evaluations → `add-not-found-page` (R14, ya no condicionado a que sobre tiempo) → revisión técnica.
