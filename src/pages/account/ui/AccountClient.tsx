@@ -57,7 +57,7 @@ export function AccountClient({ locale, texts }: AccountClientProps): ReactNode 
   return (
     <SessionGate session={session} texts={texts} signIn={() => signIn()}>
       {(user) => (
-        <>
+        <div className="flex flex-col gap-4">
           <AccountSection
             heading={texts.profileHeading}
             headingId={profileHeadingId}
@@ -103,7 +103,7 @@ export function AccountClient({ locale, texts }: AccountClientProps): ReactNode 
               requestProfileWrite={requestProfileWrite}
             />
           </AccountSection>
-        </>
+        </div>
       )}
     </SessionGate>
   );
