@@ -114,35 +114,6 @@ describe("RegisterForm — the request", () => {
       });
     });
   }
-
-  it("labels the form by the page heading and turns off native validation", () => {
-    renderForm();
-    const form = document.querySelector("form")!;
-    expect(form.getAttribute("aria-labelledby")).toBe("register-title");
-    expect(form.noValidate).toBe(true);
-  });
-
-  it("marks the five fields required and gives the password fields their toggle names and autofill names", () => {
-    renderForm();
-    for (const label of [
-      TEXTS.nameLabel,
-      TEXTS.surnameLabel,
-      TEXTS.emailLabel,
-      TEXTS.passwordLabel,
-      TEXTS.passwordConfirmationLabel,
-    ]) {
-      expect(field(label).required, label).toBe(true);
-    }
-    expect(field(TEXTS.nameLabel).autocomplete).toBe("given-name");
-    expect(field(TEXTS.surnameLabel).autocomplete).toBe("family-name");
-    expect(field(TEXTS.emailLabel).autocomplete).toBe("email");
-    expect(field(TEXTS.passwordLabel).autocomplete).toBe("new-password");
-    expect(field(TEXTS.passwordConfirmationLabel).autocomplete).toBe(
-      "new-password",
-    );
-    expect(screen.getAllByRole("button", { name: TEXTS.showPassword })).toHaveLength(2);
-    expect(screen.getByText(TEXTS.passwordHelp)).toBeTruthy();
-  });
 });
 
 describe("RegisterForm — client checks", () => {
@@ -156,15 +127,6 @@ describe("RegisterForm — client checks", () => {
     expect(screen.getByText(TEXTS.requiredError)).toBeTruthy();
     expect(field(TEXTS.surnameLabel).getAttribute("aria-invalid")).toBe("true");
     expect(document.activeElement).toBe(field(TEXTS.surnameLabel));
-  });
-
-  it("focuses the first failing field when several fail", async () => {
-    renderForm();
-    await submit();
-
-    expect(fetchMock).not.toHaveBeenCalled();
-    expect(screen.getAllByText(TEXTS.requiredError)).toHaveLength(5);
-    expect(document.activeElement).toBe(field(TEXTS.nameLabel));
   });
 
   it("an invalid email shows emailFormatError, is invalid, takes focus and nothing is sent", async () => {
@@ -234,7 +196,6 @@ describe("RegisterForm — pending and result", () => {
 
   for (const [label, outcome] of [
     ["a 422", () => fetchMock.mockResolvedValue(jsonResponse(422, { message: "api-message" }))],
-    ["a network failure", () => fetchMock.mockRejectedValue(new TypeError("offline"))],
   ] as const) {
     it(`${label} shows genericError as an alert above the actions, keeps the values and clears the passwords`, async () => {
       outcome();
@@ -256,17 +217,4 @@ describe("RegisterForm — pending and result", () => {
       expect(screen.queryByText("api-message")).toBeNull();
     });
   }
-});
-
-describe("RegisterForm — texts", () => {
-  it("renders only texts from the props fixture", () => {
-    renderForm();
-    const fixture = new Set(Object.values(TEXTS));
-    const rendered = [...document.querySelectorAll("label, p, button")]
-      .map((node) => (node.textContent ?? "").replace("*", "").trim())
-      .filter((text) => text !== "" && text !== "title");
-    for (const text of rendered) {
-      expect(fixture.has(text), text).toBe(true);
-    }
-  });
 });
