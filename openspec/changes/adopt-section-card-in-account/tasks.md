@@ -4,7 +4,7 @@ The change consumes no API: no type is derived from `src/shared/api/schema.ts` a
 
 ## 1. Derived types from the generated API types
 
-- [ ] 1.1 Confirm this change derives no type from the generated API types and adds no UI-specific type (design.md "Derived and UI-specific types"; `AccountSectionProps` unchanged) — verifying `git diff --stat develop -- src/shared/api/ contracts/` is empty at the end of the change; this task changes no files and is checked off in the commit of task 2.1
+- [x] 1.1 Confirm this change derives no type from the generated API types and adds no UI-specific type (design.md "Derived and UI-specific types"; `AccountSectionProps` unchanged) — verifying `git diff --stat develop -- src/shared/api/ contracts/` is empty at the end of the change; this task changes no files and is checked off in the commit of task 2.1
 
 ## 2. The account sections as section cards with a header band
 
