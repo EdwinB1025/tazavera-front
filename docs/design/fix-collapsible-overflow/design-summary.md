@@ -44,3 +44,11 @@ The evaluation form groups and the facet panels named in the review live on bran
 ## 5. Open
 
 None.
+
+## Propose status
+
+- Change-id: `fix-collapsible-overflow`
+- Date: 2026-10-07
+- `openspec validate fix-collapsible-overflow --strict`: valid.
+- Resolved: the mechanism of §3 is design.md D1 (`overflow-hidden` on the body's inner wrapper while collapsed only); the spec delta modifies "Collapsible section" (a collapsed body takes up no space) and its "Collapsed by default" scenario.
+- Open: none. Backlog entry resolved: none.
