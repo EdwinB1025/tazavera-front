@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
-import { FormStatus } from "@/features/user-account";
+import { FormStatus } from "@/shared/ui";
 
 /**
  * Form status (design.md D9 and D10): the success status is `role="status"`

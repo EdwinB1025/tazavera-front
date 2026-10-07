@@ -6,7 +6,6 @@ import type { TaxonomyNode } from "@/shared/api";
 import { requestProfileWrite, signIn, useSession } from "@/features/auth";
 import {
   DeleteOfferingsDialog,
-  ManagementGate,
   OfferingActions,
   SelectionToolbar,
   previousPageAfterDelete,
@@ -15,13 +14,19 @@ import {
   type DeleteOfferingsDialogTexts,
   type DeleteTarget,
   type OwnOfferings,
-  type ManagementGateTexts,
   type OfferingActionsTexts,
   type SelectionToolbarTexts,
 } from "@/features/offering-management";
 import { OfferingCard, type OfferingCardTexts } from "@/entities/offering";
 import { buildTaxonomyLookup, type TaxonomyLookup } from "@/entities/taxonomy";
-import { Button, Link, Pagination, type PaginationTexts } from "@/shared/ui";
+import {
+  Button,
+  Link,
+  Pagination,
+  SessionGate,
+  SignedOutPrompt,
+  type PaginationTexts,
+} from "@/shared/ui";
 import { OfferingSkeletonCard } from "@/widgets/offering-list";
 import { resolveTaxonomies } from "../lib/resolve-taxonomies";
 
@@ -29,10 +34,11 @@ import { resolveTaxonomies } from "../lib/resolve-taxonomies";
 
 export type ManageOfferingsTexts = OfferingCardTexts &
   PaginationTexts &
-  ManagementGateTexts &
   OfferingActionsTexts &
   SelectionToolbarTexts &
   DeleteOfferingsDialogTexts & {
+    signedOutMessage: string;
+    signInLabel: string;
     deletedStatus: string;
     eyebrow: string;
     listHeading: string;
@@ -322,12 +328,17 @@ export function ManageOfferingsPanel({
             {status}
           </p>
         ) : null}
-        <ManagementGate
+        <SessionGate
           session={session}
-          route={route}
-          texts={texts}
-          onSignIn={signIn}
           loading={<SkeletonGrid />}
+          signedOut={
+            <SignedOutPrompt
+              text={texts.signedOutMessage}
+              signInLabel={texts.signInLabel}
+              onSignIn={() => signIn(route)}
+            />
+          }
+          allows={(user) => user.role === "coffeeshop"}
         >
           {(user) => (
             <OwnOfferingsList
@@ -343,7 +354,7 @@ export function ManageOfferingsPanel({
               texts={texts}
             />
           )}
-        </ManagementGate>
+        </SessionGate>
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ export type FormStatusProps = {
 };
 
 /**
- * The status a form shows above its actions (design.md D9 and D10): a
+ * The status a form shows above its actions (feedback "Request status messages"): a
  * success is a `role="status"` row with the `aria-hidden` `Check` beside its
  * text; the form-level error is `role="alert"` text, never colour alone.
  */

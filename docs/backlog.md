@@ -91,17 +91,6 @@ One section per candidate, in this format:
 - **Status:** accepted
 - **Affects:** `add-offering-facets`, `add-evaluation-facets`
 
-## R11 — Shared protected-route gate and write-status pieces (add-coffeeshop-location summary, Open 4)
-
-- **Duplicated:** the protected-route gate and the write-status pieces: `ManagementGate` (`add-offering-management`) and `SessionGate` / `StepUpNotice` / `FormStatus` / `LoadingStatus` (`add-user-account`); `add-coffeeshop-location` would add a third copy, because FSD forbids `features/location-management` importing either feature
-- **Where today:** `add-offering-management` design.md files table; `add-user-account` design.md files table
-- **Why it pays off now:** the pieces take texts and callbacks, no business data; one copy in `src/shared/ui` serves the three features and the next protected screen
-- **Owning capability:** app-shell (gate) and feedback (status pieces), consumed by each feature
-- **Proposed change:** a refactor after `add-user-account` and `add-offering-management` merge, moving the generic gate and status pieces to `src/shared/ui`; before `add-coffeeshop-location`
-- **Open decision (Augusto):** none
-- **Status:** proposed
-- **Affects:** `add-user-account`, `add-offering-management`, `add-coffeeshop-location`
-
 ## R12 — Filtered-offerings widget (add-coffeeshop-directory summary, Open 4)
 
 - **Duplicated:** the filtered offerings body and its sidebar composition (`OfferingsScreen` body, `OfferingsSidebarScreen` in `src/pages/offerings`); the coffee shop detail's offerings tab would copy them, because a page slice cannot import another page slice

@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
-import { LoadingStatus } from "@/features/user-account";
+import { LoadingStatus } from "@/shared/ui";
 
 /**
  * Loading status (design.md D9 and D10): a `role="status"` region holding an

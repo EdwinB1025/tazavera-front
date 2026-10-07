@@ -8,7 +8,7 @@ export type LoadingStatusProps = {
 };
 
 /**
- * The loading status (design.md D9 and D10): a centred `role="status"` row,
+ * The loading status (feedback "Request status messages"): a centred `role="status"` row,
  * the `aria-hidden` `Loader2` spinning only without `prefers-reduced-motion`
  * and its text.
  */
