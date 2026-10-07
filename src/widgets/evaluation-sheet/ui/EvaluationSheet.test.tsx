@@ -94,7 +94,7 @@ describe("EvaluationSheet descriptors (spec: Descriptor blocks, An unresolved de
   it("groups the tastes into the five blocks by type with the empty text on empty blocks", () => {
     renderSheet();
     const descriptors = card("Descriptors");
-    const groups = within(descriptors).getAllByRole("group");
+    const groups = Array.from(descriptors.querySelectorAll("fieldset"));
     expect(groups.map((group) => group.querySelector("legend")?.textContent)).toEqual([
       "Fragrance / Aroma",
       "Flavor / Aftertaste",
