@@ -7,6 +7,7 @@ import type { Session } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
 import { completeCallback, signIn, signOut } from "@/features/auth";
 import { AppShell } from "@/app/shell";
+import { AppSidebar } from "@/widgets/app-sidebar";
 
 // The shell's client chrome drives navigation through the app router hooks,
 // which need the router context jsdom does not provide. Test infrastructure
@@ -140,19 +141,24 @@ describe("AppShell (spec: Shell layout and main area)", () => {
   });
 
   it("holds the content in one column when no sidebar is present (spec: Single column)", () => {
+    shellPathname = "/es";
     renderShell();
     expect(screen.queryByRole("complementary")).toBeNull();
-    expect(screen.getByRole("main").className).not.toContain("md:flex");
+    expect(
+      screen.getByRole("main").contains(screen.getByTestId("main-area-child")),
+    ).toBe(true);
   });
 
   it("gives the sidebar its own column beside the content from md (spec: Sidebar column)", () => {
-    renderShell(undefined, <div data-testid="sidebar-region" />);
+    shellPathname = "/es";
+    renderShell(undefined, <AppSidebar />);
     const main = screen.getByRole("main");
     expect(main.className).toContain("md:flex");
-    const sidebarColumn = screen.getByRole("complementary");
-    expect(sidebarColumn.className).toContain("hidden");
-    expect(sidebarColumn.className).toContain("md:block");
-    expect(screen.getByTestId("sidebar-region")).toBeDefined();
+    const sidebar = screen.getByRole("complementary");
+    expect(main.contains(sidebar)).toBe(true);
+    expect(sidebar.className).toContain("hidden");
+    expect(sidebar.className).toContain("md:flex");
+    expect(sidebar.className).toContain("w-64");
   });
 
   it("renders the shell with the child it was given in its main area (spec: Root of a supported locale)", () => {
@@ -258,6 +264,40 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
       unmount();
     }
   });
+  it("shows the header's re-open control named from the catalog once the sidebar collapses (spec: Control named in every locale)", () => {
+    for (const locale of ["es", "en", "ca"]) {
+      shellPathname = `/${locale}/manage/offerings`;
+      const catalog = getMessages("shell", locale);
+      const { unmount } = render(
+        <AppShell
+          locale={locale}
+          session={{
+            state: "authenticated",
+            user: { name: "Andrés", surname: "Gómez", role: "specialist" },
+          }}
+        >
+          {placeholderChild}
+        </AppShell>,
+      );
+      fireEvent.click(screen.getByRole("button", { name: catalog.toggleSidebar }));
+      const control = within(screen.getByRole("banner")).getByRole("button", {
+        name: catalog.toggleSidebar,
+      });
+      expect(control.getAttribute("aria-expanded")).toBe("false");
+      unmount();
+    }
+  });
+
+  it("shows no re-open control on a route without a sidebar (spec: No control without a sidebar)", () => {
+    shellPathname = "/es";
+    renderShell({
+      state: "authenticated",
+      user: { name: "Andrés", surname: "Gómez", role: "specialist" },
+    });
+    expect(
+      screen.queryByRole("button", { name: texts.toggleSidebar }),
+    ).toBeNull();
+  });
 });
 
 describe("AppShell header actions (spec: Sign in starts from the current route, Sign out)", () => {
@@ -271,7 +311,9 @@ describe("AppShell header actions (spec: Sign in starts from the current route, 
     renderShell({ state: "anonymous" });
     fireEvent.click(screen.getByRole("button", { name: texts.signIn }));
     expect(vi.mocked(signIn)).toHaveBeenCalledTimes(1);
-    expect(vi.mocked(signIn)).toHaveBeenCalledWith("/es/manage/offerings");
+    // The default return route of `signIn` is the current path and query
+    // (fix-auth-return-query design.md D1).
+    expect(vi.mocked(signIn)).toHaveBeenCalledWith();
   });
 
   it("signs the user out from the user menu (spec: Sign out)", () => {
@@ -351,5 +393,29 @@ describe("route files (architecture rule: routing only)", () => {
       }
     }
     expect(offenders).toEqual([]);
+  });
+});
+
+describe("AppShell management sidebar entries (add-specialist-evaluations design.md D5)", () => {
+  it("fills the sidebar with My evaluations for a specialist on a management route", () => {
+    shellPathname = "/es/manage/evaluations";
+    renderShell({
+      state: "authenticated",
+      user: { name: "Andrés", surname: "Gómez", role: "specialist" },
+    });
+    const sidebar = screen.getByRole("complementary");
+    const entry = within(sidebar).getByRole("link", { name: texts.manageEvaluations });
+    expect(entry.getAttribute("href")).toBe("/es/manage/evaluations");
+    expect(entry.getAttribute("aria-current")).toBe("page");
+  });
+
+  it("contributes no entry for a coffeeshop", () => {
+    shellPathname = "/es/manage/offerings";
+    renderShell({
+      state: "authenticated",
+      user: { name: "Marta", surname: "Puig", role: "coffeeshop" },
+    });
+    const sidebar = screen.getByRole("complementary");
+    expect(within(sidebar).queryByRole("link")).toBeNull();
   });
 });

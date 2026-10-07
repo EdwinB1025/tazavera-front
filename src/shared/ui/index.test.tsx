@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import {
   Button,
   Link,
@@ -22,6 +22,8 @@ import {
   SheetContent,
   SidebarProvider,
   Sidebar,
+  useSidebar,
+  SIDEBAR_ID,
   Card,
   CardAside,
   CardContent,
@@ -30,10 +32,24 @@ import {
   BADGE_GEOMETRY_CLASSES as SEGMENT_BADGE_GEOMETRY_CLASSES,
   Pagination,
   PageSection,
+  Collapsible,
+  CollapsibleHeader,
+  CollapsibleBody,
+  FlavorWheel,
   BeanScale,
   IntensitySlider,
   DescriptorChipGroup,
   ConfirmDialog,
+  LabelValueRow,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  LoadingStatus,
+  FormStatus,
+  StepUpNotice,
+  SessionGate,
+  SignedOutPrompt,
 } from "@/shared/ui";
 // Inside `src/shared/ui` the geometry comes from `./Badge` (design.md D5):
 // this is the single definition the segment entry must re-export.
@@ -90,6 +106,11 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
     expect(ArrowLeft).toBeDefined();
   });
 
+  it("exports the sidebar hook and id from the segment (design.md D3)", () => {
+    expect(typeof useSidebar).toBe("function");
+    expect(typeof SIDEBAR_ID).toBe("string");
+  });
+
   it("renders the field control exported from the segment", () => {
     render(
       <Field label="E-mail" error="Enter a valid e-mail">
@@ -134,7 +155,9 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
 
   it("renders the checkbox exported from the segment", () => {
     render(<Checkbox label="Accept terms" />);
-    expect(screen.getByRole("checkbox", { name: "Accept terms" })).toBeDefined();
+    expect(
+      screen.getByRole("checkbox", { name: "Accept terms" }),
+    ).toBeDefined();
   });
 
   it("renders the radio group exported from the segment", () => {
@@ -226,9 +249,55 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
     expect(screen.getByText("SECTION CONTENT")).toBeDefined();
   });
 
+  it("renders the collapsible section exported from the segment", () => {
+    render(
+      <Collapsible defaultOpen>
+        <CollapsibleHeader>SECTION TITLE</CollapsibleHeader>
+        <CollapsibleBody>SECTION BODY</CollapsibleBody>
+      </Collapsible>,
+    );
+    expect(screen.getByRole("button", { name: "SECTION TITLE" })).toBeDefined();
+    expect(screen.getByText("SECTION BODY")).toBeDefined();
+  });
+
+  it("renders the flavor wheel exported from the segment", () => {
+    render(
+      <FlavorWheel
+        nodes={[
+          {
+            id: "fruity",
+            name: "Fruity",
+            description: null,
+            color: "#da1d23",
+            level: 0,
+            count: 4,
+            countLabel: "4 of 5 evaluators",
+            children: [],
+          },
+        ]}
+        total={5}
+        texts={{
+          label: "Flavor wheel",
+          hint: "Hint",
+          emptyMessage: "Empty",
+          notesToggle: "Notes",
+        }}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Notes" }));
+    expect(
+      screen.getByRole("treeitem", { name: "Fruity, 4 of 5 evaluators" }),
+    ).toBeDefined();
+  });
+
   it("renders the bean scale exported from the segment", () => {
     render(
-      <BeanScale label="Aroma" value={null} valueText="–/9" onChange={() => {}} />,
+      <BeanScale
+        label="Aroma"
+        value={null}
+        valueText="–/9"
+        onChange={() => {}}
+      />,
     );
     expect(screen.getByRole("radiogroup", { name: "Aroma" })).toBeDefined();
   });
@@ -281,5 +350,77 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
     expect(
       screen.getByRole("alertdialog", { name: "Delete this evaluation?" }),
     ).toBeDefined();
+  });
+
+  it("renders the label/value row exported from the segment", () => {
+    render(
+      <dl>
+        <LabelValueRow label="Country" value="Colombia" />
+      </dl>,
+    );
+    expect(screen.getByText("Country").tagName).toBe("DT");
+    expect(screen.getByText("Colombia").tagName).toBe("DD");
+  });
+
+  it("renders the tabs exported from the segment", () => {
+    render(
+      <Tabs value="one" onValueChange={() => {}}>
+        <TabsList>
+          <TabsTrigger value="one">One</TabsTrigger>
+          <TabsTrigger value="two">Two</TabsTrigger>
+        </TabsList>
+        <TabsContent value="one">Panel one</TabsContent>
+        <TabsContent value="two">Panel two</TabsContent>
+      </Tabs>,
+    );
+    expect(screen.getByRole("tab", { name: "One" })).toBeDefined();
+    expect(screen.getByRole("tabpanel").textContent).toBe("Panel one");
+  });
+
+  it("renders the loading status exported from the segment", () => {
+    render(<LoadingStatus text="Loading" />);
+    expect(screen.getByRole("status").textContent).toBe("Loading");
+  });
+
+  it("renders the form status exported from the segment", () => {
+    render(<FormStatus kind="error" text="Something failed" />);
+    expect(screen.getByRole("alert").textContent).toBe("Something failed");
+  });
+
+  it("renders the step-up notice exported from the segment", () => {
+    render(
+      <StepUpNotice
+        text="Confirm it is you"
+        actionLabel="Confirm identity"
+        onConfirm={() => {}}
+      />,
+    );
+    expect(
+      screen.getByRole("button", { name: "Confirm identity" }),
+    ).toBeDefined();
+  });
+
+  it("renders the session gate exported from the segment", () => {
+    render(
+      <SessionGate
+        session={{ state: "anonymous" }}
+        loading={<p>Loading</p>}
+        signedOut={<p>Signed out</p>}
+      >
+        {() => <p>Content</p>}
+      </SessionGate>,
+    );
+    expect(screen.getByText("Signed out")).toBeDefined();
+  });
+
+  it("renders the signed-out prompt exported from the segment", () => {
+    render(
+      <SignedOutPrompt
+        text="Sign in to continue"
+        signInLabel="Sign in"
+        onSignIn={() => {}}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Sign in" })).toBeDefined();
   });
 });

@@ -11,8 +11,12 @@ import { cn } from "@/shared/lib/utils";
 /** `default`: side column beside the content from `lg`. `stacked`: parts stacked at every width (design.md D14). */
 export type CardLayout = "default" | "stacked";
 
+/** `content`: the content card. `section`: a section with a header band, always stacked (refine-page-surfaces D2). */
+export type CardVariant = "content" | "section";
+
 export type CardProps = HTMLAttributes<HTMLDivElement> & {
   layout?: CardLayout;
+  variant?: CardVariant;
 };
 export type CardAsideProps = HTMLAttributes<HTMLDivElement>;
 export type CardContentProps = HTMLAttributes<HTMLDivElement>;
@@ -59,42 +63,100 @@ const STACKED_ASIDE_CLASSES = ["p-6", "border-b", "border-border-subtle"].join(
 const STACKED_CONTENT_CLASSES = ["p-6", "flex-1"].join(" ");
 const STACKED_FOOTER_CLASSES = ["p-6", "mt-auto"].join(" ");
 
+// ─── Section variant (refine-page-surfaces D2–D4) ───
+// Always stacked, whatever `layout` says. The root clips its parts to its own
+// container-radius corners (D3), so the band needs no directional radius.
+const SECTION_CARD_CLASSES = [
+  "bg-surface-card",
+  "rounded-container",
+  "border",
+  "border-border-subtle",
+  "shadow-lg",
+  "overflow-hidden",
+].join(" ");
+
+// The band tells a static header from a collapsible one by the element with
+// `aria-expanded` it holds (the CollapsibleHeader button), through `:has()`
+// (D4): tighter padding, the hover surface, and no separator while collapsed.
+const SECTION_ASIDE_CLASSES = [
+  "flex",
+  "flex-col",
+  "gap-2",
+  "bg-surface-section",
+  "border-b",
+  "border-border-subtle",
+  "p-4",
+  "md:px-6",
+  "has-[[aria-expanded]]:p-2",
+  "md:has-[[aria-expanded]]:px-4",
+  "has-[[aria-expanded]]:hover:bg-surface-section-hover",
+  "has-[[aria-expanded=false]]:border-b-0",
+].join(" ");
+
+// Body and footer: no fill of their own (the card's), no separator.
+const SECTION_BODY_CLASSES = ["px-4", "pt-4", "pb-5", "md:p-6"].join(" ");
+
 /**
  * Tazavera content card (the `content-structure` spec: "Card regions", "Card
- * stacking on narrow viewports"). Shadcn base rewired to the settled classes
- * above and composed with `cn`; no `class-variance-authority`. The card
- * contributes no text or data of its own: the consumer fills its regions.
+ * stacking on narrow viewports", "Section card"). Shadcn base rewired to the
+ * settled classes above and composed with `cn`; no `class-variance-authority`.
+ * The card contributes no text or data of its own: the consumer fills its
+ * regions.
  */
-// The parts are siblings the consumer composes, so they read the layout from
-// the card rather than from a prop of their own (design.md D14).
-const CardLayoutContext = createContext<CardLayout>("default");
+// The parts are siblings the consumer composes, so they read the layout and
+// the variant from the card rather than from a prop of their own (design.md
+// D14; refine-page-surfaces D2).
+type CardContextValue = { layout: CardLayout; variant: CardVariant };
+
+const CardContext = createContext<CardContextValue>({
+  layout: "default",
+  variant: "content",
+});
 
 export function Card({
   layout = "default",
+  variant = "content",
   className,
   ...rest
 }: CardProps): ReactNode {
+  const isSection = variant === "section";
   return (
-    <CardLayoutContext.Provider value={layout}>
+    <CardContext.Provider value={{ layout, variant }}>
       <div
         {...rest}
         className={cn(
-          CARD_CLASSES,
-          layout === "stacked" && STACKED_CARD_CLASSES,
+          isSection ? SECTION_CARD_CLASSES : CARD_CLASSES,
+          !isSection && layout === "stacked" && STACKED_CARD_CLASSES,
           className,
         )}
       />
-    </CardLayoutContext.Provider>
+    </CardContext.Provider>
   );
 }
 
+/** The classes of a part for the card's variant and layout. */
+function partClasses(
+  { layout, variant }: CardContextValue,
+  section: string,
+  stacked: string,
+  row: string,
+): string {
+  if (variant === "section") return section;
+  return layout === "stacked" ? stacked : row;
+}
+
 export function CardAside({ className, ...rest }: CardAsideProps): ReactNode {
-  const layout = useContext(CardLayoutContext);
+  const context = useContext(CardContext);
   return (
     <div
       {...rest}
       className={cn(
-        layout === "stacked" ? STACKED_ASIDE_CLASSES : ASIDE_CLASSES,
+        partClasses(
+          context,
+          SECTION_ASIDE_CLASSES,
+          STACKED_ASIDE_CLASSES,
+          ASIDE_CLASSES,
+        ),
         className,
       )}
     />
@@ -105,12 +167,17 @@ export function CardContent({
   className,
   ...rest
 }: CardContentProps): ReactNode {
-  const layout = useContext(CardLayoutContext);
+  const context = useContext(CardContext);
   return (
     <div
       {...rest}
       className={cn(
-        layout === "stacked" ? STACKED_CONTENT_CLASSES : CONTENT_CLASSES,
+        partClasses(
+          context,
+          SECTION_BODY_CLASSES,
+          STACKED_CONTENT_CLASSES,
+          CONTENT_CLASSES,
+        ),
         className,
       )}
     />
@@ -118,12 +185,17 @@ export function CardContent({
 }
 
 export function CardFooter({ className, ...rest }: CardFooterProps): ReactNode {
-  const layout = useContext(CardLayoutContext);
+  const context = useContext(CardContext);
   return (
     <div
       {...rest}
       className={cn(
-        layout === "stacked" ? STACKED_FOOTER_CLASSES : FOOTER_CLASSES,
+        partClasses(
+          context,
+          SECTION_BODY_CLASSES,
+          STACKED_FOOTER_CLASSES,
+          FOOTER_CLASSES,
+        ),
         className,
       )}
     />

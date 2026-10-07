@@ -90,7 +90,7 @@
 
 @theme {
     /* ─── SURFACE ─── */
-    --color-surface-page: var(--color-cream-100);
+    --color-surface-page: var(--color-sage-100);
     --color-surface-card: var(--color-cream-100);
     --color-surface-section: var(--color-cream-200);
     --color-surface-section-hover: var(--color-cream-300);
@@ -250,6 +250,28 @@
     --radius-container: 16px;
     --radius-field: 8px;
     --radius-check: 4px;
+}
+
+/* =========================================================
+   TAZAVERA — FACET-ROW SHADOWS (add-facet-controls design.md D10)
+   Selected row: Tailwind's default shadow-md; row hover: its default
+   inset-shadow-sm. Both are none in the dark theme.
+   ========================================================= */
+
+@theme {
+    --shadow-nav-current: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-nav-hover: inset 0 2px 4px rgb(0 0 0 / 0.05);
+}
+
+/* Tailwind inlines a theme shadow's value into its shadow-* utility, so the
+   dark theme's reassignment would never apply. These two utilities read the
+   variables instead, keeping the class names and following the theme. */
+@utility shadow-nav-current {
+    box-shadow: var(--shadow-nav-current);
+}
+
+@utility shadow-nav-hover {
+    box-shadow: var(--shadow-nav-hover);
 }
 
 /* =========================================================
@@ -465,6 +487,10 @@
         --radius-container: 0;
         --radius-field: 0;
         --radius-check: 0;
+
+        /* ─── FACET-ROW SHADOWS (add-facet-controls design.md D10) ─── */
+        --shadow-nav-current: none;
+        --shadow-nav-hover: none;
     }
 }
 
@@ -678,6 +704,22 @@
     font-family: var(--font-sans);
     font-weight: 600;
     font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+}
+
+/* Combobox option lines (add-facet-controls design.md D10): no colour, so
+   the popup's text colour applies. */
+@utility type-option {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    line-height: var(--leading-tight);
+}
+
+@utility type-option-detail {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: var(--text-xs);
     line-height: var(--leading-normal);
 }
 

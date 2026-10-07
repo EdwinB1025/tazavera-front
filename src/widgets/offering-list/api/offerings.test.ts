@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { fetchVerifiedOfferings } from "./offerings";
+import { fetchOfferings, fetchVerifiedOfferings } from "./offerings";
 
 /**
  * Server fetch tests (design.md D4; the landing spec "Error and retry").
@@ -73,5 +73,42 @@ describe("fetchVerifiedOfferings (design.md D4)", () => {
   it("rejects when the request fails to transport (spec: Error and retry)", async () => {
     fetchSpy.mockRejectedValue(new Error("network down"));
     await expect(fetchVerifiedOfferings(2)).rejects.toBeDefined();
+  });
+});
+
+describe("fetchOfferings (add-offering-catalog design.md D1, D2)", () => {
+  it("requests {NEXT_PUBLIC_API_URL}/offerings with exactly the kept query, repeated keys repeated", async () => {
+    fetchSpy.mockResolvedValue(okResponse(OFFERINGS_PAYLOAD));
+    const result = await fetchOfferings({
+      verified: "1",
+      cataRef: ["01JREFA", "01JREFB"],
+      orderBy: "cupping_avg",
+      page: "3",
+    });
+    expect(fetchSpy).toHaveBeenCalledWith(
+      `${API_URL}/offerings?verified=1&cataRef=01JREFA&cataRef=01JREFB&orderBy=cupping_avg&page=3`,
+    );
+    expect(result.data).toEqual(OFFERINGS_PAYLOAD.data);
+    expect(result.meta).toEqual(OFFERINGS_PAYLOAD.meta);
+  });
+
+  it("requests /offerings with no query and no verification filter for an empty query", async () => {
+    fetchSpy.mockResolvedValue(okResponse(OFFERINGS_PAYLOAD));
+    await fetchOfferings({});
+    expect(fetchSpy).toHaveBeenCalledWith(`${API_URL}/offerings`);
+  });
+
+  it("rejects when the API answers with a non-2xx status (spec: Error and retry)", async () => {
+    fetchSpy.mockResolvedValue({
+      ok: false,
+      status: 422,
+      json: async () => ({ message: "invalid" }),
+    });
+    await expect(fetchOfferings({ verified: "x" })).rejects.toBeDefined();
+  });
+
+  it("rejects when the request fails to transport (spec: Error and retry)", async () => {
+    fetchSpy.mockRejectedValue(new Error("network down"));
+    await expect(fetchOfferings({})).rejects.toBeDefined();
   });
 });

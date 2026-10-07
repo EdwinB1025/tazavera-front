@@ -49,6 +49,7 @@ const replaceRouteMock = vi.fn<(href: string) => void>();
 const locationMock = {
   assign: vi.fn<(url: string) => void>(),
   pathname: "/",
+  search: "",
 };
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -145,6 +146,7 @@ beforeEach(() => {
   replaceRouteMock.mockReset();
   locationMock.assign.mockReset();
   locationMock.pathname = "/";
+  locationMock.search = "";
   vi.stubGlobal("fetch", fetchMock);
   vi.stubGlobal("location", locationMock);
   vi.spyOn(crypto.subtle, "digest").mockImplementation(realmDigest);
@@ -251,6 +253,31 @@ describe("signIn — the popup start of design.md D10 (spec: Sign in)", () => {
     expect(pending!.returnRoute).toBe(route);
     expect(url.searchParams.get("state")).toBe(pending!.state);
   });
+
+  it("keeps the path and the query of the current route as the default return route when the popup is blocked (fix-auth-return-query; spec: The return destination keeps the query)", async () => {
+    const { signIn, flow } = await load();
+    locationMock.pathname = "/es/manage/evaluations/new";
+    locationMock.search = "?offering=01J0";
+    openMock.mockReturnValue(null);
+
+    signIn();
+    await vi.waitFor(() => {
+      expect(locationMock.assign).toHaveBeenCalledTimes(1);
+    });
+
+    expect(flow.readFlow()!.returnRoute).toBe("/es/manage/evaluations/new?offering=01J0");
+  });
+
+  it("holds the path and the query of the current route as the default return route of a popup flow (fix-auth-return-query; spec: The return destination keeps the query)", async () => {
+    const { signIn, flow } = await load();
+    locationMock.pathname = "/es/manage/evaluations/new";
+    locationMock.search = "?offering=01J0";
+
+    signIn();
+    await awaitChallenge();
+
+    expect(flow.readHeldFlow()!.returnRoute).toBe("/es/manage/evaluations/new?offering=01J0");
+  });
 });
 
 describe("completeCallback — the outcomes of design.md D4 (spec: Return through the callback)", () => {
@@ -288,6 +315,35 @@ describe("completeCallback — the outcomes of design.md D4 (spec: Return throug
     }
 
     expect(openedRoute()).toBe(route);
+  });
+
+  it.each([
+    ["/es/manage/evaluations/new?offering=01J0", "/es/manage/evaluations/new?offering=01J0"],
+    ["/es/offerings?next=https://evil.example", "/es/offerings?next=https://evil.example"],
+    ["https://evil.example/es", "/es"],
+    ["//evil.example/es", "/es"],
+    ["/\\evil.example", "/es"],
+  ])("completes the flow and opens the stored return route %j only as an application route, else the default-locale root (fix-auth-return-query; spec: The return destination keeps the query, A return destination that is not an application route)", async (stored, opened) => {
+    const { completeCallback, flow } = await load();
+    flow.saveFlow({ verifier: "verifier-123", state: "state-123", returnRoute: stored });
+    fetchMock.mockResolvedValue(jsonResponse(GRANT));
+
+    await completeCallback({ code: "code-123", state: "state-123" }, replaceRouteMock);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(flow.readFlow()).toBeNull();
+    expect(flow.hasMarker()).toBe(true);
+    expect(replaceRouteMock).toHaveBeenCalledTimes(1);
+    expect(replaceRouteMock).toHaveBeenCalledWith(opened);
+  });
+
+  it("opens the default-locale root for a stored return route that is not an application route when the authorization comes back with an error (fix-auth-return-query; spec: A return destination that is not an application route)", async () => {
+    const { completeCallback, flow } = await load();
+    flow.saveFlow({ verifier: "verifier-123", state: "state-123", returnRoute: "//evil.example/es" });
+
+    await completeCallback({ error: "access_denied", state: "state-123" }, replaceRouteMock);
+
+    expect(replaceRouteMock).toHaveBeenCalledWith("/es");
   });
 
   it("opens the return route through the client-side navigation it is given, in place of the /callback entry, and never through the native history API (design.md D4; spec: Completing on the callback)", async () => {

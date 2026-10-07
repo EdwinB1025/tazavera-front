@@ -1,4 +1,5 @@
 import type { OfferingsPageMeta, OfferingSummary } from "@/shared/api";
+import type { OfferingsQuery } from "../lib/query";
 
 /**
  * The public offerings fetch of the block (design.md D4; the landing spec
@@ -18,16 +19,39 @@ export type VerifiedOfferingsPayload = {
   meta: OfferingsPageMeta;
 };
 
-/** One page of verified offerings: `GET /offerings?verified=1&page={page}`. */
-export async function fetchVerifiedOfferings(
-  page: number,
-): Promise<VerifiedOfferingsPayload> {
+/** The payload of any offerings page; the same shape as landing's (add-offering-catalog design.md D2). */
+export type OfferingsPayload = VerifiedOfferingsPayload;
+
+/**
+ * One page of offerings for a kept query: `GET /offerings?{query}`
+ * (add-offering-catalog design.md D1, D2). Repeated keys stay repeated and no
+ * filter of its own is added.
+ */
+export async function fetchOfferings(
+  query: OfferingsQuery,
+): Promise<OfferingsPayload> {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    for (const item of Array.isArray(value) ? value : [value]) {
+      if (item !== undefined) {
+        params.append(key, item);
+      }
+    }
+  }
+  const search = params.toString();
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/offerings?verified=1&page=${page}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/offerings${search ? `?${search}` : ""}`,
   );
   if (!response.ok) {
     throw new Error("offerings request failed");
   }
-  const payload: VerifiedOfferingsPayload = await response.json();
+  const payload: OfferingsPayload = await response.json();
   return payload;
+}
+
+/** One page of verified offerings: `GET /offerings?verified=1&page={page}`. */
+export async function fetchVerifiedOfferings(
+  page: number,
+): Promise<VerifiedOfferingsPayload> {
+  return fetchOfferings({ verified: "1", page: String(page) });
 }

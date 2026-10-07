@@ -1,0 +1,385 @@
+# filtering Specification
+
+## Purpose
+Lets visitors and signed-in users narrow and order a list through facet controls placed beside it, with every applied value visible and removable.
+
+## Requirements
+
+### Requirement: Facet panel
+A facet panel SHALL be a search region named by its visible title. It SHALL show, below the title, one chip per applied facet value it is given followed by a "Clear all" action, and below them the facets in the order it is given. The chips block SHALL render only while at least one value is applied. Pressing Enter inside the panel SHALL never submit or reload the page. Every facet in the panel SHALL render in the inverse variant on the sidebar surface.
+
+#### Scenario: Panel named by its title
+- **WHEN** the facet panel renders
+- **THEN** assistive technology exposes it as a search region whose name is the visible panel title
+
+#### Scenario: No applied values
+- **WHEN** the panel is given no applied value
+- **THEN** no chip and no "Clear all" action render
+
+#### Scenario: Enter does not submit
+- **WHEN** the user presses Enter in a text field of the panel
+- **THEN** the page does not reload and only that field's own commit happens
+
+### Requirement: Applied-filter chips
+Each applied facet value SHALL be shown as a chip whose visible text is the value and whose accessible name is "Remove filter: {facet}: {value}". Activating a chip SHALL remove only that value. "Clear all" SHALL remove every applied value at once. After a chip removes its value, keyboard focus SHALL move to the chip that took its place, else to the previous chip, else to the panel title; after "Clear all", focus SHALL move to the panel title. A chip SHALL carry the shared chip geometry with its own treatments on top: pill corners, a minimum height of 1.75rem, a 1px inverse boundary, no fill, the sidebar text colour, an underline on hover and the shared focus ring.
+
+#### Scenario: Chip name
+- **WHEN** the value "Washed" of the facet "Process" is applied
+- **THEN** a chip with the visible text "Washed" renders, named "Remove filter: Process: Washed" for assistive technology
+
+#### Scenario: Removing one value
+- **WHEN** the user activates one of several chips
+- **THEN** only that value is reported as removed and the other applied values stay
+
+#### Scenario: Clear all
+- **WHEN** the user activates "Clear all"
+- **THEN** every applied value is reported as removed in one action, and once the chips are gone focus is on the panel title
+
+#### Scenario: Focus after removal
+- **WHEN** a chip's value has been removed and the chips render again
+- **THEN** focus is on the chip now at the removed chip's position, or on the last chip when the removed one was last, or on the panel title when no chip remains
+
+#### Scenario: Chip matches the badge geometry
+- **WHEN** an applied-filter chip renders in either theme
+- **THEN** it renders from the shared chip geometry, and its pill corners, minimum height, padding and icon gap are its own treatments on top of that geometry, never a second definition
+
+### Requirement: Facet rows
+Options of a radio-list facet and of a cascade facet SHALL render as facet rows: the whole row is the click target, at least 2.5rem high, with the control and its label side by side. A row whose option is an applied value SHALL show the selected look: the selected fill, a 4px left indicator, the label underlined and the selected shadow, with the control checked; it SHALL take no hover change. A row that is not applied SHALL show, on hover, a soft inner shadow and a bold label without changing its fill or label colour. The indicator, underline and shadows SHALL be decorative: the checked control carries the state. The help text under a radio-list or cascade facet SHALL start 0.75rem in from the panel's content edge on both sides, aligned with the facet's legend. In the traditional theme the selected shadow SHALL equal a medium drop shadow and the hover shadow a small inner shadow; in the dark theme both SHALL be none.
+
+#### Scenario: Applied value row
+- **WHEN** a row's option is applied
+- **THEN** the row shows the selected fill, the left indicator, the underlined label and the selected shadow, and its control is checked
+
+#### Scenario: Hover on a row that is not applied
+- **WHEN** the pointer hovers a row that is not applied
+- **THEN** the row shows the hover shadow and a bold label, and its fill and label colour do not change
+
+#### Scenario: Label does not shift
+- **WHEN** a row changes between rest, hover and the selected look
+- **THEN** its label does not move horizontally
+
+#### Scenario: Contrast on every row background
+- **WHEN** a row renders at rest, on hover or with the selected look in either theme
+- **THEN** its label reaches at least 4.5:1 and its control boundary and focus ring at least 3:1 against the row background
+
+#### Scenario: Help aligned with the legend
+- **WHEN** a radio-list or cascade facet shows a help text
+- **THEN** the help text has 0.75rem of side padding, so it starts at the same horizontal position as the facet's legend
+
+### Requirement: Text facet
+A text facet SHALL be a labelled inverse text input, either a search field or a plain text field, limited to the maximum length it is given and optionally carrying a help text. It SHALL report its value when the user presses Enter or leaves the field with a changed value, trimmed; an empty value SHALL be reported as removing the facet. It SHALL show the value it is given.
+
+#### Scenario: Commit on Enter
+- **WHEN** the user types "Huila" and presses Enter
+- **THEN** the facet reports "Huila" once
+
+#### Scenario: Commit on leaving the field
+- **WHEN** the user changes the value and moves focus out of the field
+- **THEN** the facet reports the new value once
+
+#### Scenario: No change, no report
+- **WHEN** the user leaves the field without changing its value
+- **THEN** nothing is reported
+
+#### Scenario: Emptied field
+- **WHEN** the user empties the field and presses Enter
+- **THEN** the facet reports the removal of its value
+
+#### Scenario: Length limit
+- **WHEN** the facet is limited to 90 characters
+- **THEN** the field accepts no more than 90 characters
+
+### Requirement: Radio-list facet
+A radio-list facet SHALL be a group named by its legend whose first option is "Any", followed by the options it is given in the given order, as facet rows. "Any" SHALL be checked while no value is applied and SHALL never take the selected look. Choosing an option SHALL report it at once; choosing "Any" SHALL report the removal of the value. Arrow keys SHALL move the choice, each move reporting it. When more than five options follow "Any", only the first five and any applied option SHALL be visible, followed by a "See more ({count})" action that shows the hidden options and becomes "See less"; the action SHALL expose whether the options are shown and which group it controls.
+
+#### Scenario: Nothing applied
+- **WHEN** the facet is given no value
+- **THEN** "Any" is checked and no row shows the selected look
+
+#### Scenario: Choosing an option
+- **WHEN** the user chooses "Washed"
+- **THEN** the facet reports "Washed" and, once given that value, its row shows the selected look
+
+#### Scenario: Choosing Any
+- **WHEN** the user chooses "Any" while "Washed" is applied
+- **THEN** the facet reports the removal of its value
+
+#### Scenario: See more
+- **WHEN** the facet has eight options and none is applied
+- **THEN** five options are visible and "See more (3)" is shown, collapsed; activating it shows all eight and turns into "See less", expanded
+
+#### Scenario: Applied option beyond the threshold
+- **WHEN** the seventh option is applied and the list is collapsed
+- **THEN** the first five options and the seventh are visible, and the action reads "See more (2)"
+
+### Requirement: Taxonomy cascade facet
+A cascade facet SHALL be a group named by its legend whose top-level options are checkbox rows and whose second-level options render below their parent, indented. Each parent row SHALL have its own expand/collapse control, separate from its checkbox, that exposes whether its children are shown and which group it controls. Checkboxes SHALL be independent: checking or unchecking a parent SHALL not change its children, a child SHALL be checkable without its parent, and checking every child SHALL not check the parent. Children SHALL be hidden only when the user collapses their parent; a parent with a checked child SHALL start expanded and the others collapsed. Each change SHALL report the set of checked options in option order. The "See more" rule of the radio-list facet SHALL apply to the top-level options, a parent with a checked child counting as applied.
+
+#### Scenario: Expanding a parent
+- **WHEN** the user activates the expand control of a collapsed parent
+- **THEN** its children render below it and the control is exposed as expanded
+
+#### Scenario: Checking a parent
+- **WHEN** the user checks a parent whose children are unchecked
+- **THEN** the facet reports the parent alone and the children stay unchecked
+
+#### Scenario: Checking a child without its parent
+- **WHEN** the user checks a child while its parent is unchecked
+- **THEN** the facet reports the child alone
+
+#### Scenario: Every child checked
+- **WHEN** the user checks the last unchecked child of a parent
+- **THEN** the parent stays unchecked
+
+#### Scenario: Initial expansion
+- **WHEN** the facet renders with a checked child
+- **THEN** that child's parent is expanded and every parent without a checked child is collapsed
+
+#### Scenario: Unchecking keeps children visible
+- **WHEN** the user unchecks an expanded parent
+- **THEN** its children stay visible with their checks unchanged
+
+### Requirement: Score range facet
+A score range facet SHALL be a group named by its legend holding a two-thumb slider and two number inputs, "From" and "To", kept in sync with the thumbs both ways, over the bounds it is given in steps of 1. Each thumb SHALL have its own accessible name and announce its value. The slider SHALL report the range when a thumb is released or moved one keyboard step. An input SHALL report the range when the user presses Enter in it or leaves it with a changed value; a typed value SHALL be clamped to the bounds and to the other end of the range, with no error message, and an empty input SHALL take its bound. The minimum SHALL never exceed the maximum.
+
+#### Scenario: Keyboard step
+- **WHEN** the minimum thumb has focus at 0 and the user presses the right arrow key
+- **THEN** the facet reports the range 1–100 and the "From" input shows 1
+
+#### Scenario: Typed value applied on Enter
+- **WHEN** the user types 60 in "From" and presses Enter
+- **THEN** the minimum thumb moves to 60 and the facet reports 60–100 once
+
+#### Scenario: Value out of bounds
+- **WHEN** the user types 140 in "To" and leaves the input
+- **THEN** the input shows 100 and no error message renders
+
+#### Scenario: Minimum above maximum
+- **WHEN** the range is 20–50 and the user types 80 in "From" and presses Enter
+- **THEN** the input shows 50 and the facet reports 50–50
+
+#### Scenario: Thumb names
+- **WHEN** the facet renders with the names "Minimum score" and "Maximum score"
+- **THEN** the thumbs are exposed with those names and their current values
+
+### Requirement: Combobox
+A combobox SHALL be a labelled editable input exposed as a combobox with a listbox popup, rendering in the input's default variant on light surfaces or its inverse variant on dark surfaces. Typing SHALL open the popup; the up and down arrow keys SHALL move the active option, Enter SHALL choose it, and Escape SHALL close the popup; keyboard focus SHALL stay in the input while the popup is open. The input SHALL expose whether the popup is open, the listbox it controls and the active option. Choosing an option SHALL report it, put its label in the input and close the popup; the chosen option SHALL show a check mark. Emptying the input and pressing Enter or leaving it SHALL report the removal of the value. Typed text that is abandoned, by pressing Escape or by leaving the input without choosing an option, SHALL be replaced without reporting anything: the input SHALL show the chosen value's label again, or become empty when no value is chosen, and the popup SHALL close without reopening. Escape SHALL do so whether or not the popup is open, also on an emptied input, which keeps the value. Each option SHALL show its label on a first line, with the part matching the typed text in bold, and an optional detail on a second line. With options given up front, typing SHALL keep only the options whose label contains the typed text, ignoring case. With a search, the combobox SHALL search for typed text after at least 2 characters and 300 ms without typing, cancel an older search when a newer one starts, and replace the options with the results. A label the combobox puts in the input itself, for its value on first render, after a choice, after a restore or when the value changes, SHALL run no search. The state rows "Searching…", "No matches" and "Results could not be loaded" SHALL not be selectable and SHALL be announced politely. A disabled combobox SHALL reject input and show its help text.
+
+#### Scenario: Popup state exposed
+- **WHEN** the user types in a closed combobox and the popup opens
+- **THEN** the input is exposed as expanded, and as collapsed again once the popup closes
+
+#### Scenario: Keyboard choice
+- **WHEN** the popup shows three options and the user presses the down arrow key twice and Enter
+- **THEN** the second option is reported, its label fills the input and the popup closes
+
+#### Scenario: Local filtering
+- **WHEN** options are given up front and the user types "fin"
+- **THEN** only the options whose label contains "fin" in any case remain, with "fin" in bold
+
+#### Scenario: No match
+- **WHEN** no option matches the typed text
+- **THEN** the popup shows the row "No matches", which cannot be chosen
+
+#### Scenario: Searching while typing
+- **WHEN** a search is given and the user types "ca", then "f" within 300 ms
+- **THEN** one search runs for "caf" after 300 ms without typing, and "Searching…" shows while it runs
+
+#### Scenario: Too few characters
+- **WHEN** a search is given and the input holds one character
+- **THEN** no search runs
+
+#### Scenario: Older search cancelled
+- **WHEN** a search is still running and a newer search starts
+- **THEN** the older search is cancelled and only the newer results are shown
+
+#### Scenario: Search failure
+- **WHEN** the search fails
+- **THEN** the popup shows the row "Results could not be loaded" and the status is announced
+
+#### Scenario: Clearing the value
+- **WHEN** a value is chosen and the user empties the input and leaves it
+- **THEN** the combobox reports the removal of its value
+
+#### Scenario: Default variant
+- **WHEN** a combobox renders in the default variant on a light surface
+- **THEN** its input looks as a default text input and its popup as on the sidebar
+
+#### Scenario: Escape after typing over a chosen value
+- **WHEN** a value "Finca A" is chosen and the user types "zz" and presses Escape
+- **THEN** the input shows "Finca A", the popup is closed and nothing is reported
+
+#### Scenario: Leaving after typing over a chosen value
+- **WHEN** a value "Finca A" is chosen and the user types "zz" and leaves the input
+- **THEN** the input shows "Finca A" and nothing is reported
+
+#### Scenario: Abandoned text with no value
+- **WHEN** no value is chosen and the user types "fin" and presses Escape or leaves the input
+- **THEN** the input is empty, the popup is closed and nothing is reported
+
+#### Scenario: Escape on an emptied input
+- **WHEN** a value "Finca A" is chosen and the user empties the input and presses Escape
+- **THEN** the input shows "Finca A" and nothing is reported
+
+#### Scenario: No search for the combobox's own label
+- **WHEN** a search is given and the input shows a label the combobox put there itself, on first render with a value, after a choice or after a restore
+- **THEN** no search runs until the user types
+
+### Requirement: Sort control
+A list SHALL be ordered with a select labelled "Sort by" in the page body, in the default variant, whose choice applies at once without a separate action. Its text SHALL reach at least 4.5:1 against the input surface in both themes.
+
+#### Scenario: Choosing an order
+- **WHEN** the user chooses another option in "Sort by"
+- **THEN** the choice is reported at once
+
+#### Scenario: Sort text contrast
+- **WHEN** the sort control renders in either theme
+- **THEN** its text reaches at least 4.5:1 against the input surface
+
+### Requirement: Facet option data unavailable
+A facet whose options could not be loaded SHALL render disabled with a help text, while the other facets keep working.
+
+#### Scenario: Disabled facet
+- **WHEN** a facet is rendered disabled with the help text "Options unavailable"
+- **THEN** it rejects input, renders at 50% opacity and shows "Options unavailable", and the other facets stay enabled
+
+### Requirement: Offering facets in the sidebar
+
+The public offerings list (`/{locale}/offerings`, any query) SHALL show, in its sidebar, for every session state, a facet panel titled "Filters" that holds these facets in this order, each writing the listed query key:
+
+| # | Facet | Control | Query key |
+|---|---|---|---|
+| 1 | Coffee | search field, at most 150 characters | `coffeeName` |
+| 2 | Verification | single choice: Any, Verified, Provisional | `verified` (`1` Verified, `0` Provisional) |
+| 3 | Average score | score range 0–100 | `cuppingAvgMin`, `cuppingAvgMax` |
+| 4 | Taste notes | taxonomy cascade, levels 0 and 1 | `cataRef` (repeated, one value per selected note) |
+| 5 | Origin country | single choice with "see more" | `originCountry` |
+| 6 | Origin region | single choice with "see more" | `originRegion` |
+| 7 | Process | single choice with "see more" | `process` |
+| 8 | Variety | single choice with "see more" | `variety` |
+| 9 | Producer | combobox over the loaded options | `producer` |
+| 10 | Roastery | combobox that searches while typing | `roasteryName` |
+| 11 | City | text field, at most 90 characters, help "Exact city name" | `city` |
+
+The offering detail route and every other public route SHALL show no offering facets.
+
+#### Scenario: Anonymous visitor sees the facets
+- **WHEN** an anonymous visitor opens `/{locale}/offerings`
+- **THEN** the sidebar shows the "Filters" panel with the eleven facets in the order of the table
+
+#### Scenario: Detail route has no facets
+- **WHEN** a visitor opens `/{locale}/offerings/{ulid}`
+- **THEN** no offering facet is shown
+
+### Requirement: Offering facet options
+
+Single-choice facets and the Producer combobox SHALL list the distinct non-empty values of the matching coffee field returned by the coffee catalog (`country`, `region`, `process`, `variety`, `producer`), sorted alphabetically, without duplicates or empty values; each single-choice facet SHALL list "Any" first. Origin region SHALL list every region, independent of the selected country. Taste notes SHALL list the level-0 taxonomy nodes with their level-1 children, named in the active locale. Roastery SHALL show the roasteries whose name matches the typed text, as returned by the API. Values SHALL be shown as the API returns them.
+
+#### Scenario: Distinct sorted options
+- **WHEN** the coffee catalog returns the processes `washed`, `natural`, `washed` and an empty value
+- **THEN** the Process facet lists "Any", `natural`, `washed`, in that order
+
+#### Scenario: Roastery search
+- **WHEN** the visitor types "nóm" in the Roastery combobox
+- **THEN** the combobox lists the roasteries the API returns for that name, each with its description
+
+### Requirement: Offering facet options unavailable
+
+When the coffee catalog cannot be loaded, the Origin country, Origin region, Process, Variety and Producer facets SHALL render disabled with the help text "Options unavailable". When the taxonomy cannot be loaded, the Taste notes facet SHALL render disabled with the same help text. Every other facet, the sort and the list SHALL keep working.
+
+#### Scenario: Coffee catalog fails
+- **WHEN** the coffee catalog request fails
+- **THEN** the five coffee-based facets are disabled with "Options unavailable"
+- **AND** Coffee, Verification, Average score, Taste notes, Roastery and City still apply their changes
+
+#### Scenario: Taxonomy fails
+- **WHEN** the taxonomy request fails
+- **THEN** Taste notes is disabled with "Options unavailable" and the other facets keep working
+
+### Requirement: Offering filter state in the URL
+
+The URL query SHALL be the only state of the offering facets and sort, using the contract's key names. On load, each facet SHALL show the value of its key; an absent key SHALL show "Any", an empty field or the full 0–100 range. Each committed change SHALL navigate to the same path with the new query and without `page`, add one history entry, keep the focus on the control that changed and keep the scroll position. A value outside the contract limits (text longer than its limit, `verified` other than `0` or `1`, a score outside 0–100 or a minimum above the maximum, a sort pair that is not one of the sort options) SHALL be dropped before the list request, and its facet SHALL show its empty state. A `cataRef` value that is not a listed taste note SHALL be shown neither as checked nor as a chip; it is still sent, and a rejection by the API shows the catalog's error state. Pagination SHALL keep every other key.
+
+#### Scenario: Facets reflect the URL
+- **WHEN** a visitor opens `/{locale}/offerings?verified=1&process=washed&cuppingAvgMin=80`
+- **THEN** Verification shows Verified, Process shows `washed`, Average score shows 80–100 and every other facet shows its empty state
+
+#### Scenario: A change returns to page 1
+- **WHEN** the visitor on `?process=washed&page=3` selects `natural` in Process
+- **THEN** the URL becomes `?process=natural` without `page`, the focus stays on the Process option and the scroll position is kept
+
+#### Scenario: Back restores the previous filters
+- **WHEN** the visitor selects a process and then presses the browser's Back
+- **THEN** the URL and the facets return to the state before that selection
+
+#### Scenario: Out-of-range values dropped
+- **WHEN** a visitor opens `?cuppingAvgMin=120&verified=yes`
+- **THEN** the list is requested without `cuppingAvgMin` and `verified`, Average score shows 0–100 and Verification shows "Any"
+
+#### Scenario: Full range removes the bounds
+- **WHEN** the visitor sets the score range back to 0–100
+- **THEN** neither `cuppingAvgMin` nor `cuppingAvgMax` is in the URL
+
+### Requirement: Applied offering filters
+
+The facet panel SHALL show one removable chip per applied value, labelled with the value (the taste note's name for `cataRef`, Verified or Provisional for `verified`, "{min}–{max}" for the score range), each named "Remove filter: {facet}: {value}", followed by "Clear all". Removing a chip SHALL drop only that value. "Clear all" SHALL remove every filter key and keep the sort keys. The "Any" choice SHALL never count as an applied value.
+
+#### Scenario: Remove one chip
+- **WHEN** `process=washed` and `originCountry=Colombia` are applied and the visitor removes the `washed` chip
+- **THEN** the URL keeps `originCountry=Colombia` and drops `process`
+
+#### Scenario: Clear all keeps the sort
+- **WHEN** filters and `orderBy=cupping_avg&orderDirection=desc` are applied and the visitor activates "Clear all"
+- **THEN** the URL keeps only `orderBy=cupping_avg&orderDirection=desc`
+
+#### Scenario: No chips without filters
+- **WHEN** no filter key is applied
+- **THEN** neither chips nor "Clear all" are shown
+
+### Requirement: Offering sort
+
+The page body SHALL show a "Sort by" select with the options Default order (no sort keys), Highest score (`cupping_avg`, `desc`), Lowest score (`cupping_avg`, `asc`), Most evaluated (`evaluation_count`, `desc`), Newest (`created_at`, `desc`) and Oldest (`created_at`, `asc`). Choosing an option SHALL write both keys, or remove both for Default order, under the URL rules of "Offering filter state in the URL".
+
+#### Scenario: Top rated entry
+- **WHEN** a visitor follows the "Top rated" header entry
+- **THEN** Verification shows Verified and the sort select shows Highest score
+
+#### Scenario: Default order removes the keys
+- **WHEN** the visitor chooses Default order
+- **THEN** neither `orderBy` nor `orderDirection` is in the URL
+
+### Requirement: Offerings filter toolbar
+
+The page body SHALL show, above the results, a toolbar with a "Filters" trigger at the start and the sort select at the end. The trigger SHALL read "Filters" without applied values and "Filters ({count})" with them, expose whether the sidebar is expanded and which region it controls, and open the sidebar. Below the medium breakpoint the trigger SHALL always be shown and open the full-screen filter overlay, where every facet change applies while it stays open. From the medium breakpoint the trigger SHALL be shown only while the sidebar is collapsed.
+
+#### Scenario: Count in the trigger
+- **WHEN** two filter values are applied
+- **THEN** the trigger reads "Filters (2)"
+
+#### Scenario: Collapsed sidebar on a wide screen
+- **WHEN** the sidebar is collapsed from the medium breakpoint and the visitor activates "Filters"
+- **THEN** the sidebar expands with the facets and the trigger is no longer shown
+
+#### Scenario: Mobile overlay
+- **WHEN** a visitor below the medium breakpoint activates "Filters"
+- **THEN** the full-screen overlay opens with the facets, and a facet change updates the list behind it while the overlay stays open
+
+### Requirement: Filtered offerings results
+
+While the offering list loads or fails, the facets SHALL keep their values. When the list is empty and at least one filter value is applied, the catalog SHALL show "No results match these filters." and a "Clear all" button with the behaviour of the panel's "Clear all", instead of its unfiltered empty message. After each committed change, the catalog SHALL announce the result total in a polite status message "Results: {count}".
+
+#### Scenario: Empty with filters
+- **WHEN** the applied filters return no offerings
+- **THEN** the results area shows "No results match these filters." and a "Clear all" button
+
+#### Scenario: Empty without filters
+- **WHEN** no filter is applied and the list is empty
+- **THEN** the results area shows the catalog's unfiltered empty message
+
+#### Scenario: Result count announced
+- **WHEN** a facet change returns 12 offerings in total
+- **THEN** a polite status message reads "Results: 12"
+
+#### Scenario: List error keeps the facets
+- **WHEN** the list request fails after a facet change
+- **THEN** the catalog shows its error state and every facet keeps its value
