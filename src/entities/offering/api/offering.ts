@@ -2,11 +2,11 @@ import { publicRequest } from "@/shared/api";
 import type { OfferingDetail } from "@/shared/api";
 
 /**
- * The public offering read (design.md D1): `GET /offerings/{offering_ulid}`
- * through `publicRequest`, because the contract attaches no security scheme.
- * The caller tells an unknown offering (the 404 page) from a failure (the
- * failure message with a retry), so the outcome is a discriminated result
- * instead of a throw.
+ * The public offering read (add-offering-catalog design.md D3):
+ * `GET /offerings/{offering_ulid}` through `publicRequest`, because the
+ * contract attaches no security scheme. The outcome is a discriminated result
+ * instead of a throw, so every caller maps it into its own states; the one
+ * contract shared with add-specialist-evaluations.
  */
 
 /** What `fetchOffering` reports. */
@@ -26,7 +26,9 @@ export async function fetchOffering(ulid: string): Promise<OfferingResult> {
       return { status: "failed" };
     }
     const payload: { data?: OfferingDetail } = await response.json();
-    return payload.data ? { status: "found", offering: payload.data } : { status: "not-found" };
+    return payload.data
+      ? { status: "found", offering: payload.data }
+      : { status: "not-found" };
   } catch {
     return { status: "failed" };
   }

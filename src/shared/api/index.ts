@@ -18,6 +18,8 @@ type UserResponse =
   operations["getTheAuthenticatedUser"]["responses"][200]["content"]["application/json"];
 type ListOfferingsResponse =
   operations["listOfferings"]["responses"][200]["content"]["application/json"];
+type OfferingResponse =
+  operations["getAnOffering"]["responses"][200]["content"]["application/json"];
 type ListTaxonomiesResponse =
   operations["listOlfactoryTaxonomies"]["responses"][200]["content"]["application/json"];
 
@@ -38,6 +40,9 @@ export type OfferingSummary = NonNullable<ListOfferingsResponse["data"]>[number]
 
 /** `meta` of the offerings pagination; the list reads `current_page` and `last_page`. */
 export type OfferingsPageMeta = NonNullable<ListOfferingsResponse["meta"]>;
+
+/** `data` of `GET /offerings/{offering_ulid}`: the offering detail both detail tabs show. */
+export type OfferingDetail = NonNullable<OfferingResponse["data"]>;
 
 /** One node of an offering's `sensoryTaxonomy` tree: `ref`, `type`, `level`, `count`, `children`. */
 export type OfferingTaxonomyNode = NonNullable<
@@ -66,8 +71,6 @@ export type TaxonomiesPayload = {
 
 type ListMyEvaluationsResponse =
   operations["listMyEvaluations"]["responses"][200]["content"]["application/json"];
-type GetAnOfferingResponse =
-  operations["getAnOffering"]["responses"][200]["content"]["application/json"];
 
 type GeneratedEvaluationItem = NonNullable<ListMyEvaluationsResponse["data"]>[number];
 
@@ -105,6 +108,3 @@ export type EvaluationCreateBody =
 
 /** The request body of `PUT /user/evaluations/{evaluation_ulid}`: the create body without `offeringId`. */
 export type EvaluationUpdateBody = Omit<EvaluationCreateBody, "offeringId">;
-
-/** `data` of `GET /offerings/{offering_ulid}`. */
-export type OfferingDetail = NonNullable<GetAnOfferingResponse["data"]>;

@@ -85,11 +85,11 @@ A page SHALL be built from sections that span the full width of the page content
 - **THEN** it sits in one section on the page background, the header block, the group of section cards and the actions row are 2rem apart, the section cards are 1rem apart, and the page background shows between them and around them
 
 ### Requirement: Collapsible section
-A collapsible section SHALL present a header that spans the full width of its container, with the consumer's title at the start and a chevron at the end, and a body that the header shows and hides. The section SHALL start collapsed unless its consumer opens it initially, and activating the header with a pointer or the keyboard SHALL toggle it. The header SHALL expose whether the section is expanded and SHALL reference the body in both states; its accessible name SHALL be the title only, and any extra header content the consumer adds SHALL be exposed as its description. The chevron SHALL point down while collapsed and up while expanded, and SHALL never be the only carrier of the state. While collapsed, the body SHALL show nothing and its content SHALL be out of the tab order and the accessibility tree, while keeping its state for the next opening. Opening and closing SHALL animate the body's height over 0.25s, and SHALL happen instantly when the user prefers reduced motion. The header SHALL show the shared focus indicator when focused from the keyboard, and the section SHALL contribute no text of its own: the consumer supplies the title, the extra header content and the body.
+A collapsible section SHALL present a header that spans the full width of its container, with the consumer's title at the start and a chevron at the end, and a body that the header shows and hides. The section SHALL start collapsed unless its consumer opens it initially, and activating the header with a pointer or the keyboard SHALL toggle it. The header SHALL expose whether the section is expanded and SHALL reference the body in both states; its accessible name SHALL be the title only, and any extra header content the consumer adds SHALL be exposed as its description. The chevron SHALL point down while collapsed and up while expanded, and SHALL never be the only carrier of the state. While collapsed, the body SHALL show nothing and take up no space in the page, and its content SHALL be out of the tab order and the accessibility tree, while keeping its state for the next opening. Opening and closing SHALL animate the body's height over 0.25s, and SHALL happen instantly when the user prefers reduced motion. The header SHALL show the shared focus indicator when focused from the keyboard, and the section SHALL contribute no text of its own: the consumer supplies the title, the extra header content and the body.
 
 #### Scenario: Collapsed by default
 - **WHEN** a collapsible section renders without being opened initially by its consumer
-- **THEN** the header reports it collapsed, the chevron points down, the body shows nothing and none of its content can be reached with the keyboard or by assistive technology
+- **THEN** the header reports it collapsed, the chevron points down, the body shows nothing and takes up no space, so the page does not extend below its visible content because of the hidden body, and none of its content can be reached with the keyboard or by assistive technology
 
 #### Scenario: Toggle
 - **WHEN** the user activates the header of a collapsed section, by pointer or by keyboard
@@ -157,3 +157,41 @@ A card SHALL offer a section variant that its consumer opts into, for one sectio
 #### Scenario: Consumer content only
 - **WHEN** a consuming capability fills a section card
 - **THEN** the rendered text is exactly what the consumer supplied, and the card adds no visible or accessible text, name or role of its own
+
+### Requirement: Label/value row
+A label/value row SHALL pair one term with its value in a single row: the term at the start of the row and the value at the end, at least 1rem apart, the value wrapping onto its own line when the row is too narrow for both. Rows rendered together SHALL keep description-term and description semantics for assistive technology, and the row SHALL contribute no text or data of its own.
+
+#### Scenario: Term and value
+- **WHEN** a label/value row renders where both parts fit on one line
+- **THEN** the term sits at the start of the row and its value at the end
+
+#### Scenario: Wrapping row
+- **WHEN** the row is too narrow for the term and the value on one line
+- **THEN** the value wraps onto its own line below the term and nothing overflows the row
+
+#### Scenario: Description semantics
+- **WHEN** several label/value rows render together as a data list
+- **THEN** each term is a description term and each value is its description
+
+#### Scenario: Consumer content only
+- **WHEN** a consuming capability fills a label/value row
+- **THEN** the rendered text and data are exactly what the consumer supplied
+
+### Requirement: Tabs
+A tabbed content block SHALL present its tab labels and exactly one panel at a time: the selected tab is marked as selected and its panel renders while the other panels render nothing. The arrow keys SHALL move the focus along the tab labels without changing the visible panel, and activating the focused tab SHALL make its panel the visible one. The block SHALL decide nothing about its content: its consumer supplies the tab labels, the panels' content and the selected tab.
+
+#### Scenario: One panel at a time
+- **WHEN** a tabbed content block renders
+- **THEN** exactly one panel renders and the other tabs' panels render nothing
+
+#### Scenario: Selecting a tab
+- **WHEN** the visitor activates a tab label
+- **THEN** that tab is marked as selected and its panel becomes the visible one
+
+#### Scenario: Arrow keys move the focus only
+- **WHEN** the visitor presses the arrow keys along the tab labels
+- **THEN** the focus moves between the tab labels and the visible panel does not change
+
+#### Scenario: Consumer content only
+- **WHEN** a consuming capability fills a tabbed content block
+- **THEN** the rendered text and data are exactly what the consumer supplied

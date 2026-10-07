@@ -7,7 +7,20 @@ Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`.
 - `AGENTS.md` y `.claude/workflow_sdd.md`: reglas y flujo de los agentes OpenCode.
 - El `handoff.md` y el `corrections.md` de cada cambio.
 
-**Actualizado:** 2026-10-07 12:15.
+**Actualizado:** 2026-10-07 15:30.
+
+## Al retomar (sesión cerrada el 7 oct ~15:30 para recargar permisos)
+
+- **Mergeado hoy en `develop`:** `add-user-account`, `refine-page-surfaces` (`2bc80ae`); contrato del API `PROD e84b444` en `develop` `3e5a97c` (`offeringId` nullable). API: hotfix `perPage` (`HasPagination`, estándar 15, máx. 50) en `dev` `b05aa73` y `PROD` `e84b444`, sin documentar en Scribe por decisión de Product owner.
+- **Rondas de adopción terminadas en la nube, pendientes de integrar** (revisado: orden test→feat correcto):
+  - `origin/claude/add-offering-management-round2` (`8168634`): checks + build en verde (1727 tests). Integrar con `--ff-only` en `tazavera-front-management`.
+  - `origin/claude/add-specialist-evaluations-round3` (`5dce169`): build verde; 1 timeout de 5 s en `EvaluationForm.test.tsx` (test lento bajo carga, ya visto antes; repetir el archivo solo). Candidato a cobertura no planificada (subir el timeout de ese archivo).
+  - `origin/claude/add-offering-catalog-round2` (`337447b`): sus checks no terminaron (sesión cerrada); repetir.
+  - Worktrees temporales `../tmp-check-mgmt`, `../tmp-check-evals`, `../tmp-check-catalog`: quitarlos con `git worktree remove` tras integrar.
+- **Después de integrar:** revisión visual del design lead (management con el mock; sus scripts están en el scratchpad de la sesión anterior; `cuppingAvg` del mock como string), archive y merge de catalog, evaluations y management.
+- **Proposes en la nube lanzados a las 13:18 UTC:** `add-user-contact` (`trig_01UgK6FpjWy4D8baJJN8xmBj`), `add-coffeeshop-location` (`trig_01K8QgWprMuLhzbqqdgvsrPL`), `add-coffeeshop-directory` (`trig_01AnsajgQHcMqw6r8WLregQc`); ramas `claude/<change-id>-propose`. Revisar e integrar.
+- **Pendiente de lanzar:** resúmenes de los refactors R9, R11, R12 y de la adopción de la tarjeta de sección en user-account (design lead); `refine-list-pagination` (renombrar el borrador `refine-offering-pagination`; Q1 resuelto con la opción A: `perPage=6` en la landing) → aprobación y propose.
+- **Permisos:** en Bash, `taskkill //PID` y `git merge` se deniegan aunque estén en `allow`; desde la herramienta PowerShell funcionan (`taskkill /PID n /T /F`). El `ask` global de `git merge` en `~/.claude/settings.json` es la causa de lo segundo.
 
 ## Revisión de la noche (6–7 oct) — para Product owner
 
@@ -478,3 +491,27 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
   - Orquestador: el propose de add-coffeeshop-directory y add-coffeeshop-location puede ir antes de que se mergeen R9/R12 y R11; solo su apply espera a los refactors. Listas de directory y location en una columna.
 - **Por qué:** respuestas de Product owner del 7 oct (P1a, P2a, P3a); resúmenes del design lead (`2ce2cd8`).
 - **Afecta:** refine-page-surfaces; add-offering-catalog, add-specialist-evaluations, add-offering-management (ronda de adopción); add-user-account; add-user-contact; add-public-evaluations; add-coffeeshop-location; add-coffeeshop-directory.
+
+### 2026-10-07 — mapa del directorio con Leaflet y `perPage` (Product owner)
+- **Decisión:**
+  - Se aprueba la dependencia `leaflet@1.9.4` + `@types/leaflet@1.9.22` (BSD-2-Clause) para el mapa del directorio de cafeterías (add-coffeeshop-directory D16): conmutador lista/mapa, vista de mapa, botón de mapa en la tarjeta, mapa a pantalla completa en móvil, mapa de la pestaña Ubicaciones, y la línea `img-src` de la CSP para las teselas.
+  - API: `page` y `perPage` (estándar 15, máximo 50) en las cinco listas paginadas (hotfix `6eb8d0f`/`e84b444`). Product owner decide no documentarlo en Scribe: el front lo trata como comunicado por Product owner, igual que `offeringId` nullable. La landing pide `perPage=6` (refine-list-pagination, Q1 opción A).
+  - `openspec/config.yaml` actualizado por Product owner (`bbf5e66`): `offering-catalog` incluye el directorio; `offering-management`, las ubicaciones; `user-account`, los datos de contacto.
+- **Por qué:** respuestas de Product owner del 7 oct.
+- **Afecta:** add-coffeeshop-directory (actualización de artefactos: tareas del mapa); refine-list-pagination; add-coffeeshop-location; add-user-contact.
+
+### 2026-10-07 — geocodificación propia y mandato de autonomía (orquestador, por mandato de Product owner)
+- **Decisión:**
+  - Mandato de Product owner (7 oct, tarde): el orquestador cierra los puntos en autonomía, salvo los que cambien lo pactado en un design summary.
+  - add-coffeeshop-location Open 5 / D5: geocodificación con un `fetch` propio a Nominatim en el único punto de entrada `src/shared/lib/geocoding` (opción C del resumen), sin dependencia nueva. `leaflet-geosearch` se descarta: solo acepta texto libre, no admite cancelar ni comprueba el estado (verificado en el propose). La CSP `connect-src` a Nominatim ya estaba aprobada (entrada "contactos y locales").
+  - Textos propuestos en en/ca de los proposes del 7 oct (`urlFormatError`, `signedOutText`, `mapLoading`, `locationNoMap`, "Administra les ubicacions") se aceptan tal cual.
+- **Por qué:** mandato de Product owner; resumen de add-coffeeshop-location (Open 5 ofrece C); recomendación del arquitecto.
+- **Afecta:** add-coffeeshop-location (D5 cerrado; sin tarea de librería); add-user-contact; add-coffeeshop-directory.
+
+### 2026-10-07 — revisión visual previa al archive: arreglos compartidos (orquestador y Product owner)
+- **Decisión:**
+  - Catalog pasa la revisión del design lead y se archiva y mergea (`589b358`). Evaluations y management cumplen sus rondas, pero esperan a dos arreglos de componentes compartidos ya mergeados, cada uno en su propio cambio: `fix-collapsible-overflow` (un `Collapsible` plegado sigue ocupando altura: hueco en blanco a 375 px) y `fix-combobox-blur` (el `Combobox` se cierra y vacía al llegar los resultados; impide elegir inventario al crear una oferta).
+  - Product owner aprueba `fix-auth-return-query`: la ruta de vuelta tras iniciar sesión conserva la query (`pathname + search`), validada como ruta interna igual que hoy; sin tocar tokens, PKCE, CSP ni `proxy.ts`.
+  - Catalog D13: si un bloque de selección no tiene notas, su tarjeta se ensancha (sin columna de leyenda); se mantiene como dice el diseño.
+- **Por qué:** informe del design lead del 7 oct; mandato de autonomía; respuesta de Product owner ("sí, procede").
+- **Afecta:** add-specialist-evaluations y add-offering-management (archive tras los arreglos); add-offering-facets, add-evaluation-facets y add-coffeeshop-location (usan `Combobox`/`Collapsible`); auth.

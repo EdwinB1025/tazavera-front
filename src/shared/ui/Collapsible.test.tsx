@@ -186,6 +186,18 @@ describe("Collapsible section", () => {
     expect(classTokens(inner)).toContain("min-h-0");
   });
 
+  it("clips the collapsed body's overflow", () => {
+    const { body, button } = renderSection();
+    const inner = body.firstElementChild!;
+    expect(classTokens(inner)).toContain("min-h-0");
+    expect(classTokens(inner)).toContain("overflow-hidden");
+    fireEvent.click(button);
+    expect(classTokens(inner)).toContain("min-h-0");
+    expect(classTokens(inner)).not.toContain("overflow-hidden");
+    fireEvent.click(button);
+    expect(classTokens(inner)).toContain("overflow-hidden");
+  });
+
   it("lays out the header as a full-width focusable row", () => {
     const { button } = renderSection({}, { aside: "Completo" });
     expect(button.getAttribute("type")).toBe("button");
