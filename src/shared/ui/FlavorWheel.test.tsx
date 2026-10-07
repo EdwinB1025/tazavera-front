@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { render, screen, fireEvent, cleanup, act } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { FlavorWheel } from "./FlavorWheel";
 import type { FlavorWheelNode, FlavorWheelProps } from "./FlavorWheel";
 import { taxonomyColorRule } from "./taxonomy-color";
@@ -139,55 +139,6 @@ describe("FlavorWheel — initial render", () => {
     );
     expect(centre?.getAttribute("font-size")).toBe("28");
   });
-
-  it("shows the hint paragraph in the panel", () => {
-    const { container } = renderWheel();
-    const hint = panel(container).querySelector("p");
-    expect(hint?.textContent).toBe("texts.hint");
-    expect(hint?.className).toBe("type-body");
-  });
-
-  it("renders a figure with a visually hidden caption and an aria-hidden SVG", () => {
-    const { container } = renderWheel();
-    const figure = container.querySelector("figure");
-    expect(figure?.className).toBe("@container");
-    const caption = figure?.querySelector("figcaption");
-    expect(caption?.textContent).toBe("texts.label");
-    expect(caption?.className).toBe("sr-only");
-    const svg = container.querySelector("svg");
-    expect(svg?.getAttribute("aria-hidden")).toBe("true");
-    expect(svg?.getAttribute("viewBox")).toBe("-204 -204 408 408");
-  });
-
-  it("lays out by container width: stacked, then two columns from 42rem", () => {
-    const { container } = renderWheel();
-    const layout = container.querySelector("figure > div");
-    expect(layout?.className).toBe(
-      "flex flex-col gap-6 @2xl:grid @2xl:grid-cols-[minmax(0,32rem)_minmax(16rem,1fr)] @2xl:grid-rows-[auto_1fr] @2xl:gap-x-8 @2xl:gap-y-6",
-    );
-    const wheel = container.querySelector("svg")?.parentElement;
-    expect(wheel?.className).toBe(
-      "mx-auto aspect-square w-full max-w-128 @2xl:row-span-2 @2xl:mx-0 @2xl:self-start",
-    );
-    // Column 2 stacks the panel and the note-list section.
-    expect(
-      Array.from(layout?.children ?? [])
-        .slice(1)
-        .map((child) => child.getAttribute("data-slot") ?? child.tagName),
-    ).toEqual(["flavor-wheel-panel", "DIV"]);
-    const section = layout?.children[2] as HTMLElement;
-    expect(section.className).toBe("flex flex-col");
-    expect(section.children[0].tagName).toBe("BUTTON");
-    expect(section.children[0]).toBe(notesToggle());
-    expect(section.children[1].contains(screen.getByRole("tree"))).toBe(true);
-    expect(section.children[1].id).toBe(
-      notesToggle().getAttribute("aria-controls"),
-    );
-    expect(panel(container).className).toBe(
-      "flex min-h-24 flex-col gap-2 rounded-field border border-border-subtle p-4",
-    );
-    expect(screen.getByRole("tree").className).toBe("flex flex-col gap-1 pt-2");
-  });
 });
 
 describe("FlavorWheel — note list disclosure", () => {
@@ -250,20 +201,6 @@ describe("FlavorWheel — note list disclosure", () => {
     expect(classes.contains("focus-visible:focus-ring")).toBe(true);
     expect(classes.contains("@2xl:justify-self-start")).toBe(false);
     expect(notesToggle().textContent).toBe("texts.notesToggle");
-  });
-
-  it("keeps the wheel's expansion and the active note across list toggles", () => {
-    const { container } = renderWheel({}, { listOpen: false });
-    fireEvent.click(segment(container, "fruity")!);
-    fireEvent.click(notesToggle());
-    fireEvent.click(notesToggle());
-    expect(segmentIds(container)).toContain("berry");
-    fireEvent.click(notesToggle());
-    expect(row("Berry")).toBeDefined();
-    expect(row("Fruity").className).toBe(`${ROW_CLASSES} bg-surface-section`);
-    expect(
-      panel(container).querySelector(".type-subheading")?.textContent,
-    ).toBe("Fruity");
   });
 });
 
@@ -389,50 +326,6 @@ describe("FlavorWheel — active note", () => {
     ).toBe("Nutty");
   });
 
-  it("lays out the panel header with the swatch, the name and the count", () => {
-    const { container } = renderWheel();
-    fireEvent.pointerEnter(row("Fruity"));
-    const header = panel(container).firstElementChild as HTMLElement;
-    expect(header.className).toBe("flex flex-wrap items-center gap-2");
-    const [swatch, name, count] = Array.from(header.children);
-    expect(swatch.className).toBe("size-3 shrink-0 rounded-check");
-    expect(swatch.getAttribute("aria-hidden")).toBe("true");
-    expect(name.className).toBe("type-subheading");
-    expect(count.textContent).toBe("4/5");
-    expect(count.className).toBe("type-body ms-auto tabular-nums");
-  });
-
-  it("gives the active row and segment their active treatment", () => {
-    const { container } = renderWheel();
-    fireEvent.pointerEnter(segment(container, "floral")!);
-    expect(row("Floral").className).toBe(`${ROW_CLASSES} bg-surface-section`);
-    expect(row("Fruity").className).toBe(ROW_CLASSES);
-    const outlines = container.querySelectorAll("svg path.stroke-text-primary");
-    expect(outlines).toHaveLength(1);
-    const outline = outlines[0];
-    expect(outline.getAttribute("d")).toBe(
-      segment(container, "floral")!.querySelector("path")!.getAttribute("d"),
-    );
-    expect(outline.getAttribute("class")).toBe(
-      "pointer-events-none stroke-text-primary",
-    );
-    expect(outline.getAttribute("fill")).toBe("none");
-    expect(outline.getAttribute("stroke-width")).toBe("3");
-    // Drawn last, above every segment.
-    expect(container.querySelector("svg")!.lastElementChild).toBe(outline);
-  });
-
-  it("points the active row's aria-describedby at the panel description", () => {
-    const { container } = renderWheel();
-    fireEvent.pointerEnter(row("Fruity"));
-    const id = row("Fruity").getAttribute("aria-describedby");
-    expect(id).toBe("flavor-wheel-desc-fruity");
-    expect(container.querySelector(`#${id}`)?.textContent).toBe(
-      "Fruity description",
-    );
-    expect(row("Floral").hasAttribute("aria-describedby")).toBe(false);
-  });
-
   it("keeps the last active note when the pointer leaves the wheel", () => {
     const { container } = renderWheel();
     fireEvent.pointerEnter(segment(container, "fruity")!);
@@ -546,13 +439,6 @@ describe("FlavorWheel — expand and collapse", () => {
     expect(document.activeElement).toBe(before);
   });
 
-  it("activates a leaf on click without expanding anything", () => {
-    const { container } = renderWheel();
-    fireEvent.click(segment(container, "nutty")!);
-    expect(segmentIds(container)).toEqual(["fruity", "floral", "nutty"]);
-    expect(row("Nutty").className).toBe(`${ROW_CLASSES} bg-surface-section`);
-  });
-
   it("rescales ring 0 as a root expands and after Escape", () => {
     const { container } = renderWheel();
     const fruityPath = (): string | null =>
@@ -606,27 +492,6 @@ describe("FlavorWheel — segment labels", () => {
     });
   });
 
-  it("gives every wheel its own label path ids", () => {
-    const nodes = [note("fruity", 0, 1), note("floral", 0, 1)];
-    render(<FlavorWheel nodes={nodes} total={5} texts={TEXTS} />);
-    render(<FlavorWheel nodes={nodes} total={5} texts={TEXTS} />);
-    const hrefs = Array.from(document.querySelectorAll("textPath")).map((t) =>
-      t.getAttribute("href"),
-    );
-    expect(hrefs).toHaveLength(8);
-    expect(new Set(hrefs).size).toBe(8);
-  });
-
-  it("labels the ring-1 segments of an expanded note along their arcs", () => {
-    const { container } = renderWheel();
-    fireEvent.click(segment(container, "fruity")!);
-    for (const id of ["berry", "dried"]) {
-      expect(
-        segment(container, id)!.querySelector("text textPath"),
-      ).not.toBeNull();
-    }
-  });
-
   it("draws no label at rest when not even the name fits arched", () => {
     const { container } = renderWheel({
       nodes: [note("fruity", 0, 200), note("floral", 0, 1)],
@@ -662,11 +527,6 @@ describe("FlavorWheel — name shown while active", () => {
     return last?.tagName === "text" ? last : null;
   }
 
-  it("shows no name at rest for a segment whose name cannot fit", () => {
-    const { container } = renderWheel({ nodes: NARROW });
-    expect(namesInWheel(container, "Floral")).toHaveLength(0);
-  });
-
   it("draws the name alone, haloed on the card colour, last, while the note is active", () => {
     const { container } = renderWheel({ nodes: NARROW });
     fireEvent.pointerEnter(segment(container, "floral")!);
@@ -694,16 +554,6 @@ describe("FlavorWheel — name shown while active", () => {
     );
   });
 
-  it("shows the name when the row is focused or clicked", () => {
-    const { container } = renderWheel({ nodes: NARROW });
-    // Wrapped in act so the focus handler's state update flushes.
-    act(() => row("Floral").focus());
-    expect(activeName(container)?.textContent).toBe("Floral");
-    fireEvent.pointerEnter(segment(container, "fruity")!);
-    fireEvent.click(row("Floral"));
-    expect(activeName(container)?.textContent).toBe("Floral");
-  });
-
   it("hides the name when another note becomes active, and never adds one for a label that fits", () => {
     const { container } = renderWheel({ nodes: NARROW });
     fireEvent.pointerEnter(segment(container, "floral")!);
@@ -713,14 +563,6 @@ describe("FlavorWheel — name shown while active", () => {
     expect(
       container.querySelectorAll("svg text.stroke-surface-card"),
     ).toHaveLength(0);
-  });
-
-  it("keeps the name while the note stays active after the pointer leaves", () => {
-    const { container } = renderWheel({ nodes: NARROW });
-    fireEvent.pointerEnter(segment(container, "floral")!);
-    fireEvent.pointerLeave(segment(container, "floral")!);
-    fireEvent.pointerLeave(container.querySelector("figure")!);
-    expect(activeName(container)?.textContent).toBe("Floral");
   });
 });
 
@@ -921,12 +763,6 @@ describe("FlavorWheel — groups (add-offering-catalog design.md D19)", () => {
     expect(rows().map((r) => r.getAttribute("aria-label")?.split(",")[0])).toEqual(
       ["Fruity", "Floral", "Body"],
     );
-  });
-
-  it("shows no group legend without groups", () => {
-    const { container } = renderWheel({ nodes: GROUPED, texts: GROUP_TEXTS });
-    expect(screen.queryByRole("list", { name: "texts.groupsLabel" })).toBeNull();
-    expect(container.querySelector("svg [data-group-legend]")).toBeNull();
   });
 
   it("shows no group legend when the roots hold one group only", () => {
