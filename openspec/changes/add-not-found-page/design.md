@@ -16,6 +16,8 @@ Next.js guides (local docs, Next.js 16.3.6):
 - `node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/not-found.md` — `not-found.js` renders when `notFound()` is thrown in its segment, inside the segment's layout; it receives no props; 404 status for non-streamed responses; `global-not-found.js` is experimental and needs its own `<html>`/`<body>`.
 - `node_modules/next/dist/docs/01-app/03-api-reference/04-functions/not-found.md` — the exception travels up to the nearest `not-found` boundary, falling back to the default 404 page.
 - `node_modules/next/dist/docs/01-app/03-api-reference/04-functions/headers.md` — `headers()` is async in a Server Component.
+- `node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/parallel-routes.md` ("Soft Navigation") — on client-side navigation a slot that matches no subpage keeps its active subpage; `default.js` renders only on hard navigation.
+- `node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/dynamic-routes.md` ("Catch-all Segments") — `[...folderName]` matches every deeper path; more specific routes take precedence.
 
 ## Goals / Non-Goals
 
@@ -32,6 +34,8 @@ No endpoint is consumed. No generated type is used or added; no API error is pre
 | Path | Layer | Change |
 |---|---|---|
 | `app/[locale]/not-found.tsx` | routing (`app/`) | created |
+| `app/[locale]/[...rest]/page.tsx` | routing (`app/`) | created (D7) |
+| `app/[locale]/[...rest]/page.test.tsx` | routing (`app/`) | created (D7) |
 | `src/pages/not-found/ui/NotFoundScreen.tsx` | pages | created |
 | `src/pages/not-found/ui/NotFoundScreen.test.tsx` | pages | created |
 | `src/pages/not-found/index.ts` | pages (public API) | created |
@@ -99,11 +103,19 @@ The screen adds only the classes listed above; padding, borders, radius, shadow,
 1. Scenario "Not-found page content": a `heading` of level 1 named "Página no encontrada", and the text "La página que buscas no existe o no tienes acceso a ella." is shown.
 2. Scenario "Back to the home page": the `link` named "Volver al inicio" has `href` `/es`.
 
+3. Route test of D7 (`app/[locale]/[...rest]/page.test.tsx`, the pattern of `app/[locale]/default.test.tsx`): the default export of `app/[locale]/[...rest]/page.tsx` calls Next's `notFound()` (spy on `next/navigation`).
+
 Not tested with Vitest: the async route file, the HTTP status and the boundary wiring (framework behaviour); they go to the visual verification task. `app/[locale]/default.test.tsx` stays as it is. No guard test is added (decisions log 2026-10-08).
+
+### D7 — Unknown path on soft navigation (orchestrator decision, 2026-10-08)
+
+The visual verification (handoff 2026-10-07) found that in-app navigation from `/en` to `/en/no-such-page` changes the URL but keeps the home page. The cause is a framework constraint: the path matches `app/[locale]/@sidebar/[...rest]`, so the route exists, and on soft navigation the `children` slot, which matches nothing, keeps its previous page; `app/[locale]/default.tsx` applies only on hard navigation (parallel-routes doc, "Soft Navigation", path above).
+
+Decision: add `app/[locale]/[...rest]/page.tsx`, a synchronous default export that calls `notFound()` from `next/navigation` and holds no other logic. The `children` slot then also matches every unknown path under a locale, and its `notFound()` renders the `app/[locale]/not-found.tsx` boundary of D2 on soft and hard navigation alike. A catch-all has the lowest priority (dynamic-routes doc, "Catch-all Segments"), so every defined route (home, offerings, manage/*, account, register, about) still resolves to its own page. `app/[locale]/default.tsx` stays: it still covers slots without a match on hard navigation. No spec behaviour changes: the scenario "Unknown route stays not found" now holds on both kinds of navigation.
 
 ## Risks / Trade-offs
 
 - `notFound()` thrown from the Client Components (`SessionGate`, `EvaluationsAccess`, `EvaluationDetail`) is expected to render this boundary (functions doc); not yet seen in this project's browser. Covered by the visual verification task.
-- `x-locale` on client-side navigation to an unknown path is expected (proxy matcher covers non-`_next` paths); checked in the visual verification task by navigating in-app.
+- `x-locale` on client-side navigation to an unknown path is expected (proxy matcher covers non-`_next` paths); checked in the visual verification task by navigating in-app. The first run failed for the reason of D7, not the header; re-checked after D7.
 - On role-gated management routes the `@sidebar` slot may still render that route's entries beside the page. Existing behaviour; if seen, it is reported for a new change or the backlog, not fixed here.
 - `messages/*/shell.json` closing lines conflict with any in-flight branch that edits them; the orchestrator simulates the merge before the apply.
