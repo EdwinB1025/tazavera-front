@@ -1,5 +1,4 @@
 import { Suspense, type ReactNode } from "react";
-import type { Session } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
 import { PageSection } from "@/shared/ui";
 import {
@@ -23,10 +22,6 @@ export type OfferingsScreenProps = {
    */
   toolbar?: ReactNode;
 };
-
-// The session supply expression (the `HomeScreen` pattern): one anonymous
-// `Session` constant, at this single expression.
-const ANONYMOUS_SESSION: Session = { state: "anonymous" };
 
 // Placeholder cards rendered while the list loads (spec "Loading").
 const SKELETON_CARD_KEYS = [0, 1, 2] as const;
@@ -99,7 +94,6 @@ export function OfferingsScreen({
           <Offerings
             locale={locale}
             query={query}
-            session={ANONYMOUS_SESSION}
             texts={listTexts}
             path={`/${locale}/offerings`}
             gridClassName={CATALOG_GRID_CLASSES}

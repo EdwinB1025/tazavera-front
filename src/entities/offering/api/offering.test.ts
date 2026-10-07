@@ -4,7 +4,8 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
  * The single-offering read (add-offering-catalog design.md D3; spec "Offering
  * detail page" — "Error and retry"). `fetchOffering` sends
  * `GET /offerings/{ulid}` through `publicRequest` and resolves `found` with
- * the `data` of a `200`, `not-found` for a `404` and `failed` for any other
+ * the `data` of a `200`, `not-found` for a `404` or a `200` without `data`
+ * (add-specialist-evaluations design.md D1), and `failed` for any other
  * non-2xx status or a transport failure; it never rejects.
  */
 
@@ -52,6 +53,11 @@ describe("fetchOffering (design.md D3)", () => {
     publicRequest.mockResolvedValue(
       jsonResponse(404, { message: "Not found" }),
     );
+    await expect(fetchOffering(ULID)).resolves.toEqual({ status: "not-found" });
+  });
+
+  it("resolves a 200 without data as not-found", async () => {
+    publicRequest.mockResolvedValue(jsonResponse(200, {}));
     await expect(fetchOffering(ULID)).resolves.toEqual({ status: "not-found" });
   });
 

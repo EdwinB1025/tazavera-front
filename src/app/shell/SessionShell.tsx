@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import type { Session } from "@/shared/api";
 import { LOCALES } from "@/shared/config/locales";
 import { useSession } from "@/features/auth";
+import { EvaluationsSidebarEntry } from "@/features/manage-evaluations";
 import { SidebarProvider } from "@/shared/ui";
 import {
   AppSidebarProvider,
@@ -53,13 +54,24 @@ export function SessionShell({
 }: SessionShellProps): ReactNode {
   const hookValue = useSession();
   const supplied = session ?? hookValue;
+  // The management area's entries for the session's role, by the user menu's
+  // role rule (add-specialist-evaluations design.md D5): a specialist gets
+  // "My evaluations"; no other role contributes entries here.
+  const entries =
+    supplied.state === "authenticated" && supplied.user.role === "specialist" ? (
+      <EvaluationsSidebarEntry locale={locale} texts={{ label: texts.manageEvaluations }} />
+    ) : undefined;
 
   // design.md D5: one sidebar state for the header, the sidebar and the page
   // body; the region is the route's slot or the default sidebar.
   return (
     // The provider's own element is the shell root (refine-app-header D15).
     <SidebarProvider className="flex flex-1 flex-col">
-      <AppSidebarProvider session={supplied} toggleLabel={texts.toggleSidebar}>
+      <AppSidebarProvider
+        session={supplied}
+        entries={entries}
+        toggleLabel={texts.toggleSidebar}
+      >
         <ShellChrome
           session={supplied}
           locale={locale}

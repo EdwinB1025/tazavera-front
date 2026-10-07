@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
-import type { OfferingsPageMeta, OfferingSummary, Session } from "@/shared/api";
+import type { OfferingsPageMeta, OfferingSummary } from "@/shared/api";
 import type {
   OfferingCardTexts,
   ResolvedTaxonomyBadge,
 } from "@/entities/offering";
 import { OfferingCard } from "@/entities/offering";
-import { Link, Pagination } from "@/shared/ui";
+import { EvaluateLink } from "@/features/evaluate-offering";
+import { Pagination } from "@/shared/ui";
 import type { PaginationTexts } from "@/shared/ui";
 import { RetryButton } from "./RetryButton";
 import { OFFERING_GRID_CLASSES } from "../lib/grid";
@@ -34,7 +35,6 @@ export type OfferingListResult =
 export type OfferingListProps = {
   result: OfferingListResult;
   locale: string;
-  session: Session;
   texts: OfferingListTexts;
   /** The pagination's address without its query; landing's `/${locale}` by default. */
   path?: string;
@@ -69,13 +69,12 @@ const ERROR_CLASSES = [
  * error message with the retry action on a failure — an offerings failure and
  * a taxonomy failure alike, since both map into the one `error` result
  * (design.md D4). Every text arrives as a prop (design.md D11) and this widget
- * fills each card's actions slot with the Evaluate link for a signed-in
- * specialist (replace-offering-card-session design.md D2).
+ * fills each card's actions slot with `EvaluateLink`, which shows itself to a
+ * signed-in specialist only (add-specialist-evaluations design.md D6).
  */
 export function OfferingList({
   result,
   locale,
-  session,
   texts,
   path = `/${locale}`,
   query,
@@ -93,31 +92,22 @@ export function OfferingList({
       {result.state === "success" ? (
         <>
           <div className={gridClassName}>
-            {result.items.map((item, index) => {
-              // The specialist check moved unchanged from the entity
-              // (replace-offering-card-session design.md D2).
-              const isSpecialist =
-                session.state === "authenticated" &&
-                session.user.role === "specialist";
-              return (
-                <OfferingCard
-                  key={item.offering.ulid ?? index}
-                  offering={item.offering}
-                  locale={locale}
-                  taxonomies={item.taxonomies}
-                  texts={texts}
-                  actions={
-                    isSpecialist ? (
-                      <Link
-                        href={`/${locale}/manage/evaluations/new?offering=${item.offering.ulid ?? ""}`}
-                      >
-                        {texts.evaluateLabel}
-                      </Link>
-                    ) : undefined
-                  }
-                />
-              );
-            })}
+            {result.items.map((item, index) => (
+              <OfferingCard
+                key={item.offering.ulid ?? index}
+                offering={item.offering}
+                locale={locale}
+                taxonomies={item.taxonomies}
+                texts={texts}
+                actions={
+                  <EvaluateLink
+                    ulid={item.offering.ulid ?? ""}
+                    locale={locale}
+                    texts={texts}
+                  />
+                }
+              />
+            ))}
           </div>
           <Pagination
             currentPage={currentPage}

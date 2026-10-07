@@ -114,9 +114,10 @@ describe("OfferingsScreen", () => {
     expect(block.props?.gridClassName).toBe(CATALOG_GRID_CLASSES);
   });
 
-  it("supplies the session at one expression as the anonymous Session constant", () => {
+  it("passes no session to the block (add-specialist-evaluations design.md D6)", () => {
     render(<OfferingsScreen locale="es" searchParams={{}} />);
-    expect(block.props?.session).toEqual({ state: "anonymous" });
+    expect(block.props).not.toBeNull();
+    expect(block.props).not.toHaveProperty("session");
   });
 
   it("feeds the catalog's list messages and landing's card, pagination and retry texts to the list (design.md D16)", () => {
