@@ -16,10 +16,6 @@ export type {
   RegisterSuccessPanelProps,
   RegisterSuccessPanelTexts,
 } from "./ui/RegisterSuccessPanel";
-export { LoadingStatus } from "./ui/LoadingStatus";
-export type { LoadingStatusProps } from "./ui/LoadingStatus";
-export { SessionGate } from "./ui/SessionGate";
-export type { SessionGateProps, SessionGateTexts } from "./ui/SessionGate";
 export { AccountSection } from "./ui/AccountSection";
 export type { AccountSectionProps } from "./ui/AccountSection";
 export { ExternalLink } from "./ui/ExternalLink";
