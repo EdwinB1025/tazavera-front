@@ -201,6 +201,9 @@ describe("LocationsMap", () => {
       pujades.focus();
       act(() => activate(pujades));
       expect(pujades.getAttribute("data-selected")).toBe("true");
+      // Leaflet's stylesheet sets the marker element to `display: block`, so
+      // the icon element centres the pin itself (design.md D14).
+      expect(pujades.firstElementChild?.getAttribute("class")).toBe("flex size-full items-center justify-center");
       const panel = screen.getByRole("region", { name: "Nomad Coffee" });
       expect(within(panel).getByText("Pujades")).toBeDefined();
       expect(within(panel).getByText("Carrer de Pujades 95, 08005 Barcelona")).toBeDefined();

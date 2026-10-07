@@ -69,6 +69,8 @@ const MARKER_CLASSES = [
   "data-[selected=true]:bg-action-primary-hover",
 ].join(" ");
 
+const ICON_CLASSES = "flex size-full items-center justify-center";
+
 // Leaflet's panes stack up to z-index 700; the overlays sit above them.
 const OVERLAY_CLASSES = "absolute z-[1000]";
 const ZOOM_CLASSES = cn(OVERLAY_CLASSES, "top-3 right-3 flex flex-col gap-2");
@@ -141,6 +143,9 @@ export function LocationsMap({
     const roots: Root[] = [];
     for (const point of points) {
       const icon = document.createElement("span");
+      // Leaflet's stylesheet makes the marker element a block, so the icon
+      // element centres the pin itself.
+      icon.className = ICON_CLASSES;
       const root = createRoot(icon);
       root.render(<MapPin className="size-4" aria-hidden="true" />);
       roots.push(root);
