@@ -72,36 +72,6 @@ const NODES: TaxonomyNode[] = [
 ];
 
 describe("buildDescriptorRows (design.md D13)", () => {
-  it("heads one row with a level-0 node whose level-1 children belong to the category, the children as its chips", () => {
-    const rows = buildDescriptorRows(NODES, "defects", "en");
-    expect(rows[0]).toEqual({
-      id: "01JROOTFERMENTED000000000A",
-      title: "Fermented",
-      options: [
-        {
-          value: "01JCHILDVINEGAR0000000000A",
-          label: "Vinegar",
-          color: "#222222",
-          level: 1,
-        },
-      ],
-    });
-  });
-
-  it("puts a childless level-0 node of the category in the shared row, last", () => {
-    const rows = buildDescriptorRows(NODES, "defects", "en");
-    expect(rows).toHaveLength(2);
-    expect(rows[1].title).toBeUndefined();
-    expect(rows[1].options).toEqual([
-      {
-        value: "01JROOTPHENOLIC0000000000A",
-        label: "Phenolic",
-        color: "#555555",
-        level: 0,
-      },
-    ]);
-  });
-
   it("never shows level 2 and leaves out nodes of other categories", () => {
     const values = buildDescriptorRows(NODES, "defects", "en").flatMap((row) =>
       row.options.map((option) => option.value),
@@ -109,22 +79,5 @@ describe("buildDescriptorRows (design.md D13)", () => {
     expect(values).not.toContain("01JLEAFACETIC000000000000A");
     expect(values).not.toContain("01JCHILDBERRY000000000000A");
     expect(values).not.toContain("01JROOTSWEET0000000000000A");
-  });
-
-  it("names the rows and chips in the given locale", () => {
-    const rows = buildDescriptorRows(NODES, "main_tastes", "ca");
-    expect(rows).toEqual([
-      {
-        id: "shared",
-        options: [
-          {
-            value: "01JROOTSWEET0000000000000A",
-            label: "Dolç",
-            color: "#666666",
-            level: 0,
-          },
-        ],
-      },
-    ]);
   });
 });

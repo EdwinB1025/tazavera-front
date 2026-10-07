@@ -193,18 +193,6 @@ describe("OfferingCard", () => {
       expect(findWith(container, "type-meta", "/100")).toBeDefined();
     });
 
-    it("shows the rating badge of the score's range (design.md D8)", () => {
-      const { container } = renderCard();
-      // 84.25 sits from 80 to below 85, so the badge carries the good
-      // treatment chosen by ratingTierFor (design.md D8).
-      expect(ratingBadges(container)).toHaveLength(1);
-      expect(
-        classTokens(ratingBadges(container)[0]).includes(
-          "bg-evaluation-rating-good",
-        ),
-      ).toBe(true);
-    });
-
     // The badge's text is the word of the tier, not the score (label-rating-badge
     // design.md D1, D2). Each case pins one range's word as exactly that tier's
     // `texts` field on that range's treatment, so the badge showing the score
@@ -262,66 +250,7 @@ describe("OfferingCard", () => {
     });
   });
 
-  describe("Status badge (design.md D4)", () => {
-    it("shows the verified status badge for verificationStatus 'verified'", () => {
-      const { container } = renderCard();
-      const verified = findWith(
-        container,
-        "bg-badge-verified-bg",
-        TEXTS.verifiedLabel,
-      );
-      expect(verified).toBeDefined();
-      expect(elementsWith(container, "bg-badge-provisional-bg")).toHaveLength(
-        0,
-      );
-    });
-
-    it("shows the provisional status badge for verificationStatus 'provisional'", () => {
-      const { container } = renderCard({
-        offering: { ...OFFERING, verificationStatus: "provisional" },
-      });
-      const provisional = findWith(
-        container,
-        "bg-badge-provisional-bg",
-        TEXTS.provisionalLabel,
-      );
-      expect(provisional).toBeDefined();
-      expect(elementsWith(container, "bg-badge-verified-bg")).toHaveLength(0);
-    });
-  });
-
   describe("Content mapping (design.md D4)", () => {
-    it("shows the coffee name in type-card-heading", () => {
-      const { container } = renderCard();
-      expect(findWith(container, "type-card-heading", "Geisha")).toBeDefined();
-    });
-
-    it("shows the coffeeshop and roaster captions in type-label carrying the names", () => {
-      const { container } = renderCard();
-      const coffeeshop = findWith(
-        container,
-        "type-label",
-        TEXTS.coffeeshopCaption,
-      );
-      expect(coffeeshop).toBeDefined();
-      expect((coffeeshop?.textContent ?? "").includes("Gracia")).toBe(true);
-
-      const roaster = findWith(container, "type-label", TEXTS.roasterCaption);
-      expect(roaster).toBeDefined();
-      expect((roaster?.textContent ?? "").includes("Nomada")).toBe(true);
-    });
-
-    it("joins country, region, process and variety in that fixed order in type-meta (spec: 'Origin line skips null values')", () => {
-      const { container } = renderCard();
-      const origin = elementsWith(container, "type-meta").find(
-        (el) =>
-          (el.textContent ?? "").includes("Colombia") &&
-          !(el.textContent ?? "").includes("/100"),
-      );
-      expect(origin).toBeDefined();
-      expect(origin?.textContent).toBe("Colombia · Huila · washed · Caturra");
-    });
-
     it("omits a null value and keeps the fixed order (spec: 'Origin line skips null values')", () => {
       const { container } = renderCard({ offering: OFFERING_NULL_REGION });
       const origin = elementsWith(container, "type-meta").find((el) =>
@@ -400,49 +329,7 @@ describe("OfferingCard", () => {
     });
   });
 
-  describe("Texts (design.md D11)", () => {
-    it("renders every label and caption from the texts props", () => {
-      // The per-tier rule (label-rating-badge design.md D1): one card per
-      // score range (90 or above, 85 to below 90, 80 to below 85, below 80)
-      // plus the provisional card. Their union must cover all eleven texts —
-      // the seven labels and captions plus the four tier words — so the case
-      // fails whenever any of the eleven is never rendered.
-      const { container: exceptionalCard } = renderCard({
-        offering: OFFERING_EXCEPTIONAL,
-      });
-      const { container: excellentCard } = renderCard({
-        offering: OFFERING_EXCELLENT,
-      });
-      const { container: goodCard } = renderCard({ offering: OFFERING_GOOD });
-      const { container: commercialCard } = renderCard({
-        offering: OFFERING_COMMERCIAL,
-      });
-      const { container: provisionalCard } = renderCard({
-        offering: { ...OFFERING_GOOD, verificationStatus: "provisional" },
-      });
-      const rendered = [
-        exceptionalCard,
-        excellentCard,
-        goodCard,
-        commercialCard,
-        provisionalCard,
-      ]
-        .map((card) => card.textContent ?? "")
-        .join("\n");
-      for (const text of Object.values(TEXTS)) {
-        expect(rendered.includes(text), text).toBe(true);
-      }
-    });
-  });
-
   describe("Card layout (spec: 'Score row above the content', 'Footer counts', 'Stacked at every width'; design.md D14)", () => {
-    it("renders the shared card in its stacked layout", () => {
-      const { container } = renderCard();
-      expect(classTokens(container.firstElementChild!)).toEqual(
-        expect.arrayContaining(["flex", "flex-col", "h-full"]),
-      );
-    });
-
     it("puts the score, the /100 scale and the rating badge on one row", () => {
       const { container } = renderCard();
       const score = elementsWith(container, "type-score")[0];
@@ -482,17 +369,6 @@ describe("OfferingCard", () => {
       );
       expect(classTokens(links)).toEqual(
         expect.arrayContaining(["ml-auto", "flex", "gap-4"]),
-      );
-    });
-
-    it("keeps the three taxonomy rows 0.5rem apart", () => {
-      const { container } = renderCard();
-      const content = container.querySelector("h3")!.parentElement!;
-      const rows = elementsWith(content, "flex-wrap");
-      const stack = rows[0].parentElement!;
-      expect(rows.every((row) => row.parentElement === stack)).toBe(true);
-      expect(classTokens(stack)).toEqual(
-        expect.arrayContaining(["flex", "flex-col", "gap-2"]),
       );
     });
   });

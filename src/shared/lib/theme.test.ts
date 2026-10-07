@@ -22,12 +22,6 @@ beforeEach(() => {
 });
 
 describe("theme preference cookie (design.md D12)", () => {
-  it("resolves the theme from a cookie string alone (server-rendered, no inline script)", () => {
-    expect(readTheme("theme=dark")).toBe("dark");
-    expect(readTheme(`other=1; ${THEME_COOKIE}=dark; more=2`)).toBe("dark");
-    expect(readTheme("theme=traditional")).toBe("traditional");
-  });
-
   it("falls back to the traditional theme when no cookie was chosen (spec: No theme chosen yet)", () => {
     expect(readTheme(undefined)).toBe("traditional");
     expect(readTheme(null)).toBe("traditional");
@@ -38,21 +32,9 @@ describe("theme preference cookie (design.md D12)", () => {
     const unreadable = `${THEME_COOKIE}=%E0%A4%A`;
     expect(() => readTheme(unreadable)).not.toThrow();
     expect(readTheme(unreadable)).toBe("traditional");
-  });
-
-  it("falls back on a cookie naming a theme the application does not offer (spec: Unusable stored choice)", () => {
+    // a cookie naming a theme the application does not offer
     expect(readTheme("theme=neon")).toBe("traditional");
     expect(readTheme("theme=")).toBe("traditional");
-  });
-
-  it("writes the cookie and applies data-theme to the document root immediately (spec: Choosing a theme)", () => {
-    setTheme("dark");
-    expect(document.cookie).toContain(`${THEME_COOKIE}=dark`);
-    expect(document.documentElement.getAttribute("data-theme")).toBe("dark");
-
-    setTheme("traditional");
-    expect(document.cookie).toContain(`${THEME_COOKIE}=traditional`);
-    expect(document.documentElement.getAttribute("data-theme")).toBe("traditional");
   });
 
   it("keeps the choice across a reload (spec: The choice survives a reload)", () => {

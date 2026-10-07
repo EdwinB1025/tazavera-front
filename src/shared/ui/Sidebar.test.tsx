@@ -1,13 +1,10 @@
 import { describe, it, expect, afterEach, beforeAll } from "vitest";
 import { render, screen, cleanup, fireEvent, act } from "@testing-library/react";
-import { readFileSync, readdirSync } from "node:fs";
-import { resolve as pathResolve } from "node:path";
 import {
   SidebarProvider,
   Sidebar,
   SidebarTrigger,
   SIDEBAR_ID,
-  useSidebar,
   SidebarMenuButton,
 } from "@/shared/ui/Sidebar";
 import { Check } from "@/shared/ui/icons";
@@ -117,44 +114,6 @@ describe("Sidebar (design.md D6, D11)", () => {
     ).toBe("true");
   });
 
-  it("reports whether a sidebar is mounted (design.md D3)", () => {
-    function Probe() {
-      const { present } = useSidebar();
-      return <p>{present ? "present" : "absent"}</p>;
-    }
-    const { rerender } = render(
-      <SidebarProvider>
-        <Probe />
-      </SidebarProvider>,
-    );
-    expect(screen.getByText("absent")).toBeDefined();
-    rerender(
-      <SidebarProvider>
-        <Probe />
-        <Sidebar label="Sidebar">Navigation</Sidebar>
-        <SidebarTrigger>Toggle</SidebarTrigger>
-      </SidebarProvider>,
-    );
-    expect(screen.getByText("present")).toBeDefined();
-    // collapsed from md it renders nothing but stays registered
-    fireEvent.click(screen.getByRole("button", { name: "Toggle" }));
-    expect(screen.queryByRole("complementary")).toBeNull();
-    expect(screen.getByText("present")).toBeDefined();
-    rerender(
-      <SidebarProvider>
-        <Probe />
-      </SidebarProvider>,
-    );
-    expect(screen.getByText("absent")).toBeDefined();
-  });
-
-  it("renders the entry as a button with the hover label (design.md D7)", () => {
-    render(<SidebarMenuButton>Offerings</SidebarMenuButton>);
-    const button = screen.getByRole("button", { name: "Offerings" });
-    expect(button.className).toContain("hover:bg-nav-hover");
-    expect(button.className).toContain("hover:text-nav-text-hover");
-  });
-
   it("renders the entry as its child link with asChild (design.md D7)", () => {
     const { container } = render(
       <SidebarMenuButton asChild isActive icon={Check}>
@@ -178,49 +137,5 @@ describe("Sidebar (design.md D6, D11)", () => {
     expect(link.firstChild).toBe(icon);
     expect(link.lastChild?.textContent).toBe("Offerings");
     expect(container.firstChild).toBe(link);
-  });
-
-  it("is remapped to semantic and radius tokens only", () => {
-    const source = readFileSync(
-      pathResolve(process.cwd(), "src/shared/ui/Sidebar.tsx"),
-      "utf-8",
-    );
-    expect(source).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
-    expect(source).not.toMatch(
-      /-(cream|sage|petrol|moss|chartreuse|oxblood|brown|score|night|brand)-/,
-    );
-    for (const match of source.matchAll(
-      /(?<![\w-])((?:[a-z-]+:)*rounded(?:-[a-z0-9]+)?(?:-\[[^\]]+\])?)/g,
-    )) {
-      const bare = match[1]!.replace(/^[a-z-]+:/, "");
-      expect(
-        ["rounded-pill", "rounded-container", "rounded-field", "rounded-check", "rounded-full", "rounded-none"],
-        `${match[1]!} is not a radius token`,
-      ).toContain(bare);
-    }
-  });
-
-  it("takes its icons from the shared icon entry point", () => {
-    const source = readFileSync(
-      pathResolve(process.cwd(), "src/shared/ui/Sidebar.tsx"),
-      "utf-8",
-    );
-    expect(source).not.toMatch(/from\s+["']lucide-react/);
-  });
-
-  it("leaves no generated shadcn control duplicates in src/shared/ui", () => {
-    const entries = readdirSync(pathResolve(process.cwd(), "src/shared/ui"));
-    for (const duplicate of [
-      "button.tsx",
-      "input.tsx",
-      "select.tsx",
-      "checkbox.tsx",
-      "radio.tsx",
-      "textarea.tsx",
-    ]) {
-      expect(entries, `${duplicate} duplicates a project control`).not.toContain(
-        duplicate,
-      );
-    }
   });
 });

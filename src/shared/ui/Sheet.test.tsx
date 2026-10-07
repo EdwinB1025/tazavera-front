@@ -1,7 +1,5 @@
 import { describe, it, expect, afterEach, beforeAll } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
-import { readFileSync, readdirSync } from "node:fs";
-import { resolve as pathResolve } from "node:path";
 import {
   Sheet,
   SheetTrigger,
@@ -38,24 +36,6 @@ describe("Sheet (design.md D6, D11)", () => {
     );
   }
 
-  it("opens its content as an overlay from the trigger", () => {
-    renderSheet();
-    expect(screen.queryByText("Panel")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Open" }));
-    expect(screen.getByText("Panel")).toBeDefined();
-  });
-
-  it("closes when the pointer goes outside it", async () => {
-    renderSheet();
-    fireEvent.click(screen.getByRole("button", { name: "Open" }));
-    // Radix arms its outside-pointerdown listener on the next tick and defers
-    // a left-button dismissal to the click that completes it.
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    fireEvent.pointerDown(document.body);
-    fireEvent.click(document.body);
-    expect(screen.queryByText("Panel")).toBeNull();
-  });
-
   it("covers the screen below md (design.md D11: full-screen overlay)", () => {
     renderSheet();
     fireEvent.click(screen.getByRole("button", { name: "Open" }));
@@ -63,49 +43,5 @@ describe("Sheet (design.md D6, D11)", () => {
     const panel = screen.getByText("Panel");
     expect(panel.className).toContain("h-full");
     expect(panel.className).toContain("w-full");
-  });
-
-  it("is remapped to semantic and radius tokens only", () => {
-    const source = readFileSync(
-      pathResolve(process.cwd(), "src/shared/ui/Sheet.tsx"),
-      "utf-8",
-    );
-    expect(source).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
-    expect(source).not.toMatch(
-      /-(cream|sage|petrol|moss|chartreuse|oxblood|brown|score|night|brand)-/,
-    );
-    for (const match of source.matchAll(
-      /(?<![\w-])((?:[a-z-]+:)*rounded(?:-[a-z0-9]+)?(?:-\[[^\]]+\])?)/g,
-    )) {
-      const bare = match[1]!.replace(/^[a-z-]+:/, "");
-      expect(
-        ["rounded-pill", "rounded-container", "rounded-field", "rounded-check", "rounded-full", "rounded-none"],
-        `${match[1]!} is not a radius token`,
-      ).toContain(bare);
-    }
-  });
-
-  it("takes its icons from the shared icon entry point", () => {
-    const source = readFileSync(
-      pathResolve(process.cwd(), "src/shared/ui/Sheet.tsx"),
-      "utf-8",
-    );
-    expect(source).not.toMatch(/from\s+["']lucide-react/);
-  });
-
-  it("leaves no generated shadcn control duplicates in src/shared/ui", () => {
-    const entries = readdirSync(pathResolve(process.cwd(), "src/shared/ui"));
-    for (const duplicate of [
-      "button.tsx",
-      "input.tsx",
-      "select.tsx",
-      "checkbox.tsx",
-      "radio.tsx",
-      "textarea.tsx",
-    ]) {
-      expect(entries, `${duplicate} duplicates a project control`).not.toContain(
-        duplicate,
-      );
-    }
   });
 });

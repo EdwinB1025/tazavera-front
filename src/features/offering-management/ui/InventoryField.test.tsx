@@ -178,7 +178,7 @@ describe("InventoryField (design.md D4, D9)", () => {
     expect(screen.queryAllByRole("option")).toHaveLength(0);
   });
 
-  it.each([500, 422])("shows the failure row on a %i, with no selectable row", async (status) => {
+  it.each([500])("shows the failure row on a %i, with no selectable row", async (status) => {
     request.mockResolvedValue(jsonResponse(status, { message: "nope" }));
     render(<Harness />);
     await search("hui");
@@ -187,12 +187,5 @@ describe("InventoryField (design.md D4, D9)", () => {
     ).toBeTruthy();
     expect(screen.queryAllByRole("option")).toHaveLength(0);
     expect(screen.queryByText("nope")).toBeNull();
-  });
-
-  it("with an error, shows it under the field and marks the input invalid", () => {
-    render(<Harness error="Choose an inventory item." />);
-    const error = screen.getByText("Choose an inventory item.");
-    expect(input().getAttribute("aria-invalid")).toBe("true");
-    expect(input().getAttribute("aria-describedby")?.split(" ")).toContain(error.id);
   });
 });

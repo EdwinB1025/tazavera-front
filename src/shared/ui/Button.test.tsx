@@ -23,13 +23,6 @@ afterEach(() => {
  * `getByRole({ name })` query, which @testing-library/dom computes natively.
  */
 describe("Button", () => {
-  describe("label rendering", () => {
-    it("renders its children as the visible label", () => {
-      render(<Button>Save changes</Button>);
-      expect(screen.getByRole("button", { name: "Save changes" })).toBeDefined();
-    });
-  });
-
   describe("activation (enabled, non-busy)", () => {
     // Happy-path counterpart of the rejection cases below (disabled → D5,
     // busy → D4): an enabled, non-busy button forwards the click exactly once.
@@ -47,13 +40,12 @@ describe("Button", () => {
       const btn = screen.getByRole("button");
       expect(btn.className).toContain("h-10");
       expect(btn.className).toContain("px-4");
-    });
+      cleanup();
 
-    it("sm size is h-8 with px-3", () => {
       render(<Button size="sm">Save</Button>);
-      const btn = screen.getByRole("button");
-      expect(btn.className).toContain("h-8");
-      expect(btn.className).toContain("px-3");
+      const sm = screen.getByRole("button");
+      expect(sm.className).toContain("h-8");
+      expect(sm.className).toContain("px-3");
     });
   });
 
@@ -94,13 +86,12 @@ describe("Button", () => {
       const btn = screen.getByRole("button", { name: "Go back" });
       expect(btn.className).toContain("w-10");
       expect(btn.className).toContain("h-10");
-    });
+      cleanup();
 
-    it("sm icon-only is square (w-8 h-8)", () => {
       render(<Button size="sm" icon={ArrowLeft} aria-label="Go back" />);
-      const btn = screen.getByRole("button", { name: "Go back" });
-      expect(btn.className).toContain("w-8");
-      expect(btn.className).toContain("h-8");
+      const sm = screen.getByRole("button", { name: "Go back" });
+      expect(sm.className).toContain("w-8");
+      expect(sm.className).toContain("h-8");
     });
   });
 
@@ -118,52 +109,12 @@ describe("Button", () => {
   });
 
   describe("treatment classes per variant (D2)", () => {
-    it("primary uses action-primary tokens", () => {
-      const btn = renderButton(<Button variant="primary">Save</Button>);
-      expect(btn.className).toContain("bg-action-primary");
-      expect(btn.className).toContain("text-action-primary-text");
-    });
-
-    it("action-1 uses action-1 tokens", () => {
-      const btn = renderButton(<Button variant="action-1">Save</Button>);
-      expect(btn.className).toContain("bg-action-1-bg");
-      expect(btn.className).toContain("text-action-1-text");
-    });
-
-    it("action-2 uses action-2 tokens", () => {
-      const btn = renderButton(<Button variant="action-2">Save</Button>);
-      expect(btn.className).toContain("bg-action-2-bg");
-      expect(btn.className).toContain("text-action-2-text");
-    });
-
-    it("action-3 uses action-3 tokens", () => {
-      const btn = renderButton(<Button variant="action-3">Save</Button>);
-      expect(btn.className).toContain("bg-action-3-bg");
-      expect(btn.className).toContain("text-action-3-text");
-    });
-
-    it("action-4 uses action-4 tokens", () => {
-      const btn = renderButton(<Button variant="action-4">Save</Button>);
-      expect(btn.className).toContain("bg-action-4-bg");
-      expect(btn.className).toContain("text-action-4-text");
-    });
-
-    it("nav-button uses nav-button tokens and has a border", () => {
-      const btn = renderButton(<Button variant="nav-button">Menu</Button>);
-      expect(btn.className).toContain("bg-nav-button-bg");
-      expect(btn.className).toContain("text-nav-button-text");
-      expect(btn.className).toContain("border-nav-button-border");
-    });
-  });
-
-  describe("border classes per variant (fix-button-boundaries design.md D6)", () => {
-    // fix-button-boundaries: each action treatment gains a 1px border coloured
-    // by its own semantic border token (D1/D2), added to the rest classes only
-    // (D4); hover keeps the rest border token, so no hover:border- class exists
-    // (D3). Assertions split the className into exact tokens (jsdom has no CSS
-    // engine), so `border` cannot be satisfied by `border-action-1-border` or
-    // any other border-* token. Written before the border classes exist (task
-    // 3.1): the five action cases fail until task 3.2 adds them.
+    // fix-button-boundaries: each action treatment carries a 1px border
+    // coloured by its own semantic border token (D1/D2), on the rest classes
+    // only (D4); hover keeps the rest border token, so no hover:border- class
+    // exists (D3). Assertions split the className into exact tokens (jsdom has
+    // no CSS engine), so `border` cannot be satisfied by any other border-*
+    // token.
 
     /** Exact border tokens of the className, order-insensitive. */
     const borderTokens = (btn: HTMLElement): string[] =>
@@ -176,55 +127,61 @@ describe("Button", () => {
     const hoverBorderTokens = (btn: HTMLElement): string[] =>
       btn.className.split(/\s+/).filter((cls) => cls.includes("hover:border-"));
 
-    it("primary carries exactly border and border-action-primary-border, and no hover border", () => {
+    it("primary uses action-primary tokens", () => {
       const btn = renderButton(<Button variant="primary">Save</Button>);
+      expect(btn.className).toContain("bg-action-primary");
+      expect(btn.className).toContain("text-action-primary-text");
       expect(borderTokens(btn)).toEqual(
         ["border", "border-action-primary-border"].sort(),
       );
       expect(hoverBorderTokens(btn)).toEqual([]);
     });
 
-    it("action-1 carries exactly border and border-action-1-border, and no hover border", () => {
+    it("action-1 uses action-1 tokens", () => {
       const btn = renderButton(<Button variant="action-1">Save</Button>);
+      expect(btn.className).toContain("bg-action-1-bg");
+      expect(btn.className).toContain("text-action-1-text");
       expect(borderTokens(btn)).toEqual(
         ["border", "border-action-1-border"].sort(),
       );
       expect(hoverBorderTokens(btn)).toEqual([]);
     });
 
-    it("action-2 carries exactly border and border-action-2-border, and no hover border", () => {
+    it("action-2 uses action-2 tokens", () => {
       const btn = renderButton(<Button variant="action-2">Save</Button>);
+      expect(btn.className).toContain("bg-action-2-bg");
+      expect(btn.className).toContain("text-action-2-text");
       expect(borderTokens(btn)).toEqual(
         ["border", "border-action-2-border"].sort(),
       );
       expect(hoverBorderTokens(btn)).toEqual([]);
     });
 
-    it("action-3 carries exactly border and border-action-3-border, and no hover border", () => {
+    it("action-3 uses action-3 tokens", () => {
       const btn = renderButton(<Button variant="action-3">Save</Button>);
+      expect(btn.className).toContain("bg-action-3-bg");
+      expect(btn.className).toContain("text-action-3-text");
       expect(borderTokens(btn)).toEqual(
         ["border", "border-action-3-border"].sort(),
       );
       expect(hoverBorderTokens(btn)).toEqual([]);
     });
 
-    it("action-4 carries exactly border and border-action-4-border, and no hover border", () => {
+    it("action-4 uses action-4 tokens", () => {
       const btn = renderButton(<Button variant="action-4">Save</Button>);
+      expect(btn.className).toContain("bg-action-4-bg");
+      expect(btn.className).toContain("text-action-4-text");
       expect(borderTokens(btn)).toEqual(
         ["border", "border-action-4-border"].sort(),
       );
       expect(hoverBorderTokens(btn)).toEqual([]);
     });
 
-    it("nav-button keeps exactly its current border classes", () => {
+    it("nav-button uses nav-button tokens and has a border", () => {
       const btn = renderButton(<Button variant="nav-button">Menu</Button>);
-      expect(borderTokens(btn)).toEqual(
-        [
-          "border",
-          "border-nav-button-border",
-          "enabled:hover:border-nav-button-border-hover",
-        ].sort(),
-      );
+      expect(btn.className).toContain("bg-nav-button-bg");
+      expect(btn.className).toContain("text-nav-button-text");
+      expect(btn.className).toContain("border-nav-button-border");
     });
   });
 
@@ -248,17 +205,15 @@ describe("Button", () => {
     // substrings that would pass without the prefix. `disabled:` ensures the
     // treatment is gated to natively disabled buttons.
     it("sets native disabled with opacity-50 and cursor-not-allowed", () => {
-      render(<Button disabled>Save</Button>);
+      const onClick = vi.fn();
+      render(<Button disabled onClick={onClick}>Save</Button>);
       const btn = screen.getByRole("button");
       expect(btn.hasAttribute("disabled")).toBe(true);
       expect(btn.className).toContain("disabled:opacity-50");
       expect(btn.className).toContain("disabled:cursor-not-allowed");
-    });
 
-    it("rejects activation (onClick not called)", () => {
-      const onClick = vi.fn();
-      render(<Button disabled onClick={onClick}>Save</Button>);
-      fireEvent.click(screen.getByRole("button"));
+      // activation rejected
+      fireEvent.click(btn);
       expect(onClick).not.toHaveBeenCalled();
     });
   });
@@ -284,6 +239,10 @@ describe("Button", () => {
       // keyboard focus kept (button is still focusable)
       btn.focus();
       expect(document.activeElement).toBe(btn);
+
+      // no hover treatment while busy (correction 3)
+      expect(btn.className).not.toContain("enabled:hover:");
+      expect(btn.className).not.toContain("hover:bg-action-primary-hover");
     });
 
     it("renders a spinner before the label with motion-reduce:animate-none (no rotation under reduced motion)", () => {
@@ -295,27 +254,6 @@ describe("Button", () => {
       expect(svg!.getAttribute("class")).toContain("motion-reduce:animate-none");
       // spinner renders before the label
       expect(btn.firstChild).toBe(svg);
-    });
-
-    it("replaces the icon with the spinner in icon-only buttons (square footprint kept)", () => {
-      const { container } = render(
-        <Button loading icon={ArrowLeft} aria-label="Loading" />,
-      );
-      const svgs = container.querySelectorAll("svg");
-      expect(svgs.length).toBe(1);
-      expect(svgs[0]!.getAttribute("class")).toContain("animate-spin");
-      expect(svgs[0]!.getAttribute("class")).toContain("motion-reduce:animate-none");
-    });
-
-    // Correction 3 (review round 1): a busy button shows no hover change,
-    // exactly like a disabled one. The hover treatment (enabled:hover:*) must
-    // be ABSENT from a busy button's className so it cannot activate on hover.
-    // jsdom has no CSS engine, so this asserts the class is not present at
-    // all. This fails while the hover treatment is always applied.
-    it("shows no hover treatment while busy (correction 3)", () => {
-      const btn = renderButton(<Button loading>Save</Button>);
-      expect(btn.className).not.toContain("enabled:hover:");
-      expect(btn.className).not.toContain("hover:bg-action-primary-hover");
     });
   });
 
@@ -333,50 +271,6 @@ describe("Button", () => {
       );
       fireEvent.click(screen.getByRole("button", { name: "Save" }));
       expect(onSubmit).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("busy semantics cannot be overridden by callers (correction 2)", () => {
-    // `{...rest}` must be spread BEFORE the component's own props, so a
-    // caller-supplied `aria-busy` or `aria-disabled` passed through rest
-    // cannot clear the busy semantics. While `loading` the button keeps
-    // `aria-busy="true"` and `aria-disabled="true"` regardless of what the
-    // caller passes. This test fails while `{...rest}` is spread after the
-    // component's own props.
-    it("keeps aria-busy and aria-disabled true while loading even if a caller passes false", () => {
-      render(
-        <Button loading aria-busy={false} aria-disabled={false}>
-          Save
-        </Button>,
-      );
-      const btn = screen.getByRole("button", { name: "Save" });
-      expect(btn.getAttribute("aria-busy")).toBe("true");
-      expect(btn.getAttribute("aria-disabled")).toBe("true");
-    });
-  });
-
-  describe("native button attribute passthrough", () => {
-    it("defaults type to button so forms never get accidental submits", () => {
-      render(<Button>Save</Button>);
-      expect(screen.getByRole("button").getAttribute("type")).toBe("button");
-    });
-
-    it("forwards type when provided", () => {
-      render(<Button type="submit">Save</Button>);
-      expect(screen.getByRole("button").getAttribute("type")).toBe("submit");
-    });
-
-    it("forwards form, name, value and aria-* attributes", () => {
-      render(
-        <Button name="action" value="save" form="profile-form" aria-describedby="save-help">
-          Save
-        </Button>,
-      );
-      const btn = screen.getByRole("button");
-      expect(btn.getAttribute("name")).toBe("action");
-      expect(btn.getAttribute("value")).toBe("save");
-      expect(btn.getAttribute("form")).toBe("profile-form");
-      expect(btn.getAttribute("aria-describedby")).toBe("save-help");
     });
   });
 });

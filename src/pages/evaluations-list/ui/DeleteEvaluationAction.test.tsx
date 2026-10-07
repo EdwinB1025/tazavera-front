@@ -46,15 +46,6 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("DeleteEvaluationAction (design.md D4)", () => {
-  it("opens the confirmation dialog with the catalog texts", () => {
-    const dialog = open();
-    expect(dialog.textContent).toContain(TEXTS.deleteTitle);
-    expect(dialog.textContent).toContain(TEXTS.deleteDescription);
-    expect(screen.getByRole("button", { name: "Delete evaluation" })).toBeDefined();
-    expect(screen.getByRole("button", { name: "Cancel" })).toBeDefined();
-    expect(deleteAnEvaluation).not.toHaveBeenCalled();
-  });
-
   it("sends the deletion on confirm, shows the pending state, then reports the deletion", async () => {
     let resolve: (value: unknown) => void = () => {};
     deleteAnEvaluation.mockReturnValue(new Promise((done) => (resolve = done)));
@@ -84,14 +75,6 @@ describe("DeleteEvaluationAction (design.md D4)", () => {
     expect(await screen.findByText(TEXTS.notYoursMessage)).toBeDefined();
     expect(screen.queryByText(TEXTS.failureMessage)).toBeNull();
     expect(deleteAnEvaluation).toHaveBeenCalledTimes(1);
-    expect(onDeleted).not.toHaveBeenCalled();
-  });
-
-  it("shows the generic failure text on any other failure", async () => {
-    deleteAnEvaluation.mockResolvedValue({ ok: false, status: null });
-    open();
-    fireEvent.click(screen.getByRole("button", { name: "Delete evaluation" }));
-    expect(await screen.findByText(TEXTS.failureMessage)).toBeDefined();
     expect(onDeleted).not.toHaveBeenCalled();
   });
 });

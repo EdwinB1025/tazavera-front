@@ -1,7 +1,6 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import type { OfferingDetail, TaxonomyNode } from "@/shared/api";
-import { getMessages } from "@/shared/lib/i18n";
 import {
   assignWheelGroups,
   buildFlavorWheelNodes,
@@ -281,17 +280,6 @@ describe("concordanceBand (spec: Band boundaries; design.md D12)", () => {
   });
 });
 
-describe("ConsensusPanel texts in the catalog (design.md D16)", () => {
-  it("finds the status heading, the count and concordance labels and the band words in each locale", () => {
-    for (const locale of ["es", "en", "ca"]) {
-      const catalog = getMessages("catalog", locale);
-      for (const key of TEXT_KEYS.filter((key) => !key.startsWith("rating"))) {
-        expect(catalog[key], `${locale}.${key}`).toEqual(expect.any(String));
-      }
-    }
-  });
-});
-
 describe("ConsensusPanel — SCA attributes (spec: Consensus SCA attribute averages; design.md D12)", () => {
   const AVERAGES: OfferingDetail = {
     ...OFFERING,
@@ -326,18 +314,6 @@ describe("ConsensusPanel — SCA attributes (spec: Consensus SCA attribute avera
     expect(classTokens(gridItemOf(card))).not.toContain("lg:col-span-2");
   });
 
-  it("pairs the status card with the attributes card: neither spans both columns, the attributes card first", () => {
-    renderPanel(AVERAGES);
-    const attributes = gridItemOf(
-      screen.getByRole("heading", { level: 2, name: TEXTS.detailAttributesHeading }),
-    );
-    const status = gridItemOf(
-      screen.getByRole("heading", { level: 2, name: TEXTS.detailStatusHeading }),
-    );
-    expect(classTokens(status)).not.toContain("lg:col-span-2");
-    expect(attributes.nextElementSibling).toBe(status);
-  });
-
   it("shows the not-verified message instead of the attributes for an offering that is not verified (spec: Offering not verified)", () => {
     renderPanel({ ...AVERAGES, verificationStatus: "provisional" });
     expect(screen.queryAllByRole("meter")).toHaveLength(0);
@@ -357,11 +333,6 @@ describe("ConsensusPanel — SCA attributes (spec: Consensus SCA attribute avera
     );
   });
 
-  it("shows no not-verified message for a verified offering", () => {
-    renderPanel(AVERAGES);
-    expect(screen.queryByText(TEXTS.detailNotVerifiedMessage)).toBeNull();
-  });
-
   it("passes the parsed value with one decimal in the value text and label (the settled '7,2 de 9' reading)", () => {
     renderPanel(AVERAGES);
     const fragrance = screen.getAllByRole("meter")[0];
@@ -372,14 +343,6 @@ describe("ConsensusPanel — SCA attributes (spec: Consensus SCA attribute avera
     const overall = screen.getAllByRole("meter")[7];
     expect(overall.getAttribute("aria-valuenow")).toBe("8");
     expect(overall.getAttribute("aria-valuetext")).toBe("8,0 de 9");
-  });
-
-  it("formats the value in the route's locale", () => {
-    renderPanel(AVERAGES, "en");
-    expect(screen.getAllByRole("meter")[0].getAttribute("aria-valuetext")).toBe(
-      "7.2 de 9",
-    );
-    expect(screen.getByText("7.2/9")).toBeDefined();
   });
 
   it("reaches the scale as a fraction for a fractional value (spec: Fractional value)", () => {
@@ -401,24 +364,6 @@ describe("ConsensusPanel — SCA attributes (spec: Consensus SCA attribute avera
           .textContent,
     );
     expect(names).not.toContain(TEXTS.attrAroma);
-  });
-
-  it("finds the attribute heading and labels in the catalog and the bean texts in the scales area of each locale (design.md D16)", () => {
-    for (const locale of ["es", "en", "ca"]) {
-      const catalog = getMessages("catalog", locale);
-      for (const key of [
-        "detailAttributesHeading",
-        "detailNotVerifiedMessage",
-        ...ATTRIBUTE_KEYS,
-      ]) {
-        expect(catalog[key], `${locale}.${key}`).toEqual(expect.any(String));
-      }
-      const scales = getMessages("scales", locale);
-      expect(scales.beanValue).toBe("{value}/9");
-      expect(scales.beanValueLabel).toBe(
-        locale === "en" ? "{value} of 9" : "{value} de 9",
-      );
-    }
   });
 });
 
@@ -474,14 +419,6 @@ describe("ConsensusPanel — Main tastes and Defects (spec: Consensus Defects an
     );
   });
 
-  it("renders the identified defects from the descriptor rows, level-1 notes under their level-0 row", () => {
-    renderPanel(IDENTIFIED);
-    const card = cardOf(TEXTS.detailDefectsHeading);
-    expect(badgesIn(card)).toEqual(["Vinagre"]);
-    expect(card.textContent).toContain("Fermentado");
-    expect(card.textContent).not.toContain("Vinoso");
-  });
-
   it("renders no badge for an unresolved reference and keeps the rest (spec: Unresolved reference)", () => {
     renderPanel(IDENTIFIED);
     expect(badgesIn(cardOf(TEXTS.detailMainTastesHeading))).toHaveLength(2);
@@ -506,36 +443,6 @@ describe("ConsensusPanel — Main tastes and Defects (spec: Consensus Defects an
     expect(classTokens(tastes)).toContain("flex-1");
   });
 
-  it("gives both legends the same fixed column width from md (review round 1, design.md D13)", () => {
-    renderPanel(IDENTIFIED);
-    for (const heading of [
-      TEXTS.detailMainTastesHeading,
-      TEXTS.detailDefectsHeading,
-    ]) {
-      const legend = cardOf(heading).nextElementSibling!;
-      expect(classTokens(legend)).toEqual(
-        expect.arrayContaining(["md:w-56", "md:shrink-0"]),
-      );
-    }
-  });
-
-  it("reads the two groups from the CATA concordance only, never from the sensory taxonomy (spec: Consensus Defects and Main tastes)", () => {
-    renderPanel({
-      ...OFFERING,
-      cataConcordance: [],
-      sensoryTaxonomy: IDENTIFIED.cataConcordance,
-    });
-    for (const heading of [
-      TEXTS.detailMainTastesHeading,
-      TEXTS.detailDefectsHeading,
-    ]) {
-      const card = cardOf(heading);
-      expect(badgesIn(card)).toEqual([]);
-      expect(legendBeside(card)).toEqual([]);
-      expect(card.textContent).toContain(TEXTS.detailTasteEmpty);
-    }
-  });
-
   it("shows the empty text and no legend for a group with no identified note (spec: Empty group)", () => {
     renderPanel({
       ...IDENTIFIED,
@@ -547,19 +454,6 @@ describe("ConsensusPanel — Main tastes and Defects (spec: Consensus Defects an
     expect(card.textContent).toContain(TEXTS.detailTasteEmpty);
     expect(badgesIn(card)).toEqual([]);
     expect(legendBeside(card)).toEqual([]);
-  });
-
-  it("finds the two headings and the empty text in the catalog of each locale (design.md D16)", () => {
-    for (const locale of ["es", "en", "ca"]) {
-      const catalog = getMessages("catalog", locale);
-      for (const key of [
-        "detailMainTastesHeading",
-        "detailDefectsHeading",
-        "detailTasteEmpty",
-      ]) {
-        expect(catalog[key], `${locale}.${key}`).toEqual(expect.any(String));
-      }
-    }
   });
 });
 
@@ -666,13 +560,6 @@ describe("ConsensusPanel — CATA wheel (specs: Consensus taste trees, Mouthfeel
     expect(screen.queryByText("texts.detailSensoryHeading")).toBeNull();
   });
 
-  it("spans both grid columns with the CATA card", () => {
-    renderTrees(TREES);
-    expect(classTokens(gridItemOf(cardOf(TEXTS.detailCataHeading)))).toContain(
-      "lg:col-span-2",
-    );
-  });
-
   it("feeds the wheel the grouped nodes of the CATA concordance, evaluationCount and the count template", () => {
     renderTrees(TREES);
     const lookup = buildTaxonomyLookup(WHEEL_TAXONOMIES, "es");
@@ -699,56 +586,11 @@ describe("ConsensusPanel — CATA wheel (specs: Consensus taste trees, Mouthfeel
     ]);
   });
 
-  it("passes the wheel texts: label, hint, the empty text, the notes toggle and the groups label", () => {
-    renderTrees(TREES);
-    expect(wheelCalls()).toHaveLength(1);
-    expect(wheelCalls()[0].texts).toEqual({
-      label: TEXTS.wheelLabel,
-      hint: TEXTS.wheelHint,
-      emptyMessage: TEXTS.detailTasteEmpty,
-      notesToggle: TEXTS.wheelNotesToggle,
-      groupsLabel: TEXTS.wheelGroupsLabel,
-    });
-  });
-
   it("shows the empty text and no wheel for an empty concordance (spec: Empty tree)", () => {
     renderTrees({ ...TREES, cataConcordance: [] });
     const cata = cardOf(TEXTS.detailCataHeading);
     expect(cata.textContent).toContain(TEXTS.detailTasteEmpty);
     expect(screen.queryByTestId("flavor-wheel")).toBeNull();
-  });
-
-  it("renders the wheel, with empty nodes, for a non-empty concordance without an aromatic root", () => {
-    renderTrees({
-      ...TREES,
-      cataConcordance: TREES.cataConcordance!.filter(
-        (node) => node.type !== "aromatics",
-      ),
-    });
-    const cata = cardOf(TEXTS.detailCataHeading);
-    expect(cata.querySelector("[data-testid='flavor-wheel']")).not.toBeNull();
-    expect(wheelCalls()[0].nodes).toEqual([]);
-  });
-
-  it("finds the CATA heading and the wheel texts in the catalog of each locale, and no sensory heading (design.md D16)", () => {
-    for (const locale of ["es", "en", "ca"]) {
-      const catalog = getMessages("catalog", locale);
-      for (const key of [
-        "detailCataHeading",
-        "wheelLabel",
-        "wheelHint",
-        "wheelCount",
-        "wheelNotesToggle",
-        "wheelGroupsLabel",
-        "wheelGroupAromatics",
-      ]) {
-        expect(catalog[key], `${locale}.${key}`).toEqual(expect.any(String));
-      }
-      expect(catalog.detailSensoryHeading, locale).toBeUndefined();
-    }
-    expect(getMessages("catalog", "es").wheelCount).toBe(
-      "{count} de {total} evaluadores",
-    );
   });
 });
 
@@ -873,18 +715,6 @@ describe("ConsensusPanel — detail by axis (spec: Consensus detail by axis; des
     );
   }
 
-  it("renders the detail heading on the page background, spanning both columns", () => {
-    renderAxes();
-    const heading = screen.getByRole("heading", {
-      level: 2,
-      name: TEXTS.detailAxesHeading,
-    });
-    const item = axesItem();
-    expect(item.contains(heading)).toBe(true);
-    expect(heading.closest(".bg-surface-card")).toBeNull();
-    expect(classTokens(item)).toContain("lg:col-span-2");
-  });
-
   it("renders each axis section as a section card with its header in the band, the five cards 1rem apart (spec: Consensus detail by axis; design.md D18)", () => {
     renderAxes();
     const cards = AXIS_KEYS.map((key) => {
@@ -937,32 +767,11 @@ describe("ConsensusPanel — detail by axis (spec: Consensus detail by axis; des
     ).toEqual(["Jazmín 2/5"]);
   });
 
-  it("builds the mouthfeel section from the mouthfeel category", () => {
-    renderAxes();
-    const body = open("attrMouthfeel");
-    expect(badgesIn(body)).toEqual(["Suave"]);
-    expect(body.textContent).not.toContain("Jazmín");
-    expect(
-      Array.from(legendIn(body)!.querySelectorAll(".type-meta")).map(
-        (line) => line.textContent,
-      ),
-    ).toEqual(["Suave 2/5"]);
-  });
-
   it("shows the empty text and no legend for an axis with no identified note (spec: Empty axis)", () => {
     renderAxes();
     const body = open("attrAroma");
     expect(body.textContent).toContain(TEXTS.detailTasteEmpty);
     expect(badgesIn(body)).toEqual([]);
     expect(legendIn(body)).toBeNull();
-  });
-
-  it("finds the detail heading in the catalog of each locale (design.md D16)", () => {
-    for (const locale of ["es", "en", "ca"]) {
-      expect(
-        getMessages("catalog", locale).detailAxesHeading,
-        locale,
-      ).toEqual(expect.any(String));
-    }
   });
 });

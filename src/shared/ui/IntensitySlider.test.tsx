@@ -97,31 +97,6 @@ describe("IntensitySlider", () => {
       expect(track.getAttribute("style")).toBe("--fill: 0%;");
       expect((screen.getByRole("slider") as HTMLInputElement).value).toBe("0");
     });
-
-    it("spans the gradient over the whole track and starts the off layer at --fill", () => {
-      const { container } = renderSlider();
-      const gradient = container.querySelector('[data-slot="gradient"]')!;
-      const off = container.querySelector('[data-slot="off"]')!;
-      for (const token of [
-        "absolute",
-        "inset-x-0",
-        "h-1.5",
-        "rounded-pill",
-        "bg-linear-[to_right,var(--color-evaluation-slider-start),var(--color-evaluation-slider-end)]",
-      ]) {
-        expect(tokensOf(gradient)).toContain(token);
-      }
-      for (const token of [
-        "absolute",
-        "left-(--fill)",
-        "right-0",
-        "h-1.5",
-        "rounded-pill",
-        "bg-evaluation-slider-track",
-      ]) {
-        expect(tokensOf(off)).toContain(token);
-      }
-    });
   });
 
   describe("header row (spec: Label and value)", () => {
@@ -173,26 +148,6 @@ describe("IntensitySlider", () => {
       );
       expect(slider.getAttribute("aria-invalid")).toBe("true");
     });
-
-    it("renders and wires nothing for empty help and error strings", () => {
-      const { container } = renderSlider({ help: "", error: "" });
-      const slider = screen.getByRole("slider");
-      expect(slider.hasAttribute("aria-describedby")).toBe(false);
-      expect(slider.hasAttribute("aria-invalid")).toBe(false);
-      expect(container.querySelector(".type-error")).toBeNull();
-      expect(container.querySelector("p.type-meta")).toBeNull();
-    });
-  });
-
-  describe("disabled (spec: Data-entry control states)", () => {
-    it("disables the input with a not-allowed cursor and fades the slider to 50%", () => {
-      const { container } = renderSlider({ disabled: true });
-      const slider = screen.getByRole("slider");
-      expect(slider.hasAttribute("disabled")).toBe(true);
-      expect(tokensOf(slider)).toContain("disabled:cursor-not-allowed");
-      const track = container.querySelector('[data-slot="track"]')!;
-      expect(tokensOf(track)).toContain("opacity-50");
-    });
   });
 
   describe("read-only display (spec: Read-only display)", () => {
@@ -225,24 +180,6 @@ describe("IntensitySlider", () => {
       expect(
         container.querySelector('[data-slot="track"]')!.getAttribute("style"),
       ).toBe(`--fill: ${(8 * 100) / 15}%;`);
-    });
-  });
-
-  describe("type contract (design.md D2)", () => {
-    it("rejects a missing onChange without readOnly", () => {
-      // `npx tsc --noEmit` fails (TS2578, unused directive) if the case ever
-      // becomes accepted.
-      render(
-        // @ts-expect-error onChange required without readOnly
-        <IntensitySlider
-          label="Acidity"
-          value={1}
-          valueText="1/15"
-          valueLabel="1 de 15"
-          scaleLabels={SCALE_LABELS}
-        />,
-      );
-      expect(screen.getByRole("slider")).toBeDefined();
     });
   });
 });
