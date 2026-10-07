@@ -9,7 +9,7 @@ Commit scope: `offering-management` for every task except 2.3 and 2.4 (`app-shel
 
 ## 1. Derived types
 
-- [ ] 1.1 Add `UserLocation`, `UserLocationsPayload`, `UserLocationContact` and `CreateLocationPayload` to `src/shared/api/index.ts`, derived from `operations["listAUsersLocations"]` and `operations["createALocation"]` (design.md "Derived and UI-specific types"); `schema.ts` untouched. Verification: `npx tsc --noEmit` passes; `git diff --stat` shows no change to `src/shared/api/schema.ts`.
+- [x] 1.1 Add `UserLocation`, `UserLocationsPayload`, `UserLocationContact` and `CreateLocationPayload` to `src/shared/api/index.ts`, derived from `operations["listAUsersLocations"]` and `operations["createALocation"]` (design.md "Derived and UI-specific types"); `schema.ts` untouched. Verification: `npx tsc --noEmit` passes; `git diff --stat` shows no change to `src/shared/api/schema.ts`.
 
 ## 2. Geocoding entry point and CSP
 
