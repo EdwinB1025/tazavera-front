@@ -1,6 +1,6 @@
-Status: draft — pending Product owner review
+Status: approved
 
-# Design summary — refine-offering-pagination
+# Design summary — refine-list-pagination
 
 Proposed change-id: `refine-list-pagination` (see Open 3). Capabilities: `content-structure` (the shared `Pagination`) and `landing` (the verified offerings list page size). One commit per capability.
 
@@ -136,17 +136,17 @@ New keys, next to `paginationPreviousLabel` / `paginationNextLabel` in `landing`
 
 ## Open
 
-1. **How does the landing request 6 offerings per page?**
+1. **ANSWERED 2026-10-07 (Product owner): A.** The API accepts `page` and `perPage` (standard 15, maximum 50) on every paginated list (`tazavera-api` `6eb8d0f`, PROD `e84b444`); by Product owner's decision it is not documented in Scribe, and the front treats it as communicated by Product owner (decisions log "mapa del directorio con Leaflet y perPage"). The landing sends `perPage=6`. Note: the API's `links`/`meta.links` URLs drop `perPage`; the front computes its page numbers from `current_page`/`last_page`, so it is unaffected. How does the landing request 6 offerings per page?
    - A. API: `GET /offerings` accepts a page-size parameter (e.g. `perPage`, validated, default 15, same style as the existing filters), the contract is updated, landing sends 6. Clean `meta.last_page`; one request.
    - B. Front only: landing page k shows items 6(k−1)+1 … 6k, read from the one or two API pages of 15 that hold them; last page = ⌈`meta.total` / 6⌉. No API change; up to two requests and a pure paging function to test.
    - C. Keep 15 per page on the landing (no limit).
    - Recommendation: A (one request, contract-traceable; the API already follows this filter style). B if the API must not change now. Source: `OfferingController::index`, contract `listOfferings`.
    - Blocks propose: yes.
-2. **Add a "See the full catalog" link below the landing list?**
+2. **CLOSED 2026-10-07 (orchestrator, autonomy mandate): A, no link.** Add a "See the full catalog" link below the landing list?
    - A. No (pagination plus the header's "Offerings" entry). B. Yes, a `Link` to `/{locale}/offerings` below the paginator, with a new text.
    - Recommendation: A; the catalog is one click away in the header and request 2 keeps pagination on the landing.
    - Blocks propose: no (default A).
-3. **Change-id.** The paginator change reaches every paged list (evaluations too), not only offerings.
+3. **CLOSED 2026-10-07 (orchestrator): A, `refine-list-pagination`; the folder is renamed.** Change-id. The paginator change reaches every paged list (evaluations too), not only offerings.
    - A. `refine-list-pagination`. B. keep `refine-offering-pagination`.
    - Recommendation: A. Blocks propose: no.
 

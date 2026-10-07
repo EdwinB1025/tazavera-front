@@ -1416,8 +1416,11 @@ export interface operations {
                         data?: {
                             /** @example 01M35F5RX4ADGC3CSDXXYB08DB */
                             ulid?: string;
-                            /** @example 01K6A3M8Q2V7XH4T9B5N1RCW0D */
-                            offeringId?: string;
+                            /**
+                             * @description The ULID of the evaluated offering. `null` when the offering was deleted: specialists' evaluations are kept without an offering.
+                             * @example 01K6A3M8Q2V7XH4T9B5N1RCW0D
+                             */
+                            offeringId: string | null;
                             /** @example specialist */
                             evaluationType?: string;
                             /** @example open */
@@ -1837,8 +1840,11 @@ export interface operations {
                         data?: {
                             /** @example 01M35F5RX4ADGC3CSDXXYB08DB */
                             ulid?: string;
-                            /** @example 01K6A3M8Q2V7XH4T9B5N1RCW0D */
-                            offeringId?: string;
+                            /**
+                             * @description The ULID of the evaluated offering. `null` when the offering was deleted: specialists' evaluations are kept without an offering.
+                             * @example 01K6A3M8Q2V7XH4T9B5N1RCW0D
+                             */
+                            offeringId: string | null;
                             /** @example specialist */
                             evaluationType?: string;
                             /** @example open */
@@ -2312,8 +2318,11 @@ export interface operations {
                         data?: {
                             /** @example 01M35F5RX4ADGC3CSDXXYB08DB */
                             ulid?: string;
-                            /** @example 01K6A3M8Q2V7XH4T9B5N1RCW0D */
-                            offeringId?: string;
+                            /**
+                             * @description The ULID of the evaluated offering. `null` when the offering was deleted: specialists' evaluations are kept without an offering.
+                             * @example 01K6A3M8Q2V7XH4T9B5N1RCW0D
+                             */
+                            offeringId: string | null;
                             /** @example specialist */
                             evaluationType?: string;
                             /** @example open */
@@ -2781,8 +2790,11 @@ export interface operations {
                         data?: {
                             /** @example 01M35F5RX4ADGC3CSDXXYB08DB */
                             ulid?: string;
-                            /** @example 01K6A3M8Q2V7XH4T9B5N1RCW0D */
-                            offeringId?: string;
+                            /**
+                             * @description The ULID of the evaluated offering. `null` when the offering was deleted: specialists' evaluations are kept without an offering.
+                             * @example 01K6A3M8Q2V7XH4T9B5N1RCW0D
+                             */
+                            offeringId: string | null;
                             /** @example specialist */
                             evaluationType?: string;
                             /** @example open */
@@ -3305,8 +3317,11 @@ export interface operations {
                         data?: {
                             /** @example 01M35F5RX4ADGC3CSDXXYB08DB */
                             ulid?: string;
-                            /** @example 01K6A3M8Q2V7XH4T9B5N1RCW0D */
-                            offeringId?: string;
+                            /**
+                             * @description The ULID of the evaluated offering. `null` when the offering was deleted: specialists' evaluations are kept without an offering.
+                             * @example 01K6A3M8Q2V7XH4T9B5N1RCW0D
+                             */
+                            offeringId: string | null;
                             /** @example specialist */
                             evaluationType?: string;
                             /** @example open */
@@ -3482,8 +3497,11 @@ export interface operations {
                         data?: {
                             /** @example 01M35F5RX4ADGC3CSDXXYB08DB */
                             ulid?: string;
-                            /** @example 01K6A3M8Q2V7XH4T9B5N1RCW0D */
-                            offeringId?: string;
+                            /**
+                             * @description The ULID of the evaluated offering. `null` when the offering was deleted: specialists' evaluations are kept without an offering.
+                             * @example 01K6A3M8Q2V7XH4T9B5N1RCW0D
+                             */
+                            offeringId: string | null;
                             /** @example specialist */
                             evaluationType?: string;
                             /** @example open */
@@ -3914,8 +3932,11 @@ export interface operations {
                         data?: {
                             /** @example 01M35F5RX4ADGC3CSDXXYB08DB */
                             ulid?: string;
-                            /** @example 01K6A3M8Q2V7XH4T9B5N1RCW0D */
-                            offeringId?: string;
+                            /**
+                             * @description The ULID of the evaluated offering. `null` when the offering was deleted: specialists' evaluations are kept without an offering.
+                             * @example 01K6A3M8Q2V7XH4T9B5N1RCW0D
+                             */
+                            offeringId: string | null;
                             /** @example specialist */
                             evaluationType?: string;
                             /** @example open */
