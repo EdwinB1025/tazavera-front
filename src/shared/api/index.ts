@@ -28,6 +28,8 @@ type ListCoffeeInventoryResponse =
   operations["listCoffeeInventory"]["responses"][200]["content"]["application/json"];
 type CreateOfferingsResponse =
   operations["createOfferings"]["responses"][201]["content"]["application/json"];
+type ListMyContactsResponse =
+  operations["listMyContacts"]["responses"][200]["content"]["application/json"];
 
 /** `data` of `GET /user`. All fields are optional in the contract. */
 export type SessionUser = NonNullable<UserResponse["data"]>;
@@ -89,3 +91,10 @@ export type CoffeeInventoryItem = NonNullable<CoffeeInventoryPayload["data"]>[nu
 
 /** What `POST /offerings` returns on 201: `data` of the created offerings and `message`. */
 export type CreateOfferingsPayload = CreateOfferingsResponse;
+
+/** One item of `GET /users/{user_ulid}/contacts` `data`. */
+export type Contact = NonNullable<ListMyContactsResponse["data"]>[number];
+
+/** Body of `POST /users/{user_ulid}/contacts` (`createMyPrimaryContact`). */
+export type ContactCreatePayload =
+  operations["createMyPrimaryContact"]["requestBody"]["content"]["application/json"];

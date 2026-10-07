@@ -4,7 +4,7 @@ The apply of this change waits for two merges into `develop` (design.md Risks; d
 
 ## 1. Derived types from the generated API types
 
-- [ ] 1.1 Define `Contact` and `ContactCreatePayload` in `src/shared/api/index.ts` exactly as design.md "Derived and UI-specific types" lists them (with the private `ListMyContactsResponse` alias), built from `operations` of `src/shared/api/schema.ts`; no generated type is edited, redefined or widened. Verification: `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0; `src/shared/api/schema.ts` and `contracts/openapi.yaml` are unchanged (`git diff --stat` lists neither); `src/shared/api/session-types-guard.test.ts` stays green.
+- [x] 1.1 Define `Contact` and `ContactCreatePayload` in `src/shared/api/index.ts` exactly as design.md "Derived and UI-specific types" lists them (with the private `ListMyContactsResponse` alias), built from `operations` of `src/shared/api/schema.ts`; no generated type is edited, redefined or widened. Verification: `npm run test:run`, `npm run lint` and `npx tsc --noEmit` exit 0; `src/shared/api/schema.ts` and `contracts/openapi.yaml` are unchanged (`git diff --stat` lists neither); `src/shared/api/session-types-guard.test.ts` stays green.
 
 ## 2. Read and show the contact
 
