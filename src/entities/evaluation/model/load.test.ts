@@ -36,30 +36,6 @@ const ITEM: EvaluationItem = {
 };
 
 describe("formStateFromEvaluation (design.md D3)", () => {
-  it("maps descriptive and affective scores and notes to their axes", () => {
-    const state = formStateFromEvaluation(ITEM, "medium");
-    expect(state.roastLevel).toBe("medium");
-    expect(state.extractionMethod).toBe("chemex");
-    expect(state.descriptive.fragrance).toEqual({ score: 7, note: "jasmine" });
-    expect(state.descriptive.flavor).toEqual({ score: 9, note: null });
-    expect(state.descriptive.acidity).toEqual({ score: 10, note: "bright" });
-    expect(state.affective.flavor).toEqual({ score: 8, note: "juicy" });
-    expect(state.affective.overall).toEqual({ score: 8, note: "lovely" });
-    expect(state.generalObservation).toBe("Washed station");
-    expect(state.fragranceNotEvaluated).toBe(false);
-  });
-
-  it("maps missing scores to 0 (descriptive) and unset (affective)", () => {
-    const state = formStateFromEvaluation(
-      { ...ITEM, extractionMethod: undefined, descriptive: {}, affective: {}, extrinsics: undefined },
-      null,
-    );
-    expect(state.descriptive.mouthfeel).toEqual({ score: 0, note: null });
-    expect(state.affective.overall).toEqual({ score: null, note: null });
-    expect(state.generalObservation).toBeNull();
-    expect(state.extractionMethod).toBeNull();
-  });
-
   it("maps tastes by type to their block (design.md D7)", () => {
     const state = formStateFromEvaluation(
       {

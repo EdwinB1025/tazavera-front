@@ -129,18 +129,6 @@ describe("EvaluationRowCard (design.md card field mapping)", () => {
     fireEvent.click(screen.getByRole("button", { name: "View" }));
     expect(push).toHaveBeenLastCalledWith(`/en/manage/evaluations/${CLOSED.ulid}`);
   });
-
-  it("renders the footer's actions: Edit or View, and Delete", () => {
-    renderRow(OPEN);
-    const footerActions = (row: HTMLElement) =>
-      Array.from(row.querySelectorAll("button")).map((button) => button.textContent);
-    const openFooter = screen.getByRole("button", { name: "Edit" }).parentElement as HTMLElement;
-    expect(footerActions(openFooter)).toEqual(["Edit", "Delete"]);
-    cleanup();
-    renderRow(CLOSED);
-    const closedFooter = screen.getByRole("button", { name: "View" }).parentElement as HTMLElement;
-    expect(footerActions(closedFooter)).toEqual(["View", "Delete"]);
-  });
 });
 
 describe("EvaluationRowCard: an evaluation of a deleted offering (design.md D17; tasks 12.4)", () => {

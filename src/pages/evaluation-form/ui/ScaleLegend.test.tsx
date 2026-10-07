@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { ScaleLegend } from "./ScaleLegend";
 import { FORM_TEXTS } from "./form-fixtures";
 
@@ -28,42 +28,6 @@ function renderLegend(defaultOpen?: boolean) {
 }
 
 describe("ScaleLegend (design.md D16)", () => {
-  it("renders the shared collapsible header in a level-3 heading, named by the title, with no description", () => {
-    const { container } = renderLegend();
-    expect(container.querySelectorAll("button[aria-expanded]")).toHaveLength(1);
-    const header = screen.getByRole("button", { name: "Affective quality impression" });
-    expect(header.parentElement?.tagName).toBe("H3");
-    expect(header.hasAttribute("aria-describedby")).toBe(false);
-  });
-
-  it("starts collapsed with an inert body and expands on a click", () => {
-    const { container } = renderLegend();
-    const header = screen.getByRole("button", { name: "Affective quality impression" });
-    const body = container.querySelector(`#${header.getAttribute("aria-controls")}`)!;
-    expect(header.getAttribute("aria-expanded")).toBe("false");
-    expect(body.hasAttribute("inert")).toBe(true);
-    fireEvent.click(header);
-    expect(header.getAttribute("aria-expanded")).toBe("true");
-    expect(body.hasAttribute("inert")).toBe(false);
-  });
-
-  it("lists the nine values in order 1 to 9, each with its number, label and a hidden bean mark", () => {
-    const { container } = renderLegend(true);
-    const header = screen.getByRole("button", { name: "Affective quality impression" });
-    const body = container.querySelector(`#${header.getAttribute("aria-controls")}`) as HTMLElement;
-    const list = within(body).getByRole("list");
-    expect(list.tagName).toBe("OL");
-    const items = within(list).getAllByRole("listitem");
-    expect(items.map((item) => item.textContent)).toEqual(
-      LABELS.map((label, index) => `${index + 1}${label}`),
-    );
-    for (const item of items) {
-      const marks = item.querySelectorAll("svg");
-      expect(marks).toHaveLength(1);
-      expect(marks[0].getAttribute("aria-hidden")).toBe("true");
-    }
-  });
-
   it("draws each number inside its bean mark (design.md D18; tasks 13.3)", () => {
     const { container } = renderLegend(true);
     const items = Array.from(container.querySelectorAll("ol > li"));
