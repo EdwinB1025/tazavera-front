@@ -187,6 +187,15 @@ describe("LocationsPanel — reading (spec: Own locations list)", () => {
     expect(screen.getAllByRole("listitem")).toHaveLength(2);
   });
 
+  it("shows the loading status instead of the load error while Try again is pending", async () => {
+    request.mockResolvedValueOnce(json(500, {})).mockReturnValueOnce(pending());
+    renderPanel();
+    await settle();
+    fireEvent.click(screen.getByRole("button", { name: TEXTS.retry }));
+    expect(screen.getByRole("status").textContent).toBe(TEXTS.loading);
+    expect(screen.queryByText(TEXTS.locationsLoadError)).toBeNull();
+  });
+
   it("renders the empty card with the text and Add location, and no list (spec: Empty locations state)", async () => {
     request.mockResolvedValue(json(200, { data: [] }));
     renderPanel();
