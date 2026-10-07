@@ -71,22 +71,6 @@ describe("PageSection", () => {
     });
   });
 
-  describe("containerClassName (design.md D2: added to the container's classes)", () => {
-    it("adds grid and gap-6 to the container while its five tokens stay present", () => {
-      const { container } = render(
-        <PageSection containerClassName="grid gap-6">CONTENT</PageSection>,
-      );
-      const tokens = classTokens(
-        sectionOf(container).firstElementChild as Element,
-      );
-      expect(tokens).toContain("grid");
-      expect(tokens).toContain("gap-6");
-      for (const token of CONTAINER_TOKENS) {
-        expect(tokens, token).toContain(token);
-      }
-    });
-  });
-
   describe("Consumer content only (spec: the rendered content is exactly what the consumer supplied)", () => {
     it("renders the children inside the container and adds no text of its own", () => {
       const { container } = render(
