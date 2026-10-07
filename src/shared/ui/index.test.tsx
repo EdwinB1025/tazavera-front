@@ -45,6 +45,9 @@ import {
   TabsList,
   TabsTrigger,
   TabsContent,
+  LoadingStatus,
+  FormStatus,
+  StepUpNotice,
 } from "@/shared/ui";
 // Inside `src/shared/ui` the geometry comes from `./Badge` (design.md D5):
 // this is the single definition the segment entry must re-export.
@@ -370,5 +373,28 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
     );
     expect(screen.getByRole("tab", { name: "One" })).toBeDefined();
     expect(screen.getByRole("tabpanel").textContent).toBe("Panel one");
+  });
+
+  it("renders the loading status exported from the segment", () => {
+    render(<LoadingStatus text="Loading" />);
+    expect(screen.getByRole("status").textContent).toBe("Loading");
+  });
+
+  it("renders the form status exported from the segment", () => {
+    render(<FormStatus kind="error" text="Something failed" />);
+    expect(screen.getByRole("alert").textContent).toBe("Something failed");
+  });
+
+  it("renders the step-up notice exported from the segment", () => {
+    render(
+      <StepUpNotice
+        text="Confirm it is you"
+        actionLabel="Confirm identity"
+        onConfirm={() => {}}
+      />,
+    );
+    expect(
+      screen.getByRole("button", { name: "Confirm identity" }),
+    ).toBeDefined();
   });
 });
