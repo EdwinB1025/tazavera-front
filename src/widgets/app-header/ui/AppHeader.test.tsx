@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
 import {
   render,
@@ -39,11 +40,7 @@ const TEXTS = {
   signIn: "texts.signIn",
   languageSelector: "texts.languageSelector",
   brandLink: "texts.brandLink",
-  profile: "texts.profile",
-  editProfile: "texts.editProfile",
-  changePassword: "texts.changePassword",
-  deactivateAccount: "texts.deactivateAccount",
-  deleteAccount: "texts.deleteAccount",
+  myAccount: "texts.myAccount",
   security: "texts.security",
   themeSelector: "texts.themeSelector",
   manageOfferings: "texts.manageOfferings",
@@ -51,7 +48,7 @@ const TEXTS = {
   signOut: "texts.signOut",
 };
 
-function renderHeader(session: Session = ANONYMOUS) {
+function renderHeader(session: Session = ANONYMOUS, leading?: ReactNode) {
   const onSignIn = vi.fn();
   const onSignOut = vi.fn();
   const onLocaleChange = vi.fn();
@@ -64,6 +61,7 @@ function renderHeader(session: Session = ANONYMOUS) {
       onSignIn={onSignIn}
       onSignOut={onSignOut}
       onLocaleChange={onLocaleChange}
+      leading={leading}
     />,
   );
   return { ...utils, onSignIn, onSignOut, onLocaleChange };
@@ -117,6 +115,24 @@ describe("AppHeader, signed-out state", () => {
   // selector and the session control form one right-hand group, pushed to the
   // right edge and never hidden, so the two groups hold on every viewport
   // (spec: "Header grouping on every viewport").
+
+  it("renders the leading slot first in the left group, before the logotype (add-sidebar-slot design.md D6)", () => {
+    renderHeader(ANONYMOUS, <button type="button">leading-control</button>);
+    const left = screen.getByRole("banner").children[0] as HTMLElement;
+    const leading = within(left).getByRole("button", { name: "leading-control" });
+    expect(left.firstElementChild).toBe(leading);
+    const logo = left.querySelector('a[href="/es"]')!;
+    expect(
+      leading.compareDocumentPosition(logo) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it("keeps the left group unchanged without a leading slot (add-sidebar-slot design.md D6)", () => {
+    renderHeader();
+    const left = screen.getByRole("banner").children[0] as HTMLElement;
+    expect(left.firstElementChild!.classList.contains("md:hidden")).toBe(true);
+    expect(within(left).queryByRole("button")).toBeNull();
+  });
 
   it("groups the logotype and the primary navigation on the left", () => {
     renderHeader();
@@ -633,32 +649,53 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
     expect(right.className).not.toContain("md:");
   });
 
-  it("offers the profile settings entries pointing at /es/account/*", () => {
+  it("offers one account entry pointing at /es/account, before the Security entry (spec: Menu content)", () => {
     renderSignedIn("specialist");
     openMenu();
-    const entries: Array<[string, string]> = [
-      [TEXTS.profile, "/es/account/profile"],
-      [TEXTS.editProfile, "/es/account/edit"],
-      [TEXTS.changePassword, "/es/account/password"],
-      [TEXTS.deactivateAccount, "/es/account/deactivate"],
-      [TEXTS.deleteAccount, "/es/account/delete"],
-    ];
-    for (const [name, href] of entries) {
-      expect(screen.getByRole("menuitem", { name }).getAttribute("href")).toBe(
-        href,
-      );
+    const account = screen.getByRole("menuitem", { name: TEXTS.myAccount });
+    expect(account.getAttribute("href")).toBe("/es/account");
+    const accountEntries = screen
+      .getAllByRole("menuitem")
+      .filter((entry) => entry.getAttribute("href")?.startsWith("/es/account"));
+    expect(accountEntries).toEqual([account]);
+    for (const old of [
+      "/es/account/profile",
+      "/es/account/edit",
+      "/es/account/password",
+      "/es/account/deactivate",
+      "/es/account/delete",
+    ]) {
+      expect(document.querySelector(`a[href="${old}"]`), old).toBeNull();
     }
+    const security = screen.getByRole("menuitem", { name: TEXTS.security });
+    expect(
+      account.compareDocumentPosition(security) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it("points the account entry at /{locale}/account for the active locale (spec: The account entry points at the account page)", () => {
+    render(
+      <AppHeader
+        session={{ state: "authenticated", user: { ...USER, role: "specialist" } }}
+        locale="ca"
+        locales={LOCALES}
+        texts={TEXTS}
+        onSignIn={vi.fn()}
+        onSignOut={vi.fn()}
+        onLocaleChange={vi.fn()}
+      />,
+    );
+    openMenu();
+    expect(
+      screen.getByRole("menuitem", { name: TEXTS.myAccount }).getAttribute("href"),
+    ).toBe("/ca/account");
   });
 
   it("renders the internal entries with the internal Link treatment (unplanned fix: base-controls \"Link navigation\")", () => {
     renderSignedIn("specialist");
     openMenu();
     const entries: Array<[string, string]> = [
-      [TEXTS.profile, "/es/account/profile"],
-      [TEXTS.editProfile, "/es/account/edit"],
-      [TEXTS.changePassword, "/es/account/password"],
-      [TEXTS.deactivateAccount, "/es/account/deactivate"],
-      [TEXTS.deleteAccount, "/es/account/delete"],
+      [TEXTS.myAccount, "/es/account"],
       [TEXTS.manageEvaluations, "/es/manage/evaluations"],
     ];
     for (const [name, href] of entries) {
@@ -712,11 +749,15 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
     ).toBe("/es/manage/evaluations");
   });
 
-  it("offers no management entry for any other role (spec: No management entry for the role)", () => {
+  it("offers the account entry and sign out with no management entry for any other role (spec: No management entry for the role)", () => {
     renderSignedIn("customer");
     openMenu();
     expect(screen.queryByText(TEXTS.manageOfferings)).toBeNull();
     expect(screen.queryByText(TEXTS.manageEvaluations)).toBeNull();
+    expect(
+      screen.getByRole("menuitem", { name: TEXTS.myAccount }).getAttribute("href"),
+    ).toBe("/es/account");
+    expect(screen.getByRole("menuitem", { name: TEXTS.signOut })).toBeDefined();
   });
 
   it("invokes the session's sign out and closes (spec: Sign out)", () => {

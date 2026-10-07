@@ -2,6 +2,12 @@
 
 import { useId, type InputHTMLAttributes, type ReactNode } from "react";
 import { Check } from "@/shared/ui/icons";
+import {
+  FACET_MESSAGE_CLASSES,
+  facetRowClasses,
+  withoutDisabledFade,
+  type ControlPresentation,
+} from "./facet-row";
 
 // ─── UI-specific types (declared before the component) ───
 // No generated API type is used here: every text is a prop supplied by the
@@ -19,6 +25,9 @@ export type CheckboxProps = Omit<
   help?: ReactNode;
   error?: ReactNode;
   variant?: CheckboxVariant; // explicit prop only (design.md D1.1)
+  // add-facet-controls design.md D3: "row" is used controlled, with
+  // `variant="inverse"` on the sidebar; the row look follows `checked`.
+  presentation?: ControlPresentation;
 };
 
 // ─── Treatment classes ───
@@ -81,6 +90,7 @@ export function Checkbox({
   help,
   error,
   variant = "default",
+  presentation = "field",
   id: idProp,
   "aria-describedby": describedByProp,
   "aria-invalid": ariaInvalidProp,
@@ -107,10 +117,14 @@ export function Checkbox({
       .join(" ") || undefined);
   const ariaInvalid = ariaInvalidProp ?? (hasError ? "true" : undefined);
   const invalid = ariaInvalid === true || ariaInvalid === "true";
+  const row =
+    presentation === "row"
+      ? facetRowClasses({ selected: rest.checked === true, disabled: rest.disabled })
+      : undefined;
 
   return (
     <div className={variant === "inverse" ? "variant-inverse" : undefined}>
-      <label className={LABEL_CLASSES}>
+      <label className={row ? row.row : LABEL_CLASSES}>
         <span className="relative inline-flex">
           <input
             {...rest}
@@ -119,24 +133,28 @@ export function Checkbox({
             aria-describedby={describedBy}
             aria-invalid={ariaInvalid}
             className={[
-              BOX_CLASSES,
-              invalid ? "border-feedback-error" : "border-border-strong",
+              row ? withoutDisabledFade(BOX_CLASSES) : BOX_CLASSES,
+              invalid
+                ? "border-feedback-error"
+                : row
+                  ? "border-nav-button-border"
+                  : "border-border-strong",
               className,
             ]
               .filter(Boolean)
               .join(" ")}
           />
-          <Check className={MARK_CLASSES} />
+          <Check className={row ? withoutDisabledFade(MARK_CLASSES) : MARK_CLASSES} />
         </span>
-        <span className="type-label">{label}</span>
+        <span className={row ? row.label : "type-label"}>{label}</span>
       </label>
       {hasHelp && (
-        <p id={helpId} className="type-meta mt-1">
+        <p id={helpId} className={row ? `type-meta mt-1 ${FACET_MESSAGE_CLASSES}` : "type-meta mt-1"}>
           {help}
         </p>
       )}
       {hasError && (
-        <p id={errorId} className="type-error mt-1">
+        <p id={errorId} className={row ? `type-error mt-1 ${FACET_MESSAGE_CLASSES}` : "type-error mt-1"}>
           {error}
         </p>
       )}

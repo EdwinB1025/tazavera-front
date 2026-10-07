@@ -68,3 +68,47 @@ One section per candidate, in this format:
 - **Open decision (Augusto):** document the 422 body in the API, then schedule the change
 - **Status:** proposed
 - **Affects:** `add-user-account`, `add-offering-management`, `add-specialist-evaluations`
+
+## R9 — Single "Clear all" filters button (add-evaluation-facets propose)
+
+- **Duplicated:** two host-side "Clear all" buttons with the same behaviour (drop every facet key from the URL, keep the sort keys)
+- **Where today:** `ClearFiltersButton` (`add-offering-facets`) and `ClearEvaluationFiltersButton` (`add-evaluation-facets`), both planned, each in its own feature slice because FSD forbids feature-to-feature imports
+- **Why it pays off now:** one shared button in `src/shared/ui` (taking the facet keys as a prop) ends the duplication before a third filtered list repeats it
+- **Owning capability:** filtering
+- **Proposed change:** a refactor after both facet changes merge, moving the button to `src/shared/ui`
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** `add-offering-facets`, `add-evaluation-facets`, `add-coffeeshop-directory` (a third copy; run R9 before it)
+
+## R10 — Error boundary of the row facets in the traditional theme (refine-facet-controls Q2)
+
+- **Duplicated:** none; the row facets' radio and checkbox boxes take the error boundary colour in the dark theme only — in the traditional theme they keep the cream boundary under an error
+- **Where today:** the row facet controls of `add-facet-controls` (inside the sidebar's `variant-inverse` scope); seen in `docs/design/refine-facet-controls/captures/375-light.png` vs `375-dark.png` ("Proceso", "Solo disponibles")
+- **Why it pays off now:** no consumer passes an error to a facet today; the first facet that shows a validation error would show it only by the left bar and the text in the traditional theme
+- **Owning capability:** filtering
+- **Proposed change:** none yet — schedule it before a facet consumer shows errors
+- **Open decision (Augusto):** none
+- **Status:** accepted
+- **Affects:** `add-offering-facets`, `add-evaluation-facets`
+
+## R11 — Shared protected-route gate and write-status pieces (add-coffeeshop-location summary, Open 4)
+
+- **Duplicated:** the protected-route gate and the write-status pieces: `ManagementGate` (`add-offering-management`) and `SessionGate` / `StepUpNotice` / `FormStatus` / `LoadingStatus` (`add-user-account`); `add-coffeeshop-location` would add a third copy, because FSD forbids `features/location-management` importing either feature
+- **Where today:** `add-offering-management` design.md files table; `add-user-account` design.md files table
+- **Why it pays off now:** the pieces take texts and callbacks, no business data; one copy in `src/shared/ui` serves the three features and the next protected screen
+- **Owning capability:** app-shell (gate) and feedback (status pieces), consumed by each feature
+- **Proposed change:** a refactor after `add-user-account` and `add-offering-management` merge, moving the generic gate and status pieces to `src/shared/ui`; before `add-coffeeshop-location`
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** `add-user-account`, `add-offering-management`, `add-coffeeshop-location`
+
+## R12 — Filtered-offerings widget (add-coffeeshop-directory summary, Open 4)
+
+- **Duplicated:** the filtered offerings body and its sidebar composition (`OfferingsScreen` body, `OfferingsSidebarScreen` in `src/pages/offerings`); the coffee shop detail's offerings tab would copy them, because a page slice cannot import another page slice
+- **Where today:** `src/pages/offerings` (`add-offering-catalog`, `add-offering-facets`)
+- **Why it pays off now:** a widget (`src/widgets/filtered-offerings`, with a fixed-query prop for `coffeeshopUlid`) lets the directory reuse the catalog's list and filters without a copy, keeping the `?tab=` pattern; nothing the user sees changes
+- **Owning capability:** offering-catalog
+- **Proposed change:** a refactor after `add-offering-catalog` and `add-offering-facets` merge; before `add-coffeeshop-directory`
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** `add-offering-catalog`, `add-offering-facets`, `add-coffeeshop-directory`

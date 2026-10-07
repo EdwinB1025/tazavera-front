@@ -18,6 +18,8 @@ type UserResponse =
   operations["getTheAuthenticatedUser"]["responses"][200]["content"]["application/json"];
 type ListOfferingsResponse =
   operations["listOfferings"]["responses"][200]["content"]["application/json"];
+type OfferingResponse =
+  operations["getAnOffering"]["responses"][200]["content"]["application/json"];
 type ListTaxonomiesResponse =
   operations["listOlfactoryTaxonomies"]["responses"][200]["content"]["application/json"];
 
@@ -39,6 +41,9 @@ export type OfferingSummary = NonNullable<ListOfferingsResponse["data"]>[number]
 /** `meta` of the offerings pagination; the list reads `current_page` and `last_page`. */
 export type OfferingsPageMeta = NonNullable<ListOfferingsResponse["meta"]>;
 
+/** `data` of `GET /offerings/{offering_ulid}`: the offering detail both detail tabs show. */
+export type OfferingDetail = NonNullable<OfferingResponse["data"]>;
+
 /** One node of an offering's `sensoryTaxonomy` tree: `ref`, `type`, `level`, `count`, `children`. */
 export type OfferingTaxonomyNode = NonNullable<
   OfferingSummary["sensoryTaxonomy"]
@@ -46,6 +51,18 @@ export type OfferingTaxonomyNode = NonNullable<
 
 /** One node of `GET /taxonomies` `data`: `ulid`, `level`, `nameEs`, `nameEn`, `nameCa`, `color`, `children`. */
 export type TaxonomyNode = NonNullable<ListTaxonomiesResponse["data"]>[number];
+
+/** Body of `POST /register` (`registerAUser`). */
+export type RegisterPayload =
+  operations["registerAUser"]["requestBody"]["content"]["application/json"];
+
+/** Body of `PUT /users/{user_ulid}` (`updateAUser`); every field is optional in the contract. */
+export type ProfileUpdatePayload =
+  NonNullable<operations["updateAUser"]["requestBody"]>["content"]["application/json"];
+
+/** Body of `PUT /users/{user_ulid}/password` (`updateUserPassword`). */
+export type PasswordUpdatePayload =
+  operations["updateUserPassword"]["requestBody"]["content"]["application/json"];
 
 /** What `GET /taxonomies` returns: `data` of taxonomy nodes. */
 export type TaxonomiesPayload = {

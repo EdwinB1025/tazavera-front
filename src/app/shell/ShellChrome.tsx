@@ -22,6 +22,8 @@ export type ShellChromeProps = {
   locale: string;
   locales: string[];
   texts: AppHeaderTexts;
+  /** Rendered first in the header (add-sidebar-slot design.md D6). */
+  leading?: ReactNode;
 };
 
 export function ShellChrome({
@@ -29,6 +31,7 @@ export function ShellChrome({
   locale,
   locales,
   texts,
+  leading,
 }: ShellChromeProps): ReactNode {
   const router = useRouter();
   const pathname = usePathname();
@@ -62,6 +65,7 @@ export function ShellChrome({
       onSignOut={handleSignOut}
       onLocaleChange={handleLocaleChange}
       currentPath={pathname ?? undefined}
+      leading={leading}
     />
   );
 }

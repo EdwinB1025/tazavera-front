@@ -19,7 +19,7 @@ export type AppShellProps = {
    * (review round 2, item 2).
    */
   session?: Session;
-  /** The management sidebar region (filled by `@/widgets/app-sidebar`). */
+  /** The `@sidebar` slot of the `[locale]` layout (add-sidebar-slot D1). */
   sidebar?: ReactNode;
   children?: ReactNode;
 };
@@ -65,11 +65,7 @@ export function AppShell({
         // the trigger shows.
         languageSelector: `${active.toUpperCase()} — ${texts.languageSelector!}: ${LOCALE_NAMES[active].name}`,
         brandLink: texts.brandLink!,
-        profile: texts.profile!,
-        editProfile: texts.editProfile!,
-        changePassword: texts.changePassword!,
-        deactivateAccount: texts.deactivateAccount!,
-        deleteAccount: texts.deleteAccount!,
+        myAccount: texts.myAccount!,
         security: texts.security!,
         themeSelector: texts.themeSelector!,
         manageOfferings: texts.manageOfferings!,

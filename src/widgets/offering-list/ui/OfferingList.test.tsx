@@ -3,6 +3,7 @@ import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import type { OfferingsPageMeta, OfferingSummary, Session } from "@/shared/api";
 import type { ResolvedTaxonomyBadge } from "@/entities/offering";
 import { OfferingList } from "./OfferingList";
+import { CATALOG_GRID_CLASSES, OFFERING_GRID_CLASSES } from "../lib/grid";
 
 // This project has no global test setup, so RTL's auto-cleanup (which relies
 // on a framework-provided afterEach) does not run. Clean up manually between
@@ -198,12 +199,47 @@ describe("OfferingList", () => {
     });
   });
 
+  describe("Consumer actions after View (spec: 'Consumer actions after View')", () => {
+    it("renders each card's Evaluate link after its View link and in the same group", () => {
+      renderList({
+        state: "success",
+        items: [ITEM_ONE, ITEM_TWO],
+        meta: { current_page: 1, last_page: 1 },
+      });
+      const views = screen.getAllByRole("link", { name: TEXTS.viewLabel });
+      expect(views).toHaveLength(2);
+      for (const view of views) {
+        const ulid = (view.getAttribute("href") ?? "").split("/").pop() ?? "";
+        const evaluate = screen
+          .getAllByRole("link", { name: TEXTS.evaluateLabel })
+          .find(
+            (link) =>
+              link.getAttribute("href") ===
+              `/es/manage/evaluations/new?offering=${ulid}`,
+          );
+        expect(evaluate).toBeDefined();
+        expect(evaluate!.parentElement).toBe(view.parentElement);
+        const children = Array.from(view.parentElement!.children);
+        expect(children.indexOf(evaluate!)).toBeGreaterThan(
+          children.indexOf(view),
+        );
+      }
+    });
+  });
+
   describe("Empty (spec: 'Empty')", () => {
     it("renders the centered empty message and no offering card", () => {
       renderList({ state: "empty" });
       const message = screen.getByText(TEXTS.emptyMessage);
       expect(classTokens(message).includes("text-center")).toBe(true);
       expect(screen.queryAllByRole("link", { name: TEXTS.viewLabel })).toHaveLength(0);
+    });
+
+    it("renders the empty message in the primary text colour", () => {
+      renderList({ state: "empty" });
+      expect(classTokens(screen.getByText(TEXTS.emptyMessage))).toContain(
+        "text-text-primary",
+      );
     });
   });
 
@@ -215,6 +251,12 @@ describe("OfferingList", () => {
       expect(screen.getByText(TEXTS.errorMessage)).toBeDefined();
       expect(screen.getByRole("button", { name: TEXTS.retryLabel })).toBeDefined();
       expect(screen.queryAllByRole("link", { name: TEXTS.viewLabel })).toHaveLength(0);
+    });
+
+    it("renders the error message in the primary text colour", () => {
+      renderList({ state: "error" });
+      const message = screen.getByText(TEXTS.errorMessage);
+      expect(classTokens(message.parentElement!)).toContain("text-text-primary");
     });
 
     it("calls router.refresh() when the retry action is activated (spec: Retry reloads)", () => {
@@ -259,6 +301,71 @@ describe("OfferingList", () => {
           "md:grid-cols-2",
           "xl:grid-cols-3",
         ]),
+      );
+    });
+  });
+  describe("Catalog props (add-offering-catalog design.md D10; spec 'Next and Previous keep the query')", () => {
+    const SUCCESS: ListResult = {
+      state: "success",
+      items: [ITEM_ONE, ITEM_TWO],
+      meta: { current_page: 1, last_page: 2 },
+    };
+
+    function gridOf(container: HTMLElement): Element {
+      return container.querySelector(".bg-surface-card")!.parentElement!;
+    }
+
+    it("carries @container on the block root in every branch", () => {
+      const results: ListResult[] = [
+        SUCCESS,
+        { state: "empty" },
+        { state: "error" },
+      ];
+      for (const result of results) {
+        const { container, unmount } = renderList(result);
+        expect(classTokens(container.firstElementChild!)).toContain(
+          "@container",
+        );
+        unmount();
+      }
+    });
+
+    it("keeps landing's grid classes by default", () => {
+      const { container } = renderList(SUCCESS);
+      expect(gridOf(container).getAttribute("class")).toBe(
+        OFFERING_GRID_CLASSES,
+      );
+    });
+
+    it("replaces the grid classes with gridClassName when passed", () => {
+      const { container } = render(
+        <OfferingList
+          result={SUCCESS}
+          locale="es"
+          session={ANONYMOUS}
+          texts={TEXTS}
+          gridClassName={CATALOG_GRID_CLASSES}
+        />,
+      );
+      expect(gridOf(container).getAttribute("class")).toBe(
+        CATALOG_GRID_CLASSES,
+      );
+    });
+
+    it("pages at path keeping the query: Next pushes /es/offerings?verified=1&page=2", () => {
+      render(
+        <OfferingList
+          result={SUCCESS}
+          locale="es"
+          session={ANONYMOUS}
+          texts={TEXTS}
+          path="/es/offerings"
+          query={{ verified: "1" }}
+        />,
+      );
+      fireEvent.click(screen.getByRole("button", { name: TEXTS.nextLabel }));
+      expect(router.push).toHaveBeenCalledWith(
+        "/es/offerings?verified=1&page=2",
       );
     });
   });
