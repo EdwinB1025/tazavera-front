@@ -369,3 +369,50 @@ describe("NewOfferingForm — locations (design.md D10)", () => {
     }
   });
 });
+
+describe("NewOfferingForm — section card panel (design.md D15)", () => {
+  // The panel's old local classes (MVC `.tz-form-main`): never on the form or
+  // any of its ancestors.
+  const OLD_PANEL_CLASSES = ["border-2", "bg-surface-form"];
+
+  function expectSectionCardPanel(container: HTMLElement): void {
+    const form = container.querySelector("form");
+    expect(form).not.toBeNull();
+    expect(form!.className).toBe("flex flex-col gap-6");
+
+    const card = form!.closest(".bg-surface-card");
+    expect(card).not.toBeNull();
+    for (const cls of [
+      "bg-surface-card",
+      "border",
+      "border-border-subtle",
+      "rounded-container",
+      "shadow-lg",
+      "w-full",
+      "md:max-w-160",
+    ]) {
+      expect(card!.classList.contains(cls), cls).toBe(true);
+    }
+    expect(card!.classList.contains("border-l-4")).toBe(false);
+    // No header band.
+    expect(card!.querySelector(".bg-surface-section")).toBeNull();
+
+    for (let node: Element | null = form; node !== null; node = node.parentElement) {
+      for (const cls of OLD_PANEL_CLASSES) {
+        expect(node.classList.contains(cls), `${node.tagName} ${cls}`).toBe(false);
+      }
+    }
+  }
+
+  it("the signed-in form sits in a section card with no header band", async () => {
+    const { container } = renderForm();
+    await act(async () => {});
+    expectSectionCardPanel(container);
+  });
+
+  it("while the session resolves, the form sits in the same section card", () => {
+    mocks.session = { state: "loading" };
+    const { container } = renderForm();
+    expectSectionCardPanel(container);
+  });
+});
