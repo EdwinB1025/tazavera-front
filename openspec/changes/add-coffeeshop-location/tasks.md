@@ -36,7 +36,7 @@ Commit scope: `offering-management` for every task except 2.3 and 2.4 (`app-shel
 ## 6. Locations data and submit sequence
 
 - [x] 6.1 Write tests for `src/features/location-management/api/locations.ts` and `model/` (D4, D6, D7), with `fetch` stubbed and `geocodeAddress` mocked: (a) `fetchOwnLocations("u1")` sends `GET {API}/users/u1/locations` through `request`; (b) `createLocation(payload)` sends `POST {API}/locations` with the JSON body; (c) `validateLocationForm` returns `requiredError` for empty or whitespace Name, Address, City, `emailFormatError` for a non-empty invalid Email, nothing for empty optional fields; (d) `toCreateLocationPayload` sends `name`, omits empty `description` and empty optional contact fields, uses `postal_code`, and with coordinates `{ lat: "41.4029", lon: "2.1565" }` sends `latitud: 41.4029, longitud: 2.1565` as numbers, otherwise neither key; (e) the submit sequence calls `geocodeAddress` once with the trimmed fields, aborts it after 5000 ms (fake timers) and then posts without coordinates; (f) `found` and `not-found` are cached by the lower-cased trimmed key and a second submit with the same address (different case or spaces) sends no new lookup; `failed` is not cached; (g) the outcome is `created` (with `hadCoordinates`), `step-up` on 403, `error` on 422, 500 and a rejected fetch. Verification: fails only because the modules do not exist.
-- [ ] 6.2 Implement `api/locations.ts`, `model/location-form.ts` and `model/submit-location.ts`. Verification: 6.1 passes; all tests, lint and typecheck pass.
+- [x] 6.2 Implement `api/locations.ts`, `model/location-form.ts` and `model/submit-location.ts`. Verification: 6.1 passes; all tests, lint and typecheck pass.
 
 ## 7. Location form
 
