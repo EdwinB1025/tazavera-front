@@ -499,3 +499,11 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
   - `openspec/config.yaml` actualizado por Product owner (`bbf5e66`): `offering-catalog` incluye el directorio; `offering-management`, las ubicaciones; `user-account`, los datos de contacto.
 - **Por qué:** respuestas de Product owner del 7 oct.
 - **Afecta:** add-coffeeshop-directory (actualización de artefactos: tareas del mapa); refine-list-pagination; add-coffeeshop-location; add-user-contact.
+
+### 2026-10-07 — geocodificación propia y mandato de autonomía (orquestador, por mandato de Product owner)
+- **Decisión:**
+  - Mandato de Product owner (7 oct, tarde): el orquestador cierra los puntos en autonomía, salvo los que cambien lo pactado en un design summary.
+  - add-coffeeshop-location Open 5 / D5: geocodificación con un `fetch` propio a Nominatim en el único punto de entrada `src/shared/lib/geocoding` (opción C del resumen), sin dependencia nueva. `leaflet-geosearch` se descarta: solo acepta texto libre, no admite cancelar ni comprueba el estado (verificado en el propose). La CSP `connect-src` a Nominatim ya estaba aprobada (entrada "contactos y locales").
+  - Textos propuestos en en/ca de los proposes del 7 oct (`urlFormatError`, `signedOutText`, `mapLoading`, `locationNoMap`, "Administra les ubicacions") se aceptan tal cual.
+- **Por qué:** mandato de Product owner; resumen de add-coffeeshop-location (Open 5 ofrece C); recomendación del arquitecto.
+- **Afecta:** add-coffeeshop-location (D5 cerrado; sin tarea de librería); add-user-contact; add-coffeeshop-directory.
