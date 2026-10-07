@@ -155,3 +155,21 @@ New keys, next to `paginationPreviousLabel` / `paginationNextLabel` in `landing`
 ### 2026-10-07 — generation (design lead)
 - Drafted from Product owner's request of 2026-10-07, `src/shared/ui/Pagination.tsx`, `OfferingList`, `HomeScreen`, the catalog's use on `feature/add-offering-catalog`, the content-structure and landing specs, contract `listOfferings`, `tazavera-api` `OfferingController::index` (read only) and the MVC Tailwind pagination view.
 - Settled (criterion B, technical or reuse): numbers computed from `currentPage`/`lastPage` (meta.links unusable as is); same push mechanism as Previous/Next; limit applies at every width (server render, fixed API page); `action-3` numbers and existing tokens (all pairs already registered, no new token); `md` as the window breakpoint (fit computed); order after the three host branches merge.
+
+## Propose status
+
+- **Change-id:** `refine-list-pagination` (branch `claude/refine-list-pagination-propose`, from `feature/refine-list-pagination`).
+- **Date:** 2026-10-07.
+- **`openspec validate refine-list-pagination --strict`:** valid.
+- **Artifacts:** `proposal.md`; delta specs `content-structure` ("Pagination" modified; "Pagination page numbers" and "Compact Previous and Next" added) and `landing` ("Verified offerings list" modified: 6 per page, numbered pagination); `design.md` (D1–D10); `tasks.md` (12 tasks in 5 groups).
+- **Resolved here (design.md, single-component details):**
+  - D1: `PaginationTexts` gains `navigationLabel` and `pageLabel`; `PageSlot` and `pageSlots()` exported from `Pagination.tsx` only.
+  - D3: one ordered slot list merging the narrow and wide windows, each slot hidden at the width it does not belong to (no duplicated buttons); worked results for `lastPage` 20.
+  - D6: below `md` the Previous/Next label stays in the DOM, visually hidden, so the accessible name is the label at every width.
+  - D8: `fetchVerifiedOfferings` sends `verified=1&page={page}&perPage=6` through `fetchOfferings` (`LANDING_PAGE_SIZE = 6`); no other list sends `perPage`.
+  - "My evaluations" keeps its rule of rendering the paginator only when `last_page > 1`.
+- **From this summary, applied as settled:** Open 1 A (`perPage=6`, decisions log 2026-10-07), Open 2 A (no catalog link), Open 3 A (change-id).
+- **Risk recorded (design.md Risks):** `Button` appends `className` without merging, so the current number's fill, the numbers' padding and the square Previous/Next below `md` need overrides the generated CSS orders after `Button`'s; if none is reliable without changing `Button`, the build stops and reports.
+- **Order:** apply only after `add-offering-catalog`, `add-offering-management` and `add-specialist-evaluations` merge into `develop` and `develop` into `feature/refine-list-pagination` (task 1.1 checks it).
+- **Backlog:** no entry affected; none resolved.
+- **Open:** none blocking. Still to report to Product owner (summary §7): `listOfferings` documents no `page` parameter in the contract.

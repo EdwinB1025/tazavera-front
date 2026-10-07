@@ -11,6 +11,8 @@
   "viewLabel": "Veure",
   "previousLabel": "Anterior",
   "nextLabel": "Següent",
+  "paginationNavigationLabel": "Paginació",
+  "paginationPageLabel": "Pàgina {page}",
   "listEmptyMessage": "Encara no tens avaluacions.",
   "listLoadErrorMessage": "No s'han pogut carregar les teves avaluacions.",
   "retryLabel": "Tornar-ho a provar",

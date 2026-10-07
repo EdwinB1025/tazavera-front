@@ -55,11 +55,15 @@ The entry page SHALL render, in the main content area, an eyebrow label, the ent
 - **THEN** the hero renders in one column with the photograph hidden, and from 768px up it renders in two equal columns, vertically centered, with the photograph beside the text
 
 ### Requirement: Verified offerings list
-The entry page SHALL list the verified offerings of the API, one offering card per offering, in a grid of one column below the medium breakpoint (768px), two from 768px and three from the extra-large breakpoint (1280px), with Previous and Next pagination driven by the API's current and last page, and SHALL cover loading, empty, success and error states.
+The entry page SHALL list the verified offerings of the API, 6 per page at every width, one offering card per offering, in a grid of one column below the medium breakpoint (768px), two from 768px and three from the extra-large breakpoint (1280px), with the numbered pagination driven by the API's current and last page, and SHALL cover loading, empty, success and error states.
 
 #### Scenario: Success
 - **WHEN** the verified offerings load and the API returns offerings
 - **THEN** one offering card renders per offering of the current page and the pagination reflects the API's current and last page
+
+#### Scenario: Page size
+- **WHEN** the list requests a page of verified offerings
+- **THEN** it asks the API for 6 offerings per page, at every viewport width, so a full page fills 6, 3 or 2 complete rows at one, two or three columns
 
 #### Scenario: Grid by viewport
 - **WHEN** the list renders offering cards
@@ -82,8 +86,8 @@ The entry page SHALL list the verified offerings of the API, one offering card p
 - **THEN** the list loads again through its loading state into success, empty or error
 
 #### Scenario: Paging
-- **WHEN** the visitor activates Next or Previous
-- **THEN** the list requests the following or preceding page and updates its cards and pagination state
+- **WHEN** the visitor activates Next, Previous or a page number
+- **THEN** the list requests that page, 6 offerings per page, and updates its cards and pagination state
 
 #### Scenario: Paging at the boundaries
 - **WHEN** the list shows the first page

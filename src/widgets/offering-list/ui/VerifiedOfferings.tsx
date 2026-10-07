@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { LANDING_PAGE_SIZE } from "../api/offerings";
 import { Offerings } from "./Offerings";
 import type { OfferingListTexts } from "./OfferingList";
 
@@ -25,7 +26,11 @@ export function VerifiedOfferings({
   return (
     <Offerings
       locale={locale}
-      query={{ verified: "1", page: String(page) }}
+      query={{
+        verified: "1",
+        page: String(page),
+        perPage: String(LANDING_PAGE_SIZE),
+      }}
       texts={texts}
     />
   );

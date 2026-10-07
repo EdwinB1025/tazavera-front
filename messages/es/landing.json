@@ -22,6 +22,8 @@
   "cardRatingCommercialLabel": "Comercial",
   "paginationPreviousLabel": "Anterior",
   "paginationNextLabel": "Siguiente",
+  "paginationNavigationLabel": "Paginación",
+  "paginationPageLabel": "Página {page}",
   "listEmptyMessage": "Aún no hay ofertas verificadas.",
   "listErrorMessage": "No se pudieron cargar las ofertas verificadas.",
   "listRetryLabel": "Reintentar",
