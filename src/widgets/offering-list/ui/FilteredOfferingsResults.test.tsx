@@ -58,6 +58,8 @@ const LIST_TEXTS = {
   ratingCommercialLabel: "ratingCommercialLabel",
   previousLabel: "previousLabel",
   nextLabel: "nextLabel",
+  navigationLabel: "navigationLabel",
+  pageLabel: "pageLabel {page}",
   emptyMessage: "emptyMessage",
   resultCount: "resultCount",
   errorMessage: "errorMessage",
