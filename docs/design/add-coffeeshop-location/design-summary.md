@@ -269,3 +269,21 @@ Contact field labels: the `contact` area proposed in `add-user-contact` Open 5. 
 - §3 on the contract (`290d22e`): `listAUsersLocations` (Open 2 closed, option b), `createALocation`; coffeeshop-only note on the API route's missing role check.
 - Open 3 closed (one "Administrar ofertas" entry; this change adds "Administrar ubicaciones", no widget): §0, §4 updated. Open 4 closed (R11 first; apply waits): §5.1, §10, §11 updated.
 - Adoption of refine-page-surfaces: form card → section card (band with the `h2`; card, band and body spacing from refine-page-surfaces §5.3), `LocationCard` stays a content card, the list is one column 1.5rem apart (decisions log "catálogo en una columna"): §5.2–5.4, §7, §8; wireframe §12 marked as superseded in part. New Open 11 (empty state in the section card; not blocking).
+
+## Propose status
+
+- **Change-id:** `add-coffeeshop-location`. **Date:** 2026-10-07. **Branch:** `claude/add-coffeeshop-location-propose` (from `feature/add-coffeeshop-location`).
+- **`openspec validate add-coffeeshop-location --strict`:** valid. Information only: the `offering-management` delta's MODIFIED "Management sidebar entry" is archivable once `add-offering-management` is archived (that capability is not in `openspec/specs/` yet).
+- **Artifacts:** proposal.md; delta specs `offering-management` (9 ADDED requirements, 1 MODIFIED: two sidebar entries on every coffee shop management route) and `app-shell` (MODIFIED "Content-Security-Policy"); design.md (D1–D12); tasks.md (24 tasks in 12 groups, test-first, captures at 375 and 1280 px in both themes).
+- **Resolved:**
+  - Open 1 → recommendation kept; the `config.yaml` line is Product owner's file and is listed in design.md Open Questions (not edited).
+  - Open 5 → still open for Product owner (design.md D5). Verified at propose: `leaflet-geosearch@4.4.0` (MIT, 2026-03-17) `search()` takes free text only and fetches with no abort signal or status check; a structured query only through `endpoint()`, which returns a URL. The architect now recommends option (C); the tasks build the entry point's body in-house, so no task depends on installing a library.
+  - Open 6 (a), 7 (a), 8 (accept), 9 (none), 10 (5 s), 11 (a) → recommendations kept.
+  - R11 → dependency stated (design.md D2, tasks.md 0.1); no copy of the gate or status pieces.
+  - §5.5 step 3 → `latitud`/`longitud` sent as numbers, because the contract types them `number` (§3 defers to the contract).
+  - §9 texts → shared-purpose keys copied into the area; new `signedOutText` (the account's string names the account); contact labels from the `contact` area (`add-user-contact` Open 5 b).
+  - §8 two-column contact rows → this change adds an optional paired layout to `ContactFields` (design.md D12).
+  - `LocationCard` takes the contact details as a slot, because `entities/location` cannot import `entities/contact` (design.md D9).
+  - Sidebar → `ManagementSidebarEntries` gains `current` and `children`; the three page slices compose both entries (design.md D8).
+- **Open:** Open 5 (library, D5); `config.yaml` line (Open 1); the new `signedOutText` strings and the Catalan sidebar label `Administra les ubicacions` beside `Gestionar ofertes`; R11's and `add-user-contact`'s final names and props, checked by task 0.1.
+- **Backlog:** R11 affects this change; it runs before the apply and is not resolved by it.
