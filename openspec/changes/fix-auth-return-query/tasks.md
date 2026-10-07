@@ -11,7 +11,7 @@
 ## 3. Opening only an application route at the callback
 
 - [x] 3.1 Tests in `src/features/auth/api/authorize.test.ts` for `completeCallback` in redirect mode with a matching `state` and a successful exchange: a stored `returnRoute` `/es/manage/evaluations/new?offering=01J0` makes `replaceRoute` receive exactly that route; a stored `https://evil.example/es`, `//evil.example/es` and `/\evil.example` each make `replaceRoute` receive `/es`, with the exchange made, the flow record deleted and the marker set as for a valid route; a stored `/es/offerings?next=https://evil.example` makes `replaceRoute` receive it unchanged. In the error path (an `error` parameter), a stored `//evil.example/es` makes `replaceRoute` receive `/es`. They fail today on the invalid routes.
-- [ ] 3.2 Implement design.md D3 in `completeCallback`. Verify: 3.1 passes; the existing callback cases in `authorize.test.ts` and `CallbackScreen.test.tsx` still pass.
+- [x] 3.2 Implement design.md D3 in `completeCallback`. Verify: 3.1 passes; the existing callback cases in `authorize.test.ts` and `CallbackScreen.test.tsx` still pass.
 
 ## 4. Verification
 

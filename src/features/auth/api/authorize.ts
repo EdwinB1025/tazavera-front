@@ -30,6 +30,7 @@ import {
   setMarker,
   type PendingFlow,
 } from "../model/flow";
+import { toAppRoute } from "../model/return-route";
 
 /** The scopes the authorization page is asked for (design.md D5). */
 type Scope = "profile:read" | "profile:write";
@@ -117,7 +118,9 @@ export async function completeCallback(
   }
 
   const pending = readFlow();
-  const returnRoute = pending?.returnRoute ?? `/${DEFAULT_LOCALE}`;
+  // Only an application route opens; any other destination takes the root of
+  // the default locale (fix-auth-return-query design.md D3).
+  const returnRoute = toAppRoute(pending?.returnRoute) ?? `/${DEFAULT_LOCALE}`;
   if (code !== undefined && error === undefined && pending !== null && state === pending.state) {
     try {
       await exchangeCode(code, pending.verifier);
@@ -127,7 +130,7 @@ export async function completeCallback(
       // here when the completion leaves them on this route, and at the return
       // route's session start when it hands over through client-side
       // navigation and the tokens must survive it.
-      if (returnRoute === window.location.pathname) {
+      if (returnRoute === currentRoute()) {
         await seam?.authenticated();
       }
     } catch {
