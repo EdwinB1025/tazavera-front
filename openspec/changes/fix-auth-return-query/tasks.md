@@ -16,4 +16,4 @@
 ## 4. Verification
 
 - [x] 4.1 Run `npm run test:run` (including `src/shared/ui/xss-guard.test.ts`, `proxy.test.ts` and `src/shared/api/tokens.test.ts`), `npm run lint`, `npx tsc --noEmit` and `npm run build`; all pass.
-- [ ] 4.2 Browser check (Product owner or design lead): signed in, reload `/es/manage/evaluations/new?offering=<ulid>` and a catalog route with filters; after the silent restore the same URL, query included, is shown.
+- [x] 4.2 Browser check (Product owner or design lead): signed in, reload `/es/manage/evaluations/new?offering=<ulid>` and a catalog route with filters; after the silent restore the same URL, query included, is shown.
