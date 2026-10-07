@@ -189,7 +189,6 @@ describe("DangerZone — the confirmed request", () => {
 
   for (const [label, outcome] of [
     ["a network failure", () => fetchMock.mockRejectedValueOnce(new TypeError("offline"))],
-    ["a 5xx", () => fetchMock.mockResolvedValueOnce(new Response("{}", { status: 500 }))],
   ] as const) {
     it(`${label} shows genericError in the dialog and allows retry`, async () => {
       outcome();

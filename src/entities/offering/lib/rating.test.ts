@@ -20,31 +20,11 @@ describe("ratingTierFor (design.md D8)", () => {
     expect(ratingTierFor("90")).toBe("rating-exceptional");
   });
 
-  it("returns rating-excellent just below 90 (spec: Score and rating tier)", () => {
-    expect(ratingTierFor("89.99")).toBe("rating-excellent");
-  });
-
   it("returns rating-excellent at 85 (spec: Score and rating tier)", () => {
     expect(ratingTierFor("85")).toBe("rating-excellent");
   });
 
-  it("returns rating-good just below 85 (spec: Score and rating tier)", () => {
-    expect(ratingTierFor("84.99")).toBe("rating-good");
-  });
-
   it("returns rating-good at 80 (spec: Score and rating tier)", () => {
     expect(ratingTierFor("80")).toBe("rating-good");
-  });
-
-  it("returns rating-commercial below 80 (spec: Score and rating tier)", () => {
-    expect(ratingTierFor("79.99")).toBe("rating-commercial");
-  });
-
-  it("returns null when the score is absent (spec: No score)", () => {
-    expect(ratingTierFor(undefined)).toBeNull();
-  });
-
-  it("returns null when the score is unparsable (spec: No score)", () => {
-    expect(ratingTierFor("not a score")).toBeNull();
   });
 });

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { DEFAULT_LOCALE, LOCALES } from "@/shared/config/locales";
+import { NOMINATIM_ORIGIN } from "@/shared/lib/geocoding";
 
 /**
  * Cross-Origin-Opener-Policy (`add-auth` design.md D11): every response this
@@ -58,7 +59,7 @@ export function proxy(request: NextRequest) {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' blob: data: https://tile.openstreetmap.org",
     "font-src 'self'",
-    ["connect-src 'self'", apiOrigin].filter(Boolean).join(" "),
+    ["connect-src 'self'", apiOrigin, NOMINATIM_ORIGIN].filter(Boolean).join(" "),
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup, within } from "@testing-library/react";
 import type { CoffeeshopSummary } from "@/shared/api";
 import { CoffeeshopList, type CoffeeshopListTexts } from "./CoffeeshopList";
 
@@ -34,6 +34,8 @@ const TEXTS: CoffeeshopListTexts = {
   viewLabel: "Ver",
   previousLabel: "Anterior",
   nextLabel: "Siguiente",
+  navigationLabel: "Paginación",
+  pageLabel: "Página {page}",
   emptyMessage: "Todavía no hay cafeterías.",
   errorMessage: "No se pudieron cargar las cafeterías.",
   retryLabel: "Reintentar",
@@ -66,10 +68,10 @@ describe("CoffeeshopList", () => {
         texts={TEXTS}
       />,
     );
-    const list = screen.getByRole("list");
+    // The cards' list, not the numbered Pagination's own list of page links.
+    const list = screen.getByRole("heading", { name: "Nomad Coffee" }).closest("ul")!;
     expect(list.getAttribute("class")).toBe("grid grid-cols-1 gap-6");
-    expect(screen.getAllByRole("listitem")).toHaveLength(2);
-    expect(screen.getByRole("heading", { name: "Nomad Coffee" })).toBeTruthy();
+    expect(within(list).getAllByRole("listitem")).toHaveLength(2);
     fireEvent.click(screen.getByRole("button", { name: "Siguiente" }));
     expect(router.push).toHaveBeenCalledWith("/es/coffeeshops?page=2");
   });

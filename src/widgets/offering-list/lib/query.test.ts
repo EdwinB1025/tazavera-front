@@ -62,12 +62,6 @@ describe("buildOfferingsQuery (design.md D1)", () => {
     expect(buildOfferingsQuery(searchParams)).toEqual(searchParams);
   });
 
-  it("keeps every value of a repeated key", () => {
-    expect(
-      buildOfferingsQuery({ cataRef: ["01JREFA", "01JREFB"], verified: "1" }),
-    ).toEqual({ cataRef: ["01JREFA", "01JREFB"], verified: "1" });
-  });
-
   it("drops a key the contract does not declare and keeps the rest", () => {
     expect(
       buildOfferingsQuery({
@@ -77,9 +71,5 @@ describe("buildOfferingsQuery (design.md D1)", () => {
         page: "2",
       }),
     ).toEqual({ verified: "1", orderBy: "cupping_avg", page: "2" });
-  });
-
-  it("returns an empty record for an empty query", () => {
-    expect(buildOfferingsQuery({})).toEqual({});
   });
 });

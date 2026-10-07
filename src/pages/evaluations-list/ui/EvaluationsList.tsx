@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { useSearchParams } from "next/navigation";
+import type { QueryRecord } from "@/shared/lib/filter-query";
 import type { EvaluationItem, EvaluationPageMeta, OfferingDetail } from "@/shared/api";
 import { listMyEvaluations } from "@/entities/evaluation";
+import { evaluationListQuery, type EvaluationFilterValues } from "@/features/evaluation-facets";
 import { fetchOffering } from "@/entities/offering";
 import { Button, Card, CardContent, Pagination } from "@/shared/ui";
 import type { PaginationTexts } from "@/shared/ui";
@@ -20,11 +21,23 @@ export type EvaluationsListTexts = EvaluationRowTexts &
     emptyMessage: string;
     loadErrorMessage: string;
     retryLabel: string;
+    /** The empty message while a filter is applied (`filters.noMatches`). */
+    noMatches: string;
   };
 
 export type EvaluationsListProps = {
   locale: string;
   texts: EvaluationsListTexts;
+  /** The parsed facet values and sort of the route (add-evaluation-facets D4). */
+  values: EvaluationFilterValues;
+  /** The route's page. */
+  page: number;
+  /** The route's search params, kept by `Pagination`. */
+  query: QueryRecord;
+  /** Shown with `noMatches` instead of the empty message: "Clear all". */
+  emptyAction?: ReactNode;
+  /** The polite result announcement; holds `{count}`. */
+  resultCountText?: string;
 };
 
 type ListRow = { evaluation: EvaluationItem; offering: OfferingDetail | null };
@@ -40,15 +53,9 @@ const ERROR_CLASSES = ["flex", "flex-col", "items-start", "gap-4"].join(" ");
 const PLACEHOLDER_CLASSES = ["animate-pulse", "bg-surface-section", "rounded-field"].join(" ");
 const SKELETON_KEYS = [0, 1, 2] as const;
 
-/** The page of the route's `page` query; the first page when absent or invalid. */
-function pageFrom(value: string | null): number {
-  const page = Number(value);
-  return Number.isInteger(page) && page > 0 ? page : 1;
-}
-
 /** One page of evaluations with the offering of each distinct `offeringId`. */
-async function loadPage(page: number): Promise<ListState> {
-  const result = await listMyEvaluations(page);
+async function loadPage(requestQuery: string): Promise<ListState> {
+  const result = await listMyEvaluations(requestQuery);
   if (!result.ok) {
     return { state: "error" };
   }
@@ -80,12 +87,21 @@ async function loadPage(page: number): Promise<ListState> {
  * or the failure message with a retry that loads again. A deleted row
  * leaves the list at once and the page reloads behind it.
  */
-export function EvaluationsList({ locale, texts }: EvaluationsListProps): ReactNode {
-  const page = pageFrom(useSearchParams()?.get("page") ?? null);
-  // Each load is keyed by the page and the retry count; a result of another
-  // key reads as loading, so a new page or a retry shows the placeholder.
+export function EvaluationsList({
+  locale,
+  texts,
+  values,
+  page,
+  query,
+  emptyAction,
+  resultCountText,
+}: EvaluationsListProps): ReactNode {
+  const requestQuery = evaluationListQuery(values, page);
+  // Each load is keyed by the request query and the retry count; a result of
+  // another key reads as loading, so a new query or a retry shows the
+  // placeholder.
   const [attempt, setAttempt] = useState(0);
-  const key = `${page}:${attempt}`;
+  const key = `${requestQuery}:${attempt}`;
   const [loaded, setLoaded] = useState<{ key: string; list: ListState } | null>(null);
   // After a deletion the list reloads behind the rows already shown, with the
   // deleted row removed, instead of the loading placeholder.
@@ -95,13 +111,30 @@ export function EvaluationsList({ locale, texts }: EvaluationsListProps): ReactN
 
   useEffect(() => {
     let current = true;
-    loadPage(page).then((next) => {
+    loadPage(requestQuery).then((next) => {
       if (current) setLoaded({ key, list: next });
     });
     return () => {
       current = false;
     };
-  }, [page, key]);
+  }, [requestQuery, key]);
+
+  // While a new query loads, the block keeps the height of the list it
+  // replaces, so the document does not shrink to the placeholder and the
+  // browser does not clamp the scroll position (spec "Evaluation filter state
+  // in the URL", keep the scroll position; design.md D4).
+  const blockRef = useRef<HTMLDivElement>(null);
+  const lastHeight = useRef(0);
+  useLayoutEffect(() => {
+    const block = blockRef.current;
+    if (!block) return;
+    if (list.state === "loading") {
+      if (lastHeight.current > 0) block.style.minHeight = `${lastHeight.current}px`;
+    } else {
+      block.style.minHeight = "";
+      lastHeight.current = block.offsetHeight;
+    }
+  });
 
   const retry = useCallback(() => setAttempt((count) => count + 1), []);
 
@@ -117,13 +150,21 @@ export function EvaluationsList({ locale, texts }: EvaluationsListProps): ReactN
           }
         : current,
     );
-    setQuietKey(`${page}:${attempt + 1}`);
+    setQuietKey(`${requestQuery}:${attempt + 1}`);
     setAttempt(attempt + 1);
   };
 
   return (
-    <div className={BLOCK_CLASSES}>
+    <div ref={blockRef} className={BLOCK_CLASSES}>
       <h2 className="type-heading">{texts.heading}</h2>
+      {resultCountText !== undefined ? (
+        // Mounted in every state so each new total is announced (design.md D9).
+        <div role="status" className="sr-only">
+          {list.state === "success"
+            ? resultCountText.replace("{count}", String(list.meta.total ?? list.rows.length))
+            : null}
+        </div>
+      ) : null}
       {list.state === "loading" ? (
         <div aria-busy="true" className={ROWS_CLASSES}>
           {SKELETON_KEYS.map((key) => (
@@ -144,7 +185,14 @@ export function EvaluationsList({ locale, texts }: EvaluationsListProps): ReactN
         </div>
       ) : null}
       {list.state === "success" && list.rows.length === 0 ? (
-        <p className="type-body">{texts.emptyMessage}</p>
+        emptyAction ? (
+          <div className={ERROR_CLASSES}>
+            <p className="type-body">{texts.noMatches}</p>
+            {emptyAction}
+          </div>
+        ) : (
+          <p className="type-body">{texts.emptyMessage}</p>
+        )
       ) : null}
       {list.state === "success" && list.rows.length > 0 ? (
         <>
@@ -166,6 +214,7 @@ export function EvaluationsList({ locale, texts }: EvaluationsListProps): ReactN
               currentPage={list.meta.current_page ?? page}
               lastPage={list.meta.last_page ?? 1}
               path={`/${locale}/manage/evaluations`}
+              query={query}
               texts={texts}
             />
           ) : null}

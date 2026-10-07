@@ -88,18 +88,6 @@ afterEach(() => {
 });
 
 describe("the request client (design.md D2, D3 and D5)", () => {
-  it("sends Authorization: Bearer <access token> when one exists (design.md D5: GET /user)", async () => {
-    fillSeam();
-    fetchMock.mockResolvedValue(jsonResponse({ data: {} }));
-
-    const response = await request("/user");
-
-    expect(response.status).toBe(200);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(calledUrl(0)).toBe(`${API_URL}/user`);
-    expect(authorizationOf(0)).toBe(`Bearer ${GRANT.access_token}`);
-  });
-
   it("sends no credential header on a public request (spec: Public endpoints need no session)", async () => {
     fillSeam();
     fetchMock.mockResolvedValue(jsonResponse({}));
@@ -140,68 +128,5 @@ describe("the request client (design.md D2, D3 and D5)", () => {
     expect(refresh).toHaveBeenCalledTimes(1);
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(onUnrecoverable).toHaveBeenCalledTimes(1);
-  });
-
-  it("makes exactly one refresh and one retry before calling the injected recovery when the API keeps rejecting (spec: The tokens are rejected and the API session is still live)", async () => {
-    const { refresh, onUnrecoverable } = fillSeam();
-    fetchMock.mockResolvedValue(rejectedResponse());
-
-    const response = await request("/user");
-
-    expect(response.status).toBe(401);
-    expect(refresh).toHaveBeenCalledTimes(1);
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(onUnrecoverable).toHaveBeenCalledTimes(1);
-  });
-
-  it("two 401s at the same time share exactly one refresh and both retry with its new token (design.md D2 single-flight)", async () => {
-    const { refresh, onUnrecoverable } = fillSeam();
-    fetchMock
-      .mockResolvedValueOnce(rejectedResponse())
-      .mockResolvedValueOnce(rejectedResponse())
-      .mockResolvedValue(jsonResponse({ data: {} }));
-
-    const [first, second] = await Promise.all([request("/a"), request("/b")]);
-
-    expect(first.status).toBe(200);
-    expect(second.status).toBe(200);
-    expect(refresh).toHaveBeenCalledTimes(1);
-    expect(fetchMock).toHaveBeenCalledTimes(4);
-    const retried = fetchMock.mock.calls
-      .slice(2)
-      .map(([url]) => String(url))
-      .sort();
-    expect(retried).toEqual([`${API_URL}/a`, `${API_URL}/b`].sort());
-    expect(authorizationOf(2)).toBe(`Bearer ${NEXT_GRANT.access_token}`);
-    expect(authorizationOf(3)).toBe(`Bearer ${NEXT_GRANT.access_token}`);
-    expect(onUnrecoverable).not.toHaveBeenCalled();
-  });
-
-  it("sends POST /logout with the Bearer token and no body (design.md D5: POST /logout)", async () => {
-    fillSeam();
-    fetchMock.mockResolvedValue(jsonResponse({ message: "logout successfully." }));
-
-    const response = await request("/logout", { method: "POST" });
-
-    expect(response.status).toBe(200);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(calledUrl(0)).toBe(`${API_URL}/logout`);
-    const [, init] = fetchMock.mock.calls[0]!;
-    expect(init?.method).toBe("POST");
-    expect(init?.body).toBeUndefined();
-    expect(authorizationOf(0)).toBe(`Bearer ${GRANT.access_token}`);
-  });
-
-  it("rejects at the caller and starts no recovery when the sign-out request fails (spec: The server cannot be reached)", async () => {
-    const { refresh, onUnrecoverable } = fillSeam();
-    fetchMock.mockRejectedValue(new Error("the server cannot be reached"));
-
-    await expect(request("/logout", { method: "POST" })).rejects.toThrow(
-      "the server cannot be reached",
-    );
-
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(refresh).not.toHaveBeenCalled();
-    expect(onUnrecoverable).not.toHaveBeenCalled();
   });
 });

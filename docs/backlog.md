@@ -113,6 +113,17 @@ One section per candidate, in this format:
 - **Status:** proposed
 - **Affects:** none
 
+## R17 — Result count not announced while the facets overlay is open (add-evaluation-facets verify W2)
+
+- **Duplicated:** none. The list's `role="status"` result count sits in the page body. The open mobile filters overlay sets `aria-hidden` on everything behind it, so screen readers do not hear the count while the overlay is open. This affects every list with facets in the sidebar overlay: the catalog and "My evaluations".
+- **Where today:** `src/pages/evaluations-list/ui/EvaluationsList.tsx`, `src/widgets/offering-list` (results status), and the shared `Sidebar` overlay in `src/shared/ui/Sidebar.tsx`
+- **Why it pays off now:** the requirement "Filtered evaluation results" says the total is announced after each change; no scenario covers the overlay case
+- **Owning capability:** app-shell (the shared overlay) or filtering
+- **Proposed change:** none yet. It needs a new mechanism, such as an announcement region inside the overlay, so it is a correction for Product owner.
+- **Open decision (Augusto):** whether the count must be announced while the overlay is open
+- **Status:** proposed
+- **Affects:** none
+
 ## R16 — Unused `fetchVerifiedOfferings` (refine-list-pagination verify W1)
 
 - **Duplicated:** two paths to the landing request. Since the unplanned fix `65ca95a`, `VerifiedOfferings` adds `perPage` and `Offerings` sends the request. `fetchVerifiedOfferings(page)` is now called only by its own tests.

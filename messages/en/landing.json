@@ -22,6 +22,8 @@
   "cardRatingCommercialLabel": "Commercial",
   "paginationPreviousLabel": "Previous",
   "paginationNextLabel": "Next",
+  "paginationNavigationLabel": "Pagination",
+  "paginationPageLabel": "Page {page}",
   "listEmptyMessage": "No verified offerings yet.",
   "listErrorMessage": "The verified offerings could not be loaded.",
   "listRetryLabel": "Retry",

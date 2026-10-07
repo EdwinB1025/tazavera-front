@@ -4,7 +4,7 @@ import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import { request } from "@/shared/api";
 import type { ProfileUpdatePayload, SessionUser } from "@/shared/api";
 import { Button, Field, Input, FormStatus, StepUpNotice } from "@/shared/ui";
-import { isValidEmail } from "../model/email";
+import { isValidEmail } from "@/entities/contact";
 import { RoleRow } from "./RoleRow";
 
 // ─── UI-specific types (declared before the component) ───

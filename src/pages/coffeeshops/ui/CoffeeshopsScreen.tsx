@@ -61,6 +61,8 @@ export function CoffeeshopsScreen({ locale, searchParams }: CoffeeshopsScreenPro
     viewLabel: coffeeshops.viewLabel,
     previousLabel: landing.paginationPreviousLabel,
     nextLabel: landing.paginationNextLabel,
+    navigationLabel: landing.paginationNavigationLabel,
+    pageLabel: landing.paginationPageLabel,
     emptyMessage: coffeeshops.listEmpty,
     errorMessage: coffeeshops.listError,
     retryLabel: landing.listRetryLabel,

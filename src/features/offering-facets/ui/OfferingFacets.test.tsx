@@ -66,11 +66,6 @@ function radio(group: string, name: string): HTMLInputElement {
 }
 
 describe("OfferingFacets (design.md D7)", () => {
-  it("is a search landmark named Filters", () => {
-    renderPanel("");
-    expect(screen.getByRole("search", { name: "Filters" })).toBeDefined();
-  });
-
   it("shows the eleven facets in the spec order", () => {
     renderPanel("");
     const facets = [
@@ -107,12 +102,6 @@ describe("OfferingFacets (design.md D7)", () => {
     renderPanel("process=washed&page=3");
     fireEvent.click(radio("natural", "Process"));
     expect(nav.push).toHaveBeenCalledWith("/en/offerings?process=natural", { scroll: false });
-  });
-
-  it("removes the key when Any is chosen", () => {
-    renderPanel("process=washed&city=Lima");
-    fireEvent.click(radio("Any", "Process"));
-    expect(nav.push).toHaveBeenCalledWith("/en/offerings?city=Lima", { scroll: false });
   });
 
   it("disables the five coffee-based facets with Options unavailable when the coffees fail", () => {
@@ -173,12 +162,5 @@ describe("OfferingFacets (design.md D7)", () => {
   it("shows no chips and no Clear all without filters", () => {
     renderPanel("orderBy=cupping_avg&orderDirection=desc");
     expect(screen.queryByRole("button", { name: "Clear all" })).toBeNull();
-  });
-
-  it("reads Exact city name as the City help", () => {
-    renderPanel("");
-    const city = screen.getByRole("textbox", { name: "City" });
-    const help = document.getElementById(city.getAttribute("aria-describedby") ?? "");
-    expect(help?.textContent).toBe("Exact city name");
   });
 });

@@ -12,6 +12,7 @@ import {
   Eye,
   EyeOff,
   ChevronDown,
+  ChevronLeft,
   Check,
   Clock,
   Globe,
@@ -84,6 +85,12 @@ describe("icon entry point (src/shared/ui/icons.ts)", () => {
     // The "Manage offerings" sidebar entry's icon. It is not exported yet,
     // so this test fails until task 8.2 re-exports it.
     expect(List).toBeDefined();
+  });
+
+  it("exports ChevronLeft (refine-list-pagination design.md D6)", () => {
+    // Previous's chevron below md. It is not exported yet, so this test fails
+    // until task 3.2 re-exports it.
+    expect(ChevronLeft).toBeDefined();
   });
 
   it("exports Plus (add-user-contact design.md D8)", () => {

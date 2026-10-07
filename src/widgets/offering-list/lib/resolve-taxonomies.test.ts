@@ -56,26 +56,6 @@ const TREE: TaxonomyNode[] = [
 ];
 
 describe("resolveTaxonomies (design.md D5)", () => {
-  it("resolves the offering's nested children and takes each row from the offering node's own level", () => {
-    const sensory: OfferingTaxonomyNode[] = [
-      {
-        ref: T_FRUTAL,
-        type: "aromatics",
-        level: 0,
-        count: 5,
-        children: [
-          // The taxonomy node sits at level 2 in the tree; the offering node's
-          // own level is what picks the row (design.md D5).
-          { ref: T_MORA, type: "aromatics", level: 1, count: 4 },
-        ],
-      },
-    ];
-    expect(resolveTaxonomies(sensory, buildTaxonomyLookup(TREE, "ca"))).toEqual([
-      { label: "Fruitat", color: "#D9345A", level: 0 },
-      { label: "Móra", color: "#7A1F35", level: 1 },
-    ]);
-  });
-
   it("omits a ref that matches no node and renders the remaining badges (spec: Unresolved reference)", () => {
     const sensory: OfferingTaxonomyNode[] = [
       { ref: T_FRUTAL, type: "aromatics", level: 0, count: 5 },

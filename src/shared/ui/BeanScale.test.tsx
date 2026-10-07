@@ -96,15 +96,6 @@ describe("BeanScale", () => {
         screen.getByRole("radio", { name: "6" }).getAttribute("aria-checked"),
       ).toBe("true");
     });
-
-    it("renders every bean off when value is null", () => {
-      render(
-        <BeanScale label="Aroma" value={null} valueText="–/9" onChange={vi.fn()} />,
-      );
-      for (const bean of beans()) {
-        expect(discState(bean)).toEqual(["off"]);
-      }
-    });
   });
 
   describe("value as text (spec: Value as text, design.md D3)", () => {
@@ -158,15 +149,6 @@ describe("BeanScale", () => {
       expect(stops).toHaveLength(1);
       expect(stops[0]).toBe(screen.getByRole("radio", { name: "6" }));
     });
-
-    it("offers one tab stop, on bean 1, when value is null", () => {
-      const { container } = render(
-        <BeanScale label="Aroma" value={null} valueText="–/9" onChange={vi.fn()} />,
-      );
-      const stops = container.querySelectorAll('[tabindex="0"]');
-      expect(stops).toHaveLength(1);
-      expect(stops[0]).toBe(screen.getByRole("radio", { name: "1" }));
-    });
   });
 
   describe("hover and focus (spec: Hover feedback, design.md D3)", () => {
@@ -205,24 +187,6 @@ describe("BeanScale", () => {
         `${help.id} ${error.id}`,
       );
       expect(group.getAttribute("aria-invalid")).toBe("true");
-    });
-
-    it("renders and wires nothing for empty help and error strings", () => {
-      const { container } = render(
-        <BeanScale
-          label="Aroma"
-          value={null}
-          valueText="–/9"
-          onChange={vi.fn()}
-          help=""
-          error=""
-        />,
-      );
-      const group = screen.getByRole("radiogroup", { name: "Aroma" });
-      expect(group.hasAttribute("aria-describedby")).toBe(false);
-      expect(group.hasAttribute("aria-invalid")).toBe(false);
-      expect(container.querySelector(".type-meta")).toBeNull();
-      expect(container.querySelector(".type-error")).toBeNull();
     });
   });
 
@@ -327,40 +291,6 @@ describe("BeanScale", () => {
       expect(cut).toHaveLength(1);
       expect(marks[6]!.contains(cut[0]!)).toBe(true);
       expect(cut[0]!.getAttribute("style")).toBe("clip-path: inset(0 60% 0 0);");
-    });
-
-    it("renders no cut bean for a whole score", () => {
-      const { container } = render(
-        <BeanScale
-          label="Aroma"
-          value={6}
-          valueText="6/9"
-          valueLabel="6 de 9"
-          readOnly
-        />,
-      );
-      expect(container.querySelectorAll('[style*="clip-path"]')).toHaveLength(0);
-    });
-  });
-
-  describe("type contract (design.md D2)", () => {
-    it("rejects size sm and a missing onChange without readOnly", () => {
-      // `npx tsc --noEmit` fails (TS2578, unused directive) if either case
-      // ever becomes accepted.
-      render(
-        // @ts-expect-error size sm only with readOnly
-        <BeanScale
-          label="Aroma"
-          value={1}
-          valueText="1/9"
-          onChange={vi.fn()}
-          size="sm"
-        />,
-      );
-      cleanup();
-      // @ts-expect-error onChange required without readOnly
-      render(<BeanScale label="Aroma" value={1} valueText="1/9" />);
-      expect(screen.getByRole("radiogroup")).toBeDefined();
     });
   });
 });

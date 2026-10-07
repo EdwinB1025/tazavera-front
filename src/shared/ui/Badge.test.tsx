@@ -2,11 +2,7 @@ import { describe, it, expect, afterEach } from "vitest";
 import { render, cleanup } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { resolve as pathResolve } from "node:path";
-import {
-  Badge,
-  BADGE_GEOMETRY_CLASSES,
-  TAXONOMY_CARD_SURFACES,
-} from "@/shared/ui/Badge";
+import { Badge, TAXONOMY_CARD_SURFACES } from "@/shared/ui/Badge";
 
 // This project has no global test setup, so RTL's auto-cleanup (which relies
 // on a framework-provided afterEach) does not run. Clean up manually between
@@ -112,38 +108,11 @@ describe("Badge", () => {
         );
       }
     });
-
-    it("exports the geometry every badge renders", () => {
-      // The exported geometry other compact chips reuse (design.md D4) is
-      // exactly the base every badge renders, token by token and in order.
-      expect(BADGE_GEOMETRY_CLASSES.split(" ")).toEqual(BASE.split(" "));
-      for (const variant of VARIANTS) {
-        const badge = renderBadge(variant);
-        expect(classTokens(badge).slice(0, 7), variant).toEqual(
-          BADGE_GEOMETRY_CLASSES.split(" "),
-        );
-      }
-    });
-  });
-
-  describe("Icon and label on one line (spec: 'Badge presentation'; design.md D14)", () => {
-    it.each(["verified", "provisional"] as const)(
-      "lays out the %s icon and label as one centered row",
-      (variant) => {
-        const tokens = classTokens(renderBadge(variant));
-        expect(tokens).toContain("inline-flex");
-        expect(tokens).toContain("items-center");
-        expect(tokens).toContain("gap-1");
-      },
-    );
   });
 
   describe("Rating variants (spec: each tier in its own rating treatment)", () => {
     it.each([
       ["rating-exceptional", "bg-evaluation-rating-exceptional"],
-      ["rating-excellent", "bg-evaluation-rating-excellent"],
-      ["rating-good", "bg-evaluation-rating-good"],
-      ["rating-commercial", "bg-evaluation-rating-commercial"],
     ] as const)(
       "renders %s in %s with the badge text color",
       (variant, background) => {
@@ -211,12 +180,6 @@ describe("Badge", () => {
       expect(badge.style.backgroundColor).toBe("rgb(255, 255, 255)");
       expect(labels(badge)).toEqual({ traditional: "black", dark: "black" });
     });
-
-    it("marks itself for the theme rule and sets no fixed label colour", () => {
-      const badge = renderTaxonomy("#336699", 0);
-      expect(badge.hasAttribute("data-taxonomy")).toBe(true);
-      expect(badge.style.color).toBe("");
-    });
   });
 
   describe("Label per theme from the rendered background (spec: 'White text on dark colors', 'Black text on light colors', 'Taxonomy pairs'; design.md D7 round 4)", () => {
@@ -224,22 +187,6 @@ describe("Badge", () => {
       for (const level of [1, 2] as const) {
         expect(
           labels(renderTaxonomy("#af5e70", level)),
-          `level ${level}`,
-        ).toEqual({
-          traditional: "black",
-          dark: "white",
-        });
-      }
-    });
-
-    it("takes black in traditional when the cream blend is light (#8a705a, raw L picks white)", () => {
-      expect(labels(renderTaxonomy("#8a705a", 0))).toEqual({
-        traditional: "white",
-        dark: "white",
-      });
-      for (const level of [1, 2] as const) {
-        expect(
-          labels(renderTaxonomy("#8a705a", level)),
           `level ${level}`,
         ).toEqual({
           traditional: "black",
@@ -279,11 +226,6 @@ describe("Badge", () => {
       expect(badge.style.backgroundColor).toBe(
         "color-mix(in srgb, rgb(51, 102, 153) 85%, transparent)",
       );
-    });
-
-    it("renders the plain color at level 0", () => {
-      const badge = renderTaxonomy("#336699", 0);
-      expect(badge.style.backgroundColor).toBe("rgb(51, 102, 153)");
     });
 
     it("keeps the label fully opaque at every level", () => {

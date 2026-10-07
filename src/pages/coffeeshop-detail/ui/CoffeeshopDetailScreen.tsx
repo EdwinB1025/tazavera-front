@@ -64,6 +64,8 @@ export function CoffeeshopDetailScreen({ locale, ulid, searchParams }: Coffeesho
     ratingCommercialLabel: landing.cardRatingCommercialLabel,
     previousLabel: landing.paginationPreviousLabel,
     nextLabel: landing.paginationNextLabel,
+    navigationLabel: landing.paginationNavigationLabel,
+    pageLabel: landing.paginationPageLabel,
     emptyMessage: catalog.listEmptyMessage,
     resultCount: catalog.resultCount,
     errorMessage: catalog.listErrorMessage,

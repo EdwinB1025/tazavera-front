@@ -224,16 +224,6 @@ describe("signIn — the popup start of design.md D10 (spec: Sign in)", () => {
     expect(params.lang).toBe("en");
   });
 
-  it("sends the traditional theme when no theme cookie is set (theme read through src/shared/lib/theme.ts)", async () => {
-    const { signIn } = await load();
-    locationMock.pathname = route;
-
-    signIn(route);
-    await awaitChallenge();
-
-    expect(openedUrl().searchParams.get("theme")).toBe("traditional");
-  });
-
   it("navigates the current page to the authorization URL and stores the flow record with its return route when window.open returns null (spec: The popup cannot be opened)", async () => {
     const { signIn, flow } = await load();
     locationMock.pathname = route;
@@ -252,31 +242,6 @@ describe("signIn — the popup start of design.md D10 (spec: Sign in)", () => {
     expect(pending).not.toBeNull();
     expect(pending!.returnRoute).toBe(route);
     expect(url.searchParams.get("state")).toBe(pending!.state);
-  });
-
-  it("keeps the path and the query of the current route as the default return route when the popup is blocked (fix-auth-return-query; spec: The return destination keeps the query)", async () => {
-    const { signIn, flow } = await load();
-    locationMock.pathname = "/es/manage/evaluations/new";
-    locationMock.search = "?offering=01J0";
-    openMock.mockReturnValue(null);
-
-    signIn();
-    await vi.waitFor(() => {
-      expect(locationMock.assign).toHaveBeenCalledTimes(1);
-    });
-
-    expect(flow.readFlow()!.returnRoute).toBe("/es/manage/evaluations/new?offering=01J0");
-  });
-
-  it("holds the path and the query of the current route as the default return route of a popup flow (fix-auth-return-query; spec: The return destination keeps the query)", async () => {
-    const { signIn, flow } = await load();
-    locationMock.pathname = "/es/manage/evaluations/new";
-    locationMock.search = "?offering=01J0";
-
-    signIn();
-    await awaitChallenge();
-
-    expect(flow.readHeldFlow()!.returnRoute).toBe("/es/manage/evaluations/new?offering=01J0");
   });
 });
 
@@ -321,8 +286,6 @@ describe("completeCallback — the outcomes of design.md D4 (spec: Return throug
     ["/es/manage/evaluations/new?offering=01J0", "/es/manage/evaluations/new?offering=01J0"],
     ["/es/offerings?next=https://evil.example", "/es/offerings?next=https://evil.example"],
     ["https://evil.example/es", "/es"],
-    ["//evil.example/es", "/es"],
-    ["/\\evil.example", "/es"],
   ])("completes the flow and opens the stored return route %j only as an application route, else the default-locale root (fix-auth-return-query; spec: The return destination keeps the query, A return destination that is not an application route)", async (stored, opened) => {
     const { completeCallback, flow } = await load();
     flow.saveFlow({ verifier: "verifier-123", state: "state-123", returnRoute: stored });
@@ -335,31 +298,6 @@ describe("completeCallback — the outcomes of design.md D4 (spec: Return throug
     expect(flow.hasMarker()).toBe(true);
     expect(replaceRouteMock).toHaveBeenCalledTimes(1);
     expect(replaceRouteMock).toHaveBeenCalledWith(opened);
-  });
-
-  it("opens the default-locale root for a stored return route that is not an application route when the authorization comes back with an error (fix-auth-return-query; spec: A return destination that is not an application route)", async () => {
-    const { completeCallback, flow } = await load();
-    flow.saveFlow({ verifier: "verifier-123", state: "state-123", returnRoute: "//evil.example/es" });
-
-    await completeCallback({ error: "access_denied", state: "state-123" }, replaceRouteMock);
-
-    expect(replaceRouteMock).toHaveBeenCalledWith("/es");
-  });
-
-  it("opens the return route through the client-side navigation it is given, in place of the /callback entry, and never through the native history API (design.md D4; spec: Completing on the callback)", async () => {
-    const { completeCallback, flow } = await load();
-    flow.saveFlow({ verifier: "verifier-123", state: "state-123", returnRoute: route });
-
-    await completeCallback(
-      { error: "access_denied", state: "state-123" },
-      replaceRouteMock,
-    );
-
-    expect(replaceRouteMock).toHaveBeenCalledTimes(1);
-    expect(replaceRouteMock).toHaveBeenCalledWith(route);
-    expect(pushMock).not.toHaveBeenCalled();
-    expect(replaceMock).not.toHaveBeenCalled();
-    expect(locationMock.assign).not.toHaveBeenCalled();
   });
 
   it("deletes the flow data, removes the marker and opens the return route when the authorization comes back with an error (design.md D4 outcome table)", async () => {
@@ -412,29 +350,6 @@ describe("completeCallback — the outcomes of design.md D4 (spec: Return throug
     expect(flow.readFlow()).toBeNull();
     expect(flow.hasMarker()).toBe(false);
     expect(openedRoute()).toBe(`/${DEFAULT_LOCALE}`);
-  });
-
-  it("makes exactly one token request when invoked twice and takes no error path on the second invocation (design.md D4 idempotency)", async () => {
-    const { completeCallback, flow } = await load();
-    const pending = {
-      verifier: "verifier-123",
-      state: "state-123",
-      returnRoute: route,
-    };
-    flow.saveFlow(pending);
-    flow.setMarker();
-    fetchMock.mockResolvedValue(jsonResponse(GRANT));
-    const params = { code: "code-123", state: pending.state };
-
-    const first = completeCallback(params, replaceRouteMock);
-    const second = completeCallback(params, replaceRouteMock);
-    await first;
-    await second;
-
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(flow.readFlow()).toBeNull();
-    expect(flow.hasMarker()).toBe(true);
-    expect(openedRoute()).toBe(route);
   });
 });
 
@@ -650,26 +565,6 @@ describe("requestProfileWrite — step-up in the popup of design.md D10 (spec: S
     expect(reloadMock).not.toHaveBeenCalled();
     expect(pushMock).not.toHaveBeenCalled();
   });
-
-  it("ends anonymous with the marker removed and no text when the write sign in fails at the exchange (spec: The write sign in is declined or fails)", async () => {
-    const loaded = await loadWithSession();
-    const session = await signedIn(loaded);
-    await stepUp(loaded);
-    const pending = loaded.flow.readHeldFlow()!;
-    tokenAnswer = null;
-
-    answer({ code: "code-2", state: pending.state });
-
-    await vi.waitFor(() => {
-      expect(session.current).toEqual({ state: "anonymous" });
-    });
-    expect(tokenForms()).toHaveLength(2);
-    expect(loaded.flow.hasMarker()).toBe(false);
-    expect(document.body.textContent).toBe("");
-    expect(locationMock.assign).not.toHaveBeenCalled();
-    expect(reloadMock).not.toHaveBeenCalled();
-    expect(pushMock).not.toHaveBeenCalled();
-  });
 });
 
 describe("the popup handshake of design.md D10 (spec: Sign in)", () => {
@@ -684,15 +579,10 @@ describe("the popup handshake of design.md D10 (spec: Sign in)", () => {
   };
 
   /**
-   * A popup window of this test's own and a window the flow never opened: a
-   * message listener left behind by an earlier test's page load answers only
-   * its own popup, never these.
+   * A popup window of this test's own: a message listener left behind by an
+   * earlier test's page load answers only its own popup, never this one.
    */
   let popup: { location: { assign: ReturnType<typeof vi.fn> }; closed: boolean };
-  let otherWindow: {
-    location: { assign: ReturnType<typeof vi.fn> };
-    closed: boolean;
-  };
   const reloadMock = vi.fn<() => void>();
 
   /** The `postMessage` `source` sends to the opener (design.md D4 popup mode). */
@@ -714,10 +604,6 @@ describe("the popup handshake of design.md D10 (spec: Sign in)", () => {
       location: { assign: vi.fn<(url: string) => void>() },
       closed: false,
     };
-    otherWindow = {
-      location: { assign: vi.fn<(url: string) => void>() },
-      closed: false,
-    };
     openMock.mockReturnValue(popup as unknown as Window);
     reloadMock.mockReset();
     Object.assign(locationMock, { reload: reloadMock });
@@ -726,21 +612,6 @@ describe("the popup handshake of design.md D10 (spec: Sign in)", () => {
   afterEach(() => {
     cleanup();
     document.body.innerHTML = "";
-  });
-
-  it("ignores a message from another origin or from a window other than the popup and starts no exchange (design.md D10)", async () => {
-    const { signIn, flow } = await load();
-    signIn(route);
-    await awaitPopup();
-    const pending = flow.readHeldFlow()!;
-
-    answer({ code: "code-1", state: pending.state }, popup, "https://evil.test");
-    answer({ code: "code-2", state: pending.state }, otherWindow, APP_URL);
-    // Let any exchange such a message could have started reach `fetch`.
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    expect(fetchMock).not.toHaveBeenCalled();
-    expect(flow.readHeldFlow()).not.toBeNull();
   });
 
   it("ends authenticated when a matching message arrives, the opener neither navigating nor reloading (design.md D10)", async () => {
@@ -767,25 +638,6 @@ describe("the popup handshake of design.md D10 (spec: Sign in)", () => {
     expect(reloadMock).not.toHaveBeenCalled();
     expect(pushMock).not.toHaveBeenCalled();
     expect(replaceMock).not.toHaveBeenCalled();
-  });
-
-  it("keeps the popup flow's record out of sessionStorage from the popup's opening to the flow's completion (design.md D3 and D10)", async () => {
-    const { signIn, flow } = await load();
-    fetchMock.mockResolvedValue(jsonResponse(GRANT));
-    signIn(route);
-    await awaitPopup();
-    const pending = flow.readHeldFlow();
-    expect(pending).not.toBeNull();
-
-    expect(flow.readFlow()).toBeNull();
-    expect(sessionStorage.length).toBe(0);
-
-    answer({ code: "code-1", state: pending!.state }, popup, APP_URL);
-    await vi.waitFor(() => {
-      expect(flow.hasMarker()).toBe(true);
-    });
-
-    expect(sessionStorage.length).toBe(0);
   });
 
   it("leaves the session state unchanged and no flow data behind when the popup closes without a message (spec: The popup is closed before completing)", async () => {

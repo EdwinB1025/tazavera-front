@@ -187,3 +187,19 @@ type CoffeeshopLocationItem = NonNullable<CoffeeshopSummary["locations"]>[number
 export type CoffeeshopLocation = Omit<CoffeeshopLocationItem, NullableLocationField> & {
   [K in NullableLocationField]?: string | null;
 };
+
+type ListAUsersLocationsResponse =
+  operations["listAUsersLocations"]["responses"][200]["content"]["application/json"];
+
+/** What `GET /users/{user_ulid}/locations` returns: `data` of the user's locations. */
+export type UserLocationsPayload = ListAUsersLocationsResponse;
+
+/** One item of `GET /users/{user_ulid}/locations` `data`: `ulid`, `name`, `description`, `latitud`, `longitud`, `contacts`. */
+export type UserLocation = NonNullable<UserLocationsPayload["data"]>[number];
+
+/** One item of a user location's `contacts`; the card shows the one with `isPrimary`. */
+export type UserLocationContact = NonNullable<UserLocation["contacts"]>[number];
+
+/** Body of `POST /locations` (`createALocation`). */
+export type CreateLocationPayload =
+  operations["createALocation"]["requestBody"]["content"]["application/json"];

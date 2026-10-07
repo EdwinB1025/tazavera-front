@@ -65,6 +65,8 @@ const TEXTS: CoffeeshopsMapTexts = {
   mapLoading: "Cargando el mapa…",
   previousLabel: "Anterior",
   nextLabel: "Siguiente",
+  navigationLabel: "Paginación",
+  pageLabel: "Página {page}",
 };
 
 const PAGE: CoffeeshopSummary[] = [

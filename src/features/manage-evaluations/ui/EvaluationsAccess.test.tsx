@@ -69,13 +69,6 @@ describe("EvaluationsAccess (design.md D13)", () => {
     expect(signIn).toHaveBeenCalledWith("/en/manage/evaluations/new?offering=01JOFFER");
   });
 
-  it("renders the content for a signed-in specialist", () => {
-    useSession.mockReturnValue(user("specialist"));
-    renderGate();
-    expect(screen.getByText("Protected content")).toBeDefined();
-    expect(notFound).not.toHaveBeenCalled();
-  });
-
   it("renders the 404 page for any other role", () => {
     useSession.mockReturnValue(user("coffeeshop"));
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});

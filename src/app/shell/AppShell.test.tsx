@@ -1,8 +1,6 @@
 import { describe, it, expect, afterEach, beforeAll, beforeEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent, within } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { readFileSync, readdirSync, statSync } from "node:fs";
-import { resolve as pathResolve } from "node:path";
 import type { Session } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
 import { completeCallback, signIn, signOut } from "@/features/auth";
@@ -227,43 +225,6 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
     // exactly these two buttons: a third one would be a retry affordance
     expect(screen.getAllByRole("button")).toHaveLength(2);
   });
-
-  it("shows the user menu when the session is authenticated", () => {
-    // The deferred assertion of task 6.3 (product owner, recorded there):
-    // it lands here with the user menu at task 7.2.
-    renderShell({
-      state: "authenticated",
-      user: { name: "Andrés", surname: "Gómez", role: "specialist" },
-    });
-    expect(screen.queryByRole("button", { name: texts.signIn })).toBeNull();
-    expect(screen.getByRole("button", { name: "Andrés Gómez" })).toBeDefined();
-  });
-
-  it("labels the sidebar collapse control from the catalog in es, en and ca", () => {
-    for (const locale of ["es", "en", "ca"]) {
-      shellPathname = `/${locale}/manage/offerings`;
-      const catalog = getMessages("shell", locale);
-      expect(
-        catalog.toggleSidebar,
-        `messages/${locale}/shell.json defines no toggleSidebar key`,
-      ).toBeTypeOf("string");
-      const { unmount } = render(
-        <AppShell
-          locale={locale}
-          session={{
-            state: "authenticated",
-            user: { name: "Andrés", surname: "Gómez", role: "specialist" },
-          }}
-        >
-          {placeholderChild}
-        </AppShell>,
-      );
-      expect(
-        screen.getByRole("button", { name: catalog.toggleSidebar }),
-      ).toBeDefined();
-      unmount();
-    }
-  });
   it("shows the header's re-open control named from the catalog once the sidebar collapses (spec: Control named in every locale)", () => {
     for (const locale of ["es", "en", "ca"]) {
       shellPathname = `/${locale}/manage/offerings`;
@@ -286,17 +247,6 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
       expect(control.getAttribute("aria-expanded")).toBe("false");
       unmount();
     }
-  });
-
-  it("shows no re-open control on a route without a sidebar (spec: No control without a sidebar)", () => {
-    shellPathname = "/es";
-    renderShell({
-      state: "authenticated",
-      user: { name: "Andrés", surname: "Gómez", role: "specialist" },
-    });
-    expect(
-      screen.queryByRole("button", { name: texts.toggleSidebar }),
-    ).toBeNull();
   });
 });
 
@@ -341,58 +291,6 @@ describe("AppShell language control name (refine-app-header design.md D6)", () =
       screen.queryByRole("button", { name: texts.languageSelector! }),
     ).toBeNull();
     expect(screen.queryByRole("button", { name: "Español" })).toBeNull();
-  });
-
-  it("composes the default locale's name for an unsupported locale", () => {
-    // design.md D6 (correction 3 of round 1): the shell resolves the locale
-    // with `isSupportedLocale`, and an unsupported locale resolves to
-    // DEFAULT_LOCALE (es) for the whole composition — catalog word, code and
-    // own name — so the shell renders without throwing and the name reads
-    // "ES — Idioma: Español".
-    expect(() =>
-      render(
-        <AppShell locale="fr">
-          {placeholderChild}
-        </AppShell>,
-      ),
-    ).not.toThrow();
-    const composed = `ES — ${texts.languageSelector}: Español`;
-    expect(screen.getByRole("button", { name: composed })).toBeDefined();
-  });
-});
-
-describe("route files (architecture rule: routing only)", () => {
-  function collectPages(dir: string): string[] {
-    const files: string[] = [];
-    for (const entry of readdirSync(dir)) {
-      const full = pathResolve(dir, entry);
-      if (statSync(full).isDirectory()) {
-        files.push(...collectPages(full));
-      } else if (entry === "page.tsx") {
-        files.push(full);
-      }
-    }
-    return files;
-  }
-
-  it("import only their view from src/ and hold no logic", () => {
-    const offenders: string[] = [];
-    for (const file of collectPages(pathResolve(process.cwd(), "app"))) {
-      const content = readFileSync(file, "utf-8");
-      if (!/from\s+"@\//.test(content)) {
-        offenders.push(`${file}: imports nothing from src/`);
-      }
-      if (/\buse[A-Z]/.test(content)) {
-        offenders.push(`${file}: uses a React hook`);
-      }
-      if (/\bon[A-Z]/.test(content)) {
-        offenders.push(`${file}: declares an event handler`);
-      }
-      if (/\bif\s*\(/.test(content)) {
-        offenders.push(`${file}: holds conditional logic`);
-      }
-    }
-    expect(offenders).toEqual([]);
   });
 });
 

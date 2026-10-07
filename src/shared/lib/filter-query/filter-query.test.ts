@@ -70,6 +70,15 @@ describe("clearFiltersHref (design.md D4)", () => {
       `${PATH}?orderBy=cupping_avg&orderDirection=desc`,
     );
   });
+
+  it("keeps the evaluation sort keys and drops page", () => {
+    const current = new URLSearchParams(
+      "status=open&orderBy=cupping_score&orderDirection=desc&page=2",
+    );
+    expect(clearFiltersHref("/es/manage/evaluations", current, ["orderBy", "orderDirection"])).toBe(
+      "/es/manage/evaluations?orderBy=cupping_score&orderDirection=desc",
+    );
+  });
 });
 
 describe("useFilterNavigation (design.md D4)", () => {
@@ -82,6 +91,17 @@ describe("useFilterNavigation (design.md D4)", () => {
     const { result } = renderHook(() => useFilterNavigation());
     result.current.navigate({ process: "natural" });
     expect(nav.push).toHaveBeenCalledWith("/es/offerings?process=natural", { scroll: false });
+  });
+
+  it("navigate pushes the evaluation href without page", () => {
+    nav.pathname = "/es/manage/evaluations";
+    nav.search = "status=open&page=3";
+    const { result } = renderHook(() => useFilterNavigation());
+    result.current.navigate({ status: "closed" });
+    expect(nav.push).toHaveBeenCalledWith("/es/manage/evaluations?status=closed", {
+      scroll: false,
+    });
+    nav.pathname = PATH;
   });
 
   it("navigateTo pushes the given href without scrolling", () => {

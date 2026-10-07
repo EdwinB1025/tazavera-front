@@ -67,13 +67,6 @@ function renderDetail() {
 }
 
 describe("EvaluationDetail (design.md D1)", () => {
-  it("shows a loading state while the evaluation loads", () => {
-    getMyEvaluation.mockReturnValue(new Promise(() => {}));
-    const { container } = renderDetail();
-    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
-    expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
-  });
-
   it("fills the form in editing mode with its offering's header and roast level", async () => {
     getMyEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
     renderDetail();

@@ -23,7 +23,10 @@ export type CoffeeshopListTexts = CoffeeshopCardTexts &
   };
 
 /** The map view's texts besides the pagination's (design.md D13). */
-export type CoffeeshopListMapTexts = Omit<CoffeeshopsMapTexts, "previousLabel" | "nextLabel">;
+export type CoffeeshopListMapTexts = Omit<
+  CoffeeshopsMapTexts,
+  "previousLabel" | "nextLabel" | "navigationLabel" | "pageLabel"
+>;
 
 /** The fetch result, mapped before it reaches this view (design.md D7). */
 export type CoffeeshopListResult =
@@ -121,7 +124,13 @@ function CoffeeshopListBody({
         locale={locale}
         query={query}
         focus={focus}
-        texts={{ ...mapTexts, previousLabel: texts.previousLabel, nextLabel: texts.nextLabel }}
+        texts={{
+          ...mapTexts,
+          previousLabel: texts.previousLabel,
+          nextLabel: texts.nextLabel,
+          navigationLabel: texts.navigationLabel,
+          pageLabel: texts.pageLabel,
+        }}
       />
     );
   }

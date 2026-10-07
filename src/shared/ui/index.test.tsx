@@ -240,7 +240,12 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
         currentPage={1}
         lastPage={2}
         path="/es"
-        texts={{ previousLabel: "Previous", nextLabel: "Next" }}
+        texts={{
+          navigationLabel: "Pagination",
+          previousLabel: "Previous",
+          nextLabel: "Next",
+          pageLabel: "Page {page}",
+        }}
       />,
     );
     expect(screen.getByRole("button", { name: "Next" })).toBeDefined();

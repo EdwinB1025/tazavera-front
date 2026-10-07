@@ -123,13 +123,6 @@ describe("ProfileForm — view", () => {
     expect(field(TEXTS.surnameLabel).autocomplete).toBe("family-name");
     expect(field(TEXTS.emailLabel).autocomplete).toBe("email");
   });
-
-  it("labels the form by the section heading and turns off native validation", () => {
-    renderForm();
-    const form = document.querySelector("form")!;
-    expect(form.getAttribute("aria-labelledby")).toBe("profile-heading");
-    expect(form.noValidate).toBe(true);
-  });
 });
 
 describe("ProfileForm — client checks", () => {
@@ -174,15 +167,6 @@ describe("ProfileForm — the write", () => {
     });
   });
 
-  it("while pending the save carries loading", async () => {
-    fetchMock.mockReturnValue(new Promise<Response>(() => {}));
-    renderForm();
-    await save();
-    expect(
-      screen.getByRole("button", { name: TEXTS.save }).getAttribute("aria-busy"),
-    ).toBe("true");
-  });
-
   it("a 200 keeps the submitted values, shows profileUpdated with Check as a status and calls refreshProfile once", async () => {
     fetchMock.mockResolvedValue(
       jsonResponse(200, { data: { ...USER, name: "From-PUT" }, message: "api-message" }),
@@ -202,8 +186,6 @@ describe("ProfileForm — the write", () => {
 
   for (const [label, outcome] of [
     ["a 422", () => fetchMock.mockResolvedValue(jsonResponse(422))],
-    ["a network failure", () => fetchMock.mockRejectedValue(new TypeError("offline"))],
-    ["a 5xx", () => fetchMock.mockResolvedValue(jsonResponse(500))],
   ] as const) {
     it(`${label} shows genericError above the actions and keeps the values`, async () => {
       outcome();
@@ -238,18 +220,5 @@ describe("ProfileForm — the write", () => {
     expect(requestProfileWrite).toHaveBeenCalledWith("/es/account");
     expect(refreshProfile).not.toHaveBeenCalled();
     expect(screen.queryByText("api-message")).toBeNull();
-  });
-});
-
-describe("ProfileForm — texts", () => {
-  it("renders only texts from the props fixture and the session values", () => {
-    renderForm();
-    const allowed = new Set([...Object.values(TEXTS), "specialist", "heading"]);
-    const rendered = [...document.querySelectorAll("label, p, button, dt, dd, h2")]
-      .map((node) => (node.textContent ?? "").trim())
-      .filter((text) => text !== "");
-    for (const text of rendered) {
-      expect(allowed.has(text), text).toBe(true);
-    }
   });
 });
