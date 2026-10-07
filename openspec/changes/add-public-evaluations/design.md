@@ -6,11 +6,11 @@ See proposal.md for motivation. The settled product source is `docs/design/add-p
 
 - The contract (`contracts/openapi.yaml`, `92328fc`) documents `listEvaluations` (with `offeringId` and `evaluationType`), `getAnEvaluation`, `getAnOffering`, `listOlfactoryTaxonomies` and `listCoffees`, all public (`security: []`). `src/shared/api/schema.ts` is generated from it (`npm run types:api`) and is never edited.
 - Since `290d22e`, the `deleteAnOffering` and `deleteMultipleOfferings` descriptions state that specialists' evaluations are kept without an offering, while the evaluation response schemas still type `offeringId` as a non-nullable string. The front treats `offeringId` as `string | null` (summary §2 "Assumption: `offeringId` may be null"; decisions log 2026-10-07; Product owner's artifact review of 2026-10-07).
-- The five dependency changes (`add-offering-catalog`, `add-sidebar-slot`, `add-facet-controls`, `add-specialist-evaluations`, `add-evaluation-facets`) are not merged yet; every piece this change takes from them is listed in the summary §10 and verified by the merge gate (tasks 1.1).
-- `src/shared/ui` will hold, after those merges, `Card` (`layout="default" | "stacked"`), `PageSection`, `Pagination` (`path`, `query`, `currentPage`, `lastPage`, texts), `Tabs`, `LabelValueRow`, `Link`, `Button`, `Badge`, `RetryButton`, the three read-only scales (`BeanScale`, `IntensitySlider`, `DescriptorChipGroup`) and the facet controls' host surfaces. No new shared component is created here (summary §4.3).
+- Of the dependency changes, `add-offering-catalog`, `add-sidebar-slot`, `add-facet-controls` and `add-specialist-evaluations` are merged into `develop` (and `develop` into this change's branch on 2026-10-07); `add-evaluation-facets` and `extract-clear-filters-button` (backlog R9, the shared `ClearFiltersButton`) are not merged yet. Every piece this change takes from them is listed in the summary §10 and verified by the merge gate (tasks 1.1).
+- `src/shared/ui` holds on `develop` `Card` (`layout="default" | "stacked"`), `PageSection` (`surface="page" | "section"`), `Pagination` (`path`, `query`, `currentPage`, `lastPage`, texts), `Tabs`, `LabelValueRow`, `Link`, `Button`, `Badge`, `RetryButton`, the three read-only scales (`BeanScale`, `IntensitySlider`, `DescriptorChipGroup`), the facet controls (`FacetPanel`, `FacetRadioList`, `ScoreRangeFacet`, `FacetTextField`, `FilterChip`) and the sidebar primitives (`useSidebar`, `SIDEBAR_ID`, from `Sidebar.tsx`); `ClearFiltersButton` (`label`, `keep`) joins it with `extract-clear-filters-button`. No new shared component is created here (summary §4.3).
 - FSD rules the composition relies on: a layer imports only from layers below, and no two slices of one layer import each other (AGENTS.md; `fsd-architecture`). This is why the provisional tab's panel is composed in `src/pages/offering-detail` and passed down as a slot.
-- The shared pieces already settled elsewhere: `fetchTaxonomies`/`buildTaxonomyLookup` and (after its first applier) the descriptor-row builder in `src/entities/taxonomy`; `ratingTierFor` in `src/entities/offering`; `shared/lib/filter-query` and the facet parse/query/sort of `features/evaluation-facets`; the `@sidebar` route slot of `add-sidebar-slot`.
-- `fetchOffering` has two drafted contracts (finding F2). The orchestrator closed it: one function on the `add-specialist-evaluations` D1 contract (distinguishing found, not-found and failed), and the second change merged adapts its call sites. Since `add-specialist-evaluations` merges before this change, this change adapts to that shape.
+- The shared pieces already on `develop`: `fetchTaxonomies`, `buildTaxonomyLookup` and the descriptor-row builder `buildDescriptorRows` (`model/descriptor-rows.ts`) in `src/entities/taxonomy`; `ratingTierFor` and `fetchOffering` in `src/entities/offering`; `fetchCoffees` and `distinctCoffeeValues` in `@/shared/api`; `src/shared/lib/filter-query` (`buildFilterHref`, `clearFiltersHref`, `useFilterNavigation`); the `@sidebar` route slot (`app/[locale]/@sidebar/`, with its `[...rest]` catch-all and `default.tsx`) and the `AppSidebar` frame in `src/widgets/app-sidebar`. Still to come: the facet parse/query/sort of `features/evaluation-facets` (`add-evaluation-facets`).
+- `fetchOffering` had two drafted contracts (finding F2). The orchestrator closed it on the `add-specialist-evaluations` D1 contract, which is the shape on `develop`: `fetchOffering(ulid): Promise<OfferingResult>`, with `OfferingResult` = `{ status: "found"; offering }` \| `{ status: "not-found" }` \| `{ status: "failed" }` (`src/entities/offering/api/offering.ts`). This change adapts to that shape.
 
 ## Goals / Non-Goals
 
@@ -60,25 +60,12 @@ The evaluation resource fields this change reads: `cuppingScore`, `closedAt`, `e
 
 ### D2 — Derived and UI-specific types, declared before any component
 
-No generated type is edited or redefined. Named API aliases follow the `src/shared/api/index.ts` pattern (built from `operations`, because `components.schemas` is `never`), and are declared before any component that consumes them; UI-specific types live in the slice that owns them, above the component (the `BeanScale.tsx` precedent). If `add-specialist-evaluations` already introduced an alias for the same shape, this change reuses it and adds nothing: one alias per shape, the merge gate names what exists.
+No generated type is edited or redefined. Named API aliases follow the `src/shared/api/index.ts` pattern (built from `operations`, because `components.schemas` is `never`), and are declared before any component that consumes them; UI-specific types live in the slice that owns them, above the component (the `BeanScale.tsx` precedent). If `add-specialist-evaluations` already introduced an alias for the same shape, this change reuses it and adds nothing: one alias per shape.
+
+`add-specialist-evaluations` ships on `develop`, in `src/shared/api/index.ts`, `EvaluationItem` (one item of `listMyEvaluations` `data`, with `offeringId` already narrowed to `string | null`) and `EvaluationPageMeta` (its `meta`), plus the block aliases `EvaluationDescriptive`, `EvaluationAffective`, `EvaluationExtrinsics` and `EvaluationTaste`; `src/entities/evaluation/api/user-evaluations.ts` exports `EvaluationPage` (`{ data: EvaluationItem[]; meta: EvaluationPageMeta }`). In the generated `schema.ts`, the `listEvaluations` item, the `getAnEvaluation` `data` and the `listMyEvaluations` item are the same type, and the two `meta` types are the same type (checked with `tsc` on 2026-10-07). So this change reuses `EvaluationItem` for both public reads (the list item and the single evaluation), `EvaluationPageMeta` for the list's `meta` and `EvaluationPage` for the list's result, and adds only the two request aliases below. The aliases drafted earlier as `EvaluationDetail` and `EvaluationsPageMeta` are not added (`EvaluationDetail` is also the name of a component in `src/pages/evaluation-form`).
 
 ```ts
-// src/shared/api/index.ts (added beside `OfferingSummary`)
-type GetEvaluationResponse =
-  operations["getAnEvaluation"]["responses"][200]["content"]["application/json"];
-type ListEvaluationsResponse =
-  operations["listEvaluations"]["responses"][200]["content"]["application/json"];
-
-/** Widens the generated `offeringId: string` to `string | null` (offering deleted). */
-type WithNullableOffering<T extends { offeringId?: unknown }> =
-  Omit<T, "offeringId"> & { offeringId?: string | null };
-
-/** `data` of `GET /evaluations/{ulid}`: the evaluation resource. */
-export type EvaluationDetail = WithNullableOffering<NonNullable<GetEvaluationResponse["data"]>>;
-/** One item of `GET /evaluations` `data`. */
-export type EvaluationItem = WithNullableOffering<NonNullable<ListEvaluationsResponse["data"]>[number]>;
-/** `meta` of the evaluations pagination (`current_page`, `last_page`). */
-export type EvaluationsPageMeta = NonNullable<ListEvaluationsResponse["meta"]>;
+// src/shared/api/index.ts (added beside the evaluation aliases)
 /** The `evaluationType` values the contract accepts. */
 export type EvaluationType = NonNullable<
   operations["listEvaluations"]["parameters"]["query"]["evaluationType"]
@@ -117,9 +104,9 @@ export type PublicEvaluationFilters = {
 export type EvaluationFacetSet = "mine" | "public";
 ```
 
-The `offeringId` narrowing is the single point where the front widens the generated type (summary §2 "Assumption"; decisions log 2026-10-07): `schema.ts` stays untouched, every consumer reads the nullable type through these two aliases, and no other file re-declares it. The aliases are shared with `add-specialist-evaluations` (its correction round 2, point 2): if that change already exports them narrowed, this change reuses them; if it exports them un-narrowed, this change adds the narrowing there, once. When the contract adds `nullable: true` and the types are regenerated, the narrowing becomes redundant and is removed.
+The `offeringId` narrowing is the single point where the front widens the generated type (summary §2 "Assumption"; decisions log 2026-10-07): `schema.ts` stays untouched, every consumer reads the nullable type through `EvaluationItem`, and no other file re-declares it. The narrowing is `add-specialist-evaluations`' (its correction round 2, point 2), already on `develop`; this change reuses it unchanged. When the contract adds `nullable: true` and the types are regenerated, the narrowing becomes redundant and is removed.
 
-Widget prop types (`EvaluationRowProps`, `EvaluationSheetProps`, the async wrapper props) are declared above their components in their own files. The reads are `fetchEvaluations(query: EvaluationsQuery)` and `fetchEvaluation(ulid: string)` in `src/entities/evaluation/api`, both `Promise`-returning, throwing on non-2xx, typed with `EvaluationsPageMeta`/`EvaluationItem` and `EvaluationDetail`.
+Widget prop types (`EvaluationRowCardProps`, `EvaluationSheetProps`, the async wrapper props) are declared above their components in their own files. The reads are `fetchEvaluations(query: EvaluationsQuery): Promise<EvaluationPage>` and `fetchEvaluation(ulid: string): Promise<EvaluationItem>` in `src/entities/evaluation/api` (a file beside `user-evaluations.ts`), both throwing on non-2xx, exported from the entity's `index.ts`.
 
 ### D3 — Messages and document metadata
 
@@ -127,11 +114,11 @@ Texts are props throughout; the catalogs are the message areas of `messages/{loc
 
 - a new area `public-evaluations` (`messages/{locale}/public-evaluations.json`) with every key of summary §8 (`listEyebrow` … `offeringFilterFallback`, `metaDescription`), the MVC-cited Spanish strings as they stand and the rest as the approved proposals (Open 9, answered "the proposed texts stand");
 - four additions to the `catalog` area owned by the offering detail: `detailViewEvaluations`, `detailTabProvisional`, `detailProvisionalEmpty`, `detailProvisionalError`;
-- reused areas unchanged: `evaluations` (group, part and axis names, descriptor block names, LOW/MEDIUM/HIGH, "/15", the nine extraction labels, `closedOnLabel`, `resultCount`, and the offering-missing text — es "Oferta inexistente", en "Offering no longer exists", ca "Oferta inexistent" — added by `add-specialist-evaluations` corrections.md Round 2 point 2 under the key name its architect sets, written `offeringMissing` in the summary), `scales` (bean `valueText`/`valueLabel`), `landing` (tier words, captions, pagination and retry labels), `filters` (facet, sort and chip texts).
+- reused areas unchanged: `evaluations` (group, part and axis names, descriptor block names, LOW/MEDIUM/HIGH, "/15", the nine extraction labels, `closedOnLabel`, `resultCount`, and the offering-missing text `offeringMissingLabel` — es "Oferta inexistente", en "Offering no longer exists", ca "Oferta inexistent" — added by `add-specialist-evaluations` corrections.md Round 2 point 2, written `offeringMissing` in the summary), `scales` (bean `valueText`/`valueLabel`), `landing` (tier words, captions, pagination and retry labels), `filters` (facet, sort and chip texts, `clearAll` included).
 
-Dependency: this change adds no key for the offering-missing text; it consumes the `evaluations` key that `add-specialist-evaluations` Round 2 adds, which the merge gate (task 1.1) verifies exists before any work. If it does not exist when this change is built, the build stops and reports instead of adding it.
+Dependency: this change adds no key for the offering-missing text; it consumes `evaluations.offeringMissingLabel`, on `develop` since `add-specialist-evaluations`, which the merge gate (task 1.1) re-checks before any work. If it does not exist when this change is built, the build stops and reports instead of adding it.
 
-The existing message guard keeps es, en and ca key-identical in both areas. The document title is the catalog metadata rule of `add-offering-catalog` D17: `Tazavera` plus the `metaDescription` of `public-evaluations`.
+The existing message guard (`src/shared/lib/i18n/catalog-guard.test.ts`) keeps es, en and ca key-identical in both areas. The document title is the catalog metadata rule of `add-offering-catalog` D17: `Tazavera` plus the `metaDescription` of `public-evaluations`.
 
 ### D4 — List query, URL and sort behaviour
 
@@ -141,7 +128,7 @@ The existing message guard keeps es, en and ca key-identical in both areas. The 
 - The provisional panel's request is `offeringId` + `evaluationType=baseline` + `orderBy=created_at` + `orderDirection=desc`, and the first item is shown (Open 6, answered a).
 - Offerings per row: after the list returns, one `getAnOffering` per distinct non-null `offeringId` on the page, in parallel, on the server; a null `offeringId` is never requested and marks its row as offering-missing. The view runs `getAnEvaluation` first, then `getAnOffering(offeringId)` and `fetchTaxonomies()` in parallel; when `offeringId` is null it runs only `fetchTaxonomies()` and renders the offering-missing header.
 - The provisional tab and the Offering facet are unaffected by null `offeringId`s: the baseline is deleted with its offering, and a deleted offering's ULID in the URL ends in `offeringFilterFallback` (summary §2 "Assumption").
-- `closedAt` formats with `Intl.DateTimeFormat` in the route's locale, medium date style, no time (the row date of `add-specialist-evaluations`). Taxonomy names follow the route's locale (`nameEs`, `nameEn`, `nameCa`). Taste notes map by `type` with `add-specialist-evaluations` D7; level 2 is not shown.
+- `closedAt` formats with `Intl.DateTimeFormat` in the route's locale, medium date style, no time (summary §7). The summary gives the row date of `add-specialist-evaluations` as its model, but the specialist row on `develop` shows the ISO date part (`YYYY-MM-DD`, in a `<time>`); the public format stays as settled and the specialist rendering is not changed (D6; see Risks). Taxonomy names follow the route's locale (`nameEs`, `nameEn`, `nameCa`). Taste notes map by `type` with `add-specialist-evaluations` D7; level 2 is not shown.
 
 ### D5 — Files, layers and entry points
 
@@ -150,19 +137,20 @@ The existing message guard keeps es, en and ca key-identical in both areas. The 
 | `app/[locale]/evaluations/page.tsx` | app | new — passes `locale` and the raw `searchParams` to the list screen; no logic |
 | `app/[locale]/evaluations/[ulid]/page.tsx` | app | new — passes `locale` and `ulid` to the view screen; no logic |
 | `app/[locale]/@sidebar/evaluations/page.tsx` | app | new — the list's sidebar slot page (`add-sidebar-slot` D1); the view route falls to the slot's catch-all and has no sidebar |
-| `src/pages/public-evaluations/` (`ui/ListScreen.tsx`, `ui/EvaluationsSidebar.tsx`, `ui/texts.ts`, `index.ts`) | pages | new — list screen (texts, heading block, toolbar, list in `Suspense`) and sidebar screen (texts, `listCoffees` read, `getAnOffering` read for the active offering, parsing, `AppSidebar` frame with the facet panel) |
+| `src/pages/public-evaluations/` (`ui/ListScreen.tsx`, `ui/EvaluationsSidebar.tsx`, `ui/texts.ts`, `index.ts`) | pages | new — list screen (texts, heading block, toolbar, list in `Suspense`) and sidebar screen (texts, `listCoffees` read through `fetchCoffees`, `getAnOffering` read through `fetchOffering` for the active offering, parsing, `AppSidebar` frame with the facet panel) |
 | `src/pages/public-evaluation/` (`ui/ViewScreen.tsx`, `ui/texts.ts`, `index.ts`) | pages | new — view screen (texts, two `PageSection`s, content in `Suspense`) |
 | `src/widgets/public-evaluation-list/` (`ui/PublicEvaluationList.tsx`, `ui/EvaluationListPresentation.tsx`, `api/`, `index.ts`) | widgets | new — async fetch component (list plus offerings per row) and sync presentation, on the `Offerings`/`OfferingList` pattern |
 | `src/widgets/evaluation-sheet/` (`ui/EvaluationSheet.tsx`, `ui/EvaluationSheetView.tsx`, `ui/EvaluationSheetBaseline.tsx`, `index.ts`) | widgets | new — the sync read-only presentation and its two async wrappers (view: `getAnEvaluation` + `getAnOffering` + `fetchTaxonomies`; baseline: `listEvaluations` + `fetchTaxonomies`) |
-| `src/widgets/evaluation-row/` (`ui/EvaluationRowCard.tsx`, `index.ts`) | widgets | moved from `add-specialist-evaluations`'s `src/pages/evaluations-list/ui/EvaluationRowCard.tsx` (Open 2, answered a) — optional status badge, actions slot (D6) |
-| `src/features/evaluation-facets/` | features | modified — `parseEvaluationFilters` gains `offeringId`, `EvaluationFacetSets` gains `"public"` (Offering, Score, Process, City), the query builder takes the fixed keys, `EvaluationFacets` renders the Offering facet (D7) |
-| `src/entities/evaluation/api` | entities | created by `add-specialist-evaluations` D2; this change adds `fetchEvaluations(query)` and `fetchEvaluation(ulid)` over the public reads |
-| `src/entities/evaluation/model` (`groups.ts`, `load.ts`) | entities | reused as shipped by `add-specialist-evaluations` (group and axis order; `tastes` → block mapping) |
-| `src/entities/offering/api` and `src/entities/offering/lib/rating.ts` | entities | reused — `fetchOffering` (single function, D1 contract of `add-specialist-evaluations`) and `ratingTierFor` |
-| `src/entities/taxonomy` | entities | reused — `fetchTaxonomies`, `buildTaxonomyLookup` and the shared descriptor-row builder of F3 (whose `ChipRow[]` output feeds the five blocks) |
-| `src/widgets/offering-detail/` | widgets | modified — the header actions row (D9), `DetailTab` gains `"provisional"`, `DetailTabs` and the content take a third panel slot |
-| `src/pages/offering-detail/` | pages | modified — passes the baseline wrapper of `evaluation-sheet` as the third panel slot (D9) |
-| `src/shared/api/index.ts` | shared | modified — the evaluation aliases of D2 (unless `add-specialist-evaluations` already exports them) |
+| `src/widgets/evaluation-row/` (`ui/EvaluationRowCard.tsx`, `index.ts`) | widgets | moved from `src/pages/evaluations-list/ui/EvaluationRowCard.tsx` (`add-specialist-evaluations`, on `develop`; Open 2, answered a) — optional status badge, actions slot (D6) |
+| `src/pages/evaluations-list/` (`ui/EvaluationsList.tsx`, `ui/DeleteEvaluationAction.tsx`) | pages | modified — imports the card from `@/widgets/evaluation-row` and passes the specialist actions (Edit/View and `DeleteEvaluationAction`) through its actions slot (D6) |
+| `src/features/evaluation-facets/` | features | modified (created by `add-evaluation-facets`) — `parseEvaluationFilters` gains `offeringId`, `EvaluationFacetSets` gains `"public"` (Offering, Score, Process, City), the query builder takes the fixed keys, `EvaluationFacets` renders the Offering facet (D7) |
+| `src/entities/evaluation/api` | entities | holds `user-evaluations.ts` (`add-specialist-evaluations`); this change adds a file beside it with `EvaluationsQuery`, `fetchEvaluations(query)` and `fetchEvaluation(ulid)` over the public reads, exported from `src/entities/evaluation/index.ts` |
+| `src/entities/evaluation/model` (`groups.ts`, `load.ts`) | entities | reused as shipped by `add-specialist-evaluations`, through the entity's `index.ts`: `EVALUATION_GROUPS` (group, part and axis order, descriptor blocks) and `formStateFromEvaluation`, whose `descriptors` carry the `tastes` → block mapping (its `SELECTION_BY_TYPE` map is internal) |
+| `src/entities/offering/api` and `src/entities/offering/lib/rating.ts` | entities | reused — `fetchOffering` (returning `OfferingResult`, Context) and `ratingTierFor` |
+| `src/entities/taxonomy` | entities | reused — `fetchTaxonomies`, `buildTaxonomyLookup` and the shared descriptor-row builder `buildDescriptorRows` of F3 (whose `ChipRow[]` output feeds the five blocks) |
+| `src/widgets/offering-detail/` | widgets | modified — the header actions row in `ui/DetailHeader.tsx` (D9), `DetailTab` and `toDetailTab` in `lib/tab.ts` gain `"provisional"`, `ui/DetailTabs.tsx` takes a third panel slot beside `inventory` and `consensus`, and `ui/OfferingDetail.tsx` and `ui/OfferingDetailContent.tsx` pass it through |
+| `src/pages/offering-detail/` | pages | modified — `ui/OfferingDetailScreen.tsx` passes the baseline wrapper of `evaluation-sheet` as the third panel slot (D9) |
+| `src/shared/api/index.ts` | shared | modified — the two request aliases of D2 (`EvaluationType`, `EvaluationSortField`); `EvaluationItem` and `EvaluationPageMeta` reused unchanged |
 | `messages/{locale}/public-evaluations.json` | message catalogs | new area (D3) |
 | `messages/{locale}/catalog.json` | message catalogs | modified — the four detail keys (D3) |
 | tests beside each file above | — | new/modified |
@@ -172,6 +160,8 @@ Slices are imported only through their `index.ts`; `shared` is imported by segme
 ### D6 — The row card in `src/widgets/evaluation-row` (with card field mapping)
 
 The public row is `add-specialist-evaluations`'s row card without the status badge and with public links. Per Open 2 (answered a, the `RetryButton` precedent of `add-offering-catalog` D4) the card moves, in this change, from `src/pages/evaluations-list` to the `src/widgets/evaluation-row` slice with an optional status badge and an actions slot; the specialist list keeps its rendering and its tests (only its import changes). The move has no visible change for `/manage/evaluations`.
+
+The card on `develop` (`src/pages/evaluations-list/ui/EvaluationRowCard.tsx`, `"use client"`) renders the status badge in `CardContent`, the coffee name as an `h3`, the date as the ISO date part in a `<time>`, and in `CardFooter` the Edit/View `Button` (`router.push` to the form route) and `DeleteEvaluationAction`, a component of the same page slice whose texts type (`DeleteEvaluationTexts`) its `EvaluationRowTexts` extends. A widget cannot import a page slice, so after the move those two actions and their texts stay in `src/pages/evaluations-list` and reach the card through the actions slot; the specialist's heading level, date text and status badge stay as they render today, the public variant takes the values of the table below. How the card receives the per-variant values is the build's choice.
 
 `Card layout="default"` field mapping (MVC `layouts/evaluations/partials/evaluation-card.blade.php` as reference):
 
@@ -187,7 +177,9 @@ Link names (Open 12, answered a by Product owner's artifact review of 2026-10-07
 
 ### D7 — The public facet set in `features/evaluation-facets`
 
-Open 3 (answered a): the facet code of the public list extends `add-evaluation-facets` rather than copying it, so `/manage/evaluations` behaviour is unchanged and R9 gains no third copy. Concretely: `parseEvaluationFilters` gains `offeringId` (non-empty string, trimmed; `page` reset rules unchanged), the query builder accepts the fixed keys `evaluationType=specialist` and `status=closed` and emits the D1 key order, `EvaluationFacetSets` gains `"public"` (Offering, Score, Process, City; no Status facet), and `ClearEvaluationFiltersButton`, `EvaluationsToolbar` and the sort ids are reused unchanged ("Clear all" keeps the sort keys).
+Open 3 (answered a): the facet code of the public list extends `add-evaluation-facets` rather than copying it, so `/manage/evaluations` behaviour is unchanged. Concretely: `parseEvaluationFilters` gains `offeringId` (non-empty string, trimmed; `page` reset rules unchanged), the query builder accepts the fixed keys `evaluationType=specialist` and `status=closed` and emits the D1 key order, `EvaluationFacetSets` gains `"public"` (Offering, Score, Process, City; no Status facet), and `EvaluationsToolbar` and the sort ids are reused unchanged.
+
+The list's empty-state "Clear all" (backlog R9, resolved by `extract-clear-filters-button`) is the shared `ClearFiltersButton` from `@/shared/ui`, rendered in the public list's filtered empty state with `label={filters.clearAll}` and `keep={["orderBy", "orderDirection"]}`, the same props `add-evaluation-facets` passes on `/manage/evaluations`. Its behaviour is the `filtering` contract: every facet key and `page` leave the URL, the sort keys stay, and the URL is pushed with `scroll: false`. This change writes no "Clear all" button of its own and no `ClearEvaluationFiltersButton` exists to reuse.
 
 The Offering facet is a `FacetRadioList` (Open 1, answered a) with "Any" and the active offering labelled "{coffee name} · {coffeeshop}", rendered only while `offeringId` is in the URL; the Score facet is `ScoreRangeFacet` 0–100 (`add-evaluation-facets` D4 rules), Process is a `FacetRadioList` over `distinctCoffeeValues(coffees, "process")` (`add-evaluation-facets` D7) and City is a `FacetTextField` of at most 90 characters with `filters.cityHelp`. The chips follow `add-evaluation-facets` D5, the Offering chip reading "Offering: {coffee name}" or `offeringFilterFallback` when its read failed. The controls live in the `FacetPanel` (`role="search"`, `add-facet-controls` D4) inside the `AppSidebar` frame with no `<nav>` and no separator (a public route has no entries); below `md` the panel opens full screen (`add-sidebar-slot` D3).
 
@@ -206,11 +198,11 @@ One presentation for the view and the provisional tab, in the Consensus-tab styl
 | Notes (`h2` `notesHeading`, only when a note is non-null) | one `dl`: `dt` "{Intensity or Preference} · {axis}", `dd` the note | `descriptive.*.note`, `affective.*.note` |
 | Extrinsic attributes (`h2` `extrinsicsHeading`, only when a field is non-null) | one `dl`: `dt` the field label of `public-evaluations`, `dd` the value | `extrinsics.*` |
 
-The descriptor rows come from the shared descriptor-row builder of `src/entities/taxonomy` (F3; levels 0–1, `add-specialist-evaluations` D7), and the `tastes` → block mapping is `src/entities/evaluation/model`'s `load.ts`. The score row sits on `surface-card` only (D10). Widget prop types are declared above the component (D2).
+The descriptor rows come from the shared descriptor-row builder `buildDescriptorRows` of `src/entities/taxonomy` (F3; levels 0–1, `add-specialist-evaluations` D7), and the `tastes` → block mapping is `src/entities/evaluation/model`'s `load.ts`, read through `formStateFromEvaluation(…).descriptors` (D5). The score row sits on `surface-card` only (D10). Widget prop types are declared above the component (D2).
 
 ### D9 — Offering detail delta and the tab's composition
 
-- The header actions row is the last child of the catalog's title group, 0.5rem below the last caption (the group's own gap): a wrapping flex row, 1rem apart both ways, start-aligned, holding "View evaluations" (`Link` default, Open 8 answered a) and then Evaluate (specialist only, unchanged). This replaces the catalog's standalone Evaluate placement at the same distance from the captions (summary §5.4).
+- The header actions row is the last child of the catalog's title group (the root of `DetailHeader`, which on `develop` renders the specialist-only Evaluate `Link` to `/{locale}/manage/evaluations/new?offering={ulid}` as its last child), 0.5rem below the last caption (the group's own gap): a wrapping flex row, 1rem apart both ways, start-aligned, holding "View evaluations" (`Link` default, Open 8 answered a) and then Evaluate (specialist only, unchanged). This replaces the catalog's standalone Evaluate placement at the same distance from the captions (summary §5.4).
 - The third tab: `DetailTab` gains `"provisional"`, `detailTabProvisional` as its label, `?tab=provisional` in the URL, manual activation, and an absent or unknown `tab` value still opens `inventory` (`add-offering-catalog` D7). The third trigger follows the other two in the same flex row.
 - Composition (settled; criterion B): `widgets/offering-detail` cannot import `widgets/evaluation-sheet` (FSD same-layer rule), so `src/pages/offering-detail` composes the baseline wrapper and passes it down as a `ReactNode` panel slot — the mechanism `DetailTabs` already uses for its panels (`add-offering-catalog` D7). No visible change and no new mechanism.
 - The panel shows the `EvaluationSheet` of the newest baseline, `detailProvisionalEmpty` centred with no box, or `detailProvisionalError` with Retry, and two skeleton cards while loading (D1).
@@ -232,12 +224,13 @@ Summary §9 is the end state: one `h1` per route (`h2` per row and per card, `le
 - [Schema gap: `offeringId` is typed non-nullable while the contract describes evaluations kept without an offering] → the front narrows the type once at the D2 aliases and never edits `schema.ts`; the narrowing is removed when the contract adds `nullable: true`.
 - [An unknown ULID's `404` is undocumented] → no `notFound()` (the catalog's rule); the unknown ULID lands in the error state with Retry. Revisit only if Scribe documents the 404.
 - [Baseline uniqueness is guaranteed only by the API seeder] → the panel sends `orderBy=created_at&orderDirection=desc` and shows the first item (Open 6 answered a), so several baselines still render deterministically (the newest).
-- [`src/entities/evaluation/model` exports are *(unverified)* until `add-specialist-evaluations` is applied] → task 1.1 (the merge gate) verifies the exact exports (`groups.ts` group and axis order, `load.ts` `tastes` mapping) before any work and stops to report if they differ; no task assumes a name the summary does not state.
+- [`src/entities/evaluation/model` exports] → verified on `develop` (2026-10-07): `EVALUATION_GROUPS` (`groups.ts`) and `formStateFromEvaluation` (`load.ts`, whose `descriptors` carry the `tastes` mapping) through the entity's `index.ts`; task 1.1 re-checks them and stops to report if they changed.
+- [Row date format: the summary (§7) models the public `Intl.DateTimeFormat` medium date on the specialist row, which on `develop` shows the ISO date part] → the public row and view keep the settled `Intl` format and the specialist rendering is not changed, so the two lists show dates differently. Reported to Product owner as an open question; any alignment is a correction, not part of this update.
 - [Two `fetchOffering` contracts (F2)] → closed by the orchestrator (decisions log, "add-public-evaluations aprobado y piezas compartidas"): one function on the `add-specialist-evaluations` D1 contract (found / not-found / failed); this change consumes that shape and maps not-found and failed to the `offeringUnavailable` fallback of D6/D8.
 - [Descriptor-row builder duplication (F3)] → the first change that applies it leaves it in `src/entities/taxonomy` and the others reuse it (the same orchestrator entry); this change consumes it and never copies it. The candidate is reported to Product owner for `docs/backlog.md` (entries are Product owner's to add).
-- [R9 ("Clear all" duplicated)] → this change adds no third copy: it reuses `ClearEvaluationFiltersButton` (Open 3 answered a) and changes nothing in its behaviour.
+- [R9 ("Clear all" duplicated)] → resolved by `extract-clear-filters-button`: this change renders the shared `ClearFiltersButton` from `@/shared/ui` with `keep={["orderBy", "orderDirection"]}` (D7) and writes no copy. Its apply waits for that change on `develop` (task 1.1).
 - [The `add-flavor-wheel` summary still records this change as withdrawn (F5)] → semantic drift only; no wheel is consumed here (Open 4 answered a). Routed to the orchestrator.
 
 ## Migration Plan
 
-None. The change is additive and lands after the merge gate of task 1.1; rollback is reverting the change's commits, which leaves the five dependency changes intact.
+None. The change is additive and lands after the merge gate of task 1.1; rollback is reverting the change's commits, which leaves the six dependency changes intact.
