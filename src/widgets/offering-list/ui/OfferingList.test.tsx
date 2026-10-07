@@ -234,6 +234,13 @@ describe("OfferingList", () => {
       expect(classTokens(message).includes("text-center")).toBe(true);
       expect(screen.queryAllByRole("link", { name: TEXTS.viewLabel })).toHaveLength(0);
     });
+
+    it("renders the empty message in the primary text colour", () => {
+      renderList({ state: "empty" });
+      expect(classTokens(screen.getByText(TEXTS.emptyMessage))).toContain(
+        "text-text-primary",
+      );
+    });
   });
 
   describe("Error and retry (spec: 'Error and retry', 'Retry reloads'; design.md D4)", () => {
@@ -244,6 +251,12 @@ describe("OfferingList", () => {
       expect(screen.getByText(TEXTS.errorMessage)).toBeDefined();
       expect(screen.getByRole("button", { name: TEXTS.retryLabel })).toBeDefined();
       expect(screen.queryAllByRole("link", { name: TEXTS.viewLabel })).toHaveLength(0);
+    });
+
+    it("renders the error message in the primary text colour", () => {
+      renderList({ state: "error" });
+      const message = screen.getByText(TEXTS.errorMessage);
+      expect(classTokens(message.parentElement!)).toContain("text-text-primary");
     });
 
     it("calls router.refresh() when the retry action is activated (spec: Retry reloads)", () => {

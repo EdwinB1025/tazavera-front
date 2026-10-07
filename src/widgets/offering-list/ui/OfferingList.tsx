@@ -44,16 +44,23 @@ export type OfferingListProps = {
   gridClassName?: string;
 };
 
-// The centered empty message (spec "Empty").
-const EMPTY_CLASSES = "text-center";
+// The centered empty message (spec "Empty"), in the primary text colour, which
+// passes on the page and section surfaces it renders on in both themes.
+const EMPTY_CLASSES = ["text-center", "text-text-primary"].join(" ");
 
 // The grid of cards, then the pagination below it (design.md D14). The root is
 // the container a region-sized grid measures (add-offering-catalog D10).
 const BLOCK_CLASSES = ["@container", "flex", "flex-col", "gap-8"].join(" ");
 
 // The error message with its retry action, centered like the empty message,
-// so the button keeps its own width.
-const ERROR_CLASSES = ["flex", "flex-col", "items-center", "gap-4"].join(" ");
+// so the button keeps its own width; the message in the primary text colour.
+const ERROR_CLASSES = [
+  "flex",
+  "flex-col",
+  "items-center",
+  "gap-4",
+  "text-text-primary",
+].join(" ");
 
 /**
  * The presentation of the verified-offerings block (design.md D9; the landing
