@@ -1,10 +1,12 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
+import type { ReactElement } from "react";
 import { render, cleanup, screen } from "@testing-library/react";
 import { getMessages } from "@/shared/lib/i18n";
 import {
   CATALOG_GRID_CLASSES,
   type OfferingsProps,
 } from "@/widgets/offering-list";
+import { ClearFiltersButton } from "@/shared/ui";
 import { OfferingsScreen } from "@/pages/offerings";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
@@ -151,6 +153,13 @@ describe("OfferingsScreen", () => {
     render(<OfferingsScreen locale="es" searchParams={{ process: "washed" }} />);
     expect(block.props?.texts.emptyMessage).toBe(getMessages("filters", "es").noMatches);
     expect(block.props?.emptyAction).toBeDefined();
+    const action = block.props?.emptyAction as ReactElement<{
+      label: string;
+      keep: readonly string[];
+    }>;
+    expect(action.type).toBe(ClearFiltersButton);
+    expect(action.props.label).toBe(getMessages("filters", "es").clearAll);
+    expect(action.props.keep).toEqual(["orderBy", "orderDirection"]);
   });
 
   it("keeps the catalog's empty message and no action with only a sort (add-offering-facets design.md D9)", () => {
