@@ -92,6 +92,7 @@ describe("OfferingDetailScreen", () => {
         detailNotVerifiedMessage: catalog.detailNotVerifiedMessage,
         wheelGroupsLabel: catalog.wheelGroupsLabel,
         wheelGroupAromatics: catalog.wheelGroupAromatics,
+        detailAxesHeading: catalog.detailAxesHeading,
       }),
     );
     expect(block.props?.texts).not.toHaveProperty("detailSensoryHeading");

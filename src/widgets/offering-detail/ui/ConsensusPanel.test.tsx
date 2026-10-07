@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import type { OfferingDetail, TaxonomyNode } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
 import {
@@ -82,6 +82,7 @@ const TEXTS = {
       "wheelNotesToggle",
       "wheelGroupsLabel",
       "wheelGroupAromatics",
+      "detailAxesHeading",
     ].map((key) => [key, `texts.${key}`]),
   ),
   wheelCount: "{count} de {total} evaluadores",
@@ -748,5 +749,194 @@ describe("ConsensusPanel — CATA wheel (specs: Consensus taste trees, Mouthfeel
     expect(getMessages("catalog", "es").wheelCount).toBe(
       "{count} de {total} evaluadores",
     );
+  });
+});
+
+describe("ConsensusPanel — detail by axis (spec: Consensus detail by axis; design.md D18)", () => {
+  const FLORAL = "01JROOTFLORAL000000000000A";
+  const JASMINE = "01JCHILDJASMINE0000000000A";
+  const BODY = "01JROOTBODY00000000000000A";
+  const SMOOTH = "01JCHILDSMOOTH00000000000A";
+
+  const AXIS_TAXONOMIES: TaxonomyNode[] = [
+    ...TAXONOMIES,
+    {
+      ulid: FLORAL,
+      level: 0,
+      nameEs: "Floral",
+      nameEn: "Floral",
+      nameCa: "Floral",
+      color: "#AA00AA",
+      categories: ["aromatics"],
+      children: [
+        {
+          ulid: JASMINE,
+          level: 1,
+          nameEs: "Jazmín",
+          nameEn: "Jasmine",
+          nameCa: "Gessamí",
+          color: "#BB00BB",
+          categories: ["aromatics"],
+        },
+      ],
+    },
+    {
+      ulid: BODY,
+      level: 0,
+      nameEs: "Sensación en boca",
+      nameEn: "Mouthfeel",
+      nameCa: "Sensació en boca",
+      color: "#6b6f76",
+      categories: ["mouthfeel"],
+      children: [
+        {
+          ulid: SMOOTH,
+          level: 1,
+          nameEs: "Suave",
+          nameEn: "Smooth",
+          nameCa: "Suau",
+          color: "#7d818a",
+          categories: ["mouthfeel"],
+        },
+      ],
+    },
+  ];
+
+  const AXES: OfferingDetail = {
+    ...OFFERING,
+    evaluationCount: 5,
+    sensoryTaxonomy: [
+      {
+        ref: FLORAL,
+        type: "fragrance",
+        level: 0,
+        count: 3,
+        children: [{ ref: JASMINE, type: "fragrance", level: 1, count: 2 }],
+      },
+      {
+        ref: BODY,
+        type: "mouthfeel",
+        level: 0,
+        count: 2,
+        children: [{ ref: SMOOTH, type: "mouthfeel", level: 1, count: 2 }],
+      },
+      { ref: SWEET, type: "main_tastes", level: 0, count: 4, children: [] },
+    ],
+  };
+
+  const AXIS_KEYS = [
+    "attrFragrance",
+    "attrAroma",
+    "attrFlavor",
+    "attrAftertaste",
+    "attrMouthfeel",
+  ] as const;
+
+  function renderAxes(offering: OfferingDetail = AXES) {
+    return render(
+      <ConsensusPanel
+        offering={offering}
+        taxonomies={AXIS_TAXONOMIES}
+        locale="es"
+        texts={TEXTS}
+      />,
+    );
+  }
+
+  function header(key: (typeof AXIS_KEYS)[number]): HTMLElement {
+    return screen.getByRole("button", {
+      name: TEXTS[key as keyof ConsensusPanelTexts] as string,
+    });
+  }
+
+  /** Expands the axis section and returns its body. */
+  function open(key: (typeof AXIS_KEYS)[number]): HTMLElement {
+    const button = header(key);
+    fireEvent.click(button);
+    return document.getElementById(button.getAttribute("aria-controls")!)!;
+  }
+
+  function badgesIn(element: Element): string[] {
+    return Array.from(element.querySelectorAll("[data-taxonomy]")).map(
+      (badge) => badge.textContent ?? "",
+    );
+  }
+
+  function legendIn(body: Element): Element | null {
+    return body.querySelector('[class~="md:w-56"]');
+  }
+
+  it("renders one stacked card spanning both columns with the detail heading", () => {
+    renderAxes();
+    const card = screen
+      .getByRole("heading", { level: 2, name: TEXTS.detailAxesHeading })
+      .closest(".bg-surface-card")!;
+    expect(card).not.toBeNull();
+    expect(classTokens(gridItemOf(card))).toContain("lg:col-span-2");
+  });
+
+  it("renders five sections in the axis order, each collapsed at first (spec: Sections collapsed by default)", () => {
+    renderAxes();
+    const card = screen
+      .getByRole("heading", { level: 2, name: TEXTS.detailAxesHeading })
+      .closest(".bg-surface-card")!;
+    const buttons = Array.from(
+      card.querySelectorAll("button[aria-expanded]"),
+    );
+    expect(buttons.map((button) => button.textContent)).toEqual(
+      AXIS_KEYS.map((key) => TEXTS[key as keyof ConsensusPanelTexts]),
+    );
+    for (const button of buttons) {
+      expect(button.getAttribute("aria-expanded")).toBe("false");
+    }
+  });
+
+  it("shows the fragrance notes as a read-only selection over the aromatics rows, with the legend beside it (spec: Identified notes of an axis)", () => {
+    renderAxes();
+    const body = open("attrFragrance");
+    expect(header("attrFragrance").getAttribute("aria-expanded")).toBe("true");
+    expect(badgesIn(body)).toEqual(["Jazmín"]);
+    expect(body.textContent).toContain("Floral");
+    expect(body.querySelector("fieldset legend")!.textContent).toBe(
+      TEXTS.attrFragrance,
+    );
+    const legend = legendIn(body)!;
+    expect(classTokens(legend)).toEqual(
+      expect.arrayContaining(["md:w-56", "md:shrink-0"]),
+    );
+    expect(
+      Array.from(legend.querySelectorAll(".type-meta")).map(
+        (line) => line.textContent,
+      ),
+    ).toEqual(["Jazmín 2/5"]);
+  });
+
+  it("builds the mouthfeel section from the mouthfeel category", () => {
+    renderAxes();
+    const body = open("attrMouthfeel");
+    expect(badgesIn(body)).toEqual(["Suave"]);
+    expect(body.textContent).not.toContain("Jazmín");
+    expect(
+      Array.from(legendIn(body)!.querySelectorAll(".type-meta")).map(
+        (line) => line.textContent,
+      ),
+    ).toEqual(["Suave 2/5"]);
+  });
+
+  it("shows the empty text and no legend for an axis with no identified note (spec: Empty axis)", () => {
+    renderAxes();
+    const body = open("attrAroma");
+    expect(body.textContent).toContain(TEXTS.detailTasteEmpty);
+    expect(badgesIn(body)).toEqual([]);
+    expect(legendIn(body)).toBeNull();
+  });
+
+  it("finds the detail heading in the catalog of each locale (design.md D16)", () => {
+    for (const locale of ["es", "en", "ca"]) {
+      expect(
+        getMessages("catalog", locale).detailAxesHeading,
+        locale,
+      ).toEqual(expect.any(String));
+    }
   });
 });
