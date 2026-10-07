@@ -533,3 +533,13 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
   - Seguimientos en el backlog: R13 (`EvaluationsAccess` sobre el `SessionGate` compartido), R15 (tests lentos de `EvaluationForm`).
 - **Por qué:** dos artefactos fijados que se contradecían o no se podían construir tal cual; se elige la opción que cambia menos y no añade nada.
 - **Afecta:** add-evaluation-facets, add-public-evaluations, add-coffeeshop-directory (usa el botón y el widget compartidos; además necesita decidir si la paginación conserva `?tab=`), add-coffeeshop-location, refine-list-pagination.
+
+### 2026-10-07 — paginación con `?tab=` en el directorio (orquestador, cerrado para revisión)
+- **Decisión:** `FilteredOfferingsResults` (widget `offering-list`) gana una prop opcional que añade claves a la query de los enlaces de paginación, sin tocar la petición a la API. El catálogo no la pasa y no cambia. La pestaña "Ofertas" del directorio la usa con `tab`. La implementa la actualización de artefactos de add-coffeeshop-directory, junto con la adopción de R9 y R12.
+- **Por qué:** el resumen del directorio (§5) y el de R12 (§3.2) dicen que la paginación conserva `tab`, pero el código no se puede construir así: `buildOfferingsQuery` descarta `tab` (R12, Open 1 y Risk 2). Es la opción que menos cambia y no añade nada visible fuera de lo pactado.
+- **Afecta:** add-coffeeshop-directory; extract-filtered-offerings (Open 1 cerrado).
+
+### 2026-10-07 — verificación con navegador en la nube (orquestador)
+- **Decisión:** con el portátil sin memoria, las tareas de verificación visual, los checks y los verify se hacen en sesiones de la nube con Playwright y una API simulada. La sesión commitea las capturas y el resultado en el handoff (`docs(<cap>): update handoff for <change-id>`) antes de marcar el checkbox de la tarea.
+- **Por qué:** el sistema detuvo los procesos locales por falta de memoria (7 oct, ~21:20 UTC); mandato de autonomía de Product owner ("tú eres autónomo", "no esperes por mí").
+- **Afecta:** refine-list-pagination, add-coffeeshop-location, add-evaluation-facets, extract-filtered-offerings, y los siguientes applies (public-evaluations, coffeeshop-directory).
