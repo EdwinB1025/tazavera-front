@@ -111,15 +111,19 @@ export function Combobox({
   const firstPending = useRef(false);
 
   const [term, setTerm] = useState(value?.label ?? "");
+  // Only typed text searches (refine-facet-controls design.md D3): false
+  // while the input holds a label the combobox set itself.
+  const [typed, setTyped] = useState(false);
   const [open, setOpen] = useState(false);
   const [previousValue, setPreviousValue] = useState(value);
   if (value !== previousValue) {
     setPreviousValue(value);
     setTerm(value?.label ?? "");
+    setTyped(false);
   }
 
   const trimmed = term.trim();
-  const searchState = useComboboxSearch(search ?? NO_SEARCH, searchMode ? term : "");
+  const searchState = useComboboxSearch(search ?? NO_SEARCH, searchMode && typed ? term : "");
 
   // Rows: the shown options, or one state text in their place.
   let shown: ComboboxOption[] = [];
@@ -149,6 +153,7 @@ export function Combobox({
 
   function changeTerm(next: string): void {
     setTerm(next);
+    setTyped(true);
     firstPending.current = true;
     setOpen(searchMode ? next.trim().length >= MIN_SEARCH_LENGTH : next !== "");
   }
@@ -156,11 +161,20 @@ export function Combobox({
   function choose(option: ComboboxOption): void {
     onChange(option);
     setTerm(option.label);
+    setTyped(false);
     setOpen(false);
   }
 
   function clearIfEmpty(): void {
     if (term === "" && value !== null) onChange(null);
+  }
+
+  // Abandoned typed text (refine-facet-controls design.md D2): the input
+  // shows the chosen value's label again, or empties, and nothing is reported.
+  function restore(): void {
+    setTerm(value?.label ?? "");
+    setTyped(false);
+    setOpen(false);
   }
 
   return (
@@ -188,11 +202,17 @@ export function Combobox({
                   firstPending.current = false;
                 } else if (event.key === "Enter" && term === "") {
                   clearIfEmpty();
+                } else if (event.key === "Escape") {
+                  restore();
                 }
               }}
               onBlur={() => {
-                setOpen(false);
-                clearIfEmpty();
+                if (term === "") {
+                  setOpen(false);
+                  clearIfEmpty();
+                } else {
+                  restore();
+                }
               }}
             >
               <Input

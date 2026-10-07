@@ -304,10 +304,16 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   // add-offering-management design.md D12
   { fg: "text-secondary", bg: "surface-form", kind: "text" },
   { fg: "text-accent", bg: "surface-card", kind: "text" },
+  // add-collapsible-section D8: the section title on the legend panel, at
+  // rest and on hover
+  { fg: "text-accent", bg: "surface-section", kind: "text" },
+  { fg: "text-accent", bg: "surface-section-hover", kind: "text" },
   { fg: "text-label", bg: "surface-page", kind: "text" },
-  // add-offering-management design.md D12
+  // add-offering-management design.md D12 and add-user-account design.md D11
+  // (field labels and help on cards)
   { fg: "text-label", bg: "surface-card", kind: "text" },
   { fg: "text-label", bg: "surface-form", kind: "text" },
+  { fg: "text-secondary", bg: "surface-card", kind: "text" },
   { fg: "text-strong", bg: "surface-form", kind: "text" },
   { fg: "text-placeholder", bg: "surface-input", kind: "text" },
   { fg: "text-link", bg: "surface-card", kind: "text" },
@@ -502,6 +508,14 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "text-strong", bg: "surface-card", kind: "text" },
   // The thumb edge is decorative (design summary §4): exempt from the 3:1 rule.
   { fg: "evaluation-slider-thumb-border", bg: "evaluation-slider-thumb", kind: "bound", exempt: true },
+
+  // ── Page backdrop and section card band (refine-page-surfaces D6) ──
+  { fg: "text-accent", bg: "surface-page", kind: "text" },
+  { fg: "text-link", bg: "surface-page", kind: "text" },
+  { fg: "text-link-hover", bg: "surface-page", kind: "text" },
+  { fg: "text-label", bg: "surface-section", kind: "text" },
+  { fg: "text-label", bg: "surface-section-hover", kind: "text" },
+  { fg: "focus-ring", bg: "surface-section-hover", kind: "bound" },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -692,10 +706,16 @@ const DARK_PAIRS: ContrastPair[] = [
   // add-offering-management design.md D12
   { fg: "text-secondary", bg: "surface-form", kind: "text" },
   { fg: "text-accent", bg: "surface-card", kind: "text" },
+  // add-collapsible-section D8: the section title on the legend panel, at
+  // rest and on hover
+  { fg: "text-accent", bg: "surface-section", kind: "text" },
+  { fg: "text-accent", bg: "surface-section-hover", kind: "text" },
   { fg: "text-label", bg: "surface-page", kind: "text" },
-  // add-offering-management design.md D12
+  // add-offering-management design.md D12 and add-user-account design.md D11
+  // (field labels and help on cards)
   { fg: "text-label", bg: "surface-card", kind: "text" },
   { fg: "text-label", bg: "surface-form", kind: "text" },
+  { fg: "text-secondary", bg: "surface-card", kind: "text" },
   { fg: "text-strong", bg: "surface-form", kind: "text" },
   { fg: "text-placeholder", bg: "surface-input", kind: "text" },
   { fg: "text-link", bg: "surface-card", kind: "text" },
@@ -849,6 +869,14 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "text-strong", bg: "surface-card", kind: "text" },
   // The thumb edge is decorative (design summary §4): exempt from the 3:1 rule.
   { fg: "evaluation-slider-thumb-border", bg: "evaluation-slider-thumb", kind: "bound", exempt: true },
+
+  // ── Page backdrop and section card band (refine-page-surfaces D6) ──
+  { fg: "text-accent", bg: "surface-page", kind: "text" },
+  { fg: "text-link", bg: "surface-page", kind: "text" },
+  { fg: "text-link-hover", bg: "surface-page", kind: "text" },
+  { fg: "text-label", bg: "surface-section", kind: "text" },
+  { fg: "text-label", bg: "surface-section-hover", kind: "text" },
+  { fg: "focus-ring", bg: "surface-section-hover", kind: "bound" },
 ];
 
 describe("Dark theme contrast matrix", () => {
@@ -969,6 +997,20 @@ describe("Radius token values (correction 10)", () => {
     for (const token of EXPECTED_RADIUS_TOKENS) {
       expect(darkProps.get(token)).toBe("0");
     }
+  });
+});
+
+describe("Page backdrop token (refine-page-surfaces D6)", () => {
+  const css = readGlobals();
+  const tradProps = extractTraditional(css);
+  const darkProps = extractDark(css);
+
+  it("traditional --color-surface-page is var(--color-sage-100)", () => {
+    expect(tradProps.get("--color-surface-page")).toBe("var(--color-sage-100)");
+  });
+
+  it("dark --color-surface-page is var(--color-night-petrol-950)", () => {
+    expect(darkProps.get("--color-surface-page")).toBe("var(--color-night-petrol-950)");
   });
 });
 

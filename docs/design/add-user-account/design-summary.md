@@ -569,3 +569,20 @@ Wireframe of the target layout (design lead; spacing from §6.3):
   - **Added:** Open 13 (external link treatment, non-blocking, body follows its recommendation); findings F5 (R8 missing from the backlog) and F6 (forgot-password behind `guest`, unverified).
   - **Not re-measured:** no shell in this session; every new element uses a pair already measured in the first review or registered in the guard.
   - No Open point blocks propose: line 1 set to "ready for approval".
+
+## Propose status
+
+- Change-id: `add-user-account`. Date: 2026-10-06. `openspec validate add-user-account --strict` passes ("Change 'add-user-account' is valid").
+- Artifacts: `openspec/changes/add-user-account/` — proposal, spec deltas `user-account` (new, with Purpose), `app-shell` and `auth`, design.md, tasks.md. No `base-controls` delta (see N1 below).
+- Resolved:
+  - **B1** (decisions log entry "add-user-account: bloqueos del explore"): the screens in `src/pages/register` and `src/pages/account` inject the session and the auth actions (`signIn`, `signOut`, `requestProfileWrite`, `refreshProfile`) as props into the `src/features/user-account` components, as `SessionShell` does for `AppHeader`; no feature imports another feature; `features/user-account` stays one slice (design.md D1).
+  - **B2** (same entry): the browser-validation decision governs — `updateAUser` documents no required field, so Profile validates only the email format; no Profile field is required or marked required, and an emptied field is sent and returns as the generic `422` error (design.md D2; spec "Profile settings").
+  - **N1**: the `LINK_CLASSES` export changes no observable behaviour, so no `base-controls` delta is listed; the `Link.tsx` edit rides in a user-account commit (design.md D4).
+  - **N2–N3**: the auth scenario "The profile cannot be resolved" is scoped to the session's first resolution, and `refreshProfile`'s outcomes are added (settle from a new `GET /user`, one retry on network/5xx, previous user kept silently on a second failure; the `401` stays under "Keeping the session alive") (specs/auth delta; design.md D5).
+  - **N4**: line citations fixed in the artifacts (`AboutContent.tsx:115/:118`; `AppHeader.test.tsx:42-46`, `:636-644`, `:653-661`, `:715`; the rest verified as cited).
+  - **N5**: generated utility names are used (`border-border-subtle` for the Danger zone separator) (design.md D10).
+  - **N6**: a `401` on a write that no recovery resolves ends the session `anonymous`, and the account page then shows the signed-out state (spec "Account page and its session gate"; design.md D6).
+  - **N7**: the confirmation dialogs' descriptions reuse `deactivateText` / `deleteText`; no description key is added (design.md D3).
+  - **Tasks:** the Danger zone is scheduled early (group 4) and the apply waits for `add-evaluation-scales` (`ConfirmDialog`) merged into `develop` (design.md D7; tasks.md preamble).
+- Open (non-blocking): F1 (`role` required in practice — reported to Product owner for the API), F5 (backlog R8 not yet in `docs/backlog.md`), F6 (`{API}/forgot-password` behind Fortify's `guest` — checked in task 9.2), the API's CORS fix before the real-browser verification, the Catalan drafts and the final copy (Product owner's), and the MVC captures of Open 12 (the §11 wireframe stands meanwhile).
+- Reported, not edited, in this file: the `AboutContent.tsx` citations (119/122 are 115/118) and the `AppHeader.test.tsx` citations (43-46 is 42-46; 641-644 and 658-661 are 640-644 and 657-661); `border-subtle` in §6.3 is the generated `border-border-subtle`; §5.4 and §6.1's "required on every field" is superseded by B2 for the Profile fields. The decisions log entry 'add-user-account: bloqueos del explore' is not yet in `docs/general-context.md`; its two answers are recorded above as given by Product owner.

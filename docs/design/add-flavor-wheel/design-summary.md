@@ -188,7 +188,7 @@ Reuse:
   - **Rings 1–2, radial:** the baseline runs along the radius at the mid-angle, centred at mid-radius, and flipped 180° in the left half (180°–360°). Font size 12 units.
   - **Content:** line 1 is the name; line 2 is `count/total`. Line height 1.2 × font size.
   - **Fit rule.** Text width is estimated as `characters × 0.6 × font size` (approximation, *(unverified)* until the visual review).
-    - *Tangential:* the longest line must fit within `2 × midR × sin(Δθ / 2) − 8`, and the lines' height within `ring width − 8`.
+    - *Tangential:* the longest line must fit within `2 × midR × sin(min(Δθ, 180°) / 2) − 8`, so a span above 180° may use up to the diameter, and the lines' height within `ring width − 8`.
     - *Radial:* the longest line must fit within `ring width − 8`, and the lines' height within `midR × Δθ(rad) − 4`.
     - If two lines do not fit, try the name alone. If that does not fit, draw no label: no ellipsis, and the tree carries the name (Open 13).
   - **Colour:** `fill="currentColor"` inside the segment group that carries `data-taxonomy` and the badge rule's label custom properties. The label is white or black per theme, as the badge's.
@@ -314,7 +314,7 @@ No new guard pair needs registering. The wheel deliberately uses `text-primary` 
   - no horizontal scroll: names wrap, the counts do not shrink, and the panel header wraps;
   - segment labels are small (about 9px), and the tree carries every name at the body size *(visual review item)*.
 - **1280px:**
-  - with the full-width card, the container is about 1100px *(computed: 1152 − 48 − 4)*, so the two-column grid applies: wheel 400px, then the panel and tree in about 668px;
+  - with the full-width card, the container is about 1068px *(measured by the design lead in a harness with `max-w-6xl px-4`; the earlier 1100px skipped the 2 × 16px page padding)*, so the two-column grid applies: wheel 400px, then the panel and tree in about 636px;
   - in half a grid, about 512px *(computed)*, so it stays stacked (Open 9).
 
 ### 6.7 Visual reference (mock-up, ASCII)
@@ -544,3 +544,12 @@ Area: `catalog` (`messages/{locale}/catalog.json`), the host's area. The compone
   - **Research:**
     - Fetched: notbadcoffee.com (interactive wheel) and d3js.org (arc labels and padding).
     - Not reachable: sca.coffee (404), scanews.coffee (connection refused), en.wikipedia.org (404), observablehq.com (429).
+
+## Propose status
+
+- **Change-id:** `add-flavor-wheel` (capability `feedback`), branch `feature/add-flavor-wheel`, folder `openspec/changes/add-flavor-wheel/`. Proposed 2026-10-06 by the architect agent under Product owner's delegation.
+- **`openspec validate add-flavor-wheel --strict`:** passes ("Change 'add-flavor-wheel' is valid"); 4/4 artifacts complete (proposal, feedback spec delta, design, tasks).
+- **Resolved (all by the orchestrator's answers above, taken as the decisions):** 1 (b) keyboard and screen reader live in the note list, segments are pointer-only; 2 (a) segments sized by `count`; 3 (a) taxonomy order; 4 (a) fixed description panel; 5 (a) an unresolved ref is skipped with its subtree; 6 (a) mouthfeel notes as the API returns them; 7 (a) capability `feedback`; 8 (a) the taxonomy colour rule is extracted from `Badge.tsx` into one shared helper (`src/shared/ui/taxonomy-color.ts`, design.md D4) with `Badge.test.tsx` unmodified; 9 (a) layout switch by container query at 42rem (design.md D8); 10 (a) `add-offering-catalog` adds the message keys (design.md D9); 11 (a) Escape collapses everything and refocuses the level-0 ancestor (design.md D6); 13 (a) estimated label width with no ellipsis (design.md D5). Design.md also settles: `buildFlavorWheelNodes` typed with the existing `OfferingTaxonomyNode` alias (D1), `TaxonomyLookupEntry.description: string | null` (D2), and the mapping rules (D3).
+- **Backlog:** no entry is resolved by this change (R1, R3, R4, R5, R8 do not name it). The shared colour helper (Open 8) avoids a second copy instead of creating a backlog entry.
+- **Remains open (Product owner):** Open 12 — the `wheelCount` wording ("evaluadores", fallback "evaluaciones") awaits his confirmation that a specialist cannot close two evaluations of the same offering; Open 14 — the es/en/ca strings of section 7 stay proposals. Open 13's label-fit estimate is checked at the visual review (tasks 7.2). None of these changes the specs, the design or the tasks (design.md "Open Questions").
+- **Reported, not corrected here:** section 10 says the fixtures of `widgets/offering-list/lib/resolve-taxonomies.test.ts` "that build `TaxonomyLookupEntry` values" gain `description`; those fixtures build `TaxonomyNode` values and their badge assertions stay, so the type ripple reaches only the four `toEqual` expectations of `lookup.test.ts` (named in task 1.1).

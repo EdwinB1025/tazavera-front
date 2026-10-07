@@ -3,6 +3,7 @@
 import { useId, type InputHTMLAttributes, type ReactNode } from "react";
 import { Check } from "@/shared/ui/icons";
 import {
+  FACET_MESSAGE_CLASSES,
   facetRowClasses,
   withoutDisabledFade,
   type ControlPresentation,
@@ -148,12 +149,12 @@ export function Checkbox({
         <span className={row ? row.label : "type-label"}>{label}</span>
       </label>
       {hasHelp && (
-        <p id={helpId} className="type-meta mt-1">
+        <p id={helpId} className={row ? `type-meta mt-1 ${FACET_MESSAGE_CLASSES}` : "type-meta mt-1"}>
           {help}
         </p>
       )}
       {hasError && (
-        <p id={errorId} className="type-error mt-1">
+        <p id={errorId} className={row ? `type-error mt-1 ${FACET_MESSAGE_CLASSES}` : "type-error mt-1"}>
           {error}
         </p>
       )}

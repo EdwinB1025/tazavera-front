@@ -53,6 +53,18 @@ export type OfferingTaxonomyNode = NonNullable<
 /** One node of `GET /taxonomies` `data`: `ulid`, `level`, `nameEs`, `nameEn`, `nameCa`, `color`, `children`. */
 export type TaxonomyNode = NonNullable<ListTaxonomiesResponse["data"]>[number];
 
+/** Body of `POST /register` (`registerAUser`). */
+export type RegisterPayload =
+  operations["registerAUser"]["requestBody"]["content"]["application/json"];
+
+/** Body of `PUT /users/{user_ulid}` (`updateAUser`); every field is optional in the contract. */
+export type ProfileUpdatePayload =
+  NonNullable<operations["updateAUser"]["requestBody"]>["content"]["application/json"];
+
+/** Body of `PUT /users/{user_ulid}/password` (`updateUserPassword`). */
+export type PasswordUpdatePayload =
+  operations["updateUserPassword"]["requestBody"]["content"]["application/json"];
+
 /** What `GET /taxonomies` returns: `data` of taxonomy nodes. */
 export type TaxonomiesPayload = {
   data: TaxonomyNode[];
