@@ -285,6 +285,17 @@ describe("Pagination", () => {
       const svg = button.querySelector("svg");
       expect(svg).not.toBeNull();
       expect(svg!.getAttribute("aria-hidden")).not.toBeNull();
+      // Chevrons below 768px, labels from 768px.
+      const tokens = (element: Element) =>
+        (element.getAttribute("class") ?? "").split(/\s+/);
+      expect(tokens(button)).toEqual(
+        expect.arrayContaining(["max-md:w-10", "max-md:px-0"]),
+      );
+      expect(tokens(svg!)).toContain("md:hidden");
+      const text = Array.from(button.querySelectorAll("span")).find(
+        (span) => span.textContent === label,
+      );
+      expect(tokens(text!)).toContain("max-md:sr-only");
     }
   });
 
