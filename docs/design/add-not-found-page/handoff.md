@@ -35,3 +35,24 @@ Observations (no check of this task):
 - The server HTML of the 404 responses is Next's error document (`<html id="__next_error__">`); the not-found UI arrives in the RSC payload and renders on the client. Visible output is correct in the browser; without JavaScript the page is blank.
 
 Verdict: every check PASS except in-app navigation to an unknown path (FAIL, existing parallel-route behaviour; needs a decision: correction or backlog). Task 2.2 not checked off.
+
+## Session 2026-10-08 — soft navigation fix (cloud)
+
+Branch `claude/add-not-found-page-softnav` from `origin/claude/add-not-found-page-apply` (`7fc7987`), at `1059fd1` (design.md D7 and task 1.4 applied: `app/[locale]/[...rest]/page.tsx` calls `notFound()`).
+
+### Setup
+Same as the 2026-10-07 session, rebuilt from scratch: HTTPS mock on `127.0.0.1:443` for `api.tazavera.test` (hosts entry, self-signed certificate through `NODE_EXTRA_CA_CERTS`) answering `{"data": []}`; `npm run build` + `npm run start` with the same three `NEXT_PUBLIC_*` values; Playwright 1.56 from a scratch folder with Chromium at `/opt/pw-browsers`, intercepting `https://api.tazavera.test/**` with the same silent sign-in flow (`tazavera.signed-in` marker, `/oauth/authorize` 302 to `/callback`, `/oauth/token` grant, `GET /user` with the contract example and the role under test). Theme cookie `traditional`, viewport 1280×900.
+
+### Captures
+`captures/in-app-navigation-1280-light.png` replaced: state after the in-app navigation from `/en` to `/en/no-such-page`.
+
+### Results
+| Check | Result | Evidence |
+|---|---|---|
+| In-app navigation to an unknown path shows the page in the active locale | PASS | from `/en`, `router.push('/en/no-such-page')` (the mechanism of `next/link`): URL `/en/no-such-page`, no document request, header present, one `h1` "Page not found", `<html lang="en">`, link "Back to the home page" with `href` `/en`; clicking it returns to `/en` with the home `h1` |
+| `/es/no-existe` (hard navigation) answers HTTP 404 with the page | PASS | status 404, header present, `h1` "Página no encontrada", `<meta name="robots" content="noindex">` |
+| Role not allowed: `/es/manage/offerings` as a signed-in specialist | PASS | `h1` "Página no encontrada" inside the shell after the silent sign-in |
+| Home still renders | PASS | `/es` status 200, `h1` "Tu café, el que merece cada sorbo", no not-found text |
+| Defined routes still resolve (catch-all has the lowest priority) | PASS | HTTP: `/en`, `/es`, `/es/offerings`, `/es/account`, `/es/register`, `/es/register/coffeeshop`, `/es/manage/offerings`, `/es/manage/offerings/new`, `/es/manage/locations`, `/es/manage/evaluations`, `/es/about` answer 200; `/es/manage/evaluations/new?offering=<ULID>` 200 (without `offering` 404, its existing behaviour); `/es/a/b/c` 404. Soft navigation from `/es` to `/es/offerings`, `/es/register`, `/es/account`, `/es/about`, `/es/manage/offerings` and back to `/es` shows each route's own `h1`, never the not-found text. `npm run build` route list holds every existing route plus `/[locale]/[...rest]` |
+
+Verdict: the 2026-10-07 FAIL is resolved; every check of task 2.2 now passes (the other checks of the 2026-10-07 table are unaffected by D7, which adds only a children-slot page for paths no route defines).
