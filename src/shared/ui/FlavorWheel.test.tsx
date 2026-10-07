@@ -876,3 +876,66 @@ describe("FlavorWheel — keyboard on the note list", () => {
     expect(tabStops()).toEqual(["Fruity4/5"]);
   });
 });
+
+describe("FlavorWheel — groups (add-offering-catalog design.md D19)", () => {
+  const GROUPED: FlavorWheelNode[] = [
+    note("body", 0, 2, { color: "#6b6f76", group: "mouthfeel" }),
+    note("fruity", 0, 3, { color: "#da1d23", group: "aromatics" }),
+    note("floral", 0, 1, { color: "#f7f1bd", group: "aromatics" }),
+  ];
+  const GROUPS = [
+    { id: "aromatics", name: "Aromatics" },
+    { id: "mouthfeel", name: "Mouthfeel" },
+  ];
+  const GROUP_TEXTS = { ...TEXTS, groupsLabel: "texts.groupsLabel" };
+
+  it("names the groups as text in a general legend, in wheel order", () => {
+    renderWheel({ nodes: GROUPED, groups: GROUPS, texts: GROUP_TEXTS });
+    const legend = screen.getByRole("list", { name: "texts.groupsLabel" });
+    expect(
+      Array.from(legend.querySelectorAll("li")).map((li) => li.textContent),
+    ).toEqual(["Aromatics", "Mouthfeel"]);
+  });
+
+  it("draws one inner-legend arc and one name per group inside the wheel", () => {
+    const { container } = renderWheel({
+      nodes: GROUPED,
+      groups: GROUPS,
+      texts: GROUP_TEXTS,
+    });
+    const legends = container.querySelectorAll("svg [data-group-legend]");
+    expect(
+      Array.from(legends).map((g) => g.getAttribute("data-group-legend")),
+    ).toEqual(["aromatics", "mouthfeel"]);
+    expect(legends[0].querySelector("textPath")?.textContent).toBe("Aromatics");
+    expect(legends[1].querySelector("textPath")?.textContent).toBe("Mouthfeel");
+  });
+
+  it("orders the segments and the note list by group: aromatics, then mouthfeel", () => {
+    const { container } = renderWheel({
+      nodes: GROUPED,
+      groups: GROUPS,
+      texts: GROUP_TEXTS,
+    });
+    expect(segmentIds(container)).toEqual(["fruity", "floral", "body"]);
+    expect(rows().map((r) => r.getAttribute("aria-label")?.split(",")[0])).toEqual(
+      ["Fruity", "Floral", "Body"],
+    );
+  });
+
+  it("shows no group legend without groups", () => {
+    const { container } = renderWheel({ nodes: GROUPED, texts: GROUP_TEXTS });
+    expect(screen.queryByRole("list", { name: "texts.groupsLabel" })).toBeNull();
+    expect(container.querySelector("svg [data-group-legend]")).toBeNull();
+  });
+
+  it("shows no group legend when the roots hold one group only", () => {
+    const { container } = renderWheel({
+      nodes: GROUPED.filter((n) => n.group === "aromatics"),
+      groups: GROUPS,
+      texts: GROUP_TEXTS,
+    });
+    expect(screen.queryByRole("list", { name: "texts.groupsLabel" })).toBeNull();
+    expect(container.querySelector("svg [data-group-legend]")).toBeNull();
+  });
+});

@@ -311,7 +311,9 @@ describe("AppShell header actions (spec: Sign in starts from the current route, 
     renderShell({ state: "anonymous" });
     fireEvent.click(screen.getByRole("button", { name: texts.signIn }));
     expect(vi.mocked(signIn)).toHaveBeenCalledTimes(1);
-    expect(vi.mocked(signIn)).toHaveBeenCalledWith("/es/manage/offerings");
+    // The default return route of `signIn` is the current path and query
+    // (fix-auth-return-query design.md D1).
+    expect(vi.mocked(signIn)).toHaveBeenCalledWith();
   });
 
   it("signs the user out from the user menu (spec: Sign out)", () => {
