@@ -36,6 +36,10 @@ type ListCoffeesResponse =
   operations["listCoffees"]["responses"][200]["content"]["application/json"];
 type ListRoasteriesResponse =
   operations["listRoasteries"]["responses"][200]["content"]["application/json"];
+type ListCoffeeShopsResponse =
+  operations["listCoffeeShops"]["responses"][200]["content"]["application/json"];
+type GetACoffeeShopResponse =
+  operations["getACoffeeShop"]["responses"][200]["content"]["application/json"];
 
 /** `data` of `GET /user`. All fields are optional in the contract. */
 export type SessionUser = NonNullable<UserResponse["data"]>;
@@ -150,3 +154,36 @@ export type EvaluationCreateBody =
 
 /** The request body of `PUT /user/evaluations/{evaluation_ulid}`: the create body without `offeringId`. */
 export type EvaluationUpdateBody = Omit<EvaluationCreateBody, "offeringId">;
+
+/** One item of `GET /coffeeshops` (`listCoffeeShops`) `data`: a coffee shop with its locations. */
+export type CoffeeshopSummary = NonNullable<ListCoffeeShopsResponse["data"]>[number];
+
+/** `meta` of `GET /coffeeshops` (`listCoffeeShops`); the directory reads the pages and `total`. */
+export type CoffeeshopsPageMeta = NonNullable<ListCoffeeShopsResponse["meta"]>;
+
+/** `data` of `GET /coffeeshops/{user_ulid}` (`getACoffeeShop`): one coffee shop with its locations. */
+export type CoffeeshopDetail = NonNullable<GetACoffeeShopResponse["data"]>;
+
+/** The location fields the contract's examples carry as `null` (add-coffeeshop-directory design.md D2). */
+type NullableLocationField =
+  | "description"
+  | "latitud"
+  | "longitud"
+  | "address"
+  | "city"
+  | "postalCode"
+  | "country"
+  | "phone"
+  | "web"
+  | "social";
+
+type CoffeeshopLocationItem = NonNullable<CoffeeshopSummary["locations"]>[number];
+
+/**
+ * One location of a `listCoffeeShops` / `getACoffeeShop` item, with the fields
+ * the contract's examples carry as `null` widened to `string | null` — the
+ * single read point of that widening (design.md D2).
+ */
+export type CoffeeshopLocation = Omit<CoffeeshopLocationItem, NullableLocationField> & {
+  [K in NullableLocationField]?: string | null;
+};

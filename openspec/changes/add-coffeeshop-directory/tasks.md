@@ -6,8 +6,8 @@ Each group is a vertical slice; its heading names the commit scope. Tests are co
 
 ## 1. Apply preconditions and derived types (offering-catalog)
 
-- [ ] 1.1 Verify the apply preconditions: `git log` shows `origin/develop` (`d264dd2`) merged into this branch; each interface of design.md D3 exists as stated (`ClearFiltersButton` in `@/shared/ui`; `FilteredOfferingsToolbar`, `FilteredOfferingsResults` with `fixedQuery`, `FilteredOfferingsFacets` in `@/widgets/offering-list`; `ContactDetails` in `@/entities/contact`; `LocationCard` in `origin/feature/add-coffeeshop-location`); the usual checks pass on the merged base. If an interface differs, stop and report; change no file (this task is checked off in the next task's commit).
-- [ ] 1.2 Declare in `src/shared/api/index.ts` the derived types of design.md D2 — `CoffeeshopSummary`, `CoffeeshopsPageMeta`, `CoffeeshopDetail`, `CoffeeshopLocation` (the ten listed fields widened to `string | null`) — each with a doc comment naming its operation. No test. Verification: `npx tsc --noEmit` exits 0; `schema.ts` unchanged.
+- [x] 1.1 Verify the apply preconditions: `git log` shows `origin/develop` (`d264dd2`) merged into this branch; each interface of design.md D3 exists as stated (`ClearFiltersButton` in `@/shared/ui`; `FilteredOfferingsToolbar`, `FilteredOfferingsResults` with `fixedQuery`, `FilteredOfferingsFacets` in `@/widgets/offering-list`; `ContactDetails` in `@/entities/contact`; `LocationCard` in `origin/feature/add-coffeeshop-location`); the usual checks pass on the merged base. If an interface differs, stop and report; change no file (this task is checked off in the next task's commit).
+- [x] 1.2 Declare in `src/shared/api/index.ts` the derived types of design.md D2 — `CoffeeshopSummary`, `CoffeeshopsPageMeta`, `CoffeeshopDetail`, `CoffeeshopLocation` (the ten listed fields widened to `string | null`) — each with a doc comment naming its operation. No test. Verification: `npx tsc --noEmit` exits 0; `schema.ts` unchanged.
 
 ## 2. Pagination keys of the filtered offerings results (offering-catalog)
 
