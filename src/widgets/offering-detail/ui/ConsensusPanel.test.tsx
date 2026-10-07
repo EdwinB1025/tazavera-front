@@ -1,7 +1,9 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import type { OfferingDetail, TaxonomyNode } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
+import { buildFlavorWheelNodes, buildTaxonomyLookup } from "@/entities/taxonomy";
+import type { FlavorWheelProps } from "@/shared/ui";
 import { ConsensusPanel } from "./ConsensusPanel";
 import type { ConsensusPanelTexts } from "./ConsensusPanel";
 import { concordanceBand } from "../lib/concordance";
@@ -11,9 +13,21 @@ import { concordanceBand } from "../lib/concordance";
  * "Consensus score", "Consensus counts and concordances").
  */
 
+// The wheel is mocked: these tests assert the props the panel feeds it
+// (design.md D14; the wheel's own behaviour is add-flavor-wheel's).
+const flavorWheel = vi.hoisted(() => vi.fn());
+vi.mock("@/shared/ui", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/shared/ui")>()),
+  FlavorWheel: (props: FlavorWheelProps) => {
+    flavorWheel(props);
+    return <div data-testid="flavor-wheel" />;
+  },
+}));
+
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
   cleanup();
+  flavorWheel.mockClear();
 });
 
 /** The class tokens of an element, as exact names (no substring matching). */
@@ -57,8 +71,14 @@ const TEXTS = {
       "detailMainTastesHeading",
       "detailDefectsHeading",
       "detailTasteEmpty",
+      "detailSensoryHeading",
+      "detailCataHeading",
+      "wheelLabel",
+      "wheelHint",
+      "wheelNotesToggle",
     ].map((key) => [key, `texts.${key}`]),
   ),
+  wheelCount: "{count} de {total} evaluadores",
   beanValue: "{value}/9",
   beanValueLabel: "{value} de 9",
 } as unknown as ConsensusPanelTexts;
@@ -454,5 +474,168 @@ describe("ConsensusPanel — Main tastes and Defects (spec: Consensus Defects an
         expect(catalog[key], `${locale}.${key}`).toEqual(expect.any(String));
       }
     }
+  });
+});
+
+describe("ConsensusPanel — taste trees (spec: Consensus taste trees; design.md D14)", () => {
+  const FLORAL = "01JROOTFLORAL000000000000A";
+  const JASMINE = "01JCHILDJASMINE0000000000A";
+  const FRUITY = "01JROOTFRUITY000000000000A";
+
+  const WHEEL_TAXONOMIES: TaxonomyNode[] = [
+    ...TAXONOMIES,
+    {
+      ulid: FLORAL,
+      level: 0,
+      nameEs: "Floral",
+      nameEn: "Floral",
+      nameCa: "Floral",
+      descriptionEs: "Notas de flores",
+      color: "#AA00AA",
+      categories: ["aromatics"],
+      children: [
+        {
+          ulid: JASMINE,
+          level: 1,
+          nameEs: "Jazmín",
+          nameEn: "Jasmine",
+          nameCa: "Gessamí",
+          color: "#BB00BB",
+          categories: ["aromatics"],
+        },
+      ],
+    },
+    {
+      ulid: FRUITY,
+      level: 0,
+      nameEs: "Afrutado",
+      nameEn: "Fruity",
+      nameCa: "Afruitat",
+      color: "#CC0000",
+      categories: ["aromatics"],
+    },
+  ];
+
+  const TREES: OfferingDetail = {
+    ...OFFERING,
+    evaluationCount: 5,
+    sensoryTaxonomy: [
+      {
+        ref: FLORAL,
+        type: "aromatics",
+        level: 0,
+        count: 3,
+        children: [{ ref: JASMINE, type: "aromatics", level: 1, count: 2 }],
+      },
+      { ref: SWEET, type: "main_tastes", level: 0, count: 4, children: [] },
+    ],
+    cataConcordance: [
+      { ref: FRUITY, type: "aromatics", level: 0, count: 4, children: [] },
+    ],
+  };
+
+  const countLabel = (count: number, total: number) =>
+    `${count} de ${total} evaluadores`;
+
+  function renderTrees(offering: OfferingDetail) {
+    return render(
+      <ConsensusPanel
+        offering={offering}
+        taxonomies={WHEEL_TAXONOMIES}
+        locale="es"
+        texts={TEXTS}
+      />,
+    );
+  }
+
+  function cardOf(heading: string): Element {
+    return screen
+      .getByRole("heading", { level: 2, name: heading })
+      .closest(".bg-surface-card")!;
+  }
+
+  function wheelCalls(): FlavorWheelProps[] {
+    return flavorWheel.mock.calls.map(([props]) => props as FlavorWheelProps);
+  }
+
+  it("renders one wheel per tree, each in the card of its heading (spec: One wheel per tree)", () => {
+    renderTrees(TREES);
+    for (const heading of [
+      TEXTS.detailSensoryHeading,
+      TEXTS.detailCataHeading,
+    ]) {
+      expect(
+        cardOf(heading).querySelectorAll("[data-testid='flavor-wheel']"),
+      ).toHaveLength(1);
+    }
+    expect(screen.getAllByTestId("flavor-wheel")).toHaveLength(2);
+  });
+
+  it("feeds each wheel the nodes built from its tree, the lookup, evaluationCount and the count template", () => {
+    renderTrees(TREES);
+    const lookup = buildTaxonomyLookup(WHEEL_TAXONOMIES, "es");
+    const [sensory, cata] = wheelCalls();
+    expect(sensory.nodes).toEqual(
+      buildFlavorWheelNodes(TREES.sensoryTaxonomy!, lookup, 5, countLabel),
+    );
+    expect(cata.nodes).toEqual(
+      buildFlavorWheelNodes(TREES.cataConcordance!, lookup, 5, countLabel),
+    );
+    expect(sensory.nodes[0].countLabel).toBe("3 de 5 evaluadores");
+    expect(cata.nodes[0].countLabel).toBe("4 de 5 evaluadores");
+    expect(sensory.total).toBe(5);
+    expect(cata.total).toBe(5);
+  });
+
+  it("passes the wheel texts: label, hint, the empty text and the notes toggle", () => {
+    renderTrees(TREES);
+    expect(wheelCalls()).toHaveLength(2);
+    for (const props of wheelCalls()) {
+      expect(props.texts).toEqual({
+        label: TEXTS.wheelLabel,
+        hint: TEXTS.wheelHint,
+        emptyMessage: TEXTS.detailTasteEmpty,
+        notesToggle: TEXTS.wheelNotesToggle,
+      });
+    }
+  });
+
+  it("shows the empty text and no wheel for an empty tree (spec: Empty tree)", () => {
+    renderTrees({ ...TREES, cataConcordance: [] });
+    const cata = cardOf(TEXTS.detailCataHeading);
+    expect(cata.textContent).toContain(TEXTS.detailTasteEmpty);
+    expect(cata.querySelector("[data-testid='flavor-wheel']")).toBeNull();
+    expect(screen.getAllByTestId("flavor-wheel")).toHaveLength(1);
+  });
+
+  it("renders the wheel, with empty nodes, for a non-empty tree without an aromatic root", () => {
+    renderTrees({
+      ...TREES,
+      sensoryTaxonomy: TREES.sensoryTaxonomy!.filter(
+        (node) => node.type !== "aromatics",
+      ),
+    });
+    const sensory = cardOf(TEXTS.detailSensoryHeading);
+    expect(sensory.querySelector("[data-testid='flavor-wheel']")).not.toBeNull();
+    expect(wheelCalls()[0].nodes).toEqual([]);
+  });
+
+  it("finds the two headings and the wheel texts in the catalog of each locale (design.md D16)", () => {
+    for (const locale of ["es", "en", "ca"]) {
+      const catalog = getMessages("catalog", locale);
+      for (const key of [
+        "detailSensoryHeading",
+        "detailCataHeading",
+        "wheelLabel",
+        "wheelHint",
+        "wheelCount",
+        "wheelNotesToggle",
+      ]) {
+        expect(catalog[key], `${locale}.${key}`).toEqual(expect.any(String));
+      }
+    }
+    expect(getMessages("catalog", "es").wheelCount).toBe(
+      "{count} de {total} evaluadores",
+    );
   });
 });
