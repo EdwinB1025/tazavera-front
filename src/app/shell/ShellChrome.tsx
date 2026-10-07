@@ -43,10 +43,11 @@ export function ShellChrome({
   };
 
   const handleSignIn = () => {
-    // Sign in starts from the route the user is on (spec: "Sign in starts
-    // from the current route"); the popup opens within this click (design.md
-    // D10).
-    signIn(pathname ?? `/${locale}`);
+    // Sign in starts from the route the user is on, path and query, through
+    // `signIn`'s default (spec: "Sign in starts from the current route";
+    // fix-auth-return-query design.md D1); the popup opens within this click
+    // (design.md D10).
+    signIn();
   };
 
   const handleSignOut = () => {
