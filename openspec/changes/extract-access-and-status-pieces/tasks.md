@@ -19,4 +19,4 @@
 
 ## 4. Integration verification
 
-- [ ] 4.1 Verify the complete change per design.md D5 and the two delta specs: `npm run test:run`, `npm run lint`, `npx tsc --noEmit` and `npm run build` all exit 0 with no test removed or weakened; every guard stays green (`client-boundary`, `color-guard`, `focus-guard`, `radius-guard`, `xss-guard`, `icons.test.ts`, `theme-tokens.test.ts`); `contracts/openapi.yaml` and `src/shared/api/schema.ts` are untouched; and the five shared pieces add no text of their own (every test text still comes from the consumer fixtures)
+- [x] 4.1 Verify the complete change per design.md D5 and the two delta specs: `npm run test:run`, `npm run lint`, `npx tsc --noEmit` and `npm run build` all exit 0 with no test removed or weakened; every guard stays green (`client-boundary`, `color-guard`, `focus-guard`, `radius-guard`, `xss-guard`, `icons.test.ts`, `theme-tokens.test.ts`); `contracts/openapi.yaml` and `src/shared/api/schema.ts` are untouched; and the five shared pieces add no text of their own (every test text still comes from the consumer fixtures)
