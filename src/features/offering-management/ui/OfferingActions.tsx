@@ -1,3 +1,5 @@
+"use client";
+
 import type { ReactNode } from "react";
 import type { OfferingSummary } from "@/shared/api";
 import { Button, Checkbox } from "@/shared/ui";

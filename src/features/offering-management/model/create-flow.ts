@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import type { CoffeeInventoryItem } from "@/shared/api";
 import { createOfferings, fetchMyLocations, type LocationsResult } from "../api/management";

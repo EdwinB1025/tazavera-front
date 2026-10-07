@@ -1,3 +1,5 @@
+"use client";
+
 import { useCallback, useEffect, useState } from "react";
 import type { OfferingsPageMeta, OfferingSummary } from "@/shared/api";
 import { fetchOwnOfferings, type OwnOfferingsResult } from "../api/management";

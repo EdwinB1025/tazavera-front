@@ -1,3 +1,5 @@
+"use client";
+
 import type { ReactNode } from "react";
 import { Button, Checkbox } from "@/shared/ui";
 import { Trash2 } from "@/shared/ui/icons";
