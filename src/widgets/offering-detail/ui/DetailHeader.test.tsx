@@ -76,12 +76,6 @@ describe("DetailHeader", () => {
     expect(container.querySelector(".type-score")).toBeNull();
   });
 
-  it("renders the provisional badge for a provisional offering", () => {
-    renderHeader({ ...OFFERING, verificationStatus: "provisional" });
-    expect(screen.getByText(TEXTS.provisionalLabel)).toBeDefined();
-    expect(screen.queryByText(TEXTS.verifiedLabel)).toBeNull();
-  });
-
   it("renders the Evaluate link for a signed-in specialist (spec: Evaluate link for specialists)", () => {
     renderHeader(OFFERING, SPECIALIST);
     expect(

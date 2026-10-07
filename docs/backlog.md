@@ -80,17 +80,6 @@ One section per candidate, in this format:
 - **Status:** accepted
 - **Affects:** `add-offering-facets`, `add-evaluation-facets`
 
-## R12 — Filtered-offerings widget (add-coffeeshop-directory summary, Open 4)
-
-- **Duplicated:** the filtered offerings body and its sidebar composition (`OfferingsScreen` body, `OfferingsSidebarScreen` in `src/pages/offerings`); the coffee shop detail's offerings tab would copy them, because a page slice cannot import another page slice
-- **Where today:** `src/pages/offerings` (`add-offering-catalog`, `add-offering-facets`)
-- **Why it pays off now:** a widget (`src/widgets/filtered-offerings`, with a fixed-query prop for `coffeeshopUlid`) lets the directory reuse the catalog's list and filters without a copy, keeping the `?tab=` pattern; nothing the user sees changes
-- **Owning capability:** offering-catalog
-- **Proposed change:** a refactor after `add-offering-catalog` and `add-offering-facets` merge; before `add-coffeeshop-directory`
-- **Open decision (Augusto):** none
-- **Status:** proposed
-- **Affects:** `add-offering-catalog`, `add-offering-facets`, `add-coffeeshop-directory`
-
 ## R13 — Move `EvaluationsAccess` onto the shared session gate (extract-access-and-status-pieces, verify W1)
 
 - **Duplicated:** the session gate logic (loading / signed-out / role check with `notFound()`) that `extract-access-and-status-pieces` moved to `SessionGate` and `SignedOutPrompt` in `src/shared/ui`
@@ -120,6 +109,28 @@ One section per candidate, in this format:
 - **Why it pays off now:** a flaky timeout breaks the checks of unrelated changes
 - **Owning capability:** evaluations
 - **Proposed change:** none yet — unplanned coverage fix (split the file or reduce user-event typing)
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** none
+
+## R17 — Result count not announced while the facets overlay is open (add-evaluation-facets verify W2)
+
+- **Duplicated:** none. The list's `role="status"` result count sits in the page body. The open mobile filters overlay sets `aria-hidden` on everything behind it, so screen readers do not hear the count while the overlay is open. This affects every list with facets in the sidebar overlay: the catalog and "My evaluations".
+- **Where today:** `src/pages/evaluations-list/ui/EvaluationsList.tsx`, `src/widgets/offering-list` (results status), and the shared `Sidebar` overlay in `src/shared/ui/Sidebar.tsx`
+- **Why it pays off now:** the requirement "Filtered evaluation results" says the total is announced after each change; no scenario covers the overlay case
+- **Owning capability:** app-shell (the shared overlay) or filtering
+- **Proposed change:** none yet. It needs a new mechanism, such as an announcement region inside the overlay, so it is a correction for Product owner.
+- **Open decision (Augusto):** whether the count must be announced while the overlay is open
+- **Status:** proposed
+- **Affects:** none
+
+## R16 — Unused `fetchVerifiedOfferings` (refine-list-pagination verify W1)
+
+- **Duplicated:** two paths to the landing request. Since the unplanned fix `65ca95a`, `VerifiedOfferings` adds `perPage` and `Offerings` sends the request. `fetchVerifiedOfferings(page)` is now called only by its own tests.
+- **Where today:** `src/widgets/offering-list/api/offerings.ts` (`fetchVerifiedOfferings`), `offerings.test.ts` (its cases), and the comment in `src/entities/taxonomy/api/taxonomies.test.ts:8`
+- **Why it pays off now:** dead code with tests of its own suggests a path the landing does not use
+- **Owning capability:** landing
+- **Proposed change:** none yet; it can go into the test-suite reduction (it removes tests)
 - **Open decision (Augusto):** none
 - **Status:** proposed
 - **Affects:** none

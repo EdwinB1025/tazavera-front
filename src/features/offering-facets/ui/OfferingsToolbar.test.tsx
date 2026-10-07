@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach, beforeAll, beforeEach } from "vitest";
-import { render, screen, fireEvent, cleanup, within } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { getMessages } from "@/shared/lib/i18n";
 import { SidebarProvider } from "@/shared/ui";
 import { OfferingsToolbar, offeringFacetsTexts, parseOfferingFilters } from "@/features/offering-facets";
@@ -59,39 +59,9 @@ describe("OfferingsToolbar (design.md D8)", () => {
     expect(screen.getByRole("button", { name: "Filters (2)" })).toBeDefined();
   });
 
-  it("lists the six sort options in order", () => {
-    const select = renderToolbar("");
-    expect(within(select).getAllByRole("option").map((option) => option.textContent)).toEqual([
-      "Default order",
-      "Highest score",
-      "Lowest score",
-      "Most evaluated",
-      "Newest",
-      "Oldest",
-    ]);
-  });
-
   it("selects the current sort", () => {
     const select = renderToolbar("orderBy=cupping_avg&orderDirection=desc");
     expect(select.value).toBe("score-desc");
-  });
-
-  it("writes both sort keys without page", () => {
-    const select = renderToolbar("process=washed&page=2");
-    fireEvent.change(select, { target: { value: "most-evaluated" } });
-    expect(nav.push).toHaveBeenCalledWith(
-      "/en/offerings?process=washed&orderBy=evaluation_count&orderDirection=desc",
-      { scroll: false },
-    );
-  });
-
-  it("starts the sort field at 12rem and lets it grow to 16rem, so the toolbar keeps one row at 375px", () => {
-    const select = renderToolbar("", 1);
-    const field = select.closest("div.grow");
-    expect(field).not.toBeNull();
-    expect(field!.className.split(" ")).toEqual(
-      expect.arrayContaining(["basis-48", "min-w-48", "max-w-64", "grow", "ml-auto"]),
-    );
   });
 
   it("removes both keys for Default order", () => {

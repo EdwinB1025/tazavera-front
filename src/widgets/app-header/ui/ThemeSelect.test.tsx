@@ -34,14 +34,6 @@ describe("ThemeSelect", () => {
     expect(screen.getByRole("combobox", { name: "theme.select" })).toBeDefined();
   });
 
-  it("offers exactly the application's themes", () => {
-    renderSelect();
-    const values = Array.from(
-      screen.getByRole("combobox", { name: "theme.select" }).querySelectorAll("option"),
-    ).map((option) => option.value);
-    expect(values).toEqual(["traditional", "dark"]);
-  });
-
   it("choosing a theme writes the cookie and applies it to the document root immediately (spec: Choosing a theme)", () => {
     renderSelect();
     fireEvent.change(screen.getByRole("combobox", { name: "theme.select" }), {

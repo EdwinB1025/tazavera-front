@@ -11,6 +11,10 @@ export type ManagementSidebarEntriesProps = {
   locale: string;
   /** The entry's visible text (`sidebarManageOfferings`). */
   label: string;
+  /** Whether the entry is the current page (default `true`; add-coffeeshop-location D8). */
+  current?: boolean;
+  /** Further entries, rendered after this one in the same list (add-coffeeshop-location D8). */
+  children?: ReactNode;
 };
 
 /**
@@ -23,16 +27,22 @@ export type ManagementSidebarEntriesProps = {
 export function ManagementSidebarEntries({
   locale,
   label,
+  current = true,
+  children,
 }: ManagementSidebarEntriesProps): ReactNode {
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <SidebarMenuButton asChild isActive icon={List}>
-          <NextLink href={`/${locale}/manage/offerings`} aria-current="page">
+        <SidebarMenuButton asChild isActive={current} icon={List}>
+          <NextLink
+            href={`/${locale}/manage/offerings`}
+            aria-current={current ? "page" : undefined}
+          >
             {label}
           </NextLink>
         </SidebarMenuButton>
       </SidebarMenuItem>
+      {children}
     </SidebarMenu>
   );
 }

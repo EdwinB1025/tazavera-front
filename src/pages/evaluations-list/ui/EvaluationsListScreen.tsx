@@ -70,6 +70,8 @@ export function EvaluationsListScreen({
     ratingCommercialLabel: landing.cardRatingCommercialLabel,
     previousLabel: catalog.previousLabel,
     nextLabel: catalog.nextLabel,
+    navigationLabel: catalog.paginationNavigationLabel,
+    pageLabel: catalog.paginationPageLabel,
     emptyMessage: catalog.listEmptyMessage,
     loadErrorMessage: catalog.listLoadErrorMessage,
     retryLabel: catalog.retryLabel,

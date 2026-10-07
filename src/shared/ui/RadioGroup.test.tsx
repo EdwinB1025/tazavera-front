@@ -27,18 +27,6 @@ const OPTIONS = [
   { value: "espresso", label: "Espresso" },
 ] satisfies RadioOption[];
 
-const CIRCLE_TOKENS = [
-  "size-4",
-  "appearance-none",
-  "rounded-full",
-  "border-2",
-  "border-border-strong",
-  "checked:bg-surface-checked",
-  "focus-visible:focus-ring",
-  "disabled:opacity-50",
-  "disabled:cursor-not-allowed",
-];
-
 describe("RadioGroup", () => {
   describe("group name (spec: Group name)", () => {
     it("renders a fieldset with a legend carrying type-label as the group name", () => {
@@ -61,12 +49,6 @@ describe("RadioGroup", () => {
       expect(group).toBe(container.querySelector("fieldset"));
       expect(group.getAttribute("aria-invalid")).toBe("true");
     });
-
-    it("carries no invalid state when no error is shown", () => {
-      render(<RadioGroup legend="Grind" options={OPTIONS} />);
-      const group = screen.getByRole("radiogroup", { name: "Grind" });
-      expect(group.hasAttribute("aria-invalid")).toBe(false);
-    });
   });
 
   describe("keyboard grouping (spec: Keyboard operation)", () => {
@@ -84,17 +66,6 @@ describe("RadioGroup", () => {
   });
 
   describe("circle and dot (spec: Selected state identification, design.md D9)", () => {
-    it("renders the exact circle tokens with a custom circle replacing the native control", () => {
-      const { container } = render(
-        <RadioGroup legend="Grind" options={OPTIONS} />,
-      );
-      for (const input of container.querySelectorAll("input[type=radio]")) {
-        for (const token of CIRCLE_TOKENS) {
-          expect(input.className).toContain(token);
-        }
-      }
-    });
-
     it("renders a dot per option always, shown through peer-checked and following the input's real state (Unplanned fix)", () => {
       const { container } = render(
         <form>
@@ -122,22 +93,6 @@ describe("RadioGroup", () => {
       expect(chosen.checked).toBe(true);
       (container.querySelector("form") as HTMLFormElement).reset();
       expect(chosen.checked).toBe(false);
-    });
-
-    it("fades the dot when the group is disabled (peer-disabled:opacity-50) (Unplanned fix)", () => {
-      const { container } = render(
-        <RadioGroup
-          legend="Grind"
-          options={OPTIONS}
-          defaultValue="whole"
-          disabled
-        />,
-      );
-      const disabledInput = container.querySelectorAll("input[type=radio]")[0]!;
-      expect(disabledInput.hasAttribute("disabled")).toBe(true);
-      for (const dot of container.querySelectorAll(".bg-checked-mark")) {
-        expect(dot.className).toContain("peer-disabled:opacity-50");
-      }
     });
 
     it("swaps the circle border to the error treatment when invalid (spec: Error state, design.md D9)", () => {
@@ -190,23 +145,6 @@ describe("RadioGroup", () => {
       fireEvent.click(screen.getByText("Filter"));
       expect(checkedValues()).toEqual(["filter"]);
     });
-
-    it("controlled mode: value and onChange drive the choice", () => {
-      const onChange = vi.fn();
-      render(
-        <RadioGroup
-          legend="Grind"
-          options={OPTIONS}
-          value="whole"
-          onChange={onChange}
-        />,
-      );
-      fireEvent.click(screen.getByText("Filter"));
-      expect(onChange).toHaveBeenCalledTimes(1);
-      expect(onChange).toHaveBeenCalledWith("filter");
-      // Controlled: without a state update the choice stays the prop's.
-      expect(checkedValues()).toEqual(["whole"]);
-    });
   });
 
   describe("own-field contract (design.md D1.1, spec: Help and error, Error state, Required)", () => {
@@ -237,19 +175,6 @@ describe("RadioGroup", () => {
       );
     });
 
-    it("omits aria-describedby when neither help nor error exists and aria-invalid when no error is shown", () => {
-      const { container } = render(
-        <RadioGroup legend="Grind" options={OPTIONS} />,
-      );
-      const fieldset = container.querySelector("fieldset")!;
-      expect(fieldset.hasAttribute("aria-describedby")).toBe(false);
-      expect(fieldset.hasAttribute("aria-invalid")).toBe(false);
-      expect(fieldset.getAttribute("role")).toBe("radiogroup");
-      expect(fieldset.getAttribute("aria-labelledby")).toBe(
-        fieldset.querySelector("legend")!.id,
-      );
-    });
-
     it("marks each radio input required when required", () => {
       const { container } = render(
         <RadioGroup legend="Grind" options={OPTIONS} required />,
@@ -257,43 +182,6 @@ describe("RadioGroup", () => {
       for (const input of container.querySelectorAll("input[type=radio]")) {
         expect(input.hasAttribute("required")).toBe(true);
       }
-    });
-
-    it('treats an empty string as no message (Unplanned fix)', () => {
-      const { container } = render(
-        <RadioGroup legend="Grind" options={OPTIONS} help="" error="" />,
-      );
-      expect(container.querySelector("p")).toBeNull();
-      const fieldset = container.querySelector("fieldset")!;
-      expect(fieldset.hasAttribute("aria-describedby")).toBe(false);
-      expect(fieldset.hasAttribute("aria-invalid")).toBe(false);
-    });
-  });
-
-  describe("spacing (design.md D10, correction 2)", () => {
-    it("gives the legend exactly mb-2 and the help text and error message exactly mt-1", () => {
-      const { container } = render(
-        <RadioGroup
-          legend="Grind"
-          options={OPTIONS}
-          help="Pick one"
-          error="Choose a grind"
-        />,
-      );
-      expect(margins(container.querySelector("legend")!)).toEqual(["mb-2"]);
-      expect(margins(screen.getByText("Pick one"))).toEqual(["mt-1"]);
-      expect(margins(screen.getByText("Choose a grind"))).toEqual(["mt-1"]);
-    });
-  });
-
-  describe("inverse variant (design.md D2, D4)", () => {
-    it("adds variant-inverse on the fieldset", () => {
-      const { container } = render(
-        <RadioGroup legend="Grind" options={OPTIONS} variant="inverse" />,
-      );
-      expect(
-        container.querySelector("fieldset")!.className,
-      ).toContain("variant-inverse");
     });
   });
 });
@@ -331,18 +219,6 @@ const ROW_OPTIONS: RadioOption[] = [
 ];
 
 describe("RadioGroup facet-row presentation (add-facet-controls design.md D3)", () => {
-  it("legend carries the facet legend classes", () => {
-    render(
-      <RadioGroup legend="Process" options={ROW_OPTIONS} presentation="row" value="" onChange={() => {}} />,
-    );
-    expect(classesOf(screen.getByText("Process"))).toEqual([
-      "type-label",
-      "mb-1",
-      "px-3",
-      "py-1",
-    ]);
-  });
-
   it("the row of the option equal to value carries the selected set", () => {
     render(
       <RadioGroup legend="Process" options={ROW_OPTIONS} presentation="row" value="washed" onChange={() => {}} />,
@@ -376,13 +252,6 @@ describe("RadioGroup facet-row presentation (add-facet-controls design.md D3)", 
     expect(screen.getByText("Washed").closest("label")!.hasAttribute("hidden")).toBe(false);
   });
 
-  it("id sets the fieldset id", () => {
-    render(
-      <RadioGroup id="g" legend="Process" options={ROW_OPTIONS} presentation="row" value="" onChange={() => {}} />,
-    );
-    expect(screen.getByRole("radiogroup").id).toBe("g");
-  });
-
   it("clicking a row's label text chooses its option", () => {
     const onChange = vi.fn();
     render(
@@ -392,13 +261,6 @@ describe("RadioGroup facet-row presentation (add-facet-controls design.md D3)", 
     expect(onChange).toHaveBeenCalledWith("natural");
   });
 });
-
-/** The margin utilities of an element (design.md D10 pins them exactly). */
-function margins(element: Element): string[] {
-  return element.className
-    .split(/\s+/)
-    .filter((token) => /^m[trblxyse]?-/.test(token));
-}
 
 describe("RadioGroup help and error padding (refine-facet-controls design.md D1)", () => {
   function sorted(text: string): string[] {

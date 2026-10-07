@@ -12,6 +12,7 @@ import {
   Eye,
   EyeOff,
   ChevronDown,
+  ChevronLeft,
   Check,
   Clock,
   Globe,
@@ -20,6 +21,8 @@ import {
   Trash2,
   List,
   Plus,
+  MapPin,
+  MapPinOff,
   BeanMark,
   type LucideIcon,
 } from "@/shared/ui/icons";
@@ -82,8 +85,19 @@ describe("icon entry point (src/shared/ui/icons.ts)", () => {
     expect(List).toBeDefined();
   });
 
+  it("exports ChevronLeft (refine-list-pagination design.md D6)", () => {
+    // Previous's chevron below md. It is not exported yet, so this test fails
+    // until task 3.2 re-exports it.
+    expect(ChevronLeft).toBeDefined();
+  });
+
   it("exports Plus (add-user-contact design.md D8)", () => {
     expect(Plus).toBeDefined();
+  });
+
+  it("exports MapPin and MapPinOff (add-coffeeshop-location design.md D8, D9)", () => {
+    expect(MapPin).toBeDefined();
+    expect(MapPinOff).toBeDefined();
   });
 
   it("is the only module under src/ that imports lucide-react", () => {

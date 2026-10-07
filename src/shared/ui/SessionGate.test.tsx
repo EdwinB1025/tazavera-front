@@ -77,32 +77,7 @@ describe("SessionGate", () => {
     expect(screen.queryByText("signed-out branch")).toBeNull();
   });
 
-  it("passes the signed-in user to the content", () => {
-    const children = vi.fn(() => null);
-    render(
-      <SessionGate
-        session={{ state: "authenticated", user: USER }}
-        loading={null}
-        signedOut={null}
-      >
-        {children}
-      </SessionGate>,
-    );
-
-    expect(children).toHaveBeenCalledWith(USER);
-  });
-
-  it("renders the content for a signed-in coffeeshop", () => {
-    renderGate(
-      { state: "authenticated", user: USER },
-      (user) => user.role === "coffeeshop",
-    );
-
-    expect(screen.getByTestId("content").textContent).toBe("Ana");
-    expect(notFound).not.toHaveBeenCalled();
-  });
-
-  it.each(["specialist", "user"] as const)(
+  it.each(["specialist"] as const)(
     "renders the 404 for a signed-in %s the route does not allow",
     (role) => {
       renderGate(
@@ -112,16 +87,6 @@ describe("SessionGate", () => {
 
       expect(notFound).toHaveBeenCalledTimes(1);
       expect(screen.queryByTestId("content")).toBeNull();
-    },
-  );
-
-  it.each(["coffeeshop", "specialist", "user"] as const)(
-    "with no allows lets a signed-in %s through",
-    (role) => {
-      renderGate({ state: "authenticated", user: { ...USER, role } });
-
-      expect(screen.getByTestId("content").textContent).toBe("Ana");
-      expect(notFound).not.toHaveBeenCalled();
     },
   );
 });

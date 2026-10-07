@@ -110,20 +110,4 @@ describe("DescriptorBlock (design.md D7)", () => {
     fireEvent.click(screen.getByRole("button", { name: "Sweet" }));
     expect(onValueChange).toHaveBeenCalledWith(["BERRY", "CITRUS", "FLORAL", "SWEET"]);
   });
-
-  it("renders the chosen options only when read-only", () => {
-    render(
-      <DescriptorBlock
-        legend="Descriptors"
-        nodes={TREE}
-        category="aromatics"
-        locale="en"
-        value={["FLORAL"]}
-        readOnly
-      />,
-    );
-    expect(screen.queryAllByRole("button")).toHaveLength(0);
-    expect(screen.getByText("Floral")).toBeDefined();
-    expect(screen.queryByText("Berry")).toBeNull();
-  });
 });

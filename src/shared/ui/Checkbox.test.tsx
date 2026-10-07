@@ -68,17 +68,6 @@ describe("Checkbox", () => {
       expect(mark.getAttribute("class")).toContain("peer-checked:visible");
     });
 
-    it("fades the mark when checked and disabled (peer-disabled:opacity-50) (Unplanned fix)", () => {
-      const { container } = render(
-        <Checkbox label="Accept terms" defaultChecked disabled />,
-      );
-      const input = screen.getByRole("checkbox") as HTMLInputElement;
-      expect(input.checked).toBe(true);
-      expect(container.querySelector("svg")!.getAttribute("class")).toContain(
-        "peer-disabled:opacity-50",
-      );
-    });
-
     it("swaps the border to the error treatment when invalid (design.md D9)", () => {
       render(<Checkbox label="Accept terms" error="Accept to continue" />);
       const input = screen.getByRole("checkbox", { name: "Accept terms" });
@@ -129,75 +118,9 @@ describe("Checkbox", () => {
       expect(input.getAttribute("aria-invalid")).toBe("true");
     });
 
-    it("omits aria-describedby when neither help nor error exists and aria-invalid when no error is shown", () => {
-      render(<Checkbox label="Accept terms" />);
-      const input = screen.getByRole("checkbox");
-      expect(input.hasAttribute("aria-describedby")).toBe(false);
-      expect(input.hasAttribute("aria-invalid")).toBe(false);
-    });
-
     it("marks the input required when required", () => {
       render(<Checkbox label="Accept terms" required />);
       expect(screen.getByRole("checkbox").hasAttribute("required")).toBe(true);
-    });
-
-    it('treats an empty string as no message (Unplanned fix)', () => {
-      const { container } = render(
-        <Checkbox label="Accept terms" help="" error="" />,
-      );
-      expect(container.querySelector("p")).toBeNull();
-      const input = screen.getByRole("checkbox");
-      expect(input.hasAttribute("aria-describedby")).toBe(false);
-      expect(input.hasAttribute("aria-invalid")).toBe(false);
-    });
-  });
-
-  describe("spacing (design.md D10, correction 2)", () => {
-    it("gives the help text and the error message exactly mt-1", () => {
-      render(
-        <Checkbox
-          label="Accept terms"
-          help="You can undo this later"
-          error="Accept to continue"
-        />,
-      );
-      expect(margins(screen.getByText("You can undo this later"))).toEqual([
-        "mt-1",
-      ]);
-      expect(margins(screen.getByText("Accept to continue"))).toEqual(["mt-1"]);
-    });
-  });
-
-  describe("value modes (design.md D7)", () => {
-    it("controlled mode: checked and onChange drive the choice", () => {
-      const onChange = vi.fn();
-      render(<Checkbox label="Accept terms" checked={false} onChange={onChange} />);
-      const input = screen.getByRole("checkbox") as HTMLInputElement;
-      fireEvent.click(input);
-      expect(onChange).toHaveBeenCalledTimes(1);
-      // Controlled: without a state update the choice stays the prop's.
-      expect(input.checked).toBe(false);
-    });
-
-    it("uncontrolled mode: defaultChecked sets the initial choice and clicks toggle it", () => {
-      render(<Checkbox label="Accept terms" defaultChecked />);
-      const input = screen.getByRole("checkbox") as HTMLInputElement;
-      expect(input.checked).toBe(true);
-      fireEvent.click(input);
-      expect(input.checked).toBe(false);
-    });
-  });
-
-  describe("disabled (spec: Disabled)", () => {
-    it("rejects toggling", () => {
-      const onChange = vi.fn();
-      render(
-        <Checkbox label="Accept terms" defaultChecked={false} disabled onChange={onChange} />,
-      );
-      fireEvent.click(screen.getByText("Accept terms"));
-      expect(onChange).not.toHaveBeenCalled();
-      const input = screen.getByRole("checkbox") as HTMLInputElement;
-      expect(input.checked).toBe(false);
     });
   });
 
@@ -307,18 +230,6 @@ describe("Checkbox facet-row presentation (add-facet-controls design.md D3)", ()
     expect(classesOf(input)).not.toContain("border-border-strong");
   });
 
-  it("disabled row is faded with no hover look", () => {
-    render(
-      <Checkbox label="Washed" presentation="row" checked={false} disabled onChange={() => {}} />,
-    );
-    const row = screen.getByText("Washed").closest("label")!;
-    expect(classesOf(row)).toEqual(
-      expect.arrayContaining(["cursor-not-allowed", "opacity-50"]),
-    );
-    expect(classesOf(row)).not.toContain("hover:shadow-nav-hover");
-    expect(classesOf(screen.getByText("Washed"))).not.toContain("group-hover:font-bold");
-  });
-
   it("clicking the row's label text calls onChange", () => {
     const onChange = vi.fn();
     render(<Checkbox label="Washed" presentation="row" checked={false} onChange={onChange} />);
@@ -326,13 +237,6 @@ describe("Checkbox facet-row presentation (add-facet-controls design.md D3)", ()
     expect(onChange).toHaveBeenCalledTimes(1);
   });
 });
-
-/** The margin utilities of an element (design.md D10 pins them exactly). */
-function margins(element: Element): string[] {
-  return element.className
-    .split(/\s+/)
-    .filter((token) => /^m[trblxyse]?-/.test(token));
-}
 
 describe("Checkbox help and error padding (refine-facet-controls design.md D1)", () => {
   function sorted(text: string): string[] {

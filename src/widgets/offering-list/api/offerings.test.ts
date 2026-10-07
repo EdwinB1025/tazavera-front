@@ -49,13 +49,13 @@ afterEach(() => {
 });
 
 describe("fetchVerifiedOfferings (design.md D4)", () => {
-  it("requests {NEXT_PUBLIC_API_URL}/offerings with verified=1 and page and returns data and meta", async () => {
+  it("requests {NEXT_PUBLIC_API_URL}/offerings with verified=1, page and perPage=6 and returns data and meta", async () => {
     fetchSpy.mockResolvedValue(okResponse(OFFERINGS_PAYLOAD));
     const result = await fetchVerifiedOfferings(2);
     // Plain `fetch` with the URL and no options, so no credential header is
     // sent (design.md D4).
     expect(fetchSpy).toHaveBeenCalledWith(
-      `${API_URL}/offerings?verified=1&page=2`,
+      `${API_URL}/offerings?verified=1&page=2&perPage=6`,
     );
     expect(result.data).toEqual(OFFERINGS_PAYLOAD.data);
     expect(result.meta).toEqual(OFFERINGS_PAYLOAD.meta);
