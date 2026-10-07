@@ -38,3 +38,5 @@ export type { LocationsResult } from "./api/management";
 export type { CreateFlowOptions, LocationsState } from "./model/create-flow";
 export { LocationsFieldset } from "./ui/LocationsFieldset";
 export type { LocationsFieldsetProps, LocationsFieldsetTexts } from "./ui/LocationsFieldset";
+export { ManagementSidebarEntries } from "./ui/ManagementSidebarEntries";
+export type { ManagementSidebarEntriesProps } from "./ui/ManagementSidebarEntries";
