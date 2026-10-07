@@ -16,6 +16,11 @@ import { OFFERING_GRID_CLASSES } from "../lib/grid";
 export type OfferingListTexts = OfferingCardTexts &
   PaginationTexts & {
     emptyMessage: string;
+    /**
+     * The polite result announcement, with a `{count}` placeholder
+     * (add-offering-facets design.md D9); none when absent.
+     */
+    resultCount?: string;
     errorMessage: string;
     retryLabel: string;
     evaluateLabel: string;
@@ -42,11 +47,17 @@ export type OfferingListProps = {
   query?: Record<string, string | string[] | undefined>;
   /** Replaces the grid classes; landing's `OFFERING_GRID_CLASSES` by default. */
   gridClassName?: string;
+  /** Rendered centered below the empty message (add-offering-facets design.md D9). */
+  emptyAction?: ReactNode;
 };
 
 // The centered empty message (spec "Empty"), in the primary text colour, which
 // passes on the page and section surfaces it renders on in both themes.
 const EMPTY_CLASSES = ["text-center", "text-text-primary"].join(" ");
+
+// The empty message with an action below it, centered 1rem apart like the
+// error block (add-offering-facets design.md D9).
+const EMPTY_ACTION_CLASSES = ["flex", "flex-col", "items-center", "gap-4"].join(" ");
 
 // The grid of cards, then the pagination below it (design.md D14). The root is
 // the container a region-sized grid measures (add-offering-catalog D10).
@@ -79,6 +90,7 @@ export function OfferingList({
   path = `/${locale}`,
   query,
   gridClassName = OFFERING_GRID_CLASSES,
+  emptyAction,
 }: OfferingListProps): ReactNode {
   // The contract marks the `meta` fields optional; the API always sends both,
   // and the fallbacks keep the paging arithmetic defined (design.md D3).
@@ -87,8 +99,17 @@ export function OfferingList({
   const lastPage =
     result.state === "success" ? (result.meta.last_page ?? currentPage) : 1;
 
+  // The total of the success and empty states (add-offering-facets D9).
+  const total = result.state === "success" ? (result.meta.total ?? 0) : 0;
+  const emptyMessage = <p className={EMPTY_CLASSES}>{texts.emptyMessage}</p>;
+
   return (
     <div id="offerings" className={BLOCK_CLASSES}>
+      {texts.resultCount !== undefined && result.state !== "error" ? (
+        <div role="status" className="sr-only">
+          {texts.resultCount.replace("{count}", String(total))}
+        </div>
+      ) : null}
       {result.state === "success" ? (
         <>
           <div className={gridClassName}>
@@ -119,7 +140,14 @@ export function OfferingList({
         </>
       ) : null}
       {result.state === "empty" ? (
-        <p className={EMPTY_CLASSES}>{texts.emptyMessage}</p>
+        emptyAction ? (
+          <div className={EMPTY_ACTION_CLASSES}>
+            {emptyMessage}
+            {emptyAction}
+          </div>
+        ) : (
+          emptyMessage
+        )
       ) : null}
       {result.state === "error" ? (
         <div className={ERROR_CLASSES}>

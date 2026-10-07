@@ -24,6 +24,8 @@ export type OfferingsProps = {
   path?: string;
   /** Replaces the grid classes; landing's grid by default. */
   gridClassName?: string;
+  /** Rendered below the empty message (add-offering-facets design.md D9). */
+  emptyAction?: ReactNode;
 };
 
 /**
@@ -39,6 +41,7 @@ export async function Offerings({
   texts,
   path,
   gridClassName,
+  emptyAction,
 }: OfferingsProps): Promise<ReactNode> {
   let result: OfferingListResult;
   try {
@@ -65,6 +68,7 @@ export async function Offerings({
       path={path}
       query={path === undefined ? undefined : query}
       gridClassName={gridClassName}
+      emptyAction={emptyAction}
     />
   );
 }

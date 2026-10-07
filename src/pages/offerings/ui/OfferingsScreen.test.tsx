@@ -105,9 +105,10 @@ describe("OfferingsScreen", () => {
     );
     expect(block.props?.locale).toBe("es");
     expect(block.props?.path).toBe("/es/offerings");
+    // The `orderBy` without a direction is dropped (add-offering-facets
+    // design.md D4).
     expect(block.props?.query).toEqual({
       verified: "1",
-      orderBy: "cupping_avg",
       cataRef: ["01JREFA", "01JREFB"],
       page: "2",
     });
@@ -142,6 +143,24 @@ describe("OfferingsScreen", () => {
       emptyMessage: catalog.listEmptyMessage,
       errorMessage: catalog.listErrorMessage,
       retryLabel: landing.listRetryLabel,
+      resultCount: catalog.resultCount,
     });
+  });
+
+  it("shows the filtered empty message and Clear all when a filter is applied (add-offering-facets design.md D9)", () => {
+    render(<OfferingsScreen locale="es" searchParams={{ process: "washed" }} />);
+    expect(block.props?.texts.emptyMessage).toBe(getMessages("filters", "es").noMatches);
+    expect(block.props?.emptyAction).toBeDefined();
+  });
+
+  it("keeps the catalog's empty message and no action with only a sort (add-offering-facets design.md D9)", () => {
+    render(
+      <OfferingsScreen
+        locale="es"
+        searchParams={{ orderBy: "cupping_avg", orderDirection: "desc" }}
+      />,
+    );
+    expect(block.props?.texts.emptyMessage).toBe(getMessages("catalog", "es").listEmptyMessage);
+    expect(block.props?.emptyAction).toBeUndefined();
   });
 });
