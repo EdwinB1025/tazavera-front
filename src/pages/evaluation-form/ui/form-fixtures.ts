@@ -39,6 +39,20 @@ export const FORM_TEXTS: EvaluationFormTexts = {
     roastLevelRequired: "Choose the roast level.",
   },
   fragranceNotEvaluatedLabel: "Fragrance not evaluated — use aroma values",
+  legend: {
+    title: "Affective quality impression",
+    labels: [
+      "Extremely low",
+      "Very low",
+      "Moderately low",
+      "Slightly low",
+      "Neither high nor low",
+      "Slightly high",
+      "Moderately high",
+      "Very high",
+      "Extremely high",
+    ],
+  },
   blockLabels: {
     aromatics: "Aromatics",
     main_tastes: "Main tastes",

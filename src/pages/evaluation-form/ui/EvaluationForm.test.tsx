@@ -601,3 +601,58 @@ describe("EvaluationForm: section states (design.md D15; tasks 11.3)", () => {
     expect(expandedByGroup(container)).toEqual(allGroups("false"));
   });
 });
+
+describe("EvaluationForm: the 1–9 legend (design.md D16; tasks 12.2)", () => {
+  const CLOSED = { ...OPEN_EVALUATION, status: "closed" };
+  const TITLE = "Affective quality impression";
+
+  function legendHeader() {
+    return screen.getByRole("button", { name: TITLE });
+  }
+
+  it("sits after Flavor / Aftertaste and before Acidity, as no group and with no indicator", () => {
+    const { container } = renderForm();
+    const header = legendHeader();
+    const flavor = container.querySelector('[data-group="flavorAftertaste"]')!;
+    const acidity = container.querySelector('[data-group="acidity"]')!;
+    expect(flavor.compareDocumentPosition(header) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(acidity.compareDocumentPosition(header) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    expect(header.closest("[data-group]")).toBeNull();
+    expect(header.hasAttribute("aria-describedby")).toBe(false);
+    expect(within(header).queryByText("Complete")).toBeNull();
+    expect(within(header).queryByText("Incomplete")).toBeNull();
+  });
+
+  it("starts collapsed in a new form and in a loaded open evaluation", () => {
+    renderForm();
+    expect(legendHeader().getAttribute("aria-expanded")).toBe("false");
+    cleanup();
+    renderForm({ evaluation: OPEN_EVALUATION });
+    expect(legendHeader().getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("starts expanded in a closed evaluation", () => {
+    renderForm({ evaluation: CLOSED });
+    expect(legendHeader().getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("stays collapsed on a 409 close", async () => {
+    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
+    closeAnEvaluation.mockResolvedValue({ ok: false, status: 409 });
+    renderForm({ evaluation: OPEN_EVALUATION });
+    fireEvent.click(screen.getByRole("button", { name: "Close evaluation" }));
+    await waitFor(() =>
+      expect(screen.getByRole("status").textContent).toBe("Complete every group before closing."),
+    );
+    expect(legendHeader().getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("expands when a successful close turns the form read-only", async () => {
+    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
+    closeAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: null });
+    renderForm({ evaluation: OPEN_EVALUATION });
+    fireEvent.click(screen.getByRole("button", { name: "Close evaluation" }));
+    await waitFor(() => expect(screen.getByRole("status").textContent).toBe("Evaluation closed."));
+    expect(legendHeader().getAttribute("aria-expanded")).toBe("true");
+  });
+});
