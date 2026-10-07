@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import type { Contact } from "@/shared/api";
-import { Button } from "@/shared/ui";
+import { Button, FormStatus, LoadingStatus, StepUpNotice } from "@/shared/ui";
 import { Plus } from "@/shared/ui/icons";
 import {
   ContactDetails,
@@ -27,15 +27,13 @@ import {
   type ContactCheckTexts,
 } from "../model/contact-checks";
 import { AccountSection } from "./AccountSection";
-import { FormStatus } from "./FormStatus";
-import { LoadingStatus } from "./LoadingStatus";
-import { StepUpNotice, type StepUpNoticeTexts } from "./StepUpNotice";
 
 // ─── UI-specific types (declared before the component) ───
 
 export type ContactSectionTexts = ContactTexts &
-  StepUpNoticeTexts &
   ContactCheckTexts & {
+    stepUpText: string;
+    stepUpButton: string;
     contactHeading: string;
     contactDescription: string;
     contactEmptyText: string;
@@ -280,9 +278,9 @@ export function ContactSection({
           )}
           {outcome === "stepUp" && (
             <StepUpNotice
-              locale={locale}
-              texts={texts}
-              requestProfileWrite={requestProfileWrite}
+              text={texts.stepUpText}
+              actionLabel={texts.stepUpButton}
+              onConfirm={() => requestProfileWrite(`/${locale}/account`)}
             />
           )}
           <div className="flex flex-wrap gap-3">

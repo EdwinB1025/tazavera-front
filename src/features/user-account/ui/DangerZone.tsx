@@ -2,12 +2,13 @@
 
 import { useState, type ReactNode } from "react";
 import { request } from "@/shared/api";
-import { Button, ConfirmDialog } from "@/shared/ui";
-import { StepUpNotice, type StepUpNoticeTexts } from "./StepUpNotice";
+import { Button, ConfirmDialog, StepUpNotice } from "@/shared/ui";
 
 // ─── UI-specific types (declared before the component) ───
 
-export type DangerZoneTexts = StepUpNoticeTexts & {
+export type DangerZoneTexts = {
+  stepUpText: string;
+  stepUpButton: string;
   deactivateHeading: string;
   deactivateText: string;
   deleteHeading: string;
@@ -91,9 +92,9 @@ export function DangerZone({
   const errorContent =
     error === "stepUp" ? (
       <StepUpNotice
-        locale={locale}
-        texts={texts}
-        requestProfileWrite={requestProfileWrite}
+        text={texts.stepUpText}
+        actionLabel={texts.stepUpButton}
+        onConfirm={() => requestProfileWrite(`/${locale}/account`)}
       />
     ) : error === "generic" ? (
       texts.genericError

@@ -15,21 +15,28 @@ import {
   ExternalLink,
   PasswordForm,
   ProfileForm,
-  SessionGate,
   type ContactSectionTexts,
   type DangerZoneTexts,
   type PasswordFormTexts,
   type ProfileFormTexts,
-  type SessionGateTexts,
 } from "@/features/user-account";
+import {
+  Card,
+  CardContent,
+  LoadingStatus,
+  SessionGate,
+  SignedOutPrompt,
+} from "@/shared/ui";
 
 // ─── UI-specific types (declared before the component) ───
 
-export type AccountClientTexts = SessionGateTexts &
-  ContactSectionTexts &
+export type AccountClientTexts = ContactSectionTexts &
   DangerZoneTexts &
   PasswordFormTexts &
   ProfileFormTexts & {
+    loading: string;
+    signedOutText: string;
+    signIn: string;
     profileHeading: string;
     profileDescription: string;
     passwordHeading: string;
@@ -58,7 +65,27 @@ export function AccountClient({ locale, texts }: AccountClientProps): ReactNode 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   return (
-    <SessionGate session={session} texts={texts} signIn={() => signIn()}>
+    <SessionGate
+      session={session}
+      loading={
+        <Card variant="section">
+          <CardContent>
+            <LoadingStatus text={texts.loading} />
+          </CardContent>
+        </Card>
+      }
+      signedOut={
+        <Card variant="section">
+          <CardContent>
+            <SignedOutPrompt
+              text={texts.signedOutText}
+              signInLabel={texts.signIn}
+              onSignIn={() => signIn()}
+            />
+          </CardContent>
+        </Card>
+      }
+    >
       {(user) => (
         <div className="flex flex-col gap-4">
           <AccountSection

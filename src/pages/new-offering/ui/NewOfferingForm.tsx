@@ -5,19 +5,25 @@ import { requestProfileWrite, signIn, useSession } from "@/features/auth";
 import {
   InventoryField,
   LocationsFieldset,
-  ManagementGate,
   useCreateFlow,
   type InventoryFieldTexts,
   type LocationsFieldsetTexts,
-  type ManagementGateTexts,
 } from "@/features/offering-management";
-import { Button, Card, CardContent, Link } from "@/shared/ui";
+import {
+  Button,
+  Card,
+  CardContent,
+  Link,
+  SessionGate,
+  SignedOutPrompt,
+} from "@/shared/ui";
 
 // ─── UI-specific types (declared before the component) ───
 
-export type NewOfferingFormTexts = ManagementGateTexts &
-  InventoryFieldTexts &
+export type NewOfferingFormTexts = InventoryFieldTexts &
   LocationsFieldsetTexts & {
+    signedOutMessage: string;
+    signInLabel: string;
     inventoryRequired: string;
     submitLabel: string;
     cancelLabel: string;
@@ -154,14 +160,19 @@ export function NewOfferingForm({ locale, texts }: NewOfferingFormProps): ReactN
   const session = useSession();
   const route = `/${locale}/manage/offerings/new`;
   return (
-    <ManagementGate
+    <SessionGate
       session={session}
-      route={route}
-      texts={texts}
-      onSignIn={signIn}
       loading={<CreateForm locale={locale} route={route} disabled texts={texts} />}
+      signedOut={
+        <SignedOutPrompt
+          text={texts.signedOutMessage}
+          signInLabel={texts.signInLabel}
+          onSignIn={() => signIn(route)}
+        />
+      }
+      allows={(user) => user.role === "coffeeshop"}
     >
       {() => <CreateForm locale={locale} route={route} texts={texts} />}
-    </ManagementGate>
+    </SessionGate>
   );
 }
