@@ -866,22 +866,48 @@ describe("ConsensusPanel — detail by axis (spec: Consensus detail by axis; des
     return body.querySelector('[class~="md:w-56"]');
   }
 
-  it("renders one stacked card spanning both columns with the detail heading", () => {
+  /** The panel-grid item holding the detail by axis. */
+  function axesItem(): Element {
+    return gridItemOf(
+      screen.getByRole("heading", { level: 2, name: TEXTS.detailAxesHeading }),
+    );
+  }
+
+  it("renders the detail heading on the page background, spanning both columns", () => {
     renderAxes();
-    const card = screen
-      .getByRole("heading", { level: 2, name: TEXTS.detailAxesHeading })
-      .closest(".bg-surface-card")!;
-    expect(card).not.toBeNull();
-    expect(classTokens(gridItemOf(card))).toContain("lg:col-span-2");
+    const heading = screen.getByRole("heading", {
+      level: 2,
+      name: TEXTS.detailAxesHeading,
+    });
+    const item = axesItem();
+    expect(item.contains(heading)).toBe(true);
+    expect(heading.closest(".bg-surface-card")).toBeNull();
+    expect(classTokens(item)).toContain("lg:col-span-2");
+  });
+
+  it("renders each axis section as a section card with its header in the band, the five cards 1rem apart (spec: Consensus detail by axis; design.md D18)", () => {
+    renderAxes();
+    const cards = AXIS_KEYS.map((key) => {
+      const band = header(key).closest('[class~="bg-surface-section"]')!;
+      expect(band).not.toBeNull();
+      const card = band.parentElement!;
+      expect(classTokens(card)).toEqual(
+        expect.arrayContaining(["border", "border-border-subtle"]),
+      );
+      expect(classTokens(card)).not.toContain("border-l-4");
+      return card;
+    });
+    const group = cards[0].parentElement!;
+    expect(classTokens(group)).toEqual(
+      expect.arrayContaining(["flex", "flex-col", "gap-4"]),
+    );
+    expect(Array.from(group.children)).toEqual(cards);
   });
 
   it("renders five sections in the axis order, each collapsed at first (spec: Sections collapsed by default)", () => {
     renderAxes();
-    const card = screen
-      .getByRole("heading", { level: 2, name: TEXTS.detailAxesHeading })
-      .closest(".bg-surface-card")!;
     const buttons = Array.from(
-      card.querySelectorAll("button[aria-expanded]"),
+      axesItem().querySelectorAll("button[aria-expanded]"),
     );
     expect(buttons.map((button) => button.textContent)).toEqual(
       AXIS_KEYS.map((key) => TEXTS[key as keyof ConsensusPanelTexts]),

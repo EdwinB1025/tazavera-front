@@ -127,4 +127,23 @@ describe("OfferingDetailScreen", () => {
     expect(screen.queryByTestId("detail-block")).toBeNull();
     expect(container.querySelector("h1")).toBeNull();
   });
+
+  it("renders the loading fallback in one section on the page background (spec: Detail on the page background; design.md D9)", () => {
+    block.suspend = true;
+    const { container } = render(
+      <OfferingDetailScreen locale="es" ulid={ULID} tab={undefined} />,
+    );
+    const es = getMessages("catalog", "es");
+    const sections = container.querySelectorAll("section");
+    expect(sections).toHaveLength(1);
+    const section = sections[0];
+    expect(section.className.split(/\s+/)).toContain("bg-surface-page");
+    expect(
+      section.contains(screen.getByRole("link", { name: es.detailBackLabel })),
+    ).toBe(true);
+    expect(section.querySelectorAll(".animate-pulse")).toHaveLength(3);
+    for (const card of screen.getAllByTestId("skeleton-card")) {
+      expect(section.contains(card)).toBe(true);
+    }
+  });
 });

@@ -100,6 +100,32 @@ describe("OfferingDetailContent", () => {
     expect(screen.queryByText(TEXTS.errorMessage)).toBeNull();
   });
 
+  it("renders the header block and the tabs in one section on the page background, 2rem apart (spec: Detail on the page background; design.md D9)", () => {
+    const { container } = renderContent(SUCCESS);
+    const sections = container.querySelectorAll("section");
+    expect(sections).toHaveLength(1);
+    const section = sections[0];
+    expect(section.className.split(/\s+/)).toContain("bg-surface-page");
+    expect(container.querySelector('[class~="bg-surface-section"]')).toBeNull();
+    const back = screen.getByRole("link", { name: TEXTS.backLabel });
+    const heading = screen.getByRole("heading", { level: 1 });
+    const tablist = screen.getByRole("tablist");
+    for (const element of [back, heading, tablist]) {
+      expect(section.contains(element)).toBe(true);
+    }
+    const blocks = section.firstElementChild!;
+    expect(blocks.className.split(/\s+/)).toEqual(
+      expect.arrayContaining(["flex", "flex-col", "gap-8"]),
+    );
+    const blockOf = (element: Element): Element => {
+      let item = element;
+      while (item.parentElement !== blocks) item = item.parentElement!;
+      return item;
+    };
+    expect(blockOf(back)).not.toBe(blockOf(tablist));
+    expect(blockOf(back)).toBe(blockOf(heading));
+  });
+
   it("renders the back link, then the message and the retry action below it, and no tabs on error (spec: Error and retry)", () => {
     const { container } = renderContent({ state: "error" });
     const back = screen.getByRole("link", { name: TEXTS.backLabel });
