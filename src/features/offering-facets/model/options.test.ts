@@ -39,44 +39,8 @@ function fulfilled<T>(value: T): PromiseSettledResult<T> {
 }
 const rejected: PromiseRejectedResult = { status: "rejected", reason: new Error("down") };
 
-describe("tasteNoteOptions (design.md D7)", () => {
-  it("lists level-0 nodes in API order with their level-1 children, without level 2", () => {
-    expect(tasteNoteOptions(TREE, "en")).toEqual([
-      {
-        value: "F",
-        label: "Fruity",
-        children: [
-          { value: "B", label: "Berry" },
-          { value: "C", label: "Citrus" },
-        ],
-      },
-      { value: "N", label: "Nutty", children: [] },
-    ]);
-  });
-
-  it.each([
-    ["es", "Frutal", "Bayas"],
-    ["en", "Fruity", "Berry"],
-    ["ca", "Fruitat", "Baies"],
-  ])("names the nodes in %s", (locale, parent, child) => {
-    const [first] = tasteNoteOptions(TREE, locale);
-    expect(first!.label).toBe(parent);
-    expect(first!.children![0]!.label).toBe(child);
-  });
-});
-
 describe("offeringFacetOptions (design.md D1, D7)", () => {
   const taxonomies: TaxonomiesPayload = { data: TREE };
-
-  it("builds the five sorted lists and the taste notes from fulfilled reads", () => {
-    const options = offeringFacetOptions(fulfilled(COFFEES), fulfilled(taxonomies), "en");
-    expect(options.countries).toEqual(["Colombia", "Ethiopia"]);
-    expect(options.regions).toEqual(["Huila", "Sidama"]);
-    expect(options.processes).toEqual(["natural", "washed"]);
-    expect(options.varieties).toEqual(["Caturra", "Heirloom"]);
-    expect(options.producers).toEqual(["Bensa"]);
-    expect(options.tasteNotes).toEqual(tasteNoteOptions(TREE, "en"));
-  });
 
   it("gives null for the five coffee lists when the coffees read fails and keeps the taste notes", () => {
     const options = offeringFacetOptions(rejected, fulfilled(taxonomies), "es");

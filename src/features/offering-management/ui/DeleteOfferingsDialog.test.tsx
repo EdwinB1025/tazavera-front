@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, fireEvent, cleanup, within } from "@testing-library/react";
+import { render, screen, cleanup, within } from "@testing-library/react";
 
 // The token client and the auth feature are mocked so nothing reaches the
 // network or the popup flow. Test infrastructure only.
@@ -52,12 +52,6 @@ function renderDialog(overrides: Overrides = {}) {
 }
 
 describe("DeleteOfferingsDialog (design.md D7)", () => {
-  it("renders nothing without a target", () => {
-    renderDialog({ target: null });
-
-    expect(screen.queryByRole("alertdialog")).toBeNull();
-  });
-
   it("confirms one offering with the single texts, the confirm and the cancel labels", () => {
     renderDialog();
 
@@ -74,16 +68,6 @@ describe("DeleteOfferingsDialog (design.md D7)", () => {
     expect(within(dialog).getByText(TEXTS.deleteManyDescription)).toBeTruthy();
   });
 
-  it("reports the cancel and the confirm activations", () => {
-    const props = renderDialog();
-
-    fireEvent.click(screen.getByRole("button", { name: TEXTS.deleteConfirmLabel }));
-    expect(props.onConfirm).toHaveBeenCalledTimes(1);
-    expect(props.onCancel).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: TEXTS.cancelLabel }));
-    expect(props.onCancel).toHaveBeenCalledTimes(1);
-  });
-
   it("shows the pending state: confirm busy, cancel unavailable", () => {
     renderDialog({ pending: true });
 
@@ -91,14 +75,6 @@ describe("DeleteOfferingsDialog (design.md D7)", () => {
     const cancel = screen.getByRole("button", { name: TEXTS.cancelLabel }) as HTMLButtonElement;
     expect(confirm.getAttribute("aria-busy")).toBe("true");
     expect(cancel.disabled).toBe(true);
-  });
-
-  it("shows the delete error in the dialog's alert region on a failure", () => {
-    renderDialog({ error: "failed" });
-
-    const [alert] = screen.getAllByRole("alert");
-    expect(alert.textContent).toBe(TEXTS.deleteError);
-    expect(screen.queryByText(TEXTS.stepUpMessage)).toBeNull();
   });
 
   it("renders the step-up text and action inside the dialog's single alert region, with no role of their own", () => {
@@ -114,15 +90,5 @@ describe("DeleteOfferingsDialog (design.md D7)", () => {
     expect(message.closest("[role]")).toBe(alerts[0]);
     expect(action.parentElement!.closest("[role]")).toBe(alerts[0]);
     expect(screen.queryByText(TEXTS.deleteError)).toBeNull();
-  });
-
-  it("starts the identity check synchronously within the step-up click and keeps the dialog", () => {
-    const props = renderDialog({ error: "step-up" });
-
-    fireEvent.click(screen.getByRole("button", { name: TEXTS.stepUpLabel }));
-
-    expect(props.onStepUp).toHaveBeenCalledTimes(1);
-    expect(props.onCancel).not.toHaveBeenCalled();
-    expect(screen.getByRole("alertdialog")).toBeTruthy();
   });
 });

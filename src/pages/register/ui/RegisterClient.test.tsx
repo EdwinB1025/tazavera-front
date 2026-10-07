@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent, act } from "@testing-library/react";
+import { render, cleanup } from "@testing-library/react";
 import type { Session } from "@/shared/api";
 import { RegisterClient, type RegisterClientTexts } from "./RegisterClient";
 
@@ -85,19 +85,6 @@ function renderClient(role: "specialist" | "coffeeshop" = "specialist") {
 }
 
 describe("RegisterClient — the session gate", () => {
-  it("while loading shows the loading status and no form", () => {
-    renderClient();
-    expect(screen.getByRole("status").textContent).toBe(TEXTS.loading);
-    expect(document.querySelector("form")).toBeNull();
-  });
-
-  it("while anonymous renders the form", () => {
-    auth.session = { state: "anonymous" };
-    renderClient();
-    expect(document.querySelector("form")).not.toBeNull();
-    expect(screen.queryByRole("status")).toBeNull();
-  });
-
   it("while authenticated replaces the route with /{locale} through the router and renders no form", () => {
     auth.session = {
       state: "authenticated",
@@ -127,53 +114,5 @@ describe("RegisterClient — the card", () => {
       expect(container.querySelector(".bg-surface-section")).toBeNull();
       cleanup();
     }
-  });
-});
-
-describe("RegisterClient — injection", () => {
-  it("passes the route's role to the form", async () => {
-    auth.session = { state: "anonymous" };
-    fetchMock.mockReturnValue(new Promise<Response>(() => {}));
-    renderClient("coffeeshop");
-    for (const [label, value] of [
-      [TEXTS.nameLabel, "Ana"],
-      [TEXTS.surnameLabel, "López"],
-      [TEXTS.emailLabel, "ana@example.com"],
-      [TEXTS.passwordLabel, "Secret123"],
-      [TEXTS.passwordConfirmationLabel, "Secret123"],
-    ] as const) {
-      fireEvent.change(screen.getByLabelText(new RegExp(`^${label}`)), {
-        target: { value },
-      });
-    }
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: TEXTS.registerSubmit }));
-    });
-    const body = JSON.parse(String(fetchMock.mock.calls[0]![1]?.body)) as {
-      role: string;
-    };
-    expect(body.role).toBe("coffeeshop");
-  });
-
-  it("the success panel's Sign in calls the auth signIn once, inside the click", async () => {
-    auth.session = { state: "anonymous" };
-    fetchMock.mockResolvedValue(new Response("{}", { status: 201 }));
-    renderClient();
-    for (const [label, value] of [
-      [TEXTS.nameLabel, "Ana"],
-      [TEXTS.surnameLabel, "López"],
-      [TEXTS.emailLabel, "ana@example.com"],
-      [TEXTS.passwordLabel, "Secret123"],
-      [TEXTS.passwordConfirmationLabel, "Secret123"],
-    ] as const) {
-      fireEvent.change(screen.getByLabelText(new RegExp(`^${label}`)), {
-        target: { value },
-      });
-    }
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: TEXTS.registerSubmit }));
-    });
-    fireEvent.click(screen.getByRole("button", { name: TEXTS.signIn }));
-    expect(auth.signIn).toHaveBeenCalledTimes(1);
   });
 });

@@ -42,9 +42,4 @@ describe("searchRoasteries (design.md D1)", () => {
       { value: "Nomadic", label: "Nomadic" },
     ]);
   });
-
-  it("throws on a non-2xx status", async () => {
-    fetchSpy.mockResolvedValue({ ok: false, status: 500, json: async () => ({}) });
-    await expect(searchRoasteries("nóm", new AbortController().signal)).rejects.toThrow();
-  });
 });

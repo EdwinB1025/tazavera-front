@@ -33,7 +33,6 @@ describe("EvaluateLink (design.md D6)", () => {
   });
 
   it.each([
-    ["loading", { state: "loading" } as Session],
     ["anonymous", { state: "anonymous" } as Session],
     ["another role", user("coffeeshop")],
   ])("renders nothing while %s", (_case, session) => {

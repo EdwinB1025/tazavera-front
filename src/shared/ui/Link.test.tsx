@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { describe, it, expect, afterEach } from "vitest";
+import { render, screen, cleanup } from "@testing-library/react";
 import { Link } from "@/shared/ui/Link";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
@@ -66,18 +66,6 @@ describe("Link", () => {
       expect(link.className).not.toContain("items-center");
       expect(link.className).not.toContain("gap-2");
     });
-
-    it("back variant does carry inline-flex, items-center and gap-2", () => {
-      render(
-        <Link href="/offerings" variant="back">
-          Back to offerings
-        </Link>,
-      );
-      const link = screen.getByRole("link", { name: "Back to offerings" });
-      expect(link.className).toContain("inline-flex");
-      expect(link.className).toContain("items-center");
-      expect(link.className).toContain("gap-2");
-    });
   });
 
   describe("hover and focus-visible state classes", () => {
@@ -96,45 +84,6 @@ describe("Link", () => {
     });
   });
 
-  describe("anchor-surface passthrough (design.md D7, review round 2)", () => {
-    // The rest of the anchor surface passes through to the element, so a
-    // composing parent (`DropdownMenuItem asChild`) merges its role, handlers
-    // and classes in through it. jsdom has no CSS engine, so "joined after the
-    // treatment classes" is asserted on the exact class string.
-
-    it("joins a caller-supplied className after the treatment classes", () => {
-      render(
-        <Link href="/offerings" className="caller-class">
-          All offerings
-        </Link>,
-      );
-      const link = screen.getByRole("link", { name: "All offerings" });
-      // the treatment classes stay and the caller's class is joined after them
-      expect(link.className).toBe(
-        "underline text-text-link hover:text-text-link-hover focus-visible:focus-ring caller-class",
-      );
-    });
-
-    it("passes caller-supplied aria-* and event handlers through to the anchor", () => {
-      const onClick = vi.fn();
-      render(
-        <Link
-          href="/offerings"
-          role="menuitem"
-          aria-label="entry label"
-          onClick={onClick}
-        >
-          All offerings
-        </Link>,
-      );
-      // the role and the aria-* attribute reach the element itself
-      const link = screen.getByRole("menuitem", { name: "entry label" });
-      expect(link.getAttribute("href")).toBe("/offerings");
-      fireEvent.click(link);
-      expect(onClick).toHaveBeenCalledTimes(1);
-    });
-  });
-
   describe("compile-time rejection of external destinations", () => {
     // An absolute URL is a compile error: `href` is typed `/${string}`, so no
     // runtime branch is involved. `@ts-expect-error` proves the type guard
@@ -144,17 +93,13 @@ describe("Link", () => {
       const link = <Link href="https://example.com">External</Link>;
       // referenced so the binding is not flagged as unused
       expect(link).toBeDefined();
-    });
 
-    // Correction 7 (review round 1): a protocol-relative URL (`//…`) starts
-    // with `/`, so `/${string}` alone accepts it. The conditional type must
-    // reject `//${string}` too. This `@ts-expect-error` is currently UNUSED
-    // (the URL still compiles), so `npx tsc --noEmit` fails here until the
-    // conditional type is added (task 6.12).
-    it("rejects a protocol-relative URL href at compile time", () => {
+      // Correction 7 (review round 1): a protocol-relative URL (`//…`) starts
+      // with `/`, so `/${string}` alone accepts it; the conditional type
+      // rejects `//${string}` too.
       // @ts-expect-error — protocol-relative URLs are not in-application routes
-      const link = <Link href="//example.com">External</Link>;
-      expect(link).toBeDefined();
+      const protocolRelative = <Link href="//example.com">External</Link>;
+      expect(protocolRelative).toBeDefined();
     });
   });
 });

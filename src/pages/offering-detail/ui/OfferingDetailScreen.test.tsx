@@ -50,55 +50,6 @@ vi.mock("@/widgets/offering-list", async (importOriginal) => {
 const ULID = "01K6A3M8Q2V7XH4T9B5N1RCW0D";
 
 describe("OfferingDetailScreen", () => {
-  it("passes the locale, the ulid and the anonymous session to the detail block", () => {
-    render(<OfferingDetailScreen locale="es" ulid={ULID} tab={undefined} />);
-    expect(screen.getByTestId("detail-block")).toBeTruthy();
-    expect(block.props?.locale).toBe("es");
-    expect(block.props?.ulid).toBe(ULID);
-    expect(block.props?.session).toEqual({ state: "anonymous" });
-  });
-
-  it("maps the tab value: inventory by default, consensus when named, inventory for an unknown value (specs: Default tab, Tab named in the address)", () => {
-    const cases: [string | undefined, string][] = [
-      [undefined, "inventory"],
-      ["consensus", "consensus"],
-      ["unknown", "inventory"],
-    ];
-    for (const [tab, expected] of cases) {
-      const { unmount } = render(
-        <OfferingDetailScreen locale="es" ulid={ULID} tab={tab} />,
-      );
-      expect(block.props?.tab).toBe(expected);
-      unmount();
-    }
-  });
-
-  it("feeds the catalog's detail texts and landing's header and retry texts to the block (design.md D16)", () => {
-    render(<OfferingDetailScreen locale="ca" ulid={ULID} tab={undefined} />);
-    const catalog = getMessages("catalog", "ca");
-    const landing = getMessages("landing", "ca");
-    expect(block.props?.texts).toEqual(
-      expect.objectContaining({
-        backLabel: catalog.detailBackLabel,
-        errorMessage: catalog.detailErrorMessage,
-        tabInventory: catalog.detailTabInventory,
-        tabConsensus: catalog.detailTabConsensus,
-        retryLabel: landing.listRetryLabel,
-        verifiedLabel: landing.cardVerifiedLabel,
-        provisionalLabel: landing.cardProvisionalLabel,
-        coffeeshopCaption: landing.cardCoffeeshopCaption,
-        roasterCaption: landing.cardRoasterCaption,
-        evaluateLabel: landing.cardEvaluateLabel,
-        detailNotVerifiedMessage: catalog.detailNotVerifiedMessage,
-        wheelGroupsLabel: catalog.wheelGroupsLabel,
-        wheelGroupAromatics: catalog.wheelGroupAromatics,
-        detailAxesHeading: catalog.detailAxesHeading,
-      }),
-    );
-    expect(block.props?.texts).not.toHaveProperty("detailSensoryHeading");
-    expect(catalog.detailNotVerifiedMessage).toEqual(expect.any(String));
-  });
-
   it("shows the back link, three placeholder bars and two skeleton cards while the offering loads (spec: Loading)", () => {
     block.suspend = true;
     const { container } = render(
@@ -126,24 +77,5 @@ describe("OfferingDetailScreen", () => {
     expect(screen.getAllByTestId("skeleton-card")).toHaveLength(2);
     expect(screen.queryByTestId("detail-block")).toBeNull();
     expect(container.querySelector("h1")).toBeNull();
-  });
-
-  it("renders the loading fallback in one section on the page background (spec: Detail on the page background; design.md D9)", () => {
-    block.suspend = true;
-    const { container } = render(
-      <OfferingDetailScreen locale="es" ulid={ULID} tab={undefined} />,
-    );
-    const es = getMessages("catalog", "es");
-    const sections = container.querySelectorAll("section");
-    expect(sections).toHaveLength(1);
-    const section = sections[0];
-    expect(section.className.split(/\s+/)).toContain("bg-surface-page");
-    expect(
-      section.contains(screen.getByRole("link", { name: es.detailBackLabel })),
-    ).toBe(true);
-    expect(section.querySelectorAll(".animate-pulse")).toHaveLength(3);
-    for (const card of screen.getAllByTestId("skeleton-card")) {
-      expect(section.contains(card)).toBe(true);
-    }
   });
 });

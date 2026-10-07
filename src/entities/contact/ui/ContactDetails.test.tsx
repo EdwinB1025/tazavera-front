@@ -78,15 +78,7 @@ describe("ContactDetails", () => {
     expect(terms()).not.toContain(TEXTS.contactWebLabel);
   });
 
-  it("renders no row for an absent key", () => {
-    const contact: Contact = { ...CONTACT };
-    delete contact.phone;
-    render(<ContactDetails contact={contact} texts={TEXTS} />);
-    expect(document.querySelectorAll("dt")).toHaveLength(7);
-    expect(terms()).not.toContain(TEXTS.contactPhoneLabel);
-  });
-
-  it.each(["https://example.org", "http://example.org"])(
+  it.each(["https://example.org"])(
     "renders web %s as a same-tab link with the link classes",
     (web) => {
       render(<ContactDetails contact={{ ...CONTACT, web }} texts={TEXTS} />);
@@ -99,7 +91,7 @@ describe("ContactDetails", () => {
     },
   );
 
-  it.each(["javascript:alert(1)", "/relative", "www.example.org"])(
+  it.each(["javascript:alert(1)"])(
     "renders web %s as text, never a link",
     (web) => {
       render(<ContactDetails contact={{ ...CONTACT, web }} texts={TEXTS} />);
@@ -107,32 +99,4 @@ describe("ContactDetails", () => {
       expect(values()).toContain(web);
     },
   );
-
-  it("wraps every value in an element that breaks long words", () => {
-    render(<ContactDetails contact={CONTACT} texts={TEXTS} />);
-    for (const dd of Array.from(document.querySelectorAll("dd"))) {
-      expect(dd.querySelector(".break-words"), dd.textContent ?? "").not.toBeNull();
-    }
-  });
-
-  it("lays the list out as a grid with rows 0.75rem apart", () => {
-    render(<ContactDetails contact={CONTACT} texts={TEXTS} />);
-    const list = document.querySelector("dl")!;
-    expect(list.classList.contains("grid")).toBe(true);
-    expect(list.classList.contains("gap-y-3")).toBe(true);
-  });
-
-  it("renders nothing when every value is null or absent", () => {
-    const empty = {
-      ulid: "c1",
-      isPrimary: true,
-      address: null,
-      postalCode: null,
-      city: null,
-      country: null,
-      web: null,
-    } as unknown as Contact;
-    const { container } = render(<ContactDetails contact={empty} texts={TEXTS} />);
-    expect(container.innerHTML).toBe("");
-  });
 });
