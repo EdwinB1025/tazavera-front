@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { EVALUATION_SORT_OPTIONS, evaluationListQuery, parseEvaluationFilters } from "./query";
+import {
+  EVALUATION_SORT_OPTIONS,
+  evaluationListQuery,
+  parseEvaluationFilters,
+  publicEvaluationsQuery,
+} from "./query";
 
 /**
  * Evaluation filter state in the URL (design.md D4, D6; spec "Evaluation
@@ -120,5 +125,32 @@ describe("EVALUATION_SORT_OPTIONS (design.md D6)", () => {
       { id: "newest", textKey: "sortNewest", orderBy: "created_at", orderDirection: "desc" },
       { id: "oldest", textKey: "sortOldest", orderBy: "created_at", orderDirection: "asc" },
     ]);
+  });
+});
+
+describe("the public facet set (add-public-evaluations design.md D4, D7)", () => {
+  it("parses offeringId trimmed and ignores status", () => {
+    expect(parseEvaluationFilters({ offeringId: " 01JOFFERA ", status: "open" }, "public")).toEqual({
+      offeringId: "01JOFFERA",
+      sort: "default",
+    });
+    expect(parseEvaluationFilters({ offeringId: "  " }, "public")).toEqual({ sort: "default" });
+  });
+
+  it("builds the request with the fixed keys whatever the URL held", () => {
+    const values = parseEvaluationFilters(
+      { offeringId: "01JOFFERA", status: "open", evaluationType: "baseline", process: "washed", scoreMin: "80" },
+      "public",
+    );
+    expect(publicEvaluationsQuery(values, 2)).toEqual({
+      offeringId: "01JOFFERA",
+      evaluationType: "specialist",
+      process: "washed",
+      status: "closed",
+      scoreMin: 80,
+      orderBy: "created_at",
+      orderDirection: "desc",
+      page: 2,
+    });
   });
 });

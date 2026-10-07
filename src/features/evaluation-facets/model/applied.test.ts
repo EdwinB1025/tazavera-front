@@ -58,3 +58,17 @@ describe("appliedEvaluationFilters (design.md D5)", () => {
     expect(applied({ orderBy: "cupping_score", orderDirection: "desc" })).toEqual([]);
   });
 });
+
+describe("the Offering chip (add-public-evaluations design.md D7)", () => {
+  const PUBLIC_TEXTS = { ...TEXTS, offering: "Offering", offeringFilterFallback: "Selected offering" };
+  const values = parseEvaluationFilters({ offeringId: "01JOFFERA", process: "washed" }, "public");
+
+  it("names the active offering by its coffee name, first, removing only offeringId", () => {
+    const [first] = appliedEvaluationFilters(values, PUBLIC_TEXTS, "Huila");
+    expect(first).toEqual({ id: "offeringId", facet: "Offering", value: "Huila", remove: { offeringId: undefined } });
+  });
+
+  it("reads the fallback when the offering read failed", () => {
+    expect(appliedEvaluationFilters(values, PUBLIC_TEXTS, null)[0]?.value).toBe("Selected offering");
+  });
+});

@@ -27,6 +27,18 @@ export type EvaluationFilterValues = {
   sort: EvaluationSortId;
 };
 
+/** Which facet set a panel shows: "My evaluations" or the public list (add-public-evaluations D7). */
+export type EvaluationFacetSet = "mine" | "public";
+
+/** The public list's facet state (add-public-evaluations design.md D2, D7). */
+export type PublicEvaluationFilters = {
+  offeringId: string | null;
+  scoreMin: number | null;
+  scoreMax: number | null;
+  process: string | null;
+  city: string | null;
+};
+
 // ─── Contract limits (`listMyEvaluations`) ───
 
 const TEXT_LIMIT = 90;

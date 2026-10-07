@@ -192,3 +192,68 @@ describe("EvaluationFacets (design.md D7)", () => {
     );
   });
 });
+
+describe("EvaluationFacets, public set (add-public-evaluations design.md D7)", () => {
+  const PUBLIC_TEXTS = { ...TEXTS, offering: "Offering", offeringFilterFallback: "Selected offering" };
+  const HUILA = { name: "Huila", coffeeshop: "Tazavera" };
+
+  function renderPublic(search: string, offering: typeof HUILA | null = HUILA, processes: string[] | null = PROCESSES) {
+    nav.search = search;
+    const values = parseEvaluationFilters(new URLSearchParams(search), "public");
+    return render(
+      <EvaluationFacets set="public" values={values} options={{ processes, offering }} texts={PUBLIC_TEXTS} />,
+    );
+  }
+
+  it("shows Offering, Score, Process and City in order and no Status facet", () => {
+    renderPublic("offeringId=01JOFFERA&status=open");
+    const facets = [
+      screen.getByRole("radiogroup", { name: "Offering" }),
+      screen.getByRole("group", { name: "Score" }),
+      screen.getByRole("radiogroup", { name: "Process" }),
+      screen.getByRole("textbox", { name: "City" }),
+    ];
+    for (let index = 1; index < facets.length; index += 1) {
+      expect(facets[index - 1]!.compareDocumentPosition(facets[index]!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    }
+    expect(screen.queryByRole("radiogroup", { name: "Status" })).toBeNull();
+  });
+
+  it("selects the active offering labelled coffee · coffeeshop with its chip applied", () => {
+    renderPublic("offeringId=01JOFFERA");
+    expect(radio("Huila · Tazavera", "Offering").checked).toBe(true);
+    expect(radio("Any", "Offering")).toBeDefined();
+    expect(screen.getByRole("button", { name: "Remove filter: Offering: Huila" })).toBeDefined();
+  });
+
+  it("renders no Offering control and no chip without offeringId", () => {
+    renderPublic("");
+    expect(screen.queryByRole("radiogroup", { name: "Offering" })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^Remove filter: Offering/ })).toBeNull();
+  });
+
+  it("reads the fallback on the option and the chip when the offering read failed", () => {
+    renderPublic("offeringId=01JOFFERA", null);
+    expect(radio("Selected offering", "Offering").checked).toBe(true);
+    expect(screen.getByRole("button", { name: "Remove filter: Offering: Selected offering" })).toBeDefined();
+  });
+
+  it("disables Process with Options unavailable when the coffees failed", () => {
+    renderPublic("", HUILA, null);
+    expect(screen.getByText("Options unavailable")).toBeDefined();
+    expect(radio("Any", "Process").disabled).toBe(true);
+  });
+
+  it("removes offeringId on Any and clears all keeping the sort", () => {
+    renderPublic("offeringId=01JOFFERA&city=Lima&orderBy=cupping_score&orderDirection=asc&page=2");
+    fireEvent.click(radio("Any", "Offering"));
+    expect(nav.push).toHaveBeenLastCalledWith(
+      `${PATH}?city=Lima&orderBy=cupping_score&orderDirection=asc`,
+      { scroll: false },
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Clear all" }));
+    expect(nav.push).toHaveBeenLastCalledWith(`${PATH}?orderBy=cupping_score&orderDirection=asc`, {
+      scroll: false,
+    });
+  });
+});
