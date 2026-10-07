@@ -58,7 +58,11 @@ describe("AccountScreen", () => {
       "contactAddButton",
       "contactLoadError",
       "retry",
+      "contactSaved",
+      "contactExists",
+      "urlFormatError",
     ]) {
+      expect(texts[key], key).toBeTypeOf("string");
       expect(texts[key], key).toBe(es[key]);
     }
     for (const key of [
@@ -71,6 +75,7 @@ describe("AccountScreen", () => {
       "contactWebLabel",
       "contactSocialLabel",
     ]) {
+      expect(texts[key], key).toBeTypeOf("string");
       expect(texts[key], key).toBe(contactEs[key]);
     }
     const catalogs: Record<string, string> = { ...es, ...contactEs };

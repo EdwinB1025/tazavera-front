@@ -7,7 +7,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const { request } = vi.hoisted(() => ({ request: vi.fn() }));
 vi.mock("@/shared/api", () => ({ request }));
 
-import { fetchContact } from "./contacts";
+import { createContact, fetchContact } from "./contacts";
 
 beforeEach(() => {
   request.mockReset();
@@ -23,5 +23,29 @@ describe("fetchContact", () => {
     expect(init?.method ?? "GET").toBe("GET");
     expect(new Headers(init?.headers).get("Accept")).toBe("application/json");
     expect(init?.body).toBeUndefined();
+  });
+});
+
+describe("createContact", () => {
+  it("sends one POST to /users/{ulid}/contacts with the payload as the JSON body", async () => {
+    const payload = {
+      address: "Carrer de Verdi 12",
+      city: "Barcelona",
+      postal_code: null,
+      country: null,
+      phone: null,
+      email: null,
+      web: null,
+      social: null,
+    };
+    await createContact("u1", payload);
+    expect(request).toHaveBeenCalledTimes(1);
+    const [path, init] = request.mock.calls[0] as [string, RequestInit];
+    expect(path).toBe("/users/u1/contacts");
+    expect(init.method).toBe("POST");
+    const headers = new Headers(init.headers);
+    expect(headers.get("Accept")).toBe("application/json");
+    expect(headers.get("Content-Type")).toBe("application/json");
+    expect(JSON.parse(init.body as string)).toEqual(payload);
   });
 });
