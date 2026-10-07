@@ -7,7 +7,7 @@ Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`.
 - `AGENTS.md` y `.claude/workflow_sdd.md`: reglas y flujo de los agentes OpenCode.
 - El `handoff.md` y el `corrections.md` de cada cambio.
 
-**Actualizado:** 2026-10-07 02:40.
+**Actualizado:** 2026-10-07 11:30.
 
 ## Revisión de la noche (6–7 oct) — para Product owner
 
@@ -25,9 +25,7 @@ Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`.
 - Ronda 1 de evaluaciones escrita por mí desde tu respuesta (`corrections.md`, puntos 4 y 5 míos).
 - Llamada de catalog a `FlavorWheel` con la interfaz real (catalog D1).
 
-**Bloqueado fuera del front:**
-- **API `add-contacts-and-locations`:** construido en la nube (6 commits, 148 tests, estilo de los endpoints existentes) pero **no subido**: la app de GitHub de Claude no tiene escritura en `tazzavera-api` (403). Da permiso en https://claude.ai/connect-github y pide en https://claude.ai/code/session_017cwm4zpoxHgpytrjcdRP9G `git push -u origin feature/add-contacts-and-locations`; si el contenedor ya no existe, relanzo la rutina.
-- Los tres resúmenes nuevos (`add-user-contact`, `add-coffeeshop-location`, `add-coffeeshop-directory`) están en borrador en `develop`; sus puntos que bloquean el propose dependen del contrato nuevo.
+**API `add-contacts-and-locations` en producción (7 oct):** `PROD ce52210` (PR #39); contrato y `schema.ts` en `develop` `eb3c8fa` (6 operaciones nuevas, solo añade). Los tres resúmenes nuevos (`add-user-contact`, `add-coffeeshop-location`, `add-coffeeshop-directory`) siguen en borrador: el contrato cierra contact 1 (`{ data: [] }` sin contacto), directory 2 (`locations[]` con coordenadas en la lista) y orienta location 2 (`listAUsersLocations` documentado para "Administrar ubicaciones"). Siguen bloqueando el propose: location 3 (= management Q1) y 4 (R10), directory 4 (widget de ofertas filtradas) y 5 (R9).
 
 **Siguientes en cola cuando se desbloqueen:** `add-offering-facets` (tras catalog), `add-evaluation-facets` y `add-public-evaluations` (tras evaluations).
 
