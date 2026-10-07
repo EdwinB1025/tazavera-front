@@ -80,17 +80,6 @@ One section per candidate, in this format:
 - **Status:** accepted
 - **Affects:** `add-offering-facets`, `add-evaluation-facets`
 
-## R12 — Filtered-offerings widget (add-coffeeshop-directory summary, Open 4)
-
-- **Duplicated:** the filtered offerings body and its sidebar composition (`OfferingsScreen` body, `OfferingsSidebarScreen` in `src/pages/offerings`); the coffee shop detail's offerings tab would copy them, because a page slice cannot import another page slice
-- **Where today:** `src/pages/offerings` (`add-offering-catalog`, `add-offering-facets`)
-- **Why it pays off now:** a widget (`src/widgets/filtered-offerings`, with a fixed-query prop for `coffeeshopUlid`) lets the directory reuse the catalog's list and filters without a copy, keeping the `?tab=` pattern; nothing the user sees changes
-- **Owning capability:** offering-catalog
-- **Proposed change:** a refactor after `add-offering-catalog` and `add-offering-facets` merge; before `add-coffeeshop-directory`
-- **Open decision (Augusto):** none
-- **Status:** proposed
-- **Affects:** `add-offering-catalog`, `add-offering-facets`, `add-coffeeshop-directory`
-
 ## R13 — Move `EvaluationsAccess` onto the shared session gate (extract-access-and-status-pieces, verify W1)
 
 - **Duplicated:** the session gate logic (loading / signed-out / role check with `notFound()`) that `extract-access-and-status-pieces` moved to `SessionGate` and `SignedOutPrompt` in `src/shared/ui`
