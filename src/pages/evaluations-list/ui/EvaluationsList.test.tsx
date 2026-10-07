@@ -57,6 +57,7 @@ const TEXTS: EvaluationsListTexts = {
   deleteCancelLabel: "Cancel",
   notYoursMessage: "This evaluation is not yours.",
   failureMessage: "Something went wrong. Try again later.",
+  offeringMissingLabel: "Offering no longer exists",
 };
 
 function offering(ulid: string, name: string): OfferingDetail {
@@ -176,5 +177,32 @@ describe("EvaluationsList (spec: My evaluations list)", () => {
         "Alpha",
       ]),
     );
+  });
+});
+
+describe("EvaluationsList: an evaluation of a deleted offering (design.md D17; tasks 12.4)", () => {
+  it("requests offerings only for the non-null ids and renders the null row without one", async () => {
+    const orphan: EvaluationItem = {
+      ulid: "01JEVAL4",
+      offeringId: null,
+      status: "open",
+      cuppingScore: null,
+      createdAt: "2026-10-07T09:00:00Z",
+      closedAt: null,
+    };
+    listMyEvaluations.mockResolvedValue(page([orphan, ...ITEMS]));
+    render(<EvaluationsList locale="en" texts={TEXTS} />);
+    const headings = await screen.findAllByRole("heading", { level: 3 });
+    expect(headings.map((heading) => heading.textContent)).toEqual([
+      "Offering no longer exists",
+      "Beta",
+      "Alpha",
+      "Alpha",
+    ]);
+    expect(fetchOffering).toHaveBeenCalledTimes(2);
+    expect(fetchOffering).toHaveBeenCalledWith("01JOFFERA");
+    expect(fetchOffering).toHaveBeenCalledWith("01JOFFERB");
+    expect(fetchOffering).not.toHaveBeenCalledWith(null);
+    expect(fetchOffering).not.toHaveBeenCalledWith("");
   });
 });

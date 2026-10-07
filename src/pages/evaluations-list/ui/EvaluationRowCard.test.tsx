@@ -35,6 +35,7 @@ const TEXTS: EvaluationRowTexts = {
   deleteCancelLabel: "Cancel",
   notYoursMessage: "This evaluation is not yours.",
   failureMessage: "Something went wrong. Try again later.",
+  offeringMissingLabel: "Offering no longer exists",
 };
 
 const OFFERING: OfferingDetail = {
@@ -139,5 +140,45 @@ describe("EvaluationRowCard (design.md card field mapping)", () => {
     renderRow(CLOSED);
     const closedFooter = screen.getByRole("button", { name: "View" }).parentElement as HTMLElement;
     expect(footerActions(closedFooter)).toEqual(["View", "Delete"]);
+  });
+});
+
+describe("EvaluationRowCard: an evaluation of a deleted offering (design.md D17; tasks 12.4)", () => {
+  function renderOrphan(evaluation: EvaluationItem) {
+    return render(
+      <EvaluationRowCard
+        evaluation={{ ...evaluation, offeringId: null }}
+        offering={null}
+        locale="en"
+        texts={TEXTS}
+        onDeleted={vi.fn()}
+      />,
+    );
+  }
+
+  it("shows the message in place of the coffee name and no captions, keeping status and date", () => {
+    renderOrphan(OPEN);
+    expect(screen.getByRole("heading", { level: 3 }).textContent).toBe("Offering no longer exists");
+    expect(screen.queryByText(/^Coffeeshop:/)).toBeNull();
+    expect(screen.queryByText(/^Roaster:/)).toBeNull();
+    expect(screen.getByText("Open")).toBeDefined();
+    expect(screen.getByText("Created on", { exact: false }).textContent).toBe(
+      "Created on 2026-10-06",
+    );
+  });
+
+  it("offers View and Delete and no Edit on an open row, View opening the form route", () => {
+    renderOrphan(OPEN);
+    expect(screen.queryByRole("button", { name: "Edit" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Delete" })).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: "View" }));
+    expect(push).toHaveBeenCalledWith(`/en/manage/evaluations/${OPEN.ulid}`);
+  });
+
+  it("keeps the score row of a closed row", () => {
+    renderOrphan(CLOSED);
+    expect(screen.getByText("84.25").className).toContain("type-score");
+    expect(screen.getByText("/100")).toBeDefined();
+    expect(screen.getByRole("button", { name: "View" })).toBeDefined();
   });
 });
