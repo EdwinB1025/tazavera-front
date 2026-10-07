@@ -27,10 +27,10 @@ None. The evaluations list host's filtered empty state and result announcement a
 ## Impact
 
 - **Routes:** `app/[locale]/@sidebar/manage/evaluations/page.tsx` (new, in the `@sidebar` slot of `add-sidebar-slot`).
-- **Code:** a new `src/features/evaluation-facets` slice; a sidebar screen in `src/pages/evaluations-list`; the evaluations list screen and its route file (from `add-specialist-evaluations`); `src/shared/lib/filter-query` (URL writes), the `GET /coffees` read in `src/shared/api` and the `FiltersTrigger` in `src/shared/ui`, each shared with `add-offering-facets` and created by whichever change applies first; `messages/{es,en,ca}/filters.json` and `evaluations.json`.
+- **Code:** a new `src/features/evaluation-facets` slice; a sidebar screen in `src/pages/evaluations-list`; the evaluations list screen and its route file (from `add-specialist-evaluations`); `src/shared/lib/filter-query` (URL writes), the `GET /coffees` read in `src/shared/api` and the `FiltersTrigger` in `src/shared/ui`, all reused unchanged from `develop` (`add-offering-facets`); the filtered empty state's "Clear all" is the shared `ClearFiltersButton` of `src/shared/ui` (`extract-clear-filters-button`, backlog R9), with no copy in this change; `messages/{es,en,ca}/filters.json` and `evaluations.json`.
 - **API contract** (read-only): `listMyEvaluations` receives the query the facets write (fetched by the list on the client with the session token); `listCoffees` feeds the Process options (fetched on the server).
 - **Dependencies:** none new. The combobox dependency of `add-facet-controls` (`cmdk`) is not used here.
-- **Apply preconditions:** `add-sidebar-slot`, `add-facet-controls` and `add-specialist-evaluations` merged into `develop`, and `develop` merged into `feature/add-evaluation-facets`.
+- **Apply preconditions:** `extract-clear-filters-button` merged into `develop` (the earlier parts and `add-specialist-evaluations` already are), and `develop` merged into `feature/add-evaluation-facets` after it.
 
 ## Non-goals
 
