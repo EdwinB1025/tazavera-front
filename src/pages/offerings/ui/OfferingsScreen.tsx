@@ -1,18 +1,9 @@
-import { Suspense, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { getMessages } from "@/shared/lib/i18n";
 import { PageSection } from "@/shared/ui";
 import {
-  ClearFiltersButton,
-  hasOfferingFilters,
-  parseOfferingFilters,
-  sanitizeOfferingQuery,
-} from "@/features/offering-facets";
-import {
-  CATALOG_GRID_CLASSES,
-  OfferingSkeletonCard,
-  Offerings,
-  buildOfferingsQuery,
-  type OfferingListTexts,
+  FilteredOfferingsResults,
+  type FilteredOfferingsResultsTexts,
   type OfferingsQuery,
 } from "@/widgets/offering-list";
 
@@ -29,9 +20,6 @@ export type OfferingsScreenProps = {
   toolbar?: ReactNode;
 };
 
-// Placeholder cards rendered while the list loads (spec "Loading").
-const SKELETON_CARD_KEYS = [0, 1, 2] as const;
-
 // The heading block and the toolbar region, 2rem apart; an empty region
 // renders nothing and so adds no gap (design summary §6.2).
 const HEADER_CONTAINER_CLASSES = ["flex", "flex-col", "gap-8"].join(" ");
@@ -41,11 +29,10 @@ const HEADING_BLOCK_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
 
 /**
  * Catalog screen (add-offering-catalog design.md D8–D10; specs "Offering
- * catalog page", "Catalog heading and toolbar slot"). A thin composition: it
- * loads the `catalog` and `landing` texts of the route's locale, keeps the
- * contract's query names of the address, and renders the heading block, the
- * toolbar region and the query-driven list inside a `Suspense` boundary whose
- * fallback is the skeleton cards in the catalog column, on the page background.
+ * catalog page", "Catalog heading and toolbar slot"; extract-filtered-offerings
+ * design.md D5). A thin composition: it loads the `catalog`, `landing` and
+ * `filters` texts of the route's locale and renders the heading block, the
+ * toolbar region and the filtered offerings results, on the page background.
  */
 export function OfferingsScreen({
   locale,
@@ -55,12 +42,8 @@ export function OfferingsScreen({
   const catalog = getMessages("catalog", locale);
   const landing = getMessages("landing", locale);
   const filters = getMessages("filters", locale);
-  // The kept query with out-of-limit facet values dropped (add-offering-facets
-  // design.md D4, D9); the request and the pagination carry the same keys.
-  const query = sanitizeOfferingQuery(buildOfferingsQuery(searchParams));
-  const filtered = hasOfferingFilters(parseOfferingFilters(searchParams));
 
-  const listTexts: OfferingListTexts = {
+  const resultsTexts: FilteredOfferingsResultsTexts = {
     coffeeshopCaption: landing.cardCoffeeshopCaption,
     roasterCaption: landing.cardRoasterCaption,
     evaluationsLabel: landing.cardEvaluationsLabel,
@@ -77,10 +60,12 @@ export function OfferingsScreen({
     nextLabel: landing.paginationNextLabel,
     navigationLabel: landing.paginationNavigationLabel,
     pageLabel: landing.paginationPageLabel,
-    emptyMessage: filtered ? filters.noMatches : catalog.listEmptyMessage,
+    emptyMessage: catalog.listEmptyMessage,
     resultCount: catalog.resultCount,
     errorMessage: catalog.listErrorMessage,
     retryLabel: landing.listRetryLabel,
+    noMatches: filters.noMatches,
+    clearAll: filters.clearAll,
   };
 
   return (
@@ -93,28 +78,12 @@ export function OfferingsScreen({
         {toolbar ? <div>{toolbar}</div> : null}
       </PageSection>
       <PageSection surface="page">
-        <Suspense
-          fallback={
-            <div className="@container">
-              <div className={CATALOG_GRID_CLASSES}>
-                {SKELETON_CARD_KEYS.map((key) => (
-                  <OfferingSkeletonCard key={key} />
-                ))}
-              </div>
-            </div>
-          }
-        >
-          <Offerings
-            locale={locale}
-            query={query}
-            texts={listTexts}
-            path={`/${locale}/offerings`}
-            gridClassName={CATALOG_GRID_CLASSES}
-            emptyAction={
-              filtered ? <ClearFiltersButton label={filters.clearAll} /> : undefined
-            }
-          />
-        </Suspense>
+        <FilteredOfferingsResults
+          locale={locale}
+          searchParams={searchParams}
+          path={`/${locale}/offerings`}
+          texts={resultsTexts}
+        />
       </PageSection>
     </div>
   );

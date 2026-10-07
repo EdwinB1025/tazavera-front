@@ -46,5 +46,14 @@
   "forgotPasswordLink": "¿Olvidaste tu contraseña?",
   "newPasswordLabel": "Nueva contraseña",
   "currentPasswordLabel": "Contraseña actual",
-  "passwordUpdated": "Contraseña cambiada"
+  "passwordUpdated": "Contraseña cambiada",
+  "contactHeading": "Datos de contacto",
+  "contactDescription": "Tu información de contacto personal.",
+  "contactEmptyText": "Aún no has añadido tus datos de contacto.",
+  "contactAddButton": "Agregar datos de contacto",
+  "contactLoadError": "No se pudieron cargar tus datos de contacto.",
+  "retry": "Reintentar",
+  "contactSaved": "Datos de contacto guardados",
+  "contactExists": "Ya tienes datos de contacto guardados.",
+  "urlFormatError": "Introduce una URL válida."
 }

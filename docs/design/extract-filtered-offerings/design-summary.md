@@ -119,3 +119,18 @@ None. Every point is settled by the catalog and facet artifacts, AGENTS.md (plac
 - Drafted from backlog R12, `feature/add-offering-catalog` (`337447b`), `feature/add-offering-facets` (`360c5bc`, no code yet), `develop` and the directory summary.
 - Settled: placement in `widgets/offering-list` instead of a new `widgets/filtered-offerings` slice (a new widget would import two other widgets, against AGENTS.md); three compositions (toolbar, results, facets) because the catalog places the toolbar in its header `PageSection` and the results in another, and the directory places both in a tab panel; `fixedQuery` overrides the sanitized URL query; the `AppSidebar` frame and the heading block stay in the pages; one ADDED `offering-catalog` requirement; no visible change.
 - Proposed change-id `extract-filtered-offerings`.
+
+## Propose status
+
+- **Change-id:** `extract-filtered-offerings` (branch `feature/extract-filtered-offerings`, propose on `claude/extract-filtered-offerings-propose`).
+- **Date:** 2026-10-07.
+- **`openspec validate extract-filtered-offerings --strict`:** valid.
+- **Backlog:** resolves **R12** (remove its entry when this change is archived).
+- **Capability:** `offering-catalog` — one ADDED requirement, "Filtered offerings scoped by a host" (§3.4).
+- **Resolved at propose (design.md):**
+  - Sidebar page slice location (§2): `src/pages/offerings-sidebar`, as `add-offering-facets` merged it. `OfferingsSidebar` is removed; `OfferingsSidebarScreen` becomes the sync `AppSidebar` frame around `FilteredOfferingsFacets` (D5).
+  - Toolbar wiring (§3.1, §4): the merged code fills the toolbar region through `OfferingsScreen`'s `toolbar` prop with `OfferingsToolbarScreen` from the route file. `OfferingsToolbarScreen` stays as the sync thin caller of `FilteredOfferingsToolbar`, so `app/[locale]/offerings/page.tsx` is unchanged (D5). `FilteredOfferingsToolbar` also takes `locale` (the applied count resolves taste-note names by locale today) (D2).
+  - Results texts (§3.2): `FilteredOfferingsResultsTexts = OfferingListTexts & { noMatches; clearAll }`; `resultCount` is already in `OfferingListTexts` (D3).
+  - "Clear all" (§4): the feature `ClearFiltersButton` with `label` only, as on `develop` `8f1e416`; the shared one if R9 merges first (D6). Overlap with `extract-clear-filters-button` recorded as design.md Risk 1, with the "second to merge keeps the other's edit" rule.
+- **Open (for Product owner; does not block this change):**
+  1. §3.2 states pagination "keeps every query key of the URL (`tab` included for the directory), as it does today". In the code, `Offerings` pages with its request query, restricted by `buildOfferingsQuery` to contract names plus `page`, so `tab` is dropped from the page links. This change keeps today's behaviour (no visible change). The directory's "Ofertas" tab needs `tab` kept (directory summary §5); a mechanism (for example an optional query for the pagination on `FilteredOfferingsResults`) must be decided before `add-coffeeshop-directory` applies (design.md Risk 2).

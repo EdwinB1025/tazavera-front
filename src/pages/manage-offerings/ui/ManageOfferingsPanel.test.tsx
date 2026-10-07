@@ -190,6 +190,7 @@ describe("ManageOfferingsPanel — header (design.md D6)", () => {
     renderPanel();
 
     fireEvent.click(screen.getByRole("button", { name: TEXTS.signInLabel }));
+    expect(mocks.signIn).toHaveBeenCalledTimes(1);
     expect(mocks.signIn).toHaveBeenCalledWith("/en/manage/offerings");
   });
 
@@ -200,7 +201,7 @@ describe("ManageOfferingsPanel — header (design.md D6)", () => {
     };
     renderPanel();
 
-    expect(mocks.notFound).toHaveBeenCalled();
+    expect(mocks.notFound).toHaveBeenCalledTimes(1);
     expect(mocks.publicRequest).not.toHaveBeenCalled();
   });
 

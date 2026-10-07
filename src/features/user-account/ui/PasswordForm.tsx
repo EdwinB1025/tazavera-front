@@ -3,14 +3,20 @@
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import { request } from "@/shared/api";
 import type { PasswordUpdatePayload } from "@/shared/api";
-import { Button, Field, PasswordInput } from "@/shared/ui";
+import {
+  Button,
+  Field,
+  PasswordInput,
+  FormStatus,
+  StepUpNotice,
+} from "@/shared/ui";
 import { ExternalLink } from "./ExternalLink";
-import { FormStatus } from "./FormStatus";
-import { StepUpNotice, type StepUpNoticeTexts } from "./StepUpNotice";
 
 // ─── UI-specific types (declared before the component) ───
 
-export type PasswordFormTexts = StepUpNoticeTexts & {
+export type PasswordFormTexts = {
+  stepUpText: string;
+  stepUpButton: string;
   currentPasswordLabel: string;
   newPasswordLabel: string;
   passwordConfirmationLabel: string;
@@ -203,9 +209,9 @@ export function PasswordForm({
       )}
       {outcome === "stepUp" && (
         <StepUpNotice
-          locale={locale}
-          texts={texts}
-          requestProfileWrite={requestProfileWrite}
+          text={texts.stepUpText}
+          actionLabel={texts.stepUpButton}
+          onConfirm={() => requestProfileWrite(`/${locale}/account`)}
         />
       )}
       <div className="flex flex-wrap gap-3">
