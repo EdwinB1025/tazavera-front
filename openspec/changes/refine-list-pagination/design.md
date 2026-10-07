@@ -12,7 +12,7 @@ Current state:
   - catalog (`feature/add-offering-catalog`): the same `OfferingList` with `path`/`query`, texts from `src/pages/offerings/ui/OfferingsScreen.tsx` (`landing` keys);
   - "My offerings" (`feature/add-offering-management`): `src/pages/manage-offerings/ui/ManageOfferingsPanel.tsx`, texts from `ManageOfferingsScreen.tsx` (`landing` keys);
   - "My evaluations" (`feature/add-specialist-evaluations`): `src/pages/evaluations-list/ui/EvaluationsList.tsx`, texts from `EvaluationsListScreen.tsx` (`evaluations` keys `previousLabel` / `nextLabel`); it renders the paginator only when `last_page > 1` (kept).
-- Landing fetch: `fetchVerifiedOfferings(page)` in `src/widgets/offering-list/api/offerings.ts`; on `feature/add-offering-catalog` it delegates to `fetchOfferings({ verified: "1", page })`, which appends the query in key order.
+- Landing fetch: `VerifiedOfferings` passes `{ verified: "1", page }` to `Offerings`, which calls `fetchOfferings` in `src/widgets/offering-list/api/offerings.ts`; it appends the query in key order. (`fetchVerifiedOfferings(page)` in the same file has no caller outside its test.)
 - `src/shared/ui/icons.ts` exports `ChevronRight` but not `ChevronLeft`.
 
 Constraint: three hosts live on unmerged branches. **This change's apply runs after `add-offering-catalog`, `add-offering-management` and `add-specialist-evaluations` are merged into `develop` and `develop` into `feature/refine-list-pagination`** (design summary §8), so the new required texts reach all four hosts in one change. File paths below are those of the merged tree.
@@ -119,7 +119,7 @@ Mapping in each screen: `navigationLabel ← paginationNavigationLabel`, `pageLa
 
 ### D8 — Landing page size (design summary §5, Open 1 A)
 
-`fetchVerifiedOfferings(page)` requests `GET {NEXT_PUBLIC_API_URL}/offerings?verified=1&page={page}&perPage=6` (key order `verified`, `page`, `perPage`), through `fetchOfferings` with a module constant `LANDING_PAGE_SIZE = 6`. It applies at every width (server render; the API page is fixed). `meta.current_page` / `meta.last_page` then reflect pages of 6. Grid, skeleton fallback (3 cards) and states are unchanged. `perPage` is not in `contracts/openapi.yaml`: it is accepted by the API (standard 15, maximum 50) and communicated by Product owner (decisions log 2026-10-07); the API's `links` URLs drop it, which does not matter because the numbers come from `current_page` / `last_page` (D2). No other list sends `perPage`.
+`VerifiedOfferings` passes `{ verified: "1", page, perPage: String(LANDING_PAGE_SIZE) }` to `Offerings`, which requests `GET {NEXT_PUBLIC_API_URL}/offerings?verified=1&page={page}&perPage=6` (key order `verified`, `page`, `perPage`) through `fetchOfferings`; `LANDING_PAGE_SIZE = 6` is exported from `src/widgets/offering-list/api/offerings.ts` (unplanned fix F1, `65ca95a`). It applies at every width (server render; the API page is fixed). `meta.current_page` / `meta.last_page` then reflect pages of 6. Grid, skeleton fallback (3 cards) and states are unchanged. `perPage` is not in `contracts/openapi.yaml`: it is accepted by the API (standard 15, maximum 50) and communicated by Product owner (decisions log 2026-10-07); the API's `links` URLs drop it, which does not matter because the numbers come from `current_page` / `last_page` (D2). No other list sends `perPage`.
 
 ### D9 — API endpoints consumed and error presentation
 
