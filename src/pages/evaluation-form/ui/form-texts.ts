@@ -38,6 +38,7 @@ export function formTextsFrom(catalog: MessageCatalog): EvaluationFormTexts {
       roastLevelRequired: catalog.roastLevelRequired,
     },
     fragranceNotEvaluatedLabel: catalog.fragranceNotEvaluatedLabel,
+    offeringMissingLabel: catalog.offeringMissingLabel,
     legend: {
       title: catalog.legendTitle,
       labels: [

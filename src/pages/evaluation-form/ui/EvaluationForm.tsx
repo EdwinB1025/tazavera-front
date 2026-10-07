@@ -73,6 +73,8 @@ export type EvaluationFormTexts = {
   };
   /** The option of design.md D9. */
   fragranceNotEvaluatedLabel: string;
+  /** Shown in place of the offering when it was deleted (design.md D17). */
+  offeringMissingLabel: string;
   /** The 1–9 legend (design.md D16). */
   legend: ScaleLegendTexts;
   /** The legends of the four descriptor blocks. */
@@ -82,7 +84,8 @@ export type EvaluationFormTexts = {
 
 export type EvaluationFormProps = {
   locale: string;
-  offering: OfferingDetail;
+  /** The evaluation's offering; `null` once it was deleted (design.md D17). */
+  offering: OfferingDetail | null;
   /** The `GET /taxonomies` tree the descriptor blocks filter (design.md D7). */
   taxonomies: TaxonomyNode[];
   texts: EvaluationFormTexts;
@@ -99,11 +102,11 @@ const CONTEXT_FIELDS_CLASSES = ["grid", "gap-4", "md:grid-cols-2", "md:gap-6"].j
 const GROUPS_CLASSES = ["flex", "flex-col", "gap-4"].join(" ");
 
 function initialState(
-  offering: OfferingDetail,
+  offering: OfferingDetail | null,
   evaluation: EvaluationItem | undefined,
 ): EvaluationFormState {
   // The read carries no roast level: the offering's prefills it (design.md D11).
-  const roastLevel = toRoastLevel(offering.coffeeInventory?.coffee?.roastLevel);
+  const roastLevel = toRoastLevel(offering?.coffeeInventory?.coffee?.roastLevel);
   return evaluation ? formStateFromEvaluation(evaluation, roastLevel) : emptyFormState(roastLevel);
 }
 
@@ -137,20 +140,22 @@ export function EvaluationForm({
   const [busy, setBusy] = useState<FormBusy>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [roastLevelMissing, setRoastLevelMissing] = useState(false);
-  const [closed, setClosed] = useState(evaluation?.status === "closed");
+  // Without its offering the evaluation can be neither updated nor closed:
+  // it opens read-only, as a closed one (design.md D17).
+  const [closed, setClosed] = useState(evaluation?.status === "closed" || offering === null);
   const [highlighted, setHighlighted] = useState(false);
   // Every group starts collapsed when editable and expanded when closed
   // (design.md D15).
   const [openGroups, setOpenGroups] = useState<Record<GroupKey, boolean>>(() =>
-    allGroups(evaluation?.status === "closed"),
+    allGroups(closed),
   );
   // The 1–9 legend follows the groups' initial-state rule (design.md D16).
-  const [legendOpen, setLegendOpen] = useState(evaluation?.status === "closed");
+  const [legendOpen, setLegendOpen] = useState(closed);
   const readOnly = closed;
   const completeness = completenessOf(state);
-  const coffeeshopCaption = `${texts.coffeeshopCaption} ${offering.location?.name ?? ""}`.trim();
+  const coffeeshopCaption = `${texts.coffeeshopCaption} ${offering?.location?.name ?? ""}`.trim();
   const roasterCaption =
-    `${texts.roasterCaption} ${offering.coffeeInventory?.roastery?.name ?? ""}`.trim();
+    `${texts.roasterCaption} ${offering?.coffeeInventory?.roastery?.name ?? ""}`.trim();
   // A stored method outside the nine is shown as-is and sent back unchanged
   // (design.md D12).
   const storedMethod = state.extractionMethod;
@@ -184,7 +189,7 @@ export function EvaluationForm({
     const sendable = { ...state, roastLevel };
     const result: EvaluationCallResult<{ ulid?: string }> = ulid
       ? await updateAnEvaluation(ulid, buildUpdateBody(sendable))
-      : await createAnEvaluation(buildCreateBody(sendable, offering.ulid ?? ""));
+      : await createAnEvaluation(buildCreateBody(sendable, offering?.ulid ?? ""));
     if (!result.ok) {
       setMessage(failureFor(result.status, texts.actions.alreadyClosedMessage));
       return null;
@@ -247,39 +252,46 @@ export function EvaluationForm({
           {texts.backLabel}
         </Link>
         <p className="type-eyebrow mt-4">{texts.eyebrow}</p>
-        <h1 className="type-heading mt-4">{offering.coffeeInventory?.coffee?.name}</h1>
-        <div className={CAPTIONS_CLASSES}>
-          <p className="type-label">{coffeeshopCaption}</p>
-          <p className="type-label">{roasterCaption}</p>
-        </div>
+        <h1 className="type-heading mt-4">
+          {offering ? offering.coffeeInventory?.coffee?.name : texts.offeringMissingLabel}
+        </h1>
+        {offering ? (
+          <div className={CAPTIONS_CLASSES}>
+            <p className="type-label">{coffeeshopCaption}</p>
+            <p className="type-label">{roasterCaption}</p>
+          </div>
+        ) : null}
       </div>
       <Card layout="stacked">
         <CardContent className={CONTEXT_FIELDS_CLASSES}>
-          <Field
-            label={texts.roastLevelLabel}
-            required
-            error={roastLevelMissing ? texts.actions.roastLevelRequired : undefined}
-          >
-            <Select
-              value={state.roastLevel ?? ""}
-              disabled={readOnly}
-              onChange={(event) =>
-                setState((current) => ({
-                  ...current,
-                  roastLevel: toRoastLevel(event.target.value),
-                }))
-              }
+          {/* The roast level comes from the offering's coffee (design.md D11, D17). */}
+          {offering ? (
+            <Field
+              label={texts.roastLevelLabel}
+              required
+              error={roastLevelMissing ? texts.actions.roastLevelRequired : undefined}
             >
-              {state.roastLevel === null ? (
-                <option value="">{texts.roastLevelPlaceholder}</option>
-              ) : null}
-              {ROAST_LEVELS.map((level) => (
-                <option key={level} value={level}>
-                  {level}
-                </option>
-              ))}
-            </Select>
-          </Field>
+              <Select
+                value={state.roastLevel ?? ""}
+                disabled={readOnly}
+                onChange={(event) =>
+                  setState((current) => ({
+                    ...current,
+                    roastLevel: toRoastLevel(event.target.value),
+                  }))
+                }
+              >
+                {state.roastLevel === null ? (
+                  <option value="">{texts.roastLevelPlaceholder}</option>
+                ) : null}
+                {ROAST_LEVELS.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+          ) : null}
           <Field label={texts.extractionMethodLabel}>
             <Select
               value={storedMethod ?? ""}

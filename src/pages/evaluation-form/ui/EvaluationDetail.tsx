@@ -31,7 +31,7 @@ type DetailState =
   | { state: "loading" }
   | { state: "not-found" }
   | { state: "error" }
-  | { state: "success"; evaluation: EvaluationItem; offering: OfferingDetail };
+  | { state: "success"; evaluation: EvaluationItem; offering: OfferingDetail | null };
 
 const PLACEHOLDER_CLASSES = ["animate-pulse", "bg-surface-section", "rounded-field"].join(" ");
 
@@ -40,6 +40,10 @@ async function loadDetail(ulid: string): Promise<DetailState> {
   const result = await getMyEvaluation(ulid);
   if (!result.ok) {
     return result.status === 404 ? { state: "not-found" } : { state: "error" };
+  }
+  // A `null` id is a deleted offering: nothing to request (design.md D17).
+  if (result.data.offeringId === null) {
+    return { state: "success", evaluation: result.data, offering: null };
   }
   const offering = await fetchOffering(result.data.offeringId ?? "");
   return offering.status === "found"
