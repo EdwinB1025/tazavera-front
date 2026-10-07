@@ -133,3 +133,20 @@ describe("EvaluationDetail (design.md D1)", () => {
     expect(await screen.findByText("This evaluation could not be loaded.")).toBeDefined();
   });
 });
+
+describe("EvaluationDetail: an evaluation of a deleted offering (design.md D17; tasks 12.6)", () => {
+  it("requests no offering and renders the form read-only with the message as its heading", async () => {
+    getMyEvaluation.mockResolvedValue({
+      ok: true,
+      status: 200,
+      data: { ...OPEN_EVALUATION, offeringId: null },
+    });
+    renderDetail();
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "Offering no longer exists" }),
+    ).toBeDefined();
+    expect(fetchOffering).not.toHaveBeenCalled();
+    expect(screen.queryAllByRole("slider")).toHaveLength(0);
+    expect(screen.queryByRole("button", { name: "Save draft" })).toBeNull();
+  });
+});

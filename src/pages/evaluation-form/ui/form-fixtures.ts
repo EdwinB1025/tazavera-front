@@ -39,6 +39,7 @@ export const FORM_TEXTS: EvaluationFormTexts = {
     roastLevelRequired: "Choose the roast level.",
   },
   fragranceNotEvaluatedLabel: "Fragrance not evaluated — use aroma values",
+  offeringMissingLabel: "Offering no longer exists",
   legend: {
     title: "Affective quality impression",
     labels: [

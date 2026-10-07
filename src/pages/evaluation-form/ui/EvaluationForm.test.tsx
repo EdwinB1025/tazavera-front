@@ -656,3 +656,47 @@ describe("EvaluationForm: the 1–9 legend (design.md D16; tasks 12.2)", () => {
     expect(legendHeader().getAttribute("aria-expanded")).toBe("true");
   });
 });
+
+describe("EvaluationForm: an evaluation of a deleted offering (design.md D17; tasks 12.6)", () => {
+  const ORPHAN = { ...OPEN_EVALUATION, offeringId: null };
+
+  function renderOrphan() {
+    return renderForm({ offering: null, evaluation: ORPHAN });
+  }
+
+  it("keeps the back link and the eyebrow and shows the message as the heading, with no captions", () => {
+    renderOrphan();
+    expect(screen.getByRole("link", { name: "My evaluations" })).toBeDefined();
+    expect(screen.getByText("Evaluation")).toBeDefined();
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Offering no longer exists");
+    expect(screen.queryByText(/^Coffeeshop:/)).toBeNull();
+    expect(screen.queryByText(/^Roaster:/)).toBeNull();
+  });
+
+  it("drops the roast level and keeps the stored extraction method, disabled", () => {
+    renderOrphan();
+    expect(screen.queryByLabelText(/Roast level/)).toBeNull();
+    const extraction = screen.getByLabelText(/Extraction method/) as HTMLSelectElement;
+    expect(extraction.value).toBe("chemex");
+    expect(extraction.disabled).toBe(true);
+  });
+
+  it("is read-only with no save, close or note action", () => {
+    renderOrphan();
+    expect(screen.queryAllByRole("slider")).toHaveLength(0);
+    expect(screen.getAllByRole("meter")).toHaveLength(15);
+    for (const name of ["Add note", "Remove note", "Save draft", "Close evaluation"]) {
+      expect(screen.queryAllByRole("button", { name: new RegExp(`^${name}`) })).toHaveLength(0);
+    }
+  });
+
+  it("expands every group and the legend", () => {
+    const { container } = renderOrphan();
+    const headers = Array.from(container.querySelectorAll("[data-group] h3 > button"));
+    expect(headers).toHaveLength(8);
+    for (const header of headers) expect(header.getAttribute("aria-expanded")).toBe("true");
+    expect(
+      screen.getByRole("button", { name: "Affective quality impression" }).getAttribute("aria-expanded"),
+    ).toBe("true");
+  });
+});
