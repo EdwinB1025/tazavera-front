@@ -16,6 +16,9 @@ import {
   BeanScale,
   Card,
   CardContent,
+  Collapsible,
+  CollapsibleBody,
+  CollapsibleHeader,
   DescriptorChipGroup,
   FlavorWheel,
   LabelValueRow,
@@ -66,6 +69,8 @@ export type ConsensusPanelTexts = {
   /** The wheel's general group legend name and the aromatics group (D19). */
   wheelGroupsLabel: string;
   wheelGroupAromatics: string;
+  /** The heading of the detail by axis (D18). */
+  detailAxesHeading: string;
 };
 
 export type ConsensusPanelProps = {
@@ -137,6 +142,30 @@ const LEGEND_CLASSES = [
   "md:w-56",
   "md:shrink-0",
   "break-words",
+].join(" ");
+
+// The detail by axis (design.md D18): the sensory axes in order, with the
+// label key of each and the taxonomy category its descriptor rows come from.
+const AXES = [
+  ["fragrance", "attrFragrance", "aromatics"],
+  ["aroma", "attrAroma", "aromatics"],
+  ["flavor", "attrFlavor", "aromatics"],
+  ["aftertaste", "attrAftertaste", "aromatics"],
+  ["mouthfeel", "attrMouthfeel", "mouthfeel"],
+] as const;
+
+// The axis sections, stacked.
+const AXIS_SECTIONS_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
+
+// An axis body: the selection and its legend beside it from `md`, as in the
+// selection blocks (D13).
+const AXIS_BODY_CLASSES = [
+  "flex",
+  "flex-col",
+  "gap-4",
+  "p-2",
+  "md:flex-row",
+  "md:gap-6",
 ].join(" ");
 
 /** One line of a consensus legend: a note's name and its count. */
@@ -234,9 +263,12 @@ export function ConsensusPanel({
   // Main tastes and Defects (design.md D13): the identified notes of one
   // `type` as a read-only selection over the category's descriptor rows, and
   // the consensus legend beside the card, in card order.
-  function selectionBlock(category: string, heading: string): ReactNode {
-    const rows = buildDescriptorRows(taxonomies, category, locale);
-    const counts = identifiedCounts(offering.cataConcordance ?? [], category);
+  // The consensus legend of a selection (design.md D13): one meta line per
+  // shown note, in card order; nothing when no shown note was identified.
+  function consensusLegend(
+    rows: ReturnType<typeof buildDescriptorRows>,
+    counts: Map<string, number>,
+  ): ReactNode {
     const legend: ConsensusLegendEntry[] = rows
       .flatMap((row) => row.options)
       .filter((option) => counts.has(option.value))
@@ -244,6 +276,26 @@ export function ConsensusPanel({
         label: option.label,
         count: counts.get(option.value) ?? 0,
       }));
+    if (legend.length === 0) {
+      return null;
+    }
+    return (
+      <ul className={LEGEND_CLASSES}>
+        {legend.map((entry) => {
+          const line = `${entry.label} ${entry.count}/${total}`;
+          return (
+            <li key={entry.label} className="type-meta">
+              {line}
+            </li>
+          );
+        })}
+      </ul>
+    );
+  }
+
+  function selectionBlock(category: string, heading: string): ReactNode {
+    const rows = buildDescriptorRows(taxonomies, category, locale);
+    const counts = identifiedCounts(offering.cataConcordance ?? [], category);
     return (
       <div className={SELECTION_BLOCK_CLASSES}>
         <Card layout="stacked" className="flex-1">
@@ -258,19 +310,41 @@ export function ConsensusPanel({
             />
           </CardContent>
         </Card>
-        {legend.length > 0 ? (
-          <ul className={LEGEND_CLASSES}>
-            {legend.map((entry) => {
-              const line = `${entry.label} ${entry.count}/${total}`;
-              return (
-                <li key={entry.label} className="type-meta">
-                  {line}
-                </li>
-              );
-            })}
-          </ul>
-        ) : null}
+        {consensusLegend(rows, counts)}
       </div>
+    );
+  }
+
+  // The detail by axis (design.md D18): one collapsed section per sensory
+  // axis, its identified notes from `sensoryTaxonomy` over the descriptor rows
+  // of the axis's category, with the consensus legend beside them.
+  function axisSection([
+    axis,
+    labelKey,
+    category,
+  ]: (typeof AXES)[number]): ReactNode {
+    const rows = buildDescriptorRows(taxonomies, category, locale);
+    const counts = identifiedCounts(offering.sensoryTaxonomy ?? [], axis);
+    return (
+      <Collapsible key={axis}>
+        <CollapsibleHeader headingLevel={3}>
+          {texts[labelKey]}
+        </CollapsibleHeader>
+        <CollapsibleBody>
+          <div className={AXIS_BODY_CLASSES}>
+            <div className="min-w-0 flex-1">
+              <DescriptorChipGroup
+                readOnly
+                legend={texts[labelKey]}
+                rows={rows}
+                value={[...counts.keys()]}
+                emptyText={texts.detailTasteEmpty}
+              />
+            </div>
+            {consensusLegend(rows, counts)}
+          </div>
+        </CollapsibleBody>
+      </Collapsible>
     );
   }
 
@@ -383,6 +457,12 @@ export function ConsensusPanel({
             ) : (
               <p className="type-body">{texts.detailTasteEmpty}</p>
             )}
+          </CardContent>
+        </Card>
+        <Card layout="stacked" className={WIDE_CARD_CLASSES}>
+          <CardContent className={CONTENT_CLASSES}>
+            <h2 className="type-subheading">{texts.detailAxesHeading}</h2>
+            <div className={AXIS_SECTIONS_CLASSES}>{AXES.map(axisSection)}</div>
           </CardContent>
         </Card>
       </div>

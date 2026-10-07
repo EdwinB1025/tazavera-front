@@ -43,6 +43,7 @@
   "detailDefectsHeading": "Defectos",
   "detailTasteEmpty": "Sin datos de cata disponibles.",
   "detailCataHeading": "Concordancia CATA",
+  "detailAxesHeading": "Notas por atributo",
   "detailNotVerifiedMessage": "Esta oferta aún no está verificada.",
   "wheelLabel": "Rueda de sabores",
   "wheelHint": "Pasa el puntero o el foco por una nota para ver su descripción.",

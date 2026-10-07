@@ -120,6 +120,7 @@ export function OfferingDetailScreen({
     wheelNotesToggle: catalog.wheelNotesToggle,
     wheelGroupsLabel: catalog.wheelGroupsLabel,
     wheelGroupAromatics: catalog.wheelGroupAromatics,
+    detailAxesHeading: catalog.detailAxesHeading,
   };
 
   return (

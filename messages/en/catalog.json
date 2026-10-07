@@ -43,6 +43,7 @@
   "detailDefectsHeading": "Defects",
   "detailTasteEmpty": "No cupping data available.",
   "detailCataHeading": "CATA concordance",
+  "detailAxesHeading": "Notes by attribute",
   "detailNotVerifiedMessage": "This offering is not verified yet.",
   "wheelLabel": "Flavor wheel",
   "wheelHint": "Hover over or focus a note to see its description.",

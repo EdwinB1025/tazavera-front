@@ -43,6 +43,7 @@
   "detailDefectsHeading": "Defectes",
   "detailTasteEmpty": "Sense dades de tast disponibles.",
   "detailCataHeading": "Concordança CATA",
+  "detailAxesHeading": "Notes per atribut",
   "detailNotVerifiedMessage": "Aquesta oferta encara no està verificada.",
   "wheelLabel": "Roda de sabors",
   "wheelHint": "Passa el punter o el focus per una nota per veure'n la descripció.",
