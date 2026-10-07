@@ -7,7 +7,20 @@ Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`.
 - `AGENTS.md` y `.claude/workflow_sdd.md`: reglas y flujo de los agentes OpenCode.
 - El `handoff.md` y el `corrections.md` de cada cambio.
 
-**Actualizado:** 2026-10-07 12:15.
+**Actualizado:** 2026-10-07 15:30.
+
+## Al retomar (sesión cerrada el 7 oct ~15:30 para recargar permisos)
+
+- **Mergeado hoy en `develop`:** `add-user-account`, `refine-page-surfaces` (`2bc80ae`); contrato del API `PROD e84b444` en `develop` `3e5a97c` (`offeringId` nullable). API: hotfix `perPage` (`HasPagination`, estándar 15, máx. 50) en `dev` `b05aa73` y `PROD` `e84b444`, sin documentar en Scribe por decisión de Product owner.
+- **Rondas de adopción terminadas en la nube, pendientes de integrar** (revisado: orden test→feat correcto):
+  - `origin/claude/add-offering-management-round2` (`8168634`): checks + build en verde (1727 tests). Integrar con `--ff-only` en `tazavera-front-management`.
+  - `origin/claude/add-specialist-evaluations-round3` (`5dce169`): build verde; 1 timeout de 5 s en `EvaluationForm.test.tsx` (test lento bajo carga, ya visto antes; repetir el archivo solo). Candidato a cobertura no planificada (subir el timeout de ese archivo).
+  - `origin/claude/add-offering-catalog-round2` (`337447b`): sus checks no terminaron (sesión cerrada); repetir.
+  - Worktrees temporales `../tmp-check-mgmt`, `../tmp-check-evals`, `../tmp-check-catalog`: quitarlos con `git worktree remove` tras integrar.
+- **Después de integrar:** revisión visual del design lead (management con el mock; sus scripts están en el scratchpad de la sesión anterior; `cuppingAvg` del mock como string), archive y merge de catalog, evaluations y management.
+- **Proposes en la nube lanzados a las 13:18 UTC:** `add-user-contact` (`trig_01UgK6FpjWy4D8baJJN8xmBj`), `add-coffeeshop-location` (`trig_01K8QgWprMuLhzbqqdgvsrPL`), `add-coffeeshop-directory` (`trig_01AnsajgQHcMqw6r8WLregQc`); ramas `claude/<change-id>-propose`. Revisar e integrar.
+- **Pendiente de lanzar:** resúmenes de los refactors R9, R11, R12 y de la adopción de la tarjeta de sección en user-account (design lead); `refine-list-pagination` (renombrar el borrador `refine-offering-pagination`; Q1 resuelto con la opción A: `perPage=6` en la landing) → aprobación y propose.
+- **Permisos:** en Bash, `taskkill //PID` y `git merge` se deniegan aunque estén en `allow`; desde la herramienta PowerShell funcionan (`taskkill /PID n /T /F`). El `ask` global de `git merge` en `~/.claude/settings.json` es la causa de lo segundo.
 
 ## Revisión de la noche (6–7 oct) — para Product owner
 
