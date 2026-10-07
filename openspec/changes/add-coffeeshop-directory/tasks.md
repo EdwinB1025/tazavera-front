@@ -36,7 +36,7 @@ Each group is a vertical slice; its heading names the commit scope. Tests are co
 
 ## 7. Map library and entry point (offering-catalog)
 
-- [ ] 7.1 Install `leaflet@1.9.4` (`dependencies`) and `@types/leaflet@1.9.22` (`devDependencies`), pinned exactly (design.md D16). The commit (`feat(offering-catalog): add the leaflet map library`) changes only `package.json`, `package-lock.json` and the checkbox. Verification: `npm ls leaflet @types/leaflet` prints both versions; the usual checks pass.
+- [x] 7.1 Install `leaflet@1.9.4` (`dependencies`) and `@types/leaflet@1.9.22` (`devDependencies`), pinned exactly (design.md D16). The commit (`feat(offering-catalog): add the leaflet map library`) changes only `package.json`, `package-lock.json` and the checkbox. Verification: `npm ls leaflet @types/leaflet` prints both versions; the usual checks pass.
 - [ ] 7.2 Write `src/shared/lib/leaflet/leaflet-guard.test.ts` (design.md D16): fails when any `.ts`/`.tsx` file under `src/` other than `src/shared/lib/leaflet/index.ts` imports `leaflet` or a `leaflet/…` path (static, type-only, re-export or dynamic import); passes when the entry point is the only importer; asserts the entry point exists and imports `leaflet/dist/leaflet.css`. Verification: `npm run test:run` fails only on the entry-point assertions.
 - [ ] 7.3 Create `src/shared/lib/leaflet/index.ts` (imports the stylesheet once, re-exports Leaflet and the types the map uses). Verification: 7.2 passes; the usual checks pass.
 
