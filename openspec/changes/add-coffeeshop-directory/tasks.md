@@ -32,7 +32,7 @@ Each group is a vertical slice; its heading names the commit scope. Tests are co
 ## 6. Header entry (app-shell)
 
 - [x] 6.1 Update `src/widgets/app-header/ui/PrimaryNav.test.tsx` (design.md D15): the existing tests of "Primary navigation on a medium or larger viewport" and "Current page entry" change from two entries to three ("Top rated", "Explora coffees" → `/es/coffeeshops`, "About us"; `aria-current="page"` on `/es/coffeeshops`), their other assertions unchanged; no new test. Verification: `npm run test:run` fails only on these tests.
-- [ ] 6.2 Implement `PrimaryNavTexts.exploreCoffeeshops`, the shell wiring and `shell.exploreCoffeeshops` (es "Explora coffees", en "Explore coffee shops", ca "Explora cafeteries"). Verification: 6.1 passes; the usual checks pass.
+- [x] 6.2 Implement `PrimaryNavTexts.exploreCoffeeshops`, the shell wiring and `shell.exploreCoffeeshops` (es "Explora coffees", en "Explore coffee shops", ca "Explora cafeteries"). Verification: 6.1 passes; the usual checks pass.
 
 ## 7. Map library and entry point (offering-catalog)
 
