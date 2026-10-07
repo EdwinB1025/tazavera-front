@@ -162,7 +162,7 @@ Every text of the locations page — heading, intro, list and form states, group
 ### Requirement: Management sidebar entry
 The offerings list, offering creation and locations routes SHALL show two sidebar entries in this order, each with an icon and a visible label: "Manage offerings", addressing the list route, and "Manage locations", addressing `/{locale}/manage/locations`. "Manage offerings" SHALL be the current entry on the list and create routes, "Manage locations" on the locations route. The create route has no entry; it stays reachable from the list's "New offering" link and its empty-state link.
 
-#### Scenario: Two entries
+#### Scenario: One entry
 - **WHEN** a signed-in coffeeshop opens any coffee shop management route
 - **THEN** the sidebar shows the "Manage offerings" entry and then the "Manage locations" entry, each with its icon and label, and no "My offerings" or "New offering" entry
 
