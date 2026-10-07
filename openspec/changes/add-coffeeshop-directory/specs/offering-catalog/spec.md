@@ -226,7 +226,7 @@ The Offerings tab SHALL show the offerings of that coffee shop with the catalog'
 
 #### Scenario: Pagination stays on the detail
 - **WHEN** the visitor activates Next on the Offerings tab
-- **THEN** the following page opens at the same detail route with the filters kept
+- **THEN** the following page opens at the same detail route with the filters and the Offerings tab kept
 
 #### Scenario: States
 - **WHEN** the coffee shop's offerings are loading, empty, filtered to nothing or fail
