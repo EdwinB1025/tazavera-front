@@ -285,5 +285,9 @@ Contact field labels: the `contact` area proposed in `add-user-contact` Open 5. 
   - §8 two-column contact rows → this change adds an optional paired layout to `ContactFields` (design.md D12).
   - `LocationCard` takes the contact details as a slot, because `entities/location` cannot import `entities/contact` (design.md D9).
   - Sidebar → `ManagementSidebarEntries` gains `current` and `children`; the three page slices compose both entries (design.md D8).
-- **Open:** Open 5 (library, D5); `config.yaml` line (Open 1); the new `signedOutText` strings and the Catalan sidebar label `Administra les ubicacions` beside `Gestionar ofertes`; R11's and `add-user-contact`'s final names and props, checked by task 0.1.
+- **Artifact update 2026-10-07** (review message from the orchestrator under Product owner's mandate; decisions log "2026-10-07 — geocodificación propia y mandato de autonomía"; branch `claude/add-coffeeshop-location-geocoding`; `openspec validate add-coffeeshop-location --strict`: valid, same information line):
+  - Open 5 → closed with option (C): in-house `fetch` to Nominatim in `src/shared/lib/geocoding`, no new dependency; `leaflet-geosearch` rejected (free text only, no abort, no status check). design.md D5 rewritten as closed, its Open Questions entry removed; proposal.md's "pending Product owner" sentence aligned. tasks.md unchanged (2.1–2.2 already build the in-house body; no library task).
+  - en/ca drafts (`signedOutText`, `Administra les ubicacions`) → accepted as written; the Strings entry removed from design.md Open Questions.
+  - CSP `connect-src` for Nominatim → already approved (decisions log "contactos y locales"); no change.
+- **Open:** `config.yaml` line (Open 1); R11's and `add-user-contact`'s final names and props, checked by task 0.1.
 - **Backlog:** R11 affects this change; it runs before the apply and is not resolved by it.

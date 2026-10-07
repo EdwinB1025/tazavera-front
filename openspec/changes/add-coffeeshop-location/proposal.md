@@ -14,7 +14,7 @@ A signed-in coffeeshop cannot see or add its locations on the web, so the coffee
 - **Access gate** as the other management routes: loading status, signed-out message with "Sign in", the 404 page for another role.
 - **Sidebar**: the coffee shop management area shows two entries on all its routes, "Manage offerings" and "Manage locations", each marked current on its own routes. **This modifies** the single-entry requirement that `add-offering-management` introduces.
 - **Content-Security-Policy**: `connect-src` adds the Nominatim origin.
-- New message area `location-management` (es / en / ca); `MapPin`, `MapPinOff` and `Plus` join the shared icon entry point when not already there. No dependency is added: the geocoding library is a recorded proposal pending Product owner (design.md D5), and the tasks build the geocoding entry point without it.
+- New message area `location-management` (es / en / ca); `MapPin`, `MapPinOff` and `Plus` join the shared icon entry point when not already there. No dependency is added: the geocoding entry point is an in-house `fetch` to Nominatim (design.md D5).
 
 ## Capabilities
 

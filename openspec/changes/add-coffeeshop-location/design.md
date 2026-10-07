@@ -132,21 +132,16 @@ On submit: `validateLocationForm` (D7); a failure sets the field errors, focuses
 
 One alert region per surface (`add-offering-management` D5): the generic error and the step-up notice never render together.
 
-### D5. Geocoding entry point and the library decision (open, pending Product owner)
+### D5. Geocoding entry point (in-house, closed)
 
 `src/shared/lib/geocoding/index.ts` is the single entry point for geocoding (AGENTS.md: one entry point per external library or service). It exports `NOMINATIM_ORIGIN = "https://nominatim.openstreetmap.org"` and `geocodeAddress(query: GeocodeQuery, signal?: AbortSignal): Promise<GeocodeOutcome>`, which never throws: a 2xx array with an item → `found` with `[0].lat`/`[0].lon` as returned; a 2xx empty array → `not-found`; a non-2xx, a transport error, an abort or an unparsable body → `failed`. Callers depend only on this signature.
 
-**Body built by the tasks: in-house `fetch`** (summary option C), because a new dependency needs Product owner's approval and no task may depend on installing one. If Product owner approves a library, one later task replaces the body behind the same signature; no caller or caller test changes.
+**Body: in-house `fetch` to Nominatim** (summary Open 5, option C), with no new dependency. Closed by Product owner's mandate (decisions log "2026-10-07 — geocodificación propia y mandato de autonomía"). Rejected alternatives, as verified at propose (2026-10-07):
 
-**Decision proposal for Product owner (summary Open 5, still open):**
+- `leaflet-geosearch@4.4.0` `OpenStreetMapProvider` (https://registry.npmjs.org/leaflet-geosearch/latest): its public `search({ query })` takes free text only, fetches with no abort signal and parses the body without checking the status (`src/providers/provider.ts` of the 4.4.0 tarball); the entry point would still own the `fetch`, the 5 s abort and the status check.
+- `leaflet-control-geocoder@4.0.0` (https://registry.npmjs.org/leaflet-control-geocoder/latest): requires `leaflet` as a peer, a map library in a page with no map.
 
-| Option | Version and source | Verified at propose (2026-10-07) |
-|---|---|---|
-| (A) `leaflet-geosearch` `OpenStreetMapProvider` — the summary's recommendation | 4.4.0, MIT, published 2026-03-17, 755 kB unpacked, no runtime or peer dependency (https://registry.npmjs.org/leaflet-geosearch/latest) | Its public `search({ query })` takes **free text only** (`SearchArgument.query: string`) and calls `fetch(url)` with **no abort signal** and parses the body without checking the status (`src/providers/provider.ts` of the 4.4.0 tarball). A structured query is possible only through `provider.endpoint({ query: {…} })`, which returns a URL that the caller must fetch itself. So with (A) the entry point would still own the `fetch`, the 5 s abort and the status check, and the library would only build the URL. |
-| (B) `leaflet-control-geocoder` | 4.0.0, BSD-2-Clause (https://registry.npmjs.org/leaflet-control-geocoder/latest, read by the summary) | Requires `leaflet` as a peer: pulls a map library into a page with no map. Rejected by the summary. |
-| (C) in-house wrapper over `fetch` + `AbortController` | — | Structured query, abort, status check, no dependency; the project already owns this pattern (`use-combobox-search.ts`). |
-
-Architect's recommendation after the verification: **(C)**, because the verified facts show (A) would add a dependency that only builds a query string while the entry point still implements every behaviour the spec requires. (A) remains acceptable if Product owner prefers a library (its `endpoint()` would build the URL). Either way the tasks do not change. Pending Product owner.
+The CSP `connect-src` origin for Nominatim was already approved (decisions log "contactos y locales"; D10).
 
 ### D6. Geocoding sequence, cache and coordinates
 
@@ -198,7 +193,7 @@ No widget and no feature-to-feature import.
 |---|---|---|---|---|
 | `save`, `cancel`, `loading`, `genericError`, `stepUpText`, `stepUpButton`, `signIn`, `requiredError`, `emailFormatError` | as `account` | as `account` | as `account` | copied verbatim from `messages/*/account.json` |
 | `retry` | Reintentar | Try again | Torna-ho a provar | `add-user-contact` summary §8 |
-| `signedOutText` | Inicia sesión para gestionar tus ubicaciones. | Sign in to manage your locations. | Inicia sessió per gestionar les teves ubicacions. | new, modelled on `offering-management` `signedOutMessage` (Open Questions) |
+| `signedOutText` | Inicia sesión para gestionar tus ubicaciones. | Sign in to manage your locations. | Inicia sessió per gestionar les teves ubicacions. | new, modelled on `offering-management` `signedOutMessage`; accepted as written (decisions log 2026-10-07) |
 
 The `account` area's `signedOutText` ("…manage your account") does not fit this page, hence the new string. The eight contact field labels come from the `contact` area (`add-user-contact` Open 5 b), loaded by `ManageLocationsScreen` beside this area. The screens pass every text as props; no component reads a catalog.
 
@@ -223,5 +218,3 @@ None: no data, no dependency and no contract change. Rolling back is reverting t
 ## Open Questions
 
 - **`config.yaml` (Product owner's file):** update the `offering-management` line to `  - offering-management: coffeeshop management area (offerings: create from inventory by roaster and locations, list own, delete one or several; locations: list own and create with geocoded address)` (summary Open 1). Nothing in the specs or tasks depends on it.
-- **Geocoding library (D5):** in-house body (recommended) or `leaflet-geosearch@4.4.0`. The tasks build the in-house body; approval of the library adds one task, nothing else changes.
-- **Strings:** `signedOutText` (D11) is new; the Catalan sidebar label `Administra les ubicacions` (summary §9) differs in form from its neighbour `Gestionar ofertes` (`add-offering-management` D11); en and ca are drafts. Product owner confirms before the archive.
