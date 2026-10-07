@@ -79,3 +79,14 @@ One section per candidate, in this format:
 - **Open decision (Augusto):** none
 - **Status:** proposed
 - **Affects:** `add-offering-facets`, `add-evaluation-facets`
+
+## R10 — Error boundary of the row facets in the traditional theme (refine-facet-controls Q2)
+
+- **Duplicated:** none; the row facets' radio and checkbox boxes take the error boundary colour in the dark theme only — in the traditional theme they keep the cream boundary under an error
+- **Where today:** the row facet controls of `add-facet-controls` (inside the sidebar's `variant-inverse` scope); seen in `docs/design/refine-facet-controls/captures/375-light.png` vs `375-dark.png` ("Proceso", "Solo disponibles")
+- **Why it pays off now:** no consumer passes an error to a facet today; the first facet that shows a validation error would show it only by the left bar and the text in the traditional theme
+- **Owning capability:** filtering
+- **Proposed change:** none yet — schedule it before a facet consumer shows errors
+- **Open decision (Augusto):** none
+- **Status:** accepted
+- **Affects:** `add-offering-facets`, `add-evaluation-facets`
