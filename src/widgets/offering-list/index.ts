@@ -27,3 +27,5 @@ export type {
   FilteredOfferingsResultsProps,
   FilteredOfferingsResultsTexts,
 } from "./ui/FilteredOfferingsResults";
+export { FilteredOfferingsToolbar } from "./ui/FilteredOfferingsToolbar";
+export type { FilteredOfferingsToolbarProps } from "./ui/FilteredOfferingsToolbar";
