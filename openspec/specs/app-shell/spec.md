@@ -86,7 +86,7 @@ While the session is anonymous, the header SHALL show the language selector and 
 - **THEN** signing in starts for the route the user is on
 
 ### Requirement: Signed-in header and user menu
-While the session is authenticated, the header SHALL show the brand logotype, the language selector and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The control SHALL show an initials circle and, on a medium or larger viewport, the user's name and a chevron after the circle; below that viewport it SHALL show the circle alone. The menu SHALL offer the profile settings entries, the security entry as an external link to the API's security page, a theme selector, the management entry for the user's role, and sign out.
+While the session is authenticated, the header SHALL show the brand logotype, the language selector and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The control SHALL show an initials circle and, on a medium or larger viewport, the user's name and a chevron after the circle; below that viewport it SHALL show the circle alone. The menu SHALL offer one account entry pointing at the account page, the security entry as an external link to the API's security page, a theme selector, the management entry for the user's role, and sign out.
 
 #### Scenario: User control carries the user's initials
 - **WHEN** the session is authenticated
@@ -114,7 +114,11 @@ While the session is authenticated, the header SHALL show the brand logotype, th
 
 #### Scenario: Menu content
 - **WHEN** the user opens the user menu
-- **THEN** it offers the profile settings entries, the external security entry, the management entry for the user's role and the sign out action
+- **THEN** it offers the account entry, the external security entry, the management entry for the user's role and the sign out action
+
+#### Scenario: The account entry points at the account page
+- **WHEN** the user opens the user menu
+- **THEN** its account entry points at `/{locale}/account`
 
 #### Scenario: Management entry for a coffeeshop
 - **WHEN** the authenticated user's `data.role` from `GET /user` is `coffeeshop`
@@ -126,7 +130,7 @@ While the session is authenticated, the header SHALL show the brand logotype, th
 
 #### Scenario: No management entry for the role
 - **WHEN** the authenticated user's `data.role` is neither `coffeeshop` nor `specialist`
-- **THEN** the menu offers the profile settings entries and sign out with no management entry
+- **THEN** the menu offers the account entry and sign out with no management entry
 
 #### Scenario: Sign out
 - **WHEN** the user activates "Sign out"
