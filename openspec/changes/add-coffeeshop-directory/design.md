@@ -155,7 +155,7 @@ The panel renders the R12 body with the fixed query `{ coffeeshopUlid: ulid }` a
 - `src/shared/ui/icons.ts`: `MapPin`, `MapPinOff` (if `add-coffeeshop-location` has not added it) in the list slice; `Map` exported as `MapIcon`, `List`, `Plus`, `Minus` in the map slice; each only if absent.
 - Area `coffeeshops` (`messages/{es,en,ca}/coffeeshops.json`): the keys and strings of summary §9 exactly; `backToList` is the sheet's close text and `backToDirectory` the detail's back link. The map placeholder's text is `mapLoading` (es "Cargando el mapa…", en "Loading the map…", ca "Carregant el mapa…", architect's draft), added with the map slice. Reused: `filters` (chips, "Clear all", "Any", trigger, sort label, `noMatches`), `catalog.resultCount`, `catalog`/`landing` keys for the Offerings tab, `landing` pagination and retry keys. "{count} ubicaciones" for 1 is accepted (summary Open 11; the flat catalogs have no plural forms).
 
-### D16. Map library (decision proposal — open, pending Product owner)
+### D16. Map library (approved by Product owner, 2026-10-07)
 
 | Option | Version | License | Notes |
 |---|---|---|---|
@@ -164,7 +164,7 @@ The panel renders the R12 body with the fixed query `{ coffeeshopUlid: ulid }` a
 | (C) `leaflet@2.0.0-alpha.1` | alpha | BSD-2-Clause | not stable |
 | (D) in-house map without a library | — | — | tile math, gestures and keyboard rebuilt: not recommended |
 
-Sources: https://registry.npmjs.org/leaflet, https://registry.npmjs.org/react-leaflet/latest, https://registry.npmjs.org/@types/leaflet/latest; the summary §6 research. `leaflet` is imported only through `src/shared/lib/leaflet/index.ts`, which also imports `leaflet/dist/leaflet.css` once (local docs, "External stylesheets"); an `icons.test.ts`-style guard fails on any other `leaflet` import in `src/`. **Status: open.** No dependency is installed and tasks.md contains no task for D13, D14, the CSP line or the map parts of D11 until Product owner approves; on approval the architect adds the map slice to tasks.md by an artifact update.
+Sources: https://registry.npmjs.org/leaflet, https://registry.npmjs.org/react-leaflet/latest, https://registry.npmjs.org/@types/leaflet/latest; the summary §6 research. `leaflet` is imported only through `src/shared/lib/leaflet/index.ts`, which also imports `leaflet/dist/leaflet.css` once (local docs, "External stylesheets"); an `icons.test.ts`-style guard fails on any other `leaflet` import in `src/`. **Status: approved** — option (A), `leaflet@1.9.4` + `@types/leaflet@1.9.22` (dev), exact versions (decisions log 2026-10-07, "mapa del directorio con Leaflet y `perPage`"; that entry is the approval AGENTS.md "Dependencies" requires). tasks.md groups 7–12 carry the map slice: the first map task installs the two versions, and the others implement D12's map functions, D13, D14, the map parts of D11 and D15, and the CSP line.
 
 ## Files touched (full path and FSD layer)
 
@@ -175,17 +175,17 @@ Sources: https://registry.npmjs.org/leaflet, https://registry.npmjs.org/react-le
 | `src/pages/coffeeshops/ui/CoffeeshopsScreen.tsx`, `CoffeeshopsSidebarScreen.tsx`, tests, `index.ts` | pages | New (D7, D9) | list / facets |
 | `src/pages/coffeeshop-detail/ui/CoffeeshopDetailScreen.tsx`, `CoffeeshopDetailSidebarScreen.tsx`, tests, `index.ts` | pages | New (D8, D9) | detail |
 | `src/widgets/coffeeshop-list/api/coffeeshops.ts`, `lib/query.ts`, `ui/Coffeeshops.tsx`, `ui/CoffeeshopList.tsx`, tests, `index.ts` | widgets | New (D4, D7) | list |
-| `src/widgets/coffeeshop-list/ui/CoffeeshopsViewToggle.tsx`, `ui/CoffeeshopsMapView.tsx`, `ui/ShowOnMapButton.tsx` | widgets | New (D13) | map (pending D16) |
+| `src/widgets/coffeeshop-list/ui/CoffeeshopsViewToggle.tsx`, `ui/CoffeeshopsMapView.tsx`, `ui/ShowOnMapButton.tsx` | widgets | New (D13) | map |
 | `src/widgets/coffeeshop-detail/ui/CoffeeshopDetail.tsx`, `CoffeeshopDetailContent.tsx`, `CoffeeshopHeader.tsx`, `CoffeeshopTabs.tsx`, `LocationsPanel.tsx`, `lib/location-card-data.ts`, tests, `index.ts` | widgets | New (D8, D10, D11) | detail |
 | `src/features/coffeeshop-facets/model/query.ts`, `model/applied.ts`, `ui/CoffeeshopFacets.tsx`, `ui/CoffeeshopsToolbar.tsx`, tests, `index.ts` | features | New (D4–D6) | facets |
 | `src/entities/coffeeshop/api/coffeeshop.ts`, `model/locations.ts`, `ui/CoffeeshopCard.tsx`, tests, `index.ts` | entities | New (D7, D8, D12) | list / detail |
 | `src/entities/location/ui/LocationCard.tsx`, test, `index.ts`; `messages/{es,en,ca}/location.json` | entities | New only if `add-coffeeshop-location` has not merged it (D11) | detail |
-| `src/shared/ui/ViewToggle.tsx`, `LocationsMap.tsx`, `LocationsMapLoader.tsx`, tests | shared | New (D13, D14) | map (pending D16) |
-| `src/shared/lib/leaflet/index.ts`, its guard test | shared | New (D16) | map (pending D16) |
+| `src/shared/ui/ViewToggle.tsx`, `LocationsMap.tsx`, `LocationsMapLoader.tsx`, tests | shared | New (D13, D14) | map |
+| `src/shared/lib/leaflet/index.ts`, its guard test | shared | New (D16) | map |
 | `src/shared/ui/icons.ts`, `src/shared/ui/index.ts`, `index.test.tsx` | shared | Modified (D15) | each slice |
 | `src/shared/api/index.ts` | shared | Derived types (D2) | types |
 | `src/widgets/app-header/ui/PrimaryNav.tsx`, its test; the shell texts wiring | widgets | Modified (D15) | header |
-| `proxy.ts`, `proxy.test.ts` | app | `img-src` (D15) | map (pending D16) |
+| `proxy.ts`, `proxy.test.ts` | app | `img-src` (D15) | map |
 | `messages/{es,en,ca}/coffeeshops.json`, `messages/{es,en,ca}/shell.json` | texts | New / modified (D15) | each slice |
 
 Nothing in `contracts/openapi.yaml`, `src/shared/api/schema.ts`, `openspec/specs/`, `config.yaml` or `AGENTS.md` is touched.
@@ -193,7 +193,7 @@ Nothing in `contracts/openapi.yaml`, `src/shared/api/schema.ts`, `openspec/specs
 ## Risks / Trade-offs
 
 - [Five unmerged pieces (catalog, facets, R9, R12, contact/location) are used by assumed interfaces] → D3 lists each; task 1.1 stops the apply on any difference.
-- [The map slice waits on a dependency decision] → the spec states the map behaviour now; tasks.md covers every other slice so the directory, the facets, the detail and both tabs ship without the map; the toggle and the card's map action are not rendered until the map slice lands, so no control leads nowhere.
+- [The map slice lands after the other slices] → tasks.md groups 1–6 ship the directory, the facets, the detail and both tabs without the map; the toggle and the card's map action are not rendered until groups 7–12 land, so no control leads nowhere in between.
 - [The scope exceeds one implementation session] → tasks.md is grouped in vertical slices (list, facets, detail, header) with apply boundaries explicit; the map slice is already separate. Reported to Product owner.
 - [Leaflet's `keyboard` handler listens on `document` keydown while the map has focus; Space is not a Leaflet marker key] → D14 adds a Space listener on the marker element; the map test asserts both keys.
 - [The tab pairs on `surface-page` were not measured by the summary (§7)] → they are the pairs `add-offering-catalog` registers when its tab bar leaves the section band; no pair is added here.
@@ -206,6 +206,5 @@ No migration: new public routes, one header entry and one CSP source. Rollback r
 
 ## Open Questions
 
-- D16: Product owner's approval of `leaflet@1.9.4` + `@types/leaflet@1.9.22` (summary Open 3). It adds the map slice's tasks and changes no spec.
 - `config.yaml` description line of `offering-catalog` (summary Open 1): Product owner's edit; it changes no artifact.
 - The en/ca drafts and `mapLoading` (D15): Product owner confirms at artifact review.

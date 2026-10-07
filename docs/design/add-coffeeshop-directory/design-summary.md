@@ -325,10 +325,13 @@ Detail, 1280px (updated 2026-10-07): back link; badge, `h1`, captions; tab list 
 
 ## Propose status
 
-- **Change-id:** `add-coffeeshop-directory`. **Date:** 2026-10-07. **`openspec validate add-coffeeshop-directory --strict`:** valid.
-- **Artifacts:** `proposal.md`, `design.md` (D1–D16), `tasks.md` (24 tasks in 6 groups), deltas `specs/offering-catalog`, `specs/filtering`, `specs/app-shell`.
+- **Change-id:** `add-coffeeshop-directory`. **Propose:** 2026-10-07. **Artifact update:** 2026-10-07 (Product owner's review message: D16 approved). **`openspec validate add-coffeeshop-directory --strict`:** valid (after the update).
+- **Artifacts:** `proposal.md`, `design.md` (D1–D16), `tasks.md` (43 tasks in 12 groups), deltas `specs/offering-catalog`, `specs/filtering`, `specs/app-shell`.
 - **Backlog:** R9 and R12 affect this change; per the orchestrator (decisions log 2026-10-07) they run as their own refactors before this change's apply. design.md D3 states the interfaces taken from them; task 1.1 checks them. This change resolves no backlog entry.
-- **Resolved here:**
+- **Artifact update (2026-10-07, Product owner's review):**
+  - Open 3 / D16 closed: `leaflet@1.9.4` + `@types/leaflet@1.9.22` approved (decisions log 2026-10-07, "mapa del directorio con Leaflet y `perPage`"; that entry is the AGENTS.md "Dependencies" approval). design.md: D16 status approved, the map rows of "Files touched" no longer pending, the map-slice risk and the D16 open question updated. Spec deltas unchanged (they already stated the map behaviour and the CSP line).
+  - tasks.md: the map slice added as groups 7–12 after the existing ones, test-first: 7 library and entry point (7.1 installs the two exact versions; `package.json` and `package-lock.json` change only there), 8 map points, icons, `ViewToggle`, `LocationsMap` (8.1–8.6), 9 directory toggle, card map action and map view with the mobile full-screen sheet (9.1–9.4), 10 Locations tab map (10.1–10.2), 11 CSP `img-src` (11.1–11.2, app-shell), 12 verification with captures at 375 and 1280 px in both themes (12.1–12.2). Task 6.1 now verifies groups 1–5 only.
+- **Resolved at propose:**
   - Leaflet stylesheet import (§6 unverified): allowed; the local Next docs say external package stylesheets "can be imported anywhere in the `app` directory" (`11-css.md`, "External stylesheets"). D16.
   - Marker `role="button"` (§5.5 unverified): `leaflet@1.9.4` sets `tabindex="0"` and `role="button"` on keyboard markers (`Marker.js` 236–238); `DivIcon.html` accepts an `Element` (`@types/leaflet@1.9.22`). Space is not a Leaflet key, so the component handles it. D14.
   - Leaflet size and license: 42.6 kB gzipped, BSD-2-Clause (measured on the npm tarball). D16.
@@ -340,7 +343,6 @@ Detail, 1280px (updated 2026-10-07): back link; badge, `h1`, captions; tab list 
   - `perPage`: not sent (the API default page size). Context.
   - Non-blocking Opens 6, 8, 9, 10, 11, 12 take their recommendation.
 - **Open:**
-  - Open 3 / D16: Product owner's approval of `leaflet@1.9.4` + `@types/leaflet@1.9.22`. The map slice (toggle, map view, card map action, full-screen sheet, detail map, `img-src`) is designed but has no tasks until approval.
-  - Open 1: the `config.yaml` line for `offering-catalog` (Product owner's file).
-  - The en/ca drafts and the new `mapLoading` and `locationNoMap` drafts (D11, D15).
-  - Scope: larger than one implementation session; the slices are separable.
+  - Open 1: the `config.yaml` line for `offering-catalog`. The decisions log (2026-10-07, same entry) reports it done by Product owner (`bbf5e66`); design.md's Open Questions still list it, left untouched by this update (outside its scope).
+  - The en/ca drafts and the `mapLoading` and `locationNoMap` drafts (D11, D15). The decisions log (2026-10-07, "geocodificación propia y mandato de autonomía") accepts them as proposed; design.md's Open Questions still list them, as above.
+  - Scope: larger than one implementation session; the slices are separable (groups 1–6 without the map, 7–12 the map).
