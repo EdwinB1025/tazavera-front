@@ -6,9 +6,9 @@ import { EvaluationGroupCard } from "./EvaluationGroupCard";
 import { FORM_TEXTS } from "./form-fixtures";
 
 /**
- * One CVA group card (design.md D14, D15; tasks 4.1, 11.1): the shared
- * collapsible header at every viewport, its initial state and aside spacing,
- * and the parts' columns.
+ * One CVA group card (design.md D14, D15, D18; tasks 4.1, 11.1, 13.1): a
+ * section card with the shared collapsible header in its band at every
+ * viewport, its initial state, and the parts' columns.
  */
 
 afterEach(cleanup);
@@ -59,16 +59,28 @@ describe("EvaluationGroupCard (design.md D14, D15)", () => {
     );
   });
 
-  it("pads the header's aside by 0.5rem and draws its bottom border only while expanded", () => {
-    renderGroup("acidity", true);
+  it("is a section card whose band holds the collapsible header", () => {
+    const { container } = renderGroup("acidity", true);
+    const card = container.querySelector("[data-group]") as HTMLElement;
+    const cardClasses = card.className.split(" ");
+    expect(cardClasses).toEqual(expect.arrayContaining(["border", "border-border-subtle"]));
+    expect(cardClasses).not.toContain("border-l-4");
+    expect(cardClasses).not.toContain("border-border-accent");
     const header = screen.getByRole("button", { name: "Acidity" });
     const aside = header.parentElement!.parentElement as HTMLElement;
-    // `px-2`/`py-2` follow the Card's `p-6` in the generated CSS and override it.
-    expect(aside.className.split(" ")).toEqual(expect.arrayContaining(["px-2", "py-2"]));
-    expect(aside.className.split(" ")).toContain("border-b-0");
+    const collapsed = aside.className.split(" ");
+    expect(collapsed).toEqual(
+      expect.arrayContaining([
+        "bg-surface-section",
+        "has-[[aria-expanded]]:p-2",
+        "md:has-[[aria-expanded]]:px-4",
+        "has-[[aria-expanded=false]]:border-b-0",
+      ]),
+    );
+    for (const own of ["px-2", "py-2", "border-b-0"]) expect(collapsed).not.toContain(own);
     fireEvent.click(header);
-    expect(aside.className.split(" ")).not.toContain("border-b-0");
-    expect(aside.className.split(" ")).toContain("border-b");
+    expect(header.getAttribute("aria-expanded")).toBe("true");
+    expect(aside.className.split(" ")).toEqual(collapsed);
   });
 
   it("keeps the indicator inside the header", () => {

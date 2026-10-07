@@ -4,8 +4,8 @@ import { ScaleLegend } from "./ScaleLegend";
 import { FORM_TEXTS } from "./form-fixtures";
 
 /**
- * The 1–9 legend "Affective quality impression" (design.md D16; tasks 12.2):
- * a shared collapsible card listing the nine values in order, each with its
+ * The 1–9 legend "Affective quality impression" (design.md D16, D18; tasks
+ * 12.2, 13.1): a collapsible section card listing the nine values in order, each with its
  * bean mark, its number and its label.
  */
 
@@ -64,14 +64,27 @@ describe("ScaleLegend (design.md D16)", () => {
     }
   });
 
-  it("pads the header's aside as the group card does and draws its bottom border only while expanded", () => {
-    renderLegend();
+  it("is a section card whose band holds the collapsible header", () => {
+    const { container } = renderLegend();
+    const card = container.querySelector("[data-legend]") as HTMLElement;
+    const cardClasses = card.className.split(" ");
+    expect(cardClasses).toEqual(expect.arrayContaining(["border", "border-border-subtle"]));
+    expect(cardClasses).not.toContain("border-l-4");
+    expect(cardClasses).not.toContain("border-border-accent");
     const header = screen.getByRole("button", { name: "Affective quality impression" });
     const aside = header.parentElement!.parentElement as HTMLElement;
-    expect(aside.className.split(" ")).toEqual(expect.arrayContaining(["px-2", "py-2"]));
-    expect(aside.className.split(" ")).toContain("border-b-0");
+    const collapsed = aside.className.split(" ");
+    expect(collapsed).toEqual(
+      expect.arrayContaining([
+        "bg-surface-section",
+        "has-[[aria-expanded]]:p-2",
+        "md:has-[[aria-expanded]]:px-4",
+        "has-[[aria-expanded=false]]:border-b-0",
+      ]),
+    );
+    for (const own of ["px-2", "py-2", "border-b-0"]) expect(collapsed).not.toContain(own);
     fireEvent.click(header);
-    expect(aside.className.split(" ")).not.toContain("border-b-0");
-    expect(aside.className.split(" ")).toContain("border-b");
+    expect(header.getAttribute("aria-expanded")).toBe("true");
+    expect(aside.className.split(" ")).toEqual(collapsed);
   });
 });

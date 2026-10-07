@@ -700,3 +700,31 @@ describe("EvaluationForm: an evaluation of a deleted offering (design.md D17; ta
     ).toBe("true");
   });
 });
+
+describe("EvaluationForm: section cards (design.md D18; tasks 13.1)", () => {
+  function isSectionCard(card: Element) {
+    const classes = card.className.split(" ");
+    return classes.includes("border-border-subtle") && !classes.includes("border-l-4");
+  }
+
+  it("puts the roast level and extraction method in a section card with no band", () => {
+    renderForm();
+    const roast = screen.getByLabelText(/Roast level/);
+    const card = roast.closest(".rounded-container") as HTMLElement;
+    expect(card).not.toBeNull();
+    expect(isSectionCard(card)).toBe(true);
+    expect(card.querySelector(".bg-surface-section")).toBeNull();
+  });
+
+  it("makes the eight groups and the legend section cards, 1rem apart inside a form 2rem apart", () => {
+    const { container } = renderForm();
+    const groups = Array.from(container.querySelectorAll("[data-group]"));
+    expect(groups).toHaveLength(8);
+    for (const card of groups) expect(isSectionCard(card)).toBe(true);
+    const legend = container.querySelector("[data-legend]")!;
+    expect(isSectionCard(legend)).toBe(true);
+    const list = groups[0]!.parentElement as HTMLElement;
+    expect(list.className.split(" ")).toContain("gap-4");
+    expect(container.querySelector("form")!.className.split(" ")).toContain("gap-8");
+  });
+});
