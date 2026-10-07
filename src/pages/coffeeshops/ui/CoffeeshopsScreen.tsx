@@ -1,6 +1,13 @@
 import { Suspense, type ReactNode } from "react";
 import { getMessages } from "@/shared/lib/i18n";
 import { PageSection } from "@/shared/ui";
+import {
+  CoffeeshopsToolbar,
+  appliedCoffeeshopFilters,
+  coffeeshopFacetsTexts,
+  parseCoffeeshopFilters,
+  sanitizeCoffeeshopQuery,
+} from "@/features/coffeeshop-facets";
 import { OfferingSkeletonCard } from "@/widgets/offering-list";
 import {
   COFFEESHOP_COLUMN_CLASSES,
@@ -16,8 +23,8 @@ export type CoffeeshopsScreenProps = {
   locale: string;
   /** The route's raw search params; only the contract's names are requested. */
   searchParams: CoffeeshopsQuery;
-  /** The body toolbar between the heading block and the results. */
-  toolbar?: ReactNode;
+  /** The view control of the toolbar (design.md D13); none until the map slice. */
+  viewSlot?: ReactNode;
 };
 
 // The heading block and the toolbar, 2rem apart.
@@ -34,9 +41,14 @@ const SKELETON_CARD_KEYS = [0, 1, 2] as const;
  * the list inside a `Suspense` boundary whose fallback is three skeleton cards
  * in the directory column.
  */
-export function CoffeeshopsScreen({ locale, searchParams, toolbar }: CoffeeshopsScreenProps): ReactNode {
+export function CoffeeshopsScreen({ locale, searchParams, viewSlot }: CoffeeshopsScreenProps): ReactNode {
   const coffeeshops = getMessages("coffeeshops", locale);
   const landing = getMessages("landing", locale);
+  const filters = getMessages("filters", locale);
+  const catalog = getMessages("catalog", locale);
+  const filterTexts = coffeeshopFacetsTexts(coffeeshops, filters);
+  const values = parseCoffeeshopFilters(searchParams);
+  const applied = appliedCoffeeshopFilters(values, filterTexts);
   const texts: CoffeeshopListTexts = {
     verifiedBadge: coffeeshops.verifiedBadge,
     locationsCount: coffeeshops.locationsCount,
@@ -48,8 +60,11 @@ export function CoffeeshopsScreen({ locale, searchParams, toolbar }: Coffeeshops
     emptyMessage: coffeeshops.listEmpty,
     errorMessage: coffeeshops.listError,
     retryLabel: landing.listRetryLabel,
+    resultCount: catalog.resultCount,
+    noMatches: filters.noMatches,
+    clearAll: filters.clearAll,
   };
-  const query = buildCoffeeshopsQuery(searchParams);
+  const query = sanitizeCoffeeshopQuery(buildCoffeeshopsQuery(searchParams));
 
   return (
     <div className="flex-1">
@@ -59,7 +74,12 @@ export function CoffeeshopsScreen({ locale, searchParams, toolbar }: Coffeeshops
           <h1 className="type-heading">{coffeeshops.listHeading}</h1>
           <p className="type-body">{coffeeshops.listIntro}</p>
         </div>
-        {toolbar ? <div>{toolbar}</div> : null}
+        <CoffeeshopsToolbar
+          count={applied.length}
+          sort={values.sort}
+          texts={filterTexts}
+          viewSlot={viewSlot}
+        />
       </PageSection>
       <PageSection surface="page">
         <Suspense
@@ -71,7 +91,7 @@ export function CoffeeshopsScreen({ locale, searchParams, toolbar }: Coffeeshops
             </div>
           }
         >
-          <Coffeeshops locale={locale} query={query} texts={texts} />
+          <Coffeeshops locale={locale} query={query} filtered={applied.length > 0} texts={texts} />
         </Suspense>
       </PageSection>
     </div>

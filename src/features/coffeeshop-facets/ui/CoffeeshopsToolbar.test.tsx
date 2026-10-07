@@ -19,7 +19,7 @@ afterEach(() => {
 beforeEach(() => {
   nav.push.mockReset();
   window.matchMedia = ((query: string) => ({
-    matches: false,
+    matches: true,
     media: query,
     addEventListener: () => {},
     removeEventListener: () => {},

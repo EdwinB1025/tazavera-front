@@ -3,3 +3,5 @@
  */
 export { CoffeeshopsScreen } from "./ui/CoffeeshopsScreen";
 export type { CoffeeshopsScreenProps } from "./ui/CoffeeshopsScreen";
+export { CoffeeshopsSidebarScreen } from "./ui/CoffeeshopsSidebarScreen";
+export type { CoffeeshopsSidebarScreenProps } from "./ui/CoffeeshopsSidebarScreen";

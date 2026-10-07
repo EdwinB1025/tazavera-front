@@ -1,5 +1,7 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render as rtlRender, screen, cleanup } from "@testing-library/react";
+import type { ReactElement } from "react";
+import { SidebarProvider } from "@/shared/ui";
 import { CoffeeshopsScreen } from "./CoffeeshopsScreen";
 
 afterEach(() => {
@@ -14,6 +16,27 @@ afterEach(() => {
  */
 
 const block = vi.hoisted(() => ({ suspend: false }));
+
+// The toolbar navigates with the app router and reads the sidebar state; both
+// are provided here. Test infrastructure only.
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: () => {} }),
+  usePathname: () => "/es/coffeeshops",
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+function render(ui: ReactElement) {
+  window.matchMedia = ((query: string) => ({
+    matches: true,
+    media: query,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  })) as unknown as typeof window.matchMedia;
+  return rtlRender(<SidebarProvider>{ui}</SidebarProvider>);
+}
 
 vi.mock("@/widgets/coffeeshop-list", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/widgets/coffeeshop-list")>();

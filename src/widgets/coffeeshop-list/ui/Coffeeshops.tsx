@@ -8,6 +8,8 @@ export type CoffeeshopsProps = {
   locale: string;
   /** The kept and sanitized query the request carries (design.md D4). */
   query: Record<string, string>;
+  /** At least one coffee shop filter is applied (design.md D6). */
+  filtered?: boolean;
   texts: CoffeeshopListTexts;
 };
 
@@ -16,7 +18,7 @@ export type CoffeeshopsProps = {
  * fetch and its mapping into success, empty or error; every branch is the sync
  * presentation's.
  */
-export async function Coffeeshops({ locale, query, texts }: CoffeeshopsProps): Promise<ReactNode> {
+export async function Coffeeshops({ locale, query, filtered, texts }: CoffeeshopsProps): Promise<ReactNode> {
   let result: CoffeeshopListResult;
   try {
     const page = await fetchCoffeeshops(query);
@@ -24,5 +26,5 @@ export async function Coffeeshops({ locale, query, texts }: CoffeeshopsProps): P
   } catch {
     result = { state: "error" };
   }
-  return <CoffeeshopList result={result} locale={locale} query={query} texts={texts} />;
+  return <CoffeeshopList result={result} locale={locale} query={query} filtered={filtered} texts={texts} />;
 }
