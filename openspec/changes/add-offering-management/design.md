@@ -75,11 +75,11 @@ Derived from the generated `src/shared/api/schema.ts` through `operations`, adde
 | `src/pages/manage-offerings/index.ts` | pages | created: slice public API (`ManageOfferingsScreen`, `ManageOfferingsSidebarEntries`) |
 | `src/pages/manage-offerings/ui/ManageOfferingsScreen.tsx` | pages | created: server composition — loads the `offering-management` and `landing` catalogs and the taxonomies, renders the page section, the header and the client panel |
 | `src/pages/manage-offerings/ui/ManageOfferingsPanel.tsx` | pages | created: the client composition of the own list — grid, cards, skeletons, toolbar and pagination around the feature's state and actions (D2) |
-| `src/pages/manage-offerings/ui/ManageOfferingsSidebarEntries.tsx` | pages | created: the two sidebar entries for the list route |
+| `src/pages/manage-offerings/ui/ManageOfferingsSidebarEntries.tsx` | pages | created: the sidebar entry block for the list route |
 | `src/pages/new-offering/index.ts` | pages | created: slice public API (`NewOfferingScreen`, `NewOfferingSidebarEntries`) |
 | `src/pages/new-offering/ui/NewOfferingScreen.tsx` | pages | created: server composition — loads the `offering-management` catalog, renders the page section, the header and the client form |
 | `src/pages/new-offering/ui/NewOfferingForm.tsx` | pages | created: the client composition of the form around the feature's state and actions |
-| `src/pages/new-offering/ui/NewOfferingSidebarEntries.tsx` | pages | created: the two sidebar entries for the create route |
+| `src/pages/new-offering/ui/NewOfferingSidebarEntries.tsx` | pages | created: the sidebar entry block for the create route |
 | `src/features/offering-management/index.ts` | features | created: slice public API |
 | `src/features/offering-management/api/management.ts` | features | created: `fetchOwnOfferings` (`publicRequest`), `deleteOffering`, `deleteOfferings`, `createOfferings`, `fetchMyLocations`, `searchCoffeeInventory` (`request`) |
 | `src/features/offering-management/model/own-offerings.ts` | features | created: the own-list state (states, refetch) and the selection state (D7) |
@@ -91,9 +91,9 @@ Derived from the generated `src/shared/api/schema.ts` through `operations`, adde
 | `src/features/offering-management/ui/InventoryField.tsx` | features | created: the inventory field — the shared combobox with its search function and result rows, and the help line of D4 |
 | `src/features/offering-management/ui/LocationsFieldset.tsx` | features | created: the locations group with its loading, empty and error states |
 | `src/features/offering-management/ui/ManagementGate.tsx` | features | created: the session gate of D6 |
-| `src/features/offering-management/ui/ManagementSidebarEntries.tsx` | features | created: the entries list (icon + label + current state) |
+| `src/features/offering-management/ui/ManagementSidebarEntries.tsx` | features | created: the "Manage offerings" entry (icon + label + current state) |
 | `src/shared/api/index.ts` | shared (api) | modified: the three derived aliases above |
-| `src/shared/ui/icons.ts` | shared (ui) | modified: `Trash2`, `Plus`, `List` join the single icon entry point (`lucide-react` is installed; no new dependency) |
+| `src/shared/ui/icons.ts` | shared (ui) | modified: `Trash2` and `List` join the single icon entry point (`lucide-react` is installed; no new dependency) |
 | `src/shared/ui/Combobox.tsx` | shared (ui) | modified (filtering capability): inside a `Field` it renders no label or help of its own and its input takes the Field's control id (D14); unchanged outside a `Field` |
 | `messages/es/offering-management.json`, `messages/en/offering-management.json`, `messages/ca/offering-management.json` | message catalog (offering-management area) | created: the area's texts (D11) |
 
@@ -147,9 +147,9 @@ The step-up text and its "Confirm your identity" action never carry a `role` of 
 
 Selection is a set of offering `ulid`s of the current page only; it clears on a page change and after a successful delete. The card `actions` content is this feature's wrapper (flex row, centred, 0.5rem gap — the summary's §6.2) holding Select then Delete; its `Delete` uses `Button variant="action-2" size="sm" icon={Trash2}`, the treatment settled for Delete in `add-specialist-evaluations`, with `aria-label` starting with its visible label and naming the coffee and the location (WCAG 2.5.3). Both delete flows go through `ConfirmDialog` (`add-evaluation-scales`), binding its full interface — `open`, `onOpenChange`, `title`, `description`, `confirmLabel`, `cancelLabel`, `onConfirm`, and the optional `pending` and `error` — with the summary's §8 texts; nothing is sent before confirmation. After a successful delete the status line announces the count (1 or n), the current page refetches, and focus moves to the page heading (`tabIndex={-1}`), because the triggering control may be gone. When the refetched page is empty and not the first, the list moves to the previous page. The bulk request carries at most one page of selections (`meta.per_page`, 15 in the contract example), so it never exceeds the documented 50 (M5).
 
-### D8. Sidebar entries through the `@sidebar` slot (summary Open 1; decisions log "entradas del sidebar de gestión")
+### D8. One sidebar entry through the `@sidebar` slot (summary Open 1; decisions log "entradas del sidebar de gestión"; review round 1, correction 1; decisions log 2026-10-07 "consenso, barra lateral de gestión y leyenda 1–9")
 
-Both routes contribute "My offerings" (`List` icon) and "New offering" (`Plus`) to the shell sidebar through the `@sidebar` parallel-route slot and the `SidebarMenuButton` link form, both owned by `add-sidebar-slot`, which also lands the sidebar's hover-text and focus-ring contrast fixes (`add-filter-controls`' F3, this summary's F2): `nav-text-hover` for the hover text and the `variant-inverse` scope for the ring. The slot route files are app-layer routing and import only from `src/pages/`: `src/pages/manage-offerings` and `src/pages/new-offering` each export their entries block, which renders the feature's `ManagementSidebarEntries` with its `current` value. The entries are links with visible text; the current route's entry carries the current state (`aria-current="page"`).
+Both routes contribute one entry, "Manage offerings" (`List` icon), to the shell sidebar through the `@sidebar` parallel-route slot and the `SidebarMenuButton` link form, both owned by `add-sidebar-slot`, which also lands the sidebar's hover-text and focus-ring contrast fixes (`add-filter-controls`' F3, this summary's F2): `nav-text-hover` for the hover text and the `variant-inverse` scope for the ring. The entry addresses the list route `/{locale}/manage/offerings` and carries the current state (`aria-current="page"` and the menu button's active state) on both the list route and the create route; there is no entry for the create route, which stays reachable from the list's "New offering" link and its empty-state link. Its label is the catalog key `sidebarManageOfferings` (D11). The slot route files are app-layer routing and import only from `src/pages/`: `src/pages/manage-offerings` and `src/pages/new-offering` each export their entry block, which renders the feature's `ManagementSidebarEntries`. "Manage locations" is not part of this change: `add-coffeeshop-location` adds its entry beside this one.
 
 ### D9. Inventory search through the shared combobox (summary Open 8; Open 21 answered by `add-facet-controls`)
 
@@ -161,7 +161,7 @@ After a 201 the form stays in place with its success status ("Offerings created:
 
 ### D11. Texts (summary §8; Open 3, Open 20)
 
-The `offering-management` area (`messages/{locale}/offering-management.json`) holds every text of both screens: the summary's §8 keys and strings plus the two keys of D4, in es / en / ca. The card texts and the pagination labels come from the existing `landing` keys (`card*`, `pagination*`), loaded by the screen and passed as props. Numbers and names are appended to a catalog word by concatenation, as `OfferingCard` composes its captions. The strings are proposals: Product owner confirms or edits them (Open 20).
+The `offering-management` area (`messages/{locale}/offering-management.json`) holds every text of both screens: the summary's §8 keys and strings plus the two keys of D4, in es / en / ca. Review round 1 replaces the two sidebar keys `sidebarMyOfferings` and `sidebarNewOffering` with one key, `sidebarManageOfferings` (es "Administrar ofertas", en "Manage offerings", ca "Gestionar ofertes"), so the area holds 43 keys. The card texts and the pagination labels come from the existing `landing` keys (`card*`, `pagination*`), loaded by the screen and passed as props. Numbers and names are appended to a catalog word by concatenation, as `OfferingCard` composes its captions. The strings are proposals: Product owner confirms or edits them (Open 20).
 
 ### D12. Contrast guard pairs (summary §5)
 

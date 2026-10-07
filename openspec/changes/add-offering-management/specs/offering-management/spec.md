@@ -185,23 +185,23 @@ The create route's form SHALL create one offering per chosen location for one ch
 - **WHEN** the create request returns 403
 - **THEN** the form's error area shows the step-up text and its "Confirm your identity" action inside the form's single alert region, every chosen value is kept, and activating the action starts the identity check
 
-### Requirement: Management sidebar entries
-Both management routes SHALL show two entries in the shell's sidebar in this order: "My offerings" addressing the list route and "New offering" addressing the create route, each with an icon and a visible label, and the entry of the current route SHALL be marked as the current one. Activating an entry opens its route.
+### Requirement: Management sidebar entry
+Both management routes SHALL show one entry in the shell's sidebar, "Manage offerings", with an icon and a visible label, addressing the list route, and it SHALL be marked as the current entry on both the list route and the create route. Activating it opens the list route. The create route has no sidebar entry; it stays reachable from the list's "New offering" link and its empty-state link.
 
-#### Scenario: Both entries
+#### Scenario: One entry
 - **WHEN** a signed-in coffeeshop opens either management route
-- **THEN** the sidebar shows the "My offerings" entry and the "New offering" entry, in that order, each with its icon and label
+- **THEN** the sidebar shows the "Manage offerings" entry with its icon and label, and no "My offerings" or "New offering" entry
 
 #### Scenario: Current entry marked
 - **WHEN** the list route or the create route is open
-- **THEN** its own entry is marked as the current page and the other is not
+- **THEN** the "Manage offerings" entry is marked as the current page
 
-#### Scenario: Entries navigate
-- **WHEN** the coffeeshop activates either entry
-- **THEN** that entry's route opens
+#### Scenario: Entry navigates
+- **WHEN** the coffeeshop activates the entry
+- **THEN** the list route opens
 
 ### Requirement: Localized management texts
-Every text of both screens — headings, list and form states, actions, the confirmation texts, the status lines and the sidebar entries — SHALL render in the active locale (Spanish, English or Catalan) from the message catalog, and the offering card texts and the pagination labels SHALL come from the landing catalog. API values shown in the interface — coffee, roastery and location names, country, process, `roastLot`, `productionDate` and the counts — SHALL render exactly as returned, untranslated, and the API's own message strings SHALL never render. Numbers and names appended to a catalog word SHALL join it by concatenation.
+Every text of both screens — headings, list and form states, actions, the confirmation texts, the status lines and the sidebar entry — SHALL render in the active locale (Spanish, English or Catalan) from the message catalog, and the offering card texts and the pagination labels SHALL come from the landing catalog. API values shown in the interface — coffee, roastery and location names, country, process, `roastLot`, `productionDate` and the counts — SHALL render exactly as returned, untranslated, and the API's own message strings SHALL never render. Numbers and names appended to a catalog word SHALL join it by concatenation.
 
 #### Scenario: Texts follow the locale
 - **WHEN** either management route opens in Spanish, English or Catalan

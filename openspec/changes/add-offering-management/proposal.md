@@ -8,19 +8,19 @@ A signed-in coffeeshop cannot manage its offerings on the web: no screen lists i
 
 - **My offerings** at `/{locale}/manage/offerings`: the coffeeshop's own offerings as offering cards with pagination, selection, deleting one and deleting several. The grid beside the sidebar holds one column below `lg` (1024px), two from `lg` and three from `2xl` (1536px) — a grid constant of this change (explore answer Q2), beside the landing grid.
 - **New offering** at `/{locale}/manage/offerings/new`: one offering per chosen location from one coffee-inventory item, chosen in a search-as-you-type list over `GET /coffeeInventory?coffeeName=`. Once an item is chosen, its `roastLot` and `productionDate` show as the field's help (explore answer Q1, summary Open 23 c).
-- **Sidebar entries** "My offerings" and "New offering" on both routes, through the `@sidebar` parallel-route slot and the link form of the sidebar menu button (both built by `add-sidebar-slot`).
+- **Sidebar entry** "Manage offerings" on both routes, addressing the list and marked current on both (review round 1), through the `@sidebar` parallel-route slot and the link form of the sidebar menu button (both built by `add-sidebar-slot`).
 - **Access gate** on both routes: a loading presentation, a signed-out message with a "Sign in" button in place of the form (create route) and in place of the list (list route), with the "New offering" link hidden from an anonymous visitor (explore answer Q4); the 404 page for a signed-in user with another role.
 - **One alert region per error surface**: the reactive step-up text and its "Confirm your identity" action render inside the existing error slot without a `role` of their own (explore answer Q5) — the confirmation dialog's error slot on deletes, the form's error area on creates.
 - **Selection covers the current page only** and clears on a page change and after a delete (explore answer Q6).
 - **The own list is fetched on the client through `publicRequest`** (explore answer B7): its filter value is the session `ulid`, which only the browser holds. This is the second accepted exception to server-loading public endpoints.
 - New message area `offering-management` (`messages/{locale}/offering-management.json`, es / en / ca); the card texts and the pagination labels reuse the existing `landing` keys.
-- `Trash2`, `Plus` and `List` join the shared icon entry point (`src/shared/ui/icons.ts`); no new dependency.
+- `Trash2` and `List` join the shared icon entry point (`src/shared/ui/icons.ts`); no new dependency.
 
 ## Capabilities
 
 ### New Capabilities
 
-- `offering-management`: the coffeeshop's management area — the own-offerings list with its selection and the deletion of one or several offerings, and the creation of offerings from one coffee-inventory item across the coffeeshop's locations, with the area's access gate and sidebar entries.
+- `offering-management`: the coffeeshop's management area — the own-offerings list with its selection and the deletion of one or several offerings, and the creation of offerings from one coffee-inventory item across the coffeeshop's locations, with the area's access gate and sidebar entry.
 
 ### Modified Capabilities
 
