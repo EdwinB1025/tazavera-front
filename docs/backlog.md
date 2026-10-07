@@ -120,8 +120,8 @@ One section per candidate, in this format:
 - **Why it pays off now:** every role-gated route added (management, evaluations, location) sends users there
 - **Owning capability:** app-shell
 - **Proposed change:** none yet — a new change with its design summary
-- **Open decision (Augusto):** whether it belongs in the delivery
-- **Status:** proposed
+- **Open decision (Augusto):** none — answered 2026-10-07: kept in the backlog at the lowest priority; nothing is built until Product owner authorizes it
+- **Status:** deferred (lowest priority)
 - **Affects:** none
 
 ## R15 — Slow `EvaluationForm` tests under load (add-user-contact checks)
