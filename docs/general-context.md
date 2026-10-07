@@ -7,62 +7,47 @@ Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`.
 - `AGENTS.md` y `.claude/workflow_sdd.md`: reglas y flujo de los agentes OpenCode.
 - El `handoff.md` y el `corrections.md` de cada cambio.
 
-**Actualizado:** 2026-10-07 15:30.
+**Actualizado:** 2026-10-07 20:30 UTC (22:30 local).
 
-## Al retomar (sesión cerrada el 7 oct ~15:30 para recargar permisos)
+## Al retomar (sesión cerrada el 7 oct ~20:30 UTC para reiniciar)
 
-- **Mergeado hoy en `develop`:** `add-user-account`, `refine-page-surfaces` (`2bc80ae`); contrato del API `PROD e84b444` en `develop` `3e5a97c` (`offeringId` nullable). API: hotfix `perPage` (`HasPagination`, estándar 15, máx. 50) en `dev` `b05aa73` y `PROD` `e84b444`, sin documentar en Scribe por decisión de Product owner.
-- **Rondas de adopción terminadas en la nube, pendientes de integrar** (revisado: orden test→feat correcto):
-  - `origin/claude/add-offering-management-round2` (`8168634`): checks + build en verde (1727 tests). Integrar con `--ff-only` en `tazavera-front-management`.
-  - `origin/claude/add-specialist-evaluations-round3` (`5dce169`): build verde; 1 timeout de 5 s en `EvaluationForm.test.tsx` (test lento bajo carga, ya visto antes; repetir el archivo solo). Candidato a cobertura no planificada (subir el timeout de ese archivo).
-  - `origin/claude/add-offering-catalog-round2` (`337447b`): sus checks no terminaron (sesión cerrada); repetir.
-  - Worktrees temporales `../tmp-check-mgmt`, `../tmp-check-evals`, `../tmp-check-catalog`: quitarlos con `git worktree remove` tras integrar.
-- **Después de integrar:** revisión visual del design lead (management con el mock; sus scripts están en el scratchpad de la sesión anterior; `cuppingAvg` del mock como string), archive y merge de catalog, evaluations y management.
-- **Proposes en la nube lanzados a las 13:18 UTC:** `add-user-contact` (`trig_01UgK6FpjWy4D8baJJN8xmBj`), `add-coffeeshop-location` (`trig_01K8QgWprMuLhzbqqdgvsrPL`), `add-coffeeshop-directory` (`trig_01AnsajgQHcMqw6r8WLregQc`); ramas `claude/<change-id>-propose`. Revisar e integrar.
-- **Pendiente de lanzar:** resúmenes de los refactors R9, R11, R12 y de la adopción de la tarjeta de sección en user-account (design lead); `refine-list-pagination` (renombrar el borrador `refine-offering-pagination`; Q1 resuelto con la opción A: `perPage=6` en la landing) → aprobación y propose.
-- **Permisos:** en Bash, `taskkill //PID` y `git merge` se deniegan aunque estén en `allow`; desde la herramienta PowerShell funcionan (`taskkill /PID n /T /F`). El `ask` global de `git merge` en `~/.claude/settings.json` es la causa de lo segundo.
+**Mergeado hoy en `develop` (`8803904`):** add-user-account, refine-page-surfaces, add-offering-catalog, fix-collapsible-overflow, fix-auth-return-query, add-offering-management, adopt-section-card-in-account, add-specialist-evaluations, add-offering-facets, extract-access-and-status-pieces (R11), add-user-contact, extract-clear-filters-button (R9).
 
-## Revisión de la noche (6–7 oct) — para Product owner
+**Pendiente de integrar o cerrar (por orden):**
+1. **`extract-filtered-offerings` (R12):** worktree `tazavera-front-r12`, `feature/extract-filtered-offerings` `ebeb90c` (apply completo + `develop` `8803904` mezclado; conflicto con R9 resuelto: el widget `FilteredOfferingsResults` usa `ClearFiltersButton` de `@/shared/ui` con `keep={OFFERING_SORT_KEYS}`). Checks: 2245 tests (1 timeout conocido de `EvaluationForm`, R15; aislado en verde), lint, tsc, build en verde. **Falta:** revisión visual del design lead de R9 + R12 juntos en el catálogo (`/es/offerings`, estado vacío filtrado con "Limpiar filtros"; R9 sin revisión visual propia, cerrado para revisión), verify, archive (quita R12 del backlog), merge, borrar worktree y rama.
+2. **Sesiones en la nube** (rutinas de un solo uso; leer con `RemoteTrigger list_runs` / `get_run_log`; integrar con `--ff-only` tras revisar commits y pasar checks):
+   - `refine-list-pagination` apply desde la 3.1 → `claude/refine-list-pagination-apply2` (`trig_011fVL34CTSeSMTtSabZVP9A`, 20:12 UTC). Worktree `tazavera-front-pagination` en `b6cc6f3` (tareas 1.1–2.2 + arreglo de D3 fila 10). Abierto para el directorio: los enlaces de paginación descartan `?tab=` (R12 Propose status, Open 1).
+   - `add-coffeeshop-location` actualización de artefactos + apply → `claude/add-coffeeshop-location-apply2` (`trig_01MQFoVTtn69bc7vqFSrt5p4`, 20:17 UTC). Decisión del orquestador: `isValidEmail` se mueve sin cambios a `@/entities/contact` (registro).
+   - `add-evaluation-facets` apply → `claude/add-evaluation-facets-apply` (`trig_018Qa9oF9KJhqTLZf3ouxZEv`, 20:21 UTC). Worktree `tazavera-front-evfacets` en `39a4504` (artefactos actualizados: usa `ClearFiltersButton` compartido).
+   - Plan de reducción de tests → `claude/test-reduction-plan`, `docs/testing/test-reduction-plan.md` (`trig_01CDd4hdvUPViuPzVLakGH4X`, 20:16 UTC). Solo análisis: pasar los totales a Product owner antes de borrar o mover nada.
+3. **Después:** `add-public-evaluations` apply (worktree `tazavera-front-pubevals` en `8b13c84`, artefactos actualizados; espera el merge de evaluation-facets); `add-coffeeshop-directory` apply (espera R12 y la decisión de `?tab=` en la paginación).
+4. **Esperan a Product owner:** `fix-combobox-blur` (borrador de resumen en `claude/fix-combobox-blur`); R15 (tests lentos de `EvaluationForm`, ¿lanzar?); texto de la sección Testing de AGENTS.md (abajo).
 
-**Mergeado en `develop`** (cada uno con verify sin hallazgos y revisión del design lead en navegador, por el mandato de la noche): `add-flavor-wheel` (`2bc37aa`), `add-collapsible-section` (`9364ced`), `refine-facet-controls` (`59f3bfb`), `refine-flavor-wheel` (`1642a8a`). Antes: `add-evaluation-scales`, `add-sidebar-slot`, `add-facet-controls`, `label-rating-badge`, `replace-offering-card-session`.
+**Reducción de la suite de tests (Product owner, 7 oct):** en el repo solo quedan los tests que verifican las capacidades originales (requisitos de `openspec/specs/`), simplificados y unificados, más las guardas de reglas del proyecto. Lo de los refactors se borra o pasa a calidad. El resto va a la carpeta local `Sprint5/tazavera-front-qa` (git local, sin remoto, README creado), no se corre en cada cambio y se ejecuta una vez al final del proyecto. Los agentes escriben solo los tests que nombra cada tarea. Aplicar la limpieza cuando las ramas en vuelo estén integradas, para no crear conflictos.
 
-**Respuestas de Product owner del 7 oct** (handoffs con `ANSWERED 2026-10-07`, registro de decisiones del mismo día):
-- `add-offering-catalog`: Q1–Q5 respondidos → ronda 1 de corrección.
-- `add-offering-management`: Q1 respondido (una entrada "Administrar ofertas") → ronda 1; desbloquea las tareas 8–10.
-- `add-specialist-evaluations`: Q10 respondido (leyenda 1–9) → ronda 2. Q11 y Q12 siguen abiertos: pruebas en navegador de Product owner con `especialista.prueba@tazavera.test` en el API local.
-- `refine-facet-controls`: Q1 confirmado (mergeado); Q2 → backlog R10. El refactor de piezas de acceso y estado del resumen de `add-coffeeshop-location` pasa a ser R11.
-- `add-user-account`: falta la 9.2 (navegador con el API).
+**AGENTS.md (pendiente; Product owner lo autorizó, pero el permiso local deniega la edición):** añadir en `## Testing`, tras la primera viñeta, las cuatro viñetas de la regla de tests (texto en el mensaje del orquestador del 7 oct ~20:30 y en la memoria `test-suite-reduction`).
 
-**Decisiones mías para revisar** (handoffs, "Closed for review" / "Decisions taken", y el registro de decisiones):
-- `Combobox` dentro de `Field`: sin etiqueta ni ayuda propias (management C1).
-- La rueda reescalada deja activa la nota bajo el puntero (refine-flavor-wheel D1).
-- Ronda 1 de evaluaciones escrita por mí desde tu respuesta (`corrections.md`, puntos 4 y 5 míos).
-- Llamada de catalog a `FlavorWheel` con la interfaz real (catalog D1).
+**Reglas nuevas de Product owner (7 oct):** nada se añade al diseño sin su autorización (trabajar con los componentes actuales; R14, la página 404, queda en el backlog con la última prioridad); OpenCode no se usa mientras el portátil vaya justo de memoria (todo a la nube); procesos pesados de uno en uno.
 
-**API `add-contacts-and-locations` en producción (7 oct):** `PROD ce52210` (PR #39); contrato y `schema.ts` en `develop` `eb3c8fa` (6 operaciones nuevas, solo añade). Los tres resúmenes nuevos (`add-user-contact`, `add-coffeeshop-location`, `add-coffeeshop-directory`) siguen en borrador: el contrato cierra contact 1 (`{ data: [] }` sin contacto), directory 2 (`locations[]` con coordenadas en la lista) y orienta location 2 (`listAUsersLocations` documentado para "Administrar ubicaciones"). Location 3 queda respondido con management Q1. Siguen bloqueando el propose: location 4 (R11), directory 4 (widget de ofertas filtradas) y 5 (R9).
+**Permisos:** en Bash, `taskkill` y `git merge` se deniegan; desde PowerShell funcionan (`taskkill /PID n /T /F`, `git -C <dir> merge`), sin tuberías. Recordar al final del proyecto restaurar el `ask` global de `git merge` en `~/.claude/settings.json`.
 
-**Siguientes en cola cuando se desbloqueen:** `add-offering-facets` (tras catalog), `add-evaluation-facets` y `add-public-evaluations` (tras evaluations).
+## Para revisión de Product owner
+
+**Cerrado por el orquestador para tu revisión (7 oct):**
+- Pruebas de navegador dadas por cerradas sin captura de todos los estados: accountcard 4.2 (carga/éxito); evaluations 10.2, 11.5, 12.8, 13.5 (expansión del 409 y estados de carga/fallo cubiertos por tests); R11 (estados de carga); user-contact (Guardar/Cancelar en curso y el 409, cubiertos por tests); R9 (sin revisión visual propia, va en la conjunta con R12).
+- offering-facets F3: arreglo de `FacetCascade` (componente compartido); el texto "Orden predeterminado" se recorta a 375 con un filtro, aceptado tal cual (opcional: acortar `sortDefault` en `messages/es/filters.json`).
+- refine-list-pagination: fila 10 de la tabla de D3 corregida para seguir la regla de D3 (no cambia lo que se ve).
+- add-coffeeshop-location: `isValidEmail` se mueve sin cambios a `@/entities/contact`.
+- Observaciones sin cambio: el "Ver" de la tarjeta de gestión queda ~4px más alto; el hueco barra–primera tarjeta del catálogo (8rem/6rem) viene del layout; aviso de lint ya existente en `FlavorWheel.tsx:516`.
+
+**Anteriores, aún por revisar:** `Combobox` dentro de `Field` sin etiqueta ni ayuda propias (management C1); la rueda reescalada deja activa la nota bajo el puntero (refine-flavor-wheel D1); llamada de catalog a `FlavorWheel` con la interfaz real (catalog D1).
 
 ## Estado
 
-- **Entrega del bootcamp esta semana; Product owner quiere cerrar todo hoy (6 oct) con todos los ejecutores.** Mínimo: consumir el contrato, salvo `listTheEvaluationsOfAUser`, fuera del alcance. `listEvaluations` y `getAnEvaluation` vuelven al alcance con la lista pública de evaluaciones (registro, "evaluaciones públicas y evaluación provisional").
-- **En `develop`:** theme-tokens, base-control, focus-ring, form-fields, app-shell, refine-app-header, landing, auth, refactor-badge-geometry, extract-offering-list-parts, extract-page-section, fix-button-boundaries, label-rating-badge; contrato `84e29fe` (`/user/evaluations`).
-- **Ejecutores:** OpenCode sin saldo desde ~18:30 del 6 oct: todo va a la nube hasta que Product owner recargue (lanzador `node launch.mjs <worktree> <agent> <title> <prompt-file> <log>` en el scratchpad de la sesión; recrearlo). Nube con rutinas de un solo uso. Claude local como build/arquitecto mientras el uso (5 h y 7 días) esté < 80 %. En modo don't ask: el orquestador no puede `git merge` en `develop` (lo lanza Product owner) ni editar `src/`/`openspec/`; `openspec archive` lo ejecuta el orquestador con `node run-in.mjs <dir> openspec archive <id> --yes` (el perfil del arquitecto lo deniega).
+- **Entrega del bootcamp esta semana.** Mínimo: consumir el contrato, salvo `listTheEvaluationsOfAUser`, fuera del alcance. Lo que queda del contrato: `listEvaluations`/`getAnEvaluation` (public-evaluations), `listAUsersLocations`/`createALocation` (location), `listCoffeeShops`/`getACoffeeShop` (directory).
+- **Ejecutores:** Claude en la nube con rutinas de un solo uso (`RemoteTrigger create`, entorno `env_01DTNNGR37Cgqdaa5ym4Zagr`, modelo `claude-opus-5-5`, rama `claude/<change-id>-<tarea>`). Claude local (arquitecto, build y design lead como subagentes) mientras el uso esté < 90 % (7 días al 47 % a las 19:00 UTC). OpenCode en pausa por memoria. El orquestador mergea en `develop` y archiva con `node run-in.mjs <dir> openspec archive <id> --yes`.
+- **Scripts de sesión** (scratchpad de la sesión `b545f592…`; recrearlos si se pierden): `check-noci.mjs` / `check-build.mjs <dir>` (install, typegen, tests, lint, tsc[, build]), `retry-push.mjs <dir> <rama>`, `watch-heads.mjs <min> <ramas…>`, `run-in.mjs <dir> <cmd…>`, mocks y capturas del design lead (`mock-proxy.mjs`, `mock-contact.mjs`, `pre6-r11.mjs`, `pre7-contact.mjs`).
 - **Fases por cambio:** ver el tablero.
-
-## Al retomar (sesión cerrada el 6 oct ~19:10)
-
-Ningún ejecutor queda corriendo, salvo quizá el verify de facet-controls en la nube. Todas las ramas están subidas y todos los cambios del alcance tienen propose.
-
-1. **Merges que lanza Product owner en `develop`** (el orquestador no puede): `feature/replace-offering-card-session` (archivado `07a1992`, ya contiene `develop`). Los siguientes tras su verify y archive.
-2. **Listos para verify y archive** (apply completo, checks en local en verde: tests, lint, tsc):
-   - `add-evaluation-scales` (`3696411`, 16/16 tareas, 1193 tests).
-   - `add-facet-controls` (`21ff097`, 19/19, 1217 tests). Su verify en la nube es `trig_01CJVCVrToKkY9FSrVtet5Fj`, sesión `cse_011oveaoVXLuJESmGKR1ngJo`: leer su informe con `get_run_log`.
-   - `add-sidebar-slot` (`128dd36`). Faltan la 6.3 (comprobación de rutas con `npm run start`/navegador) y la 7.1 (checks finales, commit solo de casillas). En un worktree nuevo hay que correr `npx next typegen` antes de `tsc` (si no, falla con `LayoutProps.sidebar`).
-   - `add-flavor-wheel` (`91ad0e4`). Falta la 7.2: capturas a 375 y 1280 px en `docs/design/add-flavor-wheel/captures/` (orquestador o design lead) y el resultado en el handoff. Lint avisa de `aria-selected` en el `treeitem` (`FlavorWheel.tsx:358`): candidato a arreglo no planificado.
-3. **Esperan dependencias en `develop`:** specialist-evaluations (scales y card-session), user-account (scales), catalog (scales, card-session y flavor-wheel), management (scales, card-session, sidebar-slot y facet-controls), offering-facets (catalog, sidebar-slot y facet-controls), evaluation-facets (sidebar-slot, facet-controls y specialist-evaluations). Antes de cada apply, mergear `develop` en la rama.
-4. **Sin commitear en `develop` (de Product owner):** `docs/design/fix-button-boundaries/design-summary.md`, `docs/design/fix-button-boundaries/mockup/`, `docs/design/refactor-badge-geometry/captures/`.
-5. **Limpieza:** borrar los worktrees y ramas `tazavera-front-ratingbadge`/`feature/label-rating-badge` (mergeada) y `tazavera-front-filters`/`feature/add-filter-controls` (sustituida), y las carpetas vacías `tazavera-front-header` y `tazavera-front-landing`.
 
 ## Forma de trabajar
 
@@ -515,3 +500,20 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
   - Catalog D13: si un bloque de selección no tiene notas, su tarjeta se ensancha (sin columna de leyenda); se mantiene como dice el diseño.
 - **Por qué:** informe del design lead del 7 oct; mandato de autonomía; respuesta de Product owner ("sí, procede").
 - **Afecta:** add-specialist-evaluations y add-offering-management (archive tras los arreglos); add-offering-facets, add-evaluation-facets y add-coffeeshop-location (usan `Combobox`/`Collapsible`); auth.
+
+### 2026-10-07 — nada nuevo en el diseño y suite de tests reducida (Product owner)
+- **Decisión:**
+  - Nada se añade al diseño sin autorización de Product owner: se trabaja con los componentes actuales. Los puntos que el orquestador cierre se resuelven eligiendo entre lo ya pactado, nunca añadiendo. R14 (página 404 con tema) queda en el backlog con la última prioridad.
+  - Tests: en el repo solo quedan los que verifican los requisitos de `openspec/specs/` (simplificados, uno por escenario) y las guardas de reglas del proyecto. Los de refactors se borran o pasan a calidad. El resto va a la carpeta local `Sprint5/tazavera-front-qa` (sin remoto), no se corre en cada cambio y se ejecuta una vez al final del proyecto. Cada cambio escribe solo los tests que nombran sus tareas. Antes de mover nada, un plan con totales (`claude/test-reduction-plan`) para Product owner.
+  - OpenCode no se usa mientras el portátil vaya justo de memoria; proposes y applies van a la nube.
+- **Por qué:** Product owner, 7 oct (unos 2.240 tests inmanejables; timeouts bajo carga, R15).
+- **Afecta:** todos los cambios abiertos (prompts de build: solo los tests nombrados); AGENTS.md `## Testing` (texto pendiente de que Product owner lo aplique); add-public-evaluations, add-evaluation-facets, add-coffeeshop-location, add-coffeeshop-directory, refine-list-pagination.
+
+### 2026-10-07 — R9 resuelto y piezas compartidas (orquestador)
+- **Decisión:**
+  - `ClearFiltersButton` vive en `@/shared/ui` (props `label`, `keep`). add-evaluation-facets y add-public-evaluations lo usan con `keep={["orderBy","orderDirection"]}` y no crean `ClearEvaluationFiltersButton` (artefactos actualizados `39a4504`, `8b13c84`). En R12, `FilteredOfferingsResults` (widget `offering-list`) lo usa con `keep={OFFERING_SORT_KEYS}`.
+  - add-coffeeshop-location: el `isValidEmail` existente se mueve sin cambios a `@/entities/contact`; `user-account` lo importa de ahí. Sin copia.
+  - refine-list-pagination D3: la fila "current 10" de la tabla se corrige para seguir la regla de D3 (puntos suspensivos separados si siguen a páginas distintas); lo visible no cambia.
+  - Seguimientos en el backlog: R13 (`EvaluationsAccess` sobre el `SessionGate` compartido), R15 (tests lentos de `EvaluationForm`).
+- **Por qué:** dos artefactos fijados que se contradecían o no se podían construir tal cual; se elige la opción que cambia menos y no añade nada.
+- **Afecta:** add-evaluation-facets, add-public-evaluations, add-coffeeshop-directory (usa el botón y el widget compartidos; además necesita decidir si la paginación conserva `?tab=`), add-coffeeshop-location, refine-list-pagination.
