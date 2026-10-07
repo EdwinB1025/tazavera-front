@@ -56,7 +56,7 @@ Commit scope: `offering-management` for every task except 2.3 and 2.4 (`app-shel
 ## 10. Sidebar entries
 
 - [x] 10.1 Write tests (D8; spec "Management sidebar entry"): `LocationsSidebarEntry.test.tsx` — a link to `/es/manage/locations` with the `MapPin` icon and `sidebarEntry`, `aria-current="page"` and the active state only when `current`; `ManagementSidebarEntries.test.tsx` — new cases: `current={false}` drops `aria-current` and the active state, `children` render after its entry in the same list (existing cases unchanged); `ManageLocationsSidebarEntries.test.tsx` — "Manage offerings" then "Manage locations", only the second current; update `ManageOfferingsSidebarEntries.test.tsx` and `NewOfferingSidebarEntries.test.tsx` to expect two entries in that order with only "Manage offerings" current (replacing their single-entry count assertion); extend `app/[locale]/@sidebar/route-files.test.tsx` with `manage/locations/page.tsx` rendering `ManageLocationsSidebarEntries`. Verification: the new and updated cases fail; all other tests pass.
-- [ ] 10.2 Implement `LocationsSidebarEntry`, the `current`/`children` props of `ManagementSidebarEntries`, `ManageLocationsSidebarEntries`, the second entry in the two offering entry blocks, and `app/[locale]/@sidebar/manage/locations/page.tsx`. Verification: 10.1 passes; all tests, lint and typecheck pass.
+- [x] 10.2 Implement `LocationsSidebarEntry`, the `current`/`children` props of `ManagementSidebarEntries`, `ManageLocationsSidebarEntries`, the second entry in the two offering entry blocks, and `app/[locale]/@sidebar/manage/locations/page.tsx`. Verification: 10.1 passes; all tests, lint and typecheck pass.
 
 ## 11. Integration checks
 

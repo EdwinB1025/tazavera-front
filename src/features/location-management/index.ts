@@ -4,3 +4,5 @@
  */
 export { LocationsPanel } from "./ui/LocationsPanel";
 export type { LocationsPanelProps, LocationsPanelTexts } from "./ui/LocationsPanel";
+export { LocationsSidebarEntry } from "./ui/LocationsSidebarEntry";
+export type { LocationsSidebarEntryProps } from "./ui/LocationsSidebarEntry";
