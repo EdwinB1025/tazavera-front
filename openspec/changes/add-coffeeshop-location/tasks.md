@@ -20,7 +20,7 @@ Commit scope: `offering-management` for every task except 2.3 and 2.4 (`app-shel
 
 ## 3. Icons and texts
 
-- [ ] 3.1 Extend `src/shared/ui/icons.test.ts`: `MapPin`, `MapPinOff` and `Plus` are exported by `src/shared/ui/icons.ts` (skip `Plus` in the assertion only if it is already asserted). Verification: fails only for the icons not yet exported.
+- [x] 3.1 Extend `src/shared/ui/icons.test.ts`: `MapPin`, `MapPinOff` and `Plus` are exported by `src/shared/ui/icons.ts` (skip `Plus` in the assertion only if it is already asserted). Verification: fails only for the icons not yet exported.
 - [ ] 3.2 Export the missing icons from `src/shared/ui/icons.ts`, and create `messages/es/location-management.json`, `messages/en/location-management.json` and `messages/ca/location-management.json` with exactly the keys and strings of design.md D11 (summary §9 strings; `save`, `cancel`, `loading`, `genericError`, `stepUpText`, `stepUpButton`, `signIn`, `requiredError`, `emailFormatError` copied verbatim from each locale's `account.json`). Verification: 3.1 passes; `src/shared/lib/i18n/catalog-guard.test.ts` passes (same key set in the three locales); all tests, lint and typecheck pass.
 
 ## 4. Location card
