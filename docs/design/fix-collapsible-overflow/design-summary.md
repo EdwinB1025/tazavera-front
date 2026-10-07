@@ -33,12 +33,13 @@ The body's inner wrapper (the grid row child, already `min-h-0`) also gets `over
 
 ## 4. Consumers to keep green
 
-Every consumer goes through `CollapsibleBody`, so the fix reaches all of them; their tests must stay green and none needs changing:
+Every consumer goes through `CollapsibleBody`, so the fix reaches all of them; their tests must stay green and none needs changing. On this base (`develop` 589b358):
 
-- Evaluation form groups (section cards with a collapsible header band).
 - Offering catalog per-axis sections (`src/widgets/offering-detail/ui/ConsensusPanel.tsx`).
-- Facets (`FacetCascade`, `FacetRadioList`) and the flavor wheel notes (`FlavorWheel`).
-- Card's collapsed section variant (`Card.tsx`, `Card.test.tsx`).
+- Flavor wheel notes (`src/shared/ui/FlavorWheel.tsx`).
+- Card's collapsible section card (`src/shared/ui/Card.tsx`, `Card.test.tsx`).
+
+The evaluation form groups and the facet panels named in the review live on branches not yet merged into `develop` (the evaluation form is where the defect was measured); they consume the same `CollapsibleBody` and inherit the fix when they merge. `FacetCascade` and `FacetRadioList` on this base do not use the collapsible section.
 
 ## 5. Open
 
