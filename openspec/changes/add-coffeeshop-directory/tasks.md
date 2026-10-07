@@ -57,7 +57,7 @@ Each group is a vertical slice; its heading names the commit scope. Tests are co
 
 ## 11. Tile images in the CSP (app-shell)
 
-- [ ] 11.1 Update the exact-directive test of `proxy.test.ts` ("Map images are allowed"): `img-src 'self' blob: data: https://tile.openstreetmap.org`, every other directive unchanged. Verification: `npm run test:run` fails only on that test.
+- [x] 11.1 Update the exact-directive test of `proxy.test.ts` ("Map images are allowed"): `img-src 'self' blob: data: https://tile.openstreetmap.org`, every other directive unchanged. Verification: `npm run test:run` fails only on that test.
 - [ ] 11.2 Change the `img-src` line of `proxy.ts`. Verification: 11.1 passes; the usual checks pass.
 
 ## 12. Verification (offering-catalog)
