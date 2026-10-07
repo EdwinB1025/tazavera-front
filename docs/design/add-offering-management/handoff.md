@@ -18,6 +18,7 @@ Summary: cloud build runs for the apply; tasks 1–5 integrated; a blocking poin
 - Result: `025e0af`; tasks 6.0a/6.0b. Risk: `refine-facet-controls` (built, not merged) also edits `Combobox.tsx`; whichever merges second takes develop first.
 
 ### Deferred to Product owner
+#### Q1 — ANSWERED 2026-10-07: unify. Product owner delegated the choice; recorded choice: a correction round in this change replaces the two entries with one, "Administrar ofertas" (en "Manage offerings", ca "Gestionar ofertes", from the message catalog), addressing the list route and marked current on both the list and the create route; the create route stays reachable from the list's "New offering" link and empty-state link (spec lines 18 and 49). "Administrar ubicaciones" is added by add-coffeeshop-location beside it. Original entry below.
 #### Q1 — Sidebar entries (tasks 8.1/8.2)
 - Question: task 8 builds "Mis ofertas" / "Nueva oferta" in the sidebar; on 2026-10-06 you asked for "Administrar ofertas" and "Administrar ubicaciones" in the coffeeshop sidebar (the latter from add-coffeeshop-location). / Why deferred: changes a settled decision of this change (correction round). / Options: (a) a correction round here renaming the entries and adding the locations entry once add-coffeeshop-location exists; (b) keep this change as designed and let add-coffeeshop-location add its entry and rename. / Recommendation: (a) for the label, the locations entry in add-coffeeshop-location. / Blocks: tasks 8–10.
 
