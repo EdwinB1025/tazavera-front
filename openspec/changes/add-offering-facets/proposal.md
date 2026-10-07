@@ -16,7 +16,7 @@ The public offerings list (`/{locale}/offerings`, `add-offering-catalog`) reads 
 
 ### New Capabilities
 
-- `filtering`: this change adds the offering facet set, its URL state, sort, toolbar and the catalog's filtered-result states. The capability's generic facet controls are added by `add-facet-controls` (part 2), proposed in parallel.
+- `filtering`: this change adds the offering facet set, its URL state, sort, toolbar and the catalog's filtered-result states. The capability's generic facet controls come from `add-facet-controls` (part 2), merged.
 
 ### Modified Capabilities
 
@@ -24,11 +24,11 @@ None. The catalog host's empty state and result announcement are filtering behav
 
 ## Impact
 
-- **Routes:** `app/[locale]/@sidebar/offerings/page.tsx` (new, in the `@sidebar` slot of `add-sidebar-slot`).
-- **Code:** a new `src/features/offering-facets` slice; a sidebar screen in `src/pages/offerings`; the catalog screen and its list widget (from `add-offering-catalog`); shared helpers in `src/shared/api` (coffees read) and `src/shared/lib/filter-query` (URL writes), shared with `add-evaluation-facets`; `messages/{es,en,ca}/filters.json` and `catalog.json`.
+- **Routes:** `app/[locale]/@sidebar/offerings/page.tsx` (from `add-sidebar-slot`) passes the route's params and query; `app/[locale]/offerings/page.tsx` (from `add-offering-catalog`) passes the toolbar.
+- **Code:** a new `src/features/offering-facets` slice; the offerings sidebar screen in `src/pages/offerings-sidebar` and a toolbar screen in `src/pages/offerings`; the catalog screen and its list widget (from `add-offering-catalog`); shared helpers in `src/shared/api` (coffees read) and `src/shared/lib/filter-query` (URL writes), shared with `add-evaluation-facets`; `messages/{es,en,ca}/filters.json` and `catalog.json`.
 - **API:** `listCoffees`, `listRoasteries`, `listOlfactoryTaxonomies` (read); `listOfferings` receives the query (fetched by the catalog).
 - **Dependencies:** none new. The combobox dependency (`cmdk`) belongs to `add-facet-controls`.
-- **Apply preconditions:** `add-offering-catalog`, `add-sidebar-slot` and `add-facet-controls` merged into `develop` and `develop` merged into `feature/add-offering-facets`.
+- **Apply preconditions:** met: `add-offering-catalog`, `add-sidebar-slot` and `add-facet-controls` are merged into `develop` and `develop` (`589b358`) into `feature/add-offering-facets`.
 
 ## Non-goals
 
