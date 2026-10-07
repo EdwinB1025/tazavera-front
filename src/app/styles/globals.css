@@ -90,7 +90,7 @@
 
 @theme {
     /* ─── SURFACE ─── */
-    --color-surface-page: var(--color-cream-100);
+    --color-surface-page: var(--color-sage-100);
     --color-surface-card: var(--color-cream-100);
     --color-surface-section: var(--color-cream-200);
     --color-surface-section-hover: var(--color-cream-300);
