@@ -31,7 +31,7 @@ Commit scope: `offering-management` for every task except 2.3 and 2.4 (`app-shel
 ## 5. Paired contact fields layout
 
 - [x] 5.1 If 0.1 found no paired layout on `ContactFields`: add tests to `src/entities/contact/ui/ContactFields.test.tsx` that `layout="paired"` places Postal code + City, Phone + Email and Web + Social in two-column rows from `md` (the classes the build chooses, e.g. a `md:grid-cols-2` row with a 1.5rem gap) and that the default renders exactly as before (existing assertions unchanged). Verification: the new cases fail, the existing ones pass. If 0.1 found an equivalent, this task and 5.2 change no files and are checked off with 6.1.
-- [ ] 5.2 Implement the optional `layout` prop (default `"stacked"`, D12). Verification: 5.1 and the existing `ContactFields` and account tests pass; all tests, lint and typecheck pass.
+- [x] 5.2 Implement the optional `layout` prop (default `"stacked"`, D12). Verification: 5.1 and the existing `ContactFields` and account tests pass; all tests, lint and typecheck pass.
 
 ## 6. Locations data and submit sequence
 
