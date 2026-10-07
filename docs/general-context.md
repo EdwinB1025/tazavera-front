@@ -470,3 +470,11 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
   - El catálogo usa `PageSection surface="page"` para que el fondo se vea en los márgenes laterales (ronda 1 de catalog, punto 4).
 - **Por qué:** decisiones de Product owner del 7 oct; resumen del design lead `docs/design/refine-page-surfaces/design-summary.md`.
 - **Afecta:** refine-page-surfaces (nuevo; va primero, antes de la comprobación en navegador y el archive de catalog); add-offering-catalog (ronda 1, punto 4; secciones por eje del consenso); add-specialist-evaluations y add-offering-management (adopción de la tarjeta de sección cuando se mergee); add-public-evaluations (actualización de artefactos antes del apply); add-user-account (resumen, Open 3); add-user-contact, add-coffeeshop-location y add-coffeeshop-directory (resúmenes).
+
+### 2026-10-07 — superficies de página: respuestas a Open 1–3 y refactors previos (Product owner y orquestador)
+- **Decisión:**
+  - Fondo claro: `surface-page` → `sage-100` (tema tradicional). Fondo oscuro sin cambios (`night-petrol-950`).
+  - Adopción: catalog, specialist-evaluations y management reciben una ronda pequeña de adopción de la tarjeta de sección tras su ronda actual y antes de su archive (sin borde verde izquierdo, banda de cabecera, borde del panel de management 2px → 1px, padding lateral de la cabecera de evaluations 1rem → 1.5rem desde 768px). user-account adopta en un cambio pequeño posterior; add-user-contact se aplica después de ese cambio. public-evaluations adopta por actualización de artefactos antes de su apply.
+  - Orquestador: el propose de add-coffeeshop-directory y add-coffeeshop-location puede ir antes de que se mergeen R9/R12 y R11; solo su apply espera a los refactors. Listas de directory y location en una columna.
+- **Por qué:** respuestas de Product owner del 7 oct (P1a, P2a, P3a); resúmenes del design lead (`2ce2cd8`).
+- **Afecta:** refine-page-surfaces; add-offering-catalog, add-specialist-evaluations, add-offering-management (ronda de adopción); add-user-account; add-user-contact; add-public-evaluations; add-coffeeshop-location; add-coffeeshop-directory.
