@@ -6,6 +6,7 @@ import type {
 } from "@/shared/api";
 import { ratingTierFor } from "@/entities/offering";
 import {
+  assignWheelGroups,
   buildDescriptorRows,
   buildFlavorWheelNodes,
   buildTaxonomyLookup,
@@ -54,13 +55,17 @@ export type ConsensusPanelTexts = {
   detailMainTastesHeading: string;
   detailDefectsHeading: string;
   detailTasteEmpty: string;
-  detailSensoryHeading: string;
   detailCataHeading: string;
+  /** The not-verified message shown instead of the SCA card (D20). */
+  detailNotVerifiedMessage: string;
   wheelLabel: string;
   wheelHint: string;
   /** `{count} de {total} evaluadores`: a wheel note's accessible count. */
   wheelCount: string;
   wheelNotesToggle: string;
+  /** The wheel's general group legend name and the aromatics group (D19). */
+  wheelGroupsLabel: string;
+  wheelGroupAromatics: string;
 };
 
 export type ConsensusPanelProps = {
@@ -123,8 +128,16 @@ const SELECTION_BLOCK_CLASSES = [
   "lg:col-span-2",
 ].join(" ");
 
-// The consensus legend: one meta line per identified note.
-const LEGEND_CLASSES = ["flex", "flex-col", "gap-1"].join(" ");
+// The consensus legend: one meta line per identified note, in a fixed 14rem
+// column from `md`, the same in every block (design.md D13).
+const LEGEND_CLASSES = [
+  "flex",
+  "flex-col",
+  "gap-1",
+  "md:w-56",
+  "md:shrink-0",
+  "break-words",
+].join(" ");
 
 /** One line of a consensus legend: a note's name and its count. */
 export type ConsensusLegendEntry = { label: string; count: number };
@@ -155,7 +168,7 @@ const CONCORDANCE_CLASSES = ["flex", "flex-wrap", "gap-2"].join(" ");
 /**
  * The Consensus panel (add-offering-catalog design.md D12–D14; the spec's
  * "Consensus …" requirements): the score card for a verified offering, then
- * the card grid with the blocks in the settled order. Every text arrives as a
+ * the card grid with the blocks in the order of review round 1 (D12). Every text arrives as a
  * prop; the score and the bands never rest on colour alone.
  */
 export function ConsensusPanel({
@@ -223,7 +236,7 @@ export function ConsensusPanel({
   // the consensus legend beside the card, in card order.
   function selectionBlock(category: string, heading: string): ReactNode {
     const rows = buildDescriptorRows(taxonomies, category, locale);
-    const counts = identifiedCounts(offering.sensoryTaxonomy ?? [], category);
+    const counts = identifiedCounts(offering.cataConcordance ?? [], category);
     const legend: ConsensusLegendEntry[] = rows
       .flatMap((row) => row.options)
       .filter((option) => counts.has(option.value))
@@ -261,43 +274,27 @@ export function ConsensusPanel({
     );
   }
 
-  // The two trees (design.md D14): one `FlavorWheel` per tree, fed the nodes
-  // the taxonomy entity builds; an empty tree shows the empty text instead.
+  // The CATA wheel (design.md D14, D19): one `FlavorWheel` fed the
+  // `aromatics` group of `cataConcordance`, its roots grouped into aromatics
+  // and mouthfeel; an empty concordance shows the empty text instead.
   const lookup = buildTaxonomyLookup(taxonomies, locale);
   const wheelTexts = {
     label: texts.wheelLabel,
     hint: texts.wheelHint,
     emptyMessage: texts.detailTasteEmpty,
     notesToggle: texts.wheelNotesToggle,
+    groupsLabel: texts.wheelGroupsLabel,
   };
+  const wheelGroups = [
+    { id: "aromatics", name: texts.wheelGroupAromatics },
+    { id: "mouthfeel", name: texts.attrMouthfeel },
+  ];
   function countLabel(count: number, of: number): string {
     return texts.wheelCount
       .replace("{count}", String(count))
       .replace("{total}", String(of));
   }
-
-  function treeBlock(
-    tree: OfferingTaxonomyNode[] | undefined,
-    heading: string,
-  ): ReactNode {
-    const nodes = tree ?? [];
-    return (
-      <Card layout="stacked">
-        <CardContent className={CONTENT_CLASSES}>
-          <h2 className="type-subheading">{heading}</h2>
-          {nodes.length > 0 ? (
-            <FlavorWheel
-              nodes={buildFlavorWheelNodes(nodes, lookup, total, countLabel)}
-              total={total}
-              texts={wheelTexts}
-            />
-          ) : (
-            <p className="type-body">{texts.detailTasteEmpty}</p>
-          )}
-        </CardContent>
-      </Card>
-    );
-  }
+  const cata = offering.cataConcordance ?? [];
 
   return (
     <div className={PANEL_CLASSES}>
@@ -313,7 +310,7 @@ export function ConsensusPanel({
         </Card>
       ) : null}
       <div className={GRID_CLASSES}>
-        <div className={WIDE_CARD_CLASSES}>
+        {offering.verificationStatus === "verified" ? (
           <Card layout="stacked">
             <CardContent className={CONTENT_CLASSES}>
               <h2 className="type-subheading">
@@ -345,7 +342,13 @@ export function ConsensusPanel({
               </div>
             </CardContent>
           </Card>
-        </div>
+        ) : (
+          <Card layout="stacked">
+            <CardContent>
+              <p className="type-body">{texts.detailNotVerifiedMessage}</p>
+            </CardContent>
+          </Card>
+        )}
         <Card layout="stacked">
           <CardContent className={CONTENT_CLASSES}>
             <h2 className="type-subheading">{texts.detailStatusHeading}</h2>
@@ -364,8 +367,24 @@ export function ConsensusPanel({
         </Card>
         {selectionBlock("main_tastes", texts.detailMainTastesHeading)}
         {selectionBlock("defects", texts.detailDefectsHeading)}
-        {treeBlock(offering.sensoryTaxonomy, texts.detailSensoryHeading)}
-        {treeBlock(offering.cataConcordance, texts.detailCataHeading)}
+        <Card layout="stacked" className={WIDE_CARD_CLASSES}>
+          <CardContent className={CONTENT_CLASSES}>
+            <h2 className="type-subheading">{texts.detailCataHeading}</h2>
+            {cata.length > 0 ? (
+              <FlavorWheel
+                nodes={assignWheelGroups(
+                  buildFlavorWheelNodes(cata, lookup, total, countLabel),
+                  taxonomies,
+                )}
+                total={total}
+                texts={wheelTexts}
+                groups={wheelGroups}
+              />
+            ) : (
+              <p className="type-body">{texts.detailTasteEmpty}</p>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

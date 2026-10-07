@@ -42,10 +42,12 @@
   "detailMainTastesHeading": "Sabors principals",
   "detailDefectsHeading": "Defectes",
   "detailTasteEmpty": "Sense dades de tast disponibles.",
-  "detailSensoryHeading": "Perfil sensorial",
   "detailCataHeading": "Concordança CATA",
+  "detailNotVerifiedMessage": "Aquesta oferta encara no està verificada.",
   "wheelLabel": "Roda de sabors",
   "wheelHint": "Passa el punter o el focus per una nota per veure'n la descripció.",
   "wheelCount": "{count} de {total} avaluadors",
-  "wheelNotesToggle": "Notes"
+  "wheelNotesToggle": "Notes",
+  "wheelGroupsLabel": "Grups de notes",
+  "wheelGroupAromatics": "Aromàtics"
 }

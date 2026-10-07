@@ -42,10 +42,12 @@
   "detailMainTastesHeading": "Sabores principales",
   "detailDefectsHeading": "Defectos",
   "detailTasteEmpty": "Sin datos de cata disponibles.",
-  "detailSensoryHeading": "Perfil sensorial",
   "detailCataHeading": "Concordancia CATA",
+  "detailNotVerifiedMessage": "Esta oferta aún no está verificada.",
   "wheelLabel": "Rueda de sabores",
   "wheelHint": "Pasa el puntero o el foco por una nota para ver su descripción.",
   "wheelCount": "{count} de {total} evaluadores",
-  "wheelNotesToggle": "Notas"
+  "wheelNotesToggle": "Notas",
+  "wheelGroupsLabel": "Grupos de notas",
+  "wheelGroupAromatics": "Aromáticos"
 }

@@ -42,10 +42,12 @@
   "detailMainTastesHeading": "Main tastes",
   "detailDefectsHeading": "Defects",
   "detailTasteEmpty": "No cupping data available.",
-  "detailSensoryHeading": "Sensory profile",
   "detailCataHeading": "CATA concordance",
+  "detailNotVerifiedMessage": "This offering is not verified yet.",
   "wheelLabel": "Flavor wheel",
   "wheelHint": "Hover over or focus a note to see its description.",
   "wheelCount": "{count} of {total} evaluators",
-  "wheelNotesToggle": "Notes"
+  "wheelNotesToggle": "Notes",
+  "wheelGroupsLabel": "Note groups",
+  "wheelGroupAromatics": "Aromatics"
 }
