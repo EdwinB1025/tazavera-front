@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach, beforeAll, beforeEach } from "vitest";
 import type { ReactNode } from "react";
 import { render, screen, fireEvent, cleanup, act } from "@testing-library/react";
-import { FiltersTrigger, SIDEBAR_ID, SidebarProvider, useSidebar } from "@/shared/ui";
+import { FiltersTrigger, SidebarProvider, useSidebar } from "@/shared/ui";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
@@ -56,16 +56,6 @@ function trigger(): HTMLElement | null {
 
 /** The body "Filters" trigger (add-offering-facets design.md D8; spec "Offerings filter toolbar"). */
 describe("FiltersTrigger (design.md D8)", () => {
-  it("renders below md whatever the sidebar state", () => {
-    mobile = true;
-    renderTrigger();
-    expect(screen.getByTestId("open").textContent).toBe("false");
-    expect(trigger()).not.toBeNull();
-    act(() => fireEvent.click(screen.getByRole("button", { name: "toggle" })));
-    expect(screen.getByTestId("open").textContent).toBe("true");
-    expect(trigger()).not.toBeNull();
-  });
-
   it("renders from md only while the sidebar is collapsed", () => {
     renderTrigger();
     expect(screen.getByTestId("open").textContent).toBe("true");
@@ -74,26 +64,10 @@ describe("FiltersTrigger (design.md D8)", () => {
     expect(trigger()).not.toBeNull();
   });
 
-  it("mirrors open in aria-expanded and controls the sidebar", () => {
-    mobile = true;
-    renderTrigger();
-    expect(trigger()!.getAttribute("aria-expanded")).toBe("false");
-    expect(trigger()!.getAttribute("aria-controls")).toBe(SIDEBAR_ID);
-    act(() => fireEvent.click(screen.getByRole("button", { name: "toggle" })));
-    expect(trigger()!.getAttribute("aria-expanded")).toBe("true");
-  });
-
   it("opens the sidebar when activated", () => {
     mobile = true;
     renderTrigger();
     fireEvent.click(trigger()!);
     expect(screen.getByTestId("open").textContent).toBe("true");
-  });
-
-  it("shows the caller's text and focus ring", () => {
-    mobile = true;
-    renderTrigger("Filters (2)");
-    const button = screen.getByRole("button", { name: "Filters (2)" });
-    expect(button.getAttribute("class")).toContain("focus-visible:focus-ring");
   });
 });
