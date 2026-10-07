@@ -81,6 +81,15 @@ describe("OfferingsScreen", () => {
     expect(screen.queryByTestId("offerings-block")).toBeNull();
   });
 
+  it("places the results on the page background (spec: Centered column on the page background)", () => {
+    block.suspend = true;
+    render(<OfferingsScreen locale="es" searchParams={{}} />);
+    const section = screen.getAllByTestId("skeleton-card")[0].closest("section")!;
+    const classes = (section.getAttribute("class") ?? "").split(/\s+/);
+    expect(classes).toContain("bg-surface-page");
+    expect(classes).not.toContain("bg-surface-section");
+  });
+
   it("passes the path /{locale}/offerings and the kept query to the list (design.md D1, D10)", () => {
     render(
       <OfferingsScreen

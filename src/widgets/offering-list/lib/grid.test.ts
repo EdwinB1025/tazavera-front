@@ -2,9 +2,9 @@ import { describe, it, expect } from "vitest";
 import { CATALOG_GRID_CLASSES, OFFERING_GRID_CLASSES } from "./grid";
 
 /**
- * Grid class sets (add-offering-catalog design.md D10; spec "Catalog grid by
- * available width"). The catalog grid follows the width of its results region
- * through container variants; landing keeps its viewport variants.
+ * Grid class sets (add-offering-catalog design.md D10; spec "Catalog single
+ * column"). The catalog renders one column at every width; landing keeps its
+ * viewport variants.
  */
 
 function tokens(classes: string): string[] {
@@ -12,22 +12,18 @@ function tokens(classes: string): string[] {
 }
 
 describe("CATALOG_GRID_CLASSES (design.md D10)", () => {
-  it("lays the cards out in one column, two from a 768px region and three from 1280px, 1.5rem apart", () => {
-    expect(tokens(CATALOG_GRID_CLASSES)).toEqual(
-      expect.arrayContaining([
-        "grid",
-        "grid-cols-1",
-        "gap-6",
-        "@min-[768px]:grid-cols-2",
-        "@min-[1280px]:grid-cols-3",
-      ]),
-    );
+  it("lays the cards out in one column at every width, 1.5rem apart", () => {
+    expect(tokens(CATALOG_GRID_CLASSES)).toEqual([
+      "grid",
+      "grid-cols-1",
+      "gap-6",
+    ]);
   });
 
-  it("carries no viewport column variant", () => {
+  it("carries no viewport or container column variant", () => {
     expect(
-      tokens(CATALOG_GRID_CLASSES).filter((token) =>
-        /^(md|lg|xl):grid-cols-/.test(token),
+      tokens(CATALOG_GRID_CLASSES).filter(
+        (token) => token.startsWith("@") || /^(sm|md|lg|xl|2xl):grid-cols-/.test(token),
       ),
     ).toEqual([]);
   });
