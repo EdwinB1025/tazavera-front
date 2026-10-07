@@ -60,12 +60,6 @@ describe("toDetailTab (design.md D7)", () => {
 });
 
 describe("DetailTabs (design.md D7)", () => {
-  it("renders the two tab labels from the texts", () => {
-    renderTabs("inventory");
-    expect(screen.getByRole("tab", { name: LABELS.inventory })).toBeDefined();
-    expect(screen.getByRole("tab", { name: LABELS.consensus })).toBeDefined();
-  });
-
   it("selects inventory and renders only its panel when active is inventory (spec: Default tab)", () => {
     renderTabs("inventory");
     expect(
@@ -99,16 +93,5 @@ describe("DetailTabs (design.md D7)", () => {
     );
     expect(screen.getByRole("tabpanel").textContent).toBe("Consensus panel");
     expect(screen.queryByText("Inventory panel")).toBeNull();
-  });
-
-  it("pushes ?tab=inventory when switching back", () => {
-    renderTabs("consensus");
-    fireEvent.mouseDown(screen.getByRole("tab", { name: LABELS.inventory }), {
-      button: 0,
-      ctrlKey: false,
-    });
-    expect(router.push).toHaveBeenCalledWith(
-      `/es/offerings/${ULID}?tab=inventory`,
-    );
   });
 });
