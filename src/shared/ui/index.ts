@@ -98,6 +98,7 @@ export type {
 } from "./Collapsible";
 export { FlavorWheel } from "./FlavorWheel";
 export type {
+  FlavorWheelGroup,
   FlavorWheelNode,
   FlavorWheelTexts,
   FlavorWheelProps,
@@ -135,3 +136,14 @@ export type {
   ComboboxSearch,
   ComboboxTexts,
 } from "./Combobox";
+export { LabelValueRow } from "./LabelValueRow";
+export type { LabelValueRowProps } from "./LabelValueRow";
+export { Tabs, TabsList, TabsTrigger, TabsContent } from "./Tabs";
+export type {
+  TabsProps,
+  TabsListProps,
+  TabsTriggerProps,
+  TabsContentProps,
+} from "./Tabs";
+export { RetryButton } from "./RetryButton";
+export type { RetryButtonProps } from "./RetryButton";

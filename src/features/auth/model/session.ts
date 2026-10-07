@@ -30,7 +30,7 @@ import {
   request,
 } from "@/shared/api";
 import { DEFAULT_LOCALE, isSupportedLocale } from "@/shared/config/locales";
-import { configureSession, startSilent } from "../api/authorize";
+import { configureSession, currentRoute, startSilent } from "../api/authorize";
 import { hasMarker, removeMarker } from "./flow";
 
 const LOADING: Session = { state: "loading" };
@@ -119,7 +119,7 @@ function start(): void {
   if (silentCheckDone) return;
   silentCheckDone = true;
   setResolving();
-  startSilent(window.location.pathname);
+  startSilent(currentRoute());
 }
 
 /** `GET /user` after the tokens settle (design.md D5), or `anonymous`. */
@@ -196,7 +196,7 @@ export async function refreshProfile(): Promise<void> {
 configureClient({
   getTokens,
   refresh: refreshTokens,
-  onUnrecoverable: () => startSilent(window.location.pathname),
+  onUnrecoverable: () => startSilent(currentRoute()),
 });
 configureSession({
   authenticated: loadProfile,

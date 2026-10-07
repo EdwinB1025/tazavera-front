@@ -54,6 +54,7 @@ const locationMock = {
   assign: vi.fn<(url: string) => void>(),
   reload: vi.fn<() => void>(),
   pathname: "/callback",
+  search: "",
 };
 
 /** The pending-flow record a full-page sign-in leaves behind, under the flow key. */

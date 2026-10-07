@@ -36,7 +36,7 @@ export function SessionGate({
   if (session.state === "authenticated") return children(session.user);
 
   return (
-    <Card>
+    <Card variant="section">
       {session.state === "loading" ? (
         <CardContent>
           <LoadingStatus text={texts.loading} />

@@ -18,8 +18,16 @@ type UserResponse =
   operations["getTheAuthenticatedUser"]["responses"][200]["content"]["application/json"];
 type ListOfferingsResponse =
   operations["listOfferings"]["responses"][200]["content"]["application/json"];
+type OfferingResponse =
+  operations["getAnOffering"]["responses"][200]["content"]["application/json"];
 type ListTaxonomiesResponse =
   operations["listOlfactoryTaxonomies"]["responses"][200]["content"]["application/json"];
+type ListMyLocationsResponse =
+  operations["listMyLocations"]["responses"][200]["content"]["application/json"];
+type ListCoffeeInventoryResponse =
+  operations["listCoffeeInventory"]["responses"][200]["content"]["application/json"];
+type CreateOfferingsResponse =
+  operations["createOfferings"]["responses"][201]["content"]["application/json"];
 
 /** `data` of `GET /user`. All fields are optional in the contract. */
 export type SessionUser = NonNullable<UserResponse["data"]>;
@@ -38,6 +46,9 @@ export type OfferingSummary = NonNullable<ListOfferingsResponse["data"]>[number]
 
 /** `meta` of the offerings pagination; the list reads `current_page` and `last_page`. */
 export type OfferingsPageMeta = NonNullable<ListOfferingsResponse["meta"]>;
+
+/** `data` of `GET /offerings/{offering_ulid}`: the offering detail both detail tabs show. */
+export type OfferingDetail = NonNullable<OfferingResponse["data"]>;
 
 /** One node of an offering's `sensoryTaxonomy` tree: `ref`, `type`, `level`, `count`, `children`. */
 export type OfferingTaxonomyNode = NonNullable<
@@ -63,3 +74,18 @@ export type PasswordUpdatePayload =
 export type TaxonomiesPayload = {
   data: TaxonomyNode[];
 };
+
+/** What `GET /locations` returns: `data` of the coffeeshop's locations. */
+export type LocationsPayload = ListMyLocationsResponse;
+
+/** One item of `GET /locations` `data`: `ulid`, `name`, `description`, `latitud`, `longitud`, `contacts`. */
+export type LocationItem = NonNullable<LocationsPayload["data"]>[number];
+
+/** What `GET /coffeeInventory` returns: `data` of inventory items. */
+export type CoffeeInventoryPayload = ListCoffeeInventoryResponse;
+
+/** One item of `GET /coffeeInventory` `data`: `ulid`, `roastLot`, `productionDate`, `coffee`, `roastery`. */
+export type CoffeeInventoryItem = NonNullable<CoffeeInventoryPayload["data"]>[number];
+
+/** What `POST /offerings` returns on 201: `data` of the created offerings and `message`. */
+export type CreateOfferingsPayload = CreateOfferingsResponse;

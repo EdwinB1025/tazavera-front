@@ -110,6 +110,19 @@ describe("AccountClient — the session gate", () => {
   });
 });
 
+describe("AccountClient — sections group", () => {
+  it("places the four sections as the children of one flex column 1rem apart", () => {
+    auth.session = { state: "authenticated", user: USER };
+    renderClient();
+    const regions = screen.getAllByRole("region");
+    const group = regions[0].parentElement!;
+    expect(Array.from(group.children)).toEqual(regions);
+    expect(group.classList.contains("flex")).toBe(true);
+    expect(group.classList.contains("flex-col")).toBe(true);
+    expect(group.classList.contains("gap-4")).toBe(true);
+  });
+});
+
 describe("AccountClient — Security section", () => {
   it("shows its description and an external same-tab link to {API}/user/security, sending no request", () => {
     auth.session = { state: "authenticated", user: USER };
