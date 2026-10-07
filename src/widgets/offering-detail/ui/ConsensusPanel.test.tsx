@@ -2,7 +2,11 @@ import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import type { OfferingDetail, TaxonomyNode } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
-import { buildFlavorWheelNodes, buildTaxonomyLookup } from "@/entities/taxonomy";
+import {
+  assignWheelGroups,
+  buildFlavorWheelNodes,
+  buildTaxonomyLookup,
+} from "@/entities/taxonomy";
 import type { FlavorWheelProps } from "@/shared/ui";
 import { ConsensusPanel } from "./ConsensusPanel";
 import type { ConsensusPanelTexts } from "./ConsensusPanel";
@@ -71,11 +75,13 @@ const TEXTS = {
       "detailMainTastesHeading",
       "detailDefectsHeading",
       "detailTasteEmpty",
-      "detailSensoryHeading",
       "detailCataHeading",
+      "detailNotVerifiedMessage",
       "wheelLabel",
       "wheelHint",
       "wheelNotesToggle",
+      "wheelGroupsLabel",
+      "wheelGroupAromatics",
     ].map((key) => [key, `texts.${key}`]),
   ),
   wheelCount: "{count} de {total} evaluadores",
@@ -158,6 +164,15 @@ function renderPanel(offering: OfferingDetail = OFFERING, locale = "es") {
       texts={TEXTS}
     />,
   );
+}
+
+/** The grid item holding `element`: its ancestor that is a child of the card grid. */
+function gridItemOf(element: Element): Element {
+  let item = element;
+  while (!classTokens(item.parentElement!).includes("lg:grid-cols-2")) {
+    item = item.parentElement!;
+  }
+  return item;
 }
 
 /** The [label, value] pairs of the card whose h2 is `heading`. */
@@ -306,8 +321,44 @@ describe("ConsensusPanel — SCA attributes (spec: Consensus SCA attribute avera
     expect(names).toEqual(
       ATTRIBUTE_KEYS.map((key) => TEXTS[key as keyof ConsensusPanelTexts]),
     );
-    // The card spans both grid columns from `lg`.
-    expect(classTokens(card.parentElement!)).toContain("lg:col-span-2");
+    // One column from `lg`, paired with the status card (review round 1).
+    expect(classTokens(gridItemOf(card))).not.toContain("lg:col-span-2");
+  });
+
+  it("pairs the status card with the attributes card: neither spans both columns, the attributes card first", () => {
+    renderPanel(AVERAGES);
+    const attributes = gridItemOf(
+      screen.getByRole("heading", { level: 2, name: TEXTS.detailAttributesHeading }),
+    );
+    const status = gridItemOf(
+      screen.getByRole("heading", { level: 2, name: TEXTS.detailStatusHeading }),
+    );
+    expect(classTokens(status)).not.toContain("lg:col-span-2");
+    expect(attributes.nextElementSibling).toBe(status);
+  });
+
+  it("shows the not-verified message instead of the attributes for an offering that is not verified (spec: Offering not verified)", () => {
+    renderPanel({ ...AVERAGES, verificationStatus: "provisional" });
+    expect(screen.queryAllByRole("meter")).toHaveLength(0);
+    expect(
+      screen.queryByRole("heading", { name: TEXTS.detailAttributesHeading }),
+    ).toBeNull();
+    const message = screen.getByText(TEXTS.detailNotVerifiedMessage);
+    const card = message.closest(".bg-surface-card")!;
+    expect(card).not.toBeNull();
+    expect(classTokens(message)).toContain("type-body");
+    const item = gridItemOf(card);
+    expect(classTokens(item)).not.toContain("lg:col-span-2");
+    expect(item.nextElementSibling).toBe(
+      gridItemOf(
+        screen.getByRole("heading", { level: 2, name: TEXTS.detailStatusHeading }),
+      ),
+    );
+  });
+
+  it("shows no not-verified message for a verified offering", () => {
+    renderPanel(AVERAGES);
+    expect(screen.queryByText(TEXTS.detailNotVerifiedMessage)).toBeNull();
   });
 
   it("passes the parsed value with one decimal in the value text and label (the settled '7,2 de 9' reading)", () => {
@@ -354,7 +405,11 @@ describe("ConsensusPanel — SCA attributes (spec: Consensus SCA attribute avera
   it("finds the attribute heading and labels in the catalog and the bean texts in the scales area of each locale (design.md D16)", () => {
     for (const locale of ["es", "en", "ca"]) {
       const catalog = getMessages("catalog", locale);
-      for (const key of ["detailAttributesHeading", ...ATTRIBUTE_KEYS]) {
+      for (const key of [
+        "detailAttributesHeading",
+        "detailNotVerifiedMessage",
+        ...ATTRIBUTE_KEYS,
+      ]) {
         expect(catalog[key], `${locale}.${key}`).toEqual(expect.any(String));
       }
       const scales = getMessages("scales", locale);
@@ -370,7 +425,7 @@ describe("ConsensusPanel — Main tastes and Defects (spec: Consensus Defects an
   const IDENTIFIED: OfferingDetail = {
     ...OFFERING,
     evaluationCount: 5,
-    sensoryTaxonomy: [
+    cataConcordance: [
       { ref: SWEET, type: "main_tastes", level: 0, count: 4, children: [] },
       { ref: SOUR, type: "main_tastes", level: 0, count: 2, children: [] },
       {
@@ -450,10 +505,40 @@ describe("ConsensusPanel — Main tastes and Defects (spec: Consensus Defects an
     expect(classTokens(tastes)).toContain("flex-1");
   });
 
+  it("gives both legends the same fixed column width from md (review round 1, design.md D13)", () => {
+    renderPanel(IDENTIFIED);
+    for (const heading of [
+      TEXTS.detailMainTastesHeading,
+      TEXTS.detailDefectsHeading,
+    ]) {
+      const legend = cardOf(heading).nextElementSibling!;
+      expect(classTokens(legend)).toEqual(
+        expect.arrayContaining(["md:w-56", "md:shrink-0"]),
+      );
+    }
+  });
+
+  it("reads the two groups from the CATA concordance only, never from the sensory taxonomy (spec: Consensus Defects and Main tastes)", () => {
+    renderPanel({
+      ...OFFERING,
+      cataConcordance: [],
+      sensoryTaxonomy: IDENTIFIED.cataConcordance,
+    });
+    for (const heading of [
+      TEXTS.detailMainTastesHeading,
+      TEXTS.detailDefectsHeading,
+    ]) {
+      const card = cardOf(heading);
+      expect(badgesIn(card)).toEqual([]);
+      expect(legendBeside(card)).toEqual([]);
+      expect(card.textContent).toContain(TEXTS.detailTasteEmpty);
+    }
+  });
+
   it("shows the empty text and no legend for a group with no identified note (spec: Empty group)", () => {
     renderPanel({
       ...IDENTIFIED,
-      sensoryTaxonomy: IDENTIFIED.sensoryTaxonomy!.filter(
+      cataConcordance: IDENTIFIED.cataConcordance!.filter(
         (node) => node.type !== "defects",
       ),
     });
@@ -477,10 +562,11 @@ describe("ConsensusPanel — Main tastes and Defects (spec: Consensus Defects an
   });
 });
 
-describe("ConsensusPanel — taste trees (spec: Consensus taste trees; design.md D14)", () => {
+describe("ConsensusPanel — CATA wheel (specs: Consensus taste trees, Mouthfeel group in the CATA wheel; design.md D14, D19)", () => {
   const FLORAL = "01JROOTFLORAL000000000000A";
   const JASMINE = "01JCHILDJASMINE0000000000A";
   const FRUITY = "01JROOTFRUITY000000000000A";
+  const BODY = "01JROOTBODY00000000000000A";
 
   const WHEEL_TAXONOMIES: TaxonomyNode[] = [
     ...TAXONOMIES,
@@ -514,6 +600,15 @@ describe("ConsensusPanel — taste trees (spec: Consensus taste trees; design.md
       color: "#CC0000",
       categories: ["aromatics"],
     },
+    {
+      ulid: BODY,
+      level: 0,
+      nameEs: "Sensación en boca",
+      nameEn: "Mouthfeel",
+      nameCa: "Sensació en boca",
+      color: "#6b6f76",
+      categories: ["mouthfeel"],
+    },
   ];
 
   const TREES: OfferingDetail = {
@@ -522,15 +617,16 @@ describe("ConsensusPanel — taste trees (spec: Consensus taste trees; design.md
     sensoryTaxonomy: [
       {
         ref: FLORAL,
-        type: "aromatics",
+        type: "aroma",
         level: 0,
         count: 3,
-        children: [{ ref: JASMINE, type: "aromatics", level: 1, count: 2 }],
+        children: [{ ref: JASMINE, type: "aroma", level: 1, count: 2 }],
       },
-      { ref: SWEET, type: "main_tastes", level: 0, count: 4, children: [] },
     ],
     cataConcordance: [
       { ref: FRUITY, type: "aromatics", level: 0, count: 4, children: [] },
+      { ref: BODY, type: "aromatics", level: 0, count: 2, children: [] },
+      { ref: SWEET, type: "main_tastes", level: 0, count: 4, children: [] },
     ],
   };
 
@@ -558,81 +654,96 @@ describe("ConsensusPanel — taste trees (spec: Consensus taste trees; design.md
     return flavorWheel.mock.calls.map(([props]) => props as FlavorWheelProps);
   }
 
-  it("renders one wheel per tree, each in the card of its heading (spec: One wheel per tree)", () => {
+  it("renders exactly one wheel, in the CATA card, and no sensory-profile wheel or heading (spec: One wheel from the CATA concordance)", () => {
     renderTrees(TREES);
-    for (const heading of [
-      TEXTS.detailSensoryHeading,
-      TEXTS.detailCataHeading,
-    ]) {
-      expect(
-        cardOf(heading).querySelectorAll("[data-testid='flavor-wheel']"),
-      ).toHaveLength(1);
-    }
-    expect(screen.getAllByTestId("flavor-wheel")).toHaveLength(2);
+    expect(
+      cardOf(TEXTS.detailCataHeading).querySelectorAll(
+        "[data-testid='flavor-wheel']",
+      ),
+    ).toHaveLength(1);
+    expect(screen.getAllByTestId("flavor-wheel")).toHaveLength(1);
+    expect(screen.queryByText("texts.detailSensoryHeading")).toBeNull();
   });
 
-  it("feeds each wheel the nodes built from its tree, the lookup, evaluationCount and the count template", () => {
+  it("spans both grid columns with the CATA card", () => {
+    renderTrees(TREES);
+    expect(classTokens(gridItemOf(cardOf(TEXTS.detailCataHeading)))).toContain(
+      "lg:col-span-2",
+    );
+  });
+
+  it("feeds the wheel the grouped nodes of the CATA concordance, evaluationCount and the count template", () => {
     renderTrees(TREES);
     const lookup = buildTaxonomyLookup(WHEEL_TAXONOMIES, "es");
-    const [sensory, cata] = wheelCalls();
-    expect(sensory.nodes).toEqual(
-      buildFlavorWheelNodes(TREES.sensoryTaxonomy!, lookup, 5, countLabel),
-    );
+    const [cata] = wheelCalls();
     expect(cata.nodes).toEqual(
-      buildFlavorWheelNodes(TREES.cataConcordance!, lookup, 5, countLabel),
+      assignWheelGroups(
+        buildFlavorWheelNodes(TREES.cataConcordance!, lookup, 5, countLabel),
+        WHEEL_TAXONOMIES,
+      ),
     );
-    expect(sensory.nodes[0].countLabel).toBe("3 de 5 evaluadores");
+    expect(cata.nodes.map((node) => [node.id, node.group])).toEqual([
+      [FRUITY, "aromatics"],
+      [BODY, "mouthfeel"],
+    ]);
     expect(cata.nodes[0].countLabel).toBe("4 de 5 evaluadores");
-    expect(sensory.total).toBe(5);
     expect(cata.total).toBe(5);
   });
 
-  it("passes the wheel texts: label, hint, the empty text and the notes toggle", () => {
+  it("passes the two groups, aromatics then mouthfeel, with their names", () => {
     renderTrees(TREES);
-    expect(wheelCalls()).toHaveLength(2);
-    for (const props of wheelCalls()) {
-      expect(props.texts).toEqual({
-        label: TEXTS.wheelLabel,
-        hint: TEXTS.wheelHint,
-        emptyMessage: TEXTS.detailTasteEmpty,
-        notesToggle: TEXTS.wheelNotesToggle,
-      });
-    }
+    expect(wheelCalls()[0].groups).toEqual([
+      { id: "aromatics", name: TEXTS.wheelGroupAromatics },
+      { id: "mouthfeel", name: TEXTS.attrMouthfeel },
+    ]);
   });
 
-  it("shows the empty text and no wheel for an empty tree (spec: Empty tree)", () => {
+  it("passes the wheel texts: label, hint, the empty text, the notes toggle and the groups label", () => {
+    renderTrees(TREES);
+    expect(wheelCalls()).toHaveLength(1);
+    expect(wheelCalls()[0].texts).toEqual({
+      label: TEXTS.wheelLabel,
+      hint: TEXTS.wheelHint,
+      emptyMessage: TEXTS.detailTasteEmpty,
+      notesToggle: TEXTS.wheelNotesToggle,
+      groupsLabel: TEXTS.wheelGroupsLabel,
+    });
+  });
+
+  it("shows the empty text and no wheel for an empty concordance (spec: Empty tree)", () => {
     renderTrees({ ...TREES, cataConcordance: [] });
     const cata = cardOf(TEXTS.detailCataHeading);
     expect(cata.textContent).toContain(TEXTS.detailTasteEmpty);
-    expect(cata.querySelector("[data-testid='flavor-wheel']")).toBeNull();
-    expect(screen.getAllByTestId("flavor-wheel")).toHaveLength(1);
+    expect(screen.queryByTestId("flavor-wheel")).toBeNull();
   });
 
-  it("renders the wheel, with empty nodes, for a non-empty tree without an aromatic root", () => {
+  it("renders the wheel, with empty nodes, for a non-empty concordance without an aromatic root", () => {
     renderTrees({
       ...TREES,
-      sensoryTaxonomy: TREES.sensoryTaxonomy!.filter(
+      cataConcordance: TREES.cataConcordance!.filter(
         (node) => node.type !== "aromatics",
       ),
     });
-    const sensory = cardOf(TEXTS.detailSensoryHeading);
-    expect(sensory.querySelector("[data-testid='flavor-wheel']")).not.toBeNull();
+    const cata = cardOf(TEXTS.detailCataHeading);
+    expect(cata.querySelector("[data-testid='flavor-wheel']")).not.toBeNull();
     expect(wheelCalls()[0].nodes).toEqual([]);
   });
 
-  it("finds the two headings and the wheel texts in the catalog of each locale (design.md D16)", () => {
+  it("finds the CATA heading and the wheel texts in the catalog of each locale, and no sensory heading (design.md D16)", () => {
     for (const locale of ["es", "en", "ca"]) {
       const catalog = getMessages("catalog", locale);
       for (const key of [
-        "detailSensoryHeading",
         "detailCataHeading",
         "wheelLabel",
         "wheelHint",
         "wheelCount",
         "wheelNotesToggle",
+        "wheelGroupsLabel",
+        "wheelGroupAromatics",
       ]) {
         expect(catalog[key], `${locale}.${key}`).toEqual(expect.any(String));
       }
+      expect(catalog.detailSensoryHeading, locale).toBeUndefined();
     }
     expect(getMessages("catalog", "es").wheelCount).toBe(
       "{count} de {total} evaluadores",

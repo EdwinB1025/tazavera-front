@@ -89,8 +89,13 @@ describe("OfferingDetailScreen", () => {
         coffeeshopCaption: landing.cardCoffeeshopCaption,
         roasterCaption: landing.cardRoasterCaption,
         evaluateLabel: landing.cardEvaluateLabel,
+        detailNotVerifiedMessage: catalog.detailNotVerifiedMessage,
+        wheelGroupsLabel: catalog.wheelGroupsLabel,
+        wheelGroupAromatics: catalog.wheelGroupAromatics,
       }),
     );
+    expect(block.props?.texts).not.toHaveProperty("detailSensoryHeading");
+    expect(catalog.detailNotVerifiedMessage).toEqual(expect.any(String));
   });
 
   it("shows the back link, three placeholder bars and two skeleton cards while the offering loads (spec: Loading)", () => {
