@@ -52,5 +52,8 @@
   "contactEmptyText": "Encara no has afegit les teves dades de contacte.",
   "contactAddButton": "Afegeix dades de contacte",
   "contactLoadError": "No s'han pogut carregar les teves dades de contacte.",
-  "retry": "Torna-ho a provar"
+  "retry": "Torna-ho a provar",
+  "contactSaved": "Dades de contacte desades",
+  "contactExists": "Ja tens dades de contacte desades.",
+  "urlFormatError": "Introdueix un URL vàlid."
 }

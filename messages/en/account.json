@@ -52,5 +52,8 @@
   "contactEmptyText": "You have not added your contact details yet.",
   "contactAddButton": "Add contact details",
   "contactLoadError": "Your contact details could not be loaded.",
-  "retry": "Try again"
+  "retry": "Try again",
+  "contactSaved": "Contact details saved",
+  "contactExists": "You already have contact details saved.",
+  "urlFormatError": "Enter a valid URL."
 }
