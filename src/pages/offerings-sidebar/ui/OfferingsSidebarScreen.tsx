@@ -1,14 +1,9 @@
 import type { ReactNode } from "react";
-import { fetchCoffees } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
 import type { QueryRecord } from "@/shared/lib/filter-query";
-import { fetchTaxonomies } from "@/entities/taxonomy";
-import {
-  offeringFacetOptions,
-  offeringFacetsTexts,
-  parseOfferingFilters,
-} from "@/features/offering-facets";
-import { OfferingsSidebar } from "./OfferingsSidebar";
+import { offeringFacetsTexts } from "@/features/offering-facets";
+import { AppSidebar } from "@/widgets/app-sidebar";
+import { FilteredOfferingsFacets } from "@/widgets/offering-list";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -19,21 +14,22 @@ export type OfferingsSidebarScreenProps = {
 };
 
 /**
- * The offerings slot screen (add-offering-facets design.md D7): a thin async
- * composition that reads the `filters` texts and the settled coffees and
- * taxonomy reads, so one failure disables only the facets it feeds, and
- * renders the sidebar with the facets.
+ * The offerings slot screen (add-sidebar-slot design.md D9;
+ * extract-filtered-offerings design.md D5): the sidebar frame for every
+ * session state, with no navigation entries, holding the filtered offerings
+ * facets with the `filters` texts of the route's locale.
  */
-export async function OfferingsSidebarScreen({
+export function OfferingsSidebarScreen({
   locale,
   searchParams,
-}: OfferingsSidebarScreenProps): Promise<ReactNode> {
-  const [coffees, taxonomies] = await Promise.allSettled([fetchCoffees(), fetchTaxonomies()]);
+}: OfferingsSidebarScreenProps): ReactNode {
   return (
-    <OfferingsSidebar
-      values={parseOfferingFilters(searchParams)}
-      options={offeringFacetOptions(coffees, taxonomies, locale)}
-      texts={offeringFacetsTexts(getMessages("filters", locale))}
-    />
+    <AppSidebar>
+      <FilteredOfferingsFacets
+        locale={locale}
+        searchParams={searchParams}
+        texts={offeringFacetsTexts(getMessages("filters", locale))}
+      />
+    </AppSidebar>
   );
 }
