@@ -9,6 +9,22 @@ Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`.
 
 **Actualizado:** 2026-10-07 20:30 UTC (22:30 local).
 
+## Mandato de Product owner para la próxima sesión (7 oct ~20:50 UTC)
+
+Texto literal: "verifica tus pendientes, eres autonomo de tomar decisiones segun las reglas de orchestrador, en esta sesion eres tu el orchestrador. si tu limite sesion diaria esta por debajo del 90%, puedes asignar trabajo en local, puedes siempre usar la nube, y openspec solo para propose, y archivar cambios. el objetivo es terminar mañana en la mañana."
+
+- Objetivo: terminar la entrega la mañana del 8 oct.
+- Trabajo local (design lead, capturas) solo si `~/.claude/usage-snapshot.json` marca menos del 90% en la ventana de 5 h. Si marca 90% o más, o no se puede leer, solo la nube. La nube se puede usar siempre.
+- OpenSpec (el arquitecto de OpenCode) solo para propose y archive; todo lo demás va a la nube.
+
+**Estado a las ~21:00 UTC (después de `git fetch`):**
+- `origin/claude/refine-list-pagination-apply2` ha terminado: tareas 3.1–4.2 (`0cb6da7`, `1f329ba`, `ac482e0`, `2060b73`), en orden test→feat. Falta revisarlo, pasar los checks e integrarlo con `--ff-only` en `feature/refine-list-pagination` (worktree en `b6cc6f3`). Después, la 5.1 (checks) y la 5.2 (capturas).
+- `origin/claude/test-reduction-plan` (`e5bda59`, `docs/testing/test-reduction-plan.md`): 159 archivos y 2.239 casos sobre `8803904`, con una acción por archivo. Espera a que Product owner revise los totales.
+- Las sesiones en la nube de `add-coffeeshop-location` y `add-evaluation-facets` seguían en marcha (último evento 20:48).
+- Pendiente de Product owner:
+  - aplicar las viñetas corregidas de `## Testing` en AGENTS.md: alcance "spec" (`openspec/specs/` o el spec del cambio), no borrar ni mover tests durante un cambio, excepción para el test de un arreglo no planificado y para la cobertura que pase Product owner, y nombres de clase en lo que comprueba un test;
+  - resolver el choque de `.claude/CLAUDE.md` §3 ("never remove or weaken a test") con la reducción.
+
 ## Al retomar (sesión cerrada el 7 oct ~20:30 UTC para reiniciar)
 
 **Mergeado hoy en `develop` (`8803904`):** add-user-account, refine-page-surfaces, add-offering-catalog, fix-collapsible-overflow, fix-auth-return-query, add-offering-management, adopt-section-card-in-account, add-specialist-evaluations, add-offering-facets, extract-access-and-status-pieces (R11), add-user-contact, extract-clear-filters-button (R9).
