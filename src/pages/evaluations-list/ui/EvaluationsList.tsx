@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { QueryRecord } from "@/shared/lib/filter-query";
 import type { EvaluationItem, EvaluationPageMeta, OfferingDetail } from "@/shared/api";
@@ -119,6 +119,23 @@ export function EvaluationsList({
     };
   }, [requestQuery, key]);
 
+  // While a new query loads, the block keeps the height of the list it
+  // replaces, so the document does not shrink to the placeholder and the
+  // browser does not clamp the scroll position (spec "Evaluation filter state
+  // in the URL", keep the scroll position; design.md D4).
+  const blockRef = useRef<HTMLDivElement>(null);
+  const lastHeight = useRef(0);
+  useLayoutEffect(() => {
+    const block = blockRef.current;
+    if (!block) return;
+    if (list.state === "loading") {
+      if (lastHeight.current > 0) block.style.minHeight = `${lastHeight.current}px`;
+    } else {
+      block.style.minHeight = "";
+      lastHeight.current = block.offsetHeight;
+    }
+  });
+
   const retry = useCallback(() => setAttempt((count) => count + 1), []);
 
   const removeRow = (ulid: string) => {
@@ -138,7 +155,7 @@ export function EvaluationsList({
   };
 
   return (
-    <div className={BLOCK_CLASSES}>
+    <div ref={blockRef} className={BLOCK_CLASSES}>
       <h2 className="type-heading">{texts.heading}</h2>
       {resultCountText !== undefined ? (
         // Mounted in every state so each new total is announced (design.md D9).

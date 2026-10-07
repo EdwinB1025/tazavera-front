@@ -165,6 +165,27 @@ describe("EvaluationsList (spec: My evaluations list)", () => {
     expect(screen.getByRole("status")).toBe(status);
   });
 
+  it("keeps the list's previous height while a new query loads, so the scroll position is kept", async () => {
+    const height = vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(2400);
+    try {
+      listMyEvaluations.mockResolvedValueOnce(page(ITEMS));
+      let resolveReload: (value: unknown) => void = () => {};
+      listMyEvaluations.mockReturnValueOnce(new Promise((done) => (resolveReload = done)));
+      const { container, rerender } = render(<List />);
+      await screen.findAllByRole("heading", { level: 3 });
+      const block = container.firstElementChild as HTMLElement;
+      expect(block.style.minHeight).toBe("");
+      rerender(<List values={parseEvaluationFilters({ status: "open" })} />);
+      await waitFor(() => expect(container.querySelector('[aria-busy="true"]')).not.toBeNull());
+      expect(block.style.minHeight).toBe("2400px");
+      resolveReload(page(ITEMS.slice(1)));
+      await waitFor(() => expect(screen.getAllByRole("listitem")).toHaveLength(2));
+      expect(block.style.minHeight).toBe("");
+    } finally {
+      height.mockRestore();
+    }
+  });
+
   it("announces Results: 0 in the empty state", async () => {
     listMyEvaluations.mockResolvedValue(page([]));
     render(<List resultCountText="Results: {count}" />);

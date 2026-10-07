@@ -59,66 +59,72 @@ export function EvaluationFacets({ values, options, texts }: EvaluationFacetsPro
   const seeMoreTexts = { seeMore: texts.seeMore, seeLess: texts.seeLess };
   const unavailable = options.processes === null;
 
+  // Scroll anchoring opt-out: an applied chip added above the control that
+  // changed would otherwise make the browser scroll the page by the chip's
+  // height (spec "Evaluation filter state in the URL", keep the scroll
+  // position; design.md D4).
   return (
-    <FacetPanel
-      title={texts.title}
-      applied={applied}
-      onRemove={(id) => {
-        const entry = applied.find((filter) => filter.id === id);
-        if (entry) navigate(entry.remove);
-      }}
-      onClearAll={() =>
-        navigateTo(
-          clearFiltersHref(
-            pathname ?? "",
-            new URLSearchParams(searchParams?.toString()),
-            EVALUATION_SORT_KEYS,
-          ),
-        )
-      }
-      texts={{ clearAll: texts.clearAll, removeFilter: texts.removeFilter }}
-    >
-      <FacetRadioList
-        legend={texts.status}
-        options={[
-          { value: "open", label: texts.statusOpen },
-          { value: "closed", label: texts.statusClosed },
-        ]}
-        value={values.status}
-        onChange={(value) => navigate({ status: value })}
-        anyLabel={texts.any}
-        texts={seeMoreTexts}
-      />
-      <ScoreRangeFacet
-        legend={texts.score}
-        min={SCORE_MIN}
-        max={SCORE_MAX}
-        value={[values.scoreMin ?? SCORE_MIN, values.scoreMax ?? SCORE_MAX]}
-        onCommit={(range) => navigate(scoreRangeChanges(range))}
-        texts={{
-          minThumb: texts.scoreMin,
-          maxThumb: texts.scoreMax,
-          from: texts.rangeFrom,
-          to: texts.rangeTo,
+    <div className="[overflow-anchor:none]">
+      <FacetPanel
+        title={texts.title}
+        applied={applied}
+        onRemove={(id) => {
+          const entry = applied.find((filter) => filter.id === id);
+          if (entry) navigate(entry.remove);
         }}
-      />
-      <FacetRadioList
-        legend={texts.process}
-        options={(options.processes ?? []).map((value) => ({ value, label: value }))}
-        value={values.process}
-        onChange={(value) => navigate({ process: value })}
-        anyLabel={texts.any}
-        texts={seeMoreTexts}
-        help={unavailable ? texts.optionsUnavailable : undefined}
-        disabled={unavailable}
-      />
-      <FacetTextField
-        label={texts.city}
-        maxLength={90}
-        help={texts.cityHelp}
-        value={values.city ?? ""}
-        onCommit={(value) => navigate({ city: value })}
-      />
-    </FacetPanel>
+        onClearAll={() =>
+          navigateTo(
+            clearFiltersHref(
+              pathname ?? "",
+              new URLSearchParams(searchParams?.toString()),
+              EVALUATION_SORT_KEYS,
+            ),
+          )
+        }
+        texts={{ clearAll: texts.clearAll, removeFilter: texts.removeFilter }}
+      >
+        <FacetRadioList
+          legend={texts.status}
+          options={[
+            { value: "open", label: texts.statusOpen },
+            { value: "closed", label: texts.statusClosed },
+          ]}
+          value={values.status}
+          onChange={(value) => navigate({ status: value })}
+          anyLabel={texts.any}
+          texts={seeMoreTexts}
+        />
+        <ScoreRangeFacet
+          legend={texts.score}
+          min={SCORE_MIN}
+          max={SCORE_MAX}
+          value={[values.scoreMin ?? SCORE_MIN, values.scoreMax ?? SCORE_MAX]}
+          onCommit={(range) => navigate(scoreRangeChanges(range))}
+          texts={{
+            minThumb: texts.scoreMin,
+            maxThumb: texts.scoreMax,
+            from: texts.rangeFrom,
+            to: texts.rangeTo,
+          }}
+        />
+        <FacetRadioList
+          legend={texts.process}
+          options={(options.processes ?? []).map((value) => ({ value, label: value }))}
+          value={values.process}
+          onChange={(value) => navigate({ process: value })}
+          anyLabel={texts.any}
+          texts={seeMoreTexts}
+          help={unavailable ? texts.optionsUnavailable : undefined}
+          disabled={unavailable}
+        />
+        <FacetTextField
+          label={texts.city}
+          maxLength={90}
+          help={texts.cityHelp}
+          value={values.city ?? ""}
+          onCommit={(value) => navigate({ city: value })}
+        />
+      </FacetPanel>
+    </div>
   );
 }

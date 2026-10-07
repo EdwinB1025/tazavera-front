@@ -90,6 +90,13 @@ describe("EvaluationFacets (design.md D7)", () => {
     expect(screen.getByRole("search", { name: "Filters" })).toBeDefined();
   });
 
+  it("opts the panel out of scroll anchoring, so an added chip keeps the scroll position", () => {
+    renderPanel("status=open");
+    expect(screen.getByRole("search", { name: "Filters" }).parentElement?.className).toBe(
+      "[overflow-anchor:none]",
+    );
+  });
+
   it("shows the four facets in the spec order", () => {
     renderPanel("");
     const facets = [
