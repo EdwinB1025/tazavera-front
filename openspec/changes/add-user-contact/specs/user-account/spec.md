@@ -1,15 +1,15 @@
 ## MODIFIED Requirements
 
 ### Requirement: Account page and its session gate
-The account page at `/{locale}/account` SHALL show one heading block and, for an authenticated session, five sections in order — Profile, Contact details, Password, Security and Danger zone — each named by its heading; the Profile section is filled from the session user's `data.name`, `data.surname`, `data.email` and `data.role`. While the session is resolving, the page SHALL show the heading block and one card with the loading status in place of the sections. While the session is anonymous — including after a declined step-up or a write whose `401` no recovery resolves — the page SHALL show the heading block and one card with the signed-out text and a "Sign in" action, with no automatic redirect.
+The account page at `/{locale}/account` SHALL show one heading block and, for an authenticated session, five sections in order — Profile, Contact details, Password, Security and Danger zone — each named by its heading; the Profile section is filled from the session user's `data.name`, `data.surname`, `data.email` and `data.role`. Each of the five sections SHALL be a section card whose header band holds its heading and, where it has one, its description, and the five section cards SHALL be 1rem apart with the page background showing between them. While the session is resolving, the page SHALL show the heading block and one section card with no header band, holding the loading status, in place of the sections. While the session is anonymous — including after a declined step-up or a write whose `401` no recovery resolves — the page SHALL show the heading block and one section card with no header band, holding the signed-out text and a "Sign in" action, with no automatic redirect.
 
 #### Scenario: The session is resolving
 - **WHEN** the account page opens while the session is still resolving
-- **THEN** the heading block and one card with the loading status render in place of the sections
+- **THEN** the heading block and one section card with no header band, holding the loading status, render in place of the sections
 
 #### Scenario: Signed out
 - **WHEN** the account page is open and the session is anonymous
-- **THEN** one card shows the signed-out text and a "Sign in" action, no section renders, and the page does not redirect
+- **THEN** one section card with no header band shows the signed-out text and a "Sign in" action, no section renders, and the page does not redirect
 
 #### Scenario: Signing in from the account page
 - **WHEN** the user activates "Sign in" on the account page
@@ -22,6 +22,14 @@ The account page at `/{locale}/account` SHALL show one heading block and, for an
 #### Scenario: The four sections
 - **WHEN** the session is authenticated
 - **THEN** the page shows Profile, Password, Security and Danger zone in that order, each named by its heading
+
+#### Scenario: Sections hang from the page background
+- **WHEN** the session is authenticated
+- **THEN** the five sections render as section cards 1rem apart with the page background showing between them, each card's header band holds its heading and, where it has one, its description, and the heading block sits 2rem above the sections
+
+#### Scenario: The gate card has no header band
+- **WHEN** the account page shows its loading card or its signed-out card
+- **THEN** the card is a section card with no header band and its content sits in the card body
 
 #### Scenario: Contact details is the second section
 - **WHEN** the session is authenticated
