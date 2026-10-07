@@ -62,6 +62,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Each change writes only the tests its tasks name, plus the reproducing test of an unplanned fix and the unplanned coverage Product owner passes to the build. Do not add tests for cases, variants or details the task does not mention; if you think coverage is missing, list it in your final report instead of writing it.
 - Each test asserts the scenario's observable result (role, accessible name, text, attribute, class name or call) with the fewest assertions that would fail if that behaviour broke. Do not repeat the same check for every locale or variant, do not use snapshots, and do not test internal helpers that a component test already covers.
 - Tests outside this scope move to the local suite `../tazavera-front-qa` (run once at the end of the project) only through Product owner's reduction plan. During a change, never delete or move an existing test, and never write, move, delete or run tests in `../tazavera-front-qa`.
+- Do not add new guard tests. Each existing guard is one general test per rule that checks every item internally and lists the offending ones; a new token only registers its pair in the existing contrast matrix of `src/app/styles/theme-tokens.test.ts`.
 
 ## Project conventions (do not re-derive)
 
