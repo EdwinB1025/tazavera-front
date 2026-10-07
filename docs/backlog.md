@@ -91,17 +91,6 @@ One section per candidate, in this format:
 - **Status:** accepted
 - **Affects:** `add-offering-facets`, `add-evaluation-facets`
 
-## R11 — Shared protected-route gate and write-status pieces (add-coffeeshop-location summary, Open 4)
-
-- **Duplicated:** the protected-route gate and the write-status pieces: `ManagementGate` (`add-offering-management`) and `SessionGate` / `StepUpNotice` / `FormStatus` / `LoadingStatus` (`add-user-account`); `add-coffeeshop-location` would add a third copy, because FSD forbids `features/location-management` importing either feature
-- **Where today:** `add-offering-management` design.md files table; `add-user-account` design.md files table
-- **Why it pays off now:** the pieces take texts and callbacks, no business data; one copy in `src/shared/ui` serves the three features and the next protected screen
-- **Owning capability:** app-shell (gate) and feedback (status pieces), consumed by each feature
-- **Proposed change:** a refactor after `add-user-account` and `add-offering-management` merge, moving the generic gate and status pieces to `src/shared/ui`; before `add-coffeeshop-location`
-- **Open decision (Augusto):** none
-- **Status:** proposed
-- **Affects:** `add-user-account`, `add-offering-management`, `add-coffeeshop-location`
-
 ## R12 — Filtered-offerings widget (add-coffeeshop-directory summary, Open 4)
 
 - **Duplicated:** the filtered offerings body and its sidebar composition (`OfferingsScreen` body, `OfferingsSidebarScreen` in `src/pages/offerings`); the coffee shop detail's offerings tab would copy them, because a page slice cannot import another page slice
@@ -112,3 +101,36 @@ One section per candidate, in this format:
 - **Open decision (Augusto):** none
 - **Status:** proposed
 - **Affects:** `add-offering-catalog`, `add-offering-facets`, `add-coffeeshop-directory`
+
+## R13 — Move `EvaluationsAccess` onto the shared session gate (extract-access-and-status-pieces, verify W1)
+
+- **Duplicated:** the session gate logic (loading / signed-out / role check with `notFound()`) that `extract-access-and-status-pieces` moved to `SessionGate` and `SignedOutPrompt` in `src/shared/ui`
+- **Where today:** `EvaluationsAccess` (`add-specialist-evaluations`), left out of R11 because that change was not merged when R11 was proposed (R11 design summary Open 1, option c)
+- **Why it pays off now:** it is the last protected area with its own gate; `add-coffeeshop-location` will add another protected route on the shared gate
+- **Owning capability:** evaluations (consumer of the app-shell gate)
+- **Proposed change:** none yet — a small refactor change
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** `add-public-evaluations`, `add-evaluation-facets` (both touch the evaluations area)
+
+## R14 — Localised, themed 404 page (extract-access-and-status-pieces visual review)
+
+- **Duplicated:** none; the app has no `not-found` file, so `notFound()` (role-gated routes, unknown resources) shows Next's default page, unstyled, untranslated and outside the theme
+- **Where today:** `app/[locale]/` (no `not-found.tsx`); reached from `SessionGate` `allows` and any `notFound()` call
+- **Why it pays off now:** every role-gated route added (management, evaluations, location) sends users there
+- **Owning capability:** app-shell
+- **Proposed change:** none yet — a new change with its design summary
+- **Open decision (Augusto):** whether it belongs in the delivery
+- **Status:** proposed
+- **Affects:** none
+
+## R15 — Slow `EvaluationForm` tests under load (add-user-contact checks)
+
+- **Duplicated:** none; `src/pages/evaluation-form/ui/EvaluationForm.test.tsx` takes about 16s alone and about 58s in the full suite, where one case ("sends each descriptor block's selection to its request field") hit the 5000ms test timeout once and passed on re-run
+- **Where today:** `src/pages/evaluation-form/ui/EvaluationForm.test.tsx`
+- **Why it pays off now:** a flaky timeout breaks the checks of unrelated changes
+- **Owning capability:** evaluations
+- **Proposed change:** none yet — unplanned coverage fix (split the file or reduce user-event typing)
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** none

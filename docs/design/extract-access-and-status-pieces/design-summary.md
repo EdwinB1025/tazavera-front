@@ -154,3 +154,14 @@ Shared files: `src/shared/ui/index.ts` (append-only); `AccountClient.tsx` (with 
 - Settled: five pieces (gate split into a state switch plus `SignedOutPrompt`, because only the account frames the prompt in a card); `allows` predicate so the role check is shared without a role name in `shared`; `StepUpNotice` takes `onConfirm` (route moves to the consumer); classes and values moved unchanged; one ADDED requirement per capability (precedent `extract-offering-list-parts`); no visible change.
 - Found a third gate copy (`EvaluationsAccess`) not named by R11 (Open 1) and a different step-up presentation in management (Open 2); noted an FSD import in `features/manage-evaluations` (§7).
 - Proposed change-id `extract-access-and-status-pieces`.
+
+## Propose status
+
+- **Change-id:** `extract-access-and-status-pieces`. **Date:** 2026-10-07. **Branch:** `feature/extract-access-and-status-pieces` (from `develop` `323c7b6`).
+- **`openspec validate extract-access-and-status-pieces --strict`:** valid (2026-10-07). Artifacts: `proposal.md`; `specs/app-shell/spec.md` (ADDED "Protected content gate"); `specs/feedback/spec.md` (ADDED "Request status messages"); `design.md` (D1–D8); `tasks.md` (test-first, `npm run build` in every verification step).
+- **Resolves backlog R11** (shared protected-route gate and write-status pieces): the change moves the gate and the signed-out prompt to `src/shared/ui` (app-shell) and the three status presentations to `src/shared/ui` (feedback), rewires the account and management consumers with no visible change, and removes the feature copies. The R11 section is removed from `docs/backlog.md` when this change is archived.
+- **Resolved here (summary note under the title):**
+  - **Open 1 → (c), applied as its (b) branch:** `add-specialist-evaluations` has **not** merged into `develop`, so `EvaluationsAccess` is **excluded** from this change (design.md D3). **Follow-up, as a backlog candidate for Product owner** (not added to `docs/backlog.md` by the architect): a small refactor moving `src/features/manage-evaluations/ui/EvaluationsAccess.tsx` onto the shared `SessionGate` and `SignedOutPrompt` once `add-specialist-evaluations` merges, which also removes its feature-to-feature import of `@/features/auth` (§7).
+  - **Open 2 → (a):** only the account's step-up notice is shared; management keeps its inline step-up (design.md D3). Unifying the two presentations stays a future change, since it alters what users see and hear.
+- **Ordering recorded in design.md Context:** this change's apply runs **after `add-offering-management` merges** (it owns `ManagementGate`) and after `adopt-section-card-in-account` (both edit `AccountClient.tsx`); `add-coffeeshop-location`'s apply waits for this change.
+- **Open:** none in the change.

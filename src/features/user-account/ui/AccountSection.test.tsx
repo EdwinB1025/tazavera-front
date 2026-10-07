@@ -1,4 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
+import { createRef } from "react";
 import { render, screen, cleanup } from "@testing-library/react";
 import { AccountSection } from "@/features/user-account";
 
@@ -75,5 +76,29 @@ describe("AccountSection", () => {
     expect(band).not.toBeNull();
     expect(band!.textContent).toBe("fx-heading");
     expect(band!.contains(screen.getByText("fx-content"))).toBe(false);
+  });
+});
+
+describe("AccountSection — headingRef", () => {
+  it("gives the h2 the ref and tabIndex -1 when headingRef is given", () => {
+    const headingRef = createRef<HTMLHeadingElement>();
+    render(
+      <AccountSection heading="fx-heading" headingRef={headingRef}>
+        <p>fx-content</p>
+      </AccountSection>,
+    );
+    const heading = screen.getByRole("heading", { level: 2, name: "fx-heading" });
+    expect(headingRef.current).toBe(heading);
+    expect(heading.getAttribute("tabindex")).toBe("-1");
+  });
+
+  it("renders the h2 with no tabIndex without headingRef", () => {
+    render(
+      <AccountSection heading="fx-heading">
+        <p>fx-content</p>
+      </AccountSection>,
+    );
+    const heading = screen.getByRole("heading", { level: 2, name: "fx-heading" });
+    expect(heading.hasAttribute("tabindex")).toBe(false);
   });
 });

@@ -26,6 +26,7 @@ afterEach(() => {
 });
 
 const es = getMessages("account", "es");
+const contactEs = getMessages("contact", "es");
 
 describe("AccountScreen", () => {
   it("renders the heading block from the catalog", () => {
@@ -37,7 +38,7 @@ describe("AccountScreen", () => {
     expect(screen.getByTestId("account-client")).toBeTruthy();
   });
 
-  it("passes the locale and the texts built from messages/es/account.json", () => {
+  it("passes the locale and the texts built from messages/es/account.json and messages/es/contact.json", () => {
     render(<AccountScreen locale="es" />);
     expect(client.props?.locale).toBe("es");
     const texts = client.props?.texts as Record<string, string>;
@@ -51,11 +52,35 @@ describe("AccountScreen", () => {
       "securityDescription",
       "securityLink",
       "dangerZoneHeading",
+      "contactHeading",
+      "contactDescription",
+      "contactEmptyText",
+      "contactAddButton",
+      "contactLoadError",
+      "retry",
+      "contactSaved",
+      "contactExists",
+      "urlFormatError",
     ]) {
+      expect(texts[key], key).toBeTypeOf("string");
       expect(texts[key], key).toBe(es[key]);
     }
+    for (const key of [
+      "contactAddressLabel",
+      "contactPostalCodeLabel",
+      "contactCityLabel",
+      "contactCountryLabel",
+      "contactPhoneLabel",
+      "contactEmailLabel",
+      "contactWebLabel",
+      "contactSocialLabel",
+    ]) {
+      expect(texts[key], key).toBeTypeOf("string");
+      expect(texts[key], key).toBe(contactEs[key]);
+    }
+    const catalogs: Record<string, string> = { ...es, ...contactEs };
     for (const [key, value] of Object.entries(texts)) {
-      expect(value, key).toBe(es[key]);
+      expect(value, key).toBe(catalogs[key]);
     }
   });
 });
