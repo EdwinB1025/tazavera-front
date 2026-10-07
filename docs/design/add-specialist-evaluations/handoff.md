@@ -153,3 +153,27 @@ Summary: Product owner and the orchestrator went through the Open list. The answ
 
 ### Next
 - Propose waits for: the contract with `createdAt`/`closedAt` on `develop`, `add-evaluation-scales` merged, the taxonomy/pagination refactor merged, Product owner's approval commit of the summary.
+
+## Session 2026-10-06/07 — merge develop, double-submit fix, review round 1 (overnight mandate)
+Summary: develop merged twice (sidebar slot and facets; then the shared collapsible section), the double-submit unplanned fix, review round 1 written by the orchestrator and processed in the cloud. Stopped because: tasks 10.2 and 11.5 are browser checks with a specialist session against the API (Product owner). MVC reachable: not needed.
+
+### Agent feedback
+- Cloud (routine trig_01AXpfHSyzNwKG9doURTRGnQ, branch `claude/add-specialist-evaluations-merge`): `121e569` merge of develop (Sidebar files equal to develop), `5b3a583` fix(evaluations): block both form actions while one is running (unplanned fix). Integrated by fast-forward; test:run 95 files / 1475 tests.
+- Orchestrator: merged develop with the shared collapsible section (clean), committed `corrections.md` Round 1 (`dd5b708`) from Product owner's answers (decisions log, "secciones plegables").
+- Cloud architect + build (routine trig_01RhisXode2xZfxXE1H85ceT, branch `claude/add-specialist-evaluations-round1`): `bbcba6b` apply review round 1 (validate --strict valid; Status appended), tasks 11.1–11.4 (`ffd9100`, `0d464c5`, `0074be7`, `4532836`). Integrated by fast-forward; test:run 99 files / 1586 tests (orchestrator's run).
+  - The architect did not process the 1–9 scale legend of point 1: the form has no 1–9 legend and no artifact defines one; adding it would change the form's structure. Recorded in design.md Open Questions.
+
+### Decisions taken
+#### D3 — Round 1 written from the decisions log
+- Context: Product owner's answers of 2026-10-06 (collapsible groups, all collapsed except a closed evaluation). / Decision: points 1–3 as answered; point 3 uses the 1rem header padding approved as Open 2 of add-collapsible-section; point 4 (no aside border under a collapsed body) from the design lead's review of add-collapsible-section; point 5 (a validation error expands its group) is the orchestrator's, because a collapsed body is inert. / Result: `dd5b708`.
+
+### Deferred to Product owner
+#### Q10 — The 1–9 scale legend
+- Question: your answer said the 1–9 legend is collapsible too, but this form has no 1–9 legend and no artifact defines one (title, nine labels, position). / Options: (a) drop it from round 1; (b) a new correction defining the legend. / Recommendation: (a) unless you want the MVC legend added; then (b) with its texts. / Blocks: nothing.
+#### Q11 — Points 4 and 5 of round 1 (orchestrator's additions)
+- Review them with the round-1 captures (task 11.5). / Blocks: the archive.
+#### Q12 — Browser checks 10.2 and 11.5
+- They need `npm run dev` with a specialist session against the API (create, open, close, `409`). / Blocks: the archive.
+
+### Final checks
+test:run 99 files, 1586 tests passed (after integrating round 1).
