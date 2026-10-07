@@ -37,7 +37,7 @@ Apply preconditions (met on 2026-10-07): `add-offering-catalog`, `add-sidebar-sl
 ## 7. Roastery search
 
 - [ ] 7.1 Write `src/features/offering-facets/api/search-roasteries.test.ts`: `searchRoasteries("nóm", signal)` requests `${NEXT_PUBLIC_API_URL}/roasteries?name=n%C3%B3m` with the given `signal` and no credential header, and returns the rows as `{ value: name, label: name, detail: description }` (no `detail` when the description is empty or absent); a non-2xx status throws. Expected: fails only for the missing module. Commit `test(filtering): verify the roastery search`.
-- [ ] 7.2 Implement `src/features/offering-facets/api/search-roasteries.ts`, typed as the `ComboboxSearch` of `@/shared/ui`. Verify: 7.1 passes; full suite, lint and typecheck pass. Commit `feat(filtering): search roasteries by name`.
+- [x] 7.2 Implement `src/features/offering-facets/api/search-roasteries.ts`, typed as the `ComboboxSearch` of `@/shared/ui`. Verify: 7.1 passes; full suite, lint and typecheck pass. Commit `feat(filtering): search roasteries by name`.
 
 ## 8. Facet panel in the sidebar
 
