@@ -64,6 +64,31 @@ describe("ScaleLegend (design.md D16)", () => {
     }
   });
 
+  it("draws each number inside its bean mark (design.md D18; tasks 13.3)", () => {
+    const { container } = renderLegend(true);
+    const items = Array.from(container.querySelectorAll("ol > li"));
+    expect(items.map((item) => item.textContent)).toEqual(
+      LABELS.map((label, index) => `${index + 1}${label}`),
+    );
+    items.forEach((item, index) => {
+      const mark = item.querySelector("svg")!;
+      expect(mark.getAttribute("aria-hidden")).toBe("true");
+      const wrapper = mark.parentElement as HTMLElement;
+      expect(wrapper.children).toHaveLength(2);
+      const number = Array.from(wrapper.children).find((child) => child !== mark) as HTMLElement;
+      expect(number.textContent).toBe(String(index + 1));
+      expect(number.hasAttribute("aria-hidden")).toBe(false);
+      expect(number.className.split(" ")).toEqual(
+        expect.arrayContaining([
+          "text-text-inverse",
+          "font-bold",
+          "[-webkit-text-stroke:2px_var(--color-evaluation-bean-on)]",
+          "[paint-order:stroke_fill]",
+        ]),
+      );
+    });
+  });
+
   it("is a section card whose band holds the collapsible header", () => {
     const { container } = renderLegend();
     const card = container.querySelector("[data-legend]") as HTMLElement;

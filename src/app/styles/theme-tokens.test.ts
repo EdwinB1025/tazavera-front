@@ -508,6 +508,9 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "text-label", bg: "surface-section", kind: "text" },
   { fg: "text-label", bg: "surface-section-hover", kind: "text" },
   { fg: "focus-ring", bg: "surface-section-hover", kind: "bound" },
+
+  // ── The 1–9 legend's number inside the bean (add-specialist-evaluations D18) ──
+  { fg: "text-inverse", bg: "evaluation-bean-on", kind: "text" },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -861,6 +864,9 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "text-label", bg: "surface-section", kind: "text" },
   { fg: "text-label", bg: "surface-section-hover", kind: "text" },
   { fg: "focus-ring", bg: "surface-section-hover", kind: "bound" },
+
+  // ── The 1–9 legend's number inside the bean (add-specialist-evaluations D18) ──
+  { fg: "text-inverse", bg: "evaluation-bean-on", kind: "text" },
 ];
 
 describe("Dark theme contrast matrix", () => {
