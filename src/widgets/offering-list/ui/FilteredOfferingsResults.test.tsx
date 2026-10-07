@@ -212,4 +212,19 @@ describe("FilteredOfferingsResults", () => {
     expect(block.props?.texts.emptyMessage).toBe("emptyMessage");
     expect(block.props?.emptyAction).toBeUndefined();
   });
+
+  it("adds the pagination keys to the links only, never to the request (add-coffeeshop-directory spec: Pagination stays on the detail)", () => {
+    render(
+      <FilteredOfferingsResults
+        locale="es"
+        searchParams={{ process: "washed", tab: "offerings" }}
+        path="/es/coffeeshops/01SHOP"
+        fixedQuery={{ coffeeshopUlid: "01SHOP" }}
+        paginationQuery={{ tab: "offerings" }}
+        texts={TEXTS}
+      />,
+    );
+    expect(block.props?.query).toEqual({ process: "washed", coffeeshopUlid: "01SHOP" });
+    expect(block.props?.paginationQuery).toEqual({ tab: "offerings" });
+  });
 });

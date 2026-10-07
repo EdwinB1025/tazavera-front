@@ -11,7 +11,7 @@ Each group is a vertical slice; its heading names the commit scope. Tests are co
 
 ## 2. Pagination keys of the filtered offerings results (offering-catalog)
 
-- [ ] 2.1 Add one test to `src/widgets/offering-list/ui/FilteredOfferingsResults.test.tsx` (design.md D17; spec "Pagination stays on the detail"): rendered with `searchParams={{ process: "washed", tab: "offerings" }}`, `fixedQuery={{ coffeeshopUlid: "01SHOP" }}` and `paginationQuery={{ tab: "offerings" }}`, the block receives the request `query` `{ process: "washed", coffeeshopUlid: "01SHOP" }` (no `tab`) and `paginationQuery` `{ tab: "offerings" }`. The catalog's existing tests stay unchanged (spec "Catalog without fixed keys unchanged"). Verification: `npm run test:run` fails only on this test.
+- [x] 2.1 Add one test to `src/widgets/offering-list/ui/FilteredOfferingsResults.test.tsx` (design.md D17; spec "Pagination stays on the detail"): rendered with `searchParams={{ process: "washed", tab: "offerings" }}`, `fixedQuery={{ coffeeshopUlid: "01SHOP" }}` and `paginationQuery={{ tab: "offerings" }}`, the block receives the request `query` `{ process: "washed", coffeeshopUlid: "01SHOP" }` (no `tab`) and `paginationQuery` `{ tab: "offerings" }`. The catalog's existing tests stay unchanged (spec "Catalog without fixed keys unchanged"). Verification: `npm run test:run` fails only on this test.
 - [ ] 2.2 Implement `paginationQuery?: OfferingsQuery` on `FilteredOfferingsResults` and `Offerings` (the pagination query becomes `{ ...query, ...paginationQuery }`; the request keeps `query`). Verification: 2.1 passes; the catalog's tests pass unchanged; the usual checks pass.
 
 ## 3. Directory list (offering-catalog)
