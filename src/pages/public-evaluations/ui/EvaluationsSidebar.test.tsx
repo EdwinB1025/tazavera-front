@@ -66,7 +66,7 @@ async function renderSidebar(searchParams: Record<string, string>) {
 }
 
 beforeEach(() => {
-  fetchCoffees.mockReset().mockResolvedValue({ data: [{ process: "washed" }, { process: "natural" }] });
+  fetchCoffees.mockReset().mockResolvedValue([{ process: "washed" }, { process: "natural" }]);
   fetchOffering.mockReset().mockResolvedValue({
     status: "found",
     offering: {

@@ -1,6 +1,7 @@
-import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
+import { describe, it, expect, afterEach, beforeAll, beforeEach, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { PublicEvaluationListProps } from "@/widgets/public-evaluation-list";
+import { SidebarProvider } from "@/shared/ui";
 
 /**
  * The public list screen (design.md D4, D5; summary §5.2; spec "Public
@@ -26,9 +27,27 @@ vi.mock("@/widgets/public-evaluation-list", async (importOriginal) => ({
 
 import { ListScreen } from "./ListScreen";
 
+// jsdom has no matchMedia; the sidebar reads the md breakpoint through it.
+beforeAll(() => {
+  window.matchMedia = ((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  })) as unknown as typeof window.matchMedia;
+});
+
 function renderScreen(search: Record<string, string>) {
   nav.search = new URLSearchParams(search).toString();
-  return render(<ListScreen locale="en" searchParams={search} />);
+  return render(
+    <SidebarProvider>
+      <ListScreen locale="en" searchParams={search} />
+    </SidebarProvider>,
+  );
 }
 
 beforeEach(() => {
