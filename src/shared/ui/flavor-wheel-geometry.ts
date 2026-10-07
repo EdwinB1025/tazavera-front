@@ -15,6 +15,9 @@ const RINGS_BY_DEPTH: Record<0 | 1 | 2, number[]> = {
 };
 
 const LABEL_FONT_SIZE = [13, 12, 12];
+
+/** The gap at each group boundary, in degrees (add-offering-catalog D19). */
+export const GROUP_GAP = 6;
 const LINE_HEIGHT = 1.2;
 const CHARACTER_WIDTH = 0.6;
 
@@ -22,8 +25,13 @@ const CHARACTER_WIDTH = 0.6;
 export type WheelGeometryNode = {
   id: string;
   count: number;
+  /** The root's group (add-offering-catalog D19); read on roots only. */
+  group?: string;
   children: WheelGeometryNode[];
 };
+
+/** The angular range a group of roots occupies. */
+export type GroupArc = { id: string; start: number; end: number };
 
 export type RingBounds = { inner: number; outer: number };
 
@@ -69,14 +77,44 @@ function visibleDepth(
 }
 
 /**
+ * The roots partitioned into runs by group, the runs in `groupOrder` (a group
+ * missing from it goes last), the roots of a run in their given order.
+ */
+export function groupRuns<T extends WheelGeometryNode>(
+  nodes: T[],
+  groupOrder: readonly string[],
+): { id: string; roots: T[] }[] {
+  const rank = (node: T): number => {
+    const index = groupOrder.indexOf(node.group ?? "");
+    return index === -1 ? groupOrder.length : index;
+  };
+  const sorted = nodes
+    .map((node, index) => ({ node, index }))
+    .sort((a, b) => rank(a.node) - rank(b.node) || a.index - b.index)
+    .map(({ node }) => node);
+  const runs: { id: string; roots: T[] }[] = [];
+  for (const node of sorted) {
+    const id = node.group ?? "";
+    const last = runs[runs.length - 1];
+    if (last && last.id === id) last.roots.push(node);
+    else runs.push({ id, roots: [node] });
+  }
+  return runs;
+}
+
+/**
  * The visible segments, depth-first in wheel order: each root spans
  * `360° × count / Σ root counts`, each child of an expanded parent spans the
- * parent's span `× count / Σ sibling counts`, filling it.
+ * parent's span `× count / Σ sibling counts`, filling it. With a `groupOrder`
+ * and roots of two groups or more, the roots are grouped in that order and a
+ * `GROUP_GAP` sits at each group boundary, one centred at 12 o'clock; the
+ * roots share the rest by count (add-offering-catalog design.md D19).
  */
 export function layoutWheel<T extends WheelGeometryNode>(
   nodes: T[],
   expanded: ReadonlySet<string>,
-): { radii: RingRadii; segments: WheelSegment<T>[] } {
+  groupOrder?: readonly string[],
+): { radii: RingRadii; segments: WheelSegment<T>[]; groupArcs: GroupArc[] } {
   const radii = ringRadii(
     Math.min(visibleDepth(nodes, expanded), 2) as 0 | 1 | 2,
   );
@@ -104,8 +142,27 @@ export function layoutWheel<T extends WheelGeometryNode>(
     });
   };
 
-  place(nodes, 0, 0, 360);
-  return { radii, segments };
+  const runs = groupOrder ? groupRuns(nodes, groupOrder) : [];
+  if (runs.length < 2) {
+    place(nodes, 0, 0, 360);
+    return { radii, segments, groupArcs: [] };
+  }
+
+  const available = 360 - runs.length * GROUP_GAP;
+  const total = nodes.reduce((sum, n) => sum + n.count, 0);
+  const groupArcs: GroupArc[] = [];
+  let cursor = GROUP_GAP / 2;
+  runs.forEach((run, index) => {
+    const count = run.roots.reduce((sum, n) => sum + n.count, 0);
+    const end =
+      index === runs.length - 1
+        ? 360 - GROUP_GAP / 2
+        : cursor + (available * count) / total;
+    place(run.roots, 0, cursor, end);
+    groupArcs.push({ id: run.id, start: cursor, end });
+    cursor = end + GROUP_GAP;
+  });
+  return { radii, segments, groupArcs };
 }
 
 function round(value: number): number {

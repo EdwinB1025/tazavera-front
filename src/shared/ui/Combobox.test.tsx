@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach, beforeAll } from "vitest";
 import { render, screen, fireEvent, cleanup, act } from "@testing-library/react";
-import { Combobox, type ComboboxOption, type ComboboxSearch } from "@/shared/ui";
+import { Combobox, Field, type ComboboxOption, type ComboboxSearch } from "@/shared/ui";
 
 afterEach(() => {
   cleanup();
@@ -416,5 +416,103 @@ describe("Combobox — search mode", () => {
       expect(search).toHaveBeenCalledTimes(1);
       expect(search.mock.calls[0]![0]).toBe("ca");
     });
+  });
+});
+
+describe("Combobox — inside a Field (design.md D14)", () => {
+  function inField(error?: string) {
+    return (
+      <Field label="Coffee" required help="Field help" error={error}>
+        <Combobox
+          label="Coffee"
+          options={FINCAS}
+          value={null}
+          onChange={() => {}}
+          help="Own help"
+          texts={TEXTS}
+        />
+      </Field>
+    );
+  }
+
+  it("shows one label, which names the input, and only the Field's help", () => {
+    render(inField());
+    expect(screen.getAllByText("Coffee")).toHaveLength(1);
+    const box = screen.getByRole("combobox", { name: "Coffee" });
+    const label = screen.getByText("Coffee");
+    expect(label.getAttribute("for")).toBe(box.id);
+    const help = screen.getByText("Field help");
+    expect(box.getAttribute("aria-describedby")).toBe(help.id);
+    expect(screen.queryByText("Own help")).toBeNull();
+    expect(box.hasAttribute("required")).toBe(true);
+  });
+
+  it("with an error, the input is described by the help and the error", () => {
+    render(inField("Choose a coffee"));
+    expect(screen.getAllByText("Coffee")).toHaveLength(1);
+    const box = screen.getByRole("combobox", { name: "Coffee" });
+    const help = screen.getByText("Field help");
+    const error = screen.getByText("Choose a coffee");
+    expect(box.getAttribute("aria-describedby")?.split(" ")).toEqual([help.id, error.id]);
+    expect(box.getAttribute("aria-invalid")).toBe("true");
+    expect(screen.queryByText("Own help")).toBeNull();
+  });
+});
+
+describe("Combobox — search mode inside a Field (spec keyboard and pointer choice)", () => {
+  const RESULTS: ComboboxOption[] = [
+    { value: "1", label: "Café Uno" },
+    { value: "2", label: "Café Dos" },
+  ];
+
+  async function typeAndLoad(onChange: (option: ComboboxOption | null) => void) {
+    vi.useFakeTimers();
+    let resolve!: (options: ComboboxOption[]) => void;
+    const search = vi.fn<ComboboxSearch>(
+      () => new Promise<ComboboxOption[]>((res) => (resolve = res)),
+    );
+    render(
+      <Field label="Coffee" required help="Field help">
+        <Combobox label="Coffee" search={search} value={null} onChange={onChange} texts={TEXTS} />
+      </Field>,
+    );
+    const box = screen.getByRole("combobox", { name: "Coffee" }) as HTMLInputElement;
+    act(() => box.focus());
+    fireEvent.change(box, { target: { value: "caf" } });
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    await act(async () => {
+      resolve(RESULTS);
+    });
+    return box;
+  }
+
+  it("when results render, the input keeps focus, its text and the open list", async () => {
+    const box = await typeAndLoad(() => {});
+    expect(document.activeElement).toBe(box);
+    expect(box.value).toBe("caf");
+    expect(box.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getAllByRole("option")).toHaveLength(2);
+    const label = screen.getByText("Coffee");
+    expect(label.getAttribute("for")).toBe(box.id);
+    expect(box.getAttribute("aria-describedby")).toBe(screen.getByText("Field help").id);
+  });
+
+  it("a click on a result chooses it", async () => {
+    const onChange = vi.fn();
+    const box = await typeAndLoad(onChange);
+    fireEvent.click(screen.getByRole("option", { name: /Café Dos/ }));
+    expect(onChange).toHaveBeenCalledWith(RESULTS[1]);
+    expect(box.value).toBe("Café Dos");
+  });
+
+  it("ArrowDown, Enter chooses the first result", async () => {
+    const onChange = vi.fn();
+    const box = await typeAndLoad(onChange);
+    fireEvent.keyDown(box, { key: "ArrowDown" });
+    fireEvent.keyDown(box, { key: "Enter" });
+    expect(onChange).toHaveBeenCalledWith(RESULTS[0]);
+    expect(box.value).toBe("Café Uno");
   });
 });

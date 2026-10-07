@@ -17,6 +17,9 @@ import {
   Globe,
   SlidersHorizontal,
   X,
+  Trash2,
+  List,
+  Plus,
   BeanMark,
   type LucideIcon,
 } from "@/shared/ui/icons";
@@ -65,6 +68,22 @@ describe("icon entry point (src/shared/ui/icons.ts)", () => {
     // 2.2 re-exports them.
     expect(SlidersHorizontal).toBeDefined();
     expect(X).toBeDefined();
+  });
+
+  it("exports Trash2 (add-offering-management design.md D7)", () => {
+    // The Delete actions' icon of the management list. It is not exported
+    // yet, so this test fails until task 4.2 re-exports it.
+    expect(Trash2).toBeDefined();
+  });
+
+  it("exports List (add-offering-management design.md D8)", () => {
+    // The "Manage offerings" sidebar entry's icon. It is not exported yet,
+    // so this test fails until task 8.2 re-exports it.
+    expect(List).toBeDefined();
+  });
+
+  it("exports Plus (add-user-contact design.md D8)", () => {
+    expect(Plus).toBeDefined();
   });
 
   it("is the only module under src/ that imports lucide-react", () => {

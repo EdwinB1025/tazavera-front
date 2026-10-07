@@ -499,3 +499,7 @@ End state, for the architect to word as a delta of "Management sidebar" and "She
     - corrected: the first draft called `text-strong`/`surface-input` "already registered"; it is not (F4).
   - **Kept from the first draft:** the contract facets and their limits, the sort options, the catalog texts still used, the option-data and city points, the primary-button dark boundary point, the region and status-sort points, the result announcement.
   - **Old Open 12** (unused filter tokens) moved to Finding F5.
+
+## Propose status
+
+- 2026-10-07 — `add-offering-facets`: design.md (D2, D3, D4, D5, D7, D8, D9, D10, D11, risks), tasks.md (every unchecked task rewritten) and proposal.md aligned with the merged `add-sidebar-slot`, `add-offering-catalog` and `add-facet-controls` code (facet panel as `children` of `AppSidebar` in `OfferingsSidebarScreen`; toolbar passed by the catalog route as `OfferingsScreen`'s `toolbar`; result count read in `OfferingList`, where `meta.total` arrives). No product decision changed; spec delta unchanged. `openspec validate add-offering-facets --strict`: valid. Open: none.
