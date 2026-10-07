@@ -9,6 +9,8 @@ export type {
   EvaluationFacetsProps,
   EvaluationFacetsTexts,
 } from "./ui/EvaluationFacets";
+export { EvaluationsToolbar } from "./ui/EvaluationsToolbar";
+export type { EvaluationsToolbarProps, EvaluationsToolbarTexts } from "./ui/EvaluationsToolbar";
 export {
   EVALUATION_SORT_OPTIONS,
   evaluationListQuery,
