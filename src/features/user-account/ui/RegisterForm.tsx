@@ -3,7 +3,7 @@
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import { publicRequest, type RegisterPayload } from "@/shared/api";
 import { Button, Field, Input, PasswordInput, FormStatus } from "@/shared/ui";
-import { isValidEmail } from "../model/email";
+import { isValidEmail } from "@/entities/contact";
 import {
   RegisterSuccessPanel,
   type RegisterSuccessPanelTexts,
