@@ -558,3 +558,13 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
   - Se aplica en dos pasadas: ahora sobre `develop`, sin tocar los tests que modifican las ramas en vuelo; la segunda pasada, cuando esas ramas estén mergeadas.
 - **Por qué:** Product owner, 8 oct ("esa cantidad de test no es manejable", "OK con alta prioridad").
 - **Afecta:** todos los cambios abiertos (sus prompts de build: no crear guardas); AGENTS.md `## Testing` (viñeta "no new guard tests", pendiente de Product owner); `.claude/CLAUDE.md` §3.
+
+### 2026-10-08 — última tarea: revisión técnica ISO 25010 y hoja de ruta de refactorización (Product owner)
+- **Decisión:** al final, con todos los cambios mergeados, una sesión en la nube de solo lectura escribe `docs/review/technical-review.md` (lo commitea el orquestador en `develop`). Contenido:
+  - Cuadro de mando ISO/IEC 25010 con nota A–E por característica (la peor de sus indicadores).
+  - Mantenibilidad: SOLID en React/FSD, coherencia, sobredimensionamiento; métricas SIG ligeras (tamaño, complejidad ESLint, `jscpd`, `dependency-cruiser`, `knip`, props por componente).
+  - Testabilidad (escenarios cubiertos, duración de la suite), adecuación funcional (contrato y escenarios), seguridad (`npm audit`, CSP, cabeceras, tokens), usabilidad (guardas y axe con Playwright en 5–6 pantallas con la API simulada), rendimiento (bundle por ruta de `next build`).
+  - Hoja de ruta de refactorización: hallazgos agrupados en cambios propuestos (change-id y capability), esfuerzo S/M/L con total, impacto (nota actual → objetivo), prioridad, orden por dependencias FSD y riesgo. Candidatos al backlog desde R17.
+  - Herramientas solo con `npx`, sin dependencias nuevas.
+- **Por qué:** petición de Product owner, 8 oct.
+- **Afecta:** cierre del proyecto; backlog.
