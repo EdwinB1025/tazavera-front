@@ -25,3 +25,11 @@ Source: Product owner's answers of 2026-10-07 to handoff Q1–Q5 (the entries ma
 7. design.md D13 (fixed 14rem legend column from `md`, a value chosen here; also used by D18) → tasks 11.5, 11.6.
 8. design.md D15 (row aligned to `text-secondary` / `surface-section`, 5.39 / 7.18); wording only, no task.
 - Browser check of the round: task 11.9.
+
+## Round 2
+
+Source: Product owner's decision of 2026-10-07 (decisions log, "superficies de página: respuestas a Open 1–3": each running change gets a small adoption round before its archive), written down by the orchestrator. The shared pattern is `refine-page-surfaces`, merged into `develop` at `2bc80ae` (content-structure "Section card" and "Page sections"; `Card variant="section"`; `surface-page` = `sage-100` in the traditional theme). Reference: `docs/design/refine-page-surfaces/design-summary.md` §5.2, §5.3, §5.5 and the §9.2 row of this change.
+
+1. **Per-axis sections are section cards.** The five per-axis sections of the Consensus tab (round 1 point 3) become `Card variant="section"` with the collapsible header in the band, in the sections group's 1rem gap.
+2. **Detail on the backdrop.** On the offering detail, the header block and the tab bar sit on the page backdrop (not in a `surface="section"` band); the tab panels' cards hang from it. Every gated pair of the tab bar that moves onto `surface-page` is registered in the theme contrast matrix and passes.
+3. **List margins.** The single column of the catalog list fills its container on the backdrop, with the side margins of the refine-page-surfaces §5.5 table (round 1 point 4 already placed the results in `PageSection surface="page"`).
