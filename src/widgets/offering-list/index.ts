@@ -22,3 +22,8 @@ export { OfferingSkeletonCard } from "./ui/OfferingSkeletonCard";
 export { CATALOG_GRID_CLASSES, OFFERING_GRID_CLASSES } from "./lib/grid";
 export { buildOfferingsQuery } from "./lib/query";
 export type { OfferingsQuery } from "./lib/query";
+export { FilteredOfferingsResults } from "./ui/FilteredOfferingsResults";
+export type {
+  FilteredOfferingsResultsProps,
+  FilteredOfferingsResultsTexts,
+} from "./ui/FilteredOfferingsResults";

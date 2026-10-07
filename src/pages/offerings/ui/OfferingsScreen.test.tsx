@@ -30,9 +30,6 @@ vi.mock("@/widgets/offering-list", async (importOriginal) => {
       results.props = props;
       return <div data-testid="filtered-offerings-results" />;
     },
-    // Kept until the screen renders the composition.
-    Offerings: () => <div data-testid="offerings-block" />,
-    OfferingSkeletonCard: () => <div data-testid="skeleton-card" />,
   };
 });
 
