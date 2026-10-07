@@ -7,8 +7,12 @@ import { Button } from "./Button";
 // ─── UI-specific types (declared before the component) ───
 
 export type PaginationTexts = {
+  /** Accessible name of the navigation landmark. */
+  navigationLabel: string;
   previousLabel: string;
   nextLabel: string;
+  /** Accessible name of a page number; `{page}` is replaced by the number. */
+  pageLabel: string;
 };
 
 /** One position of the number list and the widths it shows at (D3). */

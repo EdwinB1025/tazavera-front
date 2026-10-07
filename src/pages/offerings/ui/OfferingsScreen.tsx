@@ -75,6 +75,8 @@ export function OfferingsScreen({
     ratingCommercialLabel: landing.cardRatingCommercialLabel,
     previousLabel: landing.paginationPreviousLabel,
     nextLabel: landing.paginationNextLabel,
+    navigationLabel: landing.paginationNavigationLabel,
+    pageLabel: landing.paginationPageLabel,
     emptyMessage: filtered ? filters.noMatches : catalog.listEmptyMessage,
     resultCount: catalog.resultCount,
     errorMessage: catalog.listErrorMessage,

@@ -11,6 +11,8 @@
   "viewLabel": "Ver",
   "previousLabel": "Anterior",
   "nextLabel": "Siguiente",
+  "paginationNavigationLabel": "Paginación",
+  "paginationPageLabel": "Página {page}",
   "listEmptyMessage": "Todavía no tienes evaluaciones.",
   "listLoadErrorMessage": "No se han podido cargar tus evaluaciones.",
   "retryLabel": "Reintentar",
