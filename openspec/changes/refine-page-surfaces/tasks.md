@@ -9,7 +9,7 @@ The change consumes no API: no type is derived from `src/shared/api/schema.ts` a
 
 ## 2. Section card (content-structure)
 
-- [ ] 2.1 In `src/shared/ui/Card.test.tsx`, add a describe block "Section card (spec 'Section card'; design.md D2–D5)" with these cases, leaving every existing case unchanged (they pin the default `content` variant, spec "Default variant unchanged"):
+- [x] 2.1 In `src/shared/ui/Card.test.tsx`, add a describe block "Section card (spec 'Section card'; design.md D2–D5)" with these cases, leaving every existing case unchanged (they pin the default `content` variant, spec "Default variant unchanged"):
   1. Root with `variant="section"`: contains `bg-surface-card`, `rounded-container`, `shadow-lg`, a 1px all-sides border class with `border-border-subtle`, and the overflow clip class the build chooses (D3); does not contain `border-l-4` or `border-border-accent`.
   2. Stacked at every width: with `variant="section"`, both without `layout` and with `layout="stacked"`, aside, content and footer render in that DOM order and none of them carries `lg:float-left`, `lg:w-1/4`, `lg:border-r`, `lg:border-b-0`, `lg:flow-root` or `lg:clear-both`; the root carries no `h-full` and the footer no `mt-auto`.
   3. Band: `CardAside` carries `bg-surface-section`, `border-b`, `border-border-subtle`, a flex column with a 0.5rem gap, the static padding (1rem; 1rem top and bottom and 1.5rem sides from `md:`), and the D4 relational classes chosen by the build for: collapsible padding (0.5rem; 0.5rem top and bottom and 1rem sides from `md:`), `surface-section-hover` on hover only when the band holds an element with `aria-expanded`, and no bottom border while that element has `aria-expanded="false"`; it carries no unconditional `hover:` class.

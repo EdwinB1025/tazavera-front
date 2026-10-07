@@ -1,11 +1,17 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { render, cleanup } from "@testing-library/react";
+import { render, cleanup, screen, fireEvent } from "@testing-library/react";
 import {
   Card,
   CardAside,
   CardContent,
   CardFooter,
 } from "@/shared/ui/Card";
+import type { CardLayout, CardVariant } from "@/shared/ui/Card";
+import {
+  Collapsible,
+  CollapsibleHeader,
+  CollapsibleBody,
+} from "@/shared/ui/Collapsible";
 
 // This project has no global test setup, so RTL's auto-cleanup (which relies
 // on a framework-provided afterEach) does not run. Clean up manually between
@@ -244,6 +250,163 @@ describe("Card", () => {
       expect(cardRoot(container).className).toBe(
         "bg-surface-card rounded-container border-l-4 border-border-accent shadow-lg",
       );
+    });
+  });
+
+  describe("Section card (spec 'Section card'; design.md D2–D5)", () => {
+    const SECTION: CardVariant = "section";
+
+    // The relational classes the build chose for D4: the band keys off any
+    // descendant with `aria-expanded` (the collapsible header's button).
+    const COLLAPSIBLE_PADDING = [
+      "has-[[aria-expanded]]:p-2",
+      "md:has-[[aria-expanded]]:px-4",
+    ];
+    const COLLAPSIBLE_HOVER = "has-[[aria-expanded]]:hover:bg-surface-section-hover";
+    const COLLAPSED_NO_SEPARATOR = "has-[[aria-expanded=false]]:border-b-0";
+
+    function renderSectionCard(layout?: CardLayout): {
+      root: HTMLElement;
+      aside: HTMLElement;
+      content: HTMLElement;
+      footer: HTMLElement;
+    } {
+      const { container } = render(
+        <Card variant={SECTION} layout={layout}>
+          <CardAside>BAND</CardAside>
+          <CardContent>BODY</CardContent>
+          <CardFooter>FOOTER</CardFooter>
+        </Card>,
+      );
+      const root = cardRoot(container);
+      return {
+        root,
+        aside: root.children[0] as HTMLElement,
+        content: root.children[1] as HTMLElement,
+        footer: root.children[2] as HTMLElement,
+      };
+    }
+
+    it("renders the root with the card fill, a 1px subtle border on all sides, the container radius, the shadow and a clip, without the accent edge", () => {
+      const { root } = renderSectionCard();
+      const tokens = classTokens(root);
+      expect(tokens).toEqual(
+        expect.arrayContaining([
+          "bg-surface-card",
+          "rounded-container",
+          "shadow-lg",
+          "border",
+          "border-border-subtle",
+          "overflow-hidden",
+        ]),
+      );
+      expect(tokens).not.toContain("border-l-4");
+      expect(tokens).not.toContain("border-border-accent");
+    });
+
+    for (const layout of [undefined, "stacked"] as const) {
+      it(`stacks band, body and footer at every width (layout ${layout ?? "omitted"})`, () => {
+        const { root, aside, content, footer } = renderSectionCard(layout);
+        expect(
+          Array.from(root.children).map((region) => region.textContent),
+        ).toEqual(["BAND", "BODY", "FOOTER"]);
+        for (const part of [aside, content, footer]) {
+          for (const lgClass of [
+            "lg:float-left",
+            "lg:w-1/4",
+            "lg:border-r",
+            "lg:border-b-0",
+            "lg:flow-root",
+            "lg:clear-both",
+          ]) {
+            expect(classTokens(part)).not.toContain(lgClass);
+          }
+        }
+        expect(classTokens(root)).not.toContain("h-full");
+        expect(classTokens(footer)).not.toContain("mt-auto");
+      });
+    }
+
+    it("renders the band on the section surface with its separator, flex column, static padding and the collapsible relational classes", () => {
+      const { aside } = renderSectionCard();
+      const tokens = classTokens(aside);
+      expect(tokens).toEqual(
+        expect.arrayContaining([
+          "bg-surface-section",
+          "border-b",
+          "border-border-subtle",
+          "flex",
+          "flex-col",
+          "gap-2",
+          // Static band: 1rem; 1rem top and bottom, 1.5rem sides from md.
+          "p-4",
+          "md:px-6",
+          // Collapsible band: 0.5rem; 0.5rem top and bottom, 1rem sides from md.
+          ...COLLAPSIBLE_PADDING,
+          COLLAPSIBLE_HOVER,
+          COLLAPSED_NO_SEPARATOR,
+        ]),
+      );
+      // No hover surface unless the band holds the collapsible header.
+      expect(tokens.filter((token) => token.startsWith("hover:"))).toEqual([]);
+    });
+
+    it("pads the body and the footer 1rem sides and top, 1.25rem bottom, and 1.5rem from md, with no fill or border of their own", () => {
+      const { content, footer } = renderSectionCard();
+      for (const part of [content, footer]) {
+        const tokens = classTokens(part);
+        expect(tokens).toEqual(
+          expect.arrayContaining(["px-4", "pt-4", "pb-5", "md:p-6"]),
+        );
+        expect(
+          tokens.filter(
+            (token) => token.startsWith("bg-") || token.startsWith("border"),
+          ),
+        ).toEqual([]);
+      }
+    });
+
+    it("composes with Collapsible: the header button sits in the band and toggles aria-expanded while the band's classes stay the same", () => {
+      const { container } = render(
+        <Collapsible>
+          <Card variant="section">
+            <CardAside>
+              <CollapsibleHeader>AXIS TITLE</CollapsibleHeader>
+            </CardAside>
+            <CollapsibleBody>
+              <CardContent>BODY TEXT</CardContent>
+            </CollapsibleBody>
+          </Card>
+        </Collapsible>,
+      );
+      const aside = cardRoot(container).children[0] as HTMLElement;
+      const button = screen.getByRole("button", { name: "AXIS TITLE" });
+      expect(aside.contains(button)).toBe(true);
+      expect(button.getAttribute("aria-expanded")).toBe("false");
+      const collapsedClasses = aside.className;
+      fireEvent.click(button);
+      expect(button.getAttribute("aria-expanded")).toBe("true");
+      expect(aside.className).toBe(collapsedClasses);
+    });
+
+    it("renders exactly the consumer's text, with no role or aria attribute on the root", () => {
+      const { container } = render(
+        <Card variant="section">
+          <CardAside>
+            <h2>SECTION TITLE</h2>
+          </CardAside>
+          <CardContent>BODY TEXT</CardContent>
+          <CardFooter>FOOTER TEXT</CardFooter>
+        </Card>,
+      );
+      const root = cardRoot(container);
+      expect(root.textContent).toBe("SECTION TITLEBODY TEXTFOOTER TEXT");
+      expect(root.hasAttribute("role")).toBe(false);
+      expect(
+        Array.from(root.attributes).filter((attr) =>
+          attr.name.startsWith("aria-"),
+        ),
+      ).toEqual([]);
     });
   });
 });
