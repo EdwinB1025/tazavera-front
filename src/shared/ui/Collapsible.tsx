@@ -78,7 +78,9 @@ const CHEVRON_CLASSES = [
 // ring. Opening switches the clip at the end (`step-end`), closing at once
 // (`step-start`); `visibility` stays visible until a close finishes. While
 // collapsed the inner wrapper clips its overflow, so the hidden content adds
-// nothing to the page's scrollable area (clip-path only clips the paint).
+// nothing to the page's scrollable area (clip-path only clips the paint), and
+// is `relative` so absolutely positioned descendants (such as Radix's hidden
+// native radio inputs) take it as their containing block and are clipped too.
 const BODY_CLASSES = ["grid", "motion-reduce:[transition:none]"].join(" ");
 const BODY_COLLAPSED_CLASSES = [
   "grid-rows-[0fr]",
@@ -204,7 +206,7 @@ export function CollapsibleBody({
         className,
       )}
     >
-      <div className={cn("min-h-0", !open && "overflow-hidden")}>
+      <div className={cn("min-h-0", !open && "relative overflow-hidden")}>
         {children}
       </div>
     </div>

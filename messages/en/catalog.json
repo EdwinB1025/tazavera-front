@@ -50,5 +50,6 @@
   "wheelCount": "{count} of {total} evaluators",
   "wheelNotesToggle": "Notes",
   "wheelGroupsLabel": "Note groups",
-  "wheelGroupAromatics": "Aromatics"
+  "wheelGroupAromatics": "Aromatics",
+  "resultCount": "Results: {count}"
 }

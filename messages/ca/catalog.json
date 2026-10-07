@@ -50,5 +50,6 @@
   "wheelCount": "{count} de {total} avaluadors",
   "wheelNotesToggle": "Notes",
   "wheelGroupsLabel": "Grups de notes",
-  "wheelGroupAromatics": "Aromàtics"
+  "wheelGroupAromatics": "Aromàtics",
+  "resultCount": "Resultats: {count}"
 }

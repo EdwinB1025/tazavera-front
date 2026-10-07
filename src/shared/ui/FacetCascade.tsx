@@ -104,7 +104,10 @@ export function FacetCascade({
   );
 
   return (
-    <fieldset aria-describedby={hasHelp ? helpId : undefined} className="flex flex-col">
+    // `min-w-0` overrides the fieldset's min-content width and `wrap-anywhere`
+    // (inherited) lets long labels without break points wrap, so the rows stay
+    // within the 16rem sidebar.
+    <fieldset aria-describedby={hasHelp ? helpId : undefined} className="flex min-w-0 flex-col wrap-anywhere">
       <legend className={FACET_LEGEND_CLASSES}>{legend}</legend>
       <div id={listId} className={FACET_ROWS_CLASSES}>
         {options.map((option, index) => {
@@ -122,7 +125,7 @@ export function FacetCascade({
           return (
             <div key={option.value} hidden={hiddenTop[index] || undefined}>
               <div className="flex items-center gap-1">
-                <div className="flex-1">{row(option)}</div>
+                <div className="min-w-0 flex-1">{row(option)}</div>
                 <button
                   type="button"
                   aria-expanded={expanded}
