@@ -2,9 +2,8 @@
 
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import { publicRequest, type RegisterPayload } from "@/shared/api";
-import { Button, Field, Input, PasswordInput } from "@/shared/ui";
+import { Button, Field, Input, PasswordInput, FormStatus } from "@/shared/ui";
 import { isValidEmail } from "../model/email";
-import { FormStatus } from "./FormStatus";
 import {
   RegisterSuccessPanel,
   type RegisterSuccessPanelTexts,

@@ -1,8 +1,9 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import type { OfferingsPageMeta, OfferingSummary, Session } from "@/shared/api";
+import type { OfferingsPageMeta, OfferingSummary } from "@/shared/api";
 import type { ResolvedTaxonomyBadge } from "@/entities/offering";
 import { OfferingList } from "./OfferingList";
+import { CATALOG_GRID_CLASSES, OFFERING_GRID_CLASSES } from "../lib/grid";
 
 // This project has no global test setup, so RTL's auto-cleanup (which relies
 // on a framework-provided afterEach) does not run. Clean up manually between
@@ -21,8 +22,8 @@ afterEach(() => {
  *
  * The presentation takes the fetch result of design.md D9 as one `result` prop
  * — `success` with the items and the pagination `meta`, `empty`, or `error` —
- * and every text as `texts` props (design.md D11), passing the session down to
- * each card. Both failures of D4 (the offerings fetch and the taxonomy fetch)
+ * and every text as `texts` props (design.md D11), supplying `EvaluateLink` to
+ * each card's actions slot (add-specialist-evaluations design.md D6). Both failures of D4 (the offerings fetch and the taxonomy fetch)
  * map into the single `error` result, so one error presentation covers them
  * alike. The retry action is a client component whose activation calls
  * `router.refresh()` (spec: "Retry reloads"); the app router hook is mocked
@@ -38,6 +39,21 @@ beforeEach(() => {
   router.push.mockReset();
   router.refresh.mockReset();
 });
+
+// `EvaluateLink` decides on the session itself (its own tests cover the
+// roles); here it is replaced at its public API by a link carrying the props
+// the widget supplies, so these cases construct no session.
+vi.mock("@/features/evaluate-offering", () => ({
+  EvaluateLink: ({
+    ulid,
+    locale,
+    texts,
+  }: {
+    ulid: string;
+    locale: string;
+    texts: { evaluateLabel: string };
+  }) => <a href={`/${locale}/manage/evaluations/new?offering=${ulid}`}>{texts.evaluateLabel}</a>,
+}));
 
 const TEXTS = {
   coffeeshopCaption: "texts.coffeeshopCaption",
@@ -58,19 +74,6 @@ const TEXTS = {
   previousLabel: "texts.previousLabel",
   nextLabel: "texts.nextLabel",
 };
-
-// ─── Session fixtures (design.md D8: the session arrives as a prop and gates
-// the Evaluate link on the role `specialist`) ────────────────────────────────
-
-const SPECIALIST: Session = {
-  state: "authenticated",
-  user: { role: "specialist" },
-};
-const OTHER_ROLE: Session = {
-  state: "authenticated",
-  user: { role: "coffeeshop" },
-};
-const ANONYMOUS: Session = { state: "anonymous" };
 
 // ─── Result fixtures (design.md D9's result mapping) ────────────────────────
 
@@ -103,10 +106,8 @@ function classTokens(element: Element): string[] {
   return (element.getAttribute("class") ?? "").split(/\s+/).filter(Boolean);
 }
 
-function renderList(result: ListResult, session: Session = SPECIALIST) {
-  return render(
-    <OfferingList result={result} locale="es" session={session} texts={TEXTS} />,
-  );
+function renderList(result: ListResult) {
+  return render(<OfferingList result={result} locale="es" texts={TEXTS} />);
 }
 
 describe("OfferingList", () => {
@@ -162,8 +163,8 @@ describe("OfferingList", () => {
     });
   });
 
-  describe("Session (specs: 'Evaluate link for specialists', 'No Evaluate link for other viewers'; design.md D8)", () => {
-    it("passes the session to every card and shows Evaluate on each of them for a specialist", () => {
+  describe("Evaluate action (add-specialist-evaluations design.md D6)", () => {
+    it("supplies EvaluateLink with each offering's ulid and the locale to every card", () => {
       renderList({
         state: "success",
         items: [ITEM_ONE, ITEM_TWO],
@@ -176,25 +177,6 @@ describe("OfferingList", () => {
       const hrefs = evaluates.map((link) => link.getAttribute("href"));
       expect(hrefs).toContain(`/es/manage/evaluations/new?offering=${ULID_ONE}`);
       expect(hrefs).toContain(`/es/manage/evaluations/new?offering=${ULID_TWO}`);
-    });
-
-    it("shows no Evaluate link for an anonymous viewer or another role", () => {
-      const anonymous = renderList(
-        { state: "success", items: [ITEM_ONE], meta: { current_page: 1, last_page: 1 } },
-        ANONYMOUS,
-      );
-      expect(
-        screen.queryByRole("link", { name: TEXTS.evaluateLabel }),
-      ).toBeNull();
-      anonymous.unmount();
-
-      renderList(
-        { state: "success", items: [ITEM_ONE], meta: { current_page: 1, last_page: 1 } },
-        OTHER_ROLE,
-      );
-      expect(
-        screen.queryByRole("link", { name: TEXTS.evaluateLabel }),
-      ).toBeNull();
     });
   });
 
@@ -233,6 +215,13 @@ describe("OfferingList", () => {
       expect(classTokens(message).includes("text-center")).toBe(true);
       expect(screen.queryAllByRole("link", { name: TEXTS.viewLabel })).toHaveLength(0);
     });
+
+    it("renders the empty message in the primary text colour", () => {
+      renderList({ state: "empty" });
+      expect(classTokens(screen.getByText(TEXTS.emptyMessage))).toContain(
+        "text-text-primary",
+      );
+    });
   });
 
   describe("Error and retry (spec: 'Error and retry', 'Retry reloads'; design.md D4)", () => {
@@ -243,6 +232,12 @@ describe("OfferingList", () => {
       expect(screen.getByText(TEXTS.errorMessage)).toBeDefined();
       expect(screen.getByRole("button", { name: TEXTS.retryLabel })).toBeDefined();
       expect(screen.queryAllByRole("link", { name: TEXTS.viewLabel })).toHaveLength(0);
+    });
+
+    it("renders the error message in the primary text colour", () => {
+      renderList({ state: "error" });
+      const message = screen.getByText(TEXTS.errorMessage);
+      expect(classTokens(message.parentElement!)).toContain("text-text-primary");
     });
 
     it("calls router.refresh() when the retry action is activated (spec: Retry reloads)", () => {
@@ -288,6 +283,122 @@ describe("OfferingList", () => {
           "xl:grid-cols-3",
         ]),
       );
+    });
+  });
+  describe("Catalog props (add-offering-catalog design.md D10; spec 'Next and Previous keep the query')", () => {
+    const SUCCESS: ListResult = {
+      state: "success",
+      items: [ITEM_ONE, ITEM_TWO],
+      meta: { current_page: 1, last_page: 2 },
+    };
+
+    function gridOf(container: HTMLElement): Element {
+      return container.querySelector(".bg-surface-card")!.parentElement!;
+    }
+
+    it("carries @container on the block root in every branch", () => {
+      const results: ListResult[] = [
+        SUCCESS,
+        { state: "empty" },
+        { state: "error" },
+      ];
+      for (const result of results) {
+        const { container, unmount } = renderList(result);
+        expect(classTokens(container.firstElementChild!)).toContain(
+          "@container",
+        );
+        unmount();
+      }
+    });
+
+    it("keeps landing's grid classes by default", () => {
+      const { container } = renderList(SUCCESS);
+      expect(gridOf(container).getAttribute("class")).toBe(
+        OFFERING_GRID_CLASSES,
+      );
+    });
+
+    it("replaces the grid classes with gridClassName when passed", () => {
+      const { container } = render(
+        <OfferingList
+          result={SUCCESS}
+          locale="es"
+          texts={TEXTS}
+          gridClassName={CATALOG_GRID_CLASSES}
+        />,
+      );
+      expect(gridOf(container).getAttribute("class")).toBe(
+        CATALOG_GRID_CLASSES,
+      );
+    });
+
+    it("pages at path keeping the query: Next pushes /es/offerings?verified=1&page=2", () => {
+      render(
+        <OfferingList
+          result={SUCCESS}
+          locale="es"
+          texts={TEXTS}
+          path="/es/offerings"
+          query={{ verified: "1" }}
+        />,
+      );
+      fireEvent.click(screen.getByRole("button", { name: TEXTS.nextLabel }));
+      expect(router.push).toHaveBeenCalledWith(
+        "/es/offerings?verified=1&page=2",
+      );
+    });
+  });
+
+  describe("Filtered states (add-offering-facets design.md D9)", () => {
+    const COUNT_TEXTS = { ...TEXTS, resultCount: "Results: {count}" };
+
+    it("shows the empty action centered below the empty message, 1rem apart", () => {
+      render(
+        <OfferingList
+          result={{ state: "empty" }}
+          locale="es"
+          texts={TEXTS}
+          emptyAction={<button type="button">Clear all</button>}
+        />,
+      );
+      const message = screen.getByText(TEXTS.emptyMessage);
+      const action = screen.getByRole("button", { name: "Clear all" });
+      expect(message.nextElementSibling).toBe(action);
+      expect(classTokens(message)).toEqual(expect.arrayContaining(["text-center", "text-text-primary"]));
+      expect(classTokens(message.parentElement!)).toEqual(
+        expect.arrayContaining(["flex", "flex-col", "items-center", "gap-4"]),
+      );
+    });
+
+    it("announces meta.total in a status element on success", () => {
+      render(
+        <OfferingList
+          result={{
+            state: "success",
+            items: [ITEM_ONE],
+            meta: { current_page: 1, last_page: 1, total: 12 },
+          }}
+          locale="es"
+          texts={COUNT_TEXTS}
+        />,
+      );
+      expect(screen.getByRole("status").textContent).toBe("Results: 12");
+    });
+
+    it("announces 0 in the empty state", () => {
+      render(
+        <OfferingList result={{ state: "empty" }} locale="es" texts={COUNT_TEXTS} />,
+      );
+      expect(screen.getByRole("status").textContent).toBe("Results: 0");
+    });
+
+    it("renders no status and no action without the new props", () => {
+      renderList({ state: "empty" });
+      expect(screen.queryByRole("status")).toBeNull();
+      expect(screen.queryByRole("button")).toBeNull();
+      cleanup();
+      renderList({ state: "success", items: [ITEM_ONE], meta: { current_page: 1, last_page: 1, total: 1 } });
+      expect(screen.queryByRole("status")).toBeNull();
     });
   });
 });

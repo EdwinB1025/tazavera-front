@@ -108,6 +108,35 @@ describe("AccountClient — the session gate", () => {
     expect(screen.queryAllByRole("region")).toHaveLength(0);
     expect(screen.getByText(TEXTS.signedOutText)).toBeTruthy();
   });
+
+  it("while loading and while anonymous shows a section card with a subtle border, no accent edge and no header band", () => {
+    for (const session of [
+      { state: "loading" },
+      { state: "anonymous" },
+    ] satisfies Session[]) {
+      auth.session = session;
+      const { container } = renderClient();
+      const card = container.firstElementChild!;
+      expect(card.classList.contains("border")).toBe(true);
+      expect(card.classList.contains("border-border-subtle")).toBe(true);
+      expect(card.classList.contains("border-l-4")).toBe(false);
+      expect(container.querySelector(".bg-surface-section")).toBeNull();
+      cleanup();
+    }
+  });
+});
+
+describe("AccountClient — sections group", () => {
+  it("places the four sections as the children of one flex column 1rem apart", () => {
+    auth.session = { state: "authenticated", user: USER };
+    renderClient();
+    const regions = screen.getAllByRole("region");
+    const group = regions[0].parentElement!;
+    expect(Array.from(group.children)).toEqual(regions);
+    expect(group.classList.contains("flex")).toBe(true);
+    expect(group.classList.contains("flex-col")).toBe(true);
+    expect(group.classList.contains("gap-4")).toBe(true);
+  });
 });
 
 describe("AccountClient — Security section", () => {

@@ -58,6 +58,7 @@ const fetchMock =
 const locationMock = {
   assign: vi.fn<(url: string) => void>(),
   pathname: "/en/offerings/1",
+  search: "",
 };
 const pushMock = vi.fn<History["pushState"]>();
 const replaceMock = vi.fn<History["replaceState"]>();
@@ -170,6 +171,7 @@ beforeEach(() => {
   document.cookie = "theme=; path=/; max-age=0";
   fetchMock.mockReset();
   locationMock.assign.mockReset();
+  locationMock.search = "";
   pushMock.mockReset();
   replaceMock.mockReset();
   vi.stubGlobal("fetch", fetchMock);
@@ -270,6 +272,17 @@ describe("silent re-authentication (spec: Silent re-authentication)", () => {
 
     expect(restored.current()).toEqual({ state: "authenticated", user: PROFILE });
     expect(loadWithMarker.states[0]).toEqual({ state: "loading" });
+  });
+
+  it("records the path and the query of the route the user is on as the return route of the silent request (fix-auth-return-query; spec: The return destination keeps the query)", async () => {
+    const loaded = await load();
+    loaded.flow.setMarker();
+    locationMock.search = "?tab=evaluations";
+
+    consume(loaded);
+    await awaitRequestStarted();
+
+    expect(loaded.flow.readFlow()!.returnRoute).toBe("/en/offerings/1?tab=evaluations");
   });
 
   it("starts exactly one authorization request when the session start runs twice in one page load (design.md D1 idempotency)", async () => {
