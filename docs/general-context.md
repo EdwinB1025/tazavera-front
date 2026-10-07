@@ -543,3 +543,8 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Decisión:** con el portátil sin memoria, las tareas de verificación visual, los checks y los verify se hacen en sesiones de la nube con Playwright y una API simulada. La sesión commitea las capturas y el resultado en el handoff (`docs(<cap>): update handoff for <change-id>`) antes de marcar el checkbox de la tarea.
 - **Por qué:** el sistema detuvo los procesos locales por falta de memoria (7 oct, ~21:20 UTC); mandato de autonomía de Product owner ("tú eres autónomo", "no esperes por mí").
 - **Afecta:** refine-list-pagination, add-coffeeshop-location, add-evaluation-facets, extract-filtered-offerings, y los siguientes applies (public-evaluations, coffeeshop-directory).
+
+### 2026-10-07 — R14 autorizado si queda tiempo (Product owner)
+- **Decisión:** R14 (página 404 localizada y con tema) entra si queda tiempo, después de public-evaluations, coffeeshop-directory y la reducción de tests. Cambio nuevo `add-not-found-page` (app-shell): el design lead redacta el resumen solo con componentes y tokens existentes; el orquestador lo aprueba si no deja puntos abiertos.
+- **Por qué:** Product owner, 7 oct noche ("si te queda tiempo incluirá R14").
+- **Afecta:** add-not-found-page (nuevo); backlog R14 (sale al archivar ese cambio).
