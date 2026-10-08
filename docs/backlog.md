@@ -22,7 +22,7 @@ The entries below follow this order. The order runs security first, then the sha
 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
-| 0 | R41 | `fix-sign-in` | Refactor (fast lane) | S | — (maximum priority, Product owner 2026-10-08) |
+| 0 | R41 | none (closed: environment, no code) | Deploy note | — | — (closed by Product owner 2026-10-08) |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
 | 3 | R31 (+ R3) | `harden-response-headers` | Refactor (fast lane) | S | — |
@@ -58,11 +58,11 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Where today:** not located yet; sign-in flow of `src/features/auth`. Ruled out on 2026-10-08: the production build carries the current client `01a11aee-170a-71bc-82aa-43344bf1b12d`; the API accepts it (`/oauth/authorize` answers 302 to `/login`, a wrong client answers `invalid_client`); the API log has no error that day. **Cause found (2026-10-08): environment, not code.** The API completes every step (authorize, login, `POST /oauth/token` 200, `GET /user` 200, CORS ok, `/callback` without COOP). The AUT ran a production build (`npm run build` + `npm start`) against `http://localhost:8000`, and `src/shared/api/tokens.ts` (`add-auth` design.md D8) refuses a non-HTTPS token endpoint when `NODE_ENV=production`; `completePopup` takes the silent error path. Product owner is putting the API behind a local TLS proxy (Caddy) to repeat the AUT; deployment requirements are in `tazavera-documentation/api-implementation-notes.md` and `front-implementation-notes.md`. **No code task until that AUT is repeated**; then the entry is closed or retyped.
 - **Why it pays off now:** it blocks every authenticated flow (account, evaluations, management of offerings and locations), and the AUT cannot continue on that side.
 - **Owning capability:** auth
-- **Proposed change:** `fix-sign-in` (S)
-- **Open decision (Augusto):** none. Maximum priority and fast lane by Product owner's decision of 2026-10-08
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** AUT points 10 and 11 (coffee shop locations after the first sign-in)
+- **Proposed change:** none. **Closed by Product owner's decision of 2026-10-08:** the AUTs continue locally with `npm run dev`, which accepts the `http` API, so sign-in works; the deploy (TLS proxy Caddy + Docker) is postponed to a later action. The HTTPS requirement is a deploy note, covered by `tazavera-documentation/api-implementation-notes.md`, `front-implementation-notes.md` and `docker-deploy-guideline.md`.
+- **Open decision (Augusto):** none
+- **Type:** Deploy note (no code)
+- **Status:** closed
+- **Affects:** the deploy (HTTPS for the API's token endpoint in production builds)
 
 ## R20 — Upgrade Next.js to 16.4 (security advisories)
 
