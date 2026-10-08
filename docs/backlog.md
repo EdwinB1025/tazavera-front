@@ -142,18 +142,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Status:** proposed
 - **Affects:** comes after R21
 
-## R29 — Speed up the test environment (resolves R15)
-
-- **Duplicated:** 195 jsdom set-ups take 51% of the 159 s suite.
-- **Where today:** `vitest.config.mts`, `src/pages/evaluation-form/ui/EvaluationForm.test.tsx`
-- **Why it pays off now:** it makes every change's checks faster.
-- **Owning capability:** testing
-- **Proposed change:** `speed-up-test-environment` (S)
-- **Open decision (Augusto):** none
-- **Type:** Refactor (fast lane)
-- **Status:** proposed
-- **Affects:** R15
-
 ## R15 — Slow `EvaluationForm` tests under load (add-user-contact checks)
 
 - **Duplicated:** none; `src/pages/evaluation-form/ui/EvaluationForm.test.tsx` takes about 16s alone and about 58s in the full suite, where one case ("sends each descriptor block's selection to its request field") hit the 5000ms test timeout once and passed on re-run
