@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { getMessages } from "@/shared/lib/i18n";
 import type { QueryRecord } from "@/shared/lib/filter-query";
-import { EvaluationsAccess } from "@/features/manage-evaluations";
+import { EvaluationsGate } from "@/widgets/evaluations-gate";
 import {
   EVALUATION_SORT_KEYS,
   EvaluationsToolbar,
@@ -89,7 +89,7 @@ export function EvaluationsListScreen({
   return (
     <div className="flex-1">
       <PageSection surface="page">
-        <EvaluationsAccess
+        <EvaluationsGate
           texts={{ message: catalog.accessMessage, signInLabel: catalog.signInLabel }}
         >
           <div className={BODY_CLASSES}>
@@ -121,7 +121,7 @@ export function EvaluationsListScreen({
               }
             />
           </div>
-        </EvaluationsAccess>
+        </EvaluationsGate>
       </PageSection>
     </div>
   );

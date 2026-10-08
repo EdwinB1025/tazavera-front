@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { fetchOffering } from "@/entities/offering";
 import { fetchTaxonomies } from "@/entities/taxonomy";
-import { EvaluationsAccess } from "@/features/manage-evaluations";
+import { EvaluationsGate } from "@/widgets/evaluations-gate";
 import { getMessages } from "@/shared/lib/i18n";
 import { PageSection } from "@/shared/ui";
 import { EvaluationForm } from "./EvaluationForm";
@@ -44,7 +44,7 @@ export async function NewEvaluationScreen({
   return (
     <div className="flex-1">
       <PageSection surface="page">
-        <EvaluationsAccess
+        <EvaluationsGate
           texts={{ message: catalog.accessMessage, signInLabel: catalog.signInLabel }}
         >
           {result.status === "found" && taxonomies ? (
@@ -57,7 +57,7 @@ export async function NewEvaluationScreen({
           ) : (
             <LoadFailure message={catalog.formLoadErrorMessage} retryLabel={catalog.retryLabel} />
           )}
-        </EvaluationsAccess>
+        </EvaluationsGate>
       </PageSection>
     </div>
   );
