@@ -63,7 +63,14 @@ const OPTIONS: OfferingFacetOptions = {
   processes: ["natural", "washed"],
   varieties: ["Caturra"],
   producers: ["Bensa"],
-  tasteNotes: [{ value: "F", label: "Fruity", children: [{ value: "B", label: "Berry" }] }],
+  tasteNotes: [
+    {
+      value: "F",
+      label: "Fruity",
+      color: "#af5e70",
+      children: [{ value: "B", label: "Berry", color: "#c0392b" }],
+    },
+  ],
 };
 
 function renderPanel(search: string, options: OfferingFacetOptions = OPTIONS) {

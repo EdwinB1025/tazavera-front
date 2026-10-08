@@ -14,7 +14,7 @@ No derived API type is needed: the options read the generated `TaxonomyNode` fro
 
 ## 3. Taste notes as a chip cascade (findings 15 and 16, capability `filtering`)
 
-- [ ] 3.1 Test (spec "Taxonomy chip cascade facet"). In `src/shared/ui/FacetCascade.test.tsx`: give every option of `OPTIONS` a `color` (`#`-hex data colours), drop `toggleChildren` from `TEXTS`, replace the `toggle`, `groupOf` and `checkbox` helpers with chip queries (`getByRole("button", { name })` and `aria-pressed`; a children row is `getByRole("group", { name: <parent label> })`), and update each existing test to its scenario, keeping its place in the file:
+- [x] 3.1 Test (spec "Taxonomy chip cascade facet"). In `src/shared/ui/FacetCascade.test.tsx`: give every option of `OPTIONS` a `color` (`#`-hex data colours), drop `toggleChildren` from `TEXTS`, replace the `toggle`, `groupOf` and `checkbox` helpers with chip queries (`getByRole("button", { name })` and `aria-pressed`; a children row is `getByRole("group", { name: <parent label> })`), and update each existing test to its scenario, keeping its place in the file:
   - "activating a toggle shows its group and sets aria-expanded" → scenario "Children hidden while the parent is not chosen": with value `[]`, no "Berry" chip, no group named "Fruity" and no button named "Options under Fruity".
   - "checking a parent reports it alone and its children stay unchecked" → scenario "Choosing a parent": clicking "Fruity" reports `["fruity"]`; rerendered with `["fruity"]`, the group "Fruity" holds "Berry" and "Dried fruit" with `aria-pressed="false"`.
   - "checking a child with its parent unchecked reports the child alone" → scenario "Choosing a child": with `["fruity"]`, clicking "Berry" reports `["fruity", "berry"]`.
