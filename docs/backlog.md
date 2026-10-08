@@ -28,7 +28,6 @@ The entries below follow this order. The order runs security first, then the sha
 | 16c | R50 | API branch in `tazavera-api` | Change (API) | S | Product owner: verify with real data (the API should deliver the resolved tree) |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
-| 3 | R31 (+ R3) | `harden-response-headers` | Refactor (fast lane) | S | — |
 | 4 | R21 | `tidy-shared-imports` | Refactor (fast lane) | S | — |
 | 5 | R22 | `extract-field-control-hook` | Refactor (fast lane) | M | — |
 | 6 | R24 | `route-public-reads-through-client` | Refactor (fast lane) | S | — |
@@ -103,30 +102,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Type:** Deploy note (no code)
 - **Status:** closed
 - **Affects:** the deploy (HTTPS for the API's token endpoint in production builds)
-
-## R31 — Harden the response headers
-
-- **Duplicated:** none. The `nosniff`, `Referrer-Policy` and `Permissions-Policy` headers are missing, and `X-Powered-By` is exposed.
-- **Where today:** `proxy.ts:48–120`, `next.config.ts:9`
-- **Why it pays off now:** it raises the Security headers indicator from B to A. R3 can ride with it.
-- **Owning capability:** app-shell
-- **Proposed change:** `harden-response-headers` (S)
-- **Open decision (Augusto):** answered 2026-10-08: approved; the headers keep the map and location features allowed (fast lane by Product owner's decision, although it touches security). Answered 2026-10-08 (later): the change MAY add the response-header assertions to `proxy.test` (R3's tests), an explicit exception to "a refactor adds no tests"
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** R3
-
-## R3 — Cover the `/callback` exclusion and the `connect-src` fallback (verify S3)
-
-- **Duplicated:** none
-- **Where today:** `proxy.test.ts` (no case for the matcher exclusion or the unset-`NEXT_PUBLIC_API_URL` fallback), `proxy.ts:41-58`
-- **Why it pays off now:** two ruled edge cases rest on review only; `add-auth` touches the same proxy seam for `/callback`
-- **Owning capability:** app-shell
-- **Proposed change:** none
-- **Open decision (Augusto):** none
-- **Type:** Change
-- **Status:** proposed
-- **Affects:** `add-auth`
 
 ## R43 — Adopt next-intl for locale routing
 
