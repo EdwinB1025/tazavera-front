@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { Session } from "@/shared/api";
 
 /**
@@ -13,6 +13,11 @@ vi.mock("@/features/auth", () => ({
   useSession: () => useSession(),
 }));
 
+// The Evaluate action is a route button (fix-production-aut-findings
+// design.md D4); the app router is mocked — test infrastructure only.
+const router = vi.hoisted(() => ({ push: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => router }));
+
 import { EvaluateLink } from "./EvaluateLink";
 
 const ULID = "01JOFFER000000000000000001";
@@ -25,11 +30,12 @@ beforeEach(() => useSession.mockReset());
 afterEach(cleanup);
 
 describe("EvaluateLink (design.md D6)", () => {
-  it("links a signed-in specialist to the new form of the offering", () => {
+  it("opens the new form of the offering for a signed-in specialist from an action button", () => {
     useSession.mockReturnValue(user("specialist"));
     render(<EvaluateLink ulid={ULID} locale="es" texts={{ evaluateLabel: "Evaluar" }} />);
-    const link = screen.getByRole("link", { name: "Evaluar" });
-    expect(link.getAttribute("href")).toBe(`/es/manage/evaluations/new?offering=${ULID}`);
+    expect(screen.queryByRole("link", { name: "Evaluar" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Evaluar" }));
+    expect(router.push).toHaveBeenCalledWith(`/es/manage/evaluations/new?offering=${ULID}`);
   });
 
   it.each([
