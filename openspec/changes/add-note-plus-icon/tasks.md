@@ -9,4 +9,4 @@ No type is needed: the change only adds markup to an existing component.
 
 ## 2. Full checks
 
-- [ ] 2.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: both suites pass, with one more test than on `origin/develop` in the validation suite; the typecheck and lint report no errors; the build succeeds.
+- [x] 2.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: both suites pass, with one more test than on `origin/develop` in the validation suite; the typecheck and lint report no errors; the build succeeds.
