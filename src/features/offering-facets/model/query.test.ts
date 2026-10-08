@@ -8,7 +8,7 @@ describe("sanitizeOfferingQuery (design.md D4)", () => {
         page: "2",
         evaluationCountMin: "2",
         verified: "yes",
-        cuppingAvgMin: "120",
+        cuppingAvgMin: "50",
         process: "washed",
         cataRef: ["a", "b"],
         orderBy: "cupping_avg",
@@ -24,6 +24,6 @@ describe("sanitizeOfferingQuery (design.md D4)", () => {
 
 describe("scoreRangeChanges (design.md D4)", () => {
   it("writes neither bound for the full range", () => {
-    expect(scoreRangeChanges([0, 100])).toEqual({ cuppingAvgMin: undefined, cuppingAvgMax: undefined });
+    expect(scoreRangeChanges([60, 100])).toEqual({ cuppingAvgMin: undefined, cuppingAvgMax: undefined });
   });
 });

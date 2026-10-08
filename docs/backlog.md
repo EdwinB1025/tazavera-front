@@ -24,7 +24,6 @@ The entries below follow this order. The order runs security first, then the sha
 |:-:|---|---|---|:-:|---|
 | 0 | R41 | none (closed: environment, no code) | Deploy note | — | — (closed by Product owner 2026-10-08) |
 | 0d | R47 | none (closed: no code change) | Unplanned fix | — | — (Product owner 2026-10-08, option A: re-test on current develop) |
-| 0e | R48 | `refine-offering-facets-aut` | Correction (fast lane, maximum priority) | M | R46 merged (same files); design lead on finding 16's open points |
 | 0j | R54 | `rename-coffeeshop-card-action` | Correction (fast lane, maximum priority) | S | design lead on its open points |
 | 0k | R55 | `fit-bean-mark-disc` | Correction (fast lane, maximum priority) | S | design lead on its open points |
 | 0l | R56 | `cascade-evaluation-descriptors` | Correction (fast lane, maximum priority) | M | R48, R49 and round 3 merged (Product owner 2026-10-08: drafts also choose ancestors; read-only views as nested trees; level-2 rows without indent) |
@@ -77,21 +76,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Type:** Unplanned fix
 - **Status:** closed (no code)
 - **Affects:** none
-
-## R48 — Offering facets: cascade, taste-note chips and score scale (production AUT findings 15, 16 and 17, 2026-10-08)
-
-- **Duplicated:** none. Three corrections to settled `filtering` behaviour, grouped because they touch the same facet components.
-- **Where today:** `filtering` specs "Taxonomy cascade facet", "Offering facets in the sidebar" (row 3) and "Offering filter state in the URL"; `src/shared/ui/FacetCascade.tsx`; `src/features/offering-facets/` (`model/query.ts` `SCORE_MIN`, the score facet and its chip)
-- **Why it pays off now:** Product owner's AUT
-- **Owning capability:** filtering (with form-fields for the chip look)
-- **Proposed change:** `refine-offering-facets-aut` (M)
-- **Open decision (Augusto):** answered 2026-10-08 (relayed by the testing/deployment session):
-  - **15, cascade:** "the children are only shown if the parent is touched". A parent's children render only while the parent is checked; checking the parent shows them unchecked; unchecking the parent hides and unchecks them, so no hidden child stays applied; no separate expand control. It replaces "Checkboxes SHALL be independent… a child SHALL be checkable without its parent", the separate expand control and the scenario "Unchecking keeps children visible". Sending the parent plus the checked children stays valid (`Offering::cataRef` matches exact ULIDs with OR).
-  - **16, taste-note look:** the taste notes in the facet look like the taxonomy badges of the offering card, reusing `form-fields` "Descriptor chip group": unchosen, the taxonomy's data-colour dot before the label; chosen, the option's taxonomy badge with a check mark. Open for the design lead: the contrast of the chips and badges on the dark sidebar (`variant-inverse`) in both themes, and how the chip look fits 15's parent/child rows.
-  - **17, score scale:** option A: the offerings "Average score" slider and its From/To inputs go from 60 to 100; with no filter nothing is sent and the facet shows 60–100; offerings list only (the evaluations score facet keeps 0–100). Affects "Offering facets in the sidebar" row 3, "Offering filter state in the URL" ("the full 0–100 range" and the out-of-limit rule), `SCORE_MIN` and the chip text. The contract still allows 0–100: no API change.
-- **Type:** Correction (fast lane, maximum priority, Product owner's standing rule)
-- **Status:** accepted
-- **Affects:** waits for R46 (same files); whether 15 also applies to the evaluations taste-notes facet (shared `FacetCascade`) is to be confirmed by Product owner
 
 ## R54 — Coffee-shop card action reads "Ver ofertas" (production AUT finding 22, 2026-10-08)
 

@@ -149,7 +149,7 @@ export function OfferingFacets({ values, options, texts }: OfferingFacetsProps):
         options={options.tasteNotes ?? []}
         value={values.cataRef.filter((ref) => listed.has(ref))}
         onChange={(refs) => navigate({ cataRef: refs })}
-        texts={{ ...seeMoreTexts, toggleChildren: texts.toggleChildren }}
+        texts={seeMoreTexts}
         help={options.tasteNotes === null ? texts.optionsUnavailable : undefined}
         disabled={options.tasteNotes === null}
       />

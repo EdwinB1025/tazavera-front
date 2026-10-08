@@ -3,6 +3,7 @@ import { Check, Clock } from "@/shared/ui/icons";
 import { cn } from "@/shared/lib/utils";
 import {
   TAXONOMY_CARD_SURFACES,
+  TAXONOMY_SIDEBAR_SURFACES,
   taxonomyColorRule,
 } from "@/shared/ui/taxonomy-color";
 
@@ -60,17 +61,19 @@ export const BADGE_GEOMETRY_CLASSES =
 // color — reduced by depth — and the label is white or black by the shared
 // taxonomy colour rule (`taxonomy-color.ts`; spec: "Badge label contrast").
 
-export { TAXONOMY_CARD_SURFACES };
+export { TAXONOMY_CARD_SURFACES, TAXONOMY_SIDEBAR_SURFACES };
 
 /**
  * The taxonomy badge's inline colors: the data color as the background —
  * at 92% for level 1 and 85% for level 2, the plain color at level 0 — and
- * one label per theme as custom properties, which the `[data-taxonomy]` rule
- * of `globals.css` applies for the active theme. The label itself stays fully
- * opaque (spec: "Depth reduces the background").
+ * one label per theme and surface (card, or sidebar inside the inverse
+ * variant) as custom properties, which the `[data-taxonomy]` rules of
+ * `globals.css` apply for the active theme and surface. The label itself
+ * stays fully opaque (spec: "Depth reduces the background").
  */
 function taxonomyStyle(color: string, level: 0 | 1 | 2): CSSProperties {
-  const { opacity, label, labelDark } = taxonomyColorRule(color, level);
+  const { opacity, label, labelDark, labelInverse, labelInverseDark } =
+    taxonomyColorRule(color, level);
   return {
     backgroundColor:
       opacity === 1
@@ -78,6 +81,8 @@ function taxonomyStyle(color: string, level: 0 | 1 | 2): CSSProperties {
         : `color-mix(in srgb, ${color} ${Math.round(opacity * 100)}%, transparent)`,
     ["--taxonomy-label" as string]: label,
     ["--taxonomy-label-dark" as string]: labelDark,
+    ["--taxonomy-label-inverse" as string]: labelInverse,
+    ["--taxonomy-label-inverse-dark" as string]: labelInverseDark,
   };
 }
 

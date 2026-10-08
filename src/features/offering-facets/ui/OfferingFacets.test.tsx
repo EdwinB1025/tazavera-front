@@ -63,7 +63,14 @@ const OPTIONS: OfferingFacetOptions = {
   processes: ["natural", "washed"],
   varieties: ["Caturra"],
   producers: ["Bensa"],
-  tasteNotes: [{ value: "F", label: "Fruity", children: [{ value: "B", label: "Berry" }] }],
+  tasteNotes: [
+    {
+      value: "F",
+      label: "Fruity",
+      color: "#af5e70",
+      children: [{ value: "B", label: "Berry", color: "#c0392b" }],
+    },
+  ],
 };
 
 function renderPanel(search: string, options: OfferingFacetOptions = OPTIONS) {
@@ -121,6 +128,15 @@ describe("OfferingFacets (design.md D7)", () => {
     expect(radio("Any", "Origin country").checked).toBe(true);
     expect((screen.getByRole("spinbutton", { name: "From" }) as HTMLInputElement).value).toBe("80");
     expect((screen.getByRole("spinbutton", { name: "To" }) as HTMLInputElement).value).toBe("100");
+  });
+
+  it("shows the Average score facet on 60–100 with no score filter", () => {
+    renderPanel("");
+    expect((screen.getByRole("spinbutton", { name: "From" }) as HTMLInputElement).value).toBe("60");
+    expect((screen.getByRole("spinbutton", { name: "To" }) as HTMLInputElement).value).toBe("100");
+    expect(screen.getByRole("slider", { name: "Minimum score" }).getAttribute("aria-valuemin")).toBe(
+      "60",
+    );
   });
 
   it("navigates to the new query without page when a process is chosen", () => {

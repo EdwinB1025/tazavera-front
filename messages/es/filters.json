@@ -9,7 +9,6 @@
   "searching": "Buscando…",
   "searchFailed": "No se han podido cargar los resultados",
   "optionCount": "Opciones: {count}",
-  "toggleChildren": "Subopciones de {label}",
   "rangeFrom": "Desde",
   "rangeTo": "Hasta",
   "optionsUnavailable": "Opciones no disponibles",
