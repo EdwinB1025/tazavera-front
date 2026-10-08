@@ -23,7 +23,6 @@ The entries below follow this order. The order runs security first, then the sha
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
 | 0 | R41 | none (closed: environment, no code) | Deploy note | — | — (closed by Product owner 2026-10-08) |
-| 0c | R46 | `search-coffee-facet` | Correction (fast lane, maximum priority) | S | — (Product owner 2026-10-08) |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
 | 3 | R31 (+ R3) | `harden-response-headers` | Refactor (fast lane) | S | — |
@@ -55,18 +54,6 @@ The entries below follow this order. The order runs security first, then the sha
 | 28 | R45 | none yet | Change (behaviour, API) | M | Product owner: API change and contract update; not to be designed yet |
 
 Every entry of the technical review (R20–R39) takes the fast lane by Product owner's decision of 2026-10-08, including R30, R31 and R32, which change a design decision, security headers and texts; R17 and R19 ride with R32 and R30. R3 (tests, rides with R31) and R4 (spec wording) are typed `Change`.
-
-## R46 — The Coffee facet works like Roastery (production AUT finding 14, 2026-10-08)
-
-- **Duplicated:** none. The offerings "Coffee" facet (`coffeeName`) is a free-text search field (`OfferingFacets.tsx:109-116`, `FacetTextField type="search"`) that never shows options, so the user cannot pick a name; its native clear icon renders unthemed in Chrome.
-- **Where today:** spec `filtering` "Offering facets in the sidebar", row 1 ("Coffee | search field"), from the add-filter-controls design summary §3.1 row 1; `src/features/offering-facets/ui/OfferingFacets.tsx`
-- **Why it pays off now:** Product owner's AUT finding: "it has to work the same as Roastery; both fields go together"
-- **Owning capability:** filtering
-- **Proposed change:** `search-coffee-facet` (S)
-- **Open decision (Augusto):** answered 2026-10-08 (correction, fast lane, maximum priority): the Coffee facet becomes the shared search-as-you-type Combobox over `GET /coffees?name=` (public, partial match; no API or contract change), exactly like Roastery (2 characters, 300 ms, the older request aborted, the state rows), with the result row of the summary's Open 16 (line 1 the name; line 2 `country · region · process · variety`, empty fields skipped). Choosing an option writes `coffeeName` with the coffee's name; clearing it removes the key. The chip, "Clear all" and the URL rules stay as they are.
-- **Type:** Correction (fast lane by Product owner's decision; changes a settled spec row)
-- **Status:** accepted
-- **Affects:** none
 
 ## R41 — Sign-in does not authenticate (production AUT, 2026-10-08)
 
