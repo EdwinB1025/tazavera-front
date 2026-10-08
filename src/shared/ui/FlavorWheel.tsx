@@ -81,9 +81,9 @@ export function FlavorWheel({
     givenNodes,
     groups,
   );
+  // The wheel draws every level; expansion only changes the note list (D2).
   const { segments, groupArcs } = layoutWheel(
     nodes,
-    expanded,
     grouped ? groupOrder : undefined,
   );
   const groupName = (id: string): string =>
