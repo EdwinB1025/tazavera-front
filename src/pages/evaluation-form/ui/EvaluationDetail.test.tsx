@@ -68,7 +68,7 @@ function renderDetail() {
 
 describe("EvaluationDetail (design.md D1)", () => {
   it("fills the form in editing mode with its offering's header and roast level", async () => {
-    getMyEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
+    getMyEvaluation.mockResolvedValue({ ok: true, data: OPEN_EVALUATION });
     renderDetail();
     expect(await screen.findByRole("heading", { level: 1, name: "Finca La Esperanza" })).toBeDefined();
     expect(getMyEvaluation).toHaveBeenCalledWith(OPEN_EVALUATION.ulid);
@@ -81,7 +81,6 @@ describe("EvaluationDetail (design.md D1)", () => {
   it("renders a closed evaluation read-only", async () => {
     getMyEvaluation.mockResolvedValue({
       ok: true,
-      status: 200,
       data: { ...OPEN_EVALUATION, status: "closed" },
     });
     renderDetail();
@@ -91,7 +90,7 @@ describe("EvaluationDetail (design.md D1)", () => {
   });
 
   it("shows the 404 page for an unknown or another user's evaluation", async () => {
-    getMyEvaluation.mockResolvedValue({ ok: false, status: 404 });
+    getMyEvaluation.mockResolvedValue({ ok: false, kind: "not-found" });
     const errors = vi.spyOn(console, "error").mockImplementation(() => {});
     const thrown: unknown[] = [];
     const onError = (event: ErrorEvent) => {
@@ -110,17 +109,17 @@ describe("EvaluationDetail (design.md D1)", () => {
   });
 
   it("shows the failure message with a retry that loads again", async () => {
-    getMyEvaluation.mockResolvedValueOnce({ ok: false, status: 500 });
+    getMyEvaluation.mockResolvedValueOnce({ ok: false, kind: "error" });
     renderDetail();
     expect(await screen.findByText("This evaluation could not be loaded.")).toBeDefined();
-    getMyEvaluation.mockResolvedValueOnce({ ok: true, status: 200, data: OPEN_EVALUATION });
+    getMyEvaluation.mockResolvedValueOnce({ ok: true, data: OPEN_EVALUATION });
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
     expect(await screen.findByRole("heading", { level: 1 })).toBeDefined();
     expect(getMyEvaluation).toHaveBeenCalledTimes(2);
   });
 
   it("shows the failure message when the offering cannot be read", async () => {
-    getMyEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
+    getMyEvaluation.mockResolvedValue({ ok: true, data: OPEN_EVALUATION });
     fetchOffering.mockResolvedValue({ ok: false, kind: "error" });
     renderDetail();
     expect(await screen.findByText("This evaluation could not be loaded.")).toBeDefined();
@@ -131,7 +130,6 @@ describe("EvaluationDetail: an evaluation of a deleted offering (design.md D17; 
   it("requests no offering and renders the form read-only with the message as its heading", async () => {
     getMyEvaluation.mockResolvedValue({
       ok: true,
-      status: 200,
       data: { ...OPEN_EVALUATION, offeringId: null },
     });
     renderDetail();

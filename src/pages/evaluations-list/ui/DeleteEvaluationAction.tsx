@@ -56,7 +56,7 @@ export function DeleteEvaluationAction({
       onDeleted(ulid);
       return;
     }
-    setError(result.status === 403 ? texts.notYoursMessage : texts.failureMessage);
+    setError(result.kind === "forbidden" ? texts.notYoursMessage : texts.failureMessage);
   };
 
   return (

@@ -95,7 +95,7 @@ const ITEMS: EvaluationItem[] = [
 ];
 
 function page(data: EvaluationItem[], meta = { current_page: 1, last_page: 1, per_page: 15, total: data.length }) {
-  return { ok: true, status: 200, data: { data, meta } };
+  return { ok: true, data: { data, meta } };
 }
 
 beforeEach(() => {
@@ -191,7 +191,7 @@ describe("EvaluationsList (spec: My evaluations list)", () => {
   });
 
   it("shows the failure message with a retry that loads again", async () => {
-    listMyEvaluations.mockResolvedValueOnce({ ok: false, status: 500 });
+    listMyEvaluations.mockResolvedValueOnce({ ok: false, kind: "error" });
     render(<List />);
     expect(await screen.findByText(TEXTS.loadErrorMessage)).toBeDefined();
     listMyEvaluations.mockResolvedValueOnce(page(ITEMS));
@@ -212,7 +212,7 @@ describe("EvaluationsList (spec: My evaluations list)", () => {
 
   it("removes a deleted row and reloads the list without the loading placeholder", async () => {
     listMyEvaluations.mockResolvedValueOnce(page(ITEMS));
-    deleteAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: null });
+    deleteAnEvaluation.mockResolvedValue({ ok: true, data: null });
     let resolveReload: (value: unknown) => void = () => {};
     listMyEvaluations.mockReturnValueOnce(new Promise((done) => (resolveReload = done)));
     const { container } = render(<List />);

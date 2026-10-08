@@ -63,8 +63,8 @@ export function useEvaluationForm({
   const completeness = completenessOf(values);
 
   /** The failure message of a write (design.md's error table). */
-  const failureFor = (status: number | null, conflict: string) =>
-    status === 403 ? messages.notYoursMessage : status === 409 ? conflict : messages.failureMessage;
+  const failureFor = (kind: Extract<EvaluationCallResult<unknown>, { ok: false }>["kind"], conflict: string) =>
+    kind === "forbidden" ? messages.notYoursMessage : kind === "conflict" ? conflict : messages.failureMessage;
 
   /**
    * Save draft (design.md D4): creates the evaluation the first time and
@@ -84,7 +84,7 @@ export function useEvaluationForm({
       ? await updateAnEvaluation(ulid, buildUpdateBody(sendable))
       : await createAnEvaluation(buildCreateBody(sendable, offering?.ulid ?? ""));
     if (!result.ok) {
-      dispatch({ type: "fail", message: failureFor(result.status, messages.alreadyClosedMessage) });
+      dispatch({ type: "fail", message: failureFor(result.kind, messages.alreadyClosedMessage) });
       return null;
     }
     const saved = ulid ?? result.data.ulid ?? null;
@@ -119,14 +119,14 @@ export function useEvaluationForm({
     }
     // The incomplete groups expand so their highlight is in view (D15).
     const incomplete =
-      result.status === 409
+      result.kind === "conflict"
         ? EVALUATION_GROUPS.filter((group) => completeness[group.key] === false).map(
             (group) => group.key,
           )
         : null;
     dispatch({
       type: "refuse",
-      message: failureFor(result.status, messages.incompleteMessage),
+      message: failureFor(result.kind, messages.incompleteMessage),
       incomplete,
     });
   };

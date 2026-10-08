@@ -1,5 +1,6 @@
 import { request } from "@/shared/api";
 import type {
+  ApiResult,
   EvaluationCreateBody,
   EvaluationItem,
   EvaluationPageMeta,
@@ -9,14 +10,20 @@ import type {
 /**
  * The signed-in specialist's evaluations (design.md's endpoint table, D1):
  * the six `/user/evaluations` operations, on the client through the add-auth
- * `request` client. Each call reports the response status — `null` for a
- * transport failure — so the screens pick the catalog message of design.md's
- * error table; the API `message` strings never reach the presentation.
+ * `request` client. Each call reports the shared result, with `403`, `404`
+ * and `409` as their own kinds, so the screens pick the catalog message of
+ * design.md's error table; the API `message` strings never reach the
+ * presentation (unify-api-result-shape design.md D2).
  */
 
-export type EvaluationCallResult<T> =
-  | { ok: true; status: number; data: T }
-  | { ok: false; status: number | null };
+export type EvaluationCallResult<T> = ApiResult<T, "forbidden" | "not-found" | "conflict">;
+
+/** The failure kind of a non-2xx status. */
+function failureKind(status: number): "forbidden" | "not-found" | "conflict" | "error" {
+  if (status === 403) return "forbidden";
+  if (status === 404) return "not-found";
+  return status === 409 ? "conflict" : "error";
+}
 
 export type EvaluationPage = { data: EvaluationItem[]; meta: EvaluationPageMeta };
 
@@ -28,16 +35,16 @@ async function call<T>(
   try {
     const response = init ? await request(path, init) : await request(path);
     if (!response.ok) {
-      return { ok: false, status: response.status };
+      return { ok: false, kind: failureKind(response.status) };
     }
     if (!read) {
       // Close and delete answer only a `message`, which is never shown.
-      return { ok: true, status: response.status, data: null as T };
+      return { ok: true, data: null as T };
     }
     const payload = await response.json();
-    return { ok: true, status: response.status, data: read(payload ?? {}) };
+    return { ok: true, data: read(payload ?? {}) };
   } catch {
-    return { ok: false, status: null };
+    return { ok: false, kind: "error" };
   }
 }
 

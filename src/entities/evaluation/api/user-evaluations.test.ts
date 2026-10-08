@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 /**
  * The six `/user/evaluations` calls (design.md's endpoint table, D1; tasks
  * 2.7), sent through the add-auth `request` client. Every call reports the
- * response status (`null` for a transport failure) so the screens pick the
+ * shared result (unify-api-result-shape design.md D2) so the screens pick the
  * message of design.md's error table.
  */
 
@@ -34,6 +34,6 @@ describe("listMyEvaluations", () => {
     expect(request).toHaveBeenCalledWith(
       "/user/evaluations?orderBy=created_at&orderDirection=desc&page=2",
     );
-    expect(result).toEqual({ ok: true, status: 200, data: { data: [ITEM], meta: META } });
+    expect(result).toEqual({ ok: true, data: { data: [ITEM], meta: META } });
   });
 });

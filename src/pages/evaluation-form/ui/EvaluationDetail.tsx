@@ -39,7 +39,7 @@ const PLACEHOLDER_CLASSES = ["animate-pulse", "bg-surface-section", "rounded-fie
 async function loadDetail(ulid: string): Promise<DetailState> {
   const result = await getMyEvaluation(ulid);
   if (!result.ok) {
-    return result.status === 404 ? { state: "not-found" } : { state: "error" };
+    return result.kind === "not-found" ? { state: "not-found" } : { state: "error" };
   }
   // A `null` id is a deleted offering: nothing to request (design.md D17).
   if (result.data.offeringId === null) {

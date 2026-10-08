@@ -165,7 +165,7 @@ function save() {
 describe("EvaluationForm: saving a draft (design.md D4; tasks 6.1)", () => {
   it("creates the evaluation on the first save, replaces the route and shows the saved message", async () => {
     const replaceState = vi.spyOn(window.history, "replaceState");
-    createAnEvaluation.mockResolvedValue({ ok: true, status: 201, data: CREATED });
+    createAnEvaluation.mockResolvedValue({ ok: true, data: CREATED });
     renderForm();
     save();
     await waitFor(() => expect(screen.getByRole("status").textContent).toBe("Draft saved."));
@@ -176,8 +176,8 @@ describe("EvaluationForm: saving a draft (design.md D4; tasks 6.1)", () => {
   });
 
   it("updates the evaluation on a later save, without offeringId, and leaves the route", async () => {
-    createAnEvaluation.mockResolvedValue({ ok: true, status: 201, data: CREATED });
-    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: CREATED });
+    createAnEvaluation.mockResolvedValue({ ok: true, data: CREATED });
+    updateAnEvaluation.mockResolvedValue({ ok: true, data: CREATED });
     renderForm();
     save();
     await waitFor(() => expect(createAnEvaluation).toHaveBeenCalledTimes(1));
@@ -193,7 +193,7 @@ describe("EvaluationForm: saving a draft (design.md D4; tasks 6.1)", () => {
   });
 
   it("updates a loaded evaluation and sends a stored extraction method back unchanged", async () => {
-    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
+    updateAnEvaluation.mockResolvedValue({ ok: true, data: OPEN_EVALUATION });
     renderForm({ evaluation: { ...OPEN_EVALUATION, extractionMethod: "clever dripper" } });
     save();
     await waitFor(() => expect(updateAnEvaluation).toHaveBeenCalledTimes(1));
@@ -216,12 +216,12 @@ describe("EvaluationForm: saving a draft (design.md D4; tasks 6.1)", () => {
   });
 
   it.each([
-    [403, "This evaluation is not yours."],
-    [409, "This evaluation is already closed."],
-    [422, "Something went wrong."],
-    [null, "Something went wrong."],
-  ])("shows the message of a %s beside the actions and sends nothing again", async (status, text) => {
-    updateAnEvaluation.mockResolvedValue({ ok: false, status });
+    [403, "forbidden", "This evaluation is not yours."],
+    [409, "conflict", "This evaluation is already closed."],
+    [422, "error", "Something went wrong."],
+    [null, "error", "Something went wrong."],
+  ])("shows the message of a %s beside the actions and sends nothing again", async (_, kind, text) => {
+    updateAnEvaluation.mockResolvedValue({ ok: false, kind });
     renderForm({ evaluation: OPEN_EVALUATION });
     save();
     await waitFor(() => expect(screen.getByRole("status").textContent).toBe(text));
@@ -229,7 +229,7 @@ describe("EvaluationForm: saving a draft (design.md D4; tasks 6.1)", () => {
   });
 
   it("sends each descriptor block's selection to its request field (design.md D7)", async () => {
-    createAnEvaluation.mockResolvedValue({ ok: true, status: 201, data: CREATED });
+    createAnEvaluation.mockResolvedValue({ ok: true, data: CREATED });
     renderForm();
     const [fragranceFloral, flavorFloral] = screen.getAllByRole("button", { name: "Floral" });
     fireEvent.click(fragranceFloral);
@@ -251,7 +251,7 @@ describe("EvaluationForm: saving a draft (design.md D4; tasks 6.1)", () => {
     expect(body.affective.defects).toEqual(["01JTAXMOULD00000000000000E"]);
     fireEvent.click(flavorFloral);
     createAnEvaluation.mockClear();
-    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: CREATED });
+    updateAnEvaluation.mockResolvedValue({ ok: true, data: CREATED });
     save();
     await waitFor(() => expect(updateAnEvaluation).toHaveBeenCalledTimes(1));
     const update = updateAnEvaluation.mock.calls[0][1];
@@ -294,7 +294,7 @@ describe("EvaluationForm: Fragrance not evaluated (design.md D9; tasks 6.3)", ()
   });
 
   it("disables the fragrance controls of both parts and sends the aroma scores as fragrance", async () => {
-    createAnEvaluation.mockResolvedValue({ ok: true, status: 201, data: CREATED });
+    createAnEvaluation.mockResolvedValue({ ok: true, data: CREATED });
     const { container } = renderForm();
     const card = fragranceCard(container);
     fireEvent.change(slider(card, "Fragrance"), { target: { value: "4" } });
@@ -316,7 +316,7 @@ describe("EvaluationForm: Fragrance not evaluated (design.md D9; tasks 6.3)", ()
   });
 
   it("sends the fragrance controls' own values once unchecked again", async () => {
-    createAnEvaluation.mockResolvedValue({ ok: true, status: 201, data: CREATED });
+    createAnEvaluation.mockResolvedValue({ ok: true, data: CREATED });
     const { container } = renderForm();
     const card = fragranceCard(container);
     fireEvent.change(slider(card, "Fragrance"), { target: { value: "4" } });
@@ -341,11 +341,11 @@ describe("EvaluationForm: closing (design.md D4, D10; tasks 7.1)", () => {
     const order: string[] = [];
     updateAnEvaluation.mockImplementation(async () => {
       order.push("update");
-      return { ok: true, status: 200, data: OPEN_EVALUATION };
+      return { ok: true, data: OPEN_EVALUATION };
     });
     closeAnEvaluation.mockImplementation(async () => {
       order.push("close");
-      return { ok: true, status: 200, data: null };
+      return { ok: true, data: null };
     });
     renderForm({ evaluation: OPEN_EVALUATION });
     closeEvaluation();
@@ -359,8 +359,8 @@ describe("EvaluationForm: closing (design.md D4, D10; tasks 7.1)", () => {
   });
 
   it("shows the incomplete message on a 409 and highlights exactly the incomplete groups", async () => {
-    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
-    closeAnEvaluation.mockResolvedValue({ ok: false, status: 409 });
+    updateAnEvaluation.mockResolvedValue({ ok: true, data: OPEN_EVALUATION });
+    closeAnEvaluation.mockResolvedValue({ ok: false, kind: "conflict" });
     const { container } = renderForm({ evaluation: OPEN_EVALUATION });
     expect(container.querySelectorAll('[data-highlighted="true"]')).toHaveLength(0);
     closeEvaluation();
@@ -382,8 +382,8 @@ describe("EvaluationForm: closing (design.md D4, D10; tasks 7.1)", () => {
   });
 
   it("shows the not-yours message on a 403 with nothing resent", async () => {
-    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
-    closeAnEvaluation.mockResolvedValue({ ok: false, status: 403 });
+    updateAnEvaluation.mockResolvedValue({ ok: true, data: OPEN_EVALUATION });
+    closeAnEvaluation.mockResolvedValue({ ok: false, kind: "forbidden" });
     renderForm({ evaluation: OPEN_EVALUATION });
     closeEvaluation();
     await waitFor(() =>
@@ -497,8 +497,8 @@ describe("EvaluationForm: section states (design.md D15; tasks 11.3)", () => {
   });
 
   it("expands exactly the incomplete groups on a 409 close", async () => {
-    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
-    closeAnEvaluation.mockResolvedValue({ ok: false, status: 409 });
+    updateAnEvaluation.mockResolvedValue({ ok: true, data: OPEN_EVALUATION });
+    closeAnEvaluation.mockResolvedValue({ ok: false, kind: "conflict" });
     const { container } = renderForm({ evaluation: OPEN_EVALUATION });
     closeEvaluation();
     await waitFor(() =>
@@ -519,8 +519,8 @@ describe("EvaluationForm: section states (design.md D15; tasks 11.3)", () => {
   });
 
   it("expands every group when a successful close turns the form read-only", async () => {
-    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
-    closeAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: null });
+    updateAnEvaluation.mockResolvedValue({ ok: true, data: OPEN_EVALUATION });
+    closeAnEvaluation.mockResolvedValue({ ok: true, data: null });
     const { container } = renderForm({ evaluation: OPEN_EVALUATION });
     closeEvaluation();
     await waitFor(() => expect(screen.getByRole("status").textContent).toBe("Evaluation closed."));
