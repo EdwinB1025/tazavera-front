@@ -4,9 +4,10 @@ import type { EvaluationItem, OfferingDetail, TaxonomyNode } from "@/shared/api"
 import { fetchEvaluation } from "@/entities/evaluation";
 import { fetchOffering } from "@/entities/offering";
 import { fetchTaxonomies } from "@/entities/taxonomy";
-import { Card, CardContent, Link, PageSection, RetryButton } from "@/shared/ui";
+import { Link, PageSection, RetryButton } from "@/shared/ui";
 import { cn } from "@/shared/lib/utils";
 import { EvaluationSheet } from "./EvaluationSheet";
+import { EvaluationSheetSkeleton } from "./EvaluationSheetBaseline";
 import type { EvaluationSheetTexts } from "./EvaluationSheet";
 
 // ─── UI-specific types (declared before the component) ───
@@ -44,8 +45,6 @@ const HEADER_BLOCK_CLASSES = ["flex", "flex-col", "items-start", "gap-2"].join("
 const STATE_CLASSES = ["flex", "flex-col", "items-center", "gap-4", "text-center"].join(" ");
 const BARS_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
 const BAR_CLASSES = ["bg-surface-section", "rounded-field"].join(" ");
-const SKELETON_GRID_CLASSES = ["grid", "grid-cols-1", "gap-6", "lg:grid-cols-2"].join(" ");
-const SKELETON_CARD_KEYS = [0, 1] as const;
 
 function formatDate(value: string, locale: string): string {
   return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "UTC" }).format(
@@ -66,17 +65,7 @@ export function EvaluationSheetViewSkeleton({ back }: { back: ReactNode }): Reac
         </div>
       </PageSection>
       <PageSection surface="section">
-        <div aria-busy="true" className={SKELETON_GRID_CLASSES}>
-          {SKELETON_CARD_KEYS.map((key) => (
-            <Card key={key} layout="stacked" aria-hidden="true">
-              <CardContent className={BARS_CLASSES}>
-                <div className={cn(BAR_CLASSES, "h-6 w-1/3")} />
-                <div className={cn(BAR_CLASSES, "h-4 w-full")} />
-                <div className={cn(BAR_CLASSES, "h-4 w-2/3")} />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <EvaluationSheetSkeleton />
       </PageSection>
     </>
   );

@@ -3,7 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui";
-import type { DetailTab } from "../lib/tab";
+import { toDetailTab, type DetailTab } from "../lib/tab";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -16,6 +16,8 @@ export type DetailTabsProps = {
   /** The panels' server-rendered content. */
   inventory: ReactNode;
   consensus: ReactNode;
+  /** The provisional evaluation panel, composed by the page (add-public-evaluations D9). */
+  provisional: ReactNode;
 };
 
 /**
@@ -31,12 +33,13 @@ export function DetailTabs({
   labels,
   inventory,
   consensus,
+  provisional,
 }: DetailTabsProps): ReactNode {
   const router = useRouter();
   const [selected, setSelected] = useState<DetailTab>(active);
 
   function select(value: string) {
-    const tab: DetailTab = value === "consensus" ? "consensus" : "inventory";
+    const tab = toDetailTab(value);
     setSelected(tab);
     router.push(`/${locale}/offerings/${ulid}?tab=${tab}`);
   }
@@ -46,9 +49,11 @@ export function DetailTabs({
       <TabsList>
         <TabsTrigger value="inventory">{labels.inventory}</TabsTrigger>
         <TabsTrigger value="consensus">{labels.consensus}</TabsTrigger>
+        <TabsTrigger value="provisional">{labels.provisional}</TabsTrigger>
       </TabsList>
       <TabsContent value="inventory">{inventory}</TabsContent>
       <TabsContent value="consensus">{consensus}</TabsContent>
+      <TabsContent value="provisional">{provisional}</TabsContent>
     </Tabs>
   );
 }
