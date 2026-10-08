@@ -10,7 +10,7 @@ Before: every locale route carried one 69 KB (gzipped) layout chunk holding cmdk
 
 ### D1. Declare the project's side effects in `package.json`
 
-The `[locale]` layout reaches `src/shared/ui/index.ts` through the shell (`SidebarProvider`), the header (DropdownMenu, Button, Logo) and the sidebar widgets. A module of the project carries no `sideEffects` information, so the bundler keeps every module the entry point re-exports, with their imports. `package.json` declares `"sideEffects": ["*.css"]`, which tells it the opposite for every non-CSS module of the project; unused re-exports are then dropped. The project's only side-effect imports are two stylesheets (`globals.css` in `app/layout.tsx`, `leaflet/dist/leaflet.css` in `src/shared/lib/leaflet`), both kept by the pattern; packages in `node_modules` keep their own `sideEffects` fields.
+The `[locale]` layout reaches `src/shared/ui/index.ts` through the shell (`SidebarProvider`), the header (DropdownMenu, Button, Logo) and the sidebar widgets. A module of the project carries no `sideEffects` information, so the bundler keeps every module the entry point re-exports, with their imports. `package.json` declares `"sideEffects": ["*.css", "./src/shared/lib/leaflet/index.ts"]`, which tells it the opposite for every other module of the project; unused re-exports are then dropped. The project's only side-effect imports are two stylesheets: `globals.css`, imported by `app/layout.tsx` and kept by `*.css`, and `leaflet/dist/leaflet.css`, imported by `src/shared/lib/leaflet/index.ts`. With `*.css` alone the bundler treated that entry point as pure and dropped its stylesheet import (measured: no built CSS file held the Leaflet rules), so the entry point is listed by path. Packages in `node_modules` keep their own `sideEffects` fields.
 
 Alternatives measured or checked first, in the order the session prompt preferred:
 
@@ -48,6 +48,10 @@ First Load JS per route, gzipped, before (`origin/qa`) and after D1:
 | `/callback` | 141.0 | 140.6 | -0.4 | no |
 
 cmdk now loads only where a Combobox renders: the offering facets (`/offerings` and its `@sidebar` slot on `/coffeeshops/[ulid]`) and the new-offering form. `/_global-error` and `/_not-found` load the same framework code before and after (456,077 bytes uncompressed in both builds); the bundler groups it into different chunks, and the 0.3 KB is gzip compressing across the new chunk boundaries, not added code.
+
+## Behaviour check
+
+With the production server (`next start`) of both builds, the server-rendered markup of `/es`, `/es/about`, `/es/register`, `/es/coffeeshops`, `/es/evaluations`, `/es/account`, `/es/manage/offerings`, an unknown locale path and `/callback` is identical once scripts and links are removed; the two builds emit the same CSS files (same content hashes, Leaflet rules included). In Chromium the first five pages hydrate without console errors and the header's navigation menu opens.
 
 ## Risks
 

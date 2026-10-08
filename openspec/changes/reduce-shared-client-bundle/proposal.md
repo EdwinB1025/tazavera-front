@@ -8,7 +8,7 @@ Every locale route ships about 220 KB of gzipped JavaScript on first load, and c
 
 ## What Changes
 
-- `package.json` declares `"sideEffects": ["*.css"]`: only the project's stylesheets have import side effects, so the bundler keeps just the re-exports a module actually uses. The two side-effect imports of the project (`app/layout.tsx` imports `globals.css`, `src/shared/lib/leaflet` imports `leaflet.css`) are both stylesheets and stay.
+- `package.json` declares `"sideEffects": ["*.css", "./src/shared/lib/leaflet/index.ts"]`: only the project's stylesheets and the map library's entry point have import side effects, so the bundler keeps just the re-exports a module actually uses. The two side-effect imports of the project (`app/layout.tsx` imports `globals.css`, `src/shared/lib/leaflet` imports `leaflet.css`) stay.
 - Imports, the `src/shared/ui` entry point, `next.config.ts` and every component stay as they are.
 - No behaviour a user sees changes, and the requests sent to the API stay the same. No dependency is added, removed or upgraded.
 
