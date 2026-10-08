@@ -123,6 +123,15 @@ describe("OfferingFacets (design.md D7)", () => {
     expect((screen.getByRole("spinbutton", { name: "To" }) as HTMLInputElement).value).toBe("100");
   });
 
+  it("shows the Average score facet on 60–100 with no score filter", () => {
+    renderPanel("");
+    expect((screen.getByRole("spinbutton", { name: "From" }) as HTMLInputElement).value).toBe("60");
+    expect((screen.getByRole("spinbutton", { name: "To" }) as HTMLInputElement).value).toBe("100");
+    expect(screen.getByRole("slider", { name: "Minimum score" }).getAttribute("aria-valuemin")).toBe(
+      "60",
+    );
+  });
+
   it("navigates to the new query without page when a process is chosen", () => {
     renderPanel("process=washed&page=3");
     fireEvent.click(radio("natural", "Process"));
