@@ -38,6 +38,7 @@ The entries below follow this order. The order runs security first, then the sha
 | 0p | R60 | `add-header-theme-toggle` | Correction (fast lane, maximum priority) | S | Product owner: icon shown; 375px fit |
 | 0q | R61 | `stack-flavor-wheel-layout` | Correction (fast lane, maximum priority) | S | round 3 (`qa`, with R37's FlavorWheel split) merged into `develop` |
 | 0r | R62 | `nest-consensus-notes` | Correction (fast lane, maximum priority) | M | R49 merged (tree rendering to reuse); design lead on its open points |
+| 0s | R63 | `add-bottom-back-links` | Correction (fast lane, maximum priority) | S | design lead on its open points (with R51, layout package) |
 | 16c | R50 | API branch in `tazavera-api` | Change (API) | S | Product owner: verify with real data (the API should deliver the resolved tree) |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
@@ -194,6 +195,9 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Duplicated:** none. `shared/ui/FlavorWheel.tsx:58-66` switches from `@2xl` to a two-column grid (wheel in column 1 `max-w-128`; description panel, group legend and notes list in column 2, `grid-cols-[minmax(0,32rem)_minmax(16rem,1fr)]`), from the add-offering-detail/consensus design (D8, summary §6). Only consumer: `widgets/offering-detail/ui/ConsensusPanel.tsx:459`.
 - **Owning capability:** feedback (with offering-catalog)
 - **Open decision (Augusto):** answered 2026-10-08: the CATA wheel keeps the mobile-first stacked structure on every width, top to bottom: the wheel (centred, `max-w-128`), the description fragment (the hovered/focused note's description and its `n/total` legend), the "Notes" disclosure. With the mouthfeel groups (D19) the general group legend stays in the stacked order, under the wheel and before the description. Drop the `@2xl` grid (LAYOUT_CLASSES, GROUPED_LAYOUT_CLASSES, WHEEL_CLASSES, GROUPED_WHEEL_CLASSES); update `FlavorWheel.test.tsx` assertions on the `@2xl` classes.
+- **Also in this package (findings 31 and 32, 2026-10-08):**
+  - **31, rings:** "the parents are the first levels inside the circle, then the children grow outwards". Today only ring 0 is drawn on arrival and children appear after expanding a note (`feedback` "Flavor wheel": "Ring 0 only at first", "Rings follow the deepest expanded level"). Testing session's reading, to confirm by the design lead: draw every consensus level from the start (level 0 inside, then 1, then 2 outwards); if expansion stays, it focuses or zooms a branch instead of revealing rings. Decision change.
+  - **32, centre number:** the evaluation total in the centre (`<text font-size="28">`, viewBox `-204 -204 408 408`, `fill-text-primary font-serif font-bold`) gets smaller, in proportion with the ring labels (font-size 13); the design lead picks the size.
 - **Type:** Correction (fast lane, maximum priority) · **Status:** accepted
 - **Affects:** R37 (on `qa`) split `FlavorWheel` into `FlavorWheelChart`, `FlavorWheelPanel`, `FlavorWheelNoteList` and helpers: R61 starts from `develop` once round 3 is merged there
 
@@ -205,6 +209,14 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Open decision (Augusto):** answered 2026-10-08: (a) each note's consensus legend (`name n/total`) goes next to its own note box/badge, with no separate legend column; (b) each axis renders only the consensus nodes of that axis as the API's resolved tree (root → its consensus children → their consensus children), nested like the MVC cascade (same model as R49/R56). The API already sends the resolved tree (`sensoryTaxonomy`, `cataConcordance`: `{ref, type, level, count, children[]}` with levels 0–2); front only. Open for the design lead: whether the inline legend also applies to the "Main tastes" and "Defects" selection blocks (recommended yes); reusing one tree component with R49 and R56.
 - **Type:** Correction (fast lane, maximum priority) · **Status:** accepted
 - **Affects:** R56 open point O2 (the consensus panel now goes to nested trees by this decision); waits for R49 (tree rendering)
+
+## R63 — "Back" also at the end of every detail view (production AUT finding 33, 2026-10-08)
+
+- **Duplicated:** the top back link of each detail view, repeated at the end.
+- **Where today:** `/{locale}/offerings/[ulid]`, `/{locale}/coffeeshops/[ulid]`, `/{locale}/evaluations/[ulid]` (public evaluation), `/{locale}/manage/evaluations/[ulid]` (evaluation sheet/form): the back link (`BackLink`, previous page with fallback, from fix-production-aut-findings) shows only at the top.
+- **Owning capability:** base-controls (with offering-catalog, evaluations)
+- **Open decision (Augusto):** answered 2026-10-08: every detail view also shows "Back" at the END of the page, keeping the top one, with the same destination. Open for the design lead: placement after the last tab panel or section, inside the page container and not inside a tab; in the evaluation form, whether the bottom "Back" and R57's "Cancel" are redundant.
+- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted · **Affects:** R57 (evaluation form actions)
 
 ## R50 — Consensus concordance loses the parent of unmarked intermediate notes (API; found by the design lead for R49)
 
