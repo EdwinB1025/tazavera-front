@@ -118,20 +118,20 @@ describe("EvaluationsList (spec: My evaluations list)", () => {
   it("renders one row per evaluation in API order with its offering", async () => {
     listMyEvaluations.mockResolvedValue(page(ITEMS));
     render(<List />);
-    const headings = await screen.findAllByRole("heading", { level: 3 });
+    const headings = await screen.findAllByRole("heading", { level: 2 });
     expect(headings.map((heading) => heading.textContent)).toEqual(["Beta", "Alpha", "Alpha"]);
     expect(listMyEvaluations).toHaveBeenCalledWith("orderBy=created_at&orderDirection=desc&page=1");
     expect(fetchOffering).toHaveBeenCalledWith("01JOFFERA");
     expect(fetchOffering).toHaveBeenCalledWith("01JOFFERB");
     expect(fetchOffering).toHaveBeenCalledTimes(2);
     expect(screen.getAllByText("Coffeeshop: Alpha shop")).toHaveLength(2);
-    expect(screen.getByRole("heading", { level: 2, name: "My evaluations" }).className).toContain("type-heading");
+    expect(screen.getByRole("heading", { level: 1, name: "My evaluations" }).className).toContain("type-heading");
   });
 
   it("requests the filtered page with evaluationListQuery", async () => {
     listMyEvaluations.mockResolvedValue(page(ITEMS, { current_page: 2, last_page: 2, per_page: 15, total: 18 }));
     render(<List page={2} values={parseEvaluationFilters({ status: "open" })} query={{ status: "open", page: "2" }} />);
-    await screen.findAllByRole("heading", { level: 3 });
+    await screen.findAllByRole("heading", { level: 2 });
     expect(listMyEvaluations).toHaveBeenCalledWith("status=open&orderBy=created_at&orderDirection=desc&page=2");
   });
 
@@ -160,7 +160,7 @@ describe("EvaluationsList (spec: My evaluations list)", () => {
   it("announces the result total in a status element that stays mounted while loading", async () => {
     listMyEvaluations.mockResolvedValueOnce(page(ITEMS, { current_page: 1, last_page: 1, per_page: 15, total: 12 }));
     const { rerender } = render(<List resultCountText="Results: {count}" />);
-    await screen.findAllByRole("heading", { level: 3 });
+    await screen.findAllByRole("heading", { level: 2 });
     const status = screen.getByRole("status");
     expect(status.textContent).toBe("Results: 12");
     listMyEvaluations.mockReturnValueOnce(new Promise(() => {}));
@@ -176,7 +176,7 @@ describe("EvaluationsList (spec: My evaluations list)", () => {
       let resolveReload: (value: unknown) => void = () => {};
       listMyEvaluations.mockReturnValueOnce(new Promise((done) => (resolveReload = done)));
       const { container, rerender } = render(<List />);
-      await screen.findAllByRole("heading", { level: 3 });
+      await screen.findAllByRole("heading", { level: 2 });
       const block = container.firstElementChild as HTMLElement;
       expect(block.style.minHeight).toBe("");
       rerender(<List values={parseEvaluationFilters({ status: "open" })} />);
@@ -196,7 +196,7 @@ describe("EvaluationsList (spec: My evaluations list)", () => {
     expect(await screen.findByText(TEXTS.loadErrorMessage)).toBeDefined();
     listMyEvaluations.mockResolvedValueOnce(page(ITEMS));
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
-    await screen.findAllByRole("heading", { level: 3 });
+    await screen.findAllByRole("heading", { level: 2 });
     expect(listMyEvaluations).toHaveBeenCalledTimes(2);
     expect(screen.queryByText(TEXTS.loadErrorMessage)).toBeNull();
   });
@@ -216,7 +216,7 @@ describe("EvaluationsList (spec: My evaluations list)", () => {
     let resolveReload: (value: unknown) => void = () => {};
     listMyEvaluations.mockReturnValueOnce(new Promise((done) => (resolveReload = done)));
     const { container } = render(<List />);
-    await screen.findAllByRole("heading", { level: 3 });
+    await screen.findAllByRole("heading", { level: 2 });
     fireEvent.click(screen.getAllByRole("button", { name: "Delete" })[0]);
     fireEvent.click(screen.getByRole("button", { name: "Delete evaluation" }));
     await waitFor(() => expect(screen.getAllByRole("listitem")).toHaveLength(2));
@@ -225,7 +225,7 @@ describe("EvaluationsList (spec: My evaluations list)", () => {
     expect(container.querySelector('[aria-busy="true"]')).toBeNull();
     resolveReload(page(ITEMS.slice(1)));
     await waitFor(() =>
-      expect(screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual([
+      expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).toEqual([
         "Alpha",
         "Alpha",
       ]),
@@ -245,7 +245,7 @@ describe("EvaluationsList: an evaluation of a deleted offering (design.md D17; t
     };
     listMyEvaluations.mockResolvedValue(page([orphan, ...ITEMS]));
     render(<List />);
-    const headings = await screen.findAllByRole("heading", { level: 3 });
+    const headings = await screen.findAllByRole("heading", { level: 2 });
     expect(headings.map((heading) => heading.textContent)).toEqual([
       "Offering no longer exists",
       "Beta",

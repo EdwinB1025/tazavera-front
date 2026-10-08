@@ -17,7 +17,7 @@ No test is added and no assertion's expected value changes. The only test edits 
 
 ## 4. Evaluation route headings (evaluations)
 
-- [ ] 4.1 `EvaluationsList` heading `h2` → `h1`, `SpecialistEvaluationRowCard` title `h3` → `h2` (design.md D2); `SignedOutPrompt` gets the optional `messageAs` prop and `EvaluationsAccess` passes `"h1"` (design.md D3). Update the queries listed in design.md D6 for `EvaluationsList.test.tsx` and `src/pages/evaluations-list/ui/EvaluationRowCard.test.tsx`. Expected: as 1.1.
+- [x] 4.1 `EvaluationsList` heading `h2` → `h1`, `SpecialistEvaluationRowCard` title `h3` → `h2` (design.md D2); `SignedOutPrompt` gets the optional `messageAs` prop and `EvaluationsAccess` passes `"h1"` (design.md D3). Update the queries listed in design.md D6 for `EvaluationsList.test.tsx` and `src/pages/evaluations-list/ui/EvaluationRowCard.test.tsx`. Expected: as 1.1.
 
 ## 5. Selected row of the note list (feedback)
 

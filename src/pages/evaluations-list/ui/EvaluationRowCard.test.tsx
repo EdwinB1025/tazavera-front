@@ -146,7 +146,7 @@ describe("EvaluationRowCard: an evaluation of a deleted offering (design.md D17;
 
   it("shows the message in place of the coffee name and no captions, keeping status and date", () => {
     renderOrphan(OPEN);
-    expect(screen.getByRole("heading", { level: 3 }).textContent).toBe("Offering no longer exists");
+    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("Offering no longer exists");
     expect(screen.queryByText(/^Coffeeshop:/)).toBeNull();
     expect(screen.queryByText(/^Roaster:/)).toBeNull();
     expect(screen.getByText("Open")).toBeDefined();

@@ -72,7 +72,7 @@ export function SpecialistEvaluationRowCard({
         <Badge variant={closed ? "verified" : "provisional"}>
           {closed ? texts.closedLabel : texts.openLabel}
         </Badge>
-        <h3 className="type-card-heading">{heading}</h3>
+        <h2 className="type-card-heading">{heading}</h2>
         <DateLine evaluation={evaluation} texts={texts} />
         {orphan ? null : <OfferingCaptions offering={offering} texts={texts} />}
       </CardContent>

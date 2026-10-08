@@ -144,7 +144,7 @@ export function EvaluationsList({
 
   return (
     <div ref={blockRef} className={BLOCK_CLASSES}>
-      <h2 className="type-heading">{texts.heading}</h2>
+      <h1 className="type-heading">{texts.heading}</h1>
       {resultCountText !== undefined ? (
         // Mounted in every state so each new total is announced (design.md D9).
         <ResultStatus
