@@ -36,7 +36,6 @@ The entries below follow this order. The order runs security first, then the sha
 | 9 | R5 | `share-active-locale` | Refactor (fast lane) | S | R23 |
 | 10 | R25 | `move-account-requests-to-api` | Refactor (fast lane) | M | — |
 | 11 | R27 | `split-evaluation-row-card` | Refactor (fast lane) | M | — |
-| 12 | R28 | `reduce-shared-client-bundle` | Refactor (fast lane) | M | R21 |
 | 13 | R29 (resolves R15) | `speed-up-test-environment` | Refactor (fast lane) | S | — |
 | 14 | R30 (resolves R19) | `cache-reference-reads` | Refactor (fast lane) | S | — |
 | 16 | R40 | API branch in `tazavera-api` | Change (API) | M | PO: review of the API diff |
@@ -140,18 +139,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Type:** Change (changes what users see and the API contract)
 - **Status:** deferred
 - **Affects:** R44 (same registration step); the coffee-shop register screen and Manage locations
-
-## R28 — Reduce the shared client bundle
-
-- **Duplicated:** cmdk and Radix (68 KB gzipped) load on every route; each route ships about 220 KB gzipped.
-- **Where today:** the consumers of `src/shared/ui/index.ts`, `next.config.ts`
-- **Why it pays off now:** the Performance grade is C.
-- **Owning capability:** app-shell
-- **Proposed change:** `reduce-shared-client-bundle` (M, starts with an investigation)
-- **Open decision (Augusto):** none
-- **Type:** Refactor (fast lane)
-- **Status:** proposed
-- **Affects:** comes after R21
 
 ## R15 — Slow `EvaluationForm` tests under load (add-user-contact checks)
 
