@@ -6,4 +6,4 @@
 
 ## 2. Full checks
 
-- [ ] 2.1 Run, each on its own, `npm run test:run`, `npm run test:qa` (twice), `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes 183 files and 999 tests, both QA runs pass 337 files and 1781 tests (the same counts as on `origin/qa`), typecheck and lint report no errors, the build succeeds, and `git diff origin/qa --stat` lists no test file.
+- [x] 2.1 Run, each on its own, `npm run test:run`, `npm run test:qa` (twice), `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes 183 files and 999 tests, both QA runs pass 337 files and 1781 tests (the same counts as on `origin/qa`), typecheck and lint report no errors, the build succeeds, and `git diff origin/qa --stat` lists no test file.
