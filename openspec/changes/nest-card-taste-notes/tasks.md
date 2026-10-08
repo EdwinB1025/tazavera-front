@@ -9,7 +9,7 @@ This fast-lane change modifies observable behaviour by Product owner's decision,
 
 ## 2. Offering list
 
-- [ ] 2.1 In `src/widgets/offering-list/ui/Offerings.tsx` call `buildTasteNoteTree(offering, lookup)` from `@/entities/taxonomy` and delete `src/widgets/offering-list/lib/resolve-taxonomies.ts` (design.md D4). Verify: the related tests pass with no test changed; tsc and lint 0 errors. Commit `refactor(landing): resolve the list's taste notes with the shared tree resolver`.
+- [x] 2.1 In `src/widgets/offering-list/ui/Offerings.tsx` call `buildTasteNoteTree(offering, lookup)` from `@/entities/taxonomy` and delete `src/widgets/offering-list/lib/resolve-taxonomies.ts` (design.md D4). Verify: the related tests pass with no test changed; tsc and lint 0 errors. Commit `refactor(landing): resolve the list's taste notes with the shared tree resolver`.
 
 ## 3. Manage offerings
 
