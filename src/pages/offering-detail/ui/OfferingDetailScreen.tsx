@@ -1,6 +1,6 @@
 import { Suspense, type ReactNode } from "react";
 import type { Session } from "@/shared/api";
-import { getMessages } from "@/shared/lib/i18n";
+import { getMessages, type MessageCatalog } from "@/shared/lib/i18n";
 import { cn } from "@/shared/lib/utils";
 import { BackLink, PageSection } from "@/shared/ui";
 import {
@@ -61,7 +61,8 @@ const SKELETON_CARD_KEYS = [0, 1] as const;
  * `landing` texts of the route's locale, maps the raw `tab` value to a tab and
  * renders the detail block inside a `Suspense` boundary whose fallback is the
  * back link, the placeholder bars and two skeleton cards; it composes the
- * provisional tab's baseline panel and passes it down as a slot.
+ * provisional tab's baseline panel and passes it down as a slot, only when
+ * that tab is the one shown (cache-reference-reads design.md D3).
  */
 export function OfferingDetailScreen({
   locale,
@@ -136,25 +137,24 @@ export function OfferingDetailScreen({
     detailAxesHeading: catalog.detailAxesHeading,
   };
 
+  const detailTab = toDetailTab(tab);
   // The provisional tab's panel (add-public-evaluations design.md D9): the
   // page composes it, since one widget cannot import another, and its own
-  // boundary keeps its states inside the panel.
-  const baselineTexts: EvaluationBaselineTexts = {
-    ...evaluationSheetTexts({
-      publicEvaluations: getMessages("public-evaluations", locale),
-      evaluations: getMessages("evaluations", locale),
-      scales,
-      landing,
-    }),
-    emptyMessage: catalog.detailProvisionalEmpty,
-    errorMessage: catalog.detailProvisionalError,
-    retryLabel: landing.listRetryLabel,
-  };
-  const provisional = (
-    <Suspense fallback={<EvaluationSheetSkeleton />}>
-      <EvaluationSheetBaseline locale={locale} offeringUlid={ulid} texts={baselineTexts} />
-    </Suspense>
-  );
+  // boundary keeps its states inside the panel. On any other tab the slot
+  // holds the panel's loading state, so the baseline is never requested
+  // (cache-reference-reads design.md D3).
+  const provisional =
+    detailTab === "provisional" ? (
+      <Suspense fallback={<EvaluationSheetSkeleton />}>
+        <EvaluationSheetBaseline
+          locale={locale}
+          offeringUlid={ulid}
+          texts={baselineTexts(locale, catalog, landing, scales)}
+        />
+      </Suspense>
+    ) : (
+      <EvaluationSheetSkeleton />
+    );
 
   return (
     <div className="flex-1">
@@ -182,7 +182,7 @@ export function OfferingDetailScreen({
         <OfferingDetail
           locale={locale}
           ulid={ulid}
-          tab={toDetailTab(tab)}
+          tab={detailTab}
           session={ANONYMOUS_SESSION}
           texts={texts}
           provisional={provisional}
@@ -190,4 +190,24 @@ export function OfferingDetailScreen({
       </Suspense>
     </div>
   );
+}
+
+/** The baseline panel's texts (add-public-evaluations design.md D9). */
+function baselineTexts(
+  locale: string,
+  catalog: MessageCatalog,
+  landing: MessageCatalog,
+  scales: MessageCatalog,
+): EvaluationBaselineTexts {
+  return {
+    ...evaluationSheetTexts({
+      publicEvaluations: getMessages("public-evaluations", locale),
+      evaluations: getMessages("evaluations", locale),
+      scales,
+      landing,
+    }),
+    emptyMessage: catalog.detailProvisionalEmpty,
+    errorMessage: catalog.detailProvisionalError,
+    retryLabel: landing.listRetryLabel,
+  };
 }

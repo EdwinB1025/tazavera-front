@@ -63,6 +63,13 @@ export async function request(
   return response;
 }
 
+/**
+ * The request option of the reference reads (`GET /taxonomies`, `GET /coffees`):
+ * a server cache refreshed at most every hour (backlog R30). The one place the
+ * one-hour value lives.
+ */
+export const REFERENCE_READ_INIT: RequestInit = { next: { revalidate: 3600 } };
+
 /** A public request: sent without credentials (spec: "Public endpoints need no session"). */
 export function publicRequest(path: string, init?: RequestInit): Promise<Response> {
   const url = `${apiUrl()}${path}`;

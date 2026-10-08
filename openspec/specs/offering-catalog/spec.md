@@ -312,11 +312,15 @@ The offering detail SHALL show a "View evaluations" link in the header's actions
 - **THEN** the "View evaluations" link renders in the header's actions row before the Evaluate link
 
 ### Requirement: Provisional evaluation tab on the offering detail
-The offering detail SHALL show a third tab labelled "Provisional evaluation" after "Inventory data" and "Consensus", reachable at `?tab=provisional`, whose panel shows the coffee shop's `baseline` evaluation of that offering read-only in the same read-only evaluation presentation as the evaluation view of the `evaluations` capability. When several baselines exist the newest SHALL be shown. The tab SHALL follow the same activation contract as the other tabs (manual activation, active tab in the URL, an absent or unknown `tab` value opening the Inventory data tab), and its loading, empty and error states SHALL stay inside the panel, leaving the header and the other tabs unaffected.
+The offering detail SHALL show a third tab labelled "Provisional evaluation" after "Inventory data" and "Consensus", reachable at `?tab=provisional`, whose panel shows the coffee shop's `baseline` evaluation of that offering read-only in the same read-only evaluation presentation as the evaluation view of the `evaluations` capability. When several baselines exist the newest SHALL be shown. The tab SHALL follow the same activation contract as the other tabs (manual activation, active tab in the URL, an absent or unknown `tab` value opening the Inventory data tab), and its loading, empty and error states SHALL stay inside the panel, leaving the header and the other tabs unaffected. The panel's data SHALL be requested only when the Provisional evaluation tab is the one shown.
 
 #### Scenario: Selecting the tab
 - **WHEN** the visitor selects "Provisional evaluation"
 - **THEN** the URL gains `tab=provisional`, the tab becomes selected with the same treatment as the other two, and the panel loads the offering's baseline evaluation
+
+#### Scenario: Another tab shown
+- **WHEN** the detail is shown on the Inventory data or Consensus tab
+- **THEN** no request for the baseline evaluation is sent
 
 #### Scenario: Showing the baseline evaluation
 - **WHEN** the panel's request returns 200 with at least one baseline evaluation
@@ -603,7 +607,7 @@ Every text of the directory and the detail SHALL come from the message catalog o
 - **THEN** the document title is "Tazavera" and the description is the directory's description in the route's locale
 
 ### Requirement: Public reads through the shared public request client
-Every public read of the front (the coffees, roasteries, evaluations, taxonomies and offerings reads) SHALL be sent through the shared public request client, the one place that builds the API URL from the configured base. The requests sent to the API SHALL stay the same: method, path, query string, headers and request options.
+Every public read of the front (the coffees, roasteries, evaluations, taxonomies and offerings reads) SHALL be sent through the shared public request client, the one place that builds the API URL from the configured base. The requests sent to the API SHALL stay the same: method, path, query string, headers and request options, except the server cache option of the taxonomy and coffee catalog reads.
 
 #### Scenario: Public read sent through the shared client
 - **WHEN** a public read of the front is sent
@@ -611,7 +615,7 @@ Every public read of the front (the coffees, roasteries, evaluations, taxonomies
 
 #### Scenario: Requests unchanged
 - **WHEN** a public read is sent with the API base configured
-- **THEN** the API receives the same method, URL, query string, headers and request options as before the refactor, and the read returns the same result
+- **THEN** the API receives the same method, URL, query string, headers and request options as before the refactor, apart from the reference reads' server cache option, and the read returns the same result
 
 ### Requirement: Consensus panel kept as one view
 The Consensus tab SHALL render its blocks — the score, the SCA attribute averages or the not-verified message, the counts and concordances, the Main tastes and Defects selections with their consensus legends, the CATA wheel and the detail by axis — in that order, with the same structure, texts and accessible names for the same offering, taxonomy tree and locale, however the panel is organised internally. This requirement adds no behaviour: every block keeps what the other Consensus requirements of this capability state.
@@ -623,3 +627,14 @@ The Consensus tab SHALL render its blocks — the score, the SCA attribute avera
 #### Scenario: Provisional offering renders as before
 - **WHEN** the Consensus tab renders for a provisional offering
 - **THEN** no score renders, the not-verified message renders in place of the attribute scales, and the remaining blocks render in the same order
+
+### Requirement: Reference data cached with a one-hour refresh
+The taxonomy read and the coffee catalog read SHALL be served from a server-side cache that is refreshed at most one hour after it was filled, so repeated renders within the hour send no new request for them. Their method, path, query string and results SHALL stay the same, and every other public read SHALL stay uncached.
+
+#### Scenario: Repeated renders within the hour
+- **WHEN** pages that read the taxonomies or the coffee catalog are rendered several times within one hour of the cached read
+- **THEN** the API receives no new request for that reference read and the pages show the same data
+
+#### Scenario: Refresh after the hour
+- **WHEN** a page reads the taxonomies or the coffee catalog more than one hour after the cached read
+- **THEN** the reference read is sent to the API again with the same method and URL, and the refreshed data replaces the cached one
