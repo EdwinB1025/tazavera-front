@@ -72,6 +72,7 @@ export function AppShell({
           topRated: texts.topRated!,
           exploreCoffeeshops: texts.exploreCoffeeshops!,
           aboutUs: texts.aboutUs!,
+          primaryNavigation: texts.primaryNavigation!,
           signIn: texts.signIn!,
           // design.md D6: the shell composes one name — the resolved
           // locale's code in uppercase, then " — ", then the catalog word
@@ -90,6 +91,7 @@ export function AppShell({
           exploreOfferings: texts.exploreOfferings!,
           signOut: texts.signOut!,
           toggleSidebar: texts.toggleSidebar!,
+          sidebarNavigation: texts.sidebarNavigation!,
           navigationMenu: texts.navigationMenu!,
         }}
       >

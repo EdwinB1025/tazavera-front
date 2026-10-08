@@ -35,7 +35,7 @@ export const MANAGE_ROUTE = /^\/[^/]+\/manage(\/|$)/;
  * entries outside the management area there is no navigation at all.
  */
 export function AppSidebar({ entries, children }: AppSidebarProps): ReactNode {
-  const { session, entries: roleEntries, toggleLabel } = useAppSidebar();
+  const { session, entries: roleEntries, toggleLabel, navigationLabel } = useAppSidebar();
   const { isMobile, open, toggleSidebar } = useSidebar();
   const focusIntentRef = useFocusIntent();
   const headerRef = useRef<HTMLDivElement>(null);
@@ -64,7 +64,7 @@ export function AppSidebar({ entries, children }: AppSidebarProps): ReactNode {
       </SidebarHeader>
       <SidebarContent>
         {(managing || entries) && (
-          <nav>
+          <nav aria-label={navigationLabel}>
             {managing && roleEntries}
             {entries}
           </nav>

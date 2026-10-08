@@ -9,7 +9,10 @@ import type { PrimaryNavEntryTexts } from "../lib/nav-entries";
 // active locale. `currentPath` is the current route's path, read on the
 // client by the shell chrome (refine-app-header design.md D14).
 
-export type PrimaryNavTexts = PrimaryNavEntryTexts;
+export type PrimaryNavTexts = PrimaryNavEntryTexts & {
+  /** The navigation landmark's name (label-landmarks-and-headings D1). */
+  primaryNavigation?: string;
+};
 
 export type PrimaryNavProps = {
   locale: string;
@@ -52,7 +55,7 @@ export function PrimaryNav({ locale, texts, currentPath }: PrimaryNavProps): Rea
   const entries = primaryNavEntries(locale, texts);
 
   return (
-    <nav className={NAV_CLASSES}>
+    <nav aria-label={texts.primaryNavigation} className={NAV_CLASSES}>
       {entries.map(({ path, query, label }) => {
         const current = path === currentPath;
         return (

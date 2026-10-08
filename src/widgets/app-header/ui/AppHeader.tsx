@@ -20,6 +20,8 @@ export type AppHeaderTexts = {
   topRated: string;
   exploreCoffeeshops: string;
   aboutUs: string;
+  /** Accessible name of the primary navigation landmark (label-landmarks-and-headings D1). */
+  primaryNavigation?: string;
   signIn: string;
   /**
    * The composed accessible name of the language control the shell passes

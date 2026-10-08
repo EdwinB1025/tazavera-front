@@ -17,5 +17,7 @@
   "notFoundTitle": "Pàgina no trobada",
   "notFoundText": "La pàgina que cerques no existeix o no hi tens accés.",
   "notFoundHomeLink": "Tornar a l'inici",
-  "navigationMenu": "Menú de navegació"
+  "navigationMenu": "Menú de navegació",
+  "primaryNavigation": "Principal",
+  "sidebarNavigation": "Gestió"
 }

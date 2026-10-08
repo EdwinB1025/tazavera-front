@@ -17,5 +17,7 @@
   "notFoundTitle": "Página no encontrada",
   "notFoundText": "La página que buscas no existe o no tienes acceso a ella.",
   "notFoundHomeLink": "Volver al inicio",
-  "navigationMenu": "Menú de navegación"
+  "navigationMenu": "Menú de navegación",
+  "primaryNavigation": "Principal",
+  "sidebarNavigation": "Gestión"
 }

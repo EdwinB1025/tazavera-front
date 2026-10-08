@@ -24,7 +24,7 @@ export type SessionShellProps = {
   /** The route's sidebar (the `@sidebar` slot); absent, the default one. */
   sidebar?: ReactNode;
   /** The catalog texts `AppShell` resolves on the server (design.md D1). */
-  texts: AppHeaderTexts & { toggleSidebar: string };
+  texts: AppHeaderTexts & { toggleSidebar: string; sidebarNavigation?: string };
   /** The server-resolved theme (refine-header-aut D3). */
   theme?: Theme;
   children?: ReactNode;
@@ -76,6 +76,7 @@ export function SessionShell({
         session={supplied}
         entries={entries}
         toggleLabel={texts.toggleSidebar}
+        navigationLabel={texts.sidebarNavigation}
       >
         <ShellChrome
           session={supplied}

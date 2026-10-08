@@ -17,6 +17,8 @@ export type AppSidebarContextValue = {
   entries?: ReactNode;
   /** Accessible name of the sidebar's collapse control (`toggleSidebar`). */
   toggleLabel: string;
+  /** Name of the sidebar's navigation landmark (label-landmarks-and-headings D1). */
+  navigationLabel?: string;
 };
 
 export type AppSidebarProviderProps = AppSidebarContextValue & {
@@ -39,11 +41,12 @@ export function AppSidebarProvider({
   session,
   entries,
   toggleLabel,
+  navigationLabel,
   children,
 }: AppSidebarProviderProps): ReactNode {
   const focusIntent = useRef<FocusIntent>(null);
   return (
-    <AppSidebarContext.Provider value={{ session, entries, toggleLabel }}>
+    <AppSidebarContext.Provider value={{ session, entries, toggleLabel, navigationLabel }}>
       <FocusIntentContext.Provider value={focusIntent}>
         {children}
       </FocusIntentContext.Provider>
