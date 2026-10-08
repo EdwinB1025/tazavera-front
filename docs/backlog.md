@@ -26,6 +26,11 @@ The entries below follow this order. The order runs security first, then the sha
 | 0d | R47 | `show-filter-loading-at-once` | Unplanned fix (fast lane, maximum priority) | S | — |
 | 0e | R48 | `refine-offering-facets-aut` | Correction (fast lane, maximum priority) | M | R46 merged (same files); design lead on finding 16's open points |
 | 0f | R49 | `nest-card-taste-notes` | Correction (fast lane, maximum priority) | M | — |
+| 0g | R51 | `widen-account-cards` | Correction (fast lane, maximum priority) | S | design lead on its open points |
+| 0h | R52 | `open-landing-on-sign-out` | Unplanned fix (fast lane, maximum priority) | S | — |
+| 0i | R53 | `add-explore-offerings-entry` | Correction (fast lane, maximum priority) | S | design lead on its open points |
+| 0j | R54 | `rename-coffeeshop-card-action` | Correction (fast lane, maximum priority) | S | design lead on its open points |
+| 0k | R55 | `fit-bean-mark-disc` | Correction (fast lane, maximum priority) | S | design lead on its open points |
 | 16c | R50 | API branch in `tazavera-api` | Change (API) | S | Product owner: verify with real data (the API should deliver the resolved tree) |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
@@ -97,6 +102,41 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Type:** Correction (fast lane, maximum priority, Product owner's standing rule; replaces the "Rows by level" scenario)
 - **Status:** accepted
 - **Affects:** none
+
+## R51 — Account cards take the full container width (production AUT finding 19, 2026-10-08)
+
+- **Duplicated:** none. `pages/account/ui/AccountScreen.tsx:84` (`flex w-full max-w-lg flex-col gap-8`) keeps the cards in a 32rem start-aligned column (add-user-account D10, adopt-section-card-in-account item 4, from the MVC settings layout); `AccountScreen.test.tsx` asserts `max-w-lg`.
+- **Owning capability:** user-account
+- **Open decision (Augusto):** answered 2026-10-08: the account cards take the full container width with the page's usual side margins ("they look cut off"). Open for the design lead: whether the form fields inside the cards keep a readable maximum width; the register routes (centred 32rem) are not in scope (Product owner spoke only of the account page).
+- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted · **Affects:** none
+
+## R52 — Sign out does not show the landing (production AUT finding 20, 2026-10-08)
+
+- **Duplicated:** none. Defect against `auth` "Sign out" ("…and the application opens the root of the active locale"): `features/auth/model/session.ts:96` calls `window.history.pushState(null, "", localeRoot())`, which per the local Next docs (`01-app/01-getting-started/04-linking-and-navigating.md`, "Native History API") updates the URL without rendering the route; `features/auth/api/authorize.ts:42-46` documents the same limit for `/callback` and uses the App Router's `replace`.
+- **Owning capability:** auth
+- **Open decision (Augusto):** none (unplanned fix): after sign out the landing of the active locale renders (App Router navigation or a full load); both spec scenarios (revocation OK, server unreachable) hold. Found by Product owner in the browser; verified by code and docs, not reproduced.
+- **Type:** Unplanned fix (fast lane, maximum priority) · **Status:** accepted · **Affects:** none
+
+## R53 — "Explore offerings" entry for the specialist (production AUT finding 21, 2026-10-08)
+
+- **Duplicated:** none. A specialist has no direct route to the full offerings list (`/{locale}/offerings` with no query, provisional included): the user menu offers account, security, theme, the role's management entry and sign out; the specialist sidebar (`app/shell/SessionShell.tsx:58-63`) holds only "My evaluations"; the header's "Top rated" opens verified offerings only.
+- **Owning capability:** app-shell
+- **Open decision (Augusto):** answered 2026-10-08: add "Explore offerings" in BOTH the user menu (next to "Manage evaluations") and the specialist management sidebar (next to "My evaluations"); new catalog texts es/en/ca; spec scenarios "Management entry for a specialist" and the sidebar entries. Open for the design lead: the entries' order, the icon, and whether the coffee-shop role gets it too (Product owner asked only for the specialist).
+- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted · **Affects:** none
+
+## R54 — Coffee-shop card action reads "Ver ofertas" (production AUT finding 22, 2026-10-08)
+
+- **Duplicated:** none. `messages/es/coffeeshops.json:9` `"viewLabel": "Ver"`; spec `offering-catalog` "Coffee shop card" (a View action to the coffee shop detail; scenarios "Card content" and "View link").
+- **Owning capability:** offering-catalog
+- **Open decision (Augusto):** answered 2026-10-08: the label reads "Ver ofertas" (en "View offerings", ca "Veure ofertes", to be confirmed by the design lead); destination unchanged (the coffee shop detail). Open for the design lead: whether it opens the Offerings tab explicitly.
+- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted · **Affects:** none
+
+## R55 — Bean mark disc inside the bean (production AUT finding 23, 2026-10-08)
+
+- **Duplicated:** none. `shared/ui/icons.ts` `BeanMark` (used by `BeanScale`: evaluation form, evaluation sheet, consensus panel, scale legend): the disc is a `rect` with `rx 14.4` filling the viewBox (`icons.ts:68-75`) and the bean path is scaled ×1.33 (`icons.ts:38-41`), so the disc frames the bean as a coin (add-evaluation-scales design.md D4).
+- **Owning capability:** feedback
+- **Open decision (Augusto):** answered 2026-10-08: "the circle is the background of the bean; it must not go beyond the bean's outline": a smaller disc behind the bean, entirely inside its outer contour (closer to the MVC `flux/icon/coffee-bean.blade.php`, circle `scale(0.58)`); reverses D4. Open for the design lead: disc radius and centre (or a shape following the bean), whether the bean keeps its ×1.33 scale, the on/off contrast of `evaluation-bean-on`/`-off` once the disc no longer frames the bean, and the readOnly partial-bean cut (`BeanScale.tsx:167-173`).
+- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted · **Affects:** every `BeanMark` consumer
 
 ## R50 — Consensus concordance loses the parent of unmarked intermediate notes (API; found by the design lead for R49)
 
