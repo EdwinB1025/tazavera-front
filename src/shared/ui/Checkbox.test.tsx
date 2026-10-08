@@ -1,0 +1,265 @@
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { Checkbox } from "@/shared/ui/Checkbox";
+
+// This project has no global test setup, so RTL's auto-cleanup (which relies
+// on a framework-provided afterEach) does not run. Clean up manually between
+// tests so queries don't see elements left by previous renders.
+afterEach(() => {
+  cleanup();
+});
+
+/**
+ * Checkbox control tests (design.md D1.1 own-field contract, D7 modes,
+ * D9 mark and hit area; spec "Checkbox"). Written before the component is
+ * implemented (task 6.2); the import of `Checkbox` fails to resolve until
+ * then, so the file runs and fails as required.
+ *
+ * Assertions are className-/attribute-based: jsdom has no CSS engine, so the
+ * 24×24px hit area and the custom box are verified through their exact class
+ * sets and the contract by the exact attributes. The checkbox is its own
+ * field: every test here renders it with NO Field around it.
+ */
+
+const BOX_TOKENS = [
+  "size-4",
+  "appearance-none",
+  "rounded-check",
+  "border-2",
+  "border-border-strong",
+  "checked:bg-surface-checked",
+  "focus-visible:focus-ring",
+  "disabled:opacity-50",
+  "disabled:cursor-not-allowed",
+];
+
+describe("Checkbox", () => {
+  describe("box and mark (spec: Checked state identification, design.md D9)", () => {
+    it("renders the exact input tokens with a custom box replacing the native control", () => {
+      render(<Checkbox label="Accept terms" />);
+      const input = screen.getByRole("checkbox", { name: "Accept terms" });
+      for (const token of BOX_TOKENS) {
+        expect(input.className).toContain(token);
+      }
+    });
+
+    it("renders the check mark always, shown through peer-checked and following the input's real state (Unplanned fix)", () => {
+      const { container } = render(
+        <form>
+          <Checkbox label="Accept terms" />
+        </form>,
+      );
+      const input = screen.getByRole("checkbox") as HTMLInputElement;
+      const mark = container.querySelector("svg")!;
+      // SVG elements expose className as SVGAnimatedString: read the attribute.
+      expect(mark.getAttribute("class")).toContain("text-checked-mark");
+      expect(mark.getAttribute("class")).toContain("invisible");
+      expect(mark.getAttribute("class")).toContain("peer-checked:visible");
+      expect(input.className).toContain("peer");
+
+      // The mark follows the input's real state through CSS, not React state:
+      // after form.reset() the choice is gone and the same class contract
+      // hides the mark.
+      fireEvent.click(input);
+      expect(input.checked).toBe(true);
+      (container.querySelector("form") as HTMLFormElement).reset();
+      expect(input.checked).toBe(false);
+      expect(mark.getAttribute("class")).toContain("invisible");
+      expect(mark.getAttribute("class")).toContain("peer-checked:visible");
+    });
+
+    it("swaps the border to the error treatment when invalid (design.md D9)", () => {
+      render(<Checkbox label="Accept terms" error="Accept to continue" />);
+      const input = screen.getByRole("checkbox", { name: "Accept terms" });
+      expect(input.className).toContain("border-feedback-error");
+      expect(input.className).not.toContain("border-border-strong");
+    });
+  });
+
+  describe("label click target (spec: Label click target, design.md D9)", () => {
+    it("labels the checkbox with flex min-h-6 min-w-6 items-center gap-2", () => {
+      render(<Checkbox label="Accept terms" />);
+      const label = screen.getByText("Accept terms").closest("label")!;
+      expect(label.className).toContain("flex");
+      expect(label.className).toContain("min-h-6");
+      expect(label.className).toContain("min-w-6");
+      expect(label.className).toContain("items-center");
+      expect(label.className).toContain("gap-2");
+    });
+
+    it("clicking the label text toggles the choice", () => {
+      const onChange = vi.fn();
+      render(<Checkbox label="Accept terms" defaultChecked={false} onChange={onChange} />);
+      fireEvent.click(screen.getByText("Accept terms"));
+      expect(onChange).toHaveBeenCalledTimes(1);
+      const input = screen.getByRole("checkbox") as HTMLInputElement;
+      expect(input.checked).toBe(true);
+    });
+  });
+
+  describe("own-field contract (design.md D1.1, spec: Help and error, Error state, Required)", () => {
+    it("renders help and error below in type-meta and type-error and wires them to the input, help first", () => {
+      const { container } = render(
+        <Checkbox
+          label="Accept terms"
+          help="You can undo this later"
+          error="Accept to continue"
+        />,
+      );
+      const root = container.firstElementChild!;
+      const help = screen.getByText("You can undo this later");
+      const error = screen.getByText("Accept to continue");
+      expect(help.className).toContain("type-meta");
+      expect(error.className).toContain("type-error");
+      expect(root.lastElementChild).toBe(error);
+
+      const input = screen.getByRole("checkbox");
+      expect(input.getAttribute("aria-describedby")).toBe(`${help.id} ${error.id}`);
+      expect(input.getAttribute("aria-invalid")).toBe("true");
+    });
+
+    it("marks the input required when required", () => {
+      render(<Checkbox label="Accept terms" required />);
+      expect(screen.getByRole("checkbox").hasAttribute("required")).toBe(true);
+    });
+  });
+
+  describe("inverse variant (design.md D2, D4, spec: Checked controls on dark surface)", () => {
+    it("adds variant-inverse with fill and mark unchanged", () => {
+      const { container } = render(
+        <Checkbox label="Accept terms" defaultChecked variant="inverse" />,
+      );
+      const root = container.firstElementChild!;
+      const input = screen.getByRole("checkbox");
+      expect(root.className).toContain("variant-inverse");
+      expect(input.className).toContain("checked:bg-surface-checked");
+      expect(container.querySelector("svg")!.getAttribute("class")).toContain(
+        "text-checked-mark",
+      );
+    });
+  });
+});
+
+/**
+ * Facet-row presentation (add-facet-controls; spec form-fields "Facet row
+ * presentation"; design.md D3). The row look follows the controlled `checked`
+ * prop; the `label` element is the row.
+ */
+const FACET_ROW_TOKENS = [
+  "group",
+  "flex",
+  "w-full",
+  "min-h-10",
+  "cursor-pointer",
+  "items-center",
+  "gap-2",
+  "rounded-field",
+  "border-l-4",
+  "px-3",
+  "py-2",
+];
+const ROW_REST_TOKENS = ["border-transparent", "hover:shadow-nav-hover"];
+const ROW_SELECTED_TOKENS = [
+  "border-nav-indicator",
+  "bg-nav-current-dark",
+  "shadow-nav-current",
+];
+
+function classesOf(element: Element): string[] {
+  return (element.getAttribute("class") ?? "").split(/\s+/).filter(Boolean);
+}
+
+describe("Checkbox facet-row presentation (add-facet-controls design.md D3)", () => {
+  it("unchecked row carries the row and rest classes", () => {
+    render(
+      <Checkbox
+        label="Washed"
+        presentation="row"
+        variant="inverse"
+        checked={false}
+        onChange={() => {}}
+      />,
+    );
+    const row = screen.getByText("Washed").closest("label")!;
+    expect(classesOf(row)).toEqual(
+      expect.arrayContaining([...FACET_ROW_TOKENS, ...ROW_REST_TOKENS]),
+    );
+    for (const token of ROW_SELECTED_TOKENS) {
+      expect(classesOf(row)).not.toContain(token);
+    }
+  });
+
+  it("checked row carries the selected classes and no hover shadow", () => {
+    render(
+      <Checkbox
+        label="Washed"
+        presentation="row"
+        variant="inverse"
+        checked
+        onChange={() => {}}
+      />,
+    );
+    const row = screen.getByText("Washed").closest("label")!;
+    expect(classesOf(row)).toEqual(
+      expect.arrayContaining([...FACET_ROW_TOKENS, ...ROW_SELECTED_TOKENS]),
+    );
+    expect(classesOf(row)).not.toContain("hover:shadow-nav-hover");
+  });
+
+  it("label text is bold on hover at rest and underlined when checked", () => {
+    const { rerender } = render(
+      <Checkbox label="Washed" presentation="row" checked={false} onChange={() => {}} />,
+    );
+    expect(classesOf(screen.getByText("Washed"))).toEqual([
+      "type-sidebar-item",
+      "group-hover:font-bold",
+    ]);
+    rerender(<Checkbox label="Washed" presentation="row" checked onChange={() => {}} />);
+    expect(classesOf(screen.getByText("Washed"))).toEqual([
+      "type-sidebar-item",
+      "underline",
+      "decoration-nav-underline",
+      "underline-offset-3",
+    ]);
+  });
+
+  it("box boundary is nav-button-border instead of border-strong", () => {
+    render(<Checkbox label="Washed" presentation="row" checked={false} onChange={() => {}} />);
+    const input = screen.getByRole("checkbox", { name: "Washed" });
+    expect(classesOf(input)).toContain("border-nav-button-border");
+    expect(classesOf(input)).not.toContain("border-border-strong");
+  });
+
+  it("clicking the row's label text calls onChange", () => {
+    const onChange = vi.fn();
+    render(<Checkbox label="Washed" presentation="row" checked={false} onChange={onChange} />);
+    fireEvent.click(screen.getByText("Washed"));
+    expect(onChange).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("Checkbox help and error padding (refine-facet-controls design.md D1)", () => {
+  function sorted(text: string): string[] {
+    return screen.getByText(text).getAttribute("class")!.split(/\s+/).sort();
+  }
+
+  it("row presentation: help carries type-meta mt-1 px-3", () => {
+    render(
+      <Checkbox label="Washed" presentation="row" checked={false} onChange={() => {}} help="Help" error="Error" />,
+    );
+    expect(sorted("Help")).toEqual(["mt-1", "px-3", "type-meta"]);
+  });
+
+  it("row presentation: error carries type-error mt-1 px-3", () => {
+    render(
+      <Checkbox label="Washed" presentation="row" checked={false} onChange={() => {}} help="Help" error="Error" />,
+    );
+    expect(sorted("Error")).toEqual(["mt-1", "px-3", "type-error"]);
+  });
+
+  it("field presentation: help and error keep no side padding", () => {
+    render(<Checkbox label="Washed" checked={false} onChange={() => {}} help="Help" error="Error" />);
+    expect(sorted("Help")).toEqual(["mt-1", "type-meta"]);
+    expect(sorted("Error")).toEqual(["mt-1", "type-error"]);
+  });
+});

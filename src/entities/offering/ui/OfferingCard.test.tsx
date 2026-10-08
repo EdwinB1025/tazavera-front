@@ -1,0 +1,375 @@
+import { describe, it, expect, afterEach } from "vitest";
+import { render, cleanup, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
+import type { OfferingSummary } from "@/shared/api";
+import { OfferingCard } from "@/entities/offering";
+import { Link } from "@/shared/ui";
+
+// This project has no global test setup, so RTL's auto-cleanup (which relies
+// on a framework-provided afterEach) does not run. Clean up manually between
+// tests so queries don't see cards left by previous renders.
+afterEach(() => {
+  cleanup();
+});
+
+/**
+ * OfferingCard tests (design.md D4's card field mapping and D8; the landing
+ * spec "Offering card content" — "Score and rating tier", "No score", "Origin
+ * line skips null values", "Footer counts", "View link for everyone" — and
+ * "Taxonomy badges on the offering card" — "Rows by level"). The actions slot
+ * cases cover replace-offering-card-session's design.md D1 and the spec
+ * "Offering card actions" — "Consumer actions after View", "No consumer
+ * actions". Written before
+ * the implementation (task 4.2): the import goes through the slice's public
+ * API, which fails to resolve until `src/entities/offering/` exists
+ * (`lib/rating.ts`, `ui/OfferingCard.tsx` and the entity entry `index.ts`), so
+ * the file runs and fails as required.
+ *
+ * Assertions are className- and text-based: jsdom has no CSS engine, so the
+ * settled treatments are verified by the exact class tokens the build renders
+ * (`type-score`, `type-meta`, `type-card-heading`, `type-label`, `flex-wrap`)
+ * and the card's own texts are verified as the `texts` props the fixtures
+ * supply — the sentinels below would not render if the component carried
+ * literal text of its own (design.md D11; `react/jsx-no-literals` guards the
+ * literals themselves at `npm run lint`).
+ */
+
+// ─── Texts props (design.md D11: every label and caption arrives as a prop;
+// eleven keys — `evaluateLabel` moved to the list's texts, design.md D3) ─────
+
+const TEXTS = {
+  coffeeshopCaption: "texts.coffeeshopCaption",
+  roasterCaption: "texts.roasterCaption",
+  evaluationsLabel: "texts.evaluationsLabel",
+  defectiveLabel: "texts.defectiveLabel",
+  viewLabel: "texts.viewLabel",
+  verifiedLabel: "texts.verifiedLabel",
+  provisionalLabel: "texts.provisionalLabel",
+  ratingExceptionalLabel: "texts.ratingExceptionalLabel",
+  ratingExcellentLabel: "texts.ratingExcellentLabel",
+  ratingGoodLabel: "texts.ratingGoodLabel",
+  ratingCommercialLabel: "texts.ratingCommercialLabel",
+};
+
+// ─── Consumer action fixtures (replace-offering-card-session's design.md D1:
+// the consumer's actions render after the View link, with no wrapper) ────────
+
+const ACTION_LABEL = "ACTION";
+const SECOND_ACTION_LABEL = "ACTION_2";
+const ACTION = <Link href="/es/action">{ACTION_LABEL}</Link>;
+const SECOND_ACTION = <Link href="/es/action-2">{SECOND_ACTION_LABEL}</Link>;
+const TWO_ACTIONS = (
+  <>
+    {ACTION}
+    {SECOND_ACTION}
+  </>
+);
+
+// ─── Resolved taxonomy badge data (design.md D5 and D8: the labels, colors
+// and levels arrive resolved) ───────────────────────────────────────────────
+
+type ResolvedTaxonomyBadge = { label: string; color: string; level: 0 | 1 | 2 };
+
+const TAXONOMIES: ResolvedTaxonomyBadge[] = [
+  { label: "Floral", color: "#336699", level: 0 },
+  { label: "Jazmin", color: "#000000", level: 1 },
+  { label: "Bergamota", color: "#FFFFFF", level: 2 },
+];
+
+// ─── Offering fixture (design.md D4's mapping table) ────────────────────────
+
+const ULID = "01K6A3M8Q2V7XH4T9B5N1RCW0D";
+
+const OFFERING: OfferingSummary = {
+  ulid: ULID,
+  cuppingAvg: "84.25",
+  verificationStatus: "verified",
+  evaluationCount: 12,
+  defectiveEvaluationCount: 3,
+  location: { name: "Gracia" },
+  coffeeInventory: {
+    coffee: {
+      name: "Geisha",
+      country: "Colombia",
+      region: "Huila",
+      process: "washed",
+      variety: "Caturra",
+    },
+    roastery: { name: "Nomada" },
+  },
+  sensoryTaxonomy: [],
+};
+
+/**
+ * The generated `OfferingSummary` types the origin fields as
+ * `string | undefined`, while the spec's scenario "Origin line skips null
+ * values" drives a `null` arriving from the API. The fixture carries that
+ * runtime shape and is narrowed once here.
+ */
+const OFFERING_NULL_REGION = {
+  ...OFFERING,
+  coffeeInventory: {
+    coffee: {
+      name: "Geisha",
+      country: "Colombia",
+      region: null,
+      process: "washed",
+      variety: "Caturra",
+    },
+    roastery: { name: "Nomada" },
+  },
+} as unknown as OfferingSummary;
+
+// ─── One offering fixture per score range (spec: 'Score and rating tier';
+// label-rating-badge design.md D1: one word per tier) ────────────────────────
+
+const OFFERING_EXCEPTIONAL: OfferingSummary = { ...OFFERING, cuppingAvg: "95" };
+const OFFERING_EXCELLENT: OfferingSummary = { ...OFFERING, cuppingAvg: "87" };
+const OFFERING_GOOD: OfferingSummary = { ...OFFERING, cuppingAvg: "82" };
+const OFFERING_COMMERCIAL: OfferingSummary = { ...OFFERING, cuppingAvg: "75" };
+
+/** The class tokens of an element, as exact names (no substring matching). */
+function classTokens(element: Element): string[] {
+  return (element.getAttribute("class") ?? "").split(/\s+/).filter(Boolean);
+}
+
+/** Every element below `root` that carries the given class token. */
+function elementsWith(root: HTMLElement, token: string): HTMLElement[] {
+  return Array.from(root.querySelectorAll<HTMLElement>("*")).filter((el) =>
+    classTokens(el).includes(token),
+  );
+}
+
+/** The element carrying `token` whose text also carries `text`. */
+function findWith(
+  root: HTMLElement,
+  token: string,
+  text: string,
+): HTMLElement | undefined {
+  return elementsWith(root, token).find((el) =>
+    (el.textContent ?? "").includes(text),
+  );
+}
+
+/** The four rating treatments of design.md D7. */
+const RATING_CLASSES = [
+  "bg-evaluation-rating-exceptional",
+  "bg-evaluation-rating-excellent",
+  "bg-evaluation-rating-good",
+  "bg-evaluation-rating-commercial",
+];
+
+/** Every rating badge rendered inside `root`. */
+function ratingBadges(root: HTMLElement): HTMLElement[] {
+  return Array.from(root.querySelectorAll<HTMLElement>("*")).filter((el) =>
+    classTokens(el).some((token) => RATING_CLASSES.includes(token)),
+  );
+}
+
+type RenderOptions = {
+  offering?: OfferingSummary;
+  actions?: ReactNode;
+  taxonomies?: ResolvedTaxonomyBadge[];
+};
+
+/** One offering card over the shared card, filled per design.md D4. */
+function renderCard(options: RenderOptions = {}) {
+  return render(
+    <OfferingCard
+      offering={options.offering ?? OFFERING}
+      locale="es"
+      taxonomies={options.taxonomies ?? TAXONOMIES}
+      texts={TEXTS}
+      actions={options.actions}
+    />,
+  );
+}
+
+describe("OfferingCard", () => {
+  describe("Score and rating tier (spec: 'Score and rating tier'; design.md D4)", () => {
+    it("shows the score over /100 in type-score with type-meta", () => {
+      const { container } = renderCard();
+      expect(findWith(container, "type-score", "84.25")).toBeDefined();
+      expect(findWith(container, "type-meta", "/100")).toBeDefined();
+    });
+
+    // The badge's text is the word of the tier, not the score (label-rating-badge
+    // design.md D1, D2). Each case pins one range's word as exactly that tier's
+    // `texts` field on that range's treatment, so the badge showing the score
+    // or another tier's word fails.
+    it("carries the exceptional word on the exceptional badge at 90 or above", () => {
+      const { container } = renderCard({ offering: OFFERING_EXCEPTIONAL });
+      const badges = ratingBadges(container);
+      expect(badges).toHaveLength(1);
+      expect(
+        classTokens(badges[0]).includes("bg-evaluation-rating-exceptional"),
+      ).toBe(true);
+      expect(badges[0].textContent).toBe(TEXTS.ratingExceptionalLabel);
+    });
+
+    it("carries the excellent word on the excellent badge from 85 to below 90", () => {
+      const { container } = renderCard({ offering: OFFERING_EXCELLENT });
+      const badges = ratingBadges(container);
+      expect(badges).toHaveLength(1);
+      expect(
+        classTokens(badges[0]).includes("bg-evaluation-rating-excellent"),
+      ).toBe(true);
+      expect(badges[0].textContent).toBe(TEXTS.ratingExcellentLabel);
+    });
+
+    it("carries the good word on the good badge from 80 to below 85", () => {
+      const { container } = renderCard({ offering: OFFERING_GOOD });
+      const badges = ratingBadges(container);
+      expect(badges).toHaveLength(1);
+      expect(
+        classTokens(badges[0]).includes("bg-evaluation-rating-good"),
+      ).toBe(true);
+      expect(badges[0].textContent).toBe(TEXTS.ratingGoodLabel);
+    });
+
+    it("carries the commercial word on the commercial badge below 80", () => {
+      const { container } = renderCard({ offering: OFFERING_COMMERCIAL });
+      const badges = ratingBadges(container);
+      expect(badges).toHaveLength(1);
+      expect(
+        classTokens(badges[0]).includes("bg-evaluation-rating-commercial"),
+      ).toBe(true);
+      expect(badges[0].textContent).toBe(TEXTS.ratingCommercialLabel);
+    });
+  });
+
+  describe("No score (spec: 'No score')", () => {
+    it("shows no score and no rating badge and renders the rest normally", () => {
+      const { container } = renderCard({
+        offering: { ...OFFERING, cuppingAvg: undefined },
+      });
+      expect(elementsWith(container, "type-score")).toHaveLength(0);
+      expect(ratingBadges(container)).toHaveLength(0);
+      // The rest of the card renders normally.
+      expect(findWith(container, "type-card-heading", "Geisha")).toBeDefined();
+    });
+  });
+
+  describe("Content mapping (design.md D4)", () => {
+    it("omits a null value and keeps the fixed order (spec: 'Origin line skips null values')", () => {
+      const { container } = renderCard({ offering: OFFERING_NULL_REGION });
+      const origin = elementsWith(container, "type-meta").find((el) =>
+        (el.textContent ?? "").includes("Colombia"),
+      );
+      expect(origin).toBeDefined();
+      expect(origin?.textContent).toBe("Colombia · washed · Caturra");
+    });
+  });
+
+  describe("Taxonomy badge rows (spec: 'Rows by level'; design.md D8)", () => {
+    it("renders the resolved badges in three rows by level, each row carrying flex-wrap", () => {
+      const { container } = renderCard();
+      // The rows are found by their `flex-wrap` token inside the content
+      // region: a row without it does not show up here and the count below
+      // fails (design.md D8: each row carries `flex-wrap` so no row overflows
+      // the card below `md`). The score row and the footer wrap too (D14), so
+      // the search is scoped to the region that holds the rows.
+      const content = container.querySelector("h3")!.parentElement!;
+      const rows = elementsWith(content, "flex-wrap");
+      expect(rows).toHaveLength(3);
+      expect((rows[0].textContent ?? "").includes("Floral")).toBe(true);
+      expect((rows[1].textContent ?? "").includes("Jazmin")).toBe(true);
+      expect((rows[2].textContent ?? "").includes("Bergamota")).toBe(true);
+    });
+  });
+
+  describe("Footer counts (spec: 'Footer counts')", () => {
+    it("shows both counts in type-meta with their labels from the texts props", () => {
+      const { container } = renderCard();
+      const evaluations = findWith(
+        container,
+        "type-meta",
+        TEXTS.evaluationsLabel,
+      );
+      expect(evaluations).toBeDefined();
+      expect((evaluations?.textContent ?? "").includes("12")).toBe(true);
+
+      const defective = findWith(container, "type-meta", TEXTS.defectiveLabel);
+      expect(defective).toBeDefined();
+      expect((defective?.textContent ?? "").includes("3")).toBe(true);
+    });
+  });
+
+  describe("Links (specs: 'View link for everyone', 'Offering card actions')", () => {
+    it("addresses the View link at /{locale}/offerings/{ulid} on every card (spec: 'View link for everyone')", () => {
+      renderCard();
+      renderCard({ actions: ACTION });
+      renderCard({ actions: TWO_ACTIONS });
+      const views = screen.getAllByRole("link", { name: TEXTS.viewLabel });
+      expect(views).toHaveLength(3);
+      for (const view of views) {
+        expect(view.getAttribute("href")).toBe(`/es/offerings/${ULID}`);
+      }
+    });
+
+    it("renders the consumer's actions after the View link in the same group (spec: 'Consumer actions after View')", () => {
+      renderCard({ actions: ACTION });
+      const view = screen.getByRole("link", { name: TEXTS.viewLabel });
+      const action = screen.getByRole("link", { name: ACTION_LABEL });
+      const group = view.parentElement!;
+      expect(action.parentElement).toBe(group);
+      expect(classTokens(group)).toEqual(
+        expect.arrayContaining(["ml-auto", "flex", "gap-4"]),
+      );
+      const children = Array.from(group.children);
+      expect(children.indexOf(action)).toBeGreaterThan(children.indexOf(view));
+    });
+
+    it("renders no action of its own when the consumer supplies none (spec: 'No consumer actions')", () => {
+      renderCard();
+      const view = screen.getByRole("link", { name: TEXTS.viewLabel });
+      const group = view.parentElement!;
+      expect(group.childElementCount).toBe(1);
+      expect(group.firstElementChild).toBe(view);
+    });
+  });
+
+  describe("Card layout (spec: 'Score row above the content', 'Footer counts', 'Stacked at every width'; design.md D14)", () => {
+    it("puts the score, the /100 scale and the rating badge on one row", () => {
+      const { container } = renderCard();
+      const score = elementsWith(container, "type-score")[0];
+      const row = score.parentElement!;
+      expect(classTokens(row)).toEqual(
+        expect.arrayContaining([
+          "flex",
+          "flex-wrap",
+          "items-baseline",
+          "gap-2",
+        ]),
+      );
+      expect(row.contains(elementsWith(container, "type-meta")[0])).toBe(true);
+      expect(row.contains(ratingBadges(container)[0])).toBe(true);
+    });
+
+    it("separates the counts and groups the links apart at the end of the footer", () => {
+      const { container } = renderCard({ actions: ACTION });
+      const view = Array.from(container.querySelectorAll("a")).find(
+        (link) => link.textContent === TEXTS.viewLabel,
+      )!;
+      const links = view.parentElement!;
+      const counts = findWith(
+        container,
+        "type-meta",
+        TEXTS.evaluationsLabel,
+      )!.parentElement!;
+      const footer = links.parentElement!;
+      expect(counts.parentElement).toBe(footer);
+      expect(links).not.toBe(counts);
+      expect(links.querySelectorAll("a")).toHaveLength(2);
+      expect(classTokens(footer)).toEqual(
+        expect.arrayContaining(["flex", "flex-wrap", "items-center", "gap-4"]),
+      );
+      expect(classTokens(counts)).toEqual(
+        expect.arrayContaining(["flex", "flex-wrap", "gap-4"]),
+      );
+      expect(classTokens(links)).toEqual(
+        expect.arrayContaining(["ml-auto", "flex", "gap-4"]),
+      );
+    });
+  });
+});

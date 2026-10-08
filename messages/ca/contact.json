@@ -1,0 +1,10 @@
+{
+  "contactAddressLabel": "Adreça",
+  "contactPostalCodeLabel": "Codi postal",
+  "contactCityLabel": "Ciutat",
+  "contactCountryLabel": "País",
+  "contactPhoneLabel": "Telèfon",
+  "contactEmailLabel": "Correu electrònic",
+  "contactWebLabel": "Web",
+  "contactSocialLabel": "Xarxes socials"
+}

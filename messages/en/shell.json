@@ -1,0 +1,18 @@
+{
+  "topRated": "Top rated",
+  "exploreCoffeeshops": "Explore coffee shops",
+  "aboutUs": "About us",
+  "signIn": "Sign in",
+  "languageSelector": "Language",
+  "myAccount": "My account",
+  "security": "Security",
+  "themeSelector": "Theme",
+  "manageOfferings": "Manage offerings",
+  "manageEvaluations": "Manage evaluations",
+  "signOut": "Sign out",
+  "brandLink": "Tazavera, go to the home page",
+  "toggleSidebar": "Show or hide the navigation",
+  "notFoundTitle": "Page not found",
+  "notFoundText": "The page you are looking for does not exist or you do not have access to it.",
+  "notFoundHomeLink": "Back to the home page"
+}

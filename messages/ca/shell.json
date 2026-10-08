@@ -1,0 +1,18 @@
+{
+  "topRated": "Millor valorats",
+  "exploreCoffeeshops": "Explora cafeteries",
+  "aboutUs": "Sobre nosaltres",
+  "signIn": "Iniciar sessió",
+  "languageSelector": "Idioma",
+  "myAccount": "El meu compte",
+  "security": "Seguretat",
+  "themeSelector": "Tema",
+  "manageOfferings": "Gestionar ofertes",
+  "manageEvaluations": "Gestionar avaluacions",
+  "signOut": "Tancar sessió",
+  "brandLink": "Tazavera, anar a l'inici",
+  "toggleSidebar": "Mostrar o amagar la navegació",
+  "notFoundTitle": "Pàgina no trobada",
+  "notFoundText": "La pàgina que cerques no existeix o no hi tens accés.",
+  "notFoundHomeLink": "Tornar a l'inici"
+}

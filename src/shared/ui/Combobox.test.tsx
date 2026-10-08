@@ -1,0 +1,326 @@
+import { describe, it, expect, vi, afterEach, beforeAll } from "vitest";
+import { render, screen, fireEvent, cleanup, act } from "@testing-library/react";
+import { Combobox, type ComboboxOption, type ComboboxSearch } from "@/shared/ui";
+
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
+
+// jsdom lacks ResizeObserver (Radix popper, cmdk list) and scrollIntoView
+// (cmdk scrolls the active option into view). Test-only stubs.
+beforeAll(() => {
+  if (!("ResizeObserver" in globalThis)) {
+    globalThis.ResizeObserver = class {
+      observe(): void {}
+      unobserve(): void {}
+      disconnect(): void {}
+    } as unknown as typeof ResizeObserver;
+  }
+  if (!Element.prototype.scrollIntoView) {
+    Element.prototype.scrollIntoView = () => {};
+  }
+});
+
+/**
+ * Combobox (spec filtering "Combobox"; design.md D9): cmdk Command with the
+ * project Input as its input, Radix Popover popup, the aria-expanded and
+ * label `for` workaround, local filtering and search mode.
+ */
+
+const TEXTS = {
+  searching: "Searching…",
+  noMatches: "No matches",
+  loadError: "Results could not be loaded",
+  optionCount: "Options: {count}",
+};
+
+const FINCAS: ComboboxOption[] = [
+  { value: "a", label: "Finca A" },
+  { value: "b", label: "Finca B", detail: "Huila" },
+  { value: "c", label: "Lomas" },
+];
+
+function local(
+  props: Partial<{
+    value: ComboboxOption | null;
+    onChange: (option: ComboboxOption | null) => void;
+    variant: "default" | "inverse";
+    disabled: boolean;
+    help: string;
+  }> = {},
+) {
+  return (
+    <Combobox
+      label="Producer"
+      options={FINCAS}
+      value={props.value ?? null}
+      onChange={props.onChange ?? (() => {})}
+      variant={props.variant}
+      disabled={props.disabled}
+      help={props.help}
+      texts={TEXTS}
+    />
+  );
+}
+
+function input(): HTMLInputElement {
+  return screen.getByRole("combobox", { name: "Producer" }) as HTMLInputElement;
+}
+
+function type(text: string): void {
+  fireEvent.change(input(), { target: { value: text } });
+}
+
+describe("Combobox — local mode", () => {
+  it("typing opens the popup with the matching options and bold match", () => {
+    render(local());
+    type("fin");
+    const box = input();
+    expect(box.getAttribute("aria-expanded")).toBe("true");
+    const options = screen.getAllByRole("option");
+    expect(options.map((o) => o.textContent)).toEqual(["Finca A", "Finca BHuila"]);
+    expect(options[0]!.querySelector("strong")!.textContent).toBe("Fin");
+    expect(box.getAttribute("aria-controls")).toBe(screen.getByRole("listbox").id);
+  });
+
+  it("with three options shown, ArrowDown, ArrowDown, Enter chooses the second", () => {
+    const three: ComboboxOption[] = [
+      { value: "1", label: "Finca Uno" },
+      { value: "2", label: "Finca Dos" },
+      { value: "3", label: "Finca Tres" },
+    ];
+    const onChange = vi.fn();
+    render(
+      <Combobox label="Producer" options={three} value={null} onChange={onChange} texts={TEXTS} />,
+    );
+    type("finca");
+    expect(screen.getAllByRole("option")).toHaveLength(3);
+    fireEvent.keyDown(input(), { key: "ArrowDown" });
+    fireEvent.keyDown(input(), { key: "ArrowDown" });
+    fireEvent.keyDown(input(), { key: "Enter" });
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith(three[1]);
+    expect(input().value).toBe("Finca Dos");
+    expect(input().getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("Escape closes the popup", () => {
+    render(local());
+    type("fin");
+    fireEvent.keyDown(input(), { key: "Escape" });
+    expect(input().getAttribute("aria-expanded")).toBe("false");
+    expect(screen.queryByRole("listbox")).toBeNull();
+    expect(input().value).toBe("");
+  });
+
+  it('no match shows "No matches" and no option', () => {
+    render(local());
+    type("zz");
+    expect(screen.getByText("No matches", { selector: "[role=presentation]" })).toBeTruthy();
+    expect(screen.queryAllByRole("option")).toHaveLength(0);
+  });
+
+  it("emptying the input and blurring with a value reports null", () => {
+    const onChange = vi.fn();
+    render(local({ value: FINCAS[0]!, onChange }));
+    expect(input().value).toBe("Finca A");
+    type("");
+    fireEvent.blur(input());
+    expect(onChange).toHaveBeenCalledWith(null);
+  });
+
+  it("while open, the popup carries exactly the D9 popup classes", () => {
+    render(local());
+    type("fin");
+    const popup = screen.getByRole("listbox").parentElement!;
+    expect(popup.getAttribute("class")!.split(/\s+/).sort()).toEqual(
+      [
+        "z-50",
+        "w-(--radix-popover-trigger-width)",
+        "max-h-60",
+        "overflow-y-auto",
+        "rounded-field",
+        "border",
+        "border-border-strong",
+        "bg-nav-surface",
+        "p-1",
+        "text-nav-text",
+        "shadow-md",
+      ].sort(),
+    );
+  });
+
+  it("variant inverse puts the input's inverse classes on it, default does not", () => {
+    const { rerender } = render(local({ variant: "inverse" }));
+    expect(input().className).toContain("variant-inverse");
+    expect(input().className).toContain("bg-transparent");
+    rerender(local({ variant: "default" }));
+    expect(input().className).not.toContain("variant-inverse");
+    expect(input().className).toContain("bg-surface-input");
+  });
+});
+
+describe("Combobox — abandoned text (refine-facet-controls design.md D2)", () => {
+  it("with a value, typing and Escape restores its label and reports nothing", () => {
+    const onChange = vi.fn();
+    render(local({ value: FINCAS[0]!, onChange }));
+    type("zz");
+    fireEvent.keyDown(input(), { key: "Escape" });
+    expect(input().value).toBe("Finca A");
+    expect(input().getAttribute("aria-expanded")).toBe("false");
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("with a value, typing and leaving restores its label and reports nothing", () => {
+    const onChange = vi.fn();
+    render(local({ value: FINCAS[0]!, onChange }));
+    type("zz");
+    fireEvent.blur(input());
+    expect(input().value).toBe("Finca A");
+    expect(input().getAttribute("aria-expanded")).toBe("false");
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("with no value, typing and leaving empties the input and reports nothing", () => {
+    const onChange = vi.fn();
+    render(local({ onChange }));
+    type("fin");
+    fireEvent.blur(input());
+    expect(input().value).toBe("");
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("with a value, emptying the input and Escape restores its label and reports nothing", () => {
+    const onChange = vi.fn();
+    render(local({ value: FINCAS[0]!, onChange }));
+    type("");
+    fireEvent.keyDown(input(), { key: "Escape" });
+    expect(input().value).toBe("Finca A");
+    expect(onChange).not.toHaveBeenCalled();
+  });
+});
+
+describe("Combobox — search mode", () => {
+  function searchBox(search: ComboboxSearch) {
+    return (
+      <Combobox label="Roaster" search={search} value={null} onChange={() => {}} texts={TEXTS} />
+    );
+  }
+
+  function searchInput(): HTMLInputElement {
+    return screen.getByRole("combobox", { name: "Roaster" }) as HTMLInputElement;
+  }
+
+  it("searches after 300 ms and shows Searching… while pending, then the rows", async () => {
+    vi.useFakeTimers();
+    let resolve!: (options: ComboboxOption[]) => void;
+    const search = vi.fn<ComboboxSearch>(
+      () => new Promise<ComboboxOption[]>((res) => (resolve = res)),
+    );
+    render(searchBox(search));
+    fireEvent.change(searchInput(), { target: { value: "caf" } });
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    expect(search).toHaveBeenCalledTimes(1);
+    expect(search.mock.calls[0]![0]).toBe("caf");
+    expect(search.mock.calls[0]![1]).toBeInstanceOf(AbortSignal);
+    expect(screen.getByText("Searching…", { selector: "[role=presentation]" })).toBeTruthy();
+    expect(screen.getByRole("status").textContent).toBe("Searching…");
+    await act(async () => {
+      resolve([
+        { value: "1", label: "Café Uno" },
+        { value: "2", label: "Café Dos" },
+      ]);
+    });
+    expect(screen.getAllByRole("option")).toHaveLength(2);
+    expect(screen.queryByText("Searching…", { selector: "[role=presentation]" })).toBeNull();
+    expect(screen.getByRole("status").textContent).toBe("Options: 2");
+  });
+
+  it('a rejection shows "Results could not be loaded"', async () => {
+    vi.useFakeTimers();
+    let reject!: (error: unknown) => void;
+    const search = vi.fn<ComboboxSearch>(
+      () => new Promise<ComboboxOption[]>((_, rej) => (reject = rej)),
+    );
+    render(searchBox(search));
+    fireEvent.change(searchInput(), { target: { value: "caf" } });
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    await act(async () => {
+      reject(new Error("network"));
+    });
+    expect(
+      screen.getByText("Results could not be loaded", { selector: "[role=presentation]" }),
+    ).toBeTruthy();
+    expect(screen.getByRole("status").textContent).toBe("Results could not be loaded");
+  });
+
+  it("one character makes no call", () => {
+    vi.useFakeTimers();
+    const search = vi.fn<ComboboxSearch>();
+    render(searchBox(search));
+    fireEvent.change(searchInput(), { target: { value: "c" } });
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(search).not.toHaveBeenCalled();
+  });
+
+  describe("only typed text searches (refine-facet-controls design.md D3)", () => {
+    const UNO = { value: "1", label: "Café Uno" };
+
+    function withValue(search: ComboboxSearch, value: ComboboxOption | null) {
+      return <Combobox label="Roaster" search={search} value={value} onChange={() => {}} texts={TEXTS} />;
+    }
+
+    it("a first render with a value makes no call", () => {
+      vi.useFakeTimers();
+      const search = vi.fn<ComboboxSearch>(async () => []);
+      render(withValue(search, UNO));
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+      expect(search).not.toHaveBeenCalled();
+    });
+
+    it("choosing a result makes no call for its label", async () => {
+      vi.useFakeTimers();
+      let resolve!: (options: ComboboxOption[]) => void;
+      const search = vi.fn<ComboboxSearch>(
+        () => new Promise<ComboboxOption[]>((res) => (resolve = res)),
+      );
+      render(withValue(search, null));
+      fireEvent.change(searchInput(), { target: { value: "caf" } });
+      act(() => {
+        vi.advanceTimersByTime(300);
+      });
+      await act(async () => {
+        resolve([UNO, { value: "2", label: "Café Dos" }]);
+      });
+      fireEvent.keyDown(searchInput(), { key: "ArrowDown" });
+      fireEvent.keyDown(searchInput(), { key: "Enter" });
+      expect(searchInput().value).toBe("Café Uno");
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+      expect(search).toHaveBeenCalledTimes(1);
+      expect(search.mock.calls[0]![0]).toBe("caf");
+    });
+
+    it("restoring the label after Escape makes no call", () => {
+      vi.useFakeTimers();
+      const search = vi.fn<ComboboxSearch>(async () => []);
+      render(withValue(search, UNO));
+      fireEvent.change(searchInput(), { target: { value: "zz" } });
+      fireEvent.keyDown(searchInput(), { key: "Escape" });
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+      expect(search).not.toHaveBeenCalled();
+    });
+  });
+});

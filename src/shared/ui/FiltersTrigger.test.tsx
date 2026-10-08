@@ -1,0 +1,73 @@
+import { describe, it, expect, afterEach, beforeAll, beforeEach } from "vitest";
+import type { ReactNode } from "react";
+import { render, screen, fireEvent, cleanup, act } from "@testing-library/react";
+import { FiltersTrigger, SidebarProvider, useSidebar } from "@/shared/ui";
+
+// No global test setup in this project, so RTL auto-cleanup does not run.
+afterEach(() => {
+  cleanup();
+});
+
+// matchMedia mock whose viewport is chosen per case; `useIsMobile` reads the
+// md breakpoint through it. Test infrastructure only.
+let mobile = false;
+beforeAll(() => {
+  window.matchMedia = ((query: string) => ({
+    matches: mobile,
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  })) as unknown as typeof window.matchMedia;
+});
+
+beforeEach(() => {
+  mobile = false;
+});
+
+/** Reads and sets the sidebar state next to the trigger. */
+function Probe(): ReactNode {
+  const { open, setOpen } = useSidebar();
+  return (
+    <>
+      <output data-testid="open">{String(open)}</output>
+      <button type="button" onClick={() => setOpen((value) => !value)}>
+        toggle
+      </button>
+    </>
+  );
+}
+
+function renderTrigger(label = "Filters") {
+  return render(
+    <SidebarProvider>
+      <FiltersTrigger label={label} />
+      <Probe />
+    </SidebarProvider>,
+  );
+}
+
+function trigger(): HTMLElement | null {
+  return screen.queryByRole("button", { name: "Filters" });
+}
+
+/** The body "Filters" trigger (add-offering-facets design.md D8; spec "Offerings filter toolbar"). */
+describe("FiltersTrigger (design.md D8)", () => {
+  it("renders from md only while the sidebar is collapsed", () => {
+    renderTrigger();
+    expect(screen.getByTestId("open").textContent).toBe("true");
+    expect(trigger()).toBeNull();
+    act(() => fireEvent.click(screen.getByRole("button", { name: "toggle" })));
+    expect(trigger()).not.toBeNull();
+  });
+
+  it("opens the sidebar when activated", () => {
+    mobile = true;
+    renderTrigger();
+    fireEvent.click(trigger()!);
+    expect(screen.getByTestId("open").textContent).toBe("true");
+  });
+});

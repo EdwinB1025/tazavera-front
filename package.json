@@ -12,7 +12,13 @@
     "test:run": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "cmdk": "1.1.1",
+    "leaflet": "1.9.4",
+    "lucide-react": "^1.49.0",
     "next": "16.3.6",
+    "next-intl": "^4.14.9",
+    "oauth4webapi": "3.8.x",
+    "radix-ui": "^1.6.7",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
@@ -20,6 +26,7 @@
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/react": "^16.3.3",
+    "@types/leaflet": "1.9.22",
     "@types/node": "^24.19.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
