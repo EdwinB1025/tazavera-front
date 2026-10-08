@@ -276,7 +276,7 @@ The Evaluate action of an offering card SHALL be an action button that renders o
 
 ### Requirement: Management sidebar entry
 
-On the evaluation routes the management sidebar SHALL show the specialist area's one entry, "My evaluations", pointing at `/{locale}/manage/evaluations` and marked as the current page when the list is in view.
+On the evaluation routes the management sidebar SHALL show the specialist area's entries: "My evaluations" pointing at `/{locale}/manage/evaluations` (marked as the current page when the list is in view) followed by "Explore offerings" pointing at `/{locale}/offerings` with no query, never marked as the current page.
 
 #### Scenario: The entry on the list route
 
@@ -287,6 +287,11 @@ On the evaluation routes the management sidebar SHALL show the specialist area's
 
 - **WHEN** the specialist opens a form route with the sidebar visible
 - **THEN** the sidebar shows the "My evaluations" entry without the current-page marking
+
+#### Scenario: The explore entry
+
+- **WHEN** the specialist opens an evaluation route with the sidebar visible
+- **THEN** the sidebar shows "Explore offerings" right after "My evaluations", in the same list, pointing at `/{locale}/offerings` with no query and without the current-page marking
 
 ### Requirement: Public evaluations list
 The system SHALL show, at `/{locale}/evaluations`, a list of the closed specialist evaluations open to any visitor with or without a session, ordered newest first by default. Each row SHALL show the evaluation's `cuppingScore` with its rating word (absent when the score is null), its `closedAt` as a date in the route's locale under a "Closed on" label (absent when null), and, from the offering, the coffee name as the row heading with the coffeeshop and the roaster as captions. Every listing request SHALL carry `evaluationType=specialist` and `status=closed` regardless of the URL, and any `status` or `evaluationType` value in the URL SHALL be ignored. Each row SHALL offer an action button to its evaluation ("View") and one to its offering ("View offering"), never links, each action's accessible name being its visible text plus a visually hidden coffee name so that the names are unique and start with the visible text. A row without a coffee name (its `offeringId` is null or its offering request failed) SHALL use as hidden suffix its heading text plus its closed date. A row whose `offeringId` is null SHALL show the offering-missing message as its heading with no captions and no "View offering" action, and no offering request SHALL be made for it. The list SHALL paginate with Previous/Next controls that keep every current query key and replace only the page.

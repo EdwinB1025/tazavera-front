@@ -44,7 +44,7 @@ The shell SHALL present the header above a main area that holds the content of t
 - **THEN** the main area shows the light blue-green backdrop, and cards on it show the cream card surface; and in the dark theme the backdrop is darker than the cards on it
 
 ### Requirement: Header brand and primary navigation
-The header SHALL show the brand logotype, linking to the root of the active locale. The brand logotype and the primary navigation SHALL sit in one group on the left, and the language selector and the session control SHALL sit in one group on the right, on every viewport. On medium and larger viewports it SHALL also show the "Top rated", "Explore coffee shops" and "About us" entries, in that order; on small viewports those entries SHALL NOT be shown in the header and a navigation menu control, showing a three-lines menu icon and named from the active locale's catalog, SHALL take their place, opening a menu that lists the same entries, in the same order and with the same destinations, presented like the entries of the user menu, the entry of the current route marked as the current page. The primary navigation entries SHALL be presented as navigation items of the header, not as inline text links, and the entry of the current route SHALL be marked as the current page.
+The header SHALL show the brand logotype, linking to the root of the active locale. The brand logotype and the primary navigation SHALL sit in one group on the left, and the language selector, the theme switch and the session control SHALL sit in one group on the right, in that order, on every viewport. On medium and larger viewports it SHALL also show the "Top rated", "Explore coffee shops" and "About us" entries, in that order; on small viewports those entries SHALL NOT be shown in the header and a navigation menu control, showing a three-lines menu icon and named from the active locale's catalog, SHALL take their place, opening a menu that lists the same entries, in the same order and with the same destinations, presented like the entries of the user menu, the entry of the current route marked as the current page. The primary navigation entries SHALL be presented as navigation items of the header, not as inline text links, and the entry of the current route SHALL be marked as the current page.
 
 #### Scenario: Brand link
 - **WHEN** the user activates the brand logotype in the header
@@ -56,7 +56,7 @@ The header SHALL show the brand logotype, linking to the root of the active loca
 
 #### Scenario: Primary navigation on a small viewport
 - **WHEN** the header renders on a small viewport
-- **THEN** the "Top rated", "Explore coffee shops" and "About us" entries are not shown in the header while the brand logotype, the navigation menu control, the language selector and the session control stay visible
+- **THEN** the "Top rated", "Explore coffee shops" and "About us" entries are not shown in the header while the brand logotype, the navigation menu control, the language selector, the theme switch and the session control stay visible
 
 #### Scenario: Navigation menu on a small viewport
 - **WHEN** the user activates the navigation menu control on a small viewport
@@ -68,7 +68,7 @@ The header SHALL show the brand logotype, linking to the root of the active loca
 
 #### Scenario: Header grouping on every viewport
 - **WHEN** the header renders on any viewport
-- **THEN** the brand logotype and the primary navigation form one group on the left, the language selector and the session control form one group on the right after it, and no viewport changes that grouping
+- **THEN** the brand logotype and the primary navigation form one group on the left, the language selector, the theme switch and the session control form one group on the right after it, in that order, and no viewport changes that grouping
 
 #### Scenario: Navigation entries are navigation items
 - **WHEN** the primary navigation renders on a medium or larger viewport
@@ -87,18 +87,18 @@ The header SHALL show the brand logotype, linking to the root of the active loca
 - **THEN** that entry carries `aria-current="page"` and a bottom bar in the navigation indicator colour, takes no hover fill, and no other entry is marked
 
 ### Requirement: Signed-out header
-While the session is anonymous, the header SHALL show the language selector and a "Sign in" action, and SHALL NOT show a user menu.
+While the session is anonymous, the header SHALL show the language selector, the theme switch and a "Sign in" action, and SHALL NOT show a user menu.
 
 #### Scenario: Signed-out header renders
 - **WHEN** the session is anonymous
-- **THEN** the header shows the brand logotype, the language selector and the "Sign in" action, and shows no user menu
+- **THEN** the header shows the brand logotype, the language selector, the theme switch and the "Sign in" action, and shows no user menu
 
 #### Scenario: Sign in starts from the current route
 - **WHEN** the user activates "Sign in"
 - **THEN** signing in starts for the route the user is on
 
 ### Requirement: Signed-in header and user menu
-While the session is authenticated, the header SHALL show the brand logotype, the language selector and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The control SHALL show an initials circle and, on a medium or larger viewport, the user's name and a chevron after the circle; below that viewport it SHALL show the circle alone. The menu SHALL offer one account entry pointing at the account page, the security entry as an external link to the API's security page, a theme selector, the management entry for the user's role, and sign out.
+While the session is authenticated, the header SHALL show the brand logotype, the language selector, the theme switch and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The control SHALL show an initials circle and, on a medium or larger viewport, the user's name and a chevron after the circle; below that viewport it SHALL show the circle alone. The menu SHALL offer one account entry pointing at the account page, the security entry as an external link to the API's security page, the management entry for the user's role, for a specialist the offerings entry, and sign out.
 
 #### Scenario: User control carries the user's initials
 - **WHEN** the session is authenticated
@@ -126,7 +126,7 @@ While the session is authenticated, the header SHALL show the brand logotype, th
 
 #### Scenario: Menu content
 - **WHEN** the user opens the user menu
-- **THEN** it offers the account entry, the external security entry, the management entry for the user's role and the sign out action
+- **THEN** it offers the account entry, the external security entry, the management entry for the user's role and, for a specialist, the offerings entry, and the sign out action
 
 #### Scenario: The account entry points at the account page
 - **WHEN** the user opens the user menu
@@ -138,7 +138,7 @@ While the session is authenticated, the header SHALL show the brand logotype, th
 
 #### Scenario: Management entry for a specialist
 - **WHEN** the authenticated user's `data.role` from `GET /user` is `specialist`
-- **THEN** the menu offers "Manage evaluations", pointing at the management area for evaluations
+- **THEN** the menu offers "Manage evaluations", pointing at the management area for evaluations, followed by "Explore offerings", pointing at `/{locale}/offerings` with no query
 
 #### Scenario: No management entry for the role
 - **WHEN** the authenticated user's `data.role` is neither `coffeeshop` nor `specialist`
@@ -189,29 +189,6 @@ The header SHALL offer a language selector that opens a menu listing exactly the
 #### Scenario: Current language is marked
 - **WHEN** the menu renders with the current language among the choices
 - **THEN** the current language's entry is marked as the list's single choice and no other entry is marked
-
-### Requirement: Theme selection
-The menu SHALL offer a theme selector that switches the application between its themes and keeps the choice in the browser, so it needs no sign in and survives a reload. The selector SHALL carry an accessible name.
-
-#### Scenario: Choosing a theme
-- **WHEN** the user chooses a theme
-- **THEN** the whole interface renders in that theme and the choice is kept in the browser
-
-#### Scenario: The choice survives a reload
-- **WHEN** the application loads again after the user chose a theme
-- **THEN** it opens in the chosen theme
-
-#### Scenario: No theme chosen yet
-- **WHEN** the user has chosen no theme
-- **THEN** the application opens in the traditional theme
-
-#### Scenario: Unusable stored choice
-- **WHEN** the stored preference is missing, unreadable or names a theme the application does not offer
-- **THEN** the application opens in the traditional theme instead of failing
-
-#### Scenario: Selector is named
-- **WHEN** assistive technology reaches the theme selector
-- **THEN** its accessible name identifies what it selects
 
 ### Requirement: Brand logotype presentation
 The brand logotype SHALL render in three forms: the drawing alone, the drawing with its wordmark to the right, and the drawing with its wordmark below. Each form SHALL link to the root of the active locale, and the browser icon SHALL show the same drawing.
@@ -366,33 +343,6 @@ The controls that open the header menus — the user control and the language se
 - **WHEN** a header menu trigger receives keyboard focus
 - **THEN** a focus ring with its offset renders around it from the focus tokens of the active theme
 
-### Requirement: Header menu presentation
-The menus opened from the header SHALL extend the header surface: their panel SHALL take `nav-surface` with `nav-text` text, the hover of an entry SHALL take `nav-hover` with `nav-text-hover`, and the panel corner radius SHALL come from `radius-field`. The entry carrying the current choice SHALL be marked with an indicator that follows the entry's text colour. The theme selector inside the user menu SHALL render in the same treatment as the menu around it.
-
-#### Scenario: Menu surface extends the header
-- **WHEN** a header menu opens
-- **THEN** its panel surface and text resolve to `nav-surface` and `nav-text` instead of the card-surface treatment other panels use
-
-#### Scenario: Entry hover
-- **WHEN** the pointer or the keyboard focus reaches an entry of a header menu
-- **THEN** the entry renders `nav-hover` with `nav-text-hover`
-
-#### Scenario: Destructive entry keeps its error colour
-- **WHEN** an entry in the destructive variant renders in a header menu, at rest, hovered or focused
-- **THEN** its text takes `nav-text-destructive` in all three states and never the entry hover text colour
-
-#### Scenario: Menu panel corner radius
-- **WHEN** a header menu opens in either theme
-- **THEN** its panel corner radius comes from `radius-field`, while the panels of menus outside the header keep the container radius
-
-#### Scenario: Current choice is marked with an indicator
-- **WHEN** the language menu renders with the current language among the choices
-- **THEN** the current entry carries an indicator that takes the entry's text colour — `nav-text`, or `nav-text-hover` while the entry is hovered
-
-#### Scenario: Theme selector inside the menu
-- **WHEN** the user menu renders its theme selector
-- **THEN** the selector renders in the menu's own treatment and shows no panel-coloured block inside the menu
-
 ### Requirement: Cross-Origin-Opener-Policy
 Every document response of the application except the callback route SHALL carry `Cross-Origin-Opener-Policy: same-origin-allow-popups`, so the application's pages stay isolated while a popup window keeps its opener.
 
@@ -509,3 +459,57 @@ The lint run SHALL report, as warnings and never as errors, every production uni
 #### Scenario: Code within the rules
 - **WHEN** a production file stays within the limits and imports sibling files directly
 - **THEN** the lint run reports no code-structure warning for it
+
+### Requirement: Theme switch
+The header SHALL offer, to every visitor and on every viewport, a theme switch next to the language selector: an icon button with no visible text that switches the application between the traditional and the dark theme and keeps the choice in the browser, so it needs no sign in and survives a reload. Its accessible name SHALL state the current theme and the theme it switches to, in the active locale.
+
+#### Scenario: Switching the theme
+- **WHEN** the user activates the theme switch
+- **THEN** the whole interface renders in the other theme and the choice is kept in the browser
+
+#### Scenario: The choice survives a reload
+- **WHEN** the application loads again after the user chose a theme
+- **THEN** it opens in the chosen theme
+
+#### Scenario: No theme chosen yet
+- **WHEN** the user has chosen no theme
+- **THEN** the application opens in the traditional theme
+
+#### Scenario: Unusable stored choice
+- **WHEN** the stored preference is missing, unreadable or names a theme the application does not offer
+- **THEN** the application opens in the traditional theme instead of failing
+
+#### Scenario: Switch is named
+- **WHEN** assistive technology reaches the theme switch
+- **THEN** its accessible name states the current theme and the theme it switches to, in the active locale, and the name changes when the theme changes
+
+#### Scenario: Switch icon
+- **WHEN** the theme switch renders
+- **THEN** it shows a sun in the traditional theme and a moon in the dark theme, and no visible text
+
+#### Scenario: Switch presentation
+- **WHEN** the theme switch renders
+- **THEN** it shows no fill and no border at rest, its icon takes `nav-text` and `nav-text-hover` on hover, and it carries the shared visible focus ring on keyboard focus
+
+### Requirement: Header menu surface
+The menus opened from the header SHALL extend the header surface: their panel SHALL take `nav-surface` with `nav-text` text, the hover of an entry SHALL take `nav-hover` with `nav-text-hover`, and the panel corner radius SHALL come from `radius-field`. The entry carrying the current choice SHALL be marked with an indicator that follows the entry's text colour.
+
+#### Scenario: Menu surface extends the header
+- **WHEN** a header menu opens
+- **THEN** its panel surface and text resolve to `nav-surface` and `nav-text` instead of the card-surface treatment other panels use
+
+#### Scenario: Entry hover
+- **WHEN** the pointer or the keyboard focus reaches an entry of a header menu
+- **THEN** the entry renders `nav-hover` with `nav-text-hover`
+
+#### Scenario: Destructive entry keeps its error colour
+- **WHEN** an entry in the destructive variant renders in a header menu, at rest, hovered or focused
+- **THEN** its text takes `nav-text-destructive` in all three states and never the entry hover text colour
+
+#### Scenario: Menu panel corner radius
+- **WHEN** a header menu opens in either theme
+- **THEN** its panel corner radius comes from `radius-field`, while the panels of menus outside the header keep the container radius
+
+#### Scenario: Current choice is marked with an indicator
+- **WHEN** the language menu renders with the current language among the choices
+- **THEN** the current entry carries an indicator that takes the entry's text colour — `nav-text`, or `nav-text-hover` while the entry is hovered
