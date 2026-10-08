@@ -11,7 +11,7 @@
 
 ## 3. Bean mark background (R55, form-fields)
 
-- [ ] 3.1 In `src/shared/ui/BeanScale.test.tsx` add the case for scenario "The mark's background stays inside the bean": each bean's `svg rect` has `x="4.05" y="4.35" width="15.6" height="15.6" rx="7.8"` and `transform` `translate(12 12) scale(1.33) translate(-12 -12)`, and precedes the path; in both matrices of `src/app/styles/theme-tokens.test.ts` register, kind `icon`, `evaluation-bean-on`/`surface-card`, `evaluation-bean-on`/`surface-form`, `evaluation-bean-mark-off`/`surface-card`, `evaluation-bean-mark-off`/`surface-form` (design.md D3) — verifying the new bean case fails on the current full-viewBox disc, the contrast pairs pass, and every existing case passes
+- [x] 3.1 In `src/shared/ui/BeanScale.test.tsx` add the case for scenario "The mark's background stays inside the bean": each bean's `svg rect` has `x="4.05" y="4.35" width="15.6" height="15.6" rx="7.8"` and `transform` `translate(12 12) scale(1.33) translate(-12 -12)`, and precedes the path; in both matrices of `src/app/styles/theme-tokens.test.ts` register, kind `icon`, `evaluation-bean-on`/`surface-card`, `evaluation-bean-on`/`surface-form`, `evaluation-bean-mark-off`/`surface-card`, `evaluation-bean-mark-off`/`surface-form` (design.md D3) — verifying the new bean case fails on the current full-viewBox disc, the contrast pairs pass, and every existing case passes
 - [ ] 3.2 In `src/shared/ui/icons.ts` draw the `BeanMark` background as design.md D2 states and update its comments — verifying the new case and every existing `BeanScale.test.tsx` case pass (the read-only partial bean included), and lint and typecheck exit 0
 
 ## 4. Integration verification
