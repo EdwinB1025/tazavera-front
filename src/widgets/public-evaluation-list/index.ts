@@ -4,10 +4,8 @@
  */
 export { PublicEvaluationList } from "./ui/PublicEvaluationList";
 export type { PublicEvaluationListProps } from "./ui/PublicEvaluationList";
-export { EvaluationListPresentation, EvaluationListSkeleton } from "./ui/EvaluationListPresentation";
+export { EvaluationListSkeleton } from "./ui/EvaluationListPresentation";
 export type {
-  EvaluationListPresentationProps,
-  EvaluationListResult,
   EvaluationListTexts,
   PublicEvaluationRow,
 } from "./ui/EvaluationListPresentation";

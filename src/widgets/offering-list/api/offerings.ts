@@ -54,18 +54,3 @@ export async function fetchOfferings(
 
 /** Offerings per landing page (refine-list-pagination design.md D8). */
 export const LANDING_PAGE_SIZE = 6;
-
-/**
- * One page of verified offerings:
- * `GET /offerings?verified=1&page={page}&perPage=6` (refine-list-pagination
- * design.md D8).
- */
-export async function fetchVerifiedOfferings(
-  page: number,
-): Promise<ApiResult<VerifiedOfferingsPayload>> {
-  return fetchOfferings({
-    verified: "1",
-    page: String(page),
-    perPage: String(LANDING_PAGE_SIZE),
-  });
-}

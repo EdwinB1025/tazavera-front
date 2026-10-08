@@ -7,18 +7,9 @@
  */
 export { VerifiedOfferings } from "./ui/VerifiedOfferings";
 export type { VerifiedOfferingsProps } from "./ui/VerifiedOfferings";
-export { Offerings } from "./ui/Offerings";
-export type { OfferingsProps } from "./ui/Offerings";
-export { OfferingList } from "./ui/OfferingList";
-export type {
-  OfferingListItem,
-  OfferingListProps,
-  OfferingListResult,
-  OfferingListTexts,
-} from "./ui/OfferingList";
+export type { OfferingListTexts } from "./ui/OfferingList";
 export { OfferingSkeletonCard } from "./ui/OfferingSkeletonCard";
-export { CATALOG_GRID_CLASSES, OFFERING_GRID_CLASSES } from "./lib/grid";
-export { buildOfferingsQuery } from "./lib/query";
+export { OFFERING_GRID_CLASSES } from "./lib/grid";
 export type { OfferingsQuery } from "./lib/query";
 export { FilteredOfferingsResults } from "./ui/FilteredOfferingsResults";
 export type {

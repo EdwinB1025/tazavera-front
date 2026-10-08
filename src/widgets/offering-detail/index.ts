@@ -6,11 +6,5 @@
  */
 export { OfferingDetail } from "./ui/OfferingDetail";
 export type { OfferingDetailProps } from "./ui/OfferingDetail";
-export { OfferingDetailContent } from "./ui/OfferingDetailContent";
-export type {
-  OfferingDetailContentProps,
-  OfferingDetailResult,
-  OfferingDetailTexts,
-} from "./ui/OfferingDetailContent";
+export type { OfferingDetailTexts } from "./ui/OfferingDetailContent";
 export { toDetailTab } from "./lib/tab";
-export type { DetailTab } from "./lib/tab";
