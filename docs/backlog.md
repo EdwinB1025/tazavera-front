@@ -134,3 +134,28 @@ One section per candidate, in this format:
 - **Open decision (Augusto):** none
 - **Status:** proposed
 - **Affects:** none
+
+## R18 — A `notFound()` inside a streamed boundary answers HTTP 200 (add-public-evaluations verify W3)
+
+- **Duplicated:** the same pattern on every route that decides "not found" after the response starts streaming:
+  - opening an evaluation that is not closed (`EvaluationSheetView.tsx:122`, inside the `Suspense` of `ViewScreen.tsx:35`);
+  - role-gated management routes (`SessionGate`);
+  - an unknown evaluation in the specialist area.
+- **Where today:** `src/widgets/evaluation-sheet`, `src/pages/public-evaluation`, `src/shared/ui/SessionGate.tsx`
+- **Why it pays off now:** the page shows the 404 correctly, but the HTTP status stays 200 and there is no `noindex`, so crawlers and monitoring see a success
+- **Owning capability:** app-shell (with evaluations)
+- **Proposed change:** none yet. Decide "not found" before the streaming boundary on server-loaded routes; client-gated routes cannot change the status.
+- **Open decision (Augusto):** whether the HTTP status matters for this delivery
+- **Status:** proposed
+- **Affects:** add-not-found-page (the page itself is correct)
+
+## R19 — The provisional evaluation loads on every offering-detail request (add-public-evaluations verify W4)
+
+- **Duplicated:** none. The baseline wrapper is a server element passed as a slot (`OfferingDetailScreen.tsx:154-155,188`), so its baseline and taxonomy requests run on every render, whatever the tab, even when the offering is not found.
+- **Where today:** `src/pages/offering-detail/ui/OfferingDetailScreen.tsx`, `src/widgets/evaluation-sheet/ui/EvaluationSheetBaseline.tsx`
+- **Why it pays off now:** two extra API requests per detail view
+- **Owning capability:** offering-catalog
+- **Proposed change:** none yet. Load the panel only for `?tab=provisional` (design D9 would change).
+- **Open decision (Augusto):** whether to change D9
+- **Status:** proposed
+- **Affects:** none
