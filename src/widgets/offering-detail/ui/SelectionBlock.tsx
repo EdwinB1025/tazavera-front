@@ -1,9 +1,7 @@
 import type { ReactNode } from "react";
 import type { OfferingDetail, TaxonomyNode } from "@/shared/api";
-import { buildDescriptorRows } from "@/entities/taxonomy";
-import { Card, CardContent, DescriptorChipGroup } from "@/shared/ui";
-import { identifiedCounts } from "../lib/identified-counts";
-import { ConsensusLegend } from "./ConsensusLegend";
+import { buildConsensusNoteTree, buildTaxonomyLookup } from "@/entities/taxonomy";
+import { Card, CardContent, TaxonomyTree } from "@/shared/ui";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -24,24 +22,14 @@ export type SelectionBlockProps = {
 
 // ─── Fixed pieces (no interface text) ───
 
-// Each card: the heading and its content, 1rem apart.
+// Each card: the heading and its content, 1rem apart; it spans both grid
+// columns (nest-consensus-notes D4).
 const CONTENT_CLASSES = ["flex", "flex-col", "gap-4"].join(" ");
 
-// A selection block: the card and its consensus legend beside it from `md`,
-// 1.5rem apart, stacking 1rem apart below `md`; it spans both grid columns.
-const SELECTION_BLOCK_CLASSES = [
-  "flex",
-  "flex-col",
-  "gap-4",
-  "md:flex-row",
-  "md:gap-6",
-  "lg:col-span-2",
-].join(" ");
-
 /**
- * Main tastes or Defects (design.md D13): the identified notes of one
- * `type` as a read-only selection over the category's descriptor rows, and
- * the consensus legend beside the card, in card order.
+ * Main tastes or Defects (design.md D13; nest-consensus-notes D3, D4): the
+ * concordance's notes of one `type` as their resolved tree, each note's
+ * `name n/total` share inline after its badge, or the empty text.
  */
 export function SelectionBlock({
   offering,
@@ -51,27 +39,20 @@ export function SelectionBlock({
   heading,
   texts,
 }: SelectionBlockProps): ReactNode {
-  const rows = buildDescriptorRows(taxonomies, category, locale);
-  const counts = identifiedCounts(offering.cataConcordance ?? [], category);
+  const notes = buildConsensusNoteTree(
+    (offering.cataConcordance ?? []).filter((node) => node.type === category),
+    buildTaxonomyLookup(taxonomies, locale),
+  );
   return (
-    <div className={SELECTION_BLOCK_CLASSES}>
-      <Card layout="stacked" className="flex-1">
-        <CardContent className={CONTENT_CLASSES}>
-          <h2 className="type-subheading">{heading}</h2>
-          <DescriptorChipGroup
-            readOnly
-            legend={heading}
-            rows={rows}
-            value={[...counts.keys()]}
-            emptyText={texts.detailTasteEmpty}
-          />
-        </CardContent>
-      </Card>
-      <ConsensusLegend
-        rows={rows}
-        counts={counts}
-        total={offering.evaluationCount ?? 0}
-      />
-    </div>
+    <Card layout="stacked" className="lg:col-span-2">
+      <CardContent className={CONTENT_CLASSES}>
+        <h2 className="type-subheading">{heading}</h2>
+        {notes.length > 0 ? (
+          <TaxonomyTree notes={notes} total={offering.evaluationCount ?? 0} />
+        ) : (
+          <p className="type-body">{texts.detailTasteEmpty}</p>
+        )}
+      </CardContent>
+    </Card>
   );
 }

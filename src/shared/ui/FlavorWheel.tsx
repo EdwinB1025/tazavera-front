@@ -44,17 +44,12 @@ export type FlavorWheelProps = {
   groups?: FlavorWheelGroup[];
 };
 
-// ─── Treatment classes (design.md D8; design-summary §6) ───
+// ─── Treatment classes (stack-flavor-wheel-layout D1) ───
+// Stacked on every width: the wheel, the group legend when groups are set
+// apart, the description panel, then the note list.
 
-const LAYOUT_CLASSES =
-  "flex flex-col gap-6 @2xl:grid @2xl:grid-cols-[minmax(0,32rem)_minmax(16rem,1fr)] @2xl:grid-rows-[auto_1fr] @2xl:gap-x-8 @2xl:gap-y-6";
-const WHEEL_CLASSES =
-  "mx-auto aspect-square w-full max-w-128 @2xl:row-span-2 @2xl:mx-0 @2xl:self-start";
-// With the general group legend, the side column grows one row (D19).
-const GROUPED_LAYOUT_CLASSES =
-  "flex flex-col gap-6 @2xl:grid @2xl:grid-cols-[minmax(0,32rem)_minmax(16rem,1fr)] @2xl:grid-rows-[auto_auto_1fr] @2xl:gap-x-8 @2xl:gap-y-6";
-const GROUPED_WHEEL_CLASSES =
-  "mx-auto aspect-square w-full max-w-128 @2xl:row-span-3 @2xl:mx-0 @2xl:self-start";
+const LAYOUT_CLASSES = "flex flex-col gap-6";
+const WHEEL_CLASSES = "mx-auto aspect-square w-full max-w-128";
 const GROUP_LEGEND_CLASSES = "flex flex-wrap gap-x-4 gap-y-1";
 
 /**
@@ -81,9 +76,9 @@ export function FlavorWheel({
     givenNodes,
     groups,
   );
+  // The wheel draws every level; expansion only changes the note list (D2).
   const { segments, groupArcs } = layoutWheel(
     nodes,
-    expanded,
     grouped ? groupOrder : undefined,
   );
   const groupName = (id: string): string =>
@@ -103,10 +98,10 @@ export function FlavorWheel({
   };
 
   return (
-    <figure className="@container">
+    <figure>
       <figcaption className="sr-only">{texts.label}</figcaption>
-      <div className={grouped ? GROUPED_LAYOUT_CLASSES : LAYOUT_CLASSES}>
-        <div className={grouped ? GROUPED_WHEEL_CLASSES : WHEEL_CLASSES}>
+      <div className={LAYOUT_CLASSES}>
+        <div className={WHEEL_CLASSES}>
           <FlavorWheelChart
             segments={segments}
             groupArcs={groupArcs}

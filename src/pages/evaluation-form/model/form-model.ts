@@ -1,4 +1,4 @@
-import type { EvaluationItem, OfferingDetail } from "@/shared/api";
+import type { EvaluationItem, OfferingDetail, TaxonomyNode } from "@/shared/api";
 import {
   EVALUATION_GROUPS,
   emptyFormState,
@@ -57,6 +57,7 @@ function allGroups(open: boolean): Record<GroupKey, boolean> {
 export function initialFormModel(
   offering: OfferingDetail | null,
   evaluation: EvaluationItem | undefined,
+  taxonomies: TaxonomyNode[],
 ): FormModel {
   // The read carries no roast level: the offering's prefills it (design.md D11).
   const roastLevel = toRoastLevel(offering?.coffeeInventory?.coffee?.roastLevel);
@@ -64,8 +65,10 @@ export function initialFormModel(
   // it opens read-only, as a closed one (design.md D17).
   const closed = evaluation?.status === "closed" || offering === null;
   return {
+    // An editable draft also chooses the ancestors of its chosen descriptors;
+    // a closed one shows what was saved (cascade-evaluation-descriptors D7).
     values: evaluation
-      ? formStateFromEvaluation(evaluation, roastLevel)
+      ? formStateFromEvaluation(evaluation, roastLevel, closed ? [] : taxonomies)
       : emptyFormState(roastLevel),
     ulid: evaluation?.ulid ?? null,
     busy: null,

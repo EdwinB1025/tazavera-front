@@ -3,7 +3,7 @@ import { ringRadii, layoutWheel, fitLabel, type WheelGeometryNode } from "./flav
 
 /**
  * Flavor wheel geometry tests (design.md D5; design-summary §4.2, §10). Pure
- * functions with no React: ring radii by the deepest expanded level,
+ * functions with no React: ring radii by the deepest level of the notes,
  * proportional spans from 12 o'clock clockwise, arc path data, label
  * orientation and the estimated label fit (`characters × 0.6 × font size`).
  * Angles are in degrees, 0 at 12 o'clock, growing clockwise.
@@ -17,13 +17,10 @@ function node(
   return { id, count, children };
 }
 
-const NONE = new Set<string>();
-
 describe("layoutWheel", () => {
   it("spans roots proportionally to count, from 12 o'clock clockwise, summing to 360°", () => {
     const { segments } = layoutWheel(
       [node("a", 1), node("b", 2), node("c", 1)],
-      NONE,
     );
     expect(
       segments.map(({ node: n, ring, start, end }) => ({
@@ -39,19 +36,18 @@ describe("layoutWheel", () => {
     ]);
   });
 
-  describe("sizes rings by the deepest expanded level", () => {
+  describe("sizes rings by the deepest level of the notes", () => {
     const tree = [node("a", 2, [node("a1", 2, [node("a11", 1)])])];
-    const bounds = (expanded: ReadonlySet<string>) =>
-      layoutWheel(tree, expanded).segments.map(({ node: n, inner, outer }) => ({
+    const bounds = () =>
+      layoutWheel(tree).segments.map(({ node: n, inner, outer }) => ({
         id: n.id,
         inner,
         outer,
       }));
 
-    it("splits three rings with a level-1 note expanded", () => {
-      const expanded = new Set(["a", "a1"]);
-      expect(layoutWheel(tree, expanded).radii).toEqual(ringRadii(2));
-      expect(bounds(expanded)).toEqual([
+    it("splits three rings for notes reaching level 2", () => {
+      expect(layoutWheel(tree).radii).toEqual(ringRadii(2));
+      expect(bounds()).toEqual([
         { id: "a", inner: 80, outer: 120 },
         { id: "a1", inner: 120, outer: 160 },
         { id: "a11", inner: 160, outer: 200 },
@@ -64,7 +60,7 @@ describe("layoutWheel", () => {
       node("a", 4, [node("a1", 3), node("a2", 1)]),
       node("b", 4, [node("b1", 1)]),
     ];
-    const { segments } = layoutWheel(tree, new Set(["a"]));
+    const { segments } = layoutWheel(tree);
     expect(
       segments.map(({ node: n, ring, start, end, inner, outer }) => ({
         id: n.id,
@@ -79,11 +75,12 @@ describe("layoutWheel", () => {
       { id: "a1", ring: 1, start: 0, end: 135, inner: 140, outer: 200 },
       { id: "a2", ring: 1, start: 135, end: 180, inner: 140, outer: 200 },
       { id: "b", ring: 0, start: 180, end: 360, inner: 80, outer: 140 },
+      { id: "b1", ring: 1, start: 180, end: 360, inner: 140, outer: 200 },
     ]);
   });
 
   it("spans a single note over the full circle", () => {
-    const { segments } = layoutWheel([node("a", 3)], NONE);
+    const { segments } = layoutWheel([node("a", 3)]);
     expect(segments).toHaveLength(1);
     expect(segments[0]).toMatchObject({ start: 0, end: 360 });
   });
@@ -132,7 +129,6 @@ describe("layoutWheel — groups (add-offering-catalog design.md D19)", () => {
         grouped("fruity", 3, "aromatics"),
         grouped("floral", 1, "aromatics"),
       ],
-      NONE,
       ["aromatics", "mouthfeel"],
     );
     const spans = segments.map(({ node: n, start, end }) => ({
@@ -154,8 +150,8 @@ describe("layoutWheel — groups (add-offering-catalog design.md D19)", () => {
 
   it("lays out exactly as without groups when the roots hold one group only", () => {
     const roots = [grouped("a", 1, "aromatics"), grouped("b", 3, "aromatics")];
-    const withGroups = layoutWheel(roots, NONE, ["aromatics", "mouthfeel"]);
-    expect(withGroups.segments).toEqual(layoutWheel(roots, NONE).segments);
+    const withGroups = layoutWheel(roots, ["aromatics", "mouthfeel"]);
+    expect(withGroups.segments).toEqual(layoutWheel(roots).segments);
     expect(withGroups.groupArcs).toEqual([]);
   });
 });

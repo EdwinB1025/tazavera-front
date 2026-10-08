@@ -403,20 +403,28 @@ describe("ConsensusPanel — Main tastes and Defects (spec: Consensus Defects an
     );
   }
 
-  function legendBeside(card: Element): string[] {
-    const block = card.parentElement!;
-    return Array.from(block.querySelectorAll(".type-meta"))
-      .filter((line) => !card.contains(line))
-      .map((line) => line.textContent ?? "");
+  function sharesIn(element: Element): string[] {
+    return Array.from(element.querySelectorAll(".type-meta")).map(
+      (line) => line.textContent ?? "",
+    );
   }
 
-  it("renders the identified main tastes as taxonomy badges with the group's name as the selection legend (spec: Identified notes)", () => {
+  function badgeItem(element: Element, name: string): Element {
+    const badge = Array.from(element.querySelectorAll("[data-taxonomy]")).find(
+      (candidate) => candidate.textContent === name,
+    )!;
+    return badge.closest("li")!;
+  }
+
+  it("renders the identified notes as taxonomy badges nested as the concordance's tree, each share inline (spec: Identified notes)", () => {
     renderPanel(IDENTIFIED);
     const card = cardOf(TEXTS.detailMainTastesHeading);
     expect(badgesIn(card)).toEqual(["Dulce", "Ácido"]);
-    expect(card.querySelector("fieldset legend")!.textContent).toBe(
-      TEXTS.detailMainTastesHeading,
-    );
+    const defects = cardOf(TEXTS.detailDefectsHeading);
+    expect(badgeItem(defects, "Fermentado").contains(badgeItem(defects, "Vinagre"))).toBe(true);
+    const sweet = Array.from(card.querySelectorAll("[data-taxonomy]"))[0]!;
+    expect(sweet.nextElementSibling!.className).toBe("type-meta");
+    expect(sweet.nextElementSibling!.textContent).toBe("Dulce 4/5");
   });
 
   it("renders no badge for an unresolved reference and keeps the rest (spec: Unresolved reference)", () => {
@@ -424,23 +432,16 @@ describe("ConsensusPanel — Main tastes and Defects (spec: Consensus Defects an
     expect(badgesIn(cardOf(TEXTS.detailMainTastesHeading))).toHaveLength(2);
   });
 
-  it("renders each card's consensus legend beside it: one type-meta line per note, {name} {count}/{total}, in card order", () => {
-    renderPanel(IDENTIFIED);
+  it("shows each note's share inline in its card, with no legend column", () => {
+    const { container } = renderPanel(IDENTIFIED);
     const tastes = cardOf(TEXTS.detailMainTastesHeading);
-    expect(legendBeside(tastes)).toEqual(["Dulce 4/5", "Ácido 2/5"]);
-    expect(legendBeside(cardOf(TEXTS.detailDefectsHeading))).toEqual([
+    expect(sharesIn(tastes)).toEqual(["Dulce 4/5", "Ácido 2/5"]);
+    expect(sharesIn(cardOf(TEXTS.detailDefectsHeading))).toEqual([
+      "Fermentado 1/5",
       "Vinagre 1/5",
     ]);
-    const block = tastes.parentElement!;
-    expect(classTokens(block)).toEqual(
-      expect.arrayContaining([
-        "flex",
-        "flex-col",
-        "md:flex-row",
-        "lg:col-span-2",
-      ]),
-    );
-    expect(classTokens(tastes)).toContain("flex-1");
+    expect(container.querySelector('[class~="md:w-56"]')).toBeNull();
+    expect(classTokens(tastes)).toContain("lg:col-span-2");
   });
 
   it("shows the empty text and no legend for a group with no identified note (spec: Empty group)", () => {
@@ -453,7 +454,7 @@ describe("ConsensusPanel — Main tastes and Defects (spec: Consensus Defects an
     const card = cardOf(TEXTS.detailDefectsHeading);
     expect(card.textContent).toContain(TEXTS.detailTasteEmpty);
     expect(badgesIn(card)).toEqual([]);
-    expect(legendBeside(card)).toEqual([]);
+    expect(sharesIn(card)).toEqual([]);
   });
 });
 
@@ -704,8 +705,17 @@ describe("ConsensusPanel — detail by axis (spec: Consensus detail by axis; des
     );
   }
 
-  function legendIn(body: Element): Element | null {
-    return body.querySelector('[class~="md:w-56"]');
+  function sharesIn(body: Element): string[] {
+    return Array.from(body.querySelectorAll(".type-meta")).map(
+      (line) => line.textContent ?? "",
+    );
+  }
+
+  function badgeItem(body: Element, name: string): Element {
+    const badge = Array.from(body.querySelectorAll("[data-taxonomy]")).find(
+      (candidate) => candidate.textContent === name,
+    )!;
+    return badge.closest("li")!;
   }
 
   /** The panel-grid item holding the detail by axis. */
@@ -747,24 +757,15 @@ describe("ConsensusPanel — detail by axis (spec: Consensus detail by axis; des
     }
   });
 
-  it("shows the fragrance notes as a read-only selection over the aromatics rows, with the legend beside it (spec: Identified notes of an axis)", () => {
+  it("shows the fragrance notes as the axis's tree, each share inline (spec: Identified notes of an axis)", () => {
     renderAxes();
     const body = open("attrFragrance");
     expect(header("attrFragrance").getAttribute("aria-expanded")).toBe("true");
-    expect(badgesIn(body)).toEqual(["Jazmín"]);
-    expect(body.textContent).toContain("Floral");
-    expect(body.querySelector("fieldset legend")!.textContent).toBe(
-      TEXTS.attrFragrance,
-    );
-    const legend = legendIn(body)!;
-    expect(classTokens(legend)).toEqual(
-      expect.arrayContaining(["md:w-56", "md:shrink-0"]),
-    );
-    expect(
-      Array.from(legend.querySelectorAll(".type-meta")).map(
-        (line) => line.textContent,
-      ),
-    ).toEqual(["Jazmín 2/5"]);
+    expect(badgesIn(body)).toEqual(["Floral", "Jazmín"]);
+    expect(badgeItem(body, "Floral").contains(badgeItem(body, "Jazmín"))).toBe(true);
+    expect(sharesIn(body)).toEqual(["Floral 3/5", "Jazmín 2/5"]);
+    expect(body.textContent).not.toContain("Suave");
+    expect(body.querySelector('[class~="md:w-56"]')).toBeNull();
   });
 
   it("shows the empty text and no legend for an axis with no identified note (spec: Empty axis)", () => {
@@ -772,6 +773,6 @@ describe("ConsensusPanel — detail by axis (spec: Consensus detail by axis; des
     const body = open("attrAroma");
     expect(body.textContent).toContain(TEXTS.detailTasteEmpty);
     expect(badgesIn(body)).toEqual([]);
-    expect(legendIn(body)).toBeNull();
+    expect(sharesIn(body)).toEqual([]);
   });
 });

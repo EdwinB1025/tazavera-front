@@ -9,7 +9,9 @@ import type { TaxonomyLookup } from "./lookup";
  * The tree keeps the shape the API delivers; nothing is re-attached under a
  * taxonomy parent. Each reference renders once, at its first occurrence, with
  * the children of every occurrence under it; a reference the lookup does not
- * find renders no node and its resolved children take its place.
+ * find renders no node and its resolved children take its place. The
+ * consensus variant applies the same rules to any node list and keeps each
+ * node's `count` (nest-consensus-notes D2).
  */
 
 // ─── Types (declared before the functions) ───
@@ -20,6 +22,12 @@ export type TasteNoteNode = {
   color: string;
   level: 0 | 1 | 2;
   children: TasteNoteNode[];
+};
+
+/** A consensus note: a taste note with the evaluations that identified it. */
+export type ConsensusNoteNode = Omit<TasteNoteNode, "children"> & {
+  count: number;
+  children: ConsensusNoteNode[];
 };
 
 // The contract declares `level` as a number and the tree as 0–2.
@@ -41,18 +49,17 @@ function childrenByRef(
   return merged;
 }
 
-/** The card's taste note tree of an offering's consensus (D1). */
-export function buildTasteNoteTree(
-  offering: OfferingSummary,
+/** The consensus notes of a node list, with their counts (nest-consensus-notes D2). */
+export function buildConsensusNoteTree(
+  nodes: OfferingTaxonomyNode[],
   lookup: TaxonomyLookup,
-): TasteNoteNode[] {
-  const concordance = offering.cataConcordance ?? [];
-  const merged = childrenByRef(concordance, new Map());
+): ConsensusNoteNode[] {
+  const merged = childrenByRef(nodes, new Map());
   const seen = new Set<string>();
 
-  function build(nodes: OfferingTaxonomyNode[]): TasteNoteNode[] {
-    const result: TasteNoteNode[] = [];
-    for (const node of nodes) {
+  function build(level: OfferingTaxonomyNode[]): ConsensusNoteNode[] {
+    const result: ConsensusNoteNode[] = [];
+    for (const node of level) {
       const ref = node.ref ?? "";
       const entry = lookup.get(ref);
       if (entry === undefined) {
@@ -64,6 +71,7 @@ export function buildTasteNoteTree(
           label: entry.label,
           color: entry.color,
           level: noteLevel(node.level),
+          count: node.count ?? 0,
           children: build(merged.get(ref) ?? []),
         });
       }
@@ -71,5 +79,23 @@ export function buildTasteNoteTree(
     return result;
   }
 
-  return build(concordance);
+  return build(nodes);
+}
+
+function withoutCounts(nodes: ConsensusNoteNode[]): TasteNoteNode[] {
+  return nodes.map(({ ref, label, color, level, children }) => ({
+    ref,
+    label,
+    color,
+    level,
+    children: withoutCounts(children),
+  }));
+}
+
+/** The card's taste note tree of an offering's consensus (D1). */
+export function buildTasteNoteTree(
+  offering: OfferingSummary,
+  lookup: TaxonomyLookup,
+): TasteNoteNode[] {
+  return withoutCounts(buildConsensusNoteTree(offering.cataConcordance ?? [], lookup));
 }
