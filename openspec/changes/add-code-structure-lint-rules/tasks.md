@@ -6,4 +6,4 @@
 
 ## 2. Full checks
 
-- [ ] 2.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: both suites pass with the same test files and cases as on `origin/qa`, typecheck and lint report no errors, the build succeeds. Record in the commit body the warning count per new rule (`max-lines`, `max-lines-per-function`, `complexity`, `no-restricted-imports`). If a rule reports no warning on the current code, show it on a known case and name the file.
+- [x] 2.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: both suites pass with the same test files and cases as on `origin/qa`, typecheck and lint report no errors, the build succeeds. Record in the commit body the warning count per new rule (`max-lines`, `max-lines-per-function`, `complexity`, `no-restricted-imports`). If a rule reports no warning on the current code, show it on a known case and name the file.
