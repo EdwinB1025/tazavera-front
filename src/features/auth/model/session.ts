@@ -29,7 +29,7 @@ import {
   refreshTokens,
   request,
 } from "@/shared/api";
-import { DEFAULT_LOCALE, isSupportedLocale } from "@/shared/config/locales";
+import { DEFAULT_LOCALE, localeFromPath } from "@/shared/config/locales";
 import { configureSession, currentRoute, startSilent } from "../api/authorize";
 import { hasMarker, removeMarker } from "./flow";
 
@@ -99,8 +99,7 @@ export function signOut(): void {
 
 /** The root of the active locale (design.md D5: where the user lands). */
 function localeRoot(): string {
-  const segment = window.location.pathname.split("/")[1] ?? "";
-  return `/${isSupportedLocale(segment) ? segment : DEFAULT_LOCALE}`;
+  return `/${localeFromPath(window.location.pathname) ?? DEFAULT_LOCALE}`;
 }
 
 /** The session start of design.md D1, run at every consumer's mount. */
