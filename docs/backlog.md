@@ -33,7 +33,6 @@ The entries below follow this order. The order runs security first, then the sha
 | 0k | R55 | `fit-bean-mark-disc` | Correction (fast lane, maximum priority) | S | design lead on its open points |
 | 0l | R56 | `cascade-evaluation-descriptors` | Correction (fast lane, maximum priority) | M | R48 merged (shared cascade); design lead on its open points |
 | 0m | R57 | `add-form-cancel-actions` | Correction (fast lane, maximum priority) | M | design lead on its open points; Product owner on the inline account forms |
-| 0n | R58 | `add-note-plus-icon` | Correction (fast lane, maximum priority) | S | — |
 | 16c | R50 | API branch in `tazavera-api` | Change (API) | S | Product owner: verify with real data (the API should deliver the resolved tree) |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
@@ -160,14 +159,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Open decision (Augusto):** answered 2026-10-08: every create/update form offers "Cancel" next to the submit, in the actions-row order of New offering (submit, then Cancel), going to the same destination as the page's back link, sending no request. Open for the design lead: whether Cancel warns about unsaved input in the (long) evaluation form; the evaluation form's action bar with three actions; the register forms' destination (landing or previous page). Open for Product owner: the inline profile and password forms (no Cancel, or a Cancel that restores the saved values).
 - **Type:** Correction (fast lane, maximum priority) · **Status:** accepted
 - **Affects:** R34 on `qa` reorganised the evaluation form (`FormActions.tsx` touched); R38 on `qa` splits `ContactSection`
-
-## R58 — "Añadir nota" shows a trailing plus icon (production AUT finding 26, 2026-10-08)
-
-- **Duplicated:** none. `pages/evaluation-form/ui/NoteField.tsx:60-67` (catalog `evaluations.json` `addNoteLabel`) shows the text only.
-- **Owning capability:** evaluations
-- **Proposed change:** `add-note-plus-icon` (S)
-- **Open decision (Augusto):** answered 2026-10-08: the link shows a "+" at the end: the `Plus` icon already exported from `src/shared/ui/icons.ts`, `aria-hidden`, after the text (orchestrator's choice over a literal "+", per the icon rule); the visible text and the accessible name stay "Añadir nota" / its locale texts.
-- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted · **Affects:** none
 
 ## R50 — Consensus concordance loses the parent of unmarked intermediate notes (API; found by the design lead for R49)
 
