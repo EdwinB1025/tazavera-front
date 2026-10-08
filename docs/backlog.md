@@ -51,18 +51,6 @@ The entries below follow this order. The order runs security first, then the sha
 
 Every entry of the technical review (R20–R39) takes the fast lane by Product owner's decision of 2026-10-08, including R30, R31 and R32, which change a design decision, security headers and texts; R17 and R19 ride with R32 and R30. R3 (tests, rides with R31) and R4 (spec wording) are typed `Change`.
 
-## R20 — Upgrade Next.js to 16.4 (security advisories)
-
-- **Duplicated:** none. `next@16.3.6` carries 6 high advisories, fixed in 16.4.0, and `source-map-js` has a transitive advisory.
-- **Where today:** `package.json`, `package-lock.json`
-- **Why it pays off now:** it is the only way to get a clean `npm audit`.
-- **Owning capability:** app-shell
-- **Proposed change:** `upgrade-next-16-4` (S)
-- **Open decision (Augusto):** answered 2026-10-08: approved; every item of the technical review goes to the fast lane
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** every change (full suite, build, axe rerun)
-
 ## R39 — Ship the code-structure rules as ESLint warnings
 
 - **Duplicated:** none. The code-structure rules added to AGENTS.md on 2026-10-08 (imports inside a segment, no feature-to-feature imports, size and complexity limits) are checked only by review.
