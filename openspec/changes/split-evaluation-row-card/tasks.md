@@ -9,7 +9,7 @@
 
 ## 3. Remove the flag-driven card
 
-- [ ] 3.1 Delete `src/widgets/evaluation-row/ui/EvaluationRowCard.tsx` and its exports from `src/widgets/evaluation-row/index.ts` (D4); update `src/widgets/evaluation-row/ui/EvaluationRowCard.test.tsx` to render `PublicEvaluationRowCard` with `PublicEvaluationRowCardTexts` (D4; import, rendered component and props only); add `qa/src/widgets/evaluation-row/ui/EvaluationRowCard.test.tsx` to the `exclude` list of `tsconfig.json` (D5). Protecting tests: `src/widgets/evaluation-row/ui/EvaluationRowCard.test.tsx`. Verify: it passes with the same test count as before; no file under `src/` or `qa/` outside the stale QA copy references `EvaluationRowCard` from the widget; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 3.1 Delete `src/widgets/evaluation-row/ui/EvaluationRowCard.tsx` and its exports from `src/widgets/evaluation-row/index.ts` (D4); update `src/widgets/evaluation-row/ui/EvaluationRowCard.test.tsx` to render `PublicEvaluationRowCard` with `PublicEvaluationRowCardTexts` (D4; import, rendered component and props only); add `qa/src/widgets/evaluation-row/ui/EvaluationRowCard.test.tsx` to the `exclude` list of `tsconfig.json` (D5). Protecting tests: `src/widgets/evaluation-row/ui/EvaluationRowCard.test.tsx`. Verify: it passes with the same test count as before; no file under `src/` or `qa/` outside the stale QA copy references `EvaluationRowCard` from the widget; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 4. Full checks
 
