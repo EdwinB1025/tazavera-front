@@ -317,18 +317,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Status:** proposed
 - **Affects:** comes after R21
 
-## R29 — Speed up the test environment (resolves R15)
-
-- **Duplicated:** 195 jsdom set-ups take 51% of the 159 s suite.
-- **Where today:** `vitest.config.mts`, `src/pages/evaluation-form/ui/EvaluationForm.test.tsx`
-- **Why it pays off now:** it makes every change's checks faster.
-- **Owning capability:** testing
-- **Proposed change:** `speed-up-test-environment` (S)
-- **Open decision (Augusto):** none
-- **Type:** Refactor (fast lane)
-- **Status:** proposed
-- **Affects:** R15
-
 ## R15 — Slow `EvaluationForm` tests under load (add-user-contact checks)
 
 - **Duplicated:** none; `src/pages/evaluation-form/ui/EvaluationForm.test.tsx` takes about 16s alone and about 58s in the full suite, where one case ("sends each descriptor block's selection to its request field") hit the 5000ms test timeout once and passed on re-run
@@ -394,42 +382,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Type:** Change
 - **Status:** accepted
 - **Affects:** R40 (the 404 responses must be documented first)
-
-## R34 — Move the evaluation form state into a model
-
-- **Duplicated:** none; 9 `useState` calls, cyclomatic complexity 25, and a 205-line `EvaluationGroupCard`
-- **Where today:** `src/pages/evaluation-form/ui/EvaluationForm.tsx`, `EvaluationGroupCard.tsx`
-- **Why it pays off now:** it raises Modifiability and helps R15/R29.
-- **Owning capability:** evaluations
-- **Proposed change:** `split-evaluation-form-state` (L)
-- **Open decision (Augusto):** none
-- **Type:** Refactor (fast lane)
-- **Status:** proposed
-- **Affects:** none
-
-## R38 — Split the account and management panels
-
-- **Duplicated:** none; long components (`ContactSection` with 186 lines, `ManageOfferingsPanel` with 361, `LocationsPanel` with 138)
-- **Where today:** `src/features/user-account/ui/ContactSection.tsx`, `src/pages/manage-offerings/ui/ManageOfferingsPanel.tsx`, `src/features/location-management/ui/LocationsPanel.tsx`
-- **Why it pays off now:** together with R33, R34 and R37, it gets the files over 300 lines down to 5 or fewer.
-- **Owning capability:** user-account, offering-management
-- **Proposed change:** `split-account-and-management-panels` (M)
-- **Open decision (Augusto):** none
-- **Type:** Refactor (fast lane)
-- **Status:** proposed
-- **Affects:** none
-
-## R37 — Split `FlavorWheel`
-
-- **Duplicated:** none; the wheel, the list and the keyboard model sit in one 319-line function (a 571-line file).
-- **Where today:** `src/shared/ui/FlavorWheel.tsx`
-- **Why it pays off now:** it is the largest file in the codebase.
-- **Owning capability:** feedback
-- **Proposed change:** `split-flavor-wheel` (L)
-- **Open decision (Augusto):** none
-- **Type:** Refactor (fast lane)
-- **Status:** proposed
-- **Affects:** none
 
 ## R35 — Unify the API result shape
 

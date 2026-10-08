@@ -2,11 +2,9 @@
 
 import type { ReactNode } from "react";
 import { Button } from "@/shared/ui";
+import type { FormBusy } from "../model/form-model";
 
 // ─── UI-specific types (declared before the component) ───
-
-/** Which action is in flight, if any. */
-export type FormBusy = "save" | "close" | null;
 
 export type FormActionsProps = {
   saveLabel: string;

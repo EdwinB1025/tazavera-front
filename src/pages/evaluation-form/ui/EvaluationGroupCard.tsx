@@ -3,54 +3,24 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
 import type {
-  AxisKey,
-  DescriptiveAxisKey,
   DescriptorBlock as BlockDefinition,
   EvaluationFormState,
   GroupDefinition,
-  GroupKey,
 } from "@/entities/evaluation";
 import {
-  BeanScale,
   Card,
   CardAside,
   CardContent,
   Collapsible,
   CollapsibleBody,
   CollapsibleHeader,
-  IntensitySlider,
 } from "@/shared/ui";
-import { cn } from "@/shared/lib/utils";
+import type { FormStateUpdate } from "../model/form-updates";
 import { CompletenessIndicator } from "./CompletenessIndicator";
-import { NoteField } from "./NoteField";
+import type { EvaluationGroupTexts } from "./group-texts";
+import { AffectivePart, DescriptivePart, ExtrinsicNotes } from "./GroupParts";
 
 // ─── UI-specific types (declared before the component) ───
-
-/** The group card's texts, from the `evaluations` catalog (design.md D14). */
-export type EvaluationGroupTexts = {
-  groupNames: Record<GroupKey, string>;
-  descriptiveHeading: string;
-  affectiveHeading: string;
-  axisLabels: Record<AxisKey, string>;
-  /** LOW / MEDIUM / HIGH under the intensity slider. */
-  scaleLabels: [string, string, string];
-  /** The "/15" suffix of an intensity. */
-  intensityScale: string;
-  /** The "/9" suffix of a preference. */
-  preferenceScale: string;
-  /** What an unset preference shows in place of its number. */
-  unsetScore: string;
-  completeLabel: string;
-  incompleteLabel: string;
-  addNoteLabel: string;
-  removeNoteLabel: string;
-  /** The note field's label, followed by the axis name. */
-  noteLabel: string;
-  /** The label of the Extrinsic group's notes field. */
-  extrinsicNoteLabel: string;
-};
-
-export type FormStateUpdate = (update: (state: EvaluationFormState) => EvaluationFormState) => void;
 
 export type EvaluationGroupCardProps = {
   group: GroupDefinition;
@@ -84,25 +54,6 @@ const HIGHLIGHT_CLASSES = ["ring-2", "ring-feedback-error"].join(" ");
 const BODY_CLASSES = ["flex", "flex-col", "gap-4"].join(" ");
 const BOTH_PARTS_CLASSES = ["flex", "flex-col", "gap-6", "md:grid", "md:grid-cols-2"].join(" ");
 const ONE_PART_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
-const PART_CLASSES = ["flex", "flex-col", "gap-4"].join(" ");
-const DESCRIPTIVE_SPLIT_CLASSES = ["md:border-r", "md:border-border-subtle", "md:pr-6"].join(" ");
-const AFFECTIVE_SPLIT_CLASSES = [
-  "border-t",
-  "border-border-subtle",
-  "pt-6",
-  "md:border-t-0",
-  "md:pt-0",
-].join(" ");
-const PANEL_CLASSES = [
-  "flex",
-  "flex-col",
-  "gap-2",
-  "bg-surface-section",
-  "rounded-container",
-  "border",
-  "border-border-subtle",
-  "p-4",
-].join(" ");
 
 /**
  * One CVA group (design.md D14, D15; spec "Evaluation form"): a shared
@@ -142,119 +93,8 @@ export function EvaluationGroupCard({
       />
     );
 
-  // "Fragrance not evaluated" disables the fragrance controls (design.md D9).
-  const disabledAxis = (axis: AxisKey) => state.fragranceNotEvaluated && axis === "fragrance";
-
-  const intensity = (axis: DescriptiveAxisKey) => {
-    const score = state.descriptive[axis].score;
-    const value = `${score}${texts.intensityScale}`;
-    const common = {
-      label: texts.axisLabels[axis],
-      value: score,
-      valueText: value,
-      valueLabel: value,
-      scaleLabels: texts.scaleLabels,
-    };
-    return readOnly ? (
-      <IntensitySlider key={axis} {...common} readOnly />
-    ) : (
-      <IntensitySlider
-        key={axis}
-        {...common}
-        disabled={disabledAxis(axis)}
-        onChange={(next) =>
-          onChange((current) => ({
-            ...current,
-            descriptive: {
-              ...current.descriptive,
-              [axis]: { ...current.descriptive[axis], score: next },
-            },
-          }))
-        }
-      />
-    );
-  };
-
-  const preference = (axis: AxisKey) => {
-    const score = state.affective[axis].score;
-    const value = `${score ?? texts.unsetScore}${texts.preferenceScale}`;
-    return readOnly ? (
-      <BeanScale
-        key={axis}
-        label={texts.axisLabels[axis]}
-        value={score}
-        valueText={value}
-        valueLabel={value}
-        readOnly
-      />
-    ) : (
-      <BeanScale
-        key={axis}
-        label={texts.axisLabels[axis]}
-        value={score}
-        valueText={value}
-        disabled={disabledAxis(axis)}
-        onChange={(next) =>
-          onChange((current) => ({
-            ...current,
-            affective: {
-              ...current.affective,
-              [axis]: { ...current.affective[axis], score: next },
-            },
-          }))
-        }
-      />
-    );
-  };
-
-  // In a part with two axes the "Add note" text names its axis.
-  const note = (part: "descriptive" | "affective", axis: AxisKey, pair: boolean) => {
-    const label = `${texts.noteLabel} (${texts.axisLabels[axis]})`;
-    const value =
-      part === "descriptive"
-        ? state.descriptive[axis as DescriptiveAxisKey].note
-        : state.affective[axis].note;
-    return (
-      <NoteField
-        key={`${part}-${axis}-note`}
-        label={label}
-        addLabel={pair ? `${texts.addNoteLabel} (${texts.axisLabels[axis]})` : texts.addNoteLabel}
-        removeLabel={texts.removeNoteLabel}
-        value={value}
-        disabled={disabledAxis(axis)}
-        readOnly={readOnly}
-        onChange={(next) =>
-          onChange((current) =>
-            part === "descriptive"
-              ? {
-                  ...current,
-                  descriptive: {
-                    ...current.descriptive,
-                    [axis]: { ...current.descriptive[axis as DescriptiveAxisKey], note: next },
-                  },
-                }
-              : {
-                  ...current,
-                  affective: {
-                    ...current.affective,
-                    [axis]: { ...current.affective[axis], note: next },
-                  },
-                },
-          )
-        }
-      />
-    );
-  };
-
   const both = group.descriptive !== null && group.affective !== null;
-  const blocks = (part: { blocks: BlockDefinition[] }) =>
-    renderBlock
-      ? part.blocks.map((block) => (
-          <div key={block.selection} className={PANEL_CLASSES}>
-            {renderBlock(block)}
-          </div>
-        ))
-      : null;
+  const part = { both, state, onChange, texts, readOnly, renderBlock };
 
   return (
     <Collapsible open={open} onOpenChange={changeOpen}>
@@ -275,48 +115,16 @@ export function EvaluationGroupCard({
               {top ? <div>{top}</div> : null}
               <div className={both ? BOTH_PARTS_CLASSES : ONE_PART_CLASSES}>
                 {group.descriptive ? (
-                  <div
-                    data-part="descriptive"
-                    className={cn(PART_CLASSES, both && DESCRIPTIVE_SPLIT_CLASSES)}
-                  >
-                    <p className="type-label">{texts.descriptiveHeading}</p>
-                    {group.descriptive.axes.length > 0 ? (
-                      <div className={PANEL_CLASSES}>{group.descriptive.axes.map(intensity)}</div>
-                    ) : null}
-                    {blocks(group.descriptive)}
-                    {group.descriptive.axes.map((axis) =>
-                      note("descriptive", axis, group.descriptive!.axes.length > 1),
-                    )}
-                  </div>
+                  <DescriptivePart definition={group.descriptive} {...part} />
                 ) : null}
-                {group.affective ? (
-                  <div
-                    data-part="affective"
-                    className={cn(PART_CLASSES, both && AFFECTIVE_SPLIT_CLASSES)}
-                  >
-                    <p className="type-label">{texts.affectiveHeading}</p>
-                    {group.affective.axes.length > 0 ? (
-                      <div className={PANEL_CLASSES}>{group.affective.axes.map(preference)}</div>
-                    ) : null}
-                    {blocks(group.affective)}
-                    {group.affective.axes.map((axis) =>
-                      note("affective", axis, group.affective!.axes.length > 1),
-                    )}
-                  </div>
-                ) : null}
+                {group.affective ? <AffectivePart definition={group.affective} {...part} /> : null}
                 {group.notes === "generalObservation" ? (
-                  <div data-part="notes" className={PART_CLASSES}>
-                    <NoteField
-                      label={texts.extrinsicNoteLabel}
-                      addLabel={texts.addNoteLabel}
-                      removeLabel={texts.removeNoteLabel}
-                      value={state.generalObservation}
-                      readOnly={readOnly}
-                      onChange={(next) =>
-                        onChange((current) => ({ ...current, generalObservation: next }))
-                      }
-                    />
-                  </div>
+                  <ExtrinsicNotes
+                    state={state}
+                    onChange={onChange}
+                    texts={texts}
+                    readOnly={readOnly}
+                  />
                 ) : null}
               </div>
             </div>
