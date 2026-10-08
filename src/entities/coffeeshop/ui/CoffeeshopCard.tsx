@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { CoffeeshopSummary } from "@/shared/api";
-import { Badge, Card, CardContent, CardFooter, Link } from "@/shared/ui";
+import { Badge, Card, CardContent, CardFooter, RouteButton } from "@/shared/ui";
 import { uniqueCities } from "../model/locations";
 
 // ─── UI-specific types (declared before the component) ───
@@ -18,7 +18,7 @@ export type CoffeeshopCardProps = {
   coffeeshop: CoffeeshopSummary;
   locale: string;
   texts: CoffeeshopCardTexts;
-  /** Rendered after the View link, e.g. the map action (design.md D7). */
+  /** Rendered after the View action, e.g. the map action (design.md D7). */
   actions?: ReactNode;
 };
 
@@ -36,7 +36,8 @@ function withCount(text: string, count: number | undefined): string {
  * One coffee shop of the directory in the shared stacked card
  * (add-coffeeshop-directory design.md D7; spec "Coffee shop card"): the
  * verified badge when it has a verified offering, the name, the locations
- * count, its cities once each, the offering counts and the View link.
+ * count, its cities once each, the offering counts and the View action, an
+ * action button (fix-production-aut-findings design.md D4).
  */
 export function CoffeeshopCard({ coffeeshop, locale, texts, actions }: CoffeeshopCardProps): ReactNode {
   const cities = uniqueCities(coffeeshop.locations ?? []).join(CITY_SEPARATOR);
@@ -58,7 +59,9 @@ export function CoffeeshopCard({ coffeeshop, locale, texts, actions }: Coffeesho
           </span>
         </div>
         <div className={FOOTER_LINKS_CLASSES}>
-          <Link href={`/${locale}/coffeeshops/${coffeeshop.ulid ?? ""}`}>{texts.viewLabel}</Link>
+          <RouteButton href={`/${locale}/coffeeshops/${coffeeshop.ulid ?? ""}`} variant="action-3" size="sm">
+            {texts.viewLabel}
+          </RouteButton>
           {actions}
         </div>
       </CardFooter>

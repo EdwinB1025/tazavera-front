@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import type { OfferingsPageMeta, OfferingSummary } from "@/shared/api";
+import type { OfferingsPageMeta, OfferingSummary, Session } from "@/shared/api";
 import type { ResolvedTaxonomyBadge } from "@/entities/offering";
 import { OfferingList } from "./OfferingList";
 
@@ -34,9 +34,24 @@ vi.mock("next/navigation", () => ({
   useRouter: () => router,
 }));
 
+// The View action shows to a signed-in user only (fix-production-aut-findings
+// design.md D3): the widget reads the session, mocked here at its public API.
+const auth = vi.hoisted(() => ({
+  session: { state: "anonymous" } as Session,
+}));
+vi.mock("@/features/auth", () => ({
+  useSession: () => auth.session,
+}));
+
+const SIGNED_IN: Session = {
+  state: "authenticated",
+  user: { ulid: "01JUSER", role: "coffeeshop" } as never,
+};
+
 beforeEach(() => {
   router.push.mockReset();
   router.refresh.mockReset();
+  auth.session = SIGNED_IN;
 });
 
 // `EvaluateLink` decides on the session itself (its own tests cover the
@@ -119,11 +134,7 @@ describe("OfferingList", () => {
         items: [ITEM_ONE, ITEM_TWO],
         meta: { current_page: 1, last_page: 2 },
       });
-      const views = screen.getAllByRole("link", { name: TEXTS.viewLabel });
-      expect(views).toHaveLength(2);
-      const hrefs = views.map((view) => view.getAttribute("href"));
-      expect(hrefs).toContain(`/es/offerings/${ULID_ONE}`);
-      expect(hrefs).toContain(`/es/offerings/${ULID_TWO}`);
+      expect(screen.getAllByRole("button", { name: TEXTS.viewLabel })).toHaveLength(2);
       expect(first.container.textContent ?? "").toContain("Geisha");
       expect(first.container.textContent ?? "").toContain("Bourbon");
       // meta.current_page = 1 makes Previous unavailable; meta.last_page = 2
@@ -166,16 +177,18 @@ describe("OfferingList", () => {
 
 
   describe("Consumer actions after View (spec: 'Consumer actions after View')", () => {
-    it("renders each card's Evaluate link after its View link and in the same group", () => {
+    it("renders each card's Evaluate action after its View action and in the same group", () => {
       renderList({
         state: "success",
         items: [ITEM_ONE, ITEM_TWO],
         meta: { current_page: 1, last_page: 1 },
       });
-      const views = screen.getAllByRole("link", { name: TEXTS.viewLabel });
+      const views = screen.getAllByRole("button", { name: TEXTS.viewLabel });
       expect(views).toHaveLength(2);
       for (const view of views) {
-        const ulid = (view.getAttribute("href") ?? "").split("/").pop() ?? "";
+        router.push.mockReset();
+        fireEvent.click(view);
+        const ulid = String(router.push.mock.calls[0][0]).split("/").pop() ?? "";
         const evaluate = screen
           .getAllByRole("link", { name: TEXTS.evaluateLabel })
           .find(
@@ -193,12 +206,36 @@ describe("OfferingList", () => {
     });
   });
 
+  describe("View action (spec: 'View link for everyone', 'No View action for anonymous visitors'; fix-production-aut-findings design.md D3)", () => {
+    it("shows a signed-in user a View button that opens the offering's detail", () => {
+      renderList({
+        state: "success",
+        items: [ITEM_ONE],
+        meta: { current_page: 1, last_page: 1 },
+      });
+      expect(screen.queryAllByRole("link", { name: TEXTS.viewLabel })).toHaveLength(0);
+      fireEvent.click(screen.getByRole("button", { name: TEXTS.viewLabel }));
+      expect(router.push).toHaveBeenCalledWith(`/es/offerings/${ULID_ONE}`);
+    });
+
+    it("shows an anonymous visitor no View action", () => {
+      auth.session = { state: "anonymous" };
+      renderList({
+        state: "success",
+        items: [ITEM_ONE],
+        meta: { current_page: 1, last_page: 1 },
+      });
+      expect(screen.queryAllByRole("button", { name: TEXTS.viewLabel })).toHaveLength(0);
+      expect(screen.queryAllByRole("link", { name: TEXTS.viewLabel })).toHaveLength(0);
+    });
+  });
+
   describe("Empty (spec: 'Empty')", () => {
     it("renders the centered empty message and no offering card", () => {
       renderList({ state: "empty" });
       const message = screen.getByText(TEXTS.emptyMessage);
       expect(classTokens(message).includes("text-center")).toBe(true);
-      expect(screen.queryAllByRole("link", { name: TEXTS.viewLabel })).toHaveLength(0);
+      expect(screen.queryAllByRole("button", { name: TEXTS.viewLabel })).toHaveLength(0);
     });
 
   });
@@ -210,7 +247,7 @@ describe("OfferingList", () => {
       renderList({ state: "error" });
       expect(screen.getByText(TEXTS.errorMessage)).toBeDefined();
       expect(screen.getByRole("button", { name: TEXTS.retryLabel })).toBeDefined();
-      expect(screen.queryAllByRole("link", { name: TEXTS.viewLabel })).toHaveLength(0);
+      expect(screen.queryAllByRole("button", { name: TEXTS.viewLabel })).toHaveLength(0);
     });
 
     it("calls router.refresh() when the retry action is activated (spec: Retry reloads)", () => {

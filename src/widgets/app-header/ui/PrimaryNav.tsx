@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import NextLink from "next/link";
+import { primaryNavEntries } from "../lib/nav-entries";
+import type { PrimaryNavEntryTexts } from "../lib/nav-entries";
 
 // ─── UI-specific types (declared before the component) ───
 // Texts arrive as props (design.md D10); the destinations are the
@@ -7,11 +9,7 @@ import NextLink from "next/link";
 // active locale. `currentPath` is the current route's path, read on the
 // client by the shell chrome (refine-app-header design.md D14).
 
-export type PrimaryNavTexts = {
-  topRated: string;
-  exploreCoffeeshops: string;
-  aboutUs: string;
-};
+export type PrimaryNavTexts = PrimaryNavEntryTexts;
 
 export type PrimaryNavProps = {
   locale: string;
@@ -51,15 +49,7 @@ const CURRENT_CLASSES = ["border-b-2", "border-nav-indicator"].join(" ");
  * `currentPath` (query ignored) is marked as the current page.
  */
 export function PrimaryNav({ locale, texts, currentPath }: PrimaryNavProps): ReactNode {
-  const entries = [
-    {
-      path: `/${locale}/offerings`,
-      query: "?verified=1&orderBy=cupping_avg&orderDirection=desc",
-      label: texts.topRated,
-    },
-    { path: `/${locale}/coffeeshops`, query: "", label: texts.exploreCoffeeshops },
-    { path: `/${locale}/about`, query: "", label: texts.aboutUs },
-  ];
+  const entries = primaryNavEntries(locale, texts);
 
   return (
     <nav className={NAV_CLASSES}>

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { EvaluationItem, OfferingDetail } from "@/shared/api";
 import { ratingTierFor } from "@/entities/offering";
-import { Badge, Card, CardAside, CardContent, CardFooter, Link } from "@/shared/ui";
+import { Badge, Card, CardAside, CardContent, CardFooter, RouteButton } from "@/shared/ui";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -20,7 +20,7 @@ export type EvaluationRowCardTexts = {
   /** Shown in place of the offering when its `offeringId` is `null`. */
   offeringMissingLabel: string;
   viewLabel: string;
-  /** Public variant: the offering link. */
+  /** Public variant: the offering action. */
   viewOfferingLabel?: string;
   /** Public variant: the heading when the offering read failed. */
   offeringUnavailableLabel?: string;
@@ -30,7 +30,7 @@ export type EvaluationRowCardProps = {
   /**
    * `specialist`: status badge, `h3`, ISO date in a `<time>`, `actions` in
    * the footer. `public`: no badge, `h2`, the localized closed date and the
-   * View / View offering links (design.md D6).
+   * View / View offering action buttons (design.md D6; fix-production-aut-findings D4).
    */
   variant: "specialist" | "public";
   evaluation: EvaluationItem;
@@ -159,15 +159,23 @@ export function EvaluationRowCard({
         {captions}
       </CardContent>
       <CardFooter className={FOOTER_CLASSES}>
-        <Link href={`/${locale}/evaluations/${evaluation.ulid ?? ""}`}>
+        <RouteButton
+          href={`/${locale}/evaluations/${evaluation.ulid ?? ""}`}
+          variant="action-3"
+          size="sm"
+        >
           {texts.viewLabel}{" "}
           <span className="sr-only">{linkSuffix}</span>
-        </Link>
+        </RouteButton>
         {orphan || unavailable ? null : (
-          <Link href={`/${locale}/offerings/${evaluation.offeringId ?? ""}`}>
+          <RouteButton
+            href={`/${locale}/offerings/${evaluation.offeringId ?? ""}`}
+            variant="action-4"
+            size="sm"
+          >
             {texts.viewOfferingLabel}{" "}
             <span className="sr-only">{linkSuffix}</span>
-          </Link>
+          </RouteButton>
         )}
       </CardFooter>
     </Card>

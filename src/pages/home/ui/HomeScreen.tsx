@@ -76,7 +76,10 @@ export function HomeScreen({ locale, page }: HomeScreenProps): ReactNode {
         <HomeHero locale={locale} texts={heroTexts} />
       </PageSection>
       <PageSection surface="section">
+        {/* Keyed by the page so a page change shows the skeleton at once
+            (fix-production-aut-findings design.md D8). */}
         <Suspense
+          key={currentPage}
           fallback={
             <div className={OFFERING_GRID_CLASSES}>
               {SKELETON_CARD_KEYS.map((key) => (

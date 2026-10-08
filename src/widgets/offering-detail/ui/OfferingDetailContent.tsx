@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { OfferingDetail, Session, TaxonomyNode } from "@/shared/api";
-import { Link, PageSection, RetryButton } from "@/shared/ui";
+import { BackLink, PageSection, RetryButton } from "@/shared/ui";
 import type { DetailTab } from "../lib/tab";
 import { DetailHeader } from "./DetailHeader";
 import type { DetailHeaderTexts } from "./DetailHeader";
@@ -69,9 +69,9 @@ export function OfferingDetailContent({
   provisional,
 }: OfferingDetailContentProps): ReactNode {
   const backLink = (
-    <Link variant="back" href={`/${locale}/offerings`}>
+    <BackLink fallback={`/${locale}/offerings`}>
       {texts.backLabel}
-    </Link>
+    </BackLink>
   );
 
   if (result.state === "error") {

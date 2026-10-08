@@ -44,7 +44,7 @@ The shell SHALL present the header above a main area that holds the content of t
 - **THEN** the main area shows the light blue-green backdrop, and cards on it show the cream card surface; and in the dark theme the backdrop is darker than the cards on it
 
 ### Requirement: Header brand and primary navigation
-The header SHALL show the brand logotype, linking to the root of the active locale. The brand logotype and the primary navigation SHALL sit in one group on the left, and the language selector and the session control SHALL sit in one group on the right, on every viewport. On medium and larger viewports it SHALL also show the "Top rated", "Explore coffee shops" and "About us" entries, in that order; on small viewports those entries SHALL NOT be shown. The primary navigation entries SHALL be presented as navigation items of the header, not as inline text links, and the entry of the current route SHALL be marked as the current page.
+The header SHALL show the brand logotype, linking to the root of the active locale. The brand logotype and the primary navigation SHALL sit in one group on the left, and the language selector and the session control SHALL sit in one group on the right, on every viewport. On medium and larger viewports it SHALL also show the "Top rated", "Explore coffee shops" and "About us" entries, in that order; on small viewports those entries SHALL NOT be shown in the header and a navigation menu control, showing a three-lines menu icon and named from the active locale's catalog, SHALL take their place, opening a menu that lists the same entries, in the same order and with the same destinations, presented like the entries of the user menu, the entry of the current route marked as the current page. The primary navigation entries SHALL be presented as navigation items of the header, not as inline text links, and the entry of the current route SHALL be marked as the current page.
 
 #### Scenario: Brand link
 - **WHEN** the user activates the brand logotype in the header
@@ -56,7 +56,15 @@ The header SHALL show the brand logotype, linking to the root of the active loca
 
 #### Scenario: Primary navigation on a small viewport
 - **WHEN** the header renders on a small viewport
-- **THEN** the "Top rated", "Explore coffee shops" and "About us" entries are not shown while the brand logotype, the language selector and the session control stay visible
+- **THEN** the "Top rated", "Explore coffee shops" and "About us" entries are not shown in the header while the brand logotype, the navigation menu control, the language selector and the session control stay visible
+
+#### Scenario: Navigation menu on a small viewport
+- **WHEN** the user activates the navigation menu control on a small viewport
+- **THEN** a menu opens listing "Top rated", "Explore coffee shops" and "About us", in that order and with the destinations of the primary navigation, each entry presented like an entry of the user menu, and activating one opens its destination
+
+#### Scenario: Navigation menu control
+- **WHEN** the header renders
+- **THEN** the navigation menu control shows a three-lines icon with no visible text, carries the catalog's accessible name in the active locale and the shared visible focus ring, and is not shown on medium and larger viewports
 
 #### Scenario: Header grouping on every viewport
 - **WHEN** the header renders on any viewport

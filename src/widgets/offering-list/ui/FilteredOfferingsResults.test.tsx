@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
-import type { ReactElement } from "react";
-import { render, cleanup, screen } from "@testing-library/react";
+import { startTransition, type ReactElement } from "react";
+import { render, cleanup, screen, act } from "@testing-library/react";
 import { ClearFiltersButton } from "@/shared/ui";
 import { CATALOG_GRID_CLASSES } from "../lib/grid";
 import type { OfferingsProps } from "./Offerings";
@@ -189,5 +189,36 @@ describe("FilteredOfferingsResults", () => {
     );
     expect(block.props?.query).toEqual({ process: "washed", coffeeshopUlid: "01SHOP" });
     expect(block.props?.paginationQuery).toEqual({ tab: "offerings" });
+  });
+
+  // fix-production-aut-findings design.md D8: a page change runs as a
+  // transition (`router.push`), during which React keeps an already revealed
+  // boundary on its old content; the list's boundary must show its skeleton
+  // at once instead.
+  it("shows the skeleton cards at once when another page is requested (spec: Loading state on page change)", async () => {
+    const { rerender } = render(
+      <FilteredOfferingsResults
+        locale="es"
+        searchParams={{ page: "1" }}
+        path="/es/offerings"
+        texts={TEXTS}
+      />,
+    );
+    expect(screen.getByTestId("offerings-block")).toBeDefined();
+    block.suspend = true;
+    await act(async () => {
+      startTransition(() => {
+        rerender(
+          <FilteredOfferingsResults
+            locale="es"
+            searchParams={{ page: "2" }}
+            path="/es/offerings"
+            texts={TEXTS}
+          />,
+        );
+      });
+    });
+    expect(screen.getAllByTestId("skeleton-card")).toHaveLength(3);
+    expect(screen.queryByTestId("offerings-block")).toBeNull();
   });
 });

@@ -1,10 +1,16 @@
-import { describe, it, expect, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { describe, it, expect, afterEach, vi } from "vitest";
+import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import type { CoffeeshopSummary } from "@/shared/api";
 import { CoffeeshopCard, type CoffeeshopCardTexts } from "./CoffeeshopCard";
 
+// The View action is a route button (fix-production-aut-findings design.md
+// D4); the app router is mocked — test infrastructure only.
+const router = vi.hoisted(() => ({ push: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => router }));
+
 afterEach(() => {
   cleanup();
+  router.push.mockReset();
 });
 
 /**
@@ -33,7 +39,7 @@ const NOMAD: CoffeeshopSummary = {
 };
 
 describe("CoffeeshopCard", () => {
-  it("shows the badge, name, locations, city once, counts and View link (spec: Card content)", () => {
+  it("shows the badge, name, locations, city once, counts and View action (spec: Card content)", () => {
     render(<CoffeeshopCard coffeeshop={NOMAD} locale="es" texts={TEXTS} />);
     expect(screen.getByText("Con ofertas verificadas")).toBeTruthy();
     expect(screen.getByRole("heading", { level: 3, name: "Nomad Coffee" }).className).toContain(
@@ -43,7 +49,7 @@ describe("CoffeeshopCard", () => {
     expect(screen.getByText("Barcelona").className).toContain("type-meta");
     expect(screen.getByText("Ofertas: 4")).toBeTruthy();
     expect(screen.getByText("Verificadas: 1")).toBeTruthy();
-    expect(screen.getByRole("link", { name: "Ver" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Ver" })).toBeTruthy();
   });
 
   it("shows no badge without a verified offering (spec: No verified offering)", () => {
@@ -53,8 +59,10 @@ describe("CoffeeshopCard", () => {
     expect(screen.queryByText("Con ofertas verificadas")).toBeNull();
   });
 
-  it("links View to the coffee shop detail in the locale (spec: View link)", () => {
+  it("opens the coffee shop detail in the locale from the View button, not a link (spec: View link)", () => {
     render(<CoffeeshopCard coffeeshop={NOMAD} locale="es" texts={TEXTS} />);
-    expect(screen.getByRole("link", { name: "Ver" }).getAttribute("href")).toBe("/es/coffeeshops/01SHOP");
+    expect(screen.queryByRole("link", { name: "Ver" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Ver" }));
+    expect(router.push).toHaveBeenCalledWith("/es/coffeeshops/01SHOP");
   });
 });

@@ -47,6 +47,7 @@ const TEXTS = {
   manageOfferings: "texts.manageOfferings",
   manageEvaluations: "texts.manageEvaluations",
   signOut: "texts.signOut",
+  navigationMenu: "texts.navigationMenu",
 };
 
 function renderHeader(session: Session = ANONYMOUS, leading?: ReactNode) {
@@ -97,6 +98,12 @@ describe("AppHeader, signed-out state", () => {
     expect(screen.getByRole("button", { name: TEXTS.signIn }).className).not.toContain(
       "hidden",
     );
+    // the navigation menu control shows below md and hides from md
+    // (fix-production-aut-findings design.md D7)
+    const menu = screen.getByRole("button", { name: TEXTS.navigationMenu });
+    const tokens = menu.className.split(/\s+/);
+    expect(tokens).toContain("md:hidden");
+    expect(tokens).not.toContain("hidden");
   });
 
   it("groups the logotype and the primary navigation on the left", () => {
@@ -256,6 +263,55 @@ describe("PrimaryNav", () => {
     expect(
       screen.getByRole("link", { name: TEXTS.aboutUs }).getAttribute("aria-current"),
     ).toBeNull();
+  });
+});
+
+describe("NavigationMenu (spec: Header brand and primary navigation; fix-production-aut-findings design.md D7)", () => {
+  function renderAt(currentPath?: string) {
+    render(
+      <AppHeader
+        session={ANONYMOUS}
+        locale="es"
+        locales={LOCALES}
+        texts={TEXTS}
+        onSignIn={vi.fn()}
+        onSignOut={vi.fn()}
+        onLocaleChange={vi.fn()}
+        currentPath={currentPath}
+      />,
+    );
+  }
+
+  it("shows an icon-only control named from the catalog, with the focus ring, hidden from md (spec: Navigation menu control)", () => {
+    renderAt();
+    const trigger = screen.getByRole("button", { name: TEXTS.navigationMenu });
+    expect(trigger.querySelector("svg")).not.toBeNull();
+    expect(trigger.textContent).toBe("");
+    const tokens = trigger.className.split(/\s+/);
+    expect(tokens).toEqual(
+      expect.arrayContaining(["md:hidden", "focus-visible:focus-ring"]),
+    );
+  });
+
+  it("lists the primary navigation entries in order with their destinations, the current one marked (spec: Navigation menu on a small viewport)", () => {
+    renderAt("/es/coffeeshops");
+    fireEvent.pointerDown(screen.getByRole("button", { name: TEXTS.navigationMenu }));
+    const entries = screen.getAllByRole("menuitem");
+    expect(entries.map((entry) => entry.textContent)).toEqual([
+      TEXTS.topRated,
+      TEXTS.exploreCoffeeshops,
+      TEXTS.aboutUs,
+    ]);
+    expect(entries.map((entry) => entry.getAttribute("href"))).toEqual([
+      "/es/offerings?verified=1&orderBy=cupping_avg&orderDirection=desc",
+      "/es/coffeeshops",
+      "/es/about",
+    ]);
+    expect(entries.map((entry) => entry.getAttribute("aria-current"))).toEqual([
+      null,
+      "page",
+      null,
+    ]);
   });
 });
 

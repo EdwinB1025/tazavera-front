@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { Logo, Button } from "@/shared/ui";
 import type { Session } from "@/shared/api";
+import { NavigationMenu } from "./NavigationMenu";
 import { PrimaryNav } from "./PrimaryNav";
 import { LanguageSelect } from "./LanguageSelect";
 import { UserMenu } from "./UserMenu";
@@ -33,6 +34,8 @@ export type AppHeaderTexts = {
   manageOfferings: string;
   manageEvaluations: string;
   signOut: string;
+  /** The small-viewport navigation menu control (fix-production-aut-findings D7). */
+  navigationMenu: string;
 };
 
 export type AppHeaderProps = {
@@ -70,7 +73,8 @@ const RIGHT_GROUP_CLASSES = ["ml-auto", "flex", "items-center", "gap-4"].join(" 
 /**
  * Tazavera app header (design summary §3).
  *
- * Signed out it shows the brand logotype, the primary navigation (from `md`),
+ * Signed out it shows the brand logotype, the primary navigation (from `md`;
+ * below it the navigation menu control, fix-production-aut-findings D7),
  * the language selector and the "Sign in" action; signed in it shows the user
  * menu instead of the "Sign in" action; while the session resolves it shows
  * neither (spec: "Session resolving"). The user menu carries the account
@@ -106,6 +110,7 @@ export function AppHeader({
         <span className="hidden md:inline-flex">
           <Logo variant="inline" size={32} locale={locale} />
         </span>
+        <NavigationMenu locale={locale} texts={texts} currentPath={currentPath} />
         <PrimaryNav locale={locale} texts={texts} currentPath={currentPath} />
       </div>
       <div className={RIGHT_GROUP_CLASSES}>

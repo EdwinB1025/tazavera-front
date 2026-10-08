@@ -8,7 +8,7 @@ import { OfferingCard } from "@/entities/offering";
 import { Pagination, RetryButton } from "@/shared/ui";
 import type { PaginationTexts } from "@/shared/ui";
 import { OFFERING_GRID_CLASSES } from "../lib/grid";
-import { EvaluateAction } from "./EvaluateAction";
+import { OfferingCardActions } from "./OfferingCardActions";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -22,6 +22,7 @@ export type OfferingListTexts = OfferingCardTexts &
     resultCount?: string;
     errorMessage: string;
     retryLabel: string;
+    viewLabel: string;
     evaluateLabel: string;
   };
 
@@ -79,9 +80,9 @@ const ERROR_CLASSES = [
  * error message with the retry action on a failure — an offerings failure and
  * a taxonomy failure alike, since both map into the one `error` result
  * (design.md D4). Every text arrives as a prop (design.md D11) and this widget
- * fills each card's actions slot with `EvaluateAction` (the `EvaluateLink` of
- * the viewer's session), which shows itself to a
- * signed-in specialist only (add-specialist-evaluations design.md D6).
+ * fills each card's actions slot with `OfferingCardActions`: View for a
+ * signed-in user and Evaluate for a signed-in specialist
+ * (fix-production-aut-findings design.md D3).
  */
 export function OfferingList({
   result,
@@ -117,11 +118,10 @@ export function OfferingList({
               <OfferingCard
                 key={item.offering.ulid ?? index}
                 offering={item.offering}
-                locale={locale}
                 taxonomies={item.taxonomies}
                 texts={texts}
                 actions={
-                  <EvaluateAction
+                  <OfferingCardActions
                     ulid={item.offering.ulid ?? ""}
                     locale={locale}
                     texts={texts}
