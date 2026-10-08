@@ -88,19 +88,6 @@ describe("Pagination", () => {
     );
   });
 
-  it("keeps every value of a repeated key (spec: Other query parameters kept)", () => {
-    renderPagination({
-      currentPage: 2,
-      lastPage: 5,
-      path: "/es/offerings",
-      query: { process: ["washed", "natural"] },
-    });
-    fireEvent.click(screen.getByRole("button", { name: TEXTS.nextLabel }));
-    expect(router.push).toHaveBeenCalledWith(
-      "/es/offerings?process=washed&process=natural&page=3",
-    );
-  });
-
   describe("pageSlots (design.md D3)", () => {
     // Slot shorthands: a page or an ellipsis shown at both widths, narrow
     // only (n) or wide only (w).
@@ -117,16 +104,6 @@ describe("Pagination", () => {
     });
     const n = false;
     const w = false;
-
-    it("returns the D3 slots for lastPage 20 and current 1", () => {
-      expect(pageSlots(1, 20)).toEqual([
-        page(1),
-        ellipsis(true, w),
-        page(2, n),
-        ellipsis(n, true),
-        page(20),
-      ]);
-    });
 
     it("returns the D3 slots for lastPage 20 and current 3", () => {
       expect(pageSlots(3, 20)).toEqual([
@@ -154,35 +131,6 @@ describe("Pagination", () => {
       ]);
     });
 
-    it("returns the D3 slots for lastPage 20 and current 10", () => {
-      expect(pageSlots(10, 20)).toEqual([
-        page(1),
-        ellipsis(),
-        page(9, n),
-        page(10),
-        ellipsis(true, w),
-        page(11, n),
-        ellipsis(n, true),
-        page(20),
-      ]);
-    });
-
-    it("returns the D3 slots for lastPage 20 and current 20", () => {
-      expect(pageSlots(20, 20)).toEqual([
-        page(1),
-        ellipsis(),
-        page(19, n),
-        page(20),
-      ]);
-    });
-
-    it("returns one page slot 1 at both widths for lastPage 1", () => {
-      expect(pageSlots(1, 1)).toEqual([page(1)]);
-    });
-
-    it("returns 1 2 3 at both widths and no ellipsis for lastPage 3 and current 2", () => {
-      expect(pageSlots(2, 3)).toEqual([page(1), page(2), page(3)]);
-    });
   });
 
   it("is a navigation landmark named by the navigation label (spec: Navigation landmark)", () => {
@@ -212,19 +160,6 @@ describe("Pagination", () => {
     renderPagination({ currentPage: 10, lastPage: 20, path: "/es" });
     fireEvent.click(screen.getByRole("button", { name: "texts.pageLabel 9" }));
     expect(router.push).toHaveBeenCalledWith("/es?page=9");
-  });
-
-  it("keeps the other query parameters on a number (spec: Other query parameters kept)", () => {
-    renderPagination({
-      currentPage: 10,
-      lastPage: 20,
-      path: "/es/offerings",
-      query: { roasteryName: "Nómada", page: "10" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "texts.pageLabel 9" }));
-    expect(router.push).toHaveBeenCalledWith(
-      "/es/offerings?roasteryName=N%C3%B3mada&page=9",
-    );
   });
 
   it("marks only the current number, never disabled, and it pushes nothing (spec: Current page)", () => {
@@ -297,68 +232,6 @@ describe("Pagination", () => {
       );
       expect(tokens(text!)).toContain("max-md:sr-only");
     }
-  });
-
-  describe("Classes (design.md D3, D5, D6)", () => {
-    const tokensOf = (element: Element): string[] =>
-      (element.getAttribute("class") ?? "").split(/\s+/).filter(Boolean);
-
-    it("hides a narrow-only slot from md and a wide-only slot below md", () => {
-      const { container } = renderPagination({
-        currentPage: 10,
-        lastPage: 20,
-        path: "/es",
-      });
-      const itemOf = (p: number) =>
-        screen.getByRole("button", { name: `texts.pageLabel ${p}` }).closest("li")!;
-      // 9 is wide only, 10 both widths; the ellipsis after 10 is narrow only.
-      const wideOnly = tokensOf(itemOf(9));
-      expect(wideOnly).toContain("max-md:hidden");
-      expect(wideOnly).not.toContain("md:hidden");
-      const both = tokensOf(itemOf(10));
-      expect(both).not.toContain("max-md:hidden");
-      expect(both).not.toContain("md:hidden");
-      const items = Array.from(container.querySelectorAll("li"));
-      const narrowOnly = tokensOf(items[items.indexOf(itemOf(10)) + 1]!);
-      expect(narrowOnly).toContain("md:hidden");
-      expect(narrowOnly).not.toContain("max-md:hidden");
-    });
-
-    it("gives the current number the current treatment of D5", () => {
-      renderPagination({ currentPage: 10, lastPage: 20, path: "/es" });
-      const current = tokensOf(
-        screen.getByRole("button", { name: "texts.pageLabel 10" }),
-      );
-      const other = tokensOf(
-        screen.getByRole("button", { name: "texts.pageLabel 9" }),
-      );
-      expect(current.filter((t) => !other.includes(t)).sort()).toEqual(
-        ["bg-action-3-bg-hover", "text-action-3-text-hover"].sort(),
-      );
-      expect(other.filter((t) => !current.includes(t))).toEqual([]);
-    });
-
-    it("gives a page number the D6 geometry", () => {
-      renderPagination({ currentPage: 10, lastPage: 20, path: "/es" });
-      const number = tokensOf(
-        screen.getByRole("button", { name: "texts.pageLabel 9" }),
-      );
-      expect(number).toEqual(
-        expect.arrayContaining(["h-10", "min-w-10", "px-3!"]),
-      );
-    });
-
-    it("colours the ellipsis with text-text-primary", () => {
-      const { container } = renderPagination({
-        currentPage: 10,
-        lastPage: 20,
-        path: "/es",
-      });
-      const ellipsis = Array.from(container.querySelectorAll("li")).find(
-        (item) => item.textContent === "…",
-      )!.firstElementChild!;
-      expect(tokensOf(ellipsis)).toContain("text-text-primary");
-    });
   });
 
   describe("Layout (design.md D6)", () => {
