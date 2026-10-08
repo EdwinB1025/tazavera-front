@@ -208,18 +208,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Status:** accepted
 - **Affects:** R40 (the 404 responses must be documented first)
 
-## R37 — Split `FlavorWheel`
-
-- **Duplicated:** none; the wheel, the list and the keyboard model sit in one 319-line function (a 571-line file).
-- **Where today:** `src/shared/ui/FlavorWheel.tsx`
-- **Why it pays off now:** it is the largest file in the codebase.
-- **Owning capability:** feedback
-- **Proposed change:** `split-flavor-wheel` (L)
-- **Open decision (Augusto):** none
-- **Type:** Refactor (fast lane)
-- **Status:** proposed
-- **Affects:** none
-
 ## R35 — Unify the API result shape
 
 - **Duplicated:** 4 result styles for not-found and failure
