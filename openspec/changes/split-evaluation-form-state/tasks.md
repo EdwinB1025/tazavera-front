@@ -8,7 +8,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 2. Form reducer and hook
 
-- [ ] 2.1 Create `src/pages/evaluation-form/model/form-model.ts` (design.md D2, `FormBusy` moved from `FormActions.tsx`, which imports it from there) and `src/pages/evaluation-form/model/use-evaluation-form.ts` (design.md D3); `EvaluationForm` replaces its nine `useState` calls, `initialState`, `allGroups`, `failureFor`, `save`, `onSave` and `onClose` with `useEvaluationForm`. Protecting tests: the form tests and the card tests. Commit `refactor(evaluations): move the form state into a reducer`.
+- [x] 2.1 Create `src/pages/evaluation-form/model/form-model.ts` (design.md D2, `FormBusy` moved from `FormActions.tsx`, which imports it from there) and `src/pages/evaluation-form/model/use-evaluation-form.ts` (design.md D3); `EvaluationForm` replaces its nine `useState` calls, `initialState`, `allGroups`, `failureFor`, `save`, `onSave` and `onClose` with `useEvaluationForm`. Protecting tests: the form tests and the card tests. Commit `refactor(evaluations): move the form state into a reducer`.
 
 ## 3. Form parts
 

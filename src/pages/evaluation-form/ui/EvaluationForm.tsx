@@ -1,27 +1,10 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 import type { ReactNode } from "react";
 import type { EvaluationItem, OfferingDetail, TaxonomyNode } from "@/shared/api";
-import {
-  EVALUATION_GROUPS,
-  ROAST_LEVELS,
-  buildCreateBody,
-  buildUpdateBody,
-  closeAnEvaluation,
-  completenessOf,
-  createAnEvaluation,
-  emptyFormState,
-  formStateFromEvaluation,
-  toRoastLevel,
-  updateAnEvaluation,
-} from "@/entities/evaluation";
-import type {
-  DescriptorBlockKey,
-  EvaluationCallResult,
-  EvaluationFormState,
-  GroupKey,
-} from "@/entities/evaluation";
+import { EVALUATION_GROUPS, ROAST_LEVELS } from "@/entities/evaluation";
+import type { DescriptorBlockKey } from "@/entities/evaluation";
 import { Card, CardContent, Checkbox, Field, Link, Select } from "@/shared/ui";
 import {
   withDescriptors,
@@ -29,11 +12,11 @@ import {
   withFragranceNotEvaluated,
   withRoastLevel,
 } from "../model/form-updates";
+import { useEvaluationForm } from "../model/use-evaluation-form";
 import { DescriptorBlock } from "./DescriptorBlock";
 import { EvaluationGroupCard } from "./EvaluationGroupCard";
 import type { EvaluationGroupTexts } from "./EvaluationGroupCard";
 import { FormActions } from "./FormActions";
-import type { FormBusy } from "./FormActions";
 import { ScaleLegend } from "./ScaleLegend";
 import type { ScaleLegendTexts } from "./ScaleLegend";
 
@@ -107,23 +90,6 @@ const CAPTIONS_CLASSES = ["flex", "flex-col", "gap-1"].join(" ");
 const CONTEXT_FIELDS_CLASSES = ["grid", "gap-4", "md:grid-cols-2", "md:gap-6"].join(" ");
 const GROUPS_CLASSES = ["flex", "flex-col", "gap-4"].join(" ");
 
-function initialState(
-  offering: OfferingDetail | null,
-  evaluation: EvaluationItem | undefined,
-): EvaluationFormState {
-  // The read carries no roast level: the offering's prefills it (design.md D11).
-  const roastLevel = toRoastLevel(offering?.coffeeInventory?.coffee?.roastLevel);
-  return evaluation ? formStateFromEvaluation(evaluation, roastLevel) : emptyFormState(roastLevel);
-}
-
-/** Every group's open state set to `open`. */
-function allGroups(open: boolean): Record<GroupKey, boolean> {
-  return Object.fromEntries(EVALUATION_GROUPS.map((group) => [group.key, open])) as Record<
-    GroupKey,
-    boolean
-  >;
-}
-
 /**
  * The CVA combined form (design.md D3, D11, D12, D14; spec "Evaluation
  * form"): one state object for the whole form, the page header block, the
@@ -138,27 +104,10 @@ export function EvaluationForm({
   texts,
   evaluation,
 }: EvaluationFormProps): ReactNode {
-  const [state, setState] = useState<EvaluationFormState>(() =>
-    initialState(offering, evaluation),
-  );
-  // The evaluation's `ulid` once it exists: absent until the first save.
-  const [ulid, setUlid] = useState<string | null>(evaluation?.ulid ?? null);
-  const [busy, setBusy] = useState<FormBusy>(null);
-  const [message, setMessage] = useState<string | null>(null);
-  const [roastLevelMissing, setRoastLevelMissing] = useState(false);
-  // Without its offering the evaluation can be neither updated nor closed:
-  // it opens read-only, as a closed one (design.md D17).
-  const [closed, setClosed] = useState(evaluation?.status === "closed" || offering === null);
-  const [highlighted, setHighlighted] = useState(false);
-  // Every group starts collapsed when editable and expanded when closed
-  // (design.md D15).
-  const [openGroups, setOpenGroups] = useState<Record<GroupKey, boolean>>(() =>
-    allGroups(closed),
-  );
-  // The 1–9 legend follows the groups' initial-state rule (design.md D16).
-  const [legendOpen, setLegendOpen] = useState(closed);
-  const readOnly = closed;
-  const completeness = completenessOf(state);
+  const form = useEvaluationForm({ locale, offering, evaluation, messages: texts.actions });
+  const { model, readOnly, completeness, edit: setState } = form;
+  const { values: state, busy, message, roastLevelMissing, highlighted, openGroups, legendOpen } =
+    model;
   const coffeeshopCaption = `${texts.coffeeshopCaption} ${offering?.location?.name ?? ""}`.trim();
   const roasterCaption =
     `${texts.roasterCaption} ${offering?.coffeeInventory?.roastery?.name ?? ""}`.trim();
@@ -169,87 +118,6 @@ export function EvaluationForm({
     storedMethod !== null && !EXTRACTION_METHODS.some((method) => method === storedMethod)
       ? storedMethod
       : null;
-
-  /** The failure message of a write (design.md's error table). */
-  const failureFor = (status: number | null, conflict: string) =>
-    status === 403
-      ? texts.actions.notYoursMessage
-      : status === 409
-        ? conflict
-        : texts.actions.failureMessage;
-
-  /**
-   * Save draft (design.md D4): creates the evaluation the first time and
-   * updates it afterwards. The contract's required roast level is the only
-   * client validation. On the first success the URL becomes the evaluation's
-   * own route, replaced in place so the form and its message stay.
-   */
-  const save = async (): Promise<string | null> => {
-    const roastLevel = state.roastLevel;
-    if (roastLevel === null) {
-      setRoastLevelMissing(true);
-      return null;
-    }
-    setRoastLevelMissing(false);
-    setMessage(null);
-    const sendable = { ...state, roastLevel };
-    const result: EvaluationCallResult<{ ulid?: string }> = ulid
-      ? await updateAnEvaluation(ulid, buildUpdateBody(sendable))
-      : await createAnEvaluation(buildCreateBody(sendable, offering?.ulid ?? ""));
-    if (!result.ok) {
-      setMessage(failureFor(result.status, texts.actions.alreadyClosedMessage));
-      return null;
-    }
-    const saved = ulid ?? result.data.ulid ?? null;
-    if (!ulid && saved) {
-      setUlid(saved);
-      window.history.replaceState(null, "", `/${locale}/manage/evaluations/${saved}`);
-    }
-    return saved;
-  };
-
-  const onSave = async () => {
-    setBusy("save");
-    setHighlighted(false);
-    const saved = await save();
-    setBusy(null);
-    if (saved) setMessage(texts.actions.savedMessage);
-  };
-
-  /**
-   * Close evaluation (design.md D4): saves first, then closes. A `409` names
-   * the incomplete groups the completeness rule reports (design.md D10).
-   */
-  const onClose = async () => {
-    setBusy("close");
-    setHighlighted(false);
-    const saved = await save();
-    if (!saved) {
-      setBusy(null);
-      return;
-    }
-    const result = await closeAnEvaluation(saved);
-    setBusy(null);
-    if (result.ok) {
-      setClosed(true);
-      setOpenGroups(allGroups(true));
-      setLegendOpen(true);
-      setMessage(texts.actions.closedMessage);
-      return;
-    }
-    if (result.status === 409) {
-      // The incomplete groups expand so their highlight is in view (D15).
-      setOpenGroups((current) => {
-        const next = { ...current };
-        for (const group of EVALUATION_GROUPS) {
-          if (completeness[group.key] === false) next[group.key] = true;
-        }
-        return next;
-      });
-    }
-    setHighlighted(result.status === 409);
-    setMessage(failureFor(result.status, texts.actions.incompleteMessage));
-  };
 
   return (
     <form noValidate className={FORM_CLASSES} onSubmit={(event) => event.preventDefault()}>
@@ -322,9 +190,7 @@ export function EvaluationForm({
               readOnly={readOnly}
               highlighted={highlighted && completeness[group.key] === false}
               open={openGroups[group.key]}
-              onOpenChange={(open) =>
-                setOpenGroups((current) => ({ ...current, [group.key]: open }))
-              }
+              onOpenChange={(open) => form.setGroupOpen(group.key, open)}
               top={
                 group.key === "fragranceAroma" && !readOnly ? (
                   <Checkbox
@@ -358,7 +224,7 @@ export function EvaluationForm({
             />
             {/* The legend follows the group holding Main tastes (design.md D16). */}
             {group.key === "flavorAftertaste" ? (
-              <ScaleLegend texts={texts.legend} open={legendOpen} onOpenChange={setLegendOpen} />
+              <ScaleLegend texts={texts.legend} open={legendOpen} onOpenChange={form.setLegendOpen} />
             ) : null}
           </Fragment>
         ))}
@@ -371,8 +237,8 @@ export function EvaluationForm({
         <FormActions
           saveLabel={texts.actions.saveLabel}
           closeLabel={texts.actions.closeLabel}
-          onSave={onSave}
-          onClose={onClose}
+          onSave={form.onSave}
+          onClose={form.onClose}
           busy={busy}
           message={message}
         />
