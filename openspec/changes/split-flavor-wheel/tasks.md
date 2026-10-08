@@ -12,7 +12,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 3. Description panel
 
-- [ ] 3.1 Create `src/shared/ui/FlavorWheelPanel.tsx` with `FlavorWheelPanelProps` and `FlavorWheelPanel` (design.md D2), moving the panel markup and `PANEL_CLASSES`. Verify: the related tests pass, including the wheel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors. Commit `refactor(feedback): extract the flavor wheel description panel`.
+- [x] 3.1 Create `src/shared/ui/FlavorWheelPanel.tsx` with `FlavorWheelPanelProps` and `FlavorWheelPanel` (design.md D2), moving the panel markup and `PANEL_CLASSES`. Verify: the related tests pass, including the wheel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors. Commit `refactor(feedback): extract the flavor wheel description panel`.
 
 ## 4. SVG wheel
 

@@ -12,6 +12,7 @@ import {
   layoutWheel,
 } from "./flavor-wheel-geometry";
 import { ActiveName, SegmentLabel } from "./FlavorWheelLabels";
+import { FlavorWheelPanel } from "./FlavorWheelPanel";
 import { taxonomyColorRule } from "./taxonomy-color";
 import {
   SWATCH_CLASSES,
@@ -76,8 +77,6 @@ const GROUP_LEGEND_CLASSES = "flex flex-wrap gap-x-4 gap-y-1";
 const GROUP_ARC_RADIUS = 74;
 const GROUP_NAME_RADIUS = 62;
 const GROUP_NAME_FONT_SIZE = 11;
-const PANEL_CLASSES =
-  "flex min-h-24 flex-col gap-2 rounded-field border border-border-subtle p-4";
 const ROW_CLASSES =
   "flex min-h-10 cursor-pointer items-center gap-2 rounded-field px-2 py-1 text-text-primary hover:bg-surface-section focus-visible:focus-ring";
 const ROW_INDENT = ["", "ms-6", "ms-12"];
@@ -322,30 +321,7 @@ export function FlavorWheel({
           </ul>
         ) : null}
 
-        <div data-slot="flavor-wheel-panel" className={PANEL_CLASSES}>
-          {active ? (
-            <>
-              <div className="flex flex-wrap items-center gap-2">
-                <span
-                  className={SWATCH_CLASSES}
-                  style={swatchStyle(active)}
-                  aria-hidden="true"
-                />
-                <span className="type-subheading">{active.name}</span>
-                <span className="type-body ms-auto tabular-nums">
-                  {legend(active)}
-                </span>
-              </div>
-              {active.description !== null ? (
-                <p id={descriptionId(active.id)} className="type-body">
-                  {active.description}
-                </p>
-              ) : null}
-            </>
-          ) : (
-            <p className="type-body">{texts.hint}</p>
-          )}
-        </div>
+        <FlavorWheelPanel active={active} legend={legend} hint={texts.hint} />
 
         <div className="flex flex-col">
           <Collapsible>
