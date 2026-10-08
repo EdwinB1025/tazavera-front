@@ -148,3 +148,216 @@ One section per candidate, in this format:
 - **Open decision (Augusto):** whether to change D9
 - **Status:** proposed
 - **Affects:** none
+
+## R20–R38 — Technical review roadmap (2026-10-08)
+
+The source is `docs/review/technical-review.md` §3, which has each candidate's files, principle, risk, protecting tests and expected grade. Every entry is proposed. The order of the list is the order in §3.3.
+
+## R20 — Upgrade Next.js to 16.4 (security advisories)
+
+- **Duplicated:** none. `next@16.3.6` carries 6 high advisories, fixed in 16.4.0, and `source-map-js` has a transitive advisory.
+- **Where today:** `package.json`, `package-lock.json`
+- **Why it pays off now:** it is the only way to get a clean `npm audit`.
+- **Owning capability:** app-shell
+- **Proposed change:** `upgrade-next-16-4` (S)
+- **Open decision (Augusto):** approve the dependency upgrade
+- **Status:** proposed
+- **Affects:** every change (full suite, build, axe rerun)
+
+## R21 — Remove the intra-segment import cycles
+
+- **Duplicated:** 3 cycles through the `shared/ui` barrel and the `RetryButton` re-export shim
+- **Where today:** `src/shared/ui/Sidebar.tsx:7`, `src/shared/api/coffees.ts:1`, `src/widgets/offering-list/ui/RetryButton.tsx`
+- **Why it pays off now:** R28 needs a barrel without cycles.
+- **Owning capability:** content-structure
+- **Proposed change:** `tidy-shared-imports` (S)
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** R28
+
+## R22 — Shared Field-control hook
+
+- **Duplicated:** the same Field-context resolution, copied 4–6 times (cyclomatic complexity 15–25)
+- **Where today:** `src/shared/ui/Input.tsx`, `Select.tsx`, `Textarea.tsx`, `PasswordInput.tsx`, `Checkbox.tsx`, `Combobox.tsx`
+- **Why it pays off now:** every new control would add another copy.
+- **Owning capability:** form-fields
+- **Proposed change:** `extract-field-control-hook` (M)
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** none
+
+## R23 — Remove the cross-feature auth imports (resolves R13)
+
+- **Duplicated:** `EvaluationsAccess` duplicates `SessionGate`, and there are 2 same-layer feature imports.
+- **Where today:** `src/features/manage-evaluations/ui/EvaluationsAccess.tsx`, `src/features/evaluate-offering/ui/EvaluateLink.tsx`
+- **Why it pays off now:** these are the only FSD violations left in production code.
+- **Owning capability:** evaluations
+- **Proposed change:** `remove-cross-feature-auth-imports` (S)
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** R13, R5
+
+## R24 — Route the public reads through `publicRequest`
+
+- **Duplicated:** 6 hand-built API URLs
+- **Where today:** `src/shared/api/coffees.ts`, `src/features/offering-facets/api/search-roasteries.ts`, `src/entities/evaluation/api/public-evaluations.ts`, `src/entities/taxonomy/api/taxonomies.ts`, `src/widgets/offering-list/api/offerings.ts`
+- **Why it pays off now:** it gives one seam for the base URL, the headers and caching (R30).
+- **Owning capability:** offering-catalog
+- **Proposed change:** `route-public-reads-through-client` (S)
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** R30, R35
+
+## R25 — Move the account requests to the api segment
+
+- **Duplicated:** a 33-line password-fields clone between `PasswordForm` and `RegisterForm`. Separately, the forms do their own transport and status mapping.
+- **Where today:** `src/features/user-account/ui/ProfileForm.tsx`, `PasswordForm.tsx`, `RegisterForm.tsx`, `DangerZone.tsx`
+- **Why it pays off now:** R8 (per-field 422 errors) would land in four places.
+- **Owning capability:** user-account
+- **Proposed change:** `move-account-requests-to-api` (M)
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** R8, R35
+
+## R26 — Shared "page + distinct offerings" loader for evaluations
+
+- **Duplicated:** the offering join for a page of evaluations
+- **Where today:** `src/pages/evaluations-list/ui/EvaluationsList.tsx:56–78`, `src/widgets/public-evaluation-list/ui/PublicEvaluationList.tsx:44–60`
+- **Why it pays off now:** any third evaluation list would copy it.
+- **Owning capability:** evaluations
+- **Proposed change:** `share-evaluation-offerings-loader` (S)
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** none
+
+## R27 — Split `EvaluationRowCard`
+
+- **Duplicated:** two render trees behind a flag (cyclomatic complexity 37, the highest in the code)
+- **Where today:** `src/widgets/evaluation-row/ui/EvaluationRowCard.tsx`
+- **Why it pays off now:** it is the most complex unit in the codebase.
+- **Owning capability:** evaluations
+- **Proposed change:** `split-evaluation-row-card` (M)
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** none
+
+## R28 — Reduce the shared client bundle
+
+- **Duplicated:** cmdk and Radix (68 KB gzipped) load on every route; each route ships about 220 KB gzipped.
+- **Where today:** the consumers of `src/shared/ui/index.ts`, `next.config.ts`
+- **Why it pays off now:** the Performance grade is C.
+- **Owning capability:** app-shell
+- **Proposed change:** `reduce-shared-client-bundle` (M, starts with an investigation)
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** comes after R21
+
+## R29 — Speed up the test environment (resolves R15)
+
+- **Duplicated:** 195 jsdom set-ups take 51% of the 159 s suite.
+- **Where today:** `vitest.config.mts`, `src/pages/evaluation-form/ui/EvaluationForm.test.tsx`
+- **Why it pays off now:** it makes every change's checks faster.
+- **Owning capability:** testing
+- **Proposed change:** `speed-up-test-environment` (S)
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** R15
+
+## R30 — Cache the reference reads (with R19)
+
+- **Duplicated:** `/taxonomies` and `/coffees` are fetched uncached on every render.
+- **Where today:** `src/entities/taxonomy/api/taxonomies.ts`, `src/shared/api/coffees.ts`, `src/pages/offering-detail/ui/OfferingDetailScreen.tsx`
+- **Why it pays off now:** it would cut a detail view from 3 requests to 1.
+- **Owning capability:** offering-catalog
+- **Proposed change:** `cache-reference-reads` (S)
+- **Open decision (Augusto):** a caching design decision; it changes D9 of add-public-evaluations (R19)
+- **Status:** proposed
+- **Affects:** R19
+
+## R31 — Harden the response headers
+
+- **Duplicated:** none. The `nosniff`, `Referrer-Policy` and `Permissions-Policy` headers are missing, and `X-Powered-By` is exposed.
+- **Where today:** `proxy.ts:48–120`, `next.config.ts:9`
+- **Why it pays off now:** it raises the Security headers indicator from B to A. R3 can ride with it.
+- **Owning capability:** app-shell
+- **Proposed change:** `harden-response-headers` (S)
+- **Open decision (Augusto):** approve the change to the security headers (it changes specified behaviour)
+- **Status:** proposed
+- **Affects:** R3
+
+## R32 — Label the landmarks and fix the heading order
+
+- **Duplicated:** 4 unlabelled `<nav>`, card headings that skip a level, a signed-out prompt without an `h1`, and a `treeitem` without `aria-selected`.
+- **Where today:** `PrimaryNav.tsx:65`, `HomeHero.tsx:78`, `AboutContent.tsx:114`, `AppSidebar.tsx:67`, `OfferingCard.tsx:125`, `CoffeeshopCard.tsx:49`, `FlavorWheel.tsx:516`
+- **Why it pays off now:** these are axe best-practice findings (0 A/AA violations), so fixing them raises Usability from B to A.
+- **Owning capability:** app-shell, content-structure
+- **Proposed change:** `label-landmarks-and-headings` (M)
+- **Open decision (Augusto):** the new catalog texts and the spec wording; whether R17 joins this change
+- **Status:** proposed
+- **Affects:** R17
+
+## R33 — Split `ConsensusPanel`
+
+- **Duplicated:** none; a 480-line file with a 252-line component
+- **Where today:** `src/widgets/offering-detail/ui/ConsensusPanel.tsx`
+- **Why it pays off now:** it raises Modifiability (fewer files over 300 lines).
+- **Owning capability:** offering-catalog
+- **Proposed change:** `split-consensus-panel` (M)
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** none
+
+## R34 — Move the evaluation form state into a model
+
+- **Duplicated:** none; 9 `useState` calls, cyclomatic complexity 25, and a 205-line `EvaluationGroupCard`
+- **Where today:** `src/pages/evaluation-form/ui/EvaluationForm.tsx`, `EvaluationGroupCard.tsx`
+- **Why it pays off now:** it raises Modifiability and helps R15/R29.
+- **Owning capability:** evaluations
+- **Proposed change:** `split-evaluation-form-state` (L)
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** none
+
+## R35 — Unify the API result shape
+
+- **Duplicated:** 4 result styles for not-found and failure
+- **Where today:** every `*/api/*.ts`
+- **Why it pays off now:** one way to handle errors across the code. It comes after R24 and R25.
+- **Owning capability:** shared/api (with every consumer)
+- **Proposed change:** `unify-api-result-shape` (L)
+- **Open decision (Augusto):** a design decision on the result type
+- **Status:** proposed
+- **Affects:** R8
+
+## R36 — Prune the unused exports (resolves R16)
+
+- **Duplicated:** knip finds 61 unused exports (scaffold primitives, over-wide indexes, `fetchVerifiedOfferings`).
+- **Where today:** `src/shared/ui/Sidebar.tsx`, `DropdownMenu.tsx`, `Sheet.tsx`, `AlertDialog.tsx`, `src/shared/ui/index.ts`, the widget indexes
+- **Why it pays off now:** it improves analysability. It goes last, so it does not fight the splits. R4 can ride with it.
+- **Owning capability:** content-structure
+- **Proposed change:** `prune-unused-exports` (M)
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** R16, R4
+
+## R37 — Split `FlavorWheel`
+
+- **Duplicated:** none; the wheel, the list and the keyboard model sit in one 319-line function (a 571-line file).
+- **Where today:** `src/shared/ui/FlavorWheel.tsx`
+- **Why it pays off now:** it is the largest file in the codebase.
+- **Owning capability:** feedback
+- **Proposed change:** `split-flavor-wheel` (L)
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** none
+
+## R38 — Split the account and management panels
+
+- **Duplicated:** none; long components (`ContactSection` with 186 lines, `ManageOfferingsPanel` with 361, `LocationsPanel` with 138)
+- **Where today:** `src/features/user-account/ui/ContactSection.tsx`, `src/pages/manage-offerings/ui/ManageOfferingsPanel.tsx`, `src/features/location-management/ui/LocationsPanel.tsx`
+- **Why it pays off now:** together with R33, R34 and R37, it gets the files over 300 lines down to 5 or fewer.
+- **Owning capability:** user-account, offering-management
+- **Proposed change:** `split-account-and-management-panels` (M)
+- **Open decision (Augusto):** none
+- **Status:** proposed
+- **Affects:** none
