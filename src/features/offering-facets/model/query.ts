@@ -69,7 +69,7 @@ const TEXT_LIMITS: Record<TextKey, number> = {
   city: 90,
 };
 
-export const SCORE_MIN = 0;
+export const SCORE_MIN = 60;
 export const SCORE_MAX = 100;
 
 /** The sort options in display order (design.md D6). */
