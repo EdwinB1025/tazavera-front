@@ -33,10 +33,6 @@
   "exclude": [
     "node_modules",
     "qa/src/entities/offering/ui/OfferingCard.test.tsx",
-    "qa/src/features/offering-facets/model/applied.test.ts",
-    "qa/src/features/offering-facets/ui/OfferingFacets.test.tsx",
-    "qa/src/shared/ui/FacetCascade.test.tsx",
-    "qa/src/shared/ui/facet-disabled.test.tsx",
     "qa/src/widgets/app-header/ui/AppHeader.test.tsx",
     "qa/src/widgets/evaluation-row/ui/EvaluationRowCard.test.tsx",
     "qa/src/widgets/offering-list/lib/resolve-taxonomies.test.ts"

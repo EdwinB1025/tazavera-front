@@ -8,8 +8,11 @@ import { SeeMoreButton, type SeeMoreTexts } from "./SeeMoreButton";
 // ─── UI-specific types (declared before the component) ───
 // Options and texts come from the consumer; no generated API type is used.
 
-/** A taxonomy option with its data colour. */
-export type CascadeChildOption = FacetOption & { color: string };
+/**
+ * A taxonomy option with its data colour; a chip without one takes `""`, as
+ * the descriptor rows do (refine-offering-facets-aut D5).
+ */
+export type CascadeChildOption = FacetOption & { color?: string };
 
 /** Two levels: a top-level option (level 0) and its optional children (level 1). */
 export type CascadeOption = CascadeChildOption & { children?: CascadeChildOption[] };
@@ -27,7 +30,7 @@ export type FacetCascadeProps = {
 };
 
 function chip(option: CascadeChildOption, level: 0 | 1): ChipOption {
-  return { value: option.value, label: option.label, color: option.color, level };
+  return { value: option.value, label: option.label, color: option.color ?? "", level };
 }
 
 /**
