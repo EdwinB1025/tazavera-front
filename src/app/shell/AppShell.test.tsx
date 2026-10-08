@@ -15,6 +15,9 @@ let shellPathname = "/es";
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: () => {} }),
   usePathname: () => shellPathname,
+  // Read by the shell's navigation tracker (fix-production-aut-findings
+  // design.md D5); no assertion depends on it.
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 // The header actions call the public entries of `@/features/auth` (design.md
