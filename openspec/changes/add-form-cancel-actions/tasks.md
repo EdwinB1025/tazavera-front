@@ -16,7 +16,7 @@
 
 ## 4. New offering Cancel scenario (R57, offering-management)
 
-- [ ] 4.1 In `NewOfferingForm.test.tsx` add the case for "Cancel leaves for the list" (the link named "Cancel" has `href` `/es/manage/offerings` and follows the submit button) — verifying it passes on the current code (design.md D4), and lint and typecheck exit 0
+- [x] 4.1 In `NewOfferingForm.test.tsx` add the case for "Cancel leaves for the list" (the link named "Cancel" has `href` `/es/manage/offerings` and follows the submit button) — verifying it passes on the current code (design.md D4), and lint and typecheck exit 0
 
 ## 5. Integration verification
 

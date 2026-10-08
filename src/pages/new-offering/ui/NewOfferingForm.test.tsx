@@ -398,3 +398,14 @@ describe("NewOfferingForm — section card panel (design.md D15)", () => {
     expectSectionCardPanel(container);
   });
 });
+
+describe("NewOfferingForm — cancelling (add-form-cancel-actions design.md D4)", () => {
+  it("Cancel leaves for the list", async () => {
+    await renderLoaded();
+    const cancel = screen.getByRole("link", { name: TEXTS.cancelLabel });
+    expect(cancel.getAttribute("href")).toBe("/en/manage/offerings");
+    expect(submitButton().nextElementSibling).toBe(cancel);
+    fireEvent.click(cancel);
+    expect(createCalls()).toHaveLength(0);
+  });
+});
