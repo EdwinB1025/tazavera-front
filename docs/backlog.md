@@ -220,18 +220,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Status:** accepted
 - **Affects:** R40 (the 404 responses must be documented first)
 
-## R34 — Move the evaluation form state into a model
-
-- **Duplicated:** none; 9 `useState` calls, cyclomatic complexity 25, and a 205-line `EvaluationGroupCard`
-- **Where today:** `src/pages/evaluation-form/ui/EvaluationForm.tsx`, `EvaluationGroupCard.tsx`
-- **Why it pays off now:** it raises Modifiability and helps R15/R29.
-- **Owning capability:** evaluations
-- **Proposed change:** `split-evaluation-form-state` (L)
-- **Open decision (Augusto):** none
-- **Type:** Refactor (fast lane)
-- **Status:** proposed
-- **Affects:** none
-
 ## R38 — Split the account and management panels
 
 - **Duplicated:** none; long components (`ContactSection` with 186 lines, `ManageOfferingsPanel` with 361, `LocationsPanel` with 138)
