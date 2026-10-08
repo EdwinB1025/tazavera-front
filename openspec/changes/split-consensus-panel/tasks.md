@@ -4,7 +4,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 1. Score card
 
-- [ ] 1.1 Create `src/widgets/offering-detail/ui/ScoreCard.tsx` with `ScoreCardTexts`, `ScoreCardProps` and `ScoreCard` (design.md D2), moving the score card, its tier words, `SCORE_SCALE` and `SCORE_ROW_CLASSES`; `ConsensusPanelTexts` takes `ScoreCardTexts` in place of the four rating keys (design.md D3). Verify: the related tests pass, including the panel tests, with no test file changed; `npx tsc --noEmit` reports 0 errors; `npm run lint` reports 0 errors. Commit `refactor(offering-catalog): extract the consensus score card`.
+- [x] 1.1 Create `src/widgets/offering-detail/ui/ScoreCard.tsx` with `ScoreCardTexts`, `ScoreCardProps` and `ScoreCard` (design.md D2), moving the score card, its tier words, `SCORE_SCALE` and `SCORE_ROW_CLASSES`; `ConsensusPanelTexts` takes `ScoreCardTexts` in place of the four rating keys (design.md D3). Verify: the related tests pass, including the panel tests, with no test file changed; `npx tsc --noEmit` reports 0 errors; `npm run lint` reports 0 errors. Commit `refactor(offering-catalog): extract the consensus score card`.
 
 ## 2. Attributes card
 

@@ -4,7 +4,6 @@ import type {
   OfferingTaxonomyNode,
   TaxonomyNode,
 } from "@/shared/api";
-import { ratingTierFor } from "@/entities/offering";
 import {
   assignWheelGroups,
   buildDescriptorRows,
@@ -12,7 +11,6 @@ import {
   buildTaxonomyLookup,
 } from "@/entities/taxonomy";
 import {
-  Badge,
   BeanScale,
   Card,
   CardAside,
@@ -26,14 +24,12 @@ import {
 } from "@/shared/ui";
 import { concordanceBand } from "../lib/concordance";
 import type { ConcordanceBand } from "../lib/concordance";
+import { ScoreCard } from "./ScoreCard";
+import type { ScoreCardTexts } from "./ScoreCard";
 
 // ─── UI-specific types (declared before the component) ───
 
-export type ConsensusPanelTexts = {
-  ratingExceptionalLabel: string;
-  ratingExcellentLabel: string;
-  ratingGoodLabel: string;
-  ratingCommercialLabel: string;
+export type ConsensusPanelTexts = ScoreCardTexts & {
   detailStatusHeading: string;
   fieldEvaluationCount: string;
   fieldDefectiveCount: string;
@@ -83,7 +79,6 @@ export type ConsensusPanelProps = {
 };
 
 // ─── Fixed pieces (no interface text) ───
-const SCORE_SCALE = "/100";
 
 // The score card above the card grid, 1.5rem apart.
 const PANEL_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
@@ -91,11 +86,6 @@ const PANEL_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
 // The card grid: one column below `lg`, two equal columns from `lg`, with a
 // 1.5rem gap; grid items stretch, so the cards of a row share one height.
 const GRID_CLASSES = ["grid", "grid-cols-1", "gap-6", "lg:grid-cols-2"].join(
-  " ",
-);
-
-// Score, `/100` and rating badge on one row, as on the offering card.
-const SCORE_ROW_CLASSES = ["flex", "flex-wrap", "items-baseline", "gap-2"].join(
   " ",
 );
 
@@ -218,16 +208,6 @@ export function ConsensusPanel({
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
   });
-  const tier =
-    offering.verificationStatus === "verified"
-      ? ratingTierFor(offering.cuppingAvg)
-      : null;
-  const tierWords = {
-    "rating-exceptional": texts.ratingExceptionalLabel,
-    "rating-excellent": texts.ratingExcellentLabel,
-    "rating-good": texts.ratingGoodLabel,
-    "rating-commercial": texts.ratingCommercialLabel,
-  };
   const bandWords: Record<ConcordanceBand, string> = {
     low: texts.concordanceLow,
     moderate: texts.concordanceModerate,
@@ -383,17 +363,7 @@ export function ConsensusPanel({
 
   return (
     <div className={PANEL_CLASSES}>
-      {tier !== null ? (
-        <Card layout="stacked">
-          <CardContent>
-            <div className={SCORE_ROW_CLASSES}>
-              <div className="type-score">{offering.cuppingAvg}</div>
-              <div className="type-meta">{SCORE_SCALE}</div>
-              <Badge variant={tier}>{tierWords[tier]}</Badge>
-            </div>
-          </CardContent>
-        </Card>
-      ) : null}
+      <ScoreCard offering={offering} texts={texts} />
       <div className={GRID_CLASSES}>
         {offering.verificationStatus === "verified" ? (
           <Card layout="stacked">
