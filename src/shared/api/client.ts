@@ -65,7 +65,8 @@ export async function request(
 
 /** A public request: sent without credentials (spec: "Public endpoints need no session"). */
 export function publicRequest(path: string, init?: RequestInit): Promise<Response> {
-  return fetch(`${apiUrl()}${path}`, init);
+  const url = `${apiUrl()}${path}`;
+  return init === undefined ? fetch(url) : fetch(url, init);
 }
 
 /** One request with the current grant attached (design.md D5). */
