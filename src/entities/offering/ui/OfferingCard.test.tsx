@@ -177,7 +177,6 @@ function renderCard(options: RenderOptions = {}) {
   return render(
     <OfferingCard
       offering={options.offering ?? OFFERING}
-      locale="es"
       taxonomies={options.taxonomies ?? TAXONOMIES}
       texts={TEXTS}
       actions={options.actions}

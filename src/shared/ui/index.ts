@@ -9,6 +9,8 @@ export { Button } from "./Button";
 export type { ButtonProps, ButtonVariant, ButtonSize } from "./Button";
 export { Link, LINK_CLASSES } from "./Link";
 export type { LinkProps } from "./Link";
+export { RouteButton } from "./RouteButton";
+export type { RouteButtonProps } from "./RouteButton";
 export { Field } from "./Field";
 export type { FieldProps } from "./Field";
 export { Input } from "./Input";
