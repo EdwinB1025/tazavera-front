@@ -51,6 +51,7 @@ The entries below follow this order. The order runs security first, then the sha
 | 25 | R1 | none (Playwright suite) | Change (tests) | — | the pre-deployment E2E suite |
 | 26 | R43 | `adopt-next-intl-routing` | Change | L | last priority (Product owner, 2026-10-08); after R28 and R31 |
 | 27 | R44 | none yet | Change (auth, API) | M | Product owner: API change on the web side and contract update |
+| 28 | R45 | none yet | Change (behaviour, API) | M | Product owner: API change and contract update; not to be designed yet |
 
 Every entry of the technical review (R20–R39) takes the fast lane by Product owner's decision of 2026-10-08, including R30, R31 and R32, which change a design decision, security headers and texts; R17 and R19 ride with R32 and R30. R3 (tests, rides with R31) and R4 (spec wording) are typed `Change`.
 
@@ -116,6 +117,18 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Type:** Change (touches the auth flow and the API contract)
 - **Status:** deferred
 - **Affects:** needs an API change by Product owner and a `contracts/openapi.yaml` update before any front work
+
+## R45 — Ask for the first location in coffee-shop registration
+
+- **Duplicated:** none. Coffee-shop registration does not ask for a location; the user creates the first one after signing in, in Manage locations.
+- **Where today:** the coffee-shop register form (`/[locale]/register/coffeeshop`, `src/features/user-account`); the Manage locations form (`src/features/location-management`)
+- **Why it pays off now:** the coffee shop is usable as soon as it registers, without a second step
+- **Owning capability:** user-account, offering-management
+- **Proposed change:** none yet. Later, through the normal flow (design summary needed): the coffee-shop register form adds the location fields, reusing the Manage locations form fields; Manage locations stays for editing and adding more locations
+- **Open decision (Augusto):** answered 2026-10-08: registration asks for the first location's data, reversing production AUT point 11, decision A ("the location is created after the first sign-in, in Manage locations") once this entry is done; until then the current behaviour stays. Not to be designed now. It cannot be front-only today: `POST /locations` needs `auth:api` + `profile:write`, and the front has no token right after `POST /register` (see R44); `POST /register` (`StoreUserRequest`) does not accept location data. API change first, by Product owner: `StoreUserRequest` accepts a `location` block with the `StoreLocationRequest` rules (`name`, `description`, `latitud`/`longitud`, `contact` with `address` and `city`), required when `role=coffeeshop`; `UserController::store` creates the location and its primary contact in the same `DB::transaction`; Scribe regenerated and `contracts/openapi.yaml` updated
+- **Type:** Change (changes what users see and the API contract)
+- **Status:** deferred
+- **Affects:** R44 (same registration step); the coffee-shop register screen and Manage locations
 
 ## R28 — Reduce the shared client bundle
 
