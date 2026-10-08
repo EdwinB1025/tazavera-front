@@ -12,7 +12,7 @@
   - `ThemeToggle.test.tsx`, "Switch presentation": the exact class list gains `shrink-0` after `size-10`.
 
   Expected: the new and updated tests fail only on the missing classes; every other test passes.
-- [ ] 1.2 Implement:
+- [x] 1.2 Implement:
   - `LanguageSelect.tsx`: wrap the uppercased locale code in a `<span className="sr-only md:not-sr-only">`; the globe, chevron, trigger classes and `aria-label` are unchanged.
   - `AppHeader.tsx`: the left group classes become `flex items-center gap-2 md:gap-4`.
   - `ThemeToggle.tsx`: add `shrink-0` after `size-10`.
