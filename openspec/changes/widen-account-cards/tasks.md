@@ -3,7 +3,7 @@ No derived API types are needed: the change only moves layout classes.
 ## 1. Account page fills the container (user-account)
 
 - [x] 1.1 Add to `src/pages/account/ui/AccountScreen.test.tsx` one test for the scenario "Sections fill the container" (spec `user-account`): it renders `AccountScreen` and asserts the column that holds the heading block and the client region has the class `w-full` and not `max-w-lg`; it then renders an `AccountSection` from `@/features/user-account` with one child and asserts the child's wrapper inside the card body has the class `md:max-w-160` and sits outside the header band (`.bg-surface-section`). Verify: the new test fails on `max-w-lg` and on the missing `md:max-w-160`; the other tests of the file pass; `npx tsc --noEmit` and `npm run lint` report no errors.
-- [ ] 1.2 Implement design.md D1 in `src/pages/account/ui/AccountScreen.tsx` and D2 in `src/features/user-account/ui/AccountSection.tsx`. Protecting tests: `src/pages/account/ui/AccountScreen.test.tsx`, `src/features/user-account/ui/AccountSection.test.tsx`, `src/pages/account/ui/AccountClient.test.tsx`. Verify: `npx vitest related` on the changed files passes, the test of 1.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 1.2 Implement design.md D1 in `src/pages/account/ui/AccountScreen.tsx` and D2 in `src/features/user-account/ui/AccountSection.tsx`. Protecting tests: `src/pages/account/ui/AccountScreen.test.tsx`, `src/features/user-account/ui/AccountSection.test.tsx`, `src/pages/account/ui/AccountClient.test.tsx`. Verify: `npx vitest related` on the changed files passes, the test of 1.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 2. Registration card fills the container (user-account)
 

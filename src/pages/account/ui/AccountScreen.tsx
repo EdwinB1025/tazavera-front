@@ -81,7 +81,7 @@ export function AccountScreen({ locale }: AccountScreenProps): ReactNode {
   return (
     <div className="flex-1">
       <PageSection surface="page" containerClassName="flex flex-col">
-        <div className="flex w-full max-w-lg flex-col gap-8">
+        <div className="flex w-full flex-col gap-8">
           <div className="flex flex-col gap-2">
             <h1 className="type-heading">{catalog.accountTitle}</h1>
             <p className="type-body">{catalog.accountIntro}</p>
