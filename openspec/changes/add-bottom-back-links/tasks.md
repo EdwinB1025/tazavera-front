@@ -2,11 +2,11 @@
 
 ## 1. Foundation: types
 
-- [ ] 1.1 Confirm this change defines no derived API type and touches no generated type: `git status --short` shows nothing under `src/shared/api/` (checked off with task 2.1)
+- [x] 1.1 Confirm this change defines no derived API type and touches no generated type: `git status --short` shows nothing under `src/shared/api/` (checked off with task 2.1)
 
 ## 2. Detail views (R63, offering-catalog)
 
-- [ ] 2.1 In `OfferingDetailContent.test.tsx` add the case for "Back link at the end" (success: two links named `texts.backLabel`, both `href` `/es/offerings`; the last follows the `tabpanel` and is not inside it) and switch the "Back link" and "Detail on the page background" cases to `getAllByRole(...)[0]`; in `CoffeeshopDetailContent.test.tsx` add the same case ("Volver a cafeterías", `/es/coffeeshops`) and switch the "Back link" case to `getAllByRole(...)[0]` — verifying the two new cases fail because the second link is missing and every other related case passes
+- [x] 2.1 In `OfferingDetailContent.test.tsx` add the case for "Back link at the end" (success: two links named `texts.backLabel`, both `href` `/es/offerings`; the last follows the `tabpanel` and is not inside it) and switch the "Back link" and "Detail on the page background" cases to `getAllByRole(...)[0]`; in `CoffeeshopDetailContent.test.tsx` add the same case ("Volver a cafeterías", `/es/coffeeshops`) and switch the "Back link" case to `getAllByRole(...)[0]` — verifying the two new cases fail because the second link is missing and every other related case passes
 - [ ] 2.2 Implement design.md D1 and D2 in `OfferingDetailContent.tsx` and `CoffeeshopDetailContent.tsx` — verifying `npx vitest related` over the changed files passes, and lint and typecheck exit 0
 
 ## 3. Evaluation views (R63, evaluations)

@@ -103,9 +103,18 @@ describe("CoffeeshopDetailContent", () => {
 
   it("links back to the directory of the locale (spec: Back link)", () => {
     renderDetail("offerings");
-    expect(screen.getByRole("link", { name: "Volver a cafeterías" }).getAttribute("href")).toBe(
+    expect(screen.getAllByRole("link", { name: "Volver a cafeterías" })[0].getAttribute("href")).toBe(
       "/es/coffeeshops",
     );
+  });
+
+  it("Back link at the end", () => {
+    renderDetail("offerings");
+    const links = screen.getAllByRole("link", { name: "Volver a cafeterías" });
+    expect(links.map((link) => link.getAttribute("href"))).toEqual(["/es/coffeeshops", "/es/coffeeshops"]);
+    const panel = screen.getByRole("tabpanel");
+    expect(panel.contains(links[1])).toBe(false);
+    expect(panel.compareDocumentPosition(links[1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("selects Ofertas with no tab or an unknown one (spec: Default tab)", () => {

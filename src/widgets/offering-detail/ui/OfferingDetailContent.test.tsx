@@ -85,8 +85,17 @@ describe("OfferingDetailContent", () => {
   it("renders the back link to the offerings route of the locale (spec: Back link)", () => {
     renderContent(SUCCESS);
     expect(
-      screen.getByRole("link", { name: TEXTS.backLabel }).getAttribute("href"),
+      screen.getAllByRole("link", { name: TEXTS.backLabel })[0].getAttribute("href"),
     ).toBe("/es/offerings");
+  });
+
+  it("Back link at the end", () => {
+    renderContent(SUCCESS);
+    const links = screen.getAllByRole("link", { name: TEXTS.backLabel });
+    expect(links.map((link) => link.getAttribute("href"))).toEqual(["/es/offerings", "/es/offerings"]);
+    const panel = screen.getByRole("tabpanel");
+    expect(panel.contains(links[1])).toBe(false);
+    expect(panel.compareDocumentPosition(links[1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("renders the header block and the tabs in one section on the page background, 2rem apart (spec: Detail on the page background; design.md D9)", () => {
@@ -96,7 +105,7 @@ describe("OfferingDetailContent", () => {
     const section = sections[0];
     expect(section.className.split(/\s+/)).toContain("bg-surface-page");
     expect(container.querySelector('[class~="bg-surface-section"]')).toBeNull();
-    const back = screen.getByRole("link", { name: TEXTS.backLabel });
+    const back = screen.getAllByRole("link", { name: TEXTS.backLabel })[0];
     const heading = screen.getByRole("heading", { level: 1 });
     const tablist = screen.getByRole("tablist");
     for (const element of [back, heading, tablist]) {
