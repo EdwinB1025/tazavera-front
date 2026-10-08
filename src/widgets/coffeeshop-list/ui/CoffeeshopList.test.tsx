@@ -31,7 +31,7 @@ const TEXTS: CoffeeshopListTexts = {
   locationsCount: "{count} ubicaciones",
   offeringsCount: "Ofertas: {count}",
   verifiedCount: "Verificadas: {count}",
-  viewLabel: "Ver",
+  viewLabel: "Ver ofertas",
   previousLabel: "Anterior",
   nextLabel: "Siguiente",
   navigationLabel: "Paginación",
