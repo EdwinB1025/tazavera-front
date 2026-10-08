@@ -36,6 +36,7 @@
     "qa/src/widgets/app-header/ui/AppHeader.test.tsx",
     "qa/src/widgets/app-header/ui/ThemeSelect.test.tsx",
     "qa/src/widgets/evaluation-row/ui/EvaluationRowCard.test.tsx",
-    "qa/src/widgets/offering-list/lib/resolve-taxonomies.test.ts"
+    "qa/src/widgets/offering-list/lib/resolve-taxonomies.test.ts",
+    "qa/src/pages/evaluation-form/ui/FormActions.test.tsx"
   ]
 }

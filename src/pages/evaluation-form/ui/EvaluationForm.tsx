@@ -29,6 +29,7 @@ export type EvaluationFormTexts = {
   actions: {
     saveLabel: string;
     closeLabel: string;
+    cancelLabel: string;
     savedMessage: string;
     closedMessage: string;
     incompleteMessage: string;
@@ -61,7 +62,7 @@ export type EvaluationFormProps = {
 
 // ─── Layout end states (design.md D14; the summary §9) ───
 // Below `md` the page keeps room for the sticky actions bar.
-const FORM_CLASSES = ["flex", "flex-col", "gap-8", "pb-28", "md:pb-0"].join(" ");
+const FORM_CLASSES = ["flex", "flex-col", "gap-8", "pb-36", "md:pb-0"].join(" ");
 
 /**
  * The CVA combined form (design.md D3, D11, D12, D14; spec "Evaluation
@@ -100,6 +101,8 @@ export function EvaluationForm({
         <FormActions
           saveLabel={texts.actions.saveLabel}
           closeLabel={texts.actions.closeLabel}
+          cancelLabel={texts.actions.cancelLabel}
+          cancelHref={`/${locale}/manage/evaluations`}
           onSave={form.onSave}
           onClose={form.onClose}
           busy={model.busy}
