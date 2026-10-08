@@ -31,7 +31,7 @@ The entries below follow this order. The order runs security first, then the sha
 | 6 | R24 | `route-public-reads-through-client` | Refactor (fast lane) | S | — |
 | 7 | R26 | `share-evaluation-offerings-loader` | Refactor (fast lane) | S | — |
 | 8 | R23 (resolves R13) | `remove-cross-feature-auth-imports` | Refactor (fast lane) | S | — |
-| 9 | R5 | none yet | Refactor (fast lane) | S | R23 |
+| 9 | R5 | `share-active-locale` | Refactor (fast lane) | S | R23 |
 | 10 | R25 | `move-account-requests-to-api` | Refactor (fast lane) | M | — |
 | 11 | R27 | `split-evaluation-row-card` | Refactor (fast lane) | M | — |
 | 12 | R28 | `reduce-shared-client-bundle` | Refactor (fast lane) | M | R21 |
@@ -49,6 +49,7 @@ The entries below follow this order. The order runs security first, then the sha
 | 23 | R10 | none yet | Change (behaviour) | S | before the first facet that shows an error |
 | 24 | R8 | none yet | Change (behaviour) | M | R40; after R25 and R35 |
 | 25 | R1 | none (Playwright suite) | Change (tests) | — | the pre-deployment E2E suite |
+| 26 | R43 | `adopt-next-intl-routing` | Change | L | last priority (Product owner, 2026-10-08); after R28 and R31 |
 
 Every entry of the technical review (R20–R39) takes the fast lane by Product owner's decision of 2026-10-08, including R30, R31 and R32, which change a design decision, security headers and texts; R17 and R19 ride with R32 and R30. R3 (tests, rides with R31) and R4 (spec wording) are typed `Change`.
 
@@ -191,10 +192,22 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Why it pays off now:** step-up (6.x) and the callback's return route (8.x) also need the active locale; a third copy is likely
 - **Owning capability:** auth (or `src/shared/lib/i18n` if another slice needs it)
 - **Proposed change:** none
-- **Open decision (Augusto):** answered 2026-10-08: move it to `src/shared/lib/i18n`, as the one function every auth flow uses. The language is chosen only with the language button in the header, which changes the locale segment of the URL; sign-in, sign-out and the return route read it from there. A third copy exists in `src/features/auth/model/return-route.ts`.
+- **Open decision (Augusto):** answered 2026-10-08: move it to `src/shared/lib/i18n`, as the one function every auth flow uses. The language is chosen only with the language button in the header, which changes the locale segment of the URL; sign-in, sign-out and the return route read it from there. A third copy exists in `src/features/auth/model/return-route.ts`. **Updated 2026-10-08 (Product owner):** the function goes in `src/shared/config/locales.ts`, next to `LOCALES`, `DEFAULT_LOCALE` and `isSupportedLocale`, because `src/shared/lib/i18n` loads the catalogs with `node:fs` and breaks the client build. The full next-intl adoption is R43.
 - **Type:** Refactor (fast lane)
 - **Status:** accepted
 - **Affects:** `add-auth`; comes after R23
+
+## R43 — Adopt next-intl for locale routing
+
+- **Duplicated:** locale handling written by hand next to next-intl, which the project uses only for its plugin and `getRequestConfig`: the locale list in `src/shared/config/locales.ts` instead of `defineRouting`, the locale prefix in `proxy.ts` instead of the next-intl middleware, and the active locale read from the URL (R5's `localeFromPath`) instead of `useLocale()` / `getLocale()`
+- **Where today:** `src/shared/config/locales.ts`, `src/shared/lib/i18n/`, `proxy.ts`, `app/layout.tsx`, `src/features/auth` (after R5), the language selector, and every importer of the locale config (~60 files with tests)
+- **Why it pays off now:** one library for i18n, following its standard structure. It moves no grade of `docs/review/technical-review.md`; it risks two of them (JS per route, R28; `proxy.ts` headers and CSP, R31)
+- **Owning capability:** app-shell (with auth)
+- **Proposed change:** `adopt-next-intl-routing` (L, about 3–4 h after the summary is approved)
+- **Open decision (Augusto):** the design summary settles how the next-intl middleware coexists with the CSP nonce and headers of `proxy.ts`, where the provider goes, and how the sign-in code receives the locale. Condition: measure the JS per route before and after; the change must not exceed R28's target. Texts keep reaching components as props (no `useTranslations`)
+- **Type:** Change
+- **Status:** accepted (last priority, Product owner 2026-10-08)
+- **Affects:** R5 (its function is removed here), R28, R31 (both go first)
 
 ## R25 — Move the account requests to the api segment
 
