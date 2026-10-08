@@ -44,7 +44,8 @@ export type OfferingDetailContentProps = {
 const TOP_CONTAINER_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
 
 // The view's top-level blocks on the page background, 2rem apart: the header
-// block, then the tabs (design.md D9; content-structure "Page sections").
+// block, the tabs, then the back link again (design.md D9;
+// add-bottom-back-links D1; content-structure "Page sections").
 const BLOCKS_CLASSES = ["flex", "flex-col", "gap-8"].join(" ");
 
 // The error message with its retry action, 1rem apart; the button keeps its
@@ -118,6 +119,7 @@ export function OfferingDetailContent({
         }
         provisional={provisional}
       />
+      <div>{backLink}</div>
     </PageSection>
   );
 }

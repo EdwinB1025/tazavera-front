@@ -25,7 +25,8 @@ export type CoffeeshopDetailContentProps = {
 
 // The back link and the block below it, 1.5rem apart.
 const TOP_CONTAINER_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
-// The header block, then the tabs, 2rem apart, on the page background.
+// The header block, the tabs and the back link again, 2rem apart, on the page
+// background (add-bottom-back-links D2).
 const BLOCKS_CLASSES = ["flex", "flex-col", "gap-8"].join(" ");
 // The error message with its retry action, 1rem apart.
 const ERROR_CLASSES = ["flex", "flex-col", "items-start", "gap-4"].join(" ");
@@ -84,6 +85,7 @@ export function CoffeeshopDetailContent({
           />
         }
       />
+      <div>{backLink}</div>
     </PageSection>
   );
 }
