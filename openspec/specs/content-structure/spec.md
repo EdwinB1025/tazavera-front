@@ -251,7 +251,7 @@ Below 768px Previous and Next SHALL show only a left or right chevron in a 2.5re
 - **THEN** Previous and Next show their labels and no chevron
 
 ### Requirement: Acyclic shared segment imports
-Every non-test module of a shared segment SHALL import the sibling modules it uses directly, never through the segment's own public index, and no module of the front SHALL consist only of re-exports of another module. The public exports of each shared segment SHALL stay the same.
+Every non-test module of a shared segment SHALL import the sibling modules it uses directly, never through the segment's own public index, and no module of the front SHALL consist only of re-exports of another module. Every name a consumer imports from a shared segment's public index SHALL stay exported with the same meaning.
 
 #### Scenario: Sibling import inside a segment
 - **WHEN** a non-test module of a shared segment uses a sibling module of the same segment
@@ -263,7 +263,7 @@ Every non-test module of a shared segment SHALL import the sibling modules it us
 
 #### Scenario: Public exports kept
 - **WHEN** a consumer imports from a shared segment's public index
-- **THEN** every name it exported before the change is still exported with the same meaning
+- **THEN** every name it imports is still exported with the same meaning
 
 ### Requirement: Prompt page change on server-loaded lists
 When the visitor activates another page, or changes the query, of a list loaded on the server — the entry page's verified offerings, the offering catalog with the coffee shop's Offerings tab, and the coffee shop directory — the list SHALL replace the previous page's content with its loading state at once and SHALL show the requested page once it loads, instead of keeping the previous page in view until the requested one has loaded.
@@ -286,3 +286,18 @@ Every page SHALL expose exactly one level-1 heading once its content or its sign
 #### Scenario: One level-1 heading per page
 - **WHEN** a page's content, or a protected route's signed-out view, renders
 - **THEN** the page exposes exactly one level-1 heading
+
+### Requirement: Public indexes export only what is imported
+The public index of every slice and shared segment SHALL export only the values and types that a module of another slice or layer imports, and no source module SHALL export a value that no other module or test imports. What users see and the requests sent to the API SHALL stay the same.
+
+#### Scenario: No unused public export
+- **WHEN** the public index of a slice or shared segment is inspected
+- **THEN** every value and type it exports is imported by at least one module outside that slice or segment
+
+#### Scenario: No unused value export
+- **WHEN** the front's source modules are inspected
+- **THEN** every exported value is imported by another module or by a test
+
+#### Scenario: Behaviour unchanged
+- **WHEN** any screen renders or any request is sent
+- **THEN** the user sees the same content and the API receives the same request as before the change

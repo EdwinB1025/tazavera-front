@@ -7,7 +7,7 @@ Backlog R36 counts 61 unused exports. knip 5 (`npx -y knip@5 --no-progress`, def
 | Finding | Before | After |
 |---|---:|---:|
 | Unused exports | 61 | 1 |
-| Unused exported types | 417 | 214 |
+| Unused exported types | 417 | 218 |
 | Unused exported types in an `index.ts` | 199 | 0 |
 | Unused files | 2 | 2 |
 | Unlisted dependencies | 1 | 1 |
@@ -34,16 +34,16 @@ Each finding of knip's "Unused exports" list and each "Unused exported types" fi
 
 ### D2. What happens to each kind of finding
 
-- **Scaffold primitive used nowhere** (no module renders it): the component is deleted with its classes and any import it alone used. `AlertDialogAction`; `DropdownMenuGroup`, `DropdownMenuCheckboxItem`, `DropdownMenuShortcut`, `DropdownMenuSub`, `DropdownMenuSubTrigger`, `DropdownMenuSubContent`; `SheetClose`, `SheetFooter`; `SidebarInset`, `SidebarFooter`, `SidebarGroup`, `SidebarGroupLabel`, `SidebarGroupContent`.
-- **Primitive used only inside its module**: it stays and stops being exported. `AlertDialogPortal`, `AlertDialogOverlay`, `DropdownMenuPortal`, `SheetPortal`, `SheetOverlay`.
+- **Scaffold primitive used nowhere** (no module renders it): the component is deleted with its classes and any import it alone used. `AlertDialogAction`; `DropdownMenuPortal` (no part of its module renders it), `DropdownMenuGroup`, `DropdownMenuCheckboxItem`, `DropdownMenuShortcut`, `DropdownMenuSub`, `DropdownMenuSubTrigger`, `DropdownMenuSubContent`; `SheetClose`, `SheetFooter`; `SidebarInset`, `SidebarFooter`, `SidebarGroup`, `SidebarGroupLabel`, `SidebarGroupContent`.
+- **Primitive used only inside its module**: it stays and stops being exported. `AlertDialogPortal`, `AlertDialogOverlay`, `SheetPortal`, `SheetOverlay`.
 - **Module constant used only inside its module**: it stops being exported. `FACET_ROW_CLASSES`, `FACET_ROW_REST_CLASSES`, `FACET_ROW_SELECTED_CLASSES`, `FACET_ROW_LABEL_REST_CLASSES`, `FACET_ROW_LABEL_SELECTED_CLASSES`, `FACET_ROW_DISABLED_CLASSES` (`facet-row.ts`), `GROUP_GAP` (`flavor-wheel-geometry.ts`), `SEARCH_DELAY_MS` (`use-combobox-search.ts`), `THEMES` (`theme.ts`), `GEOCODE_TIMEOUT_MS` (`submit-location.ts`).
-- **Index re-export no other slice imports**: the line or name leaves the index; the module keeps its export when a sibling or test imports it. Values: `DropdownMenuPortal`, `DropdownMenuGroup`, `DropdownMenuLabel`, `DropdownMenuCheckboxItem`, `DropdownMenuShortcut`, `DropdownMenuSub`, `DropdownMenuSubTrigger`, `DropdownMenuSubContent`, `SheetClose`, `SheetPortal`, `SheetOverlay`, `SheetHeader`, `SheetFooter` (`shared/ui`); `getCatalogs` (`shared/lib/i18n`); `uniqueCities` (`entities/coffeeshop`); `COFFEESHOP_SORT_OPTIONS`, `EVALUATION_SORT_OPTIONS`, `OFFERING_SORT_OPTIONS`, `fetchOwnOfferings`, `RegisterSuccessPanel`, `RoleRow` (features); `NavigationMenu`, `UserMenu`, `CoffeeshopList`, `EvaluationSheet`, `OfferingDetailContent`, `Offerings`, `OfferingList`, `CATALOG_GRID_CLASSES`, `buildOfferingsQuery`, `EvaluationListPresentation` (widgets). Types: every "Unused exported types" finding in an `index.ts`.
+- **Index re-export no other slice imports**: the line or name leaves the index; the module keeps its export when a sibling or test imports it. Values: `DropdownMenuPortal`, `DropdownMenuGroup`, `DropdownMenuLabel`, `DropdownMenuCheckboxItem`, `DropdownMenuShortcut`, `DropdownMenuSub`, `DropdownMenuSubTrigger`, `DropdownMenuSubContent`, `SheetClose`, `SheetPortal`, `SheetOverlay`, `SheetHeader`, `SheetFooter` (`shared/ui`); `getCatalogs` (`shared/lib/i18n`); `uniqueCities` (`entities/coffeeshop`); `COFFEESHOP_SORT_OPTIONS`, `EVALUATION_SORT_OPTIONS`, `OFFERING_SORT_OPTIONS`, `fetchOwnOfferings`, `RegisterSuccessPanel`, `RoleRow` (features); `NavigationMenu`, `UserMenu`, `CoffeeshopList`, `EvaluationSheet`, `OfferingDetailContent`, `Offerings`, `OfferingList`, `CATALOG_GRID_CLASSES`, `buildOfferingsQuery`, `EvaluationListPresentation` (widgets). Types: every "Unused exported types" finding in an `index.ts`; a type alias declared in an index that nothing uses once it stops being exported is deleted (`UserRole`, `EvaluationDescriptive`, `EvaluationAffective`, `EvaluationExtrinsics`, `EvaluationTaste`, `UserLocationContact` in `src/shared/api/index.ts`).
 - **Dead function**: `fetchVerifiedOfferings` is deleted from `src/widgets/offering-list/api/offerings.ts`; `LANDING_PAGE_SIZE` stays, `VerifiedOfferings` uses it.
 - **Kept on purpose** (the one export knip still reports): `getCatalogs` in `src/shared/lib/i18n/messages.ts`. Its consumer, `src/shared/lib/i18n/request.ts`, is the next-intl request configuration that the next-intl plugin loads by path, which knip reports as an unused file.
 
 ### D3. Scope boundary
 
-- The exported types of non-index modules (props, texts and result types declared next to their component or function, 214 findings) stay: they are the contract of a module, not a public index, and dropping their `export` keyword changes no import.
+- The exported types of non-index modules (props, texts and result types declared next to their component or function, 218 findings) stay: they are the contract of a module, not a public index, and dropping their `export` keyword changes no import.
 - `src/shared/api/schema.ts` is generated and never edited by hand.
 - The unused files (`docs/design/add-theme-tokens/tokens.css`, `src/shared/lib/i18n/request.ts`, see D2), the unlisted `postcss` dependency and the unresolved imports of three QA copies are outside this refactor.
 

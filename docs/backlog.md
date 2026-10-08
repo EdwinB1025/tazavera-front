@@ -44,7 +44,6 @@ The entries below follow this order. The order runs security first, then the sha
 | 18 | R34 | `split-evaluation-form-state` | Refactor (fast lane) | L | — |
 | 19 | R38 | `split-account-and-management-panels` | Refactor (fast lane) | M | — |
 | 20 | R37 | `split-flavor-wheel` | Refactor (fast lane) | L | — |
-| 22 | R36 (resolves R16) | `prune-unused-exports` | Refactor (fast lane) | M | the splits above. R4 (16px, spec wording) rides with it as a change |
 | 23 | R10 | none yet | Change (behaviour) | S | before the first facet that shows an error |
 | 24 | R8 | none yet | Change (behaviour) | M | R40; after R25 and R35 |
 | 25 | R1 | none (Playwright suite) | Change (tests) | — | the pre-deployment E2E suite |
@@ -180,30 +179,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Type:** Change
 - **Status:** accepted
 - **Affects:** R40 (the 404 responses must be documented first)
-
-## R36 — Prune the unused exports (resolves R16)
-
-- **Duplicated:** knip finds 61 unused exports (scaffold primitives, over-wide indexes, `fetchVerifiedOfferings`).
-- **Where today:** `src/shared/ui/Sidebar.tsx`, `DropdownMenu.tsx`, `Sheet.tsx`, `AlertDialog.tsx`, `src/shared/ui/index.ts`, the widget indexes
-- **Why it pays off now:** it improves analysability. It goes last, so it does not fight the splits. R4 can ride with it.
-- **Owning capability:** content-structure
-- **Proposed change:** `prune-unused-exports` (M)
-- **Open decision (Augusto):** none
-- **Type:** Refactor (fast lane)
-- **Status:** proposed
-- **Affects:** R16, R4
-
-## R16 — Unused `fetchVerifiedOfferings` (refine-list-pagination verify W1)
-
-- **Duplicated:** two paths to the landing request. Since the unplanned fix `65ca95a`, `VerifiedOfferings` adds `perPage` and `Offerings` sends the request. `fetchVerifiedOfferings(page)` is now called only by its own tests.
-- **Where today:** `src/widgets/offering-list/api/offerings.ts` (`fetchVerifiedOfferings`), `offerings.test.ts` (its cases), and the comment in `src/entities/taxonomy/api/taxonomies.test.ts:8`
-- **Why it pays off now:** dead code with tests of its own suggests a path the landing does not use
-- **Owning capability:** landing
-- **Proposed change:** none yet; it can go into the test-suite reduction (it removes tests)
-- **Open decision (Augusto):** none
-- **Type:** Refactor (fast lane)
-- **Status:** proposed
-- **Affects:** none
 
 ## R4 — Align the shared menu panel radius with `base-controls` (refine-app-header, Q4)
 
