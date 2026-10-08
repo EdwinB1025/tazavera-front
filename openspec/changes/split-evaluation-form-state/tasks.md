@@ -16,7 +16,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 4. Group card parts
 
-- [ ] 4.1 Create `src/pages/evaluation-form/ui/AxisControls.tsx` and `ui/GroupParts.tsx` (design.md D5); `EvaluationGroupCard` composes them with its props and uncontrolled open state unchanged. Verify also: `EvaluationGroupCard.tsx` and the new files raise no `max-lines`, `max-lines-per-function` or `complexity` warning in `npm run lint`. Protecting tests: the card tests and the form tests. Commit `refactor(evaluations): split the evaluation group card into parts`.
+- [x] 4.1 Create `src/pages/evaluation-form/ui/AxisControls.tsx` and `ui/GroupParts.tsx` (design.md D5); `EvaluationGroupCard` composes them with its props and uncontrolled open state unchanged. Verify also: `EvaluationGroupCard.tsx` and the new files raise no `max-lines`, `max-lines-per-function` or `complexity` warning in `npm run lint`. Protecting tests: the card tests and the form tests. Commit `refactor(evaluations): split the evaluation group card into parts`.
 
 ## 5. Full checks
 
