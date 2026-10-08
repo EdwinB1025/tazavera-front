@@ -225,14 +225,14 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
     ).toBeDefined();
     expect(screen.queryByRole("alert")).toBeNull();
     expect(screen.queryByRole("status")).toBeNull();
-    // exactly these two buttons besides the small-viewport navigation menu
+    // exactly these three buttons (with the theme switch, refine-header-aut) besides the small-viewport navigation menu
     // control (fix-production-aut-findings design.md D7): another one would be
     // a retry affordance
     expect(
       screen
         .getAllByRole("button")
         .filter((button) => button.getAttribute("aria-label") !== texts.navigationMenu),
-    ).toHaveLength(2);
+    ).toHaveLength(3);
   });
   it("shows the header's re-open control named from the catalog once the sidebar collapses (spec: Control named in every locale)", () => {
     for (const locale of ["es", "en", "ca"]) {

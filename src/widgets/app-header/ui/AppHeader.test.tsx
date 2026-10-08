@@ -43,7 +43,8 @@ const TEXTS = {
   brandLink: "texts.brandLink",
   myAccount: "texts.myAccount",
   security: "texts.security",
-  themeSelector: "texts.themeSelector",
+  themeToggleToDark: "texts.themeToggleToDark",
+  themeToggleToTraditional: "texts.themeToggleToTraditional",
   manageOfferings: "texts.manageOfferings",
   manageEvaluations: "texts.manageEvaluations",
   signOut: "texts.signOut",
@@ -98,6 +99,10 @@ describe("AppHeader, signed-out state", () => {
     expect(screen.getByRole("button", { name: TEXTS.signIn }).className).not.toContain(
       "hidden",
     );
+    // the theme switch stays visible too (refine-header-aut)
+    expect(
+      screen.getByRole("button", { name: TEXTS.themeToggleToDark }).className,
+    ).not.toContain("hidden");
     // the navigation menu control shows below md and hides from md
     // (fix-production-aut-findings design.md D7)
     const menu = screen.getByRole("button", { name: TEXTS.navigationMenu });
@@ -126,17 +131,26 @@ describe("AppHeader, signed-out state", () => {
     expect(left.className).not.toContain("md:");
   });
 
-  it("pushes the language selector and Sign in to the right edge as one group, after the left group", () => {
+  it("pushes the language selector, the theme switch and Sign in to the right edge as one group, in that order, after the left group (spec: Header grouping on every viewport)", () => {
     renderHeader();
     const header = screen.getByRole("banner");
     expect(header.children).toHaveLength(2);
     const left = header.children[0] as HTMLElement;
     const right = header.children[1] as HTMLElement;
-    // one group holding both right-hand controls
+    // one group holding the right-hand controls, in order (refine-header-aut)
+    const language = within(right).getByRole("button", { name: TEXTS.languageSelector });
+    const theme = within(right).getByRole("button", { name: TEXTS.themeToggleToDark });
+    const signIn = within(right).getByRole("button", { name: TEXTS.signIn });
     expect(
-      within(right).getByRole("button", { name: TEXTS.languageSelector }),
-    ).toBeDefined();
-    expect(within(right).getByRole("button", { name: TEXTS.signIn })).toBeDefined();
+      language.compareDocumentPosition(theme) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      theme.compareDocumentPosition(signIn) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    // a tighter gap below md so the group fits at 375px
+    expect(right.className.split(/\s+/)).toEqual(
+      expect.arrayContaining(["gap-2", "md:gap-4"]),
+    );
     // in DOM order after the left group
     expect(
       left.compareDocumentPosition(right) & Node.DOCUMENT_POSITION_FOLLOWING,
@@ -145,7 +159,7 @@ describe("AppHeader, signed-out state", () => {
     expect(right.className).toContain("ml-auto");
     // ... on every viewport: the group itself is never gated by a breakpoint
     expect(right.className).not.toContain("hidden");
-    expect(right.className).not.toContain("md:");
+    expect(right.className).not.toMatch(/md:(hidden|flex|block)/);
   });
 
   it("carries focus-visible:focus-ring on every interactive control", () => {
@@ -640,12 +654,13 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
     expect(security.className).not.toContain("text-text-link");
   });
 
-  it("mounts the theme selector (spec: Theme selection)", () => {
+  it("shows the theme switch in the header and no theme selector in the menu (spec: Signed-in header and user menu)", () => {
     renderSignedIn("specialist");
-    openMenu();
     expect(
-      screen.getByRole("combobox", { name: TEXTS.themeSelector }),
+      screen.getByRole("button", { name: TEXTS.themeToggleToDark }),
     ).toBeDefined();
+    openMenu();
+    expect(screen.queryByRole("combobox")).toBeNull();
   });
 
   it("offers \"Manage offerings\" to /es/manage/offerings for a coffeeshop (spec: Management entry for a coffeeshop)", () => {
