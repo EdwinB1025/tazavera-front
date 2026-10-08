@@ -12,7 +12,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 3. Form parts
 
-- [ ] 3.1 Create `src/pages/evaluation-form/ui/group-texts.ts` (design.md D6), `ui/EvaluationFormHeader.tsx`, `ui/ContextFieldsCard.tsx` and `ui/EvaluationGroupList.tsx` (design.md D4); `EvaluationForm` composes them and keeps only the read-only status or `FormActions`. Verify also: `EvaluationForm.tsx` and the new files are at most 300 lines, every function at most 80 lines and of complexity at most 15 (`npm run lint` reports no `max-lines`, `max-lines-per-function` or `complexity` warning for them). Protecting tests: the form tests. Commit `refactor(evaluations): split the evaluation form into parts`.
+- [x] 3.1 Create `src/pages/evaluation-form/ui/group-texts.ts` (design.md D6), `ui/EvaluationFormHeader.tsx`, `ui/ContextFieldsCard.tsx` and `ui/EvaluationGroupList.tsx` (design.md D4); `EvaluationForm` composes them and keeps only the read-only status or `FormActions`. Verify also: `EvaluationForm.tsx` and the new files are at most 300 lines, every function at most 80 lines and of complexity at most 15 (`npm run lint` reports no `max-lines`, `max-lines-per-function` or `complexity` warning for them). Protecting tests: the form tests. Commit `refactor(evaluations): split the evaluation form into parts`.
 
 ## 4. Group card parts
 
