@@ -2,6 +2,10 @@
   "name": "tazavera-front",
   "version": "0.1.0",
   "private": true,
+  "sideEffects": [
+    "*.css",
+    "./src/shared/lib/leaflet/index.ts"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
