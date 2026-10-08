@@ -10,4 +10,4 @@ No task adds, deletes or changes a test. Each removal is verified by search firs
 
 ## 2. Full checks
 
-- [ ] 2.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes; every QA failure also fails on `origin/qa` (listed in the final report); the typecheck and lint report no errors; and the build succeeds.
+- [x] 2.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes; every QA failure also fails on `origin/qa` (listed in the final report); the typecheck and lint report no errors; and the build succeeds.
