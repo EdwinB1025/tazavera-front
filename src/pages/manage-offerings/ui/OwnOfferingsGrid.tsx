@@ -13,9 +13,8 @@ import {
   OfferingViewButton,
   type OfferingCardTexts,
 } from "@/entities/offering";
-import type { TaxonomyLookup } from "@/entities/taxonomy";
+import { buildTasteNoteTree, type TaxonomyLookup } from "@/entities/taxonomy";
 import { Pagination, type PaginationTexts } from "@/shared/ui";
-import { resolveTaxonomies } from "../lib/resolve-taxonomies";
 import { GRID_CLASSES } from "./SkeletonGrid";
 
 // ─── UI-specific types (declared before the component) ───
@@ -73,7 +72,7 @@ export function OwnOfferingsGrid({
             <OfferingCard
               key={offering.ulid ?? index}
               offering={offering}
-              taxonomies={resolveTaxonomies(offering, lookup)}
+              taxonomies={buildTasteNoteTree(offering, lookup)}
               texts={texts}
               actions={
                 <>

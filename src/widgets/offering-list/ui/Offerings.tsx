@@ -1,8 +1,11 @@
 import type { ReactNode } from "react";
-import { buildTaxonomyLookup, fetchTaxonomies } from "@/entities/taxonomy";
+import {
+  buildTasteNoteTree,
+  buildTaxonomyLookup,
+  fetchTaxonomies,
+} from "@/entities/taxonomy";
 import { fetchOfferings } from "../api/offerings";
 import type { OfferingsQuery } from "../lib/query";
-import { resolveTaxonomies } from "../lib/resolve-taxonomies";
 import { OfferingList } from "./OfferingList";
 import type {
   OfferingListItem,
@@ -53,7 +56,7 @@ export async function Offerings({
     const lookup = buildTaxonomyLookup(taxonomies.data, locale);
     const items: OfferingListItem[] = offerings.data.map((offering) => ({
       offering,
-      taxonomies: resolveTaxonomies(offering, lookup),
+      taxonomies: buildTasteNoteTree(offering, lookup),
     }));
     result =
       items.length === 0
