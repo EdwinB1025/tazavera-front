@@ -24,7 +24,6 @@ The entries below follow this order. The order runs security first, then the sha
 |:-:|---|---|---|:-:|---|
 | 0 | R41 | none (closed: environment, no code) | Deploy note | — | — (closed by Product owner 2026-10-08) |
 | 0d | R47 | none (closed: no code change) | Unplanned fix | — | — (Product owner 2026-10-08, option A: re-test on current develop) |
-| 0l | R56 | `cascade-evaluation-descriptors` | Correction (fast lane, maximum priority) | M | R48, R49 and round 3 merged (Product owner 2026-10-08: drafts also choose ancestors; read-only views as nested trees; level-2 rows without indent) |
 | 0m | R57 | `add-form-cancel-actions` | Correction (fast lane, maximum priority) | M | round 3 merged into `develop` (Product owner 2026-10-08: no Cancel on profile/password; add the New offering Cancel scenario) |
 | 0o | R59 | `drop-step-up-for-everyday-writes` | Correction (auth; fast lane, maximum priority for the front) | S | the regenerated contract in `contracts/openapi.yaml` (API change on `tazavera-api` `dev` `71bc91b`); R51 merged (same account page) |
 | 0q | R61 | `stack-flavor-wheel-layout` | Correction (fast lane, maximum priority) | S | round 3 (`qa`, with R37's FlavorWheel split) merged into `develop` |
@@ -74,16 +73,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Type:** Unplanned fix
 - **Status:** closed (no code)
 - **Affects:** none
-
-## R56 — Evaluation form descriptors as the MVC cascade (production AUT finding 24, 2026-10-08)
-
-- **Duplicated:** the cascade behaviour R48 builds for the offerings taste-notes facet; the evaluation form would carry a second one.
-- **Where today:** `src/pages/evaluation-form/ui/DescriptorBlock.tsx:43-66` and `src/entities/taxonomy/model/descriptor-rows.ts` build `DescriptorChipGroup` rows: one row per level-0 node with level-1 children (the root a non-selectable row title, the children always visible), one shared row for the roots without children; level 2 never shown (add-offering-catalog D13, evaluation-form design.md D7, `form-fields` "Descriptor chip group"). Used for the main tastes and each axis' CATA.
-- **Owning capability:** evaluations (with form-fields)
-- **Proposed change:** `cascade-evaluation-descriptors` (M)
-- **Open decision (Augusto):** answered 2026-10-08 (correction, relayed by the testing/deployment session): the evaluation form's descriptor selectors work like the MVC cascade (`resources/views/layouts/evaluations/partials/descriptor-cascade.blade.php`, used by `evaluation-form.blade.php:63` and `evaluation-axis.blade.php:55,109`): every level-0 node is a selectable chip; level 1 renders only while its root is chosen; level 2 only while its level-1 parent is chosen; choosing adds only that node; unchoosing removes the node and all its descendants. Keep the chip look of finding 16 (taxonomy badge with ✓ when chosen, colour dot when not). Same model as R48 (findings 15/16) and R49 (finding 18). Open for the design lead: whether level 2 is now shown (check the API accepts level-2 refs in the evaluation payload and the consensus); whether the read-only views (evaluation sheet, consensus panel) switch to nested trees; keyboard and ARIA of nested chips (today one tab stop with arrow keys); sharing one cascade component with the offerings facet (R48) and the card trees (R49).
-- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted
-- **Affects:** waits for R48 (shared cascade); R34 on `qa` reorganised the evaluation form (`EvaluationForm`, `EvaluationGroupCard`): the merge of R56 into `develop` and the next `qa` → `develop` must be reconciled
 
 ## R57 — Every create/update form offers Cancel (production AUT finding 25, 2026-10-08)
 
