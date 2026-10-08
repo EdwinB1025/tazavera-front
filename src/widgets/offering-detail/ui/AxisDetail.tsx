@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { OfferingDetail, TaxonomyNode } from "@/shared/api";
-import { buildDescriptorRows } from "@/entities/taxonomy";
+import { buildConsensusNoteTree, buildTaxonomyLookup } from "@/entities/taxonomy";
 import {
   Card,
   CardAside,
@@ -8,10 +8,8 @@ import {
   Collapsible,
   CollapsibleBody,
   CollapsibleHeader,
-  DescriptorChipGroup,
+  TaxonomyTree,
 } from "@/shared/ui";
-import { identifiedCounts } from "../lib/identified-counts";
-import { ConsensusLegend } from "./ConsensusLegend";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -37,13 +35,13 @@ export type AxisDetailProps = {
 // ─── Fixed pieces (no interface text) ───
 
 // The detail by axis (design.md D18): the sensory axes in order, with the
-// label key of each and the taxonomy category its descriptor rows come from.
+// label key of each.
 const AXES = [
-  ["fragrance", "attrFragrance", "aromatics"],
-  ["aroma", "attrAroma", "aromatics"],
-  ["flavor", "attrFlavor", "aromatics"],
-  ["aftertaste", "attrAftertaste", "aromatics"],
-  ["mouthfeel", "attrMouthfeel", "mouthfeel"],
+  ["fragrance", "attrFragrance"],
+  ["aroma", "attrAroma"],
+  ["flavor", "attrFlavor"],
+  ["aftertaste", "attrAftertaste"],
+  ["mouthfeel", "attrMouthfeel"],
 ] as const;
 
 // The detail by axis on the page background, spanning both columns: the
@@ -55,30 +53,22 @@ const AXES_BLOCK_CLASSES = ["flex", "flex-col", "gap-4", "lg:col-span-2"].join(
 // The sections group: the axis section cards, 1rem apart.
 const AXIS_SECTIONS_CLASSES = ["flex", "flex-col", "gap-4"].join(" ");
 
-// An axis body: the selection and its legend beside it from `md`, as in the
-// selection blocks (D13). The section card's body pads it.
-const AXIS_BODY_CLASSES = [
-  "flex",
-  "flex-col",
-  "gap-4",
-  "md:flex-row",
-  "md:gap-6",
-].join(" ");
-
 type AxisSectionProps = AxisDetailProps & { axis: (typeof AXES)[number] };
 
-// One collapsed section card per sensory axis, its header in the band, its
-// identified notes from `sensoryTaxonomy` over the descriptor rows of the
-// axis's category, with the consensus legend beside them.
+// One collapsed section card per sensory axis, its header in the band, the
+// axis's identified notes from `sensoryTaxonomy` as their resolved tree, each
+// share inline (nest-consensus-notes D3, D4), or the empty text.
 function AxisSection({
   offering,
   taxonomies,
   locale,
   texts,
-  axis: [axis, labelKey, category],
+  axis: [axis, labelKey],
 }: AxisSectionProps): ReactNode {
-  const rows = buildDescriptorRows(taxonomies, category, locale);
-  const counts = identifiedCounts(offering.sensoryTaxonomy ?? [], axis);
+  const notes = buildConsensusNoteTree(
+    (offering.sensoryTaxonomy ?? []).filter((node) => node.type === axis),
+    buildTaxonomyLookup(taxonomies, locale),
+  );
   return (
     <Collapsible>
       <Card variant="section">
@@ -88,21 +78,12 @@ function AxisSection({
           </CollapsibleHeader>
         </CardAside>
         <CollapsibleBody>
-          <CardContent className={AXIS_BODY_CLASSES}>
-            <div className="min-w-0 flex-1">
-              <DescriptorChipGroup
-                readOnly
-                legend={texts[labelKey]}
-                rows={rows}
-                value={[...counts.keys()]}
-                emptyText={texts.detailTasteEmpty}
-              />
-            </div>
-            <ConsensusLegend
-              rows={rows}
-              counts={counts}
-              total={offering.evaluationCount ?? 0}
-            />
+          <CardContent>
+            {notes.length > 0 ? (
+              <TaxonomyTree notes={notes} total={offering.evaluationCount ?? 0} />
+            ) : (
+              <p className="type-body">{texts.detailTasteEmpty}</p>
+            )}
           </CardContent>
         </CollapsibleBody>
       </Card>
