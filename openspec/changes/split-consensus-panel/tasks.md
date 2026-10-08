@@ -20,7 +20,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 5. Selection block
 
-- [ ] 5.1 Create `src/widgets/offering-detail/ui/SelectionBlock.tsx` with `SelectionBlockTexts`, `SelectionBlockProps` and `SelectionBlock` (design.md D2), moving the Main tastes and Defects block and `SELECTION_BLOCK_CLASSES`; the panel renders it twice in today's order (design.md D4). Verify: the related tests pass, including the panel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors. Commit `refactor(offering-catalog): extract the consensus selection block`.
+- [x] 5.1 Create `src/widgets/offering-detail/ui/SelectionBlock.tsx` with `SelectionBlockTexts`, `SelectionBlockProps` and `SelectionBlock` (design.md D2), moving the Main tastes and Defects block and `SELECTION_BLOCK_CLASSES`; the panel renders it twice in today's order (design.md D4). Verify: the related tests pass, including the panel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors. Commit `refactor(offering-catalog): extract the consensus selection block`.
 
 ## 6. CATA card
 

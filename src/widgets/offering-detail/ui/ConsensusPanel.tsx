@@ -22,6 +22,8 @@ import type { AttributesCardTexts } from "./AttributesCard";
 import { ConsensusLegend } from "./ConsensusLegend";
 import { ScoreCard } from "./ScoreCard";
 import type { ScoreCardTexts } from "./ScoreCard";
+import { SelectionBlock } from "./SelectionBlock";
+import type { SelectionBlockTexts } from "./SelectionBlock";
 import { StatusCard } from "./StatusCard";
 import type { StatusCardTexts } from "./StatusCard";
 
@@ -29,10 +31,10 @@ import type { StatusCardTexts } from "./StatusCard";
 
 export type ConsensusPanelTexts = ScoreCardTexts &
   AttributesCardTexts &
-  StatusCardTexts & {
+  StatusCardTexts &
+  SelectionBlockTexts & {
   detailMainTastesHeading: string;
   detailDefectsHeading: string;
-  detailTasteEmpty: string;
   detailCataHeading: string;
   /** The not-verified message shown instead of the SCA card (D20). */
   detailNotVerifiedMessage: string;
@@ -72,17 +74,6 @@ const CONTENT_CLASSES = ["flex", "flex-col", "gap-4"].join(" ");
 
 // A card spanning both grid columns from `lg`.
 const WIDE_CARD_CLASSES = "lg:col-span-2";
-
-// A selection block: the card and its consensus legend beside it from `md`,
-// 1.5rem apart, stacking 1rem apart below `md`; it spans both grid columns.
-const SELECTION_BLOCK_CLASSES = [
-  "flex",
-  "flex-col",
-  "gap-4",
-  "md:flex-row",
-  "md:gap-6",
-  "lg:col-span-2",
-].join(" ");
 
 // The detail by axis (design.md D18): the sensory axes in order, with the
 // label key of each and the taxonomy category its descriptor rows come from.
@@ -126,31 +117,6 @@ export function ConsensusPanel({
   texts,
 }: ConsensusPanelProps): ReactNode {
   const total = offering.evaluationCount ?? 0;
-
-  // Main tastes and Defects (design.md D13): the identified notes of one
-  // `type` as a read-only selection over the category's descriptor rows, and
-  // the consensus legend beside the card, in card order.
-  function selectionBlock(category: string, heading: string): ReactNode {
-    const rows = buildDescriptorRows(taxonomies, category, locale);
-    const counts = identifiedCounts(offering.cataConcordance ?? [], category);
-    return (
-      <div className={SELECTION_BLOCK_CLASSES}>
-        <Card layout="stacked" className="flex-1">
-          <CardContent className={CONTENT_CLASSES}>
-            <h2 className="type-subheading">{heading}</h2>
-            <DescriptorChipGroup
-              readOnly
-              legend={heading}
-              rows={rows}
-              value={[...counts.keys()]}
-              emptyText={texts.detailTasteEmpty}
-            />
-          </CardContent>
-        </Card>
-        <ConsensusLegend rows={rows} counts={counts} total={total} />
-      </div>
-    );
-  }
 
   // The detail by axis (design.md D18): one collapsed section card per
   // sensory axis, its header in the band, its identified notes from
@@ -226,8 +192,22 @@ export function ConsensusPanel({
           </Card>
         )}
         <StatusCard offering={offering} texts={texts} />
-        {selectionBlock("main_tastes", texts.detailMainTastesHeading)}
-        {selectionBlock("defects", texts.detailDefectsHeading)}
+        <SelectionBlock
+          offering={offering}
+          taxonomies={taxonomies}
+          locale={locale}
+          category="main_tastes"
+          heading={texts.detailMainTastesHeading}
+          texts={texts}
+        />
+        <SelectionBlock
+          offering={offering}
+          taxonomies={taxonomies}
+          locale={locale}
+          category="defects"
+          heading={texts.detailDefectsHeading}
+          texts={texts}
+        />
         <Card layout="stacked" className={WIDE_CARD_CLASSES}>
           <CardContent className={CONTENT_CLASSES}>
             <h2 className="type-subheading">{texts.detailCataHeading}</h2>
