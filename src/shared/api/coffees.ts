@@ -1,10 +1,11 @@
-import { publicRequest } from "./client";
+import { publicRequest, REFERENCE_READ_INIT } from "./client";
 import type { operations } from "./schema";
 
 /**
  * The public coffee catalog read (add-offering-facets design.md D1). The
  * contract attaches no security scheme, so it runs on the server through
- * `publicRequest`, with no credential header. Any non-2xx
+ * `publicRequest`, with no credential header, and is served from the server
+ * cache refreshed every hour (`REFERENCE_READ_INIT`). Any non-2xx
  * status or transport failure throws; the facets map it to "Options
  * unavailable".
  */
@@ -20,7 +21,7 @@ export type CoffeeFacetField = "country" | "region" | "process" | "variety" | "p
 
 /** Every coffee of the catalog: `GET /coffees` `data`. */
 export async function fetchCoffees(): Promise<CoffeeSummary[]> {
-  const response = await publicRequest("/coffees");
+  const response = await publicRequest("/coffees", REFERENCE_READ_INIT);
   if (!response.ok) {
     throw new Error("coffees request failed");
   }

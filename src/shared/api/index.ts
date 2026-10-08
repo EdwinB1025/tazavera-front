@@ -11,7 +11,7 @@
  */
 import type { operations } from "./schema";
 
-export { configureClient, publicRequest, request } from "./client";
+export { configureClient, publicRequest, REFERENCE_READ_INIT, request } from "./client";
 export { clearTokens, exchangeCode, getTokens, refreshTokens } from "./tokens";
 export { distinctCoffeeValues, fetchCoffees } from "./coffees";
 export type { CoffeeFacetField, CoffeeSummary } from "./coffees";
