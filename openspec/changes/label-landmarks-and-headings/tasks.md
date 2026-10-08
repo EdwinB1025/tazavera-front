@@ -25,4 +25,4 @@ No test is added and no assertion's expected value changes. The only test edits 
 
 ## 6. Full checks
 
-- [ ] 6.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes; `test:qa` fails only on the 9 stale QA copies from `refine-offering-facets-aut` (its design D6) and the QA copies that target the old heading levels (listed in the final report); the typecheck and lint report no errors; the build succeeds.
+- [x] 6.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes; `test:qa` fails only on the 9 stale QA copies from `refine-offering-facets-aut` (its design D6) and the QA copies that target the old heading levels (listed in the final report); the typecheck and lint report no errors; the build succeeds.
