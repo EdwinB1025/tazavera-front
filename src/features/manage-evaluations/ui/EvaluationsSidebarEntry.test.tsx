@@ -17,7 +17,7 @@ import { EvaluationsSidebarEntry } from "./EvaluationsSidebarEntry";
 afterEach(cleanup);
 
 function renderEntry() {
-  render(<EvaluationsSidebarEntry locale="es" texts={{ label: "Mis evaluaciones" }} />);
+  render(<EvaluationsSidebarEntry locale="es" texts={{ label: "Mis evaluaciones", explore: "Explorar ofertas" }} />);
   return screen.getByRole("link", { name: "Mis evaluaciones" });
 }
 
@@ -30,6 +30,16 @@ describe("EvaluationsSidebarEntry (design.md D5)", () => {
     expect(entry.getAttribute("data-slot")).toBe("sidebar-menu-button");
     expect(entry.closest("li")).not.toBeNull();
     expect(entry.closest("ul")).not.toBeNull();
+  });
+
+  it("lists Explore offerings second, to /es/offerings, never marked current (spec: The explore entry)", () => {
+    pathname = "/es/manage/evaluations";
+    const evaluations = renderEntry();
+    const explore = screen.getByRole("link", { name: "Explorar ofertas" });
+    expect(explore.getAttribute("href")).toBe("/es/offerings");
+    expect(explore.getAttribute("aria-current")).toBeNull();
+    const links = Array.from(evaluations.closest("ul")!.querySelectorAll("a"));
+    expect(links).toEqual([evaluations, explore]);
   });
 
   it("is not marked on a form route", () => {

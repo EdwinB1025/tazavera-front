@@ -12,7 +12,7 @@
  */
 import { createElement, type ReactNode } from "react";
 
-export { Loader2, ArrowLeft, Eye, EyeOff, Globe, ChevronDown, ChevronLeft, ChevronRight, Check, Clock, PanelLeft, SlidersHorizontal, X, Trash2, List, Plus, MapPin, MapPinOff, Minus, Map as MapIcon, Menu, type LucideIcon } from "lucide-react";
+export { Loader2, ArrowLeft, Eye, EyeOff, Globe, ChevronDown, ChevronLeft, ChevronRight, Check, Clock, PanelLeft, SlidersHorizontal, X, Trash2, List, Plus, MapPin, MapPinOff, Minus, Map as MapIcon, Menu, Moon, Sun, type LucideIcon } from "lucide-react";
 
 // ─── Bean mark (the project's own SVG) ────────────────────────────────────
 // Artwork from the MVC `resources/views/flux/icon/coffee-bean.blade.php`, the

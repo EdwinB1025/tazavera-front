@@ -27,13 +27,11 @@ The entries below follow this order. The order runs security first, then the sha
 | 0e | R48 | `refine-offering-facets-aut` | Correction (fast lane, maximum priority) | M | R46 merged (same files); design lead on finding 16's open points |
 | 0f | R49 | `nest-card-taste-notes` | Correction (fast lane, maximum priority) | M | — |
 | 0g | R51 | `widen-account-cards` | Correction (fast lane, maximum priority) | S | design lead on its open points |
-| 0i | R53 | `add-explore-offerings-entry` | Correction (fast lane, maximum priority) | S | design lead on its open points |
 | 0j | R54 | `rename-coffeeshop-card-action` | Correction (fast lane, maximum priority) | S | design lead on its open points |
 | 0k | R55 | `fit-bean-mark-disc` | Correction (fast lane, maximum priority) | S | design lead on its open points |
 | 0l | R56 | `cascade-evaluation-descriptors` | Correction (fast lane, maximum priority) | M | R48, R49 and round 3 merged (Product owner 2026-10-08: drafts also choose ancestors; read-only views as nested trees; level-2 rows without indent) |
 | 0m | R57 | `add-form-cancel-actions` | Correction (fast lane, maximum priority) | M | round 3 merged into `develop` (Product owner 2026-10-08: no Cancel on profile/password; add the New offering Cancel scenario) |
 | 0o | R59 | `drop-step-up-for-everyday-writes` | Correction (auth; fast lane, maximum priority for the front) | S | the regenerated contract in `contracts/openapi.yaml` (API change on `tazavera-api` `dev` `71bc91b`); R51 merged (same account page) |
-| 0p | R60 | `add-header-theme-toggle` | Correction (fast lane, maximum priority) | S | — (Product owner 2026-10-08: icon of the current theme; `gap-2` below md; with R53 in one package) |
 | 0q | R61 | `stack-flavor-wheel-layout` | Correction (fast lane, maximum priority) | S | round 3 (`qa`, with R37's FlavorWheel split) merged into `develop` |
 | 0r | R62 | `nest-consensus-notes` | Correction (fast lane, maximum priority) | M | R49 merged (tree rendering to reuse); design lead on its open points |
 | 0s | R63 | `add-bottom-back-links` | Correction (fast lane, maximum priority) | S | design lead on its open points (with R51, layout package) |
@@ -116,13 +114,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Open decision (Augusto):** answered 2026-10-08: the account cards take the full container width with the page's usual side margins ("they look cut off"). Open for the design lead: whether the form fields inside the cards keep a readable maximum width; the register routes (centred 32rem) are not in scope (Product owner spoke only of the account page).
 - **Type:** Correction (fast lane, maximum priority) · **Status:** accepted · **Affects:** none
 
-## R53 — "Explore offerings" entry for the specialist (production AUT finding 21, 2026-10-08)
-
-- **Duplicated:** none. A specialist has no direct route to the full offerings list (`/{locale}/offerings` with no query, provisional included): the user menu offers account, security, theme, the role's management entry and sign out; the specialist sidebar (`app/shell/SessionShell.tsx:58-63`) holds only "My evaluations"; the header's "Top rated" opens verified offerings only.
-- **Owning capability:** app-shell
-- **Open decision (Augusto):** answered 2026-10-08: add "Explore offerings" in BOTH the user menu (next to "Manage evaluations") and the specialist management sidebar (next to "My evaluations"); new catalog texts es/en/ca; spec scenarios "Management entry for a specialist" and the sidebar entries. Open for the design lead: the entries' order, the icon, and whether the coffee-shop role gets it too (Product owner asked only for the specialist).
-- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted · **Affects:** none
-
 ## R54 — Coffee-shop card action reads "Ver ofertas" (production AUT finding 22, 2026-10-08)
 
 - **Duplicated:** none. `messages/es/coffeeshops.json:9` `"viewLabel": "Ver"`; spec `offering-catalog` "Coffee shop card" (a View action to the coffee shop detail; scenarios "Card content" and "View link").
@@ -166,13 +157,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Updated 2026-10-08 (Product owner, option A):** only adding a contact (`POST /users/{user}/contacts`) and adding a location (`POST /locations`) leave `profile:write`; updating the profile (`PUT /users/{user}`), the password, deactivating and deleting the account, and deleting offerings KEEP it. The account page splits into two parts: one that shows the profile data and lets the user add a contact and a location with no step-up, and an "Edit profile" part that asks for the permission (with the password and account removal). API change done by the orchestrator on `tazavera-api` branch `feature/relax-contact-location-scopes`, fast-forwarded into `dev` (`71bc91b`; API tests 145/149, the 4 failures are `WebThemeAndLocaleTest` needing a Vite build in the worktree); Product owner ports it to `PROD`. Front: `ContactSection` and `LocationForm` drop `requestProfileWrite`; `ProfileForm`, `PasswordForm`, `DangerZone` and the offering deletions keep it; check `NewOfferingForm` (`POST /offerings` needs no write scope). The account-page split needs the design lead.
 - **Type:** Correction (touches the auth flow and the API contract; front in the fast lane at maximum priority once the contract lands) · **Status:** accepted
 - **Affects:** waits for the API change and the regenerated `contracts/openapi.yaml`: do not start the front until the contract shows the new scopes. R38 (on `qa`) split `ContactSection`, `LocationsPanel` and `ManageOfferingsPanel`.
-
-## R60 — Theme switch in the header for every visitor (production AUT finding 28, 2026-10-08)
-
-- **Duplicated:** none. The only theme control is `ThemeSelect`, a native `<select>` inside the signed-in user menu (`widgets/app-header/ui/UserMenu.tsx:125-127`); anonymous visitors have none although `app-shell` "Theme selection" says the choice "needs no sign in"; the select shows the raw value "traditional", untranslated, with no visible label.
-- **Owning capability:** app-shell
-- **Open decision (Augusto):** answered 2026-10-08: an icon button next to the language selector, on every viewport (visible like the language selector when the primary navigation collapses), switching between traditional and dark, keeping the choice in the browser as today (`shared/lib/theme`, cookie); an accessible name that names the action and the current theme (es/en/ca), with the pressed/current state exposed. Open for the design lead: the icon pair (through `shared/ui/icons.ts`), a toggle or a small menu like the language selector, whether `ThemeSelect` leaves the user menu (and the user-menu spec scenario), and the header contrast in both themes.
-- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted · **Affects:** R53 (also edits the user menu)
 
 ## R61 — CATA flavor wheel always stacked (production AUT finding 29, 2026-10-08)
 

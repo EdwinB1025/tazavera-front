@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import type { Session } from "@/shared/api";
+import type { Theme } from "@/shared/lib/theme";
 import { LOCALES } from "@/shared/config/locales";
 import { useSession } from "@/features/auth";
 import { EvaluationsSidebarEntry } from "@/features/manage-evaluations";
@@ -24,6 +25,8 @@ export type SessionShellProps = {
   sidebar?: ReactNode;
   /** The catalog texts `AppShell` resolves on the server (design.md D1). */
   texts: AppHeaderTexts & { toggleSidebar: string };
+  /** The server-resolved theme (refine-header-aut D3). */
+  theme?: Theme;
   children?: ReactNode;
 };
 
@@ -50,16 +53,18 @@ export function SessionShell({
   session,
   sidebar,
   texts,
+  theme,
   children,
 }: SessionShellProps): ReactNode {
   const hookValue = useSession();
   const supplied = session ?? hookValue;
   // The management area's entries for the session's role, by the user menu's
   // role rule (add-specialist-evaluations design.md D5): a specialist gets
-  // "My evaluations"; no other role contributes entries here.
+  // "My evaluations" and "Explore offerings" (refine-header-aut D5); no other
+  // role contributes entries here.
   const entries =
     supplied.state === "authenticated" && supplied.user.role === "specialist" ? (
-      <EvaluationsSidebarEntry locale={locale} texts={{ label: texts.manageEvaluations }} />
+      <EvaluationsSidebarEntry locale={locale} texts={{ label: texts.manageEvaluations, explore: texts.exploreOfferings }} />
     ) : undefined;
 
   // design.md D5: one sidebar state for the header, the sidebar and the page
@@ -77,6 +82,7 @@ export function SessionShell({
           locale={locale}
           locales={[...LOCALES]}
           texts={texts}
+          theme={theme}
           leading={<SidebarReopenControl />}
         />
         <main className={MAIN_CLASSES}>

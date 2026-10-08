@@ -18,6 +18,8 @@ export default defineConfig({
             'qa/src/widgets/evaluation-row/ui/EvaluationRowCard.test.tsx',
             // stale since fix-production-aut-findings (R42); see the merge report
             'qa/src/widgets/offering-list/lib/resolve-taxonomies.test.ts',
+            // imports ThemeSelect, deleted by refine-header-aut (design.md D4b)
+            'qa/src/widgets/app-header/ui/ThemeSelect.test.tsx',
         ],
     },
 })

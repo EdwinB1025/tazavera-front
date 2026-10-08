@@ -7,6 +7,7 @@ import {
 } from "@/shared/config/locales";
 import { LOCALE_NAMES } from "@/shared/config/locale-names";
 import { getMessages } from "@/shared/lib/i18n";
+import type { Theme } from "@/shared/lib/theme";
 import { NavigationTracker } from "./NavigationTracker";
 import { SessionShell } from "./SessionShell";
 
@@ -22,6 +23,11 @@ export type AppShellProps = {
   session?: Session;
   /** The `@sidebar` slot of the `[locale]` layout (add-sidebar-slot D1). */
   sidebar?: ReactNode;
+  /**
+   * The theme the server resolved from the cookie, for the header's theme
+   * switch (refine-header-aut D3).
+   */
+  theme?: Theme;
   children?: ReactNode;
 };
 
@@ -40,6 +46,7 @@ export function AppShell({
   locale,
   session,
   sidebar,
+  theme,
   children,
 }: AppShellProps): ReactNode {
   // design.md D6 (correction 3 of round 1): the locale is resolved with
@@ -60,6 +67,7 @@ export function AppShell({
         locale={active}
         session={session}
         sidebar={sidebar}
+        theme={theme}
         texts={{
           topRated: texts.topRated!,
           exploreCoffeeshops: texts.exploreCoffeeshops!,
@@ -75,9 +83,11 @@ export function AppShell({
           brandLink: texts.brandLink!,
           myAccount: texts.myAccount!,
           security: texts.security!,
-          themeSelector: texts.themeSelector!,
+          themeToggleToDark: texts.themeToggleToDark!,
+          themeToggleToTraditional: texts.themeToggleToTraditional!,
           manageOfferings: texts.manageOfferings!,
           manageEvaluations: texts.manageEvaluations!,
+          exploreOfferings: texts.exploreOfferings!,
           signOut: texts.signOut!,
           toggleSidebar: texts.toggleSidebar!,
           navigationMenu: texts.navigationMenu!,

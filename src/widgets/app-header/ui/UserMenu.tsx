@@ -11,7 +11,6 @@ import {
   Link,
 } from "@/shared/ui";
 import { ChevronDown } from "@/shared/ui/icons";
-import { ThemeSelect } from "./ThemeSelect";
 
 // ─── UI-specific types (declared before the component) ───
 // Every interface text arrives as a prop (design.md D10). The user's name is
@@ -21,9 +20,10 @@ import { ThemeSelect } from "./ThemeSelect";
 export type UserMenuTexts = {
   myAccount: string;
   security: string;
-  themeSelector: string;
   manageOfferings: string;
   manageEvaluations: string;
+  /** The specialist's offerings entry (refine-header-aut D5). */
+  exploreOfferings: string;
   signOut: string;
 };
 
@@ -88,8 +88,9 @@ const CIRCLE_CLASSES = [
  * name. It offers the account entry pointing at `/[locale]/account`, the
  * security entry as the API's web page rendered
  * natively (an external destination, not the internal link treatment per
- * `base-controls`), the theme selector, the management entry for the user's
- * role, and sign out.
+ * `base-controls`), the management entry for the user's
+ * role, for a specialist the offerings entry (refine-header-aut D5), and
+ * sign out.
  */
 export function UserMenu({
   user,
@@ -122,13 +123,15 @@ export function UserMenu({
         <DropdownMenuItem asChild>
           <a href={securityUrl}>{texts.security}</a>
         </DropdownMenuItem>
-        <div className="px-3 py-2">
-          <ThemeSelect label={texts.themeSelector} />
-        </div>
         <DropdownMenuSeparator />
         {management && (
           <DropdownMenuItem asChild>
             <Link href={management.href}>{management.text}</Link>
+          </DropdownMenuItem>
+        )}
+        {user.role === "specialist" && (
+          <DropdownMenuItem asChild>
+            <Link href={`/${locale}/offerings`}>{texts.exploreOfferings}</Link>
           </DropdownMenuItem>
         )}
         <DropdownMenuItem onSelect={onSignOut}>{texts.signOut}</DropdownMenuItem>
