@@ -1,12 +1,10 @@
-import type { EvaluationItem, OfferingDetail } from "@/shared/api";
+import type { ApiResult, EvaluationItem, OfferingDetail } from "@/shared/api";
 
 /**
  * The offering read the loader calls: `fetchOffering` of `entities/offering`,
  * passed in by the caller so this slice does not import another entity.
  */
-export type OfferingReader = (
-  ulid: string,
-) => Promise<{ status: "found"; offering: OfferingDetail } | { status: "not-found" | "failed" }>;
+export type OfferingReader = (ulid: string) => Promise<ApiResult<OfferingDetail, "not-found">>;
 
 export type EvaluationWithOffering = {
   evaluation: EvaluationItem;
@@ -16,8 +14,8 @@ export type EvaluationWithOffering = {
 /**
  * Pairs each evaluation of a page with its offering (share-evaluation-offerings-loader
  * design.md D1): one read per distinct non-null `offeringId`, all in parallel.
- * A `null` id is a deleted offering and is never requested; a read that is not
- * `found` leaves its rows without an offering. Rows keep the page's order.
+ * A `null` id is a deleted offering and is never requested; a read that
+ * fails leaves its rows without an offering. Rows keep the page's order.
  */
 export async function loadEvaluationOfferings(
   evaluations: EvaluationItem[],
@@ -30,7 +28,7 @@ export async function loadEvaluationOfferings(
   await Promise.all(
     ids.map(async (id) => {
       const read = await readOffering(id);
-      if (read.status === "found") offerings.set(id, read.offering);
+      if (read.ok) offerings.set(id, read.data);
     }),
   );
   return evaluations.map((evaluation) => ({

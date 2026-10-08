@@ -54,10 +54,8 @@ export async function EvaluationsSidebarScreen({
   const texts = Object.fromEntries(
     TEXT_KEYS.map((key) => [key, catalog[key] ?? ""]),
   ) as EvaluationFacetsTexts;
-  const processes = await fetchCoffees().then(
-    (coffees) => distinctCoffeeValues(coffees, "process"),
-    () => null,
-  );
+  const coffees = await fetchCoffees();
+  const processes = coffees.ok ? distinctCoffeeValues(coffees.data, "process") : null;
   return (
     <AppSidebar>
       <SidebarSeparator />

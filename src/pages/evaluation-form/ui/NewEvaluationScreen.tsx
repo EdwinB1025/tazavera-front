@@ -35,9 +35,9 @@ export async function NewEvaluationScreen({
   const catalog = getMessages("evaluations", locale);
   const [result, taxonomies] = await Promise.all([
     fetchOffering(ulid),
-    fetchTaxonomies().catch(() => null),
+    fetchTaxonomies(),
   ]);
-  if (result.status === "not-found") {
+  if (!result.ok && result.kind === "not-found") {
     notFound();
   }
 
@@ -47,11 +47,11 @@ export async function NewEvaluationScreen({
         <EvaluationsGate
           texts={{ message: catalog.accessMessage, signInLabel: catalog.signInLabel }}
         >
-          {result.status === "found" && taxonomies ? (
+          {result.ok && taxonomies.ok ? (
             <EvaluationForm
               locale={locale}
-              offering={result.offering}
-              taxonomies={taxonomies.data}
+              offering={result.data}
+              taxonomies={taxonomies.data.data}
               texts={formTextsFrom(catalog)}
             />
           ) : (

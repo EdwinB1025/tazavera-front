@@ -1,5 +1,5 @@
 import { distinctCoffeeValues } from "@/shared/api";
-import type { CoffeeSummary, TaxonomiesPayload, TaxonomyNode } from "@/shared/api";
+import type { ApiResult, CoffeeSummary, TaxonomiesPayload, TaxonomyNode } from "@/shared/api";
 import type { CascadeOption } from "@/shared/ui";
 
 /**
@@ -46,13 +46,13 @@ export function tasteNoteOptions(tree: readonly TaxonomyNode[], locale: string):
     }));
 }
 
-/** The options of every facet from the settled coffees and taxonomy reads. */
+/** The options of every facet from the coffees and taxonomy read results. */
 export function offeringFacetOptions(
-  coffees: PromiseSettledResult<CoffeeSummary[]>,
-  taxonomies: PromiseSettledResult<TaxonomiesPayload>,
+  coffees: ApiResult<CoffeeSummary[]>,
+  taxonomies: ApiResult<TaxonomiesPayload>,
   locale: string,
 ): OfferingFacetOptions {
-  const list = coffees.status === "fulfilled" ? coffees.value : null;
+  const list = coffees.ok ? coffees.data : null;
   return {
     countries: list && distinctCoffeeValues(list, "country"),
     regions: list && distinctCoffeeValues(list, "region"),
@@ -60,6 +60,6 @@ export function offeringFacetOptions(
     varieties: list && distinctCoffeeValues(list, "variety"),
     producers: list && distinctCoffeeValues(list, "producer"),
     tasteNotes:
-      taxonomies.status === "fulfilled" ? tasteNoteOptions(taxonomies.value.data, locale) : null,
+      taxonomies.ok ? tasteNoteOptions(taxonomies.data.data, locale) : null,
   };
 }

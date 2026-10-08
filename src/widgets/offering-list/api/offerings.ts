@@ -1,5 +1,5 @@
 import { publicRequest } from "@/shared/api";
-import type { OfferingsPageMeta, OfferingSummary } from "@/shared/api";
+import type { ApiResult, OfferingsPageMeta, OfferingSummary } from "@/shared/api";
 import type { OfferingsQuery } from "../lib/query";
 
 /**
@@ -8,8 +8,8 @@ import type { OfferingsQuery } from "../lib/query";
  * `@/entities/taxonomy`. The read is public — the contract attaches no
  * security scheme to it — so it runs on the server through `publicRequest`
  * with no credential header.
- * Any non-2xx status or transport failure throws; the API's error body and
- * status never reach the presentation, which maps every failure into its one
+ * Any non-2xx status or transport failure is an error result; the API's
+ * error body and status never reach the presentation, which maps every failure into its one
  * error state (design.md D4).
  */
 
@@ -30,7 +30,7 @@ export type OfferingsPayload = VerifiedOfferingsPayload;
  */
 export async function fetchOfferings(
   query: OfferingsQuery,
-): Promise<OfferingsPayload> {
+): Promise<ApiResult<OfferingsPayload>> {
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(query)) {
     for (const item of Array.isArray(value) ? value : [value]) {
@@ -40,14 +40,16 @@ export async function fetchOfferings(
     }
   }
   const search = params.toString();
-  const response = await publicRequest(
-    `/offerings${search ? `?${search}` : ""}`,
-  );
-  if (!response.ok) {
-    throw new Error("offerings request failed");
+  try {
+    const response = await publicRequest(
+      `/offerings${search ? `?${search}` : ""}`,
+    );
+    if (!response.ok) return { ok: false, kind: "error" };
+    const payload: OfferingsPayload = await response.json();
+    return { ok: true, data: payload };
+  } catch {
+    return { ok: false, kind: "error" };
   }
-  const payload: OfferingsPayload = await response.json();
-  return payload;
 }
 
 /** Offerings per landing page (refine-list-pagination design.md D8). */
@@ -60,7 +62,7 @@ export const LANDING_PAGE_SIZE = 6;
  */
 export async function fetchVerifiedOfferings(
   page: number,
-): Promise<VerifiedOfferingsPayload> {
+): Promise<ApiResult<VerifiedOfferingsPayload>> {
   return fetchOfferings({
     verified: "1",
     page: String(page),

@@ -30,12 +30,8 @@ export async function ManageOfferingsScreen({
   const requested = Number(page);
   const currentPage = Number.isInteger(requested) && requested > 0 ? requested : 1;
 
-  let taxonomies: TaxonomyNode[] | null;
-  try {
-    taxonomies = (await fetchTaxonomies()).data;
-  } catch {
-    taxonomies = null;
-  }
+  const read = await fetchTaxonomies();
+  const taxonomies: TaxonomyNode[] | null = read.ok ? read.data.data : null;
 
   const texts: ManageOfferingsTexts = {
     coffeeshopCaption: landing.cardCoffeeshopCaption,

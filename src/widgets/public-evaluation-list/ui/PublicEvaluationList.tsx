@@ -39,12 +39,15 @@ export async function PublicEvaluationList({
   texts,
   renderRow,
 }: PublicEvaluationListProps): Promise<ReactNode> {
-  let result: EvaluationListResult;
+  let result: EvaluationListResult = { state: "error" };
   try {
-    const page = await fetchEvaluations(query);
-    const rows = await loadEvaluationOfferings(page.data, fetchOffering);
-    result =
-      page.data.length === 0 ? { state: "empty" } : { state: "success", rows, meta: page.meta };
+    const read = await fetchEvaluations(query);
+    if (read.ok) {
+      const page = read.data;
+      const rows = await loadEvaluationOfferings(page.data, fetchOffering);
+      result =
+        page.data.length === 0 ? { state: "empty" } : { state: "success", rows, meta: page.meta };
+    }
   } catch {
     result = { state: "error" };
   }

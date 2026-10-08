@@ -37,16 +37,14 @@ export async function OfferingDetail({
 }: OfferingDetailProps): Promise<ReactNode> {
   let result: OfferingDetailResult;
   const offering = await fetchOffering(ulid);
-  if (offering.status !== "found") {
+  if (!offering.ok) {
     result = { state: "error" };
   } else {
     try {
       const taxonomies = await fetchTaxonomies();
-      result = {
-        state: "success",
-        offering: offering.offering,
-        taxonomies: taxonomies.data,
-      };
+      result = taxonomies.ok
+        ? { state: "success", offering: offering.data, taxonomies: taxonomies.data.data }
+        : { state: "error" };
     } catch {
       result = { state: "error" };
     }

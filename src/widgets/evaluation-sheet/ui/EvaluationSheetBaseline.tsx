@@ -62,7 +62,7 @@ export async function EvaluationSheetBaseline({
   offeringUlid,
   texts,
 }: EvaluationSheetBaselineProps): Promise<ReactNode> {
-  let result: BaselineResult;
+  let result: BaselineResult = { state: "error" };
   try {
     const [page, taxonomies] = await Promise.all([
       fetchEvaluations({
@@ -73,10 +73,12 @@ export async function EvaluationSheetBaseline({
       }),
       fetchTaxonomies(),
     ]);
-    const [evaluation] = page.data;
-    result = evaluation
-      ? { state: "success", evaluation, taxonomies: taxonomies.data }
-      : { state: "empty" };
+    if (page.ok && taxonomies.ok) {
+      const [evaluation] = page.data.data;
+      result = evaluation
+        ? { state: "success", evaluation, taxonomies: taxonomies.data.data }
+        : { state: "empty" };
+    }
   } catch {
     result = { state: "error" };
   }

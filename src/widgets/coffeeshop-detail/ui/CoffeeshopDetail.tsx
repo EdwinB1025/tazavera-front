@@ -28,7 +28,7 @@ export async function CoffeeshopDetail({
   const read = await fetchCoffeeshop(ulid);
   return (
     <CoffeeshopDetailContent
-      result={read.status === "found" ? { state: "success", coffeeshop: read.coffeeshop } : { state: "error" }}
+      result={read.ok ? { state: "success", coffeeshop: read.data } : { state: "error" }}
       locale={locale}
       ulid={ulid}
       tab={tab}

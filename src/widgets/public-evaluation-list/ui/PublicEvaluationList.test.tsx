@@ -59,17 +59,20 @@ afterEach(cleanup);
 describe("PublicEvaluationList (design.md D4, D6)", () => {
   it("reads each distinct non-null offering once and renders the null row as offering-missing", async () => {
     fetchEvaluations.mockResolvedValue({
-      data: [
-        evaluation("01JEVAL1", "01JOFFERA"),
-        evaluation("01JEVAL2", "01JOFFERA"),
-        evaluation("01JEVAL3", "01JOFFERB"),
-        evaluation("01JEVAL4", null),
-      ],
-      meta: { current_page: 1, last_page: 1, total: 4 },
+      ok: true,
+      data: {
+        data: [
+          evaluation("01JEVAL1", "01JOFFERA"),
+          evaluation("01JEVAL2", "01JOFFERA"),
+          evaluation("01JEVAL3", "01JOFFERB"),
+          evaluation("01JEVAL4", null),
+        ],
+        meta: { current_page: 1, last_page: 1, total: 4 },
+      },
     });
     fetchOffering.mockImplementation(async (ulid) => ({
-      status: "found",
-      offering: offering(ulid, ulid === "01JOFFERA" ? "Huila" : "Sidama"),
+      ok: true,
+      data: offering(ulid, ulid === "01JOFFERA" ? "Huila" : "Sidama"),
     }));
     await renderList();
     expect(fetchEvaluations).toHaveBeenCalledWith(QUERY);
@@ -81,19 +84,22 @@ describe("PublicEvaluationList (design.md D4, D6)", () => {
 
   it("renders offeringUnavailable on the row whose offering read failed, leaving its siblings", async () => {
     fetchEvaluations.mockResolvedValue({
-      data: [evaluation("01JEVAL1", "01JOFFERA"), evaluation("01JEVAL2", "01JOFFERB")],
-      meta: { current_page: 1, last_page: 1, total: 2 },
+      ok: true,
+      data: {
+        data: [evaluation("01JEVAL1", "01JOFFERA"), evaluation("01JEVAL2", "01JOFFERB")],
+        meta: { current_page: 1, last_page: 1, total: 2 },
+      },
     });
     fetchOffering.mockImplementation(async (ulid) =>
-      ulid === "01JOFFERA" ? { status: "found", offering: offering(ulid, "Huila") } : { status: "failed" },
+      ulid === "01JOFFERA" ? { ok: true, data: offering(ulid, "Huila") } : { ok: false, kind: "error" },
     );
     await renderList();
     expect(screen.getByRole("heading", { level: 2, name: "Huila" })).toBeDefined();
     expect(screen.getByRole("heading", { level: 2, name: "Offering unavailable" })).toBeDefined();
   });
 
-  it("renders the error state when the list read rejects", async () => {
-    fetchEvaluations.mockRejectedValue(new Error("422"));
+  it("renders the error state when the list read fails", async () => {
+    fetchEvaluations.mockResolvedValue({ ok: false, kind: "error" });
     await renderList();
     expect(screen.getByText("The evaluations could not be loaded.")).toBeDefined();
     expect(screen.getByRole("button", { name: "Retry" })).toBeDefined();

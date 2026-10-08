@@ -2,7 +2,7 @@ import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import type { OfferingResult } from "@/entities/offering";
-import type { EvaluationItem } from "@/shared/api";
+import type { ApiResult, EvaluationItem } from "@/shared/api";
 import { Link } from "@/shared/ui";
 import { EVALUATION, SHEET_TEXTS, TAXONOMIES } from "./sheet-fixtures";
 
@@ -19,7 +19,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 
-const fetchEvaluation = vi.fn<(ulid: string) => Promise<EvaluationItem>>();
+const fetchEvaluation = vi.fn<(ulid: string) => Promise<ApiResult<EvaluationItem>>>();
 vi.mock("@/entities/evaluation", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/entities/evaluation")>()),
   fetchEvaluation: (ulid: string) => fetchEvaluation(ulid),
@@ -62,16 +62,16 @@ async function renderView() {
 
 beforeEach(() => {
   notFound.mockClear();
-  fetchEvaluation.mockReset().mockResolvedValue(EVALUATION);
+  fetchEvaluation.mockReset().mockResolvedValue({ ok: true, data: EVALUATION });
   fetchOffering.mockReset().mockResolvedValue({
-    status: "found",
-    offering: {
+    ok: true,
+    data: {
       ulid: "01JOFFERA",
       location: { name: "Tazavera Gràcia" },
       coffeeInventory: { coffee: { name: "Huila El Mirador" }, roastery: { name: "Nómada" } },
     },
   });
-  fetchTaxonomies.mockReset().mockResolvedValue({ data: TAXONOMIES });
+  fetchTaxonomies.mockReset().mockResolvedValue({ ok: true, data: { data: TAXONOMIES } });
 });
 afterEach(cleanup);
 
@@ -113,13 +113,13 @@ describe("EvaluationSheetView (design.md D1, D4)", () => {
   });
 
   it("renders the 404 page for an evaluation that is not closed", async () => {
-    fetchEvaluation.mockResolvedValue({ ...EVALUATION, status: "open" });
+    fetchEvaluation.mockResolvedValue({ ok: true, data: { ...EVALUATION, status: "open" } });
     await expect(renderView()).rejects.toThrow("NEXT_NOT_FOUND");
     expect(notFound).toHaveBeenCalledTimes(1);
   });
 
   it("shows offeringUnavailable as the h1 when the offering read failed, keeping the presentation", async () => {
-    fetchOffering.mockResolvedValue({ status: "failed" });
+    fetchOffering.mockResolvedValue({ ok: false, kind: "error" });
     await renderView();
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Offering unavailable");
     expect(screen.queryByText(/^Coffeeshop:/)).toBeNull();
@@ -128,7 +128,7 @@ describe("EvaluationSheetView (design.md D1, D4)", () => {
   });
 
   it("shows the offering-missing h1 for a null offeringId with no offering read", async () => {
-    fetchEvaluation.mockResolvedValue({ ...EVALUATION, offeringId: null });
+    fetchEvaluation.mockResolvedValue({ ok: true, data: { ...EVALUATION, offeringId: null } });
     await renderView();
     expect(fetchOffering).not.toHaveBeenCalled();
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Offering no longer exists");
@@ -139,8 +139,8 @@ describe("EvaluationSheetView (design.md D1, D4)", () => {
   });
 
   it.each([
-    ["evaluation", () => fetchEvaluation.mockRejectedValue(new Error("404"))],
-    ["taxonomy", () => fetchTaxonomies.mockRejectedValue(new Error("500"))],
+    ["evaluation", () => fetchEvaluation.mockResolvedValue({ ok: false, kind: "error" })],
+    ["taxonomy", () => fetchTaxonomies.mockResolvedValue({ ok: false, kind: "error" })],
   ])("keeps the back link and shows the error with Retry when the %s read fails", async (_, fail) => {
     fail();
     const container = document.body;

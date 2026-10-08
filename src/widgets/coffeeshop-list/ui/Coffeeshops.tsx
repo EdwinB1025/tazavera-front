@@ -27,10 +27,13 @@ export type CoffeeshopsProps = {
  * presentation's.
  */
 export async function Coffeeshops({ query, ...props }: CoffeeshopsProps): Promise<ReactNode> {
-  let result: CoffeeshopListResult;
+  let result: CoffeeshopListResult = { state: "error" };
   try {
-    const page = await fetchCoffeeshops(query);
-    result = page.data.length === 0 ? { state: "empty" } : { state: "success", items: page.data, meta: page.meta };
+    const read = await fetchCoffeeshops(query);
+    if (read.ok) {
+      const page = read.data;
+      result = page.data.length === 0 ? { state: "empty" } : { state: "success", items: page.data, meta: page.meta };
+    }
   } catch {
     result = { state: "error" };
   }

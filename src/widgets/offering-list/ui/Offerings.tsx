@@ -49,19 +49,22 @@ export async function Offerings({
   gridClassName,
   emptyAction,
 }: OfferingsProps): Promise<ReactNode> {
-  let result: OfferingListResult;
+  let result: OfferingListResult = { state: "error" };
   try {
     const offerings = await fetchOfferings(query);
-    const taxonomies = await fetchTaxonomies();
-    const lookup = buildTaxonomyLookup(taxonomies.data, locale);
-    const items: OfferingListItem[] = offerings.data.map((offering) => ({
-      offering,
-      taxonomies: buildTasteNoteTree(offering, lookup),
-    }));
-    result =
-      items.length === 0
-        ? { state: "empty" }
-        : { state: "success", items, meta: offerings.meta };
+    // A failed offerings read sends no taxonomy read, as before.
+    const taxonomies = offerings.ok ? await fetchTaxonomies() : null;
+    if (offerings.ok && taxonomies?.ok) {
+      const lookup = buildTaxonomyLookup(taxonomies.data.data, locale);
+      const items: OfferingListItem[] = offerings.data.data.map((offering) => ({
+        offering,
+        taxonomies: buildTasteNoteTree(offering, lookup),
+      }));
+      result =
+        items.length === 0
+          ? { state: "empty" }
+          : { state: "success", items, meta: offerings.data.meta };
+    }
   } catch {
     result = { state: "error" };
   }

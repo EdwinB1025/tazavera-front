@@ -36,7 +36,7 @@ async function renderPanel() {
 
 beforeEach(() => {
   fetchEvaluations.mockReset();
-  fetchTaxonomies.mockReset().mockResolvedValue({ data: TAXONOMIES });
+  fetchTaxonomies.mockReset().mockResolvedValue({ ok: true, data: { data: TAXONOMIES } });
 });
 afterEach(cleanup);
 
@@ -48,8 +48,8 @@ describe("EvaluationSheetBaseline (design.md D4, D9)", () => {
 
   it("requests the newest baseline and renders the sheet of the first item", async () => {
     fetchEvaluations.mockResolvedValue({
-      data: [EVALUATION, { ...EVALUATION, cuppingScore: "70.00" }],
-      meta: {},
+      ok: true,
+      data: { data: [EVALUATION, { ...EVALUATION, cuppingScore: "70.00" }], meta: {} },
     });
     await renderPanel();
     expect(fetchEvaluations).toHaveBeenCalledWith({
@@ -63,7 +63,7 @@ describe("EvaluationSheetBaseline (design.md D4, D9)", () => {
   });
 
   it("shows the empty message centred with no box on an empty page", async () => {
-    fetchEvaluations.mockResolvedValue({ data: [], meta: {} });
+    fetchEvaluations.mockResolvedValue({ ok: true, data: { data: [], meta: {} } });
     await renderPanel();
     const message = screen.getByText("This offering has no provisional evaluation yet.");
     expect(message.className).toContain("text-center");
@@ -71,7 +71,7 @@ describe("EvaluationSheetBaseline (design.md D4, D9)", () => {
   });
 
   it("shows the error message with Retry when the read fails", async () => {
-    fetchEvaluations.mockRejectedValue(new Error("500"));
+    fetchEvaluations.mockResolvedValue({ ok: false, kind: "error" });
     await renderPanel();
     expect(screen.getByText("The provisional evaluation could not be loaded.")).toBeDefined();
     expect(screen.getByRole("button", { name: "Retry" })).toBeDefined();

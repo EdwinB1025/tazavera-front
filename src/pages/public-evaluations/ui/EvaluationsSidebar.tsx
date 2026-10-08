@@ -28,17 +28,16 @@ export async function EvaluationsSidebar({
 }: EvaluationsSidebarProps): Promise<ReactNode> {
   const values = parseEvaluationFilters(searchParams, "public");
   const [processes, offering] = await Promise.all([
-    fetchCoffees().then(
-      (coffees) => distinctCoffeeValues(coffees, "process"),
-      () => null,
+    fetchCoffees().then((coffees) =>
+      coffees.ok ? distinctCoffeeValues(coffees.data, "process") : null,
     ),
     values.offeringId === undefined
       ? Promise.resolve(undefined)
       : fetchOffering(values.offeringId).then((read) =>
-          read.status === "found"
+          read.ok
             ? {
-                name: read.offering.coffeeInventory?.coffee?.name ?? "",
-                coffeeshop: read.offering.location?.name ?? "",
+                name: read.data.coffeeInventory?.coffee?.name ?? "",
+                coffeeshop: read.data.location?.name ?? "",
               }
             : null,
         ),

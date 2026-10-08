@@ -30,7 +30,7 @@ export async function FilteredOfferingsFacets({
   searchParams,
   texts,
 }: FilteredOfferingsFacetsProps): Promise<ReactNode> {
-  const [coffees, taxonomies] = await Promise.allSettled([fetchCoffees(), fetchTaxonomies()]);
+  const [coffees, taxonomies] = await Promise.all([fetchCoffees(), fetchTaxonomies()]);
   return (
     <OfferingFacets
       values={parseOfferingFilters(searchParams)}

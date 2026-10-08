@@ -50,7 +50,7 @@ beforeEach(() => {
   getMyEvaluation.mockReset();
   fetchOffering.mockReset();
   notFound.mockClear();
-  fetchOffering.mockResolvedValue({ status: "found", offering: OFFERING });
+  fetchOffering.mockResolvedValue({ ok: true, data: OFFERING });
 });
 
 afterEach(cleanup);
@@ -121,7 +121,7 @@ describe("EvaluationDetail (design.md D1)", () => {
 
   it("shows the failure message when the offering cannot be read", async () => {
     getMyEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
-    fetchOffering.mockResolvedValue({ status: "failed" });
+    fetchOffering.mockResolvedValue({ ok: false, kind: "error" });
     renderDetail();
     expect(await screen.findByText("This evaluation could not be loaded.")).toBeDefined();
   });

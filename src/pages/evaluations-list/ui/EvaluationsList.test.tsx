@@ -101,7 +101,7 @@ function page(data: EvaluationItem[], meta = { current_page: 1, last_page: 1, pe
 beforeEach(() => {
   listMyEvaluations.mockReset();
   fetchOffering.mockReset();
-  fetchOffering.mockImplementation(async (ulid: string) => ({ status: "found", offering: OFFERINGS[ulid] }));
+  fetchOffering.mockImplementation(async (ulid: string) => ({ ok: true, data: OFFERINGS[ulid] }));
 });
 
 afterEach(cleanup);

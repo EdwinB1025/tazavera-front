@@ -46,8 +46,8 @@ async function loadDetail(ulid: string): Promise<DetailState> {
     return { state: "success", evaluation: result.data, offering: null };
   }
   const offering = await fetchOffering(result.data.offeringId ?? "");
-  return offering.status === "found"
-    ? { state: "success", evaluation: result.data, offering: offering.offering }
+  return offering.ok
+    ? { state: "success", evaluation: result.data, offering: offering.data }
     : { state: "error" };
 }
 

@@ -1,5 +1,5 @@
 import { publicRequest } from "@/shared/api";
-import type { EvaluationItem, EvaluationSortField, EvaluationType } from "@/shared/api";
+import type { ApiResult, EvaluationItem, EvaluationSortField, EvaluationType } from "@/shared/api";
 import type { EvaluationPage } from "./user-evaluations";
 
 /**
@@ -40,28 +40,34 @@ const QUERY_KEYS = [
 /**
  * One page of public evaluations: `GET /evaluations?{query}`, through
  * `publicRequest` with no credential (the contract attaches no security scheme). Any non-2xx
- * status or transport failure throws; the API body is never read then.
+ * status or transport failure is an error result; the API body is never read then.
  */
-export async function fetchEvaluations(query: EvaluationsQuery): Promise<EvaluationPage> {
+export async function fetchEvaluations(
+  query: EvaluationsQuery,
+): Promise<ApiResult<EvaluationPage>> {
   const params = new URLSearchParams();
   for (const key of QUERY_KEYS) {
     const value = query[key];
     if (value !== undefined) params.set(key, String(value));
   }
-  const response = await publicRequest(`/evaluations?${params}`);
-  if (!response.ok) {
-    throw new Error("evaluations request failed");
+  try {
+    const response = await publicRequest(`/evaluations?${params}`);
+    if (!response.ok) return { ok: false, kind: "error" };
+    const payload: EvaluationPage = await response.json();
+    return { ok: true, data: payload };
+  } catch {
+    return { ok: false, kind: "error" };
   }
-  const payload: EvaluationPage = await response.json();
-  return payload;
 }
 
 /** One public evaluation: the `data` of `GET /evaluations/{evaluation_ulid}`. */
-export async function fetchEvaluation(ulid: string): Promise<EvaluationItem> {
-  const response = await publicRequest(`/evaluations/${ulid}`);
-  if (!response.ok) {
-    throw new Error("evaluation request failed");
+export async function fetchEvaluation(ulid: string): Promise<ApiResult<EvaluationItem>> {
+  try {
+    const response = await publicRequest(`/evaluations/${ulid}`);
+    if (!response.ok) return { ok: false, kind: "error" };
+    const payload: { data: EvaluationItem } = await response.json();
+    return { ok: true, data: payload.data };
+  } catch {
+    return { ok: false, kind: "error" };
   }
-  const payload: { data: EvaluationItem } = await response.json();
-  return payload.data;
 }

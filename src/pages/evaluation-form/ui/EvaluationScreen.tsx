@@ -22,7 +22,8 @@ export type EvaluationScreenProps = {
  */
 export async function EvaluationScreen({ locale, ulid }: EvaluationScreenProps): Promise<ReactNode> {
   const catalog = getMessages("evaluations", locale);
-  const taxonomies = await fetchTaxonomies().catch(() => null);
+  const read = await fetchTaxonomies();
+  const taxonomies = read.ok ? read.data : null;
 
   return (
     <div className="flex-1">

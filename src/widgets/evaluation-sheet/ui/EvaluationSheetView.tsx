@@ -76,16 +76,19 @@ export function EvaluationSheetViewSkeleton({ back }: { back: ReactNode }): Reac
 
 async function load(ulid: string): Promise<ViewData | null> {
   try {
-    const evaluation = await fetchEvaluation(ulid);
+    const read = await fetchEvaluation(ulid);
+    if (!read.ok) return null;
+    const evaluation = read.data;
     const offeringId = evaluation.offeringId;
     // A null `offeringId` is a deleted offering: nothing to request (design.md D4).
     const [offering, taxonomies] = await Promise.all([
       offeringId
-        ? fetchOffering(offeringId).then((read) => (read.status === "found" ? read.offering : null))
+        ? fetchOffering(offeringId).then((offeringRead) => (offeringRead.ok ? offeringRead.data : null))
         : Promise.resolve(undefined),
       fetchTaxonomies(),
     ]);
-    return { evaluation, offering, taxonomies: taxonomies.data };
+    if (!taxonomies.ok) return null;
+    return { evaluation, offering, taxonomies: taxonomies.data.data };
   } catch {
     return null;
   }

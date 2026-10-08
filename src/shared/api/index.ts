@@ -15,6 +15,7 @@ export { configureClient, publicRequest, REFERENCE_READ_INIT, request } from "./
 export { clearTokens, exchangeCode, getTokens, refreshTokens } from "./tokens";
 export { distinctCoffeeValues, fetchCoffees } from "./coffees";
 export type { CoffeeFacetField, CoffeeSummary } from "./coffees";
+export type { ApiFailureKind, ApiResult } from "./result";
 
 type UserResponse =
   operations["getTheAuthenticatedUser"]["responses"][200]["content"]["application/json"];
