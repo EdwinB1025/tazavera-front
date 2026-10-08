@@ -1,9 +1,10 @@
+import { publicRequest } from "./client";
 import type { operations } from "./schema";
 
 /**
  * The public coffee catalog read (add-offering-facets design.md D1). The
- * contract attaches no security scheme, so it runs on the server with plain
- * `fetch` against `NEXT_PUBLIC_API_URL` and no credential header. Any non-2xx
+ * contract attaches no security scheme, so it runs on the server through
+ * `publicRequest`, with no credential header. Any non-2xx
  * status or transport failure throws; the facets map it to "Options
  * unavailable".
  */
@@ -19,7 +20,7 @@ export type CoffeeFacetField = "country" | "region" | "process" | "variety" | "p
 
 /** Every coffee of the catalog: `GET /coffees` `data`. */
 export async function fetchCoffees(): Promise<CoffeeSummary[]> {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/coffees`);
+  const response = await publicRequest("/coffees");
   if (!response.ok) {
     throw new Error("coffees request failed");
   }

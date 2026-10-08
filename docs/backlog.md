@@ -75,18 +75,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Status:** proposed
 - **Affects:** `add-auth`
 
-## R24 — Route the public reads through `publicRequest`
-
-- **Duplicated:** 6 hand-built API URLs
-- **Where today:** `src/shared/api/coffees.ts`, `src/features/offering-facets/api/search-roasteries.ts`, `src/entities/evaluation/api/public-evaluations.ts`, `src/entities/taxonomy/api/taxonomies.ts`, `src/widgets/offering-list/api/offerings.ts`
-- **Why it pays off now:** it gives one seam for the base URL, the headers and caching (R30).
-- **Owning capability:** offering-catalog
-- **Proposed change:** `route-public-reads-through-client` (S)
-- **Open decision (Augusto):** none
-- **Type:** Refactor (fast lane)
-- **Status:** proposed
-- **Affects:** R30, R35
-
 ## R5 — Single active-locale derivation in `src/features/auth` (add-auth, Build report at 5.2)
 
 - **Duplicated:** the active-locale derivation from the path (first segment, `isSupportedLocale` check, `DEFAULT_LOCALE` fallback)
