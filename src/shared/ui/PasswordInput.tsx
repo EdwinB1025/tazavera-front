@@ -1,13 +1,8 @@
 "use client";
 
-import {
-  useContext,
-  useState,
-  type InputHTMLAttributes,
-  type ReactNode,
-} from "react";
+import { useState, type InputHTMLAttributes, type ReactNode } from "react";
 import { Eye, EyeOff } from "@/shared/ui/icons";
-import { FieldContext } from "@/shared/ui/field-context";
+import { useFieldControl } from "./use-field-control";
 
 // ─── UI-specific types (declared before the component) ───
 // No generated API type is used here: every text is a prop supplied by the
@@ -93,18 +88,17 @@ export function PasswordInput({
   className,
   ...rest
 }: PasswordInputProps): ReactNode {
-  const field = useContext(FieldContext);
   const [revealed, setRevealed] = useState(false);
 
   // D1: context values are defaults, an explicit prop always wins.
-  const variant = variantProp ?? field?.variant ?? "default";
-  const id = idProp ?? field?.controlId;
-  const describedBy =
-    describedByProp ??
-    ([field?.helpId, field?.errorId].filter(Boolean).join(" ") || undefined);
-  const ariaInvalid = ariaInvalidProp ?? (field?.invalid ? "true" : undefined);
-  const required = requiredProp ?? (field?.required ? true : undefined);
-  const invalid = ariaInvalid === true || ariaInvalid === "true";
+  const { variant, id, describedBy, ariaInvalid, required, invalid } =
+    useFieldControl({
+      variant: variantProp,
+      id: idProp,
+      "aria-describedby": describedByProp,
+      "aria-invalid": ariaInvalidProp,
+      required: requiredProp,
+    });
 
   // D9: the visibility toggle sits in the input's relative wrapper, names its
   // current action and carries the shared focus indicator. The wrapper carries

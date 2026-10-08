@@ -2,6 +2,7 @@
 
 import { useId, type InputHTMLAttributes, type ReactNode } from "react";
 import { Check } from "@/shared/ui/icons";
+import { useFieldControl } from "./use-field-control";
 import {
   FACET_MESSAGE_CLASSES,
   facetRowClasses,
@@ -94,6 +95,7 @@ export function Checkbox({
   id: idProp,
   "aria-describedby": describedByProp,
   "aria-invalid": ariaInvalidProp,
+  required: requiredProp,
   className,
   ...rest
 }: CheckboxProps): ReactNode {
@@ -106,17 +108,26 @@ export function Checkbox({
   // is not a message: `help=""` and `error=""` render nothing and wire
   // nothing. `checked`, `defaultChecked` and `onChange` pass through natively
   // (design.md D7): no React state mirrors the choice, the mark follows the
-  // input's real state through CSS.
-  const id = idProp ?? checkboxId;
+  // input's real state through CSS. The checkbox's own ids and messages are
+  // the field it resolves from, so an enclosing Field never applies.
   const hasHelp = help != null && help !== "";
   const hasError = error != null && error !== "";
-  const describedBy =
-    describedByProp ??
-    ([hasHelp ? helpId : undefined, hasError ? errorId : undefined]
-      .filter(Boolean)
-      .join(" ") || undefined);
-  const ariaInvalid = ariaInvalidProp ?? (hasError ? "true" : undefined);
-  const invalid = ariaInvalid === true || ariaInvalid === "true";
+  const { id, describedBy, ariaInvalid, required, invalid } = useFieldControl(
+    {
+      id: idProp,
+      "aria-describedby": describedByProp,
+      "aria-invalid": ariaInvalidProp,
+      required: requiredProp,
+    },
+    {
+      controlId: checkboxId,
+      helpId: hasHelp ? helpId : undefined,
+      errorId: hasError ? errorId : undefined,
+      invalid: hasError,
+      required: false,
+      variant,
+    },
+  );
   const row =
     presentation === "row"
       ? facetRowClasses({ selected: rest.checked === true, disabled: rest.disabled })
@@ -132,6 +143,7 @@ export function Checkbox({
             type="checkbox"
             aria-describedby={describedBy}
             aria-invalid={ariaInvalid}
+            required={required}
             className={[
               row ? withoutDisabledFade(BOX_CLASSES) : BOX_CLASSES,
               invalid
