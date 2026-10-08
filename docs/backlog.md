@@ -23,7 +23,7 @@ The entries below follow this order. The order runs security first, then the sha
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
 | 0 | R41 | none (closed: environment, no code) | Deploy note | — | — (closed by Product owner 2026-10-08) |
-| 0d | R47 | `show-filter-loading-at-once` | Unplanned fix (fast lane, maximum priority) | S | — |
+| 0d | R47 | none (closed: no code change) | Unplanned fix | — | — (Product owner 2026-10-08, option A: re-test on current develop) |
 | 0e | R48 | `refine-offering-facets-aut` | Correction (fast lane, maximum priority) | M | R46 merged (same files); design lead on finding 16's open points |
 | 0f | R49 | `nest-card-taste-notes` | Correction (fast lane, maximum priority) | M | — |
 | 0g | R51 | `widen-account-cards` | Correction (fast lane, maximum priority) | S | design lead on its open points |
@@ -31,11 +31,11 @@ The entries below follow this order. The order runs security first, then the sha
 | 0i | R53 | `add-explore-offerings-entry` | Correction (fast lane, maximum priority) | S | design lead on its open points |
 | 0j | R54 | `rename-coffeeshop-card-action` | Correction (fast lane, maximum priority) | S | design lead on its open points |
 | 0k | R55 | `fit-bean-mark-disc` | Correction (fast lane, maximum priority) | S | design lead on its open points |
-| 0l | R56 | `cascade-evaluation-descriptors` | Correction (fast lane, maximum priority) | M | R48 merged (shared cascade); design lead on its open points |
-| 0m | R57 | `add-form-cancel-actions` | Correction (fast lane, maximum priority) | M | design lead on its open points; Product owner on the inline account forms |
+| 0l | R56 | `cascade-evaluation-descriptors` | Correction (fast lane, maximum priority) | M | R48, R49 and round 3 merged (Product owner 2026-10-08: drafts also choose ancestors; read-only views as nested trees; level-2 rows without indent) |
+| 0m | R57 | `add-form-cancel-actions` | Correction (fast lane, maximum priority) | M | round 3 merged into `develop` (Product owner 2026-10-08: no Cancel on profile/password; add the New offering Cancel scenario) |
 | 0n | R58 | `add-note-plus-icon` | Correction (fast lane, maximum priority) | S | — |
 | 0o | R59 | `drop-step-up-for-everyday-writes` | Correction (auth, API first; fast lane, maximum priority for the front) | S | Product owner's API change and the regenerated contract |
-| 0p | R60 | `add-header-theme-toggle` | Correction (fast lane, maximum priority) | S | Product owner: icon shown; 375px fit |
+| 0p | R60 | `add-header-theme-toggle` | Correction (fast lane, maximum priority) | S | — (Product owner 2026-10-08: icon of the current theme; `gap-2` below md; with R53 in one package) |
 | 0q | R61 | `stack-flavor-wheel-layout` | Correction (fast lane, maximum priority) | S | round 3 (`qa`, with R37's FlavorWheel split) merged into `develop` |
 | 0r | R62 | `nest-consensus-notes` | Correction (fast lane, maximum priority) | M | R49 merged (tree rendering to reuse); design lead on its open points |
 | 0s | R63 | `add-bottom-back-links` | Correction (fast lane, maximum priority) | S | design lead on its open points (with R51, layout package) |
@@ -79,9 +79,9 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Why it pays off now:** Product owner's AUT; the old cards stay for seconds with no feedback
 - **Owning capability:** content-structure (with filtering)
 - **Proposed change:** `show-filter-loading-at-once` (S)
-- **Open decision (Augusto):** none: the spec already states the behaviour (unplanned fix). Product owner's standing rule (2026-10-08): everything ordered from the AUT is fast lane at maximum priority
-- **Type:** Unplanned fix (fast lane)
-- **Status:** accepted
+- **Open decision (Augusto):** answered 2026-10-08, option A: no code change. The cloud session reproduced the cause (the sidebar facets and the toolbar await `/coffees` and `/taxonomies` outside any `Suspense`, so the navigation waits for them) and measured that with those reads cached (R30's one-hour cache, merged after the AUT build) the list skeleton and the URL change show in ~110 ms. Option B (keyed `Suspense` around facets and toolbar) was rejected: the facets would go blank while the reads load. Product owner re-tests on current develop.
+- **Type:** Unplanned fix
+- **Status:** closed (no code)
 - **Affects:** none
 
 ## R48 — Offering facets: cascade, taste-note chips and score scale (production AUT findings 15, 16 and 17, 2026-10-08)
