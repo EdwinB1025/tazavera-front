@@ -14,6 +14,7 @@ import {
   type FacetOption,
 } from "@/shared/ui";
 import { usePathname, useSearchParams } from "next/navigation";
+import { searchCoffees } from "../api/search-coffees";
 import { searchRoasteries } from "../api/search-roasteries";
 import { appliedOfferingFilters } from "../model/applied";
 import type { OfferingFacetOptions } from "../model/options";
@@ -48,7 +49,8 @@ function asComboboxValue(value: string | undefined): ComboboxOption | null {
  * The offering facet panel (design.md D7; spec "Offering facets in the
  * sidebar"): the eleven facets in the spec order inside the shared facet
  * panel, each writing its query key on commit. A facet whose options failed
- * renders disabled with "Options unavailable".
+ * renders disabled with "Options unavailable". Coffee and Roastery are the
+ * same search-as-you-type combobox (search-coffee-facet design.md D4).
  */
 export function OfferingFacets({ values, options, texts }: OfferingFacetsProps): ReactNode {
   const { navigate, navigateTo } = useFilterNavigation();
@@ -106,14 +108,18 @@ export function OfferingFacets({ values, options, texts }: OfferingFacetsProps):
       }
       texts={{ clearAll: texts.clearAll, removeFilter: texts.removeFilter }}
     >
-      <FacetTextField
-        label={texts.coffeeName}
-        type="search"
-        maxLength={150}
-        placeholder={texts.coffeeNamePlaceholder}
-        value={values.coffeeName ?? ""}
-        onCommit={(value) => navigate({ coffeeName: value })}
-      />
+      <div className="px-3">
+        <Combobox
+          label={texts.coffeeName}
+          variant="inverse"
+          search={searchCoffees}
+          value={asComboboxValue(values.coffeeName)}
+          onChange={(option) => navigate({ coffeeName: option?.value })}
+          texts={comboboxTexts}
+          maxLength={150}
+          placeholder={texts.coffeeNamePlaceholder}
+        />
+      </div>
       <FacetRadioList
         legend={texts.verification}
         options={[
