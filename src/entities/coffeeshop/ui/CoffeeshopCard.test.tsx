@@ -43,7 +43,7 @@ describe("CoffeeshopCard", () => {
   it("shows the badge, name, locations, city once, counts and View offerings action (spec: Card content)", () => {
     render(<CoffeeshopCard coffeeshop={NOMAD} locale="es" texts={TEXTS} />);
     expect(screen.getByText("Con ofertas verificadas")).toBeTruthy();
-    expect(screen.getByRole("heading", { level: 3, name: "Nomad Coffee" }).className).toContain(
+    expect(screen.getByRole("heading", { level: 2, name: "Nomad Coffee" }).className).toContain(
       "type-card-heading",
     );
     expect(screen.getByText("2 ubicaciones").className).toContain("type-label");

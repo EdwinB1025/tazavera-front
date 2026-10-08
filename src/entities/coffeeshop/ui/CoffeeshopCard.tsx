@@ -47,7 +47,7 @@ export function CoffeeshopCard({ coffeeshop, locale, texts, actions }: Coffeesho
         {(coffeeshop.verifiedOfferingsCount ?? 0) > 0 ? (
           <Badge variant="verified">{texts.verifiedBadge}</Badge>
         ) : null}
-        <h3 className="type-card-heading">{coffeeshop.name}</h3>
+        <h2 className="type-card-heading">{coffeeshop.name}</h2>
         <p className="type-label">{withCount(texts.locationsCount, coffeeshop.locationsCount)}</p>
         {cities ? <p className="type-meta">{cities}</p> : null}
       </CardContent>

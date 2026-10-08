@@ -236,9 +236,9 @@ export function LocationsMap({
         >
           <Card>
             <CardContent className="relative flex flex-col gap-1 p-4">
-              <h3 id={panelHeadingId} className="type-card-heading pr-10">
+              <h2 id={panelHeadingId} className="type-card-heading pr-10">
                 {panelPoint.title}
-              </h3>
+              </h2>
               <p className="type-label">{panelPoint.subtitle}</p>
               <p className="type-meta">{panelPoint.addressLine}</p>
               {renderPanelLink ? <div className="mt-2">{renderPanelLink(panelPoint)}</div> : null}

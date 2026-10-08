@@ -113,7 +113,7 @@ export function OfferingCard({
         <Badge variant={isVerified ? "verified" : "provisional"}>
           {statusLabel}
         </Badge>
-        <h3 className="type-card-heading">{coffee?.name}</h3>
+        <h2 className="type-card-heading">{coffee?.name}</h2>
         <p className="type-label">{coffeeshopCaption}</p>
         <p className="type-label">{roasterCaption}</p>
         <p className="type-meta">{origin}</p>

@@ -13,7 +13,7 @@ No test is added and no assertion's expected value changes. The only test edits 
 
 ## 3. Card and panel headings follow the outline (content-structure)
 
-- [ ] 3.1 Entities and shared: `OfferingCard`, `CoffeeshopCard` and the `LocationsMap` panel title go from `h3` to `h2`, keeping their classes (design.md D2). Update the queries listed in design.md D6 for `CoffeeshopCard.test.tsx` and `ManageOfferingsPanel.test.tsx` (`level: 3` → `level: 2`). Expected: as 1.1.
+- [x] 3.1 Entities and shared: `OfferingCard`, `CoffeeshopCard` and the `LocationsMap` panel title go from `h3` to `h2`, keeping their classes (design.md D2). Update the queries listed in design.md D6 for `CoffeeshopCard.test.tsx` and `ManageOfferingsPanel.test.tsx` (`level: 3` → `level: 2`). Expected: as 1.1.
 
 ## 4. Evaluation route headings (evaluations)
 
