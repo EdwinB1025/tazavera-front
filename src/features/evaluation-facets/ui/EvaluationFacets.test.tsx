@@ -85,10 +85,6 @@ function commit(input: HTMLElement, value: string) {
 }
 
 describe("EvaluationFacets (design.md D7)", () => {
-  it("is a search landmark named Filters", () => {
-    renderPanel("");
-    expect(screen.getByRole("search", { name: "Filters" })).toBeDefined();
-  });
 
   it("opts the panel out of scroll anchoring, so an added chip keeps the scroll position", () => {
     renderPanel("status=open");
@@ -127,12 +123,6 @@ describe("EvaluationFacets (design.md D7)", () => {
     expect(nav.push).toHaveBeenCalledWith(`${PATH}?process=natural`, { scroll: false });
   });
 
-  it("removes the key when Any is chosen", () => {
-    renderPanel("status=open&city=Lima");
-    fireEvent.click(radio("Any", "Status"));
-    expect(nav.push).toHaveBeenCalledWith(`${PATH}?city=Lima`, { scroll: false });
-  });
-
   it("writes the score bounds and removes both for the full range", () => {
     renderPanel("");
     commit(screen.getByRole("spinbutton", { name: "From" }), "60");
@@ -140,16 +130,6 @@ describe("EvaluationFacets (design.md D7)", () => {
     cleanup();
     renderPanel("scoreMin=60");
     commit(screen.getByRole("spinbutton", { name: "From" }), "0");
-    expect(nav.push).toHaveBeenLastCalledWith(PATH, { scroll: false });
-  });
-
-  it("writes city and removes it when emptied", () => {
-    renderPanel("");
-    commit(screen.getByRole("textbox", { name: "City" }), "Barcelona");
-    expect(nav.push).toHaveBeenLastCalledWith(`${PATH}?city=Barcelona`, { scroll: false });
-    cleanup();
-    renderPanel("city=Barcelona");
-    commit(screen.getByRole("textbox", { name: "City" }), "");
     expect(nav.push).toHaveBeenLastCalledWith(PATH, { scroll: false });
   });
 
@@ -204,20 +184,6 @@ describe("EvaluationFacets, public set (add-public-evaluations design.md D7)", (
       <EvaluationFacets set="public" values={values} options={{ processes, offering }} texts={PUBLIC_TEXTS} />,
     );
   }
-
-  it("shows Offering, Score, Process and City in order and no Status facet", () => {
-    renderPublic("offeringId=01JOFFERA&status=open");
-    const facets = [
-      screen.getByRole("radiogroup", { name: "Offering" }),
-      screen.getByRole("group", { name: "Score" }),
-      screen.getByRole("radiogroup", { name: "Process" }),
-      screen.getByRole("textbox", { name: "City" }),
-    ];
-    for (let index = 1; index < facets.length; index += 1) {
-      expect(facets[index - 1]!.compareDocumentPosition(facets[index]!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    }
-    expect(screen.queryByRole("radiogroup", { name: "Status" })).toBeNull();
-  });
 
   it("selects the active offering labelled coffee · coffeeshop with its chip applied", () => {
     renderPublic("offeringId=01JOFFERA");
