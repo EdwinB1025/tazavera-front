@@ -8,7 +8,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 2. My offerings panel
 
-- [ ] 2.1 In `src/pages/manage-offerings/ui/`: create `SkeletonGrid.tsx`, `OwnOfferingsGrid.tsx`, `OwnOfferingsBody.tsx` and `OwnOfferingsList.tsx`, moving the code out of `ManageOfferingsPanel.tsx`, which keeps `ManageOfferingsTexts` (same keys), `ManageOfferingsPanelProps` and `ManageOfferingsPanel` (design.md D3). Protecting tests: `ManageOfferingsPanel.test.tsx` in `src/pages/manage-offerings/ui/` and `qa/src/pages/manage-offerings/ui/`. Verify: the related tests pass with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors and no size or complexity warning for the changed and new files. Commit `refactor(offering-management): split the my offerings panel`.
+- [x] 2.1 In `src/pages/manage-offerings/ui/`: create `SkeletonGrid.tsx`, `OwnOfferingsGrid.tsx`, `OwnOfferingsBody.tsx` and `OwnOfferingsList.tsx`, moving the code out of `ManageOfferingsPanel.tsx`, which keeps `ManageOfferingsTexts` (same keys), `ManageOfferingsPanelProps` and `ManageOfferingsPanel` (design.md D3). Protecting tests: `ManageOfferingsPanel.test.tsx` in `src/pages/manage-offerings/ui/` and `qa/src/pages/manage-offerings/ui/`. Verify: the related tests pass with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors and no size or complexity warning for the changed and new files. Commit `refactor(offering-management): split the my offerings panel`.
 
 ## 3. Locations panel
 
