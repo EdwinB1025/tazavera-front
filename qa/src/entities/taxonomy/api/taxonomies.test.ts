@@ -52,7 +52,7 @@ describe("fetchTaxonomies (design.md D4)", () => {
     const result = await fetchTaxonomies();
     // Plain `fetch` with the URL and no options, so no credential header is
     // sent (design.md D4).
-    expect(fetchSpy).toHaveBeenCalledWith(`${API_URL}/taxonomies`);
+    expect(fetchSpy).toHaveBeenCalledWith(`${API_URL}/taxonomies`, { next: { revalidate: 3600 } });
     expect(result.data).toEqual(TAXONOMIES_PAYLOAD.data);
   });
 
