@@ -802,3 +802,15 @@
 [data-theme="dark"] [data-taxonomy] {
     color: var(--taxonomy-label-dark);
 }
+
+/* ─── Taxonomy badge label on the sidebar (refine-offering-facets-aut D2) ───
+   Inside the inverse variant the badge sits on the sidebar surface, so the
+   label chosen over that surface applies. The first rule wins over the dark
+   rule above by source order; the second is more specific than both. */
+.variant-inverse [data-taxonomy] {
+    color: var(--taxonomy-label-inverse);
+}
+
+[data-theme="dark"] .variant-inverse [data-taxonomy] {
+    color: var(--taxonomy-label-inverse-dark);
+}
