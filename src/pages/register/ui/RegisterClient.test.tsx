@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { render, cleanup } from "@testing-library/react";
+import { render, cleanup, fireEvent, screen } from "@testing-library/react";
 import type { Session } from "@/shared/api";
 import { RegisterClient, type RegisterClientTexts } from "./RegisterClient";
 
@@ -66,6 +66,7 @@ const TEXTS: RegisterClientTexts = {
   emailFormatError: "fx-email-format",
   passwordMismatchError: "fx-mismatch",
   registerSubmit: "fx-submit",
+  cancelLabel: "fx-cancel",
   genericError: "fx-generic",
   registerSuccessTitle: "fx-success-title",
   registerSuccessText: "fx-success-text",
@@ -114,5 +115,18 @@ describe("RegisterClient — the card", () => {
       expect(container.querySelector(".bg-surface-section")).toBeNull();
       cleanup();
     }
+  });
+});
+
+describe("RegisterClient — cancelling (add-form-cancel-actions design.md D3)", () => {
+  it("Cancel opens the locale root without sending anything", () => {
+    auth.session = { state: "anonymous" };
+    renderClient();
+    const cancel = screen.getByRole("link", { name: TEXTS.cancelLabel });
+    expect(cancel.getAttribute("href")).toBe("/es");
+    expect(cancel.parentElement!.className).toContain("flex-col");
+    expect(cancel.parentElement!.className).toContain("items-center");
+    fireEvent.click(cancel);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

@@ -31,6 +31,7 @@ const TEXTS: RegisterFormTexts = {
   emailFormatError: "fx-email-format",
   passwordMismatchError: "fx-mismatch",
   registerSubmit: "fx-submit",
+  cancelLabel: "fx-cancel",
   genericError: "fx-generic",
   registerSuccessTitle: "fx-success-title",
   registerSuccessText: "fx-success-text",
@@ -56,6 +57,7 @@ function renderForm(role: "specialist" | "coffeeshop" = "specialist") {
         labelledBy="register-title"
         texts={TEXTS}
         signIn={signIn}
+        cancelHref="/es"
       />
     </>,
   );
