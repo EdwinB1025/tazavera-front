@@ -16,7 +16,7 @@ import * as oauth from "oauth4webapi";
 import { exchangeCode } from "@/shared/api";
 import {
   DEFAULT_LOCALE,
-  isSupportedLocale,
+  localeFromPath,
   type Locale,
 } from "@/shared/config/locales";
 import { readTheme } from "@/shared/lib/theme";
@@ -287,8 +287,7 @@ function frontOpener(): Window | null {
 
 /** `lang` is the locale of the route that starts the flow (design.md D5). */
 function activeLang(): Locale {
-  const segment = window.location.pathname.split("/")[1] ?? "";
-  return isSupportedLocale(segment) ? segment : DEFAULT_LOCALE;
+  return localeFromPath(window.location.pathname) ?? DEFAULT_LOCALE;
 }
 
 /** The first value of a query parameter that may repeat. */

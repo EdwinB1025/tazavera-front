@@ -16,3 +16,9 @@ export const DEFAULT_LOCALE: Locale = "es";
 export function isSupportedLocale(value: string): value is Locale {
   return (LOCALES as readonly string[]).includes(value);
 }
+
+/** The supported locale named by the first segment of a path, or `null`. */
+export function localeFromPath(pathname: string): Locale | null {
+  const segment = pathname.split("/")[1] ?? "";
+  return isSupportedLocale(segment) ? segment : null;
+}

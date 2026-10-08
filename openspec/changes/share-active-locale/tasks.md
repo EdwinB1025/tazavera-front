@@ -1,6 +1,6 @@
 ## 1. Shared derivation in the authorization request
 
-- [ ] 1.1 Add `localeFromPath` to `src/shared/config/locales.ts` as design.md D1 states, and make `activeLang()` in `src/features/auth/api/authorize.ts` use it with the `DEFAULT_LOCALE` fallback of D2, removing the now unused `isSupportedLocale` import. Protecting tests: `src/features/auth/api/authorize.test.ts` and `qa/src/features/auth/api/authorize.test.ts`, unchanged. Verify: `npx vitest related` on the changed files passes with the same test count as before; `npx vitest run --config vitest.qa.config.mts qa/src/features/auth/api/authorize.test.ts` passes; `npx tsc --noEmit` and `npm run lint` report no errors; `authorize.ts` no longer splits the path.
+- [x] 1.1 Add `localeFromPath` to `src/shared/config/locales.ts` as design.md D1 states, and make `activeLang()` in `src/features/auth/api/authorize.ts` use it with the `DEFAULT_LOCALE` fallback of D2, removing the now unused `isSupportedLocale` import. Protecting tests: `src/features/auth/api/authorize.test.ts` and `qa/src/features/auth/api/authorize.test.ts`, unchanged. Verify: `npx vitest related` on the changed files passes with the same test count as before; `npx vitest run --config vitest.qa.config.mts qa/src/features/auth/api/authorize.test.ts` passes; `npx tsc --noEmit` and `npm run lint` report no errors; `authorize.ts` no longer splits the path.
 
 ## 2. Shared derivation in sign out and the return route
 
