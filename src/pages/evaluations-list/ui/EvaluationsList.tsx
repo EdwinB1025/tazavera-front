@@ -4,7 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import type { ReactNode } from "react";
 import type { QueryRecord } from "@/shared/lib/filter-query";
 import type { EvaluationItem, EvaluationPageMeta, OfferingDetail } from "@/shared/api";
-import { listMyEvaluations } from "@/entities/evaluation";
+import { listMyEvaluations, loadEvaluationOfferings } from "@/entities/evaluation";
 import { evaluationListQuery, type EvaluationFilterValues } from "@/features/evaluation-facets";
 import { fetchOffering } from "@/entities/offering";
 import { Button, Card, CardContent, Pagination } from "@/shared/ui";
@@ -59,21 +59,9 @@ async function loadPage(requestQuery: string): Promise<ListState> {
   if (!result.ok) {
     return { state: "error" };
   }
-  // A `null` id is a deleted offering: nothing to request (design.md D17).
-  const ids = [...new Set(result.data.data.map((item) => item.offeringId ?? ""))].filter(Boolean);
-  const offerings = new Map<string, OfferingDetail>();
-  await Promise.all(
-    ids.map(async (id) => {
-      const offering = await fetchOffering(id);
-      if (offering.status === "found") offerings.set(id, offering.offering);
-    }),
-  );
   return {
     state: "success",
-    rows: result.data.data.map((evaluation) => ({
-      evaluation,
-      offering: offerings.get(evaluation.offeringId ?? "") ?? null,
-    })),
+    rows: await loadEvaluationOfferings(result.data.data, fetchOffering),
     meta: result.data.meta,
   };
 }

@@ -17,7 +17,9 @@ vi.mock("next/navigation", () => ({
 
 const listMyEvaluations = vi.fn();
 const deleteAnEvaluation = vi.fn();
-vi.mock("@/entities/evaluation", () => ({
+vi.mock("@/entities/evaluation", async (importOriginal) => ({
+  loadEvaluationOfferings: (await importOriginal<typeof import("@/entities/evaluation")>())
+    .loadEvaluationOfferings,
   listMyEvaluations: (...args: unknown[]) => listMyEvaluations(...args),
   deleteAnEvaluation: (...args: unknown[]) => deleteAnEvaluation(...args),
 }));
