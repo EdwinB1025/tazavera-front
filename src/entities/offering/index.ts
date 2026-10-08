@@ -8,9 +8,7 @@
  */
 export { OfferingCard } from "./ui/OfferingCard";
 export { OfferingViewButton } from "./ui/OfferingViewButton";
-export type { OfferingViewButtonProps } from "./ui/OfferingViewButton";
 export type {
-  OfferingCardProps,
   OfferingCardTexts,
   ResolvedTaxonomyBadge,
 } from "./ui/OfferingCard";

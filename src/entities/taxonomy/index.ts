@@ -9,10 +9,8 @@
  */
 export { fetchTaxonomies } from "./api/taxonomies";
 export { buildTaxonomyLookup } from "./model/lookup";
-export type { TaxonomyLookup, TaxonomyLookupEntry } from "./model/lookup";
+export type { TaxonomyLookup } from "./model/lookup";
 export { buildFlavorWheelNodes } from "./model/flavor-wheel-nodes";
 export { assignWheelGroups } from "./model/flavor-wheel-groups";
-export type { WheelGroupId } from "./model/flavor-wheel-groups";
 export { buildDescriptorTree } from "./model/descriptor-tree";
 export { buildConsensusNoteTree, buildTasteNoteTree } from "./model/taste-note-tree";
-export type { ConsensusNoteNode, TasteNoteNode } from "./model/taste-note-tree";

@@ -6,30 +6,14 @@
  * props.
  */
 export { RegisterForm } from "./ui/RegisterForm";
-export type {
-  RegisterFormProps,
-  RegisterFormTexts,
-  RegisterRole,
-} from "./ui/RegisterForm";
-export { RegisterSuccessPanel } from "./ui/RegisterSuccessPanel";
-export type {
-  RegisterSuccessPanelProps,
-  RegisterSuccessPanelTexts,
-} from "./ui/RegisterSuccessPanel";
+export type { RegisterFormTexts, RegisterRole } from "./ui/RegisterForm";
 export { AccountSection } from "./ui/AccountSection";
-export type { AccountSectionProps } from "./ui/AccountSection";
 export { ExternalLink } from "./ui/ExternalLink";
-export type { ExternalLinkProps } from "./ui/ExternalLink";
 export { DangerZone } from "./ui/DangerZone";
-export type { DangerZoneProps, DangerZoneTexts } from "./ui/DangerZone";
-export { RoleRow } from "./ui/RoleRow";
-export type { RoleRowProps } from "./ui/RoleRow";
+export type { DangerZoneTexts } from "./ui/DangerZone";
 export { ProfileForm } from "./ui/ProfileForm";
-export type { ProfileFormProps, ProfileFormTexts } from "./ui/ProfileForm";
+export type { ProfileFormTexts } from "./ui/ProfileForm";
 export { PasswordForm } from "./ui/PasswordForm";
-export type { PasswordFormProps, PasswordFormTexts } from "./ui/PasswordForm";
+export type { PasswordFormTexts } from "./ui/PasswordForm";
 export { ContactSection } from "./ui/ContactSection";
-export type {
-  ContactSectionProps,
-  ContactSectionTexts,
-} from "./ui/ContactSection";
+export type { ContactSectionTexts } from "./ui/ContactSection";

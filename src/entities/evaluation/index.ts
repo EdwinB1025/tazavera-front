@@ -17,17 +17,10 @@ export type {
   PartKey,
 } from "./model/groups";
 export { ROAST_LEVELS, emptyFormState, toRoastLevel } from "./model/state";
-export type {
-  AffectiveValue,
-  DescriptiveValue,
-  EvaluationFormState,
-  RoastLevel,
-  SendableFormState,
-} from "./model/state";
+export type { EvaluationFormState } from "./model/state";
 export { buildCreateBody, buildUpdateBody } from "./model/body";
 export { formStateFromEvaluation } from "./model/load";
 export { completenessOf } from "./model/completeness";
-export type { GroupCompleteness } from "./model/completeness";
 export {
   closeAnEvaluation,
   createAnEvaluation,
@@ -36,7 +29,7 @@ export {
   listMyEvaluations,
   updateAnEvaluation,
 } from "./api/user-evaluations";
-export type { EvaluationCallResult, EvaluationPage } from "./api/user-evaluations";
+export type { EvaluationCallResult } from "./api/user-evaluations";
 export { fetchEvaluation, fetchEvaluations } from "./api/public-evaluations";
 export { loadEvaluationOfferings } from "./lib/offerings";
 export type { EvaluationsQuery } from "./api/public-evaluations";

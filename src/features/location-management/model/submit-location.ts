@@ -15,7 +15,7 @@ export type SubmitOutcome =
   | { status: "error" };
 
 /** design.md D6: the lookup is aborted after 5 s. */
-export const GEOCODE_TIMEOUT_MS = 5000;
+const GEOCODE_TIMEOUT_MS = 5000;
 
 async function lookUp(
   values: LocationFormValues,

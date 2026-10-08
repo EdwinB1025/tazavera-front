@@ -5,8 +5,11 @@
  * (add-coffeeshop-directory design.md D7, D12).
  */
 export { CoffeeshopCard } from "./ui/CoffeeshopCard";
-export type { CoffeeshopCardProps, CoffeeshopCardTexts } from "./ui/CoffeeshopCard";
-export { countUnlocated, hasLocatedLocation, isLocated, toMapPoints, uniqueCities } from "./model/locations";
-export type { MapPoint } from "./model/locations";
+export type { CoffeeshopCardTexts } from "./ui/CoffeeshopCard";
+export {
+  countUnlocated,
+  hasLocatedLocation,
+  isLocated,
+  toMapPoints,
+} from "./model/locations";
 export { fetchCoffeeshop } from "./api/coffeeshop";
-export type { CoffeeshopResult } from "./api/coffeeshop";

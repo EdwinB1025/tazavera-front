@@ -6,9 +6,7 @@
  * this entry point. The slice holds no state and sends no request.
  */
 export { ContactFields } from "./ui/ContactFields";
-export type { ContactFieldsProps } from "./ui/ContactFields";
 export { ContactDetails } from "./ui/ContactDetails";
-export type { ContactDetailsProps } from "./ui/ContactDetails";
 export { isValidEmail } from "./model/email";
 export type {
   ContactFieldErrors,

@@ -5,4 +5,3 @@
  * actions slot (design.md D6).
  */
 export { EvaluateLink } from "./ui/EvaluateLink";
-export type { EvaluateLinkProps, EvaluateLinkTexts } from "./ui/EvaluateLink";
