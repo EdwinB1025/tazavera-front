@@ -1,0 +1,15 @@
+# Tasks
+
+## 1. Move the account requests to the api segment
+
+No task adds a test or changes an assertion. The protecting tests stub `fetch`; if one fails, stop and report it.
+
+- [ ] 1.1 Profile: create `src/features/user-account/api/account.ts` with `AccountWriteResult`, its status-mapping helper and `updateProfile` (design.md D1–D2), and make `ProfileForm` call `updateProfile` instead of `request`. Protecting tests: `src/features/user-account/ui/ProfileForm.test.tsx`, `qa/src/features/user-account/ui/ProfileForm.test.tsx`. Expected: `npx vitest related src/features/user-account/api/account.ts src/features/user-account/ui/ProfileForm.tsx --run` passes, `npx tsc --noEmit` reports no errors and `npm run lint` reports no errors.
+- [ ] 1.2 Password: add `updatePassword` to `account.ts` (design.md D1–D2) and make `PasswordForm` call it instead of `request`. Protecting tests: `src/features/user-account/ui/PasswordForm.test.tsx`, `qa/src/features/user-account/ui/PasswordForm.test.tsx`. Expected: `npx vitest related src/features/user-account/api/account.ts src/features/user-account/ui/PasswordForm.tsx --run` passes, typecheck and lint report no errors.
+- [ ] 1.3 Registration: create `src/features/user-account/api/register.ts` with `RegisterResult` and `registerUser` (design.md D1, D3) and make `RegisterForm` call it instead of `publicRequest`. Protecting tests: `src/features/user-account/ui/RegisterForm.test.tsx`, `qa/src/features/user-account/ui/RegisterForm.test.tsx`. Expected: `npx vitest related src/features/user-account/api/register.ts src/features/user-account/ui/RegisterForm.tsx --run` passes, typecheck and lint report no errors.
+- [ ] 1.4 Danger zone: add `deactivateAccount` and `deleteAccount` to `account.ts` (design.md D1–D2) and make `DangerZone` call them instead of `request`. Protecting tests: `src/features/user-account/ui/DangerZone.test.tsx`, `qa/src/features/user-account/ui/DangerZone.test.tsx`. Expected: `npx vitest related src/features/user-account/api/account.ts src/features/user-account/ui/DangerZone.tsx --run` passes, typecheck and lint report no errors, and no non-test file under `src/features/user-account/ui` imports `request` or `publicRequest`.
+- [ ] 1.5 Shared new-password fields: create `src/features/user-account/ui/NewPasswordFields.tsx` (design.md D4) and render it in `PasswordForm` and `RegisterForm` in place of their password and confirmation fields. Protecting tests: `PasswordForm.test.tsx` and `RegisterForm.test.tsx` under `src/` and `qa/`. Expected: `npx vitest related src/features/user-account/ui/NewPasswordFields.tsx src/features/user-account/ui/PasswordForm.tsx src/features/user-account/ui/RegisterForm.tsx --run` passes, typecheck and lint report no errors.
+
+## 2. Full checks
+
+- [ ] 2.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: every suite passes with the same number of test files and tests as on `origin/qa`, the typecheck and lint report no errors, and the build succeeds.
