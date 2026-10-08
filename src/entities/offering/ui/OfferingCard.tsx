@@ -10,14 +10,18 @@ import {
 import { ratingTierFor } from "../lib/rating";
 
 // ─── UI-specific types (declared before the component) ───
-// The taxonomy badges arrive already resolved — label, data color and level —
-// from the block that resolved each `ref` against `GET /taxonomies`
-// (design.md D5, D8). No generated API type is edited or redefined here.
+// The taxonomy badges arrive already resolved — reference, label, data color,
+// level and children, nested as the consensus tree — from the taxonomy
+// entity's tree resolver, whose type matches this one structurally
+// (nest-card-taste-notes design.md D1). No generated API type is edited or
+// redefined here.
 
 export type ResolvedTaxonomyBadge = {
+  ref: string;
   label: string;
   color: string;
   level: 0 | 1 | 2;
+  children: ResolvedTaxonomyBadge[];
 };
 
 /** Every label and caption of the card, as props (design.md D11). */
@@ -44,13 +48,77 @@ export type OfferingCardProps = {
 // ─── Fixed pieces (no interface text; design.md D11) ───
 const SCORE_SCALE = "/100";
 const ORIGIN_SEPARATOR = " · ";
-const TAXONOMY_LEVELS = [0, 1, 2] as const;
 
-// Each row wraps its badges so no row overflows the card below `md`
-// (design.md D8; spec "Rows by level").
-const ROW_CLASSES = ["flex", "flex-wrap", "gap-2"].join(" ");
-// The three rows 0.5rem apart, so they do not touch (design.md D14).
-const ROWS_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
+// ─── Taste note trees (nest-card-taste-notes design.md D2) ───
+// The trees side by side, wrapping, so no tree overflows the card.
+const TREES_CLASSES = ["flex", "flex-wrap", "items-start", "gap-3"].join(" ");
+const TREE_CLASSES = ["flex", "flex-col", "items-start", "gap-2"].join(" ");
+// The level-1 column, indented behind a decorative left connector.
+const COLUMN_CLASSES = [
+  "ml-5",
+  "flex",
+  "flex-col",
+  "items-start",
+  "gap-2",
+  "border-l",
+  "border-border-subtle",
+  "pl-3",
+].join(" ");
+const COLUMN_ITEM_CLASSES = ["flex", "flex-col", "items-start", "gap-1.5"].join(
+  " ",
+);
+// The level-2 row, further indented, wrapping.
+const ROW_CLASSES = ["ml-5", "flex", "flex-wrap", "gap-1.5"].join(" ");
+
+/** One taste note's badge, at its own level's treatment. */
+function TasteNoteBadge({ note }: { note: ResolvedTaxonomyBadge }): ReactNode {
+  return (
+    <Badge variant="taxonomy" color={note.color} level={note.level}>
+      {note.label}
+    </Badge>
+  );
+}
+
+/**
+ * The taste notes as nested lists following the consensus tree (design.md D2,
+ * D3): one tree per top-level note, its children in an indented column, their
+ * children in an indented wrapping row. `role="list"` keeps the hierarchy for
+ * assistive technologies; a child list renders only when there are children.
+ */
+function TasteNoteTrees({
+  notes,
+}: {
+  notes: ResolvedTaxonomyBadge[];
+}): ReactNode {
+  if (notes.length === 0) return null;
+  return (
+    <ul role="list" className={TREES_CLASSES}>
+      {notes.map((root) => (
+        <li key={root.ref} className={TREE_CLASSES}>
+          <TasteNoteBadge note={root} />
+          {root.children.length > 0 ? (
+            <ul role="list" className={COLUMN_CLASSES}>
+              {root.children.map((child) => (
+                <li key={child.ref} className={COLUMN_ITEM_CLASSES}>
+                  <TasteNoteBadge note={child} />
+                  {child.children.length > 0 ? (
+                    <ul role="list" className={ROW_CLASSES}>
+                      {child.children.map((leaf) => (
+                        <li key={leaf.ref}>
+                          <TasteNoteBadge note={leaf} />
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 // ─── Card layout (design.md D14) ───
 // Score, `/100` and rating badge on one row above the content.
@@ -64,9 +132,9 @@ const FOOTER_LINKS_CLASSES = ["ml-auto", "flex", "gap-4"].join(" ");
 
 /**
  * One offering filled into the shared card (design.md D4's field mapping and
- * D8; the landing spec "Offering card content" and "Taxonomy badges on the
- * offering card"). Every label and caption arrives as a prop (design.md D11)
- * and the consumer's actions arrive as the `actions` node, rendered in the
+ * D8; the landing spec "Offering card content" and "Taxonomy badge trees on
+ * the offering card"). Every label and caption arrives as a prop (design.md
+ * D11) and the consumer's actions arrive as the `actions` node, rendered in the
  * footer's group with no wrapper; the card has no action of its own, the View
  * action included (fix-production-aut-findings design.md D3).
  */
@@ -123,24 +191,7 @@ export function OfferingCard({
         <p className="type-label">{coffeeshopCaption}</p>
         <p className="type-label">{roasterCaption}</p>
         <p className="type-meta">{origin}</p>
-        <div className={ROWS_CLASSES}>
-          {TAXONOMY_LEVELS.map((level) => (
-            <div key={level} className={ROW_CLASSES}>
-              {taxonomies
-                .filter((badge) => badge.level === level)
-                .map((badge) => (
-                  <Badge
-                    key={badge.label}
-                    variant="taxonomy"
-                    color={badge.color}
-                    level={badge.level}
-                  >
-                    {badge.label}
-                  </Badge>
-                ))}
-            </div>
-          ))}
-        </div>
+        <TasteNoteTrees notes={taxonomies} />
       </CardContent>
       <CardFooter className={FOOTER_CLASSES}>
         <div className={FOOTER_COUNTS_CLASSES}>
