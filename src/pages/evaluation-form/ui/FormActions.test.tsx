@@ -17,6 +17,8 @@ function renderActions(props: Partial<Parameters<typeof FormActions>[0]> = {}) {
     <FormActions
       saveLabel="Save draft"
       closeLabel="Close evaluation"
+      cancelLabel="Cancel"
+      cancelHref="/es/manage/evaluations"
       onSave={onSave}
       onClose={onClose}
       busy={null}

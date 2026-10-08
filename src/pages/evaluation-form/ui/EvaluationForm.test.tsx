@@ -389,6 +389,20 @@ describe("EvaluationForm: closing (design.md D4, D10; tasks 7.1)", () => {
   });
 });
 
+describe("EvaluationForm: Cancel (add-form-cancel-actions design.md D1, D2)", () => {
+  it("Cancel leaves for My evaluations without saving", () => {
+    renderForm();
+    const cancel = screen.getByRole("link", { name: "Cancel" });
+    expect(cancel.getAttribute("href")).toBe("/en/manage/evaluations");
+    expect(cancel.className).toContain("text-text-link");
+    expect(cancel.className).toContain("self-center");
+    fireEvent.click(cancel);
+    expect(createAnEvaluation).not.toHaveBeenCalled();
+    expect(updateAnEvaluation).not.toHaveBeenCalled();
+    expect(closeAnEvaluation).not.toHaveBeenCalled();
+  });
+});
+
 describe("EvaluationForm: read-only presentation (design.md D4, D14; tasks 7.3)", () => {
   const CLOSED = {
     ...OPEN_EVALUATION,
@@ -417,6 +431,10 @@ describe("EvaluationForm: read-only presentation (design.md D4, D14; tasks 7.3)"
     for (const name of ["Add note", "Remove note", "Save draft", "Close evaluation"]) {
       expect(screen.queryAllByRole("button", { name: new RegExp(`^${name}`) })).toHaveLength(0);
     }
+  });
+  it("No Cancel on a closed evaluation", () => {
+    renderForm({ evaluation: CLOSED });
+    expect(screen.queryByRole("link", { name: "Cancel" })).toBeNull();
   });
 });
 
