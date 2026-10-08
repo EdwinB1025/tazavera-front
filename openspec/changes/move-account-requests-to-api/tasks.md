@@ -12,4 +12,4 @@ No task adds a test or changes an assertion. The protecting tests stub `fetch`; 
 
 ## 2. Full checks
 
-- [ ] 2.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: every suite passes with the same number of test files and tests as on `origin/qa`, the typecheck and lint report no errors, and the build succeeds.
+- [x] 2.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: every suite passes with the same number of test files and tests as on `origin/qa`, the typecheck and lint report no errors, and the build succeeds.
