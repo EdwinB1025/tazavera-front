@@ -40,4 +40,4 @@
 
 ## 3. Full checks
 
-- [ ] 3.1 Run each on its own: `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint`, `npm run build`. Expected: every suite passes, the typecheck and lint report no errors, and the build succeeds.
+- [x] 3.1 Run each on its own: `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint`, `npm run build`. Expected: every suite passes, the typecheck and lint report no errors, and the build succeeds.
