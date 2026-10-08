@@ -26,7 +26,7 @@ describe("fetchCoffees (design.md D1)", () => {
     const data = [{ ulid: "01A", process: "washed" }];
     fetchSpy.mockResolvedValue({ ok: true, status: 200, json: async () => ({ data }) });
     await expect(fetchCoffees()).resolves.toEqual(data);
-    expect(fetchSpy).toHaveBeenCalledWith(`${API_URL}/coffees`);
+    expect(fetchSpy).toHaveBeenCalledWith(`${API_URL}/coffees`, { next: { revalidate: 3600 } });
   });
 
   it("rejects on a non-2xx status", async () => {
