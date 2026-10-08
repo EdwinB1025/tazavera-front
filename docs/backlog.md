@@ -111,18 +111,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Status:** proposed
 - **Affects:** R28
 
-## R22 — Shared Field-control hook
-
-- **Duplicated:** the same Field-context resolution, copied 4–6 times (cyclomatic complexity 15–25)
-- **Where today:** `src/shared/ui/Input.tsx`, `Select.tsx`, `Textarea.tsx`, `PasswordInput.tsx`, `Checkbox.tsx`, `Combobox.tsx`
-- **Why it pays off now:** every new control would add another copy.
-- **Owning capability:** form-fields
-- **Proposed change:** `extract-field-control-hook` (M)
-- **Open decision (Augusto):** none
-- **Type:** Refactor (fast lane)
-- **Status:** proposed
-- **Affects:** none
-
 ## R24 — Route the public reads through `publicRequest`
 
 - **Duplicated:** 6 hand-built API URLs
