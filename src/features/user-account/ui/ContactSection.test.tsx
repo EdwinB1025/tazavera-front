@@ -401,16 +401,16 @@ describe("ContactSection — the add form", () => {
     expect(region().textContent).not.toContain(API_MESSAGE);
   });
 
-  it("403 shows the step-up notice above the actions and keeps every value", async () => {
-    const { requestProfileWrite } = await submitWith(() =>
-      Promise.resolve(json(403, { message: API_MESSAGE })),
-    );
-    const notice = screen.getByText(TEXTS.stepUpText);
-    expect(precedes(notice, actionsRow())).toBe(true);
+  it("403 shows the generic error above the actions, keeps every value and shows no step-up notice", async () => {
+    await submitWith(() => Promise.resolve(json(403, { message: API_MESSAGE })));
+    const alert = screen.getByRole("alert");
+    expect(alert.textContent).toBe(TEXTS.genericError);
+    expect(precedes(alert, actionsRow())).toBe(true);
     expectTypedValuesKept();
-    fireEvent.click(screen.getByRole("button", { name: TEXTS.stepUpButton }));
-    expect(requestProfileWrite).toHaveBeenCalledTimes(1);
-    expect(requestProfileWrite).toHaveBeenCalledWith("/es/account");
+    expect(screen.getAllByRole("button").map((button) => button.textContent)).toEqual([
+      TEXTS.save,
+      TEXTS.cancel,
+    ]);
     expect(region().textContent).not.toContain(API_MESSAGE);
   });
 
