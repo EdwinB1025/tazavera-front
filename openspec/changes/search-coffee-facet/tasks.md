@@ -14,4 +14,4 @@ No derived type is needed: the reads use the generated `CoffeeSummary` and `Roas
 
 ## 3. Full checks
 
-- [ ] 3.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: both suites pass, with two more tests than on `origin/develop` in the validation suite; the typecheck and lint report no errors; the build succeeds.
+- [x] 3.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: both suites pass, with two more tests than on `origin/develop` in the validation suite; the typecheck and lint report no errors; the build succeeds.
