@@ -22,8 +22,6 @@
   "cancel": "Cancel·la",
   "loading": "Carregant…",
   "genericError": "No s'ha pogut completar l'acció. Torna-ho a provar.",
-  "stepUpText": "Per continuar, confirma la teva identitat iniciant sessió de nou.",
-  "stepUpButton": "Confirma la identitat",
   "signIn": "Iniciar sessió",
   "requiredError": "Aquest camp és obligatori.",
   "emailFormatError": "Introdueix un correu vàlid."

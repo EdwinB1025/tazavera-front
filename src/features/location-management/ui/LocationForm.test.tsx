@@ -27,8 +27,6 @@ const TEXTS: LocationFormTexts = {
   save: "fx-save",
   cancel: "fx-cancel",
   genericError: "fx-generic-error",
-  stepUpText: "fx-step-up",
-  stepUpButton: "fx-confirm",
   requiredError: "fx-required",
   emailFormatError: "fx-email-format",
   contactAddressLabel: "fx-address",
@@ -44,29 +42,24 @@ const TEXTS: LocationFormTexts = {
 function renderForm(submitState: SubmitState = "idle") {
   const onSubmit = vi.fn();
   const onCancel = vi.fn();
-  const requestProfileWrite = vi.fn();
   const utils = render(
     <LocationForm
-      locale="es"
       texts={TEXTS}
       submitState={submitState}
       onSubmit={onSubmit}
       onCancel={onCancel}
-      requestProfileWrite={requestProfileWrite}
     />,
   );
   const rerenderWith = (state: SubmitState) =>
     utils.rerender(
       <LocationForm
-        locale="es"
         texts={TEXTS}
         submitState={state}
         onSubmit={onSubmit}
         onCancel={onCancel}
-        requestProfileWrite={requestProfileWrite}
       />,
     );
-  return { ...utils, onSubmit, onCancel, requestProfileWrite, rerenderWith };
+  return { ...utils, onSubmit, onCancel, rerenderWith };
 }
 
 function input(name: string): HTMLInputElement | HTMLTextAreaElement {
@@ -134,12 +127,11 @@ describe("LocationForm submit states (spec: Location creation failures)", () => 
     const alerts = screen.getAllByRole("alert");
     expect(alerts).toHaveLength(1);
     expect(alerts[0].textContent).toBe(TEXTS.genericError);
-    expect(screen.queryByText(TEXTS.stepUpText)).toBeNull();
     const save = screen.getByRole("button", { name: TEXTS.save });
     expect(alerts[0].compareDocumentPosition(save) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("submits the values and keeps them after error and step-up", () => {
+  it("submits the values and keeps them after an error", () => {
     const { onSubmit, rerenderWith } = renderForm();
     fillRequired();
     fireEvent.click(screen.getByRole("button", { name: TEXTS.save }));
@@ -149,7 +141,7 @@ describe("LocationForm submit states (spec: Location creation failures)", () => 
       address: "Carrer de Verdi 12",
       city: "Barcelona",
     });
-    for (const state of ["submitting", "error", "submitting", "step-up"] as const) {
+    for (const state of ["submitting", "error"] as const) {
       rerenderWith(state);
     }
     expect(input("name").value).toBe("Tazavera Gràcia");

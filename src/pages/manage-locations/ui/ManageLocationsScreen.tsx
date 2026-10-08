@@ -47,8 +47,6 @@ export function ManageLocationsScreen({ locale }: ManageLocationsScreenProps): R
     save: catalog.save,
     cancel: catalog.cancel,
     genericError: catalog.genericError,
-    stepUpText: catalog.stepUpText,
-    stepUpButton: catalog.stepUpButton,
     requiredError: catalog.requiredError,
     emailFormatError: catalog.emailFormatError,
     contactAddressLabel: contactCatalog.contactAddressLabel,
