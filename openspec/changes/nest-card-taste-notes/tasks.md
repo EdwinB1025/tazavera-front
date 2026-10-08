@@ -22,4 +22,4 @@ This fast-lane change modifies observable behaviour by Product owner's decision,
 
 ## 5. Full checks
 
-- [ ] 5.1 Run, each on its own: `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint`, `npm run build`. Expected: every one exits 0; `src/widgets/offering-list/lib/resolve-taxonomies.ts` and `src/pages/manage-offerings/lib/resolve-taxonomies.ts` no longer exist; no hex value, primitive token or Tailwind default colour scale is added. This task changes no files: check it off in a commit containing only the checkbox, `chore(landing): complete tasks for nest-card-taste-notes`.
+- [x] 5.1 Run, each on its own: `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint`, `npm run build`. Expected: every one exits 0; `src/widgets/offering-list/lib/resolve-taxonomies.ts` and `src/pages/manage-offerings/lib/resolve-taxonomies.ts` no longer exist; no hex value, primitive token or Tailwind default colour scale is added. This task changes no files: check it off in a commit containing only the checkbox, `chore(landing): complete tasks for nest-card-taste-notes`.
