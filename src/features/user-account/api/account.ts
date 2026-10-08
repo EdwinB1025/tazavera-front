@@ -1,4 +1,8 @@
-import { request, type ProfileUpdatePayload } from "@/shared/api";
+import {
+  request,
+  type PasswordUpdatePayload,
+  type ProfileUpdatePayload,
+} from "@/shared/api";
 
 /**
  * The outcome of an account write (design.md D2): `200` is a success, `403`
@@ -26,6 +30,21 @@ export function updateProfile(
   payload: ProfileUpdatePayload,
 ): Promise<AccountWriteResult> {
   return write(`/users/${ulid}`, {
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+/** The password change (design.md D1): `PUT /users/{ulid}/password`. */
+export function updatePassword(
+  ulid: string,
+  payload: PasswordUpdatePayload,
+): Promise<AccountWriteResult> {
+  return write(`/users/${ulid}/password`, {
     method: "PUT",
     headers: {
       Accept: "application/json",

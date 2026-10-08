@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
-import { request } from "@/shared/api";
 import type { PasswordUpdatePayload } from "@/shared/api";
 import {
   Button,
@@ -10,6 +9,7 @@ import {
   FormStatus,
   StepUpNotice,
 } from "@/shared/ui";
+import { updatePassword } from "../api/account";
 import { ExternalLink } from "./ExternalLink";
 
 // ─── UI-specific types (declared before the component) ───
@@ -118,26 +118,10 @@ export function PasswordForm({
 
     setPending(true);
     setOutcome(null);
-    let status: number | null = null;
-    try {
-      const response = await request(`/users/${ulid}/password`, {
-        method: "PUT",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
-      status = response.status;
-    } catch {
-      // A network failure shows the generic error (spec "Password change").
-    }
+    const result = await updatePassword(ulid, values);
     setPending(false);
-    if (status === 403) {
-      setOutcome("stepUp");
-      return;
-    }
-    setOutcome(status === 200 ? "success" : "error");
+    setOutcome(result);
+    if (result === "stepUp") return;
     setValues(EMPTY_VALUES);
   }
 
