@@ -12,7 +12,7 @@ No derived API types are needed: the change only moves layout classes.
 
 ## 3. Not-found card fills the container (app-shell)
 
-- [ ] 3.1 Add to `src/pages/not-found/ui/NotFoundScreen.test.tsx` one test for the scenario "Not-found page content" (spec `app-shell`, extended): it renders `NotFoundScreen` and asserts the element that wraps the section card has the class `w-full` and neither `max-w-lg` nor `mx-auto`. Verify: the new test fails on `max-w-lg`; the other tests of the file pass; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 3.1 Add to `src/pages/not-found/ui/NotFoundScreen.test.tsx` one test for the scenario "Not-found page content" (spec `app-shell`, extended): it renders `NotFoundScreen` and asserts the element that wraps the section card has the class `w-full` and neither `max-w-lg` nor `mx-auto`. Verify: the new test fails on `max-w-lg`; the other tests of the file pass; `npx tsc --noEmit` and `npm run lint` report no errors.
 - [ ] 3.2 Implement design.md D1 in `src/pages/not-found/ui/NotFoundScreen.tsx`. Protecting tests: `src/pages/not-found/ui/NotFoundScreen.test.tsx`. Verify: `npx vitest related` on the changed file passes, the test of 3.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 4. Full checks

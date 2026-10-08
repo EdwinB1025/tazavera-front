@@ -30,7 +30,20 @@ describe("NotFoundScreen", () => {
     render(<NotFoundScreen locale="es" />);
 
     expect(
-      screen.getByRole("link", { name: "Volver al inicio" }).getAttribute("href"),
+      screen
+        .getByRole("link", { name: "Volver al inicio" })
+        .getAttribute("href"),
     ).toBe("/es");
+  });
+
+  it("places the section card across the page container's width", () => {
+    render(<NotFoundScreen locale="es" />);
+
+    const wrapper = screen
+      .getByRole("heading", { level: 1 })
+      .closest(".border")!.parentElement!;
+    expect(wrapper.classList.contains("w-full")).toBe(true);
+    expect(wrapper.classList.contains("max-w-lg")).toBe(false);
+    expect(wrapper.classList.contains("mx-auto")).toBe(false);
   });
 });
