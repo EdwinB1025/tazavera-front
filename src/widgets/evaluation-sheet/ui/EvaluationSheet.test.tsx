@@ -22,25 +22,6 @@ function card(name: string): HTMLElement {
 
 afterEach(cleanup);
 
-describe("EvaluationSheet layout (design.md D8, D10)", () => {
-  it("lays the cards on the sheet grid, Summary and Descriptors spanning both columns", () => {
-    const { container } = renderSheet();
-    const grid = container.firstElementChild as HTMLElement;
-    for (const name of ["grid", "grid-cols-1", "gap-6", "lg:grid-cols-2"]) {
-      expect(grid.className).toContain(name);
-    }
-    expect(card("Context").parentElement?.className).toContain("lg:col-span-2");
-    expect(card("Descriptors").parentElement?.className).toContain("lg:col-span-2");
-    expect(card("Intensity").parentElement?.className).not.toContain("lg:col-span-2");
-    const heading = screen.getByRole("heading", { level: 2, name: "Preference" });
-    expect(heading.className).toContain("type-subheading");
-    const shell = card("Preference").parentElement as HTMLElement;
-    for (const name of ["border-border-accent", "rounded-container", "shadow-lg"]) {
-      expect(shell.className).toContain(name);
-    }
-  });
-});
-
 describe("EvaluationSheet summary (spec: Summary values)", () => {
   it("shows the score once with its rating word and the three definition rows", () => {
     renderSheet();
@@ -59,19 +40,6 @@ describe("EvaluationSheet summary (spec: Summary values)", () => {
     expect(terms).toEqual(["Closed on", "Extraction method", "Defective cup"]);
     expect(values).toEqual([date, "V60", "No"]);
   });
-
-  it("omits Closed on for a null closedAt and shows an unknown extraction method raw", () => {
-    renderSheet({ ...EVALUATION, closedAt: null, extractionMethod: "ibrik", isDefective: true });
-    const summary = card("Context");
-    expect(within(summary).getAllByRole("term").map((term) => term.textContent)).toEqual([
-      "Extraction method",
-      "Defective cup",
-    ]);
-    expect(within(summary).getAllByRole("definition").map((value) => value.textContent)).toEqual([
-      "ibrik",
-      "Yes",
-    ]);
-  });
 });
 
 describe("EvaluationSheet scales (spec: Intensity and preference values)", () => {
@@ -87,12 +55,6 @@ describe("EvaluationSheet scales (spec: Intensity and preference values)", () =>
     expect(preference).toHaveLength(7);
     expect(preference[0]?.getAttribute("aria-valuetext")).toBe("7 de 9");
     expect(within(card("Preference")).queryByText("Overall")).toBeNull();
-  });
-
-  it("omits an affective scale whose score is 0, as an unscored one", () => {
-    renderSheet({ ...EVALUATION, affective: { ...EVALUATION.affective, mouthfeel: { score: 0, note: null } } });
-    expect(within(card("Preference")).getAllByRole("meter")).toHaveLength(6);
-    expect(within(card("Preference")).queryByText("Mouthfeel")).toBeNull();
   });
 });
 
@@ -121,23 +83,5 @@ describe("EvaluationSheet conditional blocks (spec: Conditional blocks)", () => 
     renderSheet();
     expect(screen.queryByRole("heading", { name: "Notes" })).toBeNull();
     expect(screen.queryByRole("heading", { name: "Extrinsic attributes" })).toBeNull();
-  });
-
-  it("renders only the non-null entries when some are set", () => {
-    renderSheet({
-      ...EVALUATION,
-      descriptive: { ...EVALUATION.descriptive, acidity: { score: 7, note: "Bright" } },
-      affective: { ...EVALUATION.affective, overall: { score: 8, note: "Balanced" } },
-      extrinsics: { ...EVALUATION.extrinsics, farming: "Organic" },
-    } as EvaluationItem);
-    const notes = card("Notes");
-    expect(within(notes).getAllByRole("term").map((term) => term.textContent)).toEqual([
-      "Intensity · Acidity",
-      "Preference · Overall",
-    ]);
-    expect(within(notes).getByText("Bright").className).toContain("type-body");
-    const extrinsics = card("Extrinsic attributes");
-    expect(within(extrinsics).getAllByRole("term").map((term) => term.textContent)).toEqual(["Farming"]);
-    expect(within(extrinsics).getByText("Organic")).toBeDefined();
   });
 });

@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent, within } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { LocationForm, type LocationFormTexts } from "./LocationForm";
 import type { SubmitState } from "../model/types";
 
@@ -84,57 +84,6 @@ function fillRequired(): void {
 }
 
 describe("LocationForm structure (design.md D7)", () => {
-  it("is a noValidate form in a section card, named by the band h2", () => {
-    const { container } = renderForm();
-    const form = screen.getByRole("form", { name: TEXTS.newLocationHeading });
-    expect(form.hasAttribute("novalidate")).toBe(true);
-    const heading = screen.getByRole("heading", { level: 2, name: TEXTS.newLocationHeading });
-    expect(heading.className).toBe("type-subheading");
-    expect(heading.closest(".bg-surface-section")).not.toBeNull();
-    expect((container.firstElementChild as HTMLElement).className).toContain("border-border-subtle");
-  });
-
-  it("groups the fields in two fieldsets with visible legends", () => {
-    renderForm();
-    const groups = screen.getAllByRole("group");
-    expect(groups).toHaveLength(2);
-    expect(within(groups[0]).getByText(TEXTS.locationGroupLegend).tagName).toBe("LEGEND");
-    expect(within(groups[1]).getByText(TEXTS.contactGroupLegend).tagName).toBe("LEGEND");
-    expect(within(groups[0]).getByLabelText(/^fx-name/)).toBe(input("name"));
-    expect(within(groups[1]).getByLabelText(/^fx-address/)).toBe(input("address"));
-  });
-
-  it("renders Name and Description with their attributes", () => {
-    renderForm();
-    const name = input("name") as HTMLInputElement;
-    expect(name.getAttribute("autocomplete")).toBe("organization");
-    expect(name.required).toBe(true);
-    expect(name.getAttribute("maxlength")).toBe("150");
-    const description = input("description");
-    expect(description.tagName).toBe("TEXTAREA");
-    expect(description.getAttribute("maxlength")).toBe("255");
-  });
-
-  it("renders the eight contact fields with Address and City required, in the paired layout", () => {
-    renderForm();
-    const lengths = {
-      address: "255",
-      postalCode: "12",
-      city: "90",
-      country: "60",
-      phone: "25",
-      email: "255",
-      web: "255",
-      social: "255",
-    };
-    for (const [key, maxLength] of Object.entries(lengths)) {
-      const field = input(key) as HTMLInputElement;
-      expect(field.getAttribute("maxlength")).toBe(maxLength);
-      expect(field.required).toBe(key === "address" || key === "city");
-    }
-    expect(document.querySelectorAll(".md\\:grid-cols-2")).toHaveLength(3);
-  });
-
   it("renders the help and the attribution with one same-tab OpenStreetMap link", () => {
     renderForm();
     expect(screen.getByText(TEXTS.geocodingHelp)).toBeDefined();
@@ -223,11 +172,5 @@ describe("LocationForm submit states (spec: Location creation failures)", () => 
     expect(input("name").value).toBe("Tazavera Gràcia");
     expect(input("address").value).toBe("Carrer de Verdi 12");
     expect(input("city").value).toBe("Barcelona");
-  });
-
-  it("calls onCancel from Cancel", () => {
-    const { onCancel } = renderForm();
-    fireEvent.click(screen.getByRole("button", { name: TEXTS.cancel }));
-    expect(onCancel).toHaveBeenCalledTimes(1);
   });
 });

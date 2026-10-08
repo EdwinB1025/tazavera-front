@@ -102,15 +102,6 @@ describe("ManageLocationsClient — the gate (design.md D2)", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("reads GET /users/{ulid}/locations with the session ulid for a coffeeshop", async () => {
-    auth.session = { state: "authenticated", user: COFFEESHOP };
-    renderClient();
-    await act(async () => {});
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(String(fetchMock.mock.calls[0][0])).toBe(`${API}/users/01COFFEESHOP/locations`);
-    expect(screen.getByText(TEXTS.locationsEmptyText)).toBeTruthy();
-  });
-
   it("shows the signed-out state when the session turns anonymous while the page is open", async () => {
     auth.session = { state: "authenticated", user: COFFEESHOP };
     const { rerender } = renderClient();

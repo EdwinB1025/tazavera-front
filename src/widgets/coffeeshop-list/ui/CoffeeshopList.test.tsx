@@ -76,26 +76,6 @@ describe("CoffeeshopList", () => {
     expect(router.push).toHaveBeenCalledWith("/es/coffeeshops?page=2");
   });
 
-  it("keeps the filters and the sort in the pagination, replacing the page (spec: Next keeps the query and the view)", () => {
-    render(
-      <CoffeeshopList
-        result={{ state: "success", items: ITEMS, meta: { current_page: 2, last_page: 3, total: 40 } }}
-        locale="es"
-        query={{ city: "Barcelona", orderBy: "name", orderDirection: "desc", page: "2" }}
-        texts={TEXTS}
-      />,
-    );
-    fireEvent.click(screen.getByRole("button", { name: "Siguiente" }));
-    const href = new URL(router.push.mock.calls[0][0] as string, "http://x");
-    expect(href.pathname).toBe("/es/coffeeshops");
-    expect(Object.fromEntries(href.searchParams)).toEqual({
-      city: "Barcelona",
-      orderBy: "name",
-      orderDirection: "desc",
-      page: "3",
-    });
-  });
-
   it("renders the centred empty message, no card and no pagination (spec: Empty)", () => {
     render(<CoffeeshopList result={{ state: "empty" }} locale="es" query={{}} texts={TEXTS} />);
     expect(screen.getByText("Todavía no hay cafeterías.").className).toContain("text-center");

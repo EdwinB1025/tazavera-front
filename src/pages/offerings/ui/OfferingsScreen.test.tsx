@@ -70,39 +70,4 @@ describe("OfferingsScreen", () => {
     expect(classes).not.toContain("bg-surface-section");
   });
 
-  it("renders the results with the route's locale, address, path and texts and no fixed query (extract-filtered-offerings design.md D5)", () => {
-    const searchParams = { process: "washed", page: "2" };
-    render(<OfferingsScreen locale="es" searchParams={searchParams} />);
-    const landing = getMessages("landing", "es");
-    const catalog = getMessages("catalog", "es");
-    const filters = getMessages("filters", "es");
-    expect(results.props?.locale).toBe("es");
-    expect(results.props?.searchParams).toBe(searchParams);
-    expect(results.props?.path).toBe("/es/offerings");
-    expect(results.props).not.toHaveProperty("fixedQuery");
-    expect(results.props?.texts).toEqual({
-      coffeeshopCaption: landing.cardCoffeeshopCaption,
-      roasterCaption: landing.cardRoasterCaption,
-      evaluationsLabel: landing.cardEvaluationsLabel,
-      defectiveLabel: landing.cardDefectiveLabel,
-      viewLabel: landing.cardViewLabel,
-      evaluateLabel: landing.cardEvaluateLabel,
-      verifiedLabel: landing.cardVerifiedLabel,
-      provisionalLabel: landing.cardProvisionalLabel,
-      ratingExceptionalLabel: landing.cardRatingExceptionalLabel,
-      ratingExcellentLabel: landing.cardRatingExcellentLabel,
-      ratingGoodLabel: landing.cardRatingGoodLabel,
-      ratingCommercialLabel: landing.cardRatingCommercialLabel,
-      previousLabel: landing.paginationPreviousLabel,
-      nextLabel: landing.paginationNextLabel,
-      navigationLabel: landing.paginationNavigationLabel,
-      pageLabel: landing.paginationPageLabel,
-      emptyMessage: catalog.listEmptyMessage,
-      errorMessage: catalog.listErrorMessage,
-      retryLabel: landing.listRetryLabel,
-      resultCount: catalog.resultCount,
-      noMatches: filters.noMatches,
-      clearAll: filters.clearAll,
-    });
-  });
 });

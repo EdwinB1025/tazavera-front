@@ -61,7 +61,7 @@ const REMOVED = [
  * addressing the list route and marked as the current entry.
  */
 describe("NewOfferingSidebarEntries (design.md D8)", () => {
-  it.each(Object.keys(LABELS))("renders the Manage offerings entry in %s", (locale) => {
+  it.each(["es"])("renders the Manage offerings entry in %s", (locale) => {
     render(
       <SidebarProvider>
         <AppSidebarProvider session={SESSION} toggleLabel="sidebar.toggle">

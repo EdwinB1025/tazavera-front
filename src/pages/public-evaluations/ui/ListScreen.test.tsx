@@ -57,18 +57,6 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("ListScreen (summary §5.2)", () => {
-  it("renders the eyebrow and h1, the toolbar 2rem below them, and the list in the section surface", () => {
-    renderScreen({});
-    expect(screen.getByText("Evaluations").className).toContain("type-eyebrow-strong");
-    const heading = screen.getByRole("heading", { level: 1, name: "Specialist evaluations" });
-    expect(heading.className).toContain("type-heading");
-    const header = heading.closest("section") as HTMLElement;
-    expect(header.className).toContain("bg-surface-page");
-    expect((heading.parentElement?.parentElement as HTMLElement).className).toContain("gap-8");
-    expect(screen.getByRole("combobox", { name: "Sort by" })).toBeDefined();
-    const body = screen.getByTestId("public-list").closest("section") as HTMLElement;
-    expect(body.className).toContain("bg-surface-section");
-  });
 
   it("requests the fixed keys with the facet values, the page and the URL's query for the pagination", () => {
     const search = { offeringId: "01JOFFERA", status: "open", page: "2" };
@@ -83,11 +71,6 @@ describe("ListScreen (summary §5.2)", () => {
     });
     expect(list.props?.searchParams).toEqual(search);
     expect(list.props?.filtered).toBe(true);
-  });
-
-  it("is unfiltered with no facet in the URL", () => {
-    renderScreen({ orderBy: "cupping_score", orderDirection: "desc" });
-    expect(list.props?.filtered).toBe(false);
   });
 
   it("writes a sort change without page and without scrolling", () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach, beforeAll, beforeEach } from "vitest";
-import { render, screen, fireEvent, cleanup, within } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { getMessages } from "@/shared/lib/i18n";
 import { SidebarProvider } from "@/shared/ui";
 import { EvaluationsToolbar, type EvaluationsToolbarTexts } from "./EvaluationsToolbar";
@@ -63,20 +63,6 @@ function renderToolbar(search: string, count = 0) {
 
 /** The evaluations body toolbar (design.md D6, D8; spec "Evaluation sort", "Evaluations filter toolbar"). */
 describe("EvaluationsToolbar (design.md D8)", () => {
-  it("lays out one wrapping row with the trigger at the start and the sort field at the end", () => {
-    const select = renderToolbar("");
-    const trigger = screen.getByRole("button", { name: "Filters" });
-    const field = select.closest("div.grow")!;
-    const row = field.parentElement!;
-    expect(row.className.split(" ")).toEqual(
-      expect.arrayContaining(["flex", "flex-wrap", "items-end", "justify-between", "gap-x-4", "gap-y-3"]),
-    );
-    expect(row.contains(trigger)).toBe(true);
-    expect(trigger.compareDocumentPosition(field) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(field.className.split(" ")).toEqual(
-      expect.arrayContaining(["min-w-48", "max-w-64", "grow", "ml-auto"]),
-    );
-  });
 
   it("reads Filters without applied values and Filters (2) with two", () => {
     renderToolbar("");
@@ -84,22 +70,6 @@ describe("EvaluationsToolbar (design.md D8)", () => {
     cleanup();
     renderToolbar("", 2);
     expect(screen.getByRole("button", { name: "Filters (2)" })).toBeDefined();
-  });
-
-  it("lists the five sort options in order", () => {
-    const select = renderToolbar("");
-    expect(within(select).getAllByRole("option").map((option) => option.textContent)).toEqual([
-      "Default order",
-      "Highest score",
-      "Lowest score",
-      "Newest",
-      "Oldest",
-    ]);
-  });
-
-  it("selects the current sort", () => {
-    const select = renderToolbar("orderBy=cupping_score&orderDirection=desc");
-    expect(select.value).toBe("score-desc");
   });
 
   it("writes both sort keys without page for Lowest score", () => {

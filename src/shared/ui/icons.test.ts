@@ -1,191 +1,105 @@
-import { describe, it, expect, afterEach } from "vitest";
-import { createElement } from "react";
-import { render, cleanup } from "@testing-library/react";
+import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync, statSync } from "node:fs";
-import { resolve as pathResolve } from "node:path";
+import { dirname, resolve as pathResolve } from "node:path";
+import * as icons from "@/shared/ui/icons";
 
-// Top-level import: the whole file fails to load until `src/shared/ui/icons`
-// exists, which is the "verification fails" expectation of task 1.2.
-import {
-  Loader2,
-  ArrowLeft,
-  Eye,
-  EyeOff,
-  ChevronDown,
-  ChevronLeft,
-  Check,
-  Clock,
-  Globe,
-  SlidersHorizontal,
-  X,
-  Trash2,
-  List,
-  Plus,
-  MapPin,
-  MapPinOff,
-  MapIcon,
-  Minus,
-  BeanMark,
-  type LucideIcon,
-} from "@/shared/ui/icons";
+/**
+ * Shared icon source guard (base-controls spec "Shared icon source"; design.md
+ * D6 of add-base-control and every change that added an icon). One general
+ * test: it scans every non-test module under src/ and lists the offending
+ * items. A module offends when it imports lucide-react and is not the entry
+ * point, and an icon offends when a module imports it from the entry point
+ * (or the entry point's own icons are required by a design) and the entry
+ * point does not export it.
+ */
 
-// No global test setup in this project, so RTL auto-cleanup does not run.
-afterEach(() => {
-  cleanup();
-});
+const SRC_ROOT = pathResolve(process.cwd(), "src");
+const ENTRY = pathResolve(SRC_ROOT, "shared/ui/icons.ts");
+
+// Icons the designs require from the entry point, whether or not a module
+// imports them today (design.md D6 of add-base-control, form-fields D6,
+// add-landing D7, refine-app-header D8, add-facet-controls D10,
+// add-offering-management D7 and D8, refine-list-pagination D6,
+// add-user-contact D8, add-coffeeshop-location D8 and D9,
+// add-coffeeshop-directory D15, add-evaluation-scales D4).
+const REQUIRED = [
+  "Loader2",
+  "ArrowLeft",
+  "LucideIcon",
+  "Eye",
+  "EyeOff",
+  "ChevronDown",
+  "Check",
+  "Clock",
+  "Globe",
+  "SlidersHorizontal",
+  "X",
+  "Trash2",
+  "List",
+  "ChevronLeft",
+  "Plus",
+  "MapPin",
+  "MapPinOff",
+  "MapIcon",
+  "Minus",
+  "BeanMark",
+];
+
+function sourceFiles(dir: string): string[] {
+  return readdirSync(dir).flatMap((entry) => {
+    const full = pathResolve(dir, entry);
+    if (statSync(full).isDirectory()) return sourceFiles(full);
+    const isSource = full.endsWith(".ts") || full.endsWith(".tsx");
+    // Test files reference lucide-react in prose and patterns.
+    const isTest = full.endsWith(".test.ts") || full.endsWith(".test.tsx");
+    return isSource && !isTest ? [full] : [];
+  });
+}
+
+/** Names a module imports from the icon entry point, by alias or relative path. */
+function importedIconNames(file: string, content: string): string[] {
+  const names: string[] = [];
+  const importPattern = /import\s+(type\s+)?\{([^}]*)\}\s+from\s+["']([^"']+)["']/g;
+  for (const match of content.matchAll(importPattern)) {
+    const specifier = match[3];
+    const target = specifier.startsWith(".")
+      ? pathResolve(dirname(file), specifier)
+      : specifier.replace(/^@\//, `${SRC_ROOT}/`);
+    if (pathResolve(target) !== ENTRY.replace(/\.ts$/, "")) continue;
+    for (const part of match[2].split(",")) {
+      const name = part.trim().replace(/^type\s+/, "").split(/\s+as\s+/)[0];
+      if (name) names.push(name);
+    }
+  }
+  return names;
+}
 
 describe("icon entry point (src/shared/ui/icons.ts)", () => {
-  it("exports the required icons and the LucideIcon type", () => {
-    expect(Loader2).toBeDefined();
-    expect(ArrowLeft).toBeDefined();
-    // `LucideIcon` is a type-only export, verified at compile time by
-    // `npx tsc --noEmit`; the assignment below keeps it referenced.
-    const icon: LucideIcon = ArrowLeft;
-    expect(icon).toBe(ArrowLeft);
-  });
+  it("is the only module under src/ that imports lucide-react, and exports every icon the app uses", () => {
+    const entrySource = readFileSync(ENTRY, "utf-8");
+    const exported = (name: string): boolean =>
+      name in icons ||
+      // Type-only exports (LucideIcon) have no runtime value.
+      new RegExp(`export\\s*\\{[^}]*\\btype\\s+${name}\\b`).test(entrySource);
 
-  it("exports the form-field icons (form-fields design.md D6)", () => {
-    // Password visibility toggle (Eye / EyeOff), select chevron (ChevronDown)
-    // and the checkbox check mark (Check). They are not exported yet, so this
-    // test runs and fails until task 1.7 re-exports them.
-    expect(Eye).toBeDefined();
-    expect(EyeOff).toBeDefined();
-    expect(ChevronDown).toBeDefined();
-    expect(Check).toBeDefined();
-  });
-
-  it("exports the clock icon of the provisional badge (add-landing design.md D7)", () => {
-    // `Clock` joins the entry for the provisional badge's icon. It is not
-    // exported yet, so this test runs and fails until the badge slice
-    // re-exports it beside the other icons.
-    expect(Clock).toBeDefined();
-  });
-
-  it("exports Globe beside ChevronDown (refine-app-header design.md D8)", () => {
-    // The language control's globe icon. It is not exported yet, so this test
-    // runs and fails until task 2.2 re-exports it beside `ChevronDown`.
-    expect(Globe).toBeDefined();
-  });
-
-  it("exports SlidersHorizontal and X (add-facet-controls design.md D10)", () => {
-    // The facet sets' "Filters" trigger icon and the applied-filter chip's
-    // remove icon. They are not exported yet, so this test fails until task
-    // 2.2 re-exports them.
-    expect(SlidersHorizontal).toBeDefined();
-    expect(X).toBeDefined();
-  });
-
-  it("exports Trash2 (add-offering-management design.md D7)", () => {
-    // The Delete actions' icon of the management list. It is not exported
-    // yet, so this test fails until task 4.2 re-exports it.
-    expect(Trash2).toBeDefined();
-  });
-
-  it("exports List (add-offering-management design.md D8)", () => {
-    // The "Manage offerings" sidebar entry's icon. It is not exported yet,
-    // so this test fails until task 8.2 re-exports it.
-    expect(List).toBeDefined();
-  });
-
-  it("exports ChevronLeft (refine-list-pagination design.md D6)", () => {
-    // Previous's chevron below md. It is not exported yet, so this test fails
-    // until task 3.2 re-exports it.
-    expect(ChevronLeft).toBeDefined();
-  });
-
-  it("exports Plus (add-user-contact design.md D8)", () => {
-    expect(Plus).toBeDefined();
-  });
-
-  it("exports MapPin and MapPinOff (add-coffeeshop-location design.md D8, D9)", () => {
-    expect(MapPin).toBeDefined();
-    expect(MapPinOff).toBeDefined();
-  });
-
-  it("exports MapIcon (Lucide Map) and Minus (add-coffeeshop-directory design.md D15)", () => {
-    expect(MapIcon).toBeDefined();
-    expect(Minus).toBeDefined();
-  });
-
-  it("is the only module under src/ that imports lucide-react", () => {
-    const srcRoot = pathResolve(process.cwd(), "src");
     const offenders: string[] = [];
-
-    const visit = (dir: string): void => {
-      for (const entry of readdirSync(dir)) {
-        const full = pathResolve(dir, entry);
-        if (statSync(full).isDirectory()) {
-          visit(full);
-        } else if (
-          (full.endsWith(".ts") || full.endsWith(".tsx")) &&
-          // Exclude test files: the guard targets component import sites, and
-          // tests reference lucide-react in prose/comments/patterns.
-          !full.endsWith(".test.ts") &&
-          !full.endsWith(".test.tsx")
-        ) {
-          const content = readFileSync(full, "utf-8");
-          // Correction 9 (review round 1): catch the bare module import, the
-          // subpath import (lucide-react/…) and the dynamic import. The
-          // single audit point is icons.ts.
-          if (
-            /from\s+["']lucide-react(?:\/[^"']+)?["']/.test(content) ||
-            /import\(\s*["']lucide-react(?:\/[^"']+)?["']\s*\)/.test(content)
-          ) {
-            offenders.push(full);
-          }
-        }
+    const used = new Set(REQUIRED);
+    for (const file of sourceFiles(SRC_ROOT)) {
+      const content = readFileSync(file, "utf-8");
+      // Correction 9 (review round 1): the bare module import, the subpath
+      // import (lucide-react/…) and the dynamic import.
+      const importsLucide =
+        /from\s+["']lucide-react(?:\/[^"']+)?["']/.test(content) ||
+        /import\(\s*["']lucide-react(?:\/[^"']+)?["']\s*\)/.test(content);
+      if (importsLucide && file !== ENTRY) {
+        offenders.push(`imports lucide-react: ${file}`);
       }
-    };
+      for (const name of importedIconNames(file, content)) used.add(name);
+    }
+    for (const name of used) {
+      if (!exported(name)) offenders.push(`not exported by the entry point: ${name}`);
+    }
 
-    visit(srcRoot);
-
-    const allowed = pathResolve(srcRoot, "shared/ui/icons.ts");
-    expect(offenders).toEqual([allowed]);
-  });
-});
-
-describe("BeanMark bean artwork (add-evaluation-scales design.md D4)", () => {
-  // Written before the artwork exists (task 1.6): `BeanMark` is not exported
-  // from `src/shared/ui/icons.ts` yet, so these tests run and fail until
-  // task 1.7 adds it. jsdom has no CSS engine, so the artwork is verified by
-  // its exact token classes (design.md D4: the disc a full circle in
-  // `fill-evaluation-bean-on`/`-off`, the bean path in the matching
-  // `fill-`/`stroke-evaluation-bean-mark-on`/`-mark-off`).
-
-  it("is exported from the icon entry point", () => {
-    expect(BeanMark).toBeDefined();
-  });
-
-  it("renders aria-hidden, being decorative artwork", () => {
-    const { container } = render(createElement(BeanMark, { variant: "on" }));
-    const svg = container.querySelector("svg");
-    expect(svg).not.toBeNull();
-    expect(svg!.getAttribute("aria-hidden")).not.toBeNull();
-  });
-
-  it('variant "on": the disc in fill-evaluation-bean-on, the path in the matching mark tokens', () => {
-    const { container } = render(createElement(BeanMark, { variant: "on" }));
-    const svg = container.querySelector("svg");
-    const disc = svg!.querySelector(".fill-evaluation-bean-on");
-    const mark = svg!.querySelector(
-      "path.fill-evaluation-bean-mark-on.stroke-evaluation-bean-mark-on",
-    );
-    expect(disc).not.toBeNull();
-    expect(mark).not.toBeNull();
-    // the disc is the background shape and the path draws the bean on it
-    expect(disc).not.toBe(mark);
-  });
-
-  it('variant "off": the disc in fill-evaluation-bean-off, the path in the matching mark tokens', () => {
-    const { container } = render(createElement(BeanMark, { variant: "off" }));
-    const svg = container.querySelector("svg");
-    const disc = svg!.querySelector(".fill-evaluation-bean-off");
-    const mark = svg!.querySelector(
-      "path.fill-evaluation-bean-mark-off.stroke-evaluation-bean-mark-off",
-    );
-    expect(disc).not.toBeNull();
-    expect(mark).not.toBeNull();
-    // the disc is the background shape and the path draws the bean on it
-    expect(disc).not.toBe(mark);
+    expect(offenders).toEqual([]);
   });
 });

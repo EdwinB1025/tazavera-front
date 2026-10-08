@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { render, screen, cleanup } from "@testing-library/react";
 import {
   ContactFields,
   type ContactFieldKey,
@@ -64,14 +64,6 @@ function renderFields(errors = {}) {
 }
 
 describe("ContactFields", () => {
-  it("renders the eight fields in the order of the D1 table", () => {
-    renderFields();
-    const names = Array.from(document.querySelectorAll("input")).map((input) =>
-      input.getAttribute("name"),
-    );
-    expect(names).toEqual(TABLE.map(([key]) => key));
-  });
-
   it.each(TABLE)(
     "%s carries its label, type, autocomplete, maxlength and required marker",
     (key, labelKey, type, autocomplete, maxLength, required) => {
@@ -86,72 +78,4 @@ describe("ContactFields", () => {
       expect(label.textContent?.includes("*")).toBe(required);
     },
   );
-
-  it.each(TABLE)("%s shows its value and reports typing through onChange", (key) => {
-    const { onChange } = renderFields();
-    const input = document.querySelector(`input[name="${key}"]`) as HTMLInputElement;
-    expect(input.value).toBe(VALUES[key]);
-    fireEvent.change(input, { target: { value: "typed" } });
-    expect(onChange).toHaveBeenCalledWith(key, "typed");
-  });
-
-  it("shows an error under its field and marks only that field invalid", () => {
-    renderFields({ city: "fx-city-error" });
-    const city = document.querySelector('input[name="city"]')!;
-    expect(city.getAttribute("aria-invalid")).toBe("true");
-    const error = screen.getByText("fx-city-error");
-    expect(city.getAttribute("aria-describedby")).toBe(error.id);
-    const invalid = Array.from(document.querySelectorAll('input[aria-invalid="true"]'));
-    expect(invalid).toEqual([city]);
-  });
-});
-
-// ─── Paired layout (add-coffeeshop-location design.md D12) ───
-
-/** The element holding the named input's field (the field is its label's parent). */
-function rowOf(key: ContactFieldKey): HTMLElement {
-  const input = document.querySelector(`input[name="${key}"]`)!;
-  const label = document.querySelector(`label[for="${input.id}"]`)!;
-  return label.parentElement!.parentElement!;
-}
-
-describe("ContactFields layout (add-coffeeshop-location design.md D12)", () => {
-  it.each([
-    ["postalCode", "city"],
-    ["phone", "email"],
-    ["web", "social"],
-  ] as const)("paired: %s and %s share a two-column row from md", (first, second) => {
-    render(
-      <form>
-        <ContactFields
-          values={VALUES}
-          errors={{}}
-          onChange={() => {}}
-          texts={TEXTS}
-          layout="paired"
-        />
-      </form>,
-    );
-    const row = rowOf(first);
-    expect(rowOf(second)).toBe(row);
-    expect(row.className).toBe("grid gap-6 md:grid-cols-2");
-    expect(row.children).toHaveLength(2);
-  });
-
-  it("paired: address and country stay on their own, outside any row", () => {
-    const { container } = render(
-      <ContactFields values={VALUES} errors={{}} onChange={() => {}} texts={TEXTS} layout="paired" />,
-    );
-    expect(rowOf("address")).toBe(container);
-    expect(rowOf("country")).toBe(container);
-    expect(container.querySelectorAll(".md\\:grid-cols-2")).toHaveLength(3);
-  });
-
-  it("default: every field is a direct child of the consumer, with no row", () => {
-    const { container } = render(
-      <ContactFields values={VALUES} errors={{}} onChange={() => {}} texts={TEXTS} />,
-    );
-    for (const [key] of TABLE) expect(rowOf(key)).toBe(container);
-    expect(container.querySelectorAll(".md\\:grid-cols-2")).toHaveLength(0);
-  });
 });

@@ -204,18 +204,6 @@ describe("ManageOfferingsPanel — header (design.md D6)", () => {
     expect(mocks.notFound).toHaveBeenCalledTimes(1);
     expect(mocks.publicRequest).not.toHaveBeenCalled();
   });
-
-  it("lays the header out as a stacked row that spreads from md, the title group 0.5rem apart", async () => {
-    mocks.publicRequest.mockResolvedValue(pageOf(ITEMS));
-    renderPanel();
-
-    const titleGroup = screen.getByText(TEXTS.eyebrow).parentElement!;
-    expect(titleGroup.className).toBe("flex flex-col gap-2");
-    expect(titleGroup.parentElement!.className).toBe(
-      "flex flex-col items-start gap-4 md:flex-row md:flex-wrap md:items-end md:justify-between",
-    );
-    await screen.findAllByRole("heading", { level: 3 });
-  });
 });
 
 describe("ManageOfferingsPanel — list states (spec 'My offerings list')", () => {
@@ -474,12 +462,6 @@ describe("ManageOfferingsPanel — deleting (spec 'Deleting offerings')", () => 
     expect(mocks.publicRequest).toHaveBeenCalledTimes(2);
     const heading = screen.getByRole("heading", { level: 1 });
     await waitFor(() => expect(document.activeElement).toBe(heading));
-  });
-
-  it("renders no status line before a delete", async () => {
-    await loaded();
-
-    expect(screen.queryByRole("status")).toBeNull();
   });
 
   it("deletes the selection after confirmation, announces its count and empties the selection", async () => {

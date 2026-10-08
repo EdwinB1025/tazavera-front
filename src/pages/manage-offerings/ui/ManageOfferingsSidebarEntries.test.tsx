@@ -3,6 +3,7 @@ import { render, screen, cleanup } from "@testing-library/react";
 import type { Session } from "@/shared/api";
 import { SidebarProvider } from "@/shared/ui";
 import { AppSidebarProvider } from "@/widgets/app-sidebar";
+import { ManagementSidebarEntries } from "@/features/offering-management";
 import { ManageOfferingsSidebarEntries } from "@/pages/manage-offerings";
 
 // No global test setup in this project, so RTL auto-cleanup does not run.
@@ -86,5 +87,25 @@ describe("ManageOfferingsSidebarEntries (design.md D8)", () => {
     for (const text of REMOVED) {
       expect(screen.queryByText(text)).toBeNull();
     }
+  });
+});
+
+/**
+ * The management sidebar entry (design.md D8 as revised by review round 1;
+ * spec "Management sidebar entry"): one "Manage offerings" link to the list
+ * route, marked as the current entry.
+ */
+describe("ManagementSidebarEntries (design.md D8)", () => {
+  it("renders one link to the list route with its label, icon and current state", () => {
+    render(<ManagementSidebarEntries locale="es" label="texts.sidebarManageOfferings" />);
+
+    const links = screen.getAllByRole("link");
+    expect(links).toHaveLength(1);
+    const link = screen.getByRole("link", { name: "texts.sidebarManageOfferings" });
+    expect(link.getAttribute("href")).toBe("/es/manage/offerings");
+    expect(link.getAttribute("aria-current")).toBe("page");
+    expect(link.getAttribute("data-active")).toBe("true");
+    expect(link.querySelector("svg")).not.toBeNull();
+    expect(link.textContent).toBe("texts.sidebarManageOfferings");
   });
 });

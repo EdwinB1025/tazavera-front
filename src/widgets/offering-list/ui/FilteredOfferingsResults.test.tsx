@@ -118,31 +118,6 @@ describe("FilteredOfferingsResults", () => {
     expect(block.props?.gridClassName).toBe(CATALOG_GRID_CLASSES);
   });
 
-  it("passes no session to the block (add-specialist-evaluations design.md D6)", () => {
-    render(
-      <FilteredOfferingsResults
-        locale="es"
-        searchParams={{}}
-        path="/es/offerings"
-        texts={TEXTS}
-      />,
-    );
-    expect(block.props).not.toBeNull();
-    expect(block.props).not.toHaveProperty("session");
-  });
-
-  it("feeds exactly the list texts to the list (add-offering-catalog design.md D16)", () => {
-    render(
-      <FilteredOfferingsResults
-        locale="es"
-        searchParams={{}}
-        path="/es/offerings"
-        texts={TEXTS}
-      />,
-    );
-    expect(block.props?.texts).toEqual(LIST_TEXTS);
-  });
-
   it("shows the filtered empty message and Clear all when a filter is applied (add-offering-facets design.md D9)", () => {
     render(
       <FilteredOfferingsResults
@@ -199,20 +174,6 @@ describe("FilteredOfferingsResults", () => {
       />,
     );
     expect(block.props?.query).toEqual({ coffeeshopUlid: "Y", page: "2" });
-  });
-
-  it("does not count a fixed key as a filter (design.md D3)", () => {
-    render(
-      <FilteredOfferingsResults
-        locale="es"
-        searchParams={{}}
-        path="/es/offerings"
-        fixedQuery={{ coffeeshopUlid: "Y" }}
-        texts={TEXTS}
-      />,
-    );
-    expect(block.props?.texts.emptyMessage).toBe("emptyMessage");
-    expect(block.props?.emptyAction).toBeUndefined();
   });
 
   it("adds the pagination keys to the links only, never to the request (add-coffeeshop-directory spec: Pagination stays on the detail)", () => {

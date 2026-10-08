@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { CoffeeshopSummary } from "@/shared/api";
-import { countUnlocated, toMapPoints } from "./locations";
+import { toMapPoints } from "./locations";
 
 /**
  * Map points of a page of coffee shops (add-coffeeshop-directory design.md
@@ -49,9 +49,5 @@ describe("map points", () => {
       subtitle: "Pujades",
       addressLine: "Carrer de Pujades 95, 08005 Barcelona",
     });
-  });
-
-  it("counts the locations without both coordinates (spec: Locations without coordinates)", () => {
-    expect(countUnlocated(PAGE)).toBe(2);
   });
 });

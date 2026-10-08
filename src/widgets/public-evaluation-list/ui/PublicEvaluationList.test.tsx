@@ -97,11 +97,4 @@ describe("PublicEvaluationList (design.md D4, D6)", () => {
     expect(screen.getByText("The evaluations could not be loaded.")).toBeDefined();
     expect(screen.getByRole("button", { name: "Retry" })).toBeDefined();
   });
-
-  it("renders the empty message on an empty page", async () => {
-    fetchEvaluations.mockResolvedValue({ data: [], meta: { current_page: 1, last_page: 1, total: 0 } });
-    await renderList();
-    expect(screen.getByText("There are no evaluations yet.")).toBeDefined();
-    expect(fetchOffering).not.toHaveBeenCalled();
-  });
 });

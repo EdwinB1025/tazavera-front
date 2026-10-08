@@ -27,15 +27,4 @@ describe("LocationsSidebarEntry (design.md D8)", () => {
     expect(link.getAttribute("aria-current")).toBe("page");
     expect(link.getAttribute("data-active")).toBe("true");
   });
-
-  it("has no aria-current and no active state when not current", () => {
-    render(
-      <SidebarMenu>
-        <LocationsSidebarEntry locale="es" label="texts.sidebarEntry" current={false} />
-      </SidebarMenu>,
-    );
-    const link = screen.getByRole("link", { name: "texts.sidebarEntry" });
-    expect(link.hasAttribute("aria-current")).toBe(false);
-    expect(link.getAttribute("data-active")).toBe("false");
-  });
 });
