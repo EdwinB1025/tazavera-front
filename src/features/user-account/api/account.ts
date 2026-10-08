@@ -53,3 +53,19 @@ export function updatePassword(
     body: JSON.stringify(payload),
   });
 }
+
+/** The account deactivation (design.md D1): `DELETE /users/{ulid}`. */
+export function deactivateAccount(ulid: string): Promise<AccountWriteResult> {
+  return write(`/users/${ulid}`, {
+    method: "DELETE",
+    headers: { Accept: "application/json" },
+  });
+}
+
+/** The account deletion (design.md D1): `DELETE /users/{ulid}/force`. */
+export function deleteAccount(ulid: string): Promise<AccountWriteResult> {
+  return write(`/users/${ulid}/force`, {
+    method: "DELETE",
+    headers: { Accept: "application/json" },
+  });
+}
