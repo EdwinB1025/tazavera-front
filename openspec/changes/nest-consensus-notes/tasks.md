@@ -8,7 +8,7 @@ No derived API type is needed: the resolver reads the generated `OfferingTaxonom
 
 ## 2. Consensus notes as trees with inline shares (capability `offering-catalog`)
 
-- [ ] 2.1 Test (spec "Consensus Defects and Main tastes", "Consensus detail by axis"). In `src/widgets/offering-detail/ui/ConsensusPanel.test.tsx`, replace the `legendBeside` and `legendIn` helpers with a helper returning the text of the `.type-meta` elements inside a card or an axis body, and update:
+- [x] 2.1 Test (spec "Consensus Defects and Main tastes", "Consensus detail by axis"). In `src/widgets/offering-detail/ui/ConsensusPanel.test.tsx`, replace the `legendBeside` and `legendIn` helpers with a helper returning the text of the `.type-meta` elements inside a card or an axis body, and update:
   - "renders the identified main tastes as taxonomy badges…" → scenario "Identified notes": the Main tastes card's badges are "Dulce", "Ácido"; in the Defects card the `li` holding the "Vinagre" badge sits inside the `li` holding the "Fermentado" badge; the "Dulce" badge's next sibling is a `type-meta` element reading "Dulce 4/5". The `fieldset legend` assertion goes.
   - "renders no badge for an unresolved reference and keeps the rest": unchanged.
   - "renders each card's consensus legend beside it…" → "shows each note's share inline in its card, with no legend column": the shares inside the Main tastes card are `["Dulce 4/5", "Ácido 2/5"]`, inside the Defects card `["Fermentado 1/5", "Vinagre 1/5"]`; no element of the panel carries `md:w-56`; the Main tastes card carries `lg:col-span-2`.
