@@ -2,7 +2,7 @@ import { Suspense, type ReactNode } from "react";
 import { getMessages } from "@/shared/lib/i18n";
 import { cn } from "@/shared/lib/utils";
 import type { QueryRecord } from "@/shared/lib/filter-query";
-import { Link, PageSection } from "@/shared/ui";
+import { BackLink, PageSection } from "@/shared/ui";
 import { offeringFacetsTexts } from "@/features/offering-facets";
 import { CoffeeshopDetail, coffeeshopDetailTexts, toCoffeeshopTab } from "@/widgets/coffeeshop-detail";
 import {
@@ -99,9 +99,9 @@ export function CoffeeshopDetailScreen({ locale, ulid, searchParams }: Coffeesho
         fallback={
           <PageSection surface="page" containerClassName={BLOCKS_CLASSES}>
             <div className={TOP_CONTAINER_CLASSES}>
-              <Link variant="back" href={`/${locale}/coffeeshops`}>
+              <BackLink fallback={`/${locale}/coffeeshops`}>
                 {texts.backToDirectory}
-              </Link>
+              </BackLink>
               <div className={BARS_CLASSES}>
                 {BAR_SIZES.map((size) => (
                   <div key={size} className={cn(PLACEHOLDER_CLASSES, size)} />
