@@ -77,7 +77,13 @@ export function EvaluationForm({
   texts,
   evaluation,
 }: EvaluationFormProps): ReactNode {
-  const form = useEvaluationForm({ locale, offering, evaluation, messages: texts.actions });
+  const form = useEvaluationForm({
+    locale,
+    offering,
+    evaluation,
+    taxonomies,
+    messages: texts.actions,
+  });
   const { model, readOnly } = form;
 
   return (

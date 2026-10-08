@@ -1,5 +1,5 @@
 import { useReducer } from "react";
-import type { EvaluationItem, OfferingDetail } from "@/shared/api";
+import type { EvaluationItem, OfferingDetail, TaxonomyNode } from "@/shared/api";
 import {
   EVALUATION_GROUPS,
   buildCreateBody,
@@ -28,6 +28,8 @@ export type EvaluationFormInput = {
   locale: string;
   offering: OfferingDetail | null;
   evaluation?: EvaluationItem;
+  /** The `GET /taxonomies` tree a draft's ancestors come from (cascade-evaluation-descriptors D7). */
+  taxonomies: TaxonomyNode[];
   messages: FormMessages;
 };
 
@@ -51,10 +53,11 @@ export function useEvaluationForm({
   locale,
   offering,
   evaluation,
+  taxonomies,
   messages,
 }: EvaluationFormInput): EvaluationFormModel {
   const [model, dispatch] = useReducer(formReducer, undefined, () =>
-    initialFormModel(offering, evaluation),
+    initialFormModel(offering, evaluation, taxonomies),
   );
   const { values, ulid } = model;
   const completeness = completenessOf(values);

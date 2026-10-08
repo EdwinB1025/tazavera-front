@@ -234,6 +234,7 @@ describe("EvaluationForm: saving a draft (design.md D4; tasks 6.1)", () => {
     const [fragranceFloral, flavorFloral] = screen.getAllByRole("button", { name: "Floral" });
     fireEvent.click(fragranceFloral);
     fireEvent.click(screen.getByRole("button", { name: "Sweet" }));
+    fireEvent.click(screen.getByRole("button", { name: "Texture" }));
     fireEvent.click(screen.getByRole("button", { name: "Silky" }));
     fireEvent.click(screen.getByRole("button", { name: "Mouldy" }));
     save();
@@ -243,7 +244,10 @@ describe("EvaluationForm: saving a draft (design.md D4; tasks 6.1)", () => {
     expect(body.descriptive.aroma.cata).toEqual(["01JTAXFLORAL0000000000000A"]);
     expect(body.descriptive.flavor.cata).toEqual([]);
     expect(body.descriptive.mainTastes).toEqual(["01JTAXSWEET00000000000000C"]);
-    expect(body.descriptive.mouthfeel.cata).toEqual(["01JTAXSILKY00000000000000D"]);
+    expect(body.descriptive.mouthfeel.cata).toEqual([
+      "01JTAXTEXTURE000000000000X",
+      "01JTAXSILKY00000000000000D",
+    ]);
     expect(body.affective.defects).toEqual(["01JTAXMOULD00000000000000E"]);
     fireEvent.click(flavorFloral);
     createAnEvaluation.mockClear();

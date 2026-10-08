@@ -133,7 +133,7 @@ function taxon(ulid: string, level: number, name: string, categories: string[], 
 export const TAXONOMIES: TaxonomyNode[] = [
   taxon("01JTAXFLORAL0000000000000A", 0, "Floral", ["aromatics"]),
   taxon("01JTAXSWEET00000000000000C", 0, "Sweet", ["main_tastes"]),
-  taxon("01JTAXTEXTURE000000000000X", 0, "Texture", [], [
+  taxon("01JTAXTEXTURE000000000000X", 0, "Texture", ["mouthfeel"], [
     taxon("01JTAXSILKY00000000000000D", 1, "Silky", ["mouthfeel"]),
   ]),
   taxon("01JTAXMOULD00000000000000E", 0, "Mouldy", ["defects"]),
