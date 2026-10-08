@@ -22,6 +22,7 @@
   "accountTitle": "My account",
   "accountIntro": "Manage your details, your password and your account security.",
   "profileHeading": "Profile",
+  "editProfileHeading": "Edit profile",
   "passwordHeading": "Password",
   "securityHeading": "Security",
   "securityDescription": "Two-factor authentication and passkeys.",

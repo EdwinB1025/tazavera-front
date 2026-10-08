@@ -15,10 +15,12 @@ import {
   DangerZone,
   ExternalLink,
   PasswordForm,
+  ProfileDetails,
   ProfileForm,
   type ContactSectionTexts,
   type DangerZoneTexts,
   type PasswordFormTexts,
+  type ProfileDetailsTexts,
   type ProfileFormTexts,
 } from "@/features/user-account";
 import {
@@ -34,11 +36,13 @@ import {
 export type AccountClientTexts = ContactSectionTexts &
   DangerZoneTexts &
   PasswordFormTexts &
+  ProfileDetailsTexts &
   ProfileFormTexts & {
     loading: string;
     signedOutText: string;
     signIn: string;
     profileHeading: string;
+    editProfileHeading: string;
     profileDescription: string;
     passwordHeading: string;
     securityHeading: string;
@@ -57,12 +61,12 @@ export type AccountClientProps = {
  * "Account page and its session gate"). It is the injection seam: the session
  * comes from `useSession()` and the auth actions from `@/features/auth`,
  * passed to the user-account pieces as props. An authenticated session shows
- * the five sections in order; the page never redirects on its own.
+ * the six sections in order; the page never redirects on its own.
  */
 export function AccountClient({ locale, texts }: AccountClientProps): ReactNode {
   const session = useSession();
   const router = useRouter();
-  const profileHeadingId = useId();
+  const editProfileHeadingId = useId();
   const passwordHeadingId = useId();
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -90,21 +94,24 @@ export function AccountClient({ locale, texts }: AccountClientProps): ReactNode 
     >
       {(user) => (
         <div className="flex flex-col gap-4">
+          <AccountSection heading={texts.profileHeading}>
+            <ProfileDetails user={user} texts={texts} />
+          </AccountSection>
+          <ContactSection ulid={user.ulid ?? ""} texts={texts} />
           <AccountSection
-            heading={texts.profileHeading}
-            headingId={profileHeadingId}
+            heading={texts.editProfileHeading}
+            headingId={editProfileHeadingId}
             description={texts.profileDescription}
           >
             <ProfileForm
               user={user}
               locale={locale}
-              labelledBy={profileHeadingId}
+              labelledBy={editProfileHeadingId}
               texts={texts}
               refreshProfile={refreshProfile}
               requestProfileWrite={requestProfileWrite}
             />
           </AccountSection>
-          <ContactSection ulid={user.ulid ?? ""} texts={texts} />
           <AccountSection
             heading={texts.passwordHeading}
             headingId={passwordHeadingId}

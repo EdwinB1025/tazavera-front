@@ -13,7 +13,6 @@ import { ProfileForm, type ProfileFormTexts } from "@/features/user-account";
 const API = "https://api.tazavera.test";
 
 const TEXTS: ProfileFormTexts = {
-  roleLabel: "fx-role",
   nameLabel: "fx-name",
   surnameLabel: "fx-surname",
   emailLabel: "fx-email",

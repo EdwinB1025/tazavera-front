@@ -5,14 +5,12 @@ import type { ProfileUpdatePayload, SessionUser } from "@/shared/api";
 import { Button, Field, Input, FormStatus, StepUpNotice } from "@/shared/ui";
 import { isValidEmail } from "@/entities/contact";
 import { updateProfile } from "../api/account";
-import { RoleRow } from "./RoleRow";
 
 // ─── UI-specific types (declared before the component) ───
 
 export type ProfileFormTexts = {
   stepUpText: string;
   stepUpButton: string;
-  roleLabel: string;
   nameLabel: string;
   surnameLabel: string;
   emailLabel: string;
@@ -39,9 +37,9 @@ type ProfileValues = Required<ProfileUpdatePayload>;
 type Outcome = "success" | "error" | "stepUp" | null;
 
 /**
- * The Profile section's content (specs "Profile settings" and "Writes and
- * the step-up"; design.md D2, D6, D9 and D10): the role row and the form for
- * name, surname and email, prefilled from the session. Only the email format
+ * The Edit profile section's content (specs "Profile settings" and "Writes
+ * and the step-up"; design.md D2, D6, D9 and D10): the form for name,
+ * surname and email, prefilled from the session. Only the email format
  * is checked (no field is required); the form sends `PUT /users/{ulid}` and,
  * on a `200`, keeps the values, shows the success status and refreshes the
  * session profile. A `403` shows the step-up notice, anything else the
@@ -95,61 +93,58 @@ export function ProfileForm({
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <RoleRow label={texts.roleLabel} role={user.role ?? ""} />
-      <form
-        ref={formRef}
-        noValidate
-        aria-labelledby={labelledBy}
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-6"
-      >
-        <Field label={texts.nameLabel}>
-          <Input
-            name="name"
-            type="text"
-            autoComplete="given-name"
-            value={values.name}
-            onChange={(event) => update("name", event.target.value)}
-          />
-        </Field>
-        <Field label={texts.surnameLabel}>
-          <Input
-            name="surname"
-            type="text"
-            autoComplete="family-name"
-            value={values.surname}
-            onChange={(event) => update("surname", event.target.value)}
-          />
-        </Field>
-        <Field label={texts.emailLabel} error={emailError}>
-          <Input
-            name="email"
-            type="email"
-            autoComplete="email"
-            value={values.email}
-            onChange={(event) => update("email", event.target.value)}
-          />
-        </Field>
-        {outcome === "success" && (
-          <FormStatus kind="success" text={texts.profileUpdated} />
-        )}
-        {outcome === "error" && (
-          <FormStatus kind="error" text={texts.genericError} />
-        )}
-        {outcome === "stepUp" && (
-          <StepUpNotice
-            text={texts.stepUpText}
-            actionLabel={texts.stepUpButton}
-            onConfirm={() => requestProfileWrite(`/${locale}/account`)}
-          />
-        )}
-        <div className="flex flex-wrap gap-3">
-          <Button type="submit" variant="primary" size="base" loading={pending}>
-            {texts.save}
-          </Button>
-        </div>
-      </form>
-    </div>
+    <form
+      ref={formRef}
+      noValidate
+      aria-labelledby={labelledBy}
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-6"
+    >
+      <Field label={texts.nameLabel}>
+        <Input
+          name="name"
+          type="text"
+          autoComplete="given-name"
+          value={values.name}
+          onChange={(event) => update("name", event.target.value)}
+        />
+      </Field>
+      <Field label={texts.surnameLabel}>
+        <Input
+          name="surname"
+          type="text"
+          autoComplete="family-name"
+          value={values.surname}
+          onChange={(event) => update("surname", event.target.value)}
+        />
+      </Field>
+      <Field label={texts.emailLabel} error={emailError}>
+        <Input
+          name="email"
+          type="email"
+          autoComplete="email"
+          value={values.email}
+          onChange={(event) => update("email", event.target.value)}
+        />
+      </Field>
+      {outcome === "success" && (
+        <FormStatus kind="success" text={texts.profileUpdated} />
+      )}
+      {outcome === "error" && (
+        <FormStatus kind="error" text={texts.genericError} />
+      )}
+      {outcome === "stepUp" && (
+        <StepUpNotice
+          text={texts.stepUpText}
+          actionLabel={texts.stepUpButton}
+          onConfirm={() => requestProfileWrite(`/${locale}/account`)}
+        />
+      )}
+      <div className="flex flex-wrap gap-3">
+        <Button type="submit" variant="primary" size="base" loading={pending}>
+          {texts.save}
+        </Button>
+      </div>
+    </form>
   );
 }

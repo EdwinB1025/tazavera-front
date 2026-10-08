@@ -22,6 +22,7 @@
   "accountTitle": "El meu compte",
   "accountIntro": "Gestiona les teves dades, la contrasenya i la seguretat del compte.",
   "profileHeading": "Perfil",
+  "editProfileHeading": "Editar el perfil",
   "passwordHeading": "Contrasenya",
   "securityHeading": "Seguretat",
   "securityDescription": "Autenticació en dos passos i claus d'accés.",

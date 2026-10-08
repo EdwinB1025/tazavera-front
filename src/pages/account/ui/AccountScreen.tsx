@@ -24,6 +24,7 @@ export function AccountScreen({ locale }: AccountScreenProps): ReactNode {
     signedOutText: catalog.signedOutText,
     signIn: catalog.signIn,
     profileHeading: catalog.profileHeading,
+    editProfileHeading: catalog.editProfileHeading,
     profileDescription: catalog.profileDescription,
     roleLabel: catalog.roleLabel,
     nameLabel: catalog.nameLabel,
