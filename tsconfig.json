@@ -34,6 +34,7 @@
     "node_modules",
     "qa/src/entities/offering/ui/OfferingCard.test.tsx",
     "qa/src/entities/taxonomy/model/descriptor-rows.test.ts",
+    "qa/src/shared/ui/flavor-wheel-geometry.test.ts",
     "qa/src/widgets/app-header/ui/AppHeader.test.tsx",
     "qa/src/widgets/app-header/ui/ThemeSelect.test.tsx",
     "qa/src/widgets/evaluation-row/ui/EvaluationRowCard.test.tsx",
