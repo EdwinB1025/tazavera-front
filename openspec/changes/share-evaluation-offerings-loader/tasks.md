@@ -8,4 +8,4 @@
 
 ## 3. Full checks
 
-- [ ] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: every test passes with the same file and test counts as on `origin/qa`, no typecheck or lint errors, and the build succeeds.
+- [x] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: every test passes with the same file and test counts as on `origin/qa`, no typecheck or lint errors, and the build succeeds.
