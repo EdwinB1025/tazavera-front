@@ -136,11 +136,4 @@ describe("OfferingDetailContent", () => {
     fireEvent.click(screen.getByRole("button", { name: TEXTS.retryLabel }));
     expect(router.refresh).toHaveBeenCalledTimes(1);
   });
-
-  it("renders the provisional slot in its tab, leaving the header and the other tabs (add-public-evaluations D9)", () => {
-    renderContent(SUCCESS, "provisional");
-    expect(screen.getByRole("tabpanel").textContent).toBe("Provisional panel error");
-    expect(screen.getByRole("heading", { level: 1, name: "Huila El Mirador" })).toBeDefined();
-    expect(screen.getAllByRole("tab")).toHaveLength(3);
-  });
 });

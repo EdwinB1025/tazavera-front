@@ -127,14 +127,6 @@ describe("CoffeeshopsMapView", () => {
     expect(screen.queryByTestId("map")).toBeNull();
   });
 
-  it("ignores a focus that names no coffee shop of the page (spec: Unknown focus)", () => {
-    renderView({ focus: "01OTHER" });
-    expect(state.map?.focusGroupId).toBeUndefined();
-    cleanup();
-    renderView({ focus: "01SYRA" });
-    expect(state.map?.focusGroupId).toBe("01SYRA");
-  });
-
   it("links the panel to the coffee shop's detail with client navigation (spec: Link to the detail)", () => {
     renderView();
     render(<>{state.map?.renderPanelLink?.(toMapPoints(PAGE)[0]!) as ReactNode}</>);

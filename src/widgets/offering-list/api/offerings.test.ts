@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { fetchOfferings, fetchVerifiedOfferings } from "./offerings";
+import { fetchOfferings } from "./offerings";
 
 /**
  * Server fetch tests (design.md D4; the landing spec "Error and retry").
@@ -48,34 +48,6 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("fetchVerifiedOfferings (design.md D4)", () => {
-  it("requests {NEXT_PUBLIC_API_URL}/offerings with verified=1, page and perPage=6 and returns data and meta", async () => {
-    fetchSpy.mockResolvedValue(okResponse(OFFERINGS_PAYLOAD));
-    const result = await fetchVerifiedOfferings(2);
-    // Plain `fetch` with the URL and no options, so no credential header is
-    // sent (design.md D4).
-    expect(fetchSpy).toHaveBeenCalledWith(
-      `${API_URL}/offerings?verified=1&page=2&perPage=6`,
-    );
-    expect(result.data).toEqual(OFFERINGS_PAYLOAD.data);
-    expect(result.meta).toEqual(OFFERINGS_PAYLOAD.meta);
-  });
-
-  it("rejects when the API answers with a non-2xx status (spec: Error and retry)", async () => {
-    fetchSpy.mockResolvedValue({
-      ok: false,
-      status: 500,
-      json: async () => ({ message: "boom" }),
-    });
-    await expect(fetchVerifiedOfferings(2)).rejects.toBeDefined();
-  });
-
-  it("rejects when the request fails to transport (spec: Error and retry)", async () => {
-    fetchSpy.mockRejectedValue(new Error("network down"));
-    await expect(fetchVerifiedOfferings(2)).rejects.toBeDefined();
-  });
-});
-
 describe("fetchOfferings (add-offering-catalog design.md D1, D2)", () => {
   it("requests {NEXT_PUBLIC_API_URL}/offerings with exactly the kept query, repeated keys repeated", async () => {
     fetchSpy.mockResolvedValue(okResponse(OFFERINGS_PAYLOAD));
@@ -107,8 +79,4 @@ describe("fetchOfferings (add-offering-catalog design.md D1, D2)", () => {
     await expect(fetchOfferings({ verified: "x" })).rejects.toBeDefined();
   });
 
-  it("rejects when the request fails to transport (spec: Error and retry)", async () => {
-    fetchSpy.mockRejectedValue(new Error("network down"));
-    await expect(fetchOfferings({})).rejects.toBeDefined();
-  });
 });

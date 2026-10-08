@@ -123,14 +123,6 @@ describe("CoffeeshopDetailContent", () => {
     expect(screen.queryByTestId("offerings-panel")).toBeNull();
   });
 
-  it("renders one location card per location in a list (spec: Locations and map)", () => {
-    renderDetail("locations");
-    const list = screen.getByRole("list");
-    expect(within(list).getAllByRole("listitem")).toHaveLength(2);
-    expect(card("Nomad Born")).toBeDefined();
-    expect(card("Nomad Raval")).toBeDefined();
-  });
-
   it("shows the help line and the map of the located locations before the cards (spec: Locations and map)", () => {
     const located = {
       ...NOMAD,

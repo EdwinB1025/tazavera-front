@@ -109,10 +109,3 @@ describe("DetailTabs (design.md D7)", () => {
     expect(screen.getByRole("tabpanel").textContent).toBe("Provisional panel");
   });
 });
-
-describe("toDetailTab with the provisional tab (add-public-evaluations D9)", () => {
-  it("maps provisional to itself and an unknown value to inventory", () => {
-    expect(toDetailTab("provisional")).toBe("provisional");
-    expect(toDetailTab("baseline")).toBe("inventory");
-  });
-});

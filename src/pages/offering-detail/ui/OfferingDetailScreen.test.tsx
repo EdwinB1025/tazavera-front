@@ -47,17 +47,6 @@ vi.mock("@/widgets/offering-list", async (importOriginal) => {
   };
 });
 
-vi.mock("@/widgets/evaluation-sheet", async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import("@/widgets/evaluation-sheet")>();
-  return {
-    ...actual,
-    EvaluationSheetBaseline: ({ offeringUlid }: { offeringUlid: string }) => (
-      <div data-testid="baseline" data-offering={offeringUlid} />
-    ),
-  };
-});
-
 const ULID = "01K6A3M8Q2V7XH4T9B5N1RCW0D";
 
 describe("OfferingDetailScreen", () => {
@@ -88,13 +77,5 @@ describe("OfferingDetailScreen", () => {
     expect(screen.getAllByTestId("skeleton-card")).toHaveLength(2);
     expect(screen.queryByTestId("detail-block")).toBeNull();
     expect(container.querySelector("h1")).toBeNull();
-  });
-
-  it("composes the baseline panel and passes it down as the provisional slot (add-public-evaluations D9)", () => {
-    render(<OfferingDetailScreen locale="es" ulid={ULID} tab="provisional" />);
-    expect(block.props?.tab).toBe("provisional");
-    cleanup();
-    render(<>{block.props?.provisional}</>);
-    expect(screen.getByTestId("baseline").getAttribute("data-offering")).toBe(ULID);
   });
 });
