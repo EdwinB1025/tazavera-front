@@ -50,6 +50,7 @@ The entries below follow this order. The order runs security first, then the sha
 | 24 | R8 | none yet | Change (behaviour) | M | R40; after R25 and R35 |
 | 25 | R1 | none (Playwright suite) | Change (tests) | — | the pre-deployment E2E suite |
 | 26 | R43 | `adopt-next-intl-routing` | Change | L | last priority (Product owner, 2026-10-08); after R28 and R31 |
+| 27 | R44 | none yet | Change (auth, API) | M | Product owner: API change on the web side and contract update |
 
 Every entry of the technical review (R20–R39) takes the fast lane by Product owner's decision of 2026-10-08, including R30, R31 and R32, which change a design decision, security headers and texts; R17 and R19 ride with R32 and R30. R3 (tests, rides with R31) and R4 (spec wording) are typed `Change`.
 
@@ -100,6 +101,21 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Type:** Change
 - **Status:** accepted (last priority, Product owner 2026-10-08)
 - **Affects:** R5 (its function is removed here), R28, R31 (both go first)
+
+## R44 — Automatic sign-in after registration
+
+- **Duplicated:** none. After a registration the user has to type the same credentials again to sign in.
+- **Where today:** `POST /register` (API group, stateless) returns 201 with the user only; the front shows the success panel, and "Sign in" starts the PKCE flow (`src/features/auth`). `/oauth/authorize` finds no API web session, so it asks for the credentials again. The first-party client already skips consent (`App\Models\Passport\Client::skipsAuthorization`)
+- **Why it pays off now:** it removes the second credential entry right after registering
+- **Owning capability:** auth, user-account
+- **Proposed change:** none yet
+- **Open decision (Augusto):** answered 2026-10-08: keep the current behaviour for now and register it. Options analysed (testing/deployment assistant, on Product owner's behalf):
+  - (A) the front calls `signIn()` after the 201: it still asks for the credentials, and the browser blocks the popup outside a click;
+  - (B) recommended: registration on the API's web side, which signs the user in with a web session and redirects to `/oauth/authorize`; the user ends up signed in through PKCE, tokens stay in memory and silent re-authentication (`prompt=none`) keeps working;
+  - (C) the register controller returns tokens (personal access token or an internal password grant): the user stays signed in only until the first reload, because tokens live in memory and silent re-authentication needs a web session that does not exist; it also needs a new token entry point in `src/shared/api/tokens.ts` (security).
+- **Type:** Change (touches the auth flow and the API contract)
+- **Status:** deferred
+- **Affects:** needs an API change by Product owner and a `contracts/openapi.yaml` update before any front work
 
 ## R28 — Reduce the shared client bundle
 
