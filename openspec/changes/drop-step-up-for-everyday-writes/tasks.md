@@ -17,4 +17,4 @@ No derived API types are needed: the change removes a status mapping and recompo
 
 ## 4. Full checks
 
-- [ ] 4.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes, no typecheck or lint errors, and the build succeeds; QA failures are only those that also fail on `origin/develop` and the stale QA copies of the changed tests, which are reported to Product owner, not edited.
+- [x] 4.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes, no typecheck or lint errors, and the build succeeds; QA failures are only those that also fail on `origin/develop` and the stale QA copies of the changed tests, which are reported to Product owner, not edited.
