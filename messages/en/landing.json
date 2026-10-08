@@ -39,5 +39,7 @@
   "aboutCoffeeshopRegisterLabel": "Register your coffeeshop",
   "aboutSpecialistRegisterLabel": "Register as a specialist",
   "aboutClosingLabel": "Explore coffees",
-  "metaDescription": "Tazavera, the guide to good coffee: objective evaluations with the SCA cupping protocol that discover what is in every cup."
+  "metaDescription": "Tazavera, the guide to good coffee: objective evaluations with the SCA cupping protocol that discover what is in every cup.",
+  "heroRegisterNavigation": "Registration",
+  "aboutRegisterNavigation": "Registration"
 }

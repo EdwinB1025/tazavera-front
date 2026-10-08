@@ -32,6 +32,7 @@ export async function AboutScreen({
     audienceText: catalog.aboutAudienceText,
     coffeeshopRegisterLabel: catalog.aboutCoffeeshopRegisterLabel,
     specialistRegisterLabel: catalog.aboutSpecialistRegisterLabel,
+    registerNavigation: catalog.aboutRegisterNavigation,
     closingLabel: catalog.aboutClosingLabel,
   };
 

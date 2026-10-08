@@ -23,6 +23,8 @@ export type AboutContentTexts = {
   audienceText: string;
   coffeeshopRegisterLabel: string;
   specialistRegisterLabel: string;
+  /** The registration links' navigation name (label-landmarks-and-headings D1). */
+  registerNavigation?: string;
   closingLabel: string;
 };
 
@@ -111,7 +113,7 @@ export function AboutContent({ locale, texts }: AboutContentProps): ReactNode {
         containerClassName={STACK_CLASSES}
       >
         <p className="type-body">{texts.audienceText}</p>
-        <nav className={LINK_GROUP_CLASSES}>
+        <nav aria-label={texts.registerNavigation} className={LINK_GROUP_CLASSES}>
           <Link href={`/${locale}/register/coffeeshop`}>
             {texts.coffeeshopRegisterLabel}
           </Link>

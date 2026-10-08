@@ -45,6 +45,7 @@ export function HomeScreen({ locale, page }: HomeScreenProps): ReactNode {
     exploreLabel: catalog.heroExploreLabel,
     coffeeshopRegisterLabel: catalog.heroCoffeeshopRegisterLabel,
     specialistRegisterLabel: catalog.heroSpecialistRegisterLabel,
+    registerNavigation: catalog.heroRegisterNavigation,
     photoAlt: catalog.heroPhotoAlt,
   };
 
