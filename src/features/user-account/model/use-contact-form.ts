@@ -81,9 +81,9 @@ export function useContactForm(
     const result = await submitContact(ulid, toContactPayload(values));
     if (!mounted.current) return;
     setPending(false);
-    if (result.kind === "created") onCreated(result.contact);
-    else if (result.kind === "exists") onExists();
-    else setOutcome(result.kind);
+    if (result.ok) onCreated(result.data);
+    else if (result.kind === "conflict") onExists();
+    else setOutcome(result.kind === "forbidden" ? "stepUp" : "error");
   }
 
   return { values, errors, pending, outcome, update, handleSubmit };

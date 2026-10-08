@@ -142,7 +142,7 @@ export function RegisterForm({
     const payload: RegisterPayload = { ...values, role };
     const result = await registerUser(payload);
     setPending(false);
-    if (result === "created") {
+    if (result.ok) {
       setCreated(true);
       return;
     }

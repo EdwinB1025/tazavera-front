@@ -73,11 +73,11 @@ export function DangerZone({
     const send = action === "delete" ? deleteAccount : deactivateAccount;
     const result = await send(ulid);
     setPending(false);
-    if (result === "success") {
+    if (result.ok) {
       signOut();
       return;
     }
-    setError(result === "stepUp" ? "stepUp" : "generic");
+    setError(result.kind === "forbidden" ? "stepUp" : "generic");
   }
 
   const errorContent =

@@ -121,8 +121,8 @@ export function PasswordForm({
     setOutcome(null);
     const result = await updatePassword(ulid, values);
     setPending(false);
-    setOutcome(result);
-    if (result === "stepUp") return;
+    setOutcome(result.ok ? "success" : result.kind === "forbidden" ? "stepUp" : "error");
+    if (!result.ok && result.kind === "forbidden") return;
     setValues(EMPTY_VALUES);
   }
 

@@ -52,8 +52,8 @@ type SectionState =
 async function readOutcome(ulid: string): Promise<SectionState> {
   const read = await readPrimaryContact(ulid);
   if (!read.ok) return { kind: "readError" };
-  if (!read.primary || isEmptyContact(read.primary)) return { kind: "empty" };
-  return { kind: "details", contact: read.primary };
+  if (!read.data || isEmptyContact(read.data)) return { kind: "empty" };
+  return { kind: "details", contact: read.data };
 }
 
 /**

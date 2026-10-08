@@ -86,12 +86,12 @@ export function ProfileForm({
     setOutcome(null);
     const result = await updateProfile(String(user.ulid), values);
     setPending(false);
-    if (result === "success") {
+    if (result.ok) {
       setOutcome("success");
       void refreshProfile();
       return;
     }
-    setOutcome(result);
+    setOutcome(result.kind === "forbidden" ? "stepUp" : "error");
   }
 
   return (

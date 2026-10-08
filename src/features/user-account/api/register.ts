@@ -1,10 +1,11 @@
-import { publicRequest, type RegisterPayload } from "@/shared/api";
+import { publicRequest, type ApiResult, type RegisterPayload } from "@/shared/api";
 
 /**
- * The outcome of a registration (design.md D3): `201` creates the account,
- * any other status or a network failure is the generic error.
+ * The outcome of a registration (design.md D3; unify-api-result-shape
+ * design.md D2): `201` creates the account, any other status or a network
+ * failure is the generic error.
  */
-export type RegisterResult = "created" | "error";
+export type RegisterResult = ApiResult<null>;
 
 /** The registration (design.md D1): `POST /register` through the public client. */
 export async function registerUser(
@@ -19,9 +20,9 @@ export async function registerUser(
       },
       body: JSON.stringify(payload),
     });
-    return response.status === 201 ? "created" : "error";
+    return response.status === 201 ? { ok: true, data: null } : { ok: false, kind: "error" };
   } catch {
     // A network failure shows the generic error.
-    return "error";
+    return { ok: false, kind: "error" };
   }
 }

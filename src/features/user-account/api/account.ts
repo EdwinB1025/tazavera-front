@@ -1,15 +1,17 @@
 import {
   request,
+  type ApiResult,
   type PasswordUpdatePayload,
   type ProfileUpdatePayload,
 } from "@/shared/api";
 
 /**
- * The outcome of an account write (design.md D2): `200` is a success, `403`
- * asks for the write-scope step-up, and any other status or a network
- * failure is the generic error.
+ * The outcome of an account write (design.md D2; unify-api-result-shape
+ * design.md D2): `200` is a success, `403` (`forbidden`) asks for the
+ * write-scope step-up, and any other status or a network failure is the
+ * generic error.
  */
-export type AccountWriteResult = "success" | "stepUp" | "error";
+export type AccountWriteResult = ApiResult<null, "forbidden">;
 
 /** Sends one account write through the token client and maps its status. */
 async function write(path: string, init: RequestInit): Promise<AccountWriteResult> {
@@ -20,8 +22,8 @@ async function write(path: string, init: RequestInit): Promise<AccountWriteResul
   } catch {
     // A network failure shows the generic error.
   }
-  if (status === 200) return "success";
-  return status === 403 ? "stepUp" : "error";
+  if (status === 200) return { ok: true, data: null };
+  return { ok: false, kind: status === 403 ? "forbidden" : "error" };
 }
 
 /** The profile update (design.md D1): `PUT /users/{ulid}`. */
