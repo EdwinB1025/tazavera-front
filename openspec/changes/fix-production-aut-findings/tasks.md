@@ -26,7 +26,7 @@
 ## 6. Back links of the detail headers (point 3)
 
 - [x] 6.1 Use `BackLink` (design.md D6) in `src/pages/offering-detail/ui/OfferingDetailScreen.tsx`, `src/widgets/offering-detail/ui/OfferingDetailContent.tsx` (fallback `/{locale}/offerings`), `src/pages/coffeeshop-detail/ui/CoffeeshopDetailScreen.tsx` and `src/widgets/coffeeshop-detail/ui/CoffeeshopDetailContent.tsx` (fallback `/{locale}/coffeeshops`). The existing "Back link" tests keep asserting the fallback `href` (no previous page in a test). Verification: related tests (add a `usePathname`-free setup only if a test needs it), typecheck and lint pass. Commit `fix(offering-catalog): return the detail back links to the previous page`.
-- [ ] 6.2 Use `BackLink` in `src/pages/public-evaluation/ui/ViewScreen.tsx` (fallback `/{locale}/evaluations`; the skeleton receives the same node). Verification: related tests, typecheck and lint pass. Commit `fix(evaluations): return the evaluation view back link to the previous page`.
+- [x] 6.2 Use `BackLink` in `src/pages/public-evaluation/ui/ViewScreen.tsx` (fallback `/{locale}/evaluations`; the skeleton receives the same node). Verification: related tests, typecheck and lint pass. Commit `fix(evaluations): return the evaluation view back link to the previous page`.
 
 ## 7. Navigation menu on a small viewport (point 4, app-shell)
 
