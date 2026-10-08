@@ -104,7 +104,7 @@ Findings come from Product owner's review, from `/opsx:verify` or from the build
 
 ## Refactor changes
 
-- A refactor change keeps behaviour: what users see, the requests sent to the API and every requirement in `openspec/specs/` stay the same. It comes from a backlog entry without an open decision.
+- A refactor change keeps behaviour: what users see, the requests sent to the API and every requirement in `openspec/specs/` stay the same. It comes from a backlog entry with `Type: refactor`; an entry with `Type: change` follows the normal flow.
 - The architect marks it with `Type: refactor` as the first line of `proposal.md`. Every agent follows this section only for a change whose proposal has that line; any other change follows the normal flow.
 - The backlog entry, and the review it cites, replace the design folder: there is no design summary, no explore and no artifact review. The architect proposes from the entry, writes the propose status as a final section of `proposal.md`, and the build applies right after the propose commit.
 - The spec delta states the observable property the refactor establishes or keeps (for example, one entry point for a concern). It adds no behaviour.

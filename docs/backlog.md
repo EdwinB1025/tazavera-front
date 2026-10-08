@@ -1,6 +1,6 @@
 # Backlog — refactor candidates
 
-Augusto adds entries; agents read the file. The architect checks it before /opsx:explore or /opsx:propose and flags any entry the change would affect, and removes the whole section of an entry only when archiving the change that resolves it.
+Augusto and the orchestrator add entries; agents read the file. Each entry's type decides its workflow: `refactor` takes the fast lane (refactoring rounds on `qa`), `change` takes the traditional workflow. The architect checks the file before /opsx:propose and flags any entry the change would affect, and removes the whole section of an entry only when archiving the change that resolves it.
 
 One section per candidate, in this format:
 
@@ -12,6 +12,7 @@ One section per candidate, in this format:
 - **Owning capability:** <capability>
 - **Proposed change:** <change-id>
 - **Open decision (Augusto):** <options, or "none">
+- **Type:** refactor | change
 - **Status:** proposed | accepted | deferred
 - **Affects:** <changes that should wait for it or reference it>
 
@@ -19,33 +20,35 @@ One section per candidate, in this format:
 
 The entries below follow this order. The order runs security first, then the shared layers before their consumers (FSD), then the entries that wait for a decision, and last the blocked or deferred ones. An entry that another change resolves sits right after it. R20–R38 come from `docs/review/technical-review.md` §3, which has each candidate's files, principle, risk, protecting tests and expected grade. Effort: S < 2 h, M 2–6 h, L > 6 h.
 
-| # | Entry | Change | Effort | Waits for |
-|:-:|---|---|:-:|---|
-| 1 | R20 | `upgrade-next-16-4` | S | PO: dependency approval |
-| 2 | R39 | `add-code-structure-lint-rules` | S | R20 (the ESLint config upgrades with it) |
-| 3 | R31 (+ R3) | `harden-response-headers` | S | PO: security headers |
-| 4 | R21 | `tidy-shared-imports` | S | — |
-| 5 | R22 | `extract-field-control-hook` | M | — |
-| 6 | R24 | `route-public-reads-through-client` | S | — |
-| 7 | R26 | `share-evaluation-offerings-loader` | S | — |
-| 8 | R23 (resolves R13) | `remove-cross-feature-auth-imports` | S | — |
-| 9 | R5 | none yet | S | R23; PO: where the derivation lives |
-| 10 | R25 | `move-account-requests-to-api` | M | — |
-| 11 | R27 | `split-evaluation-row-card` | M | — |
-| 12 | R28 | `reduce-shared-client-bundle` | M | R21 |
-| 13 | R29 (resolves R15) | `speed-up-test-environment` | S | — |
-| 14 | R30 (resolves R19) | `cache-reference-reads` | S | PO: D9 of add-public-evaluations |
-| 15 | R32 (+ R17) | `label-landmarks-and-headings` | M | PO: texts and spec wording |
-| 16 | R18 | none yet | M | PO: whether the HTTP status matters |
-| 17 | R33 | `split-consensus-panel` | M | — |
-| 18 | R34 | `split-evaluation-form-state` | L | — |
-| 19 | R38 | `split-account-and-management-panels` | M | — |
-| 20 | R37 | `split-flavor-wheel` | L | — |
-| 21 | R35 | `unify-api-result-shape` | L | R24, R25; PO: result type |
-| 22 | R36 (resolves R16, + R4) | `prune-unused-exports` | M | the splits above; PO: R4 radius |
-| 23 | R10 | none yet | S | before the first facet that shows an error |
-| 24 | R8 | none yet | M | the API documents the 422 body; after R25 and R35 |
-| 25 | R1 | none (Playwright suite) | — | the pre-deployment E2E suite |
+| # | Entry | Change | Type | Effort | Waits for |
+|:-:|---|---|---|:-:|---|
+| 1 | R20 | `upgrade-next-16-4` | change (dependency) | S | PO: dependency approval |
+| 2 | R39 | `add-code-structure-lint-rules` | refactor | S | R20 (the ESLint config upgrades with it) |
+| 3 | R31 (+ R3) | `harden-response-headers` | change (security) | S | PO: security headers |
+| 4 | R21 | `tidy-shared-imports` | refactor | S | — |
+| 5 | R22 | `extract-field-control-hook` | refactor | M | — |
+| 6 | R24 | `route-public-reads-through-client` | refactor | S | — |
+| 7 | R26 | `share-evaluation-offerings-loader` | refactor | S | — |
+| 8 | R23 (resolves R13) | `remove-cross-feature-auth-imports` | refactor | S | — |
+| 9 | R5 | none yet | change (open decision) | S | R23; PO: where the derivation lives |
+| 10 | R25 | `move-account-requests-to-api` | refactor | M | — |
+| 11 | R27 | `split-evaluation-row-card` | refactor | M | — |
+| 12 | R28 | `reduce-shared-client-bundle` | refactor | M | R21 |
+| 13 | R29 (resolves R15) | `speed-up-test-environment` | refactor | S | — |
+| 14 | R30 (resolves R19) | `cache-reference-reads` | change (design decision) | S | PO: D9 of add-public-evaluations |
+| 15 | R32 (+ R17) | `label-landmarks-and-headings` | change (texts, spec) | M | PO: texts and spec wording |
+| 16 | R18 | none yet | change (behaviour) | M | PO: whether the HTTP status matters |
+| 17 | R33 | `split-consensus-panel` | refactor | M | — |
+| 18 | R34 | `split-evaluation-form-state` | refactor | L | — |
+| 19 | R38 | `split-account-and-management-panels` | refactor | M | — |
+| 20 | R37 | `split-flavor-wheel` | refactor | L | — |
+| 21 | R35 | `unify-api-result-shape` | change (design decision) | L | R24, R25; PO: result type |
+| 22 | R36 (resolves R16) | `prune-unused-exports` | refactor | M | the splits above. R4 rides with it only once PO decides the radius |
+| 23 | R10 | none yet | change (behaviour) | S | before the first facet that shows an error |
+| 24 | R8 | none yet | change (API) | M | the API documents the 422 body; after R25 and R35 |
+| 25 | R1 | none (Playwright suite) | change (tests) | — | the pre-deployment E2E suite |
+
+R3 (tests, rides with R31) and R4 (visible radius, open decision) are typed `change`.
 
 ## R20 — Upgrade Next.js to 16.4 (security advisories)
 
@@ -55,6 +58,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** app-shell
 - **Proposed change:** `upgrade-next-16-4` (S)
 - **Open decision (Augusto):** approve the dependency upgrade
+- **Type:** change
 - **Status:** proposed
 - **Affects:** every change (full suite, build, axe rerun)
 
@@ -66,6 +70,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** app-shell
 - **Proposed change:** `add-code-structure-lint-rules` (S)
 - **Open decision (Augusto):** none (Product owner approved shipping the rules through ESLint on 2026-10-08)
+- **Type:** refactor
 - **Status:** accepted
 - **Affects:** R21, R23, R27, R33, R34, R36, R37, R38
 
@@ -77,6 +82,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** app-shell
 - **Proposed change:** `harden-response-headers` (S)
 - **Open decision (Augusto):** approve the change to the security headers (it changes specified behaviour)
+- **Type:** change
 - **Status:** proposed
 - **Affects:** R3
 
@@ -88,6 +94,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** app-shell
 - **Proposed change:** none
 - **Open decision (Augusto):** none
+- **Type:** change
 - **Status:** proposed
 - **Affects:** `add-auth`
 
@@ -99,6 +106,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** content-structure
 - **Proposed change:** `tidy-shared-imports` (S)
 - **Open decision (Augusto):** none
+- **Type:** refactor
 - **Status:** proposed
 - **Affects:** R28
 
@@ -110,6 +118,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** form-fields
 - **Proposed change:** `extract-field-control-hook` (M)
 - **Open decision (Augusto):** none
+- **Type:** refactor
 - **Status:** proposed
 - **Affects:** none
 
@@ -121,6 +130,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** offering-catalog
 - **Proposed change:** `route-public-reads-through-client` (S)
 - **Open decision (Augusto):** none
+- **Type:** refactor
 - **Status:** proposed
 - **Affects:** R30, R35
 
@@ -132,6 +142,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** evaluations
 - **Proposed change:** `share-evaluation-offerings-loader` (S)
 - **Open decision (Augusto):** none
+- **Type:** refactor
 - **Status:** proposed
 - **Affects:** none
 
@@ -143,6 +154,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** evaluations
 - **Proposed change:** `remove-cross-feature-auth-imports` (S)
 - **Open decision (Augusto):** none
+- **Type:** refactor
 - **Status:** proposed
 - **Affects:** R13, R5
 
@@ -154,6 +166,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** evaluations (consumer of the app-shell gate)
 - **Proposed change:** none yet — a small refactor change
 - **Open decision (Augusto):** none
+- **Type:** refactor
 - **Status:** proposed
 - **Affects:** `add-public-evaluations`, `add-evaluation-facets` (both touch the evaluations area)
 
@@ -165,6 +178,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** auth (or `src/shared/lib/i18n` if another slice needs it)
 - **Proposed change:** none
 - **Open decision (Augusto):** keep it inside `src/features/auth` or move it to `src/shared/lib/i18n`
+- **Type:** change
 - **Status:** proposed
 - **Affects:** `add-auth`
 
@@ -176,6 +190,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** user-account
 - **Proposed change:** `move-account-requests-to-api` (M)
 - **Open decision (Augusto):** none
+- **Type:** refactor
 - **Status:** proposed
 - **Affects:** R8, R35
 
@@ -187,6 +202,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** evaluations
 - **Proposed change:** `split-evaluation-row-card` (M)
 - **Open decision (Augusto):** none
+- **Type:** refactor
 - **Status:** proposed
 - **Affects:** none
 
@@ -198,6 +214,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** app-shell
 - **Proposed change:** `reduce-shared-client-bundle` (M, starts with an investigation)
 - **Open decision (Augusto):** none
+- **Type:** refactor
 - **Status:** proposed
 - **Affects:** comes after R21
 
@@ -209,6 +226,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** testing
 - **Proposed change:** `speed-up-test-environment` (S)
 - **Open decision (Augusto):** none
+- **Type:** refactor
 - **Status:** proposed
 - **Affects:** R15
 
@@ -220,6 +238,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** evaluations
 - **Proposed change:** none yet — unplanned coverage fix (split the file or reduce user-event typing)
 - **Open decision (Augusto):** none
+- **Type:** refactor
 - **Status:** proposed
 - **Affects:** none
 
@@ -231,6 +250,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** offering-catalog
 - **Proposed change:** `cache-reference-reads` (S)
 - **Open decision (Augusto):** a caching design decision; it changes D9 of add-public-evaluations (R19)
+- **Type:** change
 - **Status:** proposed
 - **Affects:** R19
 
@@ -242,6 +262,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** offering-catalog
 - **Proposed change:** none yet. Load the panel only for `?tab=provisional` (design D9 would change).
 - **Open decision (Augusto):** whether to change D9
+- **Type:** change
 - **Status:** proposed
 - **Affects:** none
 
@@ -253,6 +274,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** app-shell, content-structure
 - **Proposed change:** `label-landmarks-and-headings` (M)
 - **Open decision (Augusto):** the new catalog texts and the spec wording; whether R17 joins this change
+- **Type:** change
 - **Status:** proposed
 - **Affects:** R17
 
@@ -264,6 +286,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** app-shell (the shared overlay) or filtering
 - **Proposed change:** none yet. It needs a new mechanism, such as an announcement region inside the overlay, so it is a correction for Product owner.
 - **Open decision (Augusto):** whether the count must be announced while the overlay is open
+- **Type:** change
 - **Status:** proposed
 - **Affects:** none
 
@@ -278,6 +301,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** app-shell (with evaluations)
 - **Proposed change:** none yet. Decide "not found" before the streaming boundary on server-loaded routes; client-gated routes cannot change the status.
 - **Open decision (Augusto):** whether the HTTP status matters for this delivery
+- **Type:** change
 - **Status:** proposed
 - **Affects:** add-not-found-page (the page itself is correct)
 
@@ -289,6 +313,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** offering-catalog
 - **Proposed change:** `split-consensus-panel` (M)
 - **Open decision (Augusto):** none
+- **Type:** refactor
 - **Status:** proposed
 - **Affects:** none
 
@@ -300,6 +325,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** evaluations
 - **Proposed change:** `split-evaluation-form-state` (L)
 - **Open decision (Augusto):** none
+- **Type:** refactor
 - **Status:** proposed
 - **Affects:** none
 
@@ -311,6 +337,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** user-account, offering-management
 - **Proposed change:** `split-account-and-management-panels` (M)
 - **Open decision (Augusto):** none
+- **Type:** refactor
 - **Status:** proposed
 - **Affects:** none
 
@@ -322,6 +349,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** feedback
 - **Proposed change:** `split-flavor-wheel` (L)
 - **Open decision (Augusto):** none
+- **Type:** refactor
 - **Status:** proposed
 - **Affects:** none
 
@@ -333,6 +361,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** shared/api (with every consumer)
 - **Proposed change:** `unify-api-result-shape` (L)
 - **Open decision (Augusto):** a design decision on the result type
+- **Type:** change
 - **Status:** proposed
 - **Affects:** R8
 
@@ -344,6 +373,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** content-structure
 - **Proposed change:** `prune-unused-exports` (M)
 - **Open decision (Augusto):** none
+- **Type:** refactor
 - **Status:** proposed
 - **Affects:** R16, R4
 
@@ -355,6 +385,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** landing
 - **Proposed change:** none yet; it can go into the test-suite reduction (it removes tests)
 - **Open decision (Augusto):** none
+- **Type:** refactor
 - **Status:** proposed
 - **Affects:** none
 
@@ -366,6 +397,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** base-controls
 - **Proposed change:** none yet
 - **Open decision (Augusto):** move the card panel to `radius-field`, or amend `base-controls` to allow `radius-container` for card menus
+- **Type:** change
 - **Status:** proposed
 - **Affects:** none
 
@@ -377,6 +409,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** filtering
 - **Proposed change:** none yet — schedule it before a facet consumer shows errors
 - **Open decision (Augusto):** none
+- **Type:** change
 - **Status:** accepted
 - **Affects:** `add-offering-facets`, `add-evaluation-facets`
 
@@ -388,6 +421,7 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** form-fields (shared mapping), consumed by each form
 - **Proposed change:** none yet — needs the 422 response documented in the API (Product owner)
 - **Open decision (Augusto):** document the 422 body in the API, then schedule the change
+- **Type:** change
 - **Status:** proposed
 - **Affects:** `add-user-account`, `add-offering-management`, `add-specialist-evaluations`
 
@@ -399,5 +433,6 @@ The entries below follow this order. The order runs security first, then the sha
 - **Owning capability:** app-shell
 - **Proposed change:** none yet — belongs to the pre-deployment Playwright suite
 - **Open decision (Augusto):** none
+- **Type:** change
 - **Status:** deferred
 - **Affects:** none
