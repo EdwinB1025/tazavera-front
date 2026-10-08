@@ -9,7 +9,7 @@ No test is added and no assertion's expected value changes. The only test edits 
 
 ## 2. Announce the result count inside the sidebar overlay (app-shell)
 
-- [ ] 2.1 Shared: add `src/shared/ui/ResultStatus.tsx` with `SidebarAnnouncementProvider`, `ResultStatus` and `OverlayStatus` (design.md D5); `SidebarProvider` renders the provider, `Sidebar` renders `OverlayStatus` inside the small-viewport sheet, and `src/shared/ui/index.ts` exports `ResultStatus`. `OfferingList`, `CoffeeshopList`, `EvaluationListPresentation` and `EvaluationsList` render `ResultStatus` in place of their status `div`, with the same text in the same states. Protecting tests: `Sidebar.test`, the four lists' tests and their callers' tests, the client-boundary guard. Expected: as 1.1.
+- [x] 2.1 Shared: add `src/shared/ui/ResultStatus.tsx` with `SidebarAnnouncementProvider`, `ResultStatus` and `OverlayStatus` (design.md D5); `SidebarProvider` renders the provider, `Sidebar` renders `OverlayStatus` inside the small-viewport sheet, and `src/shared/ui/index.ts` exports `ResultStatus`. `OfferingList`, `CoffeeshopList`, `EvaluationListPresentation` and `EvaluationsList` render `ResultStatus` in place of their status `div`, with the same text in the same states. Protecting tests: `Sidebar.test`, the four lists' tests and their callers' tests, the client-boundary guard. Expected: as 1.1.
 
 ## 3. Card and panel headings follow the outline (content-structure)
 

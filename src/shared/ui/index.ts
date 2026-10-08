@@ -175,3 +175,4 @@ export type { ViewToggleItem, ViewToggleProps } from "./ViewToggle";
 export { LocationsMapLoader } from "./LocationsMapLoader";
 export type { LocationsMapLoaderProps } from "./LocationsMapLoader";
 export type { LocationsMapPoint, LocationsMapProps, LocationsMapTexts } from "./LocationsMap";
+export { ResultStatus } from "./ResultStatus";

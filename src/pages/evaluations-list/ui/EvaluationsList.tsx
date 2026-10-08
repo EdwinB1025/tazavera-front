@@ -7,7 +7,7 @@ import type { EvaluationItem, EvaluationPageMeta, OfferingDetail } from "@/share
 import { listMyEvaluations, loadEvaluationOfferings } from "@/entities/evaluation";
 import { evaluationListQuery, type EvaluationFilterValues } from "@/features/evaluation-facets";
 import { fetchOffering } from "@/entities/offering";
-import { Button, Card, CardContent, Pagination } from "@/shared/ui";
+import { Button, Card, CardContent, Pagination, ResultStatus } from "@/shared/ui";
 import type { PaginationTexts } from "@/shared/ui";
 import { cn } from "@/shared/lib/utils";
 import { SpecialistEvaluationRow } from "./SpecialistEvaluationRow";
@@ -147,11 +147,13 @@ export function EvaluationsList({
       <h2 className="type-heading">{texts.heading}</h2>
       {resultCountText !== undefined ? (
         // Mounted in every state so each new total is announced (design.md D9).
-        <div role="status" className="sr-only">
-          {list.state === "success"
-            ? resultCountText.replace("{count}", String(list.meta.total ?? list.rows.length))
-            : null}
-        </div>
+        <ResultStatus
+          text={
+            list.state === "success"
+              ? resultCountText.replace("{count}", String(list.meta.total ?? list.rows.length))
+              : null
+          }
+        />
       ) : null}
       {list.state === "loading" ? (
         <div aria-busy="true" className={ROWS_CLASSES}>

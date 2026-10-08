@@ -5,7 +5,7 @@ import type {
   ResolvedTaxonomyBadge,
 } from "@/entities/offering";
 import { OfferingCard } from "@/entities/offering";
-import { Pagination, RetryButton } from "@/shared/ui";
+import { Pagination, ResultStatus, RetryButton } from "@/shared/ui";
 import type { PaginationTexts } from "@/shared/ui";
 import { OFFERING_GRID_CLASSES } from "../lib/grid";
 import { OfferingCardActions } from "./OfferingCardActions";
@@ -107,9 +107,7 @@ export function OfferingList({
   return (
     <div id="offerings" className={BLOCK_CLASSES}>
       {texts.resultCount !== undefined && result.state !== "error" ? (
-        <div role="status" className="sr-only">
-          {texts.resultCount.replace("{count}", String(total))}
-        </div>
+        <ResultStatus text={texts.resultCount.replace("{count}", String(total))} />
       ) : null}
       {result.state === "success" ? (
         <>

@@ -8,6 +8,7 @@ import { Button } from "./Button";
 import { PanelLeft } from "@/shared/ui/icons";
 import type { LucideIcon } from "@/shared/ui/icons";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./Sheet";
+import { OverlayStatus, SidebarAnnouncementProvider } from "./ResultStatus";
 
 /**
  * Sidebar, pulled from the shadcn registry (Radix base) and rewired to the
@@ -94,7 +95,7 @@ function SidebarProvider({
         className="flex min-h-full w-full flex-col"
         {...props}
       >
-        {children}
+        <SidebarAnnouncementProvider>{children}</SidebarAnnouncementProvider>
       </div>
     </SidebarContext.Provider>
   );
@@ -152,6 +153,7 @@ function Sidebar({
           <div className="variant-inverse flex h-full w-full flex-col">
             {children}
           </div>
+          <OverlayStatus />
         </SheetContent>
       </Sheet>
     );

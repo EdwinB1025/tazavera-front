@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { EvaluationItem, EvaluationPageMeta, OfferingDetail } from "@/shared/api";
-import { Card, CardContent, ClearFiltersButton, Pagination, RetryButton } from "@/shared/ui";
+import { Card, CardContent, ClearFiltersButton, Pagination, ResultStatus, RetryButton } from "@/shared/ui";
 import type { PaginationTexts } from "@/shared/ui";
 import { cn } from "@/shared/lib/utils";
 
@@ -91,9 +91,7 @@ export function EvaluationListPresentation({
   return (
     <div className={BLOCK_CLASSES}>
       {result.state !== "error" ? (
-        <div role="status" className="sr-only">
-          {texts.resultCount.replace("{count}", String(total))}
-        </div>
+        <ResultStatus text={texts.resultCount.replace("{count}", String(total))} />
       ) : null}
       {result.state === "success" ? (
         <>
