@@ -1,15 +1,12 @@
 import type { ReactNode } from "react";
 import type { EvaluationItem, EvaluationPageMeta, OfferingDetail } from "@/shared/api";
-import { EvaluationRowCard } from "@/widgets/evaluation-row";
-import type { EvaluationRowCardTexts } from "@/widgets/evaluation-row";
 import { Card, CardContent, ClearFiltersButton, Pagination, RetryButton } from "@/shared/ui";
 import type { PaginationTexts } from "@/shared/ui";
 import { cn } from "@/shared/lib/utils";
 
 // ─── UI-specific types (declared before the component) ───
 
-export type EvaluationListTexts = EvaluationRowCardTexts &
-  PaginationTexts & {
+export type EvaluationListTexts = PaginationTexts & {
     emptyMessage: string;
     /** The empty message while a facet is applied (`filters.noMatches`). */
     noMatches: string;
@@ -41,6 +38,8 @@ export type EvaluationListPresentationProps = {
   /** The URL's search params; the pagination keeps them and replaces `page`. */
   query: Record<string, string | string[] | undefined>;
   texts: EvaluationListTexts;
+  /** Renders one row: the row card, composed by the host page (FSD slot). */
+  renderRow: (row: PublicEvaluationRow) => ReactNode;
 };
 
 /** The sort keys "Clear all" keeps (design.md D7). */
@@ -83,6 +82,7 @@ export function EvaluationListPresentation({
   locale,
   query,
   texts,
+  renderRow,
 }: EvaluationListPresentationProps): ReactNode {
   const total = result.state === "success" ? (result.meta.total ?? result.rows.length) : 0;
   const currentPage = result.state === "success" ? (result.meta.current_page ?? 1) : 1;
@@ -99,15 +99,7 @@ export function EvaluationListPresentation({
         <>
           <ul className={ROWS_CLASSES}>
             {result.rows.map((row, index) => (
-              <li key={row.evaluation.ulid ?? index}>
-                <EvaluationRowCard
-                  variant="public"
-                  evaluation={row.evaluation}
-                  offering={row.offering}
-                  locale={locale}
-                  texts={texts}
-                />
-              </li>
+              <li key={row.evaluation.ulid ?? index}>{renderRow(row)}</li>
             ))}
           </ul>
           <Pagination

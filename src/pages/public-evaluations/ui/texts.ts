@@ -1,5 +1,6 @@
 import { getMessages } from "@/shared/lib/i18n";
 import type { AppliedEvaluationTexts, EvaluationFacetsTexts, EvaluationsToolbarTexts } from "@/features/evaluation-facets";
+import type { EvaluationRowCardTexts } from "@/widgets/evaluation-row";
 import type { EvaluationListTexts } from "@/widgets/public-evaluation-list";
 
 /**
@@ -7,7 +8,7 @@ import type { EvaluationListTexts } from "@/widgets/public-evaluation-list";
  * (design.md D3): `public-evaluations`, `evaluations`, `landing` and `filters`.
  */
 
-export function listTexts(locale: string): EvaluationListTexts {
+export function listTexts(locale: string): EvaluationListTexts & EvaluationRowCardTexts {
   const own = getMessages("public-evaluations", locale);
   const evaluations = getMessages("evaluations", locale);
   const landing = getMessages("landing", locale);

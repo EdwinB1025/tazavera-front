@@ -25,13 +25,28 @@ vi.mock("@/entities/offering", async (importOriginal) => ({
   fetchOffering: (ulid: string) => fetchOffering(ulid),
 }));
 
+import { EvaluationRowCard } from "@/widgets/evaluation-row";
 import { PublicEvaluationList } from "./PublicEvaluationList";
-import { TEXTS, evaluation, offering } from "./fixtures";
+import type { PublicEvaluationRow } from "./EvaluationListPresentation";
+import { ROW_TEXTS, TEXTS, evaluation, offering } from "./fixtures";
+
+/** The row slot, composed as the host page composes it. */
+function renderRow(row: PublicEvaluationRow) {
+  return (
+    <EvaluationRowCard
+      variant="public"
+      evaluation={row.evaluation}
+      offering={row.offering}
+      locale="en"
+      texts={ROW_TEXTS}
+    />
+  );
+}
 
 const QUERY = { evaluationType: "specialist", status: "closed", page: 1 } as const;
 
 async function renderList() {
-  render(await PublicEvaluationList({ locale: "en", query: QUERY, searchParams: {}, filtered: false, texts: TEXTS }));
+  render(await PublicEvaluationList({ locale: "en", query: QUERY, searchParams: {}, filtered: false, texts: TEXTS, renderRow }));
 }
 
 beforeEach(() => {

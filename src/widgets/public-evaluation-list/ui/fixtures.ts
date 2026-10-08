@@ -3,7 +3,8 @@ import type { EvaluationListTexts } from "./EvaluationListPresentation";
 
 /** Shared fixtures of the public list tests (tasks 2.5). */
 
-export const TEXTS: EvaluationListTexts = {
+/** The row card's texts, passed by the tests' row slot as the host page does. */
+export const ROW_TEXTS = {
   openLabel: "Open",
   closedLabel: "Closed",
   createdOnLabel: "Created on",
@@ -18,6 +19,9 @@ export const TEXTS: EvaluationListTexts = {
   viewLabel: "View",
   viewOfferingLabel: "View offering",
   offeringUnavailableLabel: "Offering unavailable",
+};
+
+export const TEXTS: EvaluationListTexts = {
   emptyMessage: "There are no evaluations yet.",
   noMatches: "No results match these filters.",
   clearAll: "Clear all",

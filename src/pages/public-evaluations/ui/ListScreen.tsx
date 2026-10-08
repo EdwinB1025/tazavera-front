@@ -8,7 +8,9 @@ import {
   parseEvaluationFilters,
   publicEvaluationsQuery,
 } from "@/features/evaluation-facets";
+import { EvaluationRowCard } from "@/widgets/evaluation-row";
 import { EvaluationListSkeleton, PublicEvaluationList } from "@/widgets/public-evaluation-list";
+import type { PublicEvaluationRow } from "@/widgets/public-evaluation-list";
 import { PageSection } from "@/shared/ui";
 import { appliedTexts, listTexts, toolbarTexts } from "./texts";
 
@@ -35,13 +37,24 @@ function pageFrom(value: string | string[] | undefined): number {
  * The public evaluations list screen (design.md D4, D5; summary §5.2): the
  * heading block and the toolbar on the page surface, then the list in its
  * own `Suspense` boundary on the section surface. Thin: texts and the parsed
- * query are resolved here and passed down as props.
+ * query are resolved here and passed down as props, and the row card is
+ * composed here and passed to the list as its row slot (FSD same-layer rule).
  */
 export function ListScreen({ locale, searchParams }: ListScreenProps): ReactNode {
   const own = getMessages("public-evaluations", locale);
   const values = parseEvaluationFilters(searchParams, "public");
   const applied = appliedEvaluationFilters(values, appliedTexts(locale));
   const query = publicEvaluationsQuery(values, pageFrom(searchParams.page));
+  const texts = listTexts(locale);
+  const renderRow = (row: PublicEvaluationRow): ReactNode => (
+    <EvaluationRowCard
+      variant="public"
+      evaluation={row.evaluation}
+      offering={row.offering}
+      locale={locale}
+      texts={texts}
+    />
+  );
 
   return (
     <div className="flex-1">
@@ -59,7 +72,8 @@ export function ListScreen({ locale, searchParams }: ListScreenProps): ReactNode
             query={query}
             searchParams={searchParams}
             filtered={applied.length > 0}
-            texts={listTexts(locale)}
+            texts={texts}
+            renderRow={renderRow}
           />
         </Suspense>
       </PageSection>

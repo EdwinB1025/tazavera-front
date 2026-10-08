@@ -4,7 +4,11 @@ import { fetchEvaluations } from "@/entities/evaluation";
 import type { EvaluationsQuery } from "@/entities/evaluation";
 import { fetchOffering } from "@/entities/offering";
 import { EvaluationListPresentation } from "./EvaluationListPresentation";
-import type { EvaluationListResult, EvaluationListTexts } from "./EvaluationListPresentation";
+import type {
+  EvaluationListResult,
+  EvaluationListTexts,
+  PublicEvaluationRow,
+} from "./EvaluationListPresentation";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -17,6 +21,8 @@ export type PublicEvaluationListProps = {
   /** Whether a facet is applied. */
   filtered: boolean;
   texts: EvaluationListTexts;
+  /** Renders one row: the row card, composed by the host page (FSD slot). */
+  renderRow: (row: PublicEvaluationRow) => ReactNode;
 };
 
 /**
@@ -32,6 +38,7 @@ export async function PublicEvaluationList({
   searchParams,
   filtered,
   texts,
+  renderRow,
 }: PublicEvaluationListProps): Promise<ReactNode> {
   let result: EvaluationListResult;
   try {
@@ -68,6 +75,7 @@ export async function PublicEvaluationList({
       locale={locale}
       query={searchParams}
       texts={texts}
+      renderRow={renderRow}
     />
   );
 }

@@ -22,8 +22,23 @@ vi.mock("@/shared/ui", async (importOriginal) => ({
   ClearFiltersButton: (props: { label: string; keep: readonly string[] }) => clearFilters(props),
 }));
 
+import { EvaluationRowCard } from "@/widgets/evaluation-row";
 import { EvaluationListPresentation, EvaluationListSkeleton } from "./EvaluationListPresentation";
-import { TEXTS, evaluation, offering } from "./fixtures";
+import type { PublicEvaluationRow } from "./EvaluationListPresentation";
+import { ROW_TEXTS, TEXTS, evaluation, offering } from "./fixtures";
+
+/** The row slot, composed as the host page composes it. */
+function renderRow(row: PublicEvaluationRow) {
+  return (
+    <EvaluationRowCard
+      variant="public"
+      evaluation={row.evaluation}
+      offering={row.offering}
+      locale="en"
+      texts={ROW_TEXTS}
+    />
+  );
+}
 
 const A = offering("01JOFFERA", "Huila");
 
@@ -59,7 +74,7 @@ describe("EvaluationListPresentation (design.md D4, D6)", () => {
         filtered
         locale="en"
         query={{ offeringId: "01JOFFERA", page: "2" }}
-        texts={TEXTS}
+        texts={TEXTS} renderRow={renderRow}
       />,
     );
     expect(screen.getAllByRole("heading", { level: 2, name: "Huila" })).toHaveLength(2);
@@ -74,26 +89,26 @@ describe("EvaluationListPresentation (design.md D4, D6)", () => {
         filtered={false}
         locale="en"
         query={{}}
-        texts={TEXTS}
+        texts={TEXTS} renderRow={renderRow}
       />,
     );
     expect(screen.getByRole("status").textContent).toBe("Results: 1");
   });
 
   it("shows the empty message and no Clear all on an empty page with no facet", () => {
-    render(<EvaluationListPresentation result={{ state: "empty" }} filtered={false} locale="en" query={{}} texts={TEXTS} />);
+    render(<EvaluationListPresentation result={{ state: "empty" }} filtered={false} locale="en" query={{}} texts={TEXTS} renderRow={renderRow} />);
     expect(screen.getByText("There are no evaluations yet.")).toBeDefined();
     expect(clearFilters).not.toHaveBeenCalled();
   });
 
   it("shows noMatches and the shared Clear all keeping the sort keys on an empty filtered page", () => {
-    render(<EvaluationListPresentation result={{ state: "empty" }} filtered locale="en" query={{}} texts={TEXTS} />);
+    render(<EvaluationListPresentation result={{ state: "empty" }} filtered locale="en" query={{}} texts={TEXTS} renderRow={renderRow} />);
     expect(screen.getByText("No results match these filters.")).toBeDefined();
     expect(clearFilters).toHaveBeenCalledWith({ label: "Clear all", keep: ["orderBy", "orderDirection"] });
   });
 
   it("shows the error message with Retry, which reloads the same address", () => {
-    render(<EvaluationListPresentation result={{ state: "error" }} filtered locale="en" query={{}} texts={TEXTS} />);
+    render(<EvaluationListPresentation result={{ state: "error" }} filtered locale="en" query={{}} texts={TEXTS} renderRow={renderRow} />);
     expect(screen.getByText("The evaluations could not be loaded.")).toBeDefined();
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
     expect(router.refresh).toHaveBeenCalledTimes(1);
