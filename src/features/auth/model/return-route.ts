@@ -4,7 +4,7 @@
  * application — path plus query, no hash — and anything else is refused, so the
  * callback never opens a destination outside the application.
  */
-import { isSupportedLocale } from "@/shared/config/locales";
+import { localeFromPath } from "@/shared/config/locales";
 
 /** A placeholder origin the route is resolved against; it never reaches the URL. */
 const BASE = "http://app.invalid";
@@ -20,6 +20,6 @@ export function toAppRoute(route: unknown): string | null {
   }
   const url = new URL(route, BASE);
   if (url.origin !== BASE || url.pathname.startsWith("//")) return null;
-  if (!isSupportedLocale(url.pathname.split("/")[1] ?? "")) return null;
+  if (localeFromPath(url.pathname) === null) return null;
   return url.pathname + url.search;
 }
