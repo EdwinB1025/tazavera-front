@@ -88,18 +88,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Status:** proposed
 - **Affects:** `add-auth`
 
-## R5 — Single active-locale derivation in `src/features/auth` (add-auth, Build report at 5.2)
-
-- **Duplicated:** the active-locale derivation from the path (first segment, `isSupportedLocale` check, `DEFAULT_LOCALE` fallback)
-- **Where today:** `src/features/auth/api/authorize.ts` (`activeLang`), `src/features/auth/model/session.ts` (`localeRoot`)
-- **Why it pays off now:** step-up (6.x) and the callback's return route (8.x) also need the active locale; a third copy is likely
-- **Owning capability:** auth (or `src/shared/lib/i18n` if another slice needs it)
-- **Proposed change:** none
-- **Open decision (Augusto):** answered 2026-10-08: move it to `src/shared/lib/i18n`, as the one function every auth flow uses. The language is chosen only with the language button in the header, which changes the locale segment of the URL; sign-in, sign-out and the return route read it from there. A third copy exists in `src/features/auth/model/return-route.ts`.
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** `add-auth`; comes after R23
-
 ## R25 — Move the account requests to the api segment
 
 - **Duplicated:** a 33-line password-fields clone between `PasswordForm` and `RegisterForm`. Separately, the forms do their own transport and status mapping.
