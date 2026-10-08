@@ -42,4 +42,5 @@ None.
 - `openspec validate upgrade-next-16-4 --strict`: valid
 - Resolves backlog entry: R20 (Upgrade Next.js to 16.4, security advisories)
 - Resolved: target version 16.4.0 for both `next` and `eslint-config-next` (latest 16.4.x on npm at propose time); 16.4.0 requires no new peer dependency; its docs list no deprecation affecting the current code, so no code change is planned. `design.md` is skipped: the backlog entry and review row R20 replace it.
-- Open: nothing.
+- Update (2026-10-08, before apply): the spec delta is narrowed to the framework and the production dependencies. After the upgrade, `npm audit` still reports the dev-only `braces` advisory (GHSA-vfj7-8cjw-p6xm, `braces <=3.0.3`) through `eslint-config-next` → `@next/eslint-plugin-next` → `fast-glob` → `micromatch`; no patched `braces` release exists, the only `npm audit` fix is `--force` to `eslint-config-next@14.2.35`, and the chain is already present on `origin/qa`. `openspec validate upgrade-next-16-4 --strict`: valid.
+- Open: the dev-only `braces` advisory, reported to Product owner; not part of R20.

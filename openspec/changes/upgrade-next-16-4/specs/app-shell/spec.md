@@ -1,12 +1,12 @@
 ## ADDED Requirements
 
 ### Requirement: No known high or critical framework advisory
-The installed dependencies of the application SHALL carry no known advisory of high or critical severity.
+The installed framework, and every dependency the application ships to production, SHALL carry no known advisory of high or critical severity.
 
-#### Scenario: Dependency audit is clean for high and critical
-- **WHEN** verification audits the installed dependencies
+#### Scenario: Production dependency audit is clean for high and critical
+- **WHEN** verification audits the installed production dependencies, the framework included
 - **THEN** the audit reports no advisory of high or critical severity
 
 #### Scenario: High or critical advisory detected
-- **WHEN** the audit reports an advisory of high or critical severity
+- **WHEN** the audit of the production dependencies reports an advisory of high or critical severity
 - **THEN** verification fails naming the affected package
