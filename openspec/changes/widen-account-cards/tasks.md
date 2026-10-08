@@ -7,7 +7,7 @@ No derived API types are needed: the change only moves layout classes.
 
 ## 2. Registration card fills the container (user-account)
 
-- [ ] 2.1 Add to `src/pages/register/ui/RegisterScreen.test.tsx` one test for the scenario "The registration card" (spec `user-account`, extended): with the session loading, it renders `RegisterScreen` and asserts the column that holds the heading block and the card has the class `w-full` and neither `max-w-lg` nor `mx-auto`, and the loading status sits inside an element with the class `md:max-w-160`. Verify: the new test fails on `max-w-lg` and on the missing `md:max-w-160`; the other tests of the file pass; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 2.1 Add to `src/pages/register/ui/RegisterScreen.test.tsx` one test for the scenario "The registration card" (spec `user-account`, extended): with the session loading, it renders `RegisterScreen` and asserts the column that holds the heading block and the card has the class `w-full` and neither `max-w-lg` nor `mx-auto`, and the loading status sits inside an element with the class `md:max-w-160`. Verify: the new test fails on `max-w-lg` and on the missing `md:max-w-160`; the other tests of the file pass; `npx tsc --noEmit` and `npm run lint` report no errors.
 - [ ] 2.2 Implement design.md D1 in `src/pages/register/ui/RegisterScreen.tsx` and D2 in `src/pages/register/ui/RegisterClient.tsx`. Protecting tests: `src/pages/register/ui/RegisterScreen.test.tsx`, `src/pages/register/ui/RegisterClient.test.tsx`, `src/features/user-account/ui/RegisterForm.test.tsx`. Verify: `npx vitest related` on the changed files passes, the test of 2.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 3. Not-found card fills the container (app-shell)
