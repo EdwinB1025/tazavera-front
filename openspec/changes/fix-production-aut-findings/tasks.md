@@ -35,7 +35,7 @@
 
 ## 8. Prompt page change (point 5, content-structure)
 
-- [ ] 8.1 Write the test (content-structure spec "Prompt page change on server-loaded lists" — "Loading state on page change"; design.md D8), test first, in `src/widgets/offering-list/ui/FilteredOfferingsResults.test.tsx`: render with `page: "1"` (the `Offerings` stub resolves), then re-render inside `startTransition` with `page: "2"` while the stub suspends; the skeleton cards show and the first page's block is gone. Verification: only that case fails; lint and typecheck pass. Commit `test(content-structure): show the loading state at once on page change`.
+- [x] 8.1 Write the test (content-structure spec "Prompt page change on server-loaded lists" — "Loading state on page change"; design.md D8), test first, in `src/widgets/offering-list/ui/FilteredOfferingsResults.test.tsx`: render with `page: "1"` (the `Offerings` stub resolves), then re-render inside `startTransition` with `page: "2"` while the stub suspends; the skeleton cards show and the first page's block is gone. Verification: only that case fails; lint and typecheck pass. Commit `test(content-structure): show the loading state at once on page change`.
 - [ ] 8.2 Implement D8: key the boundaries of `src/widgets/offering-list/ui/FilteredOfferingsResults.tsx`, `src/pages/home/ui/HomeScreen.tsx` and `src/pages/coffeeshops/ui/CoffeeshopsScreen.tsx`. Verification: related tests, typecheck and lint pass. Commit `fix(content-structure): show the loading state at once on page change`.
 
 ## 9. Verification
