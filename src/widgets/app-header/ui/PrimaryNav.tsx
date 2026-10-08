@@ -9,6 +9,7 @@ import NextLink from "next/link";
 
 export type PrimaryNavTexts = {
   topRated: string;
+  exploreCoffeeshops: string;
   aboutUs: string;
 };
 
@@ -42,7 +43,9 @@ const CURRENT_CLASSES = ["border-b-2", "border-nav-indicator"].join(" ");
  * Header primary navigation (spec: "Header brand and primary navigation").
  *
  * "Top rated" points at the verified offerings ordered by cupping average
- * descending; "About us" at the About us page. Both entries show from the
+ * descending; "Explore coffee shops" at the coffee shop directory
+ * (add-coffeeshop-directory design.md D15); "About us" at the About us page.
+ * The entries show from the
  * `md` breakpoint up; below it they hide while the logotype, the language
  * selector and the session control stay. The entry whose path equals
  * `currentPath` (query ignored) is marked as the current page.
@@ -54,6 +57,7 @@ export function PrimaryNav({ locale, texts, currentPath }: PrimaryNavProps): Rea
       query: "?verified=1&orderBy=cupping_avg&orderDirection=desc",
       label: texts.topRated,
     },
+    { path: `/${locale}/coffeeshops`, query: "", label: texts.exploreCoffeeshops },
     { path: `/${locale}/about`, query: "", label: texts.aboutUs },
   ];
 

@@ -50,6 +50,8 @@ import {
   StepUpNotice,
   SessionGate,
   SignedOutPrompt,
+  ViewToggle,
+  LocationsMapLoader,
 } from "@/shared/ui";
 // Inside `src/shared/ui` the geometry comes from `./Badge` (design.md D5):
 // this is the single definition the segment entry must re-export.
@@ -427,5 +429,14 @@ describe("shared/ui segment entry (@/shared/ui)", () => {
       />,
     );
     expect(screen.getByRole("button", { name: "Sign in" })).toBeDefined();
+  });
+
+  it("renders the view toggle exported from the segment (add-coffeeshop-directory design.md D13)", () => {
+    render(<ViewToggle label="View" value="list" items={[{ value: "list", label: "List", icon: ArrowLeft }]} onValueChange={() => {}} />);
+    expect(screen.getByRole("radio", { name: "List" })).toBeDefined();
+  });
+
+  it("exports the map loader from the segment (add-coffeeshop-directory design.md D14)", () => {
+    expect(LocationsMapLoader).toBeTypeOf("function");
   });
 });

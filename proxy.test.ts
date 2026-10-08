@@ -32,7 +32,7 @@ function expectedCsp(nonce: string, dev: boolean): string {
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${dev ? " 'unsafe-eval'" : ""}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' blob: data:",
+    "img-src 'self' blob: data: https://tile.openstreetmap.org",
     "font-src 'self'",
     `connect-src 'self' ${API_ORIGIN} https://nominatim.openstreetmap.org`,
     "object-src 'none'",

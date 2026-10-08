@@ -23,6 +23,8 @@ import {
   Plus,
   MapPin,
   MapPinOff,
+  MapIcon,
+  Minus,
   BeanMark,
   type LucideIcon,
 } from "@/shared/ui/icons";
@@ -98,6 +100,11 @@ describe("icon entry point (src/shared/ui/icons.ts)", () => {
   it("exports MapPin and MapPinOff (add-coffeeshop-location design.md D8, D9)", () => {
     expect(MapPin).toBeDefined();
     expect(MapPinOff).toBeDefined();
+  });
+
+  it("exports MapIcon (Lucide Map) and Minus (add-coffeeshop-directory design.md D15)", () => {
+    expect(MapIcon).toBeDefined();
+    expect(Minus).toBeDefined();
   });
 
   it("is the only module under src/ that imports lucide-react", () => {
