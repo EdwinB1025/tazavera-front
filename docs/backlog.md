@@ -91,17 +91,6 @@ One section per candidate, in this format:
 - **Status:** proposed
 - **Affects:** `add-public-evaluations`, `add-evaluation-facets` (both touch the evaluations area)
 
-## R14 — Localised, themed 404 page (extract-access-and-status-pieces visual review)
-
-- **Duplicated:** none; the app has no `not-found` file, so `notFound()` (role-gated routes, unknown resources) shows Next's default page, unstyled, untranslated and outside the theme
-- **Where today:** `app/[locale]/` (no `not-found.tsx`); reached from `SessionGate` `allows` and any `notFound()` call
-- **Why it pays off now:** every role-gated route added (management, evaluations, location) sends users there
-- **Owning capability:** app-shell
-- **Proposed change:** none yet — a new change with its design summary
-- **Open decision (Augusto):** none — answered 2026-10-07: kept in the backlog at the lowest priority; nothing is built until Product owner authorizes it
-- **Status:** deferred (lowest priority)
-- **Affects:** none
-
 ## R15 — Slow `EvaluationForm` tests under load (add-user-contact checks)
 
 - **Duplicated:** none; `src/pages/evaluation-form/ui/EvaluationForm.test.tsx` takes about 16s alone and about 58s in the full suite, where one case ("sends each descriptor block's selection to its request field") hit the 5000ms test timeout once and passed on re-run
