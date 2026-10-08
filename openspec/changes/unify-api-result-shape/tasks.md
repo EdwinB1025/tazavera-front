@@ -11,4 +11,4 @@ No task adds a test. Only the tests design.md D7 lists for a task change, and on
 
 ## 2. Full checks
 
-- [ ] 2.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes; every QA failure is either one that also fails on `origin/qa` or a stale QA copy of design.md D7 (listed in the final report); the typecheck and lint report no errors; and the build succeeds.
+- [x] 2.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes; every QA failure is either one that also fails on `origin/qa` or a stale QA copy of design.md D7 (listed in the final report); the typecheck and lint report no errors; and the build succeeds.
