@@ -32,4 +32,4 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 8. Full checks
 
-- [ ] 8.1 Run, each on its own: `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint`, `npm run build`. Expected: every one exits 0 with no test added, removed or changed; `git diff origin/qa --stat -- src qa` lists only the files of design.md, Files; `index.ts`, `OfferingDetailContent.tsx` and `lib/concordance.ts` are untouched. This task changes no files: check it off in a commit containing only the checkbox, `chore(offering-catalog): complete tasks for split-consensus-panel`.
+- [x] 8.1 Run, each on its own: `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint`, `npm run build`. Expected: every one exits 0 with no test added, removed or changed; `git diff origin/qa --stat -- src qa` lists only the files of design.md, Files; `index.ts`, `OfferingDetailContent.tsx` and `lib/concordance.ts` are untouched. This task changes no files: check it off in a commit containing only the checkbox, `chore(offering-catalog): complete tasks for split-consensus-panel`.
