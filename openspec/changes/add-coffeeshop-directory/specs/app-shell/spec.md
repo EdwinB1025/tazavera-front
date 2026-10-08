@@ -89,7 +89,7 @@ The sidebar SHALL appear for an authenticated user on a management route and, fo
 - **THEN** the sidebar shows its region with no entries rather than an empty placeholder
 
 ### Requirement: Content-Security-Policy
-Every document response of the application SHALL carry a Content-Security-Policy that allows scripts only from the application itself, allows connections to the API origin and allows images from the map tile server. Static assets — framework paths under `/_next/` and file paths — are intentionally excluded from the policy, and `/callback` gets its policy from `add-auth`, which owns that route.
+Every document response of the application SHALL carry a Content-Security-Policy that allows scripts only from the application itself, allows connections to the API origin and to `https://nominatim.openstreetmap.org`, and allows images from the map tile server `https://tile.openstreetmap.org`. Static assets — framework paths under `/_next/` and file paths — are intentionally excluded from the policy, and `/callback` gets its policy from `add-auth`, which owns that route.
 
 #### Scenario: Own scripts run
 - **WHEN** the application's own scripts load on a page
@@ -103,8 +103,12 @@ Every document response of the application SHALL carry a Content-Security-Policy
 - **WHEN** the application connects to the API origin
 - **THEN** the policy allows the connection
 
+#### Scenario: Connections to the geocoding service are allowed
+- **WHEN** the application looks up an address at `https://nominatim.openstreetmap.org`
+- **THEN** the policy allows the connection, and connections to any other origin outside the application, the API and that service stay blocked
+
 #### Scenario: Map images are allowed
-- **WHEN** the map loads its images from the map tile server
+- **WHEN** the map loads its images from the map tile server `https://tile.openstreetmap.org`
 - **THEN** the policy allows them, and images from any other external origin stay blocked
 
 #### Scenario: Policy present on every document response
