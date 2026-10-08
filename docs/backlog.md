@@ -32,6 +32,8 @@ The entries below follow this order. The order runs security first, then the sha
 | 0j | R54 | `rename-coffeeshop-card-action` | Correction (fast lane, maximum priority) | S | design lead on its open points |
 | 0k | R55 | `fit-bean-mark-disc` | Correction (fast lane, maximum priority) | S | design lead on its open points |
 | 0l | R56 | `cascade-evaluation-descriptors` | Correction (fast lane, maximum priority) | M | R48 merged (shared cascade); design lead on its open points |
+| 0m | R57 | `add-form-cancel-actions` | Correction (fast lane, maximum priority) | M | design lead on its open points; Product owner on the inline account forms |
+| 0n | R58 | `add-note-plus-icon` | Correction (fast lane, maximum priority) | S | — |
 | 16c | R50 | API branch in `tazavera-api` | Change (API) | S | Product owner: verify with real data (the API should deliver the resolved tree) |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
@@ -148,6 +150,24 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Open decision (Augusto):** answered 2026-10-08 (correction, relayed by the testing/deployment session): the evaluation form's descriptor selectors work like the MVC cascade (`resources/views/layouts/evaluations/partials/descriptor-cascade.blade.php`, used by `evaluation-form.blade.php:63` and `evaluation-axis.blade.php:55,109`): every level-0 node is a selectable chip; level 1 renders only while its root is chosen; level 2 only while its level-1 parent is chosen; choosing adds only that node; unchoosing removes the node and all its descendants. Keep the chip look of finding 16 (taxonomy badge with ✓ when chosen, colour dot when not). Same model as R48 (findings 15/16) and R49 (finding 18). Open for the design lead: whether level 2 is now shown (check the API accepts level-2 refs in the evaluation payload and the consensus); whether the read-only views (evaluation sheet, consensus panel) switch to nested trees; keyboard and ARIA of nested chips (today one tab stop with arrow keys); sharing one cascade component with the offerings facet (R48) and the card trees (R49).
 - **Type:** Correction (fast lane, maximum priority) · **Status:** accepted
 - **Affects:** waits for R48 (shared cascade); R34 on `qa` reorganised the evaluation form (`EvaluationForm`, `EvaluationGroupCard`): the merge of R56 into `develop` and the next `qa` → `develop` must be reconciled
+
+## R57 — Every create/update form offers Cancel (production AUT finding 25, 2026-10-08)
+
+- **Duplicated:** the Cancel pattern exists in some forms only.
+- **Where today:** evaluation form, new and edit (`pages/evaluation-form/ui/EvaluationForm.tsx:251` back link to `/{locale}/manage/evaluations`; `FormActions.tsx:73-88` only Save and Close evaluation): missing, the one reported. New offering (`NewOfferingForm.tsx:142`), location form (`LocationForm.tsx:215`) and account contact section (`ContactSection.tsx:294`): have it. Register forms (`RegisterForm.tsx`): missing. Account profile and password forms (`ProfileForm.tsx:162`, `PasswordForm.tsx:218`): inline, always-open, submit only.
+- **Owning capability:** evaluations, user-account (with base-controls for the actions row)
+- **Proposed change:** `add-form-cancel-actions` (M)
+- **Open decision (Augusto):** answered 2026-10-08: every create/update form offers "Cancel" next to the submit, in the actions-row order of New offering (submit, then Cancel), going to the same destination as the page's back link, sending no request. Open for the design lead: whether Cancel warns about unsaved input in the (long) evaluation form; the evaluation form's action bar with three actions; the register forms' destination (landing or previous page). Open for Product owner: the inline profile and password forms (no Cancel, or a Cancel that restores the saved values).
+- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted
+- **Affects:** R34 on `qa` reorganised the evaluation form (`FormActions.tsx` touched); R38 on `qa` splits `ContactSection`
+
+## R58 — "Añadir nota" shows a trailing plus icon (production AUT finding 26, 2026-10-08)
+
+- **Duplicated:** none. `pages/evaluation-form/ui/NoteField.tsx:60-67` (catalog `evaluations.json` `addNoteLabel`) shows the text only.
+- **Owning capability:** evaluations
+- **Proposed change:** `add-note-plus-icon` (S)
+- **Open decision (Augusto):** answered 2026-10-08: the link shows a "+" at the end: the `Plus` icon already exported from `src/shared/ui/icons.ts`, `aria-hidden`, after the text (orchestrator's choice over a literal "+", per the icon rule); the visible text and the accessible name stay "Añadir nota" / its locale texts.
+- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted · **Affects:** none
 
 ## R50 — Consensus concordance loses the parent of unmarked intermediate notes (API; found by the design lead for R49)
 
