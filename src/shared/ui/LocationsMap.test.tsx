@@ -26,10 +26,13 @@ const fake = vi.hoisted(() => ({
     options: Record<string, unknown>;
     fitBounds: ReturnType<typeof vi.fn>;
     setView: ReturnType<typeof vi.fn>;
+    panBy: (offset: [number, number], options?: Record<string, unknown>) => unknown;
     zoomIn: ReturnType<typeof vi.fn>;
     zoomOut: ReturnType<typeof vi.fn>;
     remove: ReturnType<typeof vi.fn>;
   },
+  /** The fake's own `panBy`, kept apart from what the component may set on the map. */
+  panBy: null as null | ReturnType<typeof vi.fn<(offset: [number, number], options?: Record<string, unknown>) => void>>,
   tileUrl: "",
 }));
 
@@ -41,6 +44,7 @@ vi.mock("@/shared/lib/leaflet", () => {
         fake.map!.loaded = true;
         fake.map!.whenReady.splice(0).forEach((run) => run());
       };
+      fake.panBy = vi.fn<(offset: [number, number], options?: Record<string, unknown>) => void>();
       fake.map = {
         container,
         options,
@@ -48,6 +52,7 @@ vi.mock("@/shared/lib/leaflet", () => {
         whenReady: [],
         fitBounds: vi.fn(load),
         setView: vi.fn(load),
+        panBy: fake.panBy,
         zoomIn: vi.fn(),
         zoomOut: vi.fn(),
         remove: vi.fn(),
@@ -188,6 +193,15 @@ describe("LocationsMap", () => {
       fadeAnimation: false,
       markerZoomAnimation: false,
     });
+  });
+
+  it("stops the drag inertia and animates no keyboard or programmatic pan under reduced motion (spec: Reduced motion)", () => {
+    setReducedMotion(true);
+    renderMap();
+    expect(fake.map?.options).toMatchObject({ inertia: false });
+    // Leaflet's keyboard pans and its panTo / setView pans all go through panBy.
+    fake.map?.panBy([0, 80]);
+    expect(fake.panBy).toHaveBeenCalledWith([0, 80], { animate: false });
   });
 
   it("selects a marker by click, Enter or Space and opens its panel, the focus kept (spec: Open the panel)", () => {

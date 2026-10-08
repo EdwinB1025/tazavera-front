@@ -123,8 +123,16 @@ export function LocationsMap({
       attributionControl: false,
       keyboard: true,
       maxZoom: MAX_ZOOM,
-      ...(reduceMotion ? { zoomAnimation: false, fadeAnimation: false, markerZoomAnimation: false } : {}),
+      ...(reduceMotion
+        ? { zoomAnimation: false, fadeAnimation: false, markerZoomAnimation: false, inertia: false }
+        : {}),
     });
+    if (reduceMotion) {
+      // Leaflet has no option for pan animation; its keyboard pans and its
+      // panTo / setView pans all go through panBy, so panBy never animates.
+      const panBy = map.panBy.bind(map);
+      map.panBy = (offset, options) => panBy(offset, { ...options, animate: false });
+    }
     mapRef.current = map;
     L.tileLayer(TILE_URL, { maxZoom: MAX_ZOOM }).addTo(map);
 
