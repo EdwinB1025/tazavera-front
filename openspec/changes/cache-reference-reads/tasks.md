@@ -10,4 +10,4 @@ No test is added and no assertion changes. If a protecting test fails because `f
 
 ## 2. Full checks
 
-- [ ] 2.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: every suite passes with the same number of test files and tests as on `origin/qa`, the typecheck and lint report no errors, the build succeeds, and its route table marks each route static or dynamic as on `origin/qa`.
+- [x] 2.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: every suite passes with the same number of test files and tests as on `origin/qa`, the typecheck and lint report no errors, the build succeeds, and its route table marks each route static or dynamic as on `origin/qa`.
