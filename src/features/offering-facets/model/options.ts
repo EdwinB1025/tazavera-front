@@ -35,9 +35,14 @@ export function tasteNoteOptions(tree: readonly TaxonomyNode[], locale: string):
     .map((node) => ({
       value: node.ulid ?? "",
       label: nodeName(node, locale),
+      color: node.color ?? "",
       children: ((node.children ?? []) as TaxonomyNode[])
         .filter((child) => child.level === 1)
-        .map((child) => ({ value: child.ulid ?? "", label: nodeName(child, locale) })),
+        .map((child) => ({
+          value: child.ulid ?? "",
+          label: nodeName(child, locale),
+          color: child.color ?? "",
+        })),
     }));
 }
 

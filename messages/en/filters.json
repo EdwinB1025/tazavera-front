@@ -9,7 +9,6 @@
   "searching": "Searching…",
   "searchFailed": "Results could not be loaded",
   "optionCount": "Options: {count}",
-  "toggleChildren": "Options under {label}",
   "rangeFrom": "From",
   "rangeTo": "To",
   "optionsUnavailable": "Options unavailable",

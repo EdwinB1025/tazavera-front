@@ -787,6 +787,7 @@
     --color-text-strong: var(--color-nav-text-dark);
     --color-text-placeholder: var(--color-text-placeholder-inverse);
     --color-border-strong: var(--color-border-inverse);
+    --color-border-muted: var(--color-border-inverse);
     --color-feedback-error: var(--color-feedback-error-inverse);
     --color-focus-ring: var(--color-focus-ring-inverse);
     --color-focus-offset: var(--color-focus-offset-inverse);

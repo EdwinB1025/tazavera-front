@@ -14,7 +14,6 @@ const OFFERING_FILTER_TEXT_KEYS = [
   "searching",
   "searchFailed",
   "optionCount",
-  "toggleChildren",
   "rangeFrom",
   "rangeTo",
   "optionsUnavailable",
