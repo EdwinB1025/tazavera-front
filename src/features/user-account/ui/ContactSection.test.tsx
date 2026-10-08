@@ -2,10 +2,10 @@ import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { render, screen, cleanup, fireEvent, act } from "@testing-library/react";
 
 /**
- * The Contact details section (specs "Contact details", "Contact details
- * form" and "Writes and the step-up"; design.md D3, D4, D6 and D7). The token
- * client is replaced by a spy so every response can be driven; every text
- * comes from the fixture below.
+ * The Contact details section (specs "Contact details" and "Contact details
+ * form"; design.md D3, D4, D6 and D7). The token client is replaced by a
+ * spy so every response can be driven; every text comes from the fixture
+ * below.
  */
 const { request } = vi.hoisted(() => ({ request: vi.fn() }));
 vi.mock("@/shared/api", () => ({ request }));
@@ -28,8 +28,6 @@ const TEXTS = {
   contactEmailLabel: "fx-email",
   contactWebLabel: "fx-web",
   contactSocialLabel: "fx-social",
-  stepUpText: "fx-step-up",
-  stepUpButton: "fx-confirm-identity",
   save: "fx-save",
   cancel: "fx-cancel",
   genericError: "fx-generic",
@@ -88,16 +86,7 @@ afterEach(() => {
 });
 
 function renderSection() {
-  const requestProfileWrite = vi.fn<(returnRoute: string) => void>();
-  const utils = render(
-    <ContactSection
-      ulid="u1"
-      locale="es"
-      texts={TEXTS}
-      requestProfileWrite={requestProfileWrite}
-    />,
-  );
-  return { ...utils, requestProfileWrite };
+  return render(<ContactSection ulid="u1" texts={TEXTS} />);
 }
 
 async function settle(): Promise<void> {

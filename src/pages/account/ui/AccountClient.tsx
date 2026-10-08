@@ -104,12 +104,7 @@ export function AccountClient({ locale, texts }: AccountClientProps): ReactNode 
               requestProfileWrite={requestProfileWrite}
             />
           </AccountSection>
-          <ContactSection
-            ulid={user.ulid ?? ""}
-            locale={locale}
-            texts={texts}
-            requestProfileWrite={requestProfileWrite}
-          />
+          <ContactSection ulid={user.ulid ?? ""} texts={texts} />
           <AccountSection
             heading={texts.passwordHeading}
             headingId={passwordHeadingId}

@@ -50,12 +50,11 @@ export async function readPrimaryContact(ulid: string): Promise<PrimaryContactRe
 export type ContactWrite =
   | { kind: "created"; contact: Contact }
   | { kind: "exists" }
-  | { kind: "stepUp" }
   | { kind: "error" };
 
 /**
  * The contact creation with its status mapped to an outcome: a `201` the
- * created contact, a `409` exists, a `403` the step-up, anything else the
+ * created contact, a `409` exists, anything else (a `403` included) the
  * generic error.
  */
 export async function submitContact(
@@ -76,5 +75,5 @@ export async function submitContact(
   }
   if (status === 201 && created !== undefined) return { kind: "created", contact: created };
   if (status === 409) return { kind: "exists" };
-  return { kind: status === 403 ? "stepUp" : "error" };
+  return { kind: "error" };
 }
