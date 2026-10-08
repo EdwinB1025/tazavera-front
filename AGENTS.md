@@ -65,14 +65,20 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Testing
 
-- Unit and component tests use Vitest with React Testing Library. Run them with `npm run test:run`.
+- Unit and component tests use Vitest with React Testing Library.
+- The repository holds two suites:
+  - the validation suite (`npm run test:run`): the spec scenarios and the guard tests;
+  - the QA suite (folder `qa/`, mirroring the paths of the code it tests): every other test. `npm run test:qa` runs both suites.
+- When to run them:
+  - after each task: only the tests related to the files the task changed (`npx vitest related <files> --run`), the typecheck and lint;
+  - after the last task of a change: the validation suite, the typecheck, lint and `npm run build`. A refactor change also runs `npm run test:qa`. The build fixes any failure in its own `fix(<capability>)` commit before the change goes to verify.
 - Async Server Components cannot be tested with Vitest; keep them thin and move logic into testable components or functions.
 - jsdom has no CSS engine: component tests assert exact class names, including variant prefixes, and attributes. Visual correctness is covered by the guard tests and the build.
 - End-to-end tests (Playwright) come later, as a pre-deployment suite.
 - Tests in this repository verify only the spec scenarios (in `openspec/specs/` or the current change's spec), one test per scenario, plus the guard tests for project rules. Refactor changes add no tests: they keep the existing ones passing, moving or updating them only where the refactor moves the code they test.
 - Each change writes only the tests its tasks name, plus the reproducing test of an unplanned fix and the unplanned coverage Product owner passes to the build. Do not add tests for cases, variants or details the task does not mention; if you think coverage is missing, list it in your final report instead of writing it.
 - Each test asserts the scenario's observable result (role, accessible name, text, attribute, class name or call) with the fewest assertions that would fail if that behaviour broke. Do not repeat the same check for every locale or variant, do not use snapshots, and do not test internal helpers that a component test already covers.
-- Tests outside this scope move to the local suite `../tazavera-front-qa` (run once at the end of the project) only through Product owner's reduction plan. During a change, never delete or move an existing test, and never write, move, delete or run tests in `../tazavera-front-qa`.
+- Tests outside this scope move to the QA suite only through Product owner's reduction plan. During a change, never delete or move an existing test, and never write or delete tests in the QA suite. The one exception: when a refactor moves code that a test imports, update that test's import or location, never its assertions.
 - Do not add new guard tests. Each existing guard is one general test per rule that checks every item internally and lists the offending ones; a new token only registers its pair in the existing contrast matrix of `src/app/styles/theme-tokens.test.ts`.
 
 ## Project conventions (do not re-derive)
@@ -96,12 +102,23 @@ Findings come from Product owner's review, from `/opsx:verify` or from the build
 - Refactor candidates reported by the build are kept in `docs/backlog.md`, one entry per candidate: what is duplicated, where, and why it would pay off. Product owner adds entries; the architect removes an entry only when archiving the change that resolves it.
 - Reviews of the artifacts before /opsx:apply arrive as a message from Product owner. The architect applies them directly to the artifacts, records them in `## Propose status` and commits one `docs(<capability>): update artifacts for <change-id>`. `corrections.md` is used only for findings after the build has started.
 
+## Refactor changes
+
+- A refactor change keeps behaviour: what users see, the requests sent to the API and every requirement in `openspec/specs/` stay the same. It comes from a backlog entry without an open decision.
+- The architect marks it with `Type: refactor` as the first line of `proposal.md`. Every agent follows this section only for a change whose proposal has that line; any other change follows the normal flow.
+- The backlog entry, and the review it cites, replace the design folder: there is no design summary, no explore and no artifact review. The architect proposes from the entry, writes the propose status as a final section of `proposal.md`, and the build applies right after the propose commit.
+- The spec delta states the observable property the refactor establishes or keeps (for example, one entry point for a concern). It adds no behaviour.
+- The change adds no tests. Existing tests keep their assertions; only the tests whose code moved get a new import or location.
+- Before verify, the full checks of the Testing section run, the QA suite included. The change is archived once those checks pass and `/opsx:verify` reports no CRITICAL finding, without waiting for Product owner's request.
+- If keeping behaviour turns out impossible, or the work needs a decision the backlog entry does not settle, stop and report it: it becomes a normal change.
+
 ## Git Flow and Commits
 
 ### Branches
 - `master`: production. Only receives merges from `release/*` or `hotfix/*`. Only Product owner performs merges.
 - `develop`: integration. Each completed OpenSpec change is integrated here.
-- `feature/<change-id>`: one branch per OpenSpec change, created from `develop`.
+- `feature/<change-id>`: one branch per OpenSpec change, created from `develop`; a refactor change's branch is created from `qa`.
+- `qa`: integration of refactor changes. It takes in `develop` at the start of each refactoring round and is merged into `develop` when the round ends.
 - `release/*` and `hotfix/*`: only created by Product owner.
 - No agent creates, deletes, renames, or merges branches.
 
@@ -145,9 +162,9 @@ Mandatory footer: `Refs: <change-id>`
 ## Design context
 
 - Before /opsx:explore or /opsx:propose, read `docs/backlog.md`. If an entry affects the change being designed (the change would add to the duplication or touch the same code), stop and tell Product owner, recommending the refactor as its own change first. Never fold a backlog entry into the change being proposed.
-- When running /opsx:explore, /opsx:propose or a correction round, first read every file in `docs/design/<change-id>/` (design-summary.md, corrections.md if present, and any value sources they reference). They are the design source of truth: do not re-decide what they settle; resolve only what they list as open. If the folder is missing or its files contradict each other, stop and ask.
+- When running /opsx:explore, /opsx:propose or a correction round, first read every file in `docs/design/<change-id>/` (design-summary.md, corrections.md if present, and any value sources they reference). They are the design source of truth: do not re-decide what they settle; resolve only what they list as open. If the folder is missing or its files contradict each other, stop and ask. A refactor change has no design folder (see Refactor changes).
 - Precedence: the latest round of corrections.md overrides earlier rounds, and corrections.md overrides design-summary.md. A difference explained by this precedence is not a contradiction.
-- When /opsx:propose finishes, write or replace only a final section `## Propose status` in design-summary.md: change-id, date, `openspec validate` result, what was resolved (with its decision) and what remains open. Never edit the rest of the file; report anything wrong in it instead.
+- When /opsx:propose finishes, write or replace only a final section `## Propose status` in design-summary.md: change-id, date, `openspec validate` result, what was resolved (with its decision) and what remains open. Never edit the rest of the file; report anything wrong in it instead. For a refactor change, the same section goes at the end of `proposal.md`.
 - If the change resolves a backlog entry, record its id in `## Propose status`. When archiving the change, remove that entry from `docs/backlog.md`, and only that entry.
 - Settle in design.md only implementation details that no product decision covers and that affect a single component. A mechanism shared by several components, or anything that changes a settled decision, goes to Product owner as a question before propose continues.
 
@@ -182,7 +199,7 @@ Mandatory footer: `Refs: <change-id>`
 - Only commits `openspec/changes/<change-id>/`, the `## Propose status` section of design-summary.md and the `### Status` sections of corrections.md, plus the archive commit described below. Never commits code or configuration.
 - Commits: one on completing propose (`docs(<capability>): propose <change-id>`), one per artifact review requested by Product owner (`docs(<capability>): update <artifact> for <change-id>`), one per correction round (`docs(<capability>): apply review round <N> for <change-id>`).
 - Does not commit if `openspec validate <change-id> --strict` fails.
-- Runs `openspec archive <change-id> --yes` only when Product owner requests it, every task in tasks.md is checked, `/opsx:verify` reports no CRITICAL findings, and every WARNING classified as an unplanned fix or unplanned coverage has been resolved or explicitly deferred by Product owner. The archive commit contains only `openspec/specs/`, the archived change folder and, if the change resolved a backlog entry, `docs/backlog.md` (`chore(openspec): archive <change-id>`). `openspec/specs/` is never modified by hand.
+- Runs `openspec archive <change-id> --yes` only when Product owner requests it (for a refactor change, once its full checks pass), every task in tasks.md is checked, `/opsx:verify` reports no CRITICAL findings, and every WARNING classified as an unplanned fix or unplanned coverage has been resolved or explicitly deferred by Product owner. The archive commit contains only `openspec/specs/`, the archived change folder and, if the change resolved a backlog entry, `docs/backlog.md` (`chore(openspec): archive <change-id>`). `openspec/specs/` is never modified by hand.
 - Runs `/opsx:sync` only as part of `/opsx:archive`, never on its own; main specs change only when a change is archived.
 - Does not push or merge.
 
@@ -218,6 +235,6 @@ Mandatory footer: `Refs: <change-id>`
 - One commit per completed and verified task in `tasks.md`, in task order. A task that changes no files is checked off in the commit of the next task. Unplanned fixes and unplanned coverage are the only commits allowed outside tasks.
 - If the last task changes no files, check it off in a commit that contains only the checkbox: `chore(<capability>): complete tasks for <change-id>`.
 - For tasks, tests are committed before the implementation that makes them pass (`test(...)` before `feat(...)` or `fix(...)`). Unplanned fixes are the exception: test and fix go in one commit; unplanned coverage is a single `test(...)` commit.
-- In a `test(...)` commit of a task, the only allowed failures are those caused by the behaviour or module the next implementation commit adds (failing tests, and typecheck errors for its missing modules or exports). Everything else must pass. Every other commit must pass all tests, lint and typechecking.
+- In a `test(...)` commit of a task, the only allowed failures are those caused by the behaviour or module the next implementation commit adds (failing tests, and typecheck errors for its missing modules or exports). Everything else must pass. Every other commit must pass the tests related to its files, lint and typechecking; the full checks run after the last task (see Testing).
 - The task checkbox in `tasks.md` is checked in the exact same commit that completes it.
 - Does not push, merge, rebase, or archive.
