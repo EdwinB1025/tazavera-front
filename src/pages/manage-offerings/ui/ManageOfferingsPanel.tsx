@@ -252,7 +252,7 @@ function OwnOfferingsBody({
               key={offering.ulid ?? index}
               offering={offering}
               locale={locale}
-              taxonomies={resolveTaxonomies(offering.sensoryTaxonomy ?? [], lookup)}
+              taxonomies={resolveTaxonomies(offering, lookup)}
               texts={texts}
               actions={
                 <OfferingActions
