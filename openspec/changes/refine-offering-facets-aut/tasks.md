@@ -31,4 +31,4 @@ No derived API type is needed: the options read the generated `TaxonomyNode` fro
 
 ## 4. Full checks
 
-- [ ] 4.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes with three more tests than on `origin/develop`; the QA suite passes except the stale QA tests of design.md D6, which are listed in the final report; the typecheck and lint report no errors; the build succeeds.
+- [x] 4.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes with three more tests than on `origin/develop`; the QA suite passes except the stale QA tests of design.md D6, which are listed in the final report; the typecheck and lint report no errors; the build succeeds.
