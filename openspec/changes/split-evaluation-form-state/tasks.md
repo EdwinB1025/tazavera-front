@@ -4,7 +4,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 1. Value updaters
 
-- [ ] 1.1 Create `src/pages/evaluation-form/model/form-updates.ts` with `FormValuesUpdate`, `FormStateUpdate` and the updaters of design.md D1; `EvaluationGroupCard.tsx` imports `FormStateUpdate` from it and every value edit of `EvaluationForm.tsx` and `EvaluationGroupCard.tsx` goes through an updater. Protecting tests: the form tests and the card tests. Commit `refactor(evaluations): move the form value edits into the model`.
+- [x] 1.1 Create `src/pages/evaluation-form/model/form-updates.ts` with `FormValuesUpdate`, `FormStateUpdate` and the updaters of design.md D1; `EvaluationGroupCard.tsx` imports `FormStateUpdate` from it and every value edit of `EvaluationForm.tsx` and `EvaluationGroupCard.tsx` goes through an updater. Protecting tests: the form tests and the card tests. Commit `refactor(evaluations): move the form value edits into the model`.
 
 ## 2. Form reducer and hook
 

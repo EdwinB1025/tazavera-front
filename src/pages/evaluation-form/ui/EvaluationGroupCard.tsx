@@ -21,6 +21,13 @@ import {
   IntensitySlider,
 } from "@/shared/ui";
 import { cn } from "@/shared/lib/utils";
+import {
+  withGeneralObservation,
+  withIntensity,
+  withNote,
+  withPreference,
+} from "../model/form-updates";
+import type { FormStateUpdate } from "../model/form-updates";
 import { CompletenessIndicator } from "./CompletenessIndicator";
 import { NoteField } from "./NoteField";
 
@@ -49,8 +56,6 @@ export type EvaluationGroupTexts = {
   /** The label of the Extrinsic group's notes field. */
   extrinsicNoteLabel: string;
 };
-
-export type FormStateUpdate = (update: (state: EvaluationFormState) => EvaluationFormState) => void;
 
 export type EvaluationGroupCardProps = {
   group: GroupDefinition;
@@ -162,15 +167,7 @@ export function EvaluationGroupCard({
         key={axis}
         {...common}
         disabled={disabledAxis(axis)}
-        onChange={(next) =>
-          onChange((current) => ({
-            ...current,
-            descriptive: {
-              ...current.descriptive,
-              [axis]: { ...current.descriptive[axis], score: next },
-            },
-          }))
-        }
+        onChange={(next) => onChange(withIntensity(axis, next))}
       />
     );
   };
@@ -194,15 +191,7 @@ export function EvaluationGroupCard({
         value={score}
         valueText={value}
         disabled={disabledAxis(axis)}
-        onChange={(next) =>
-          onChange((current) => ({
-            ...current,
-            affective: {
-              ...current.affective,
-              [axis]: { ...current.affective[axis], score: next },
-            },
-          }))
-        }
+        onChange={(next) => onChange(withPreference(axis, next))}
       />
     );
   };
@@ -223,25 +212,7 @@ export function EvaluationGroupCard({
         value={value}
         disabled={disabledAxis(axis)}
         readOnly={readOnly}
-        onChange={(next) =>
-          onChange((current) =>
-            part === "descriptive"
-              ? {
-                  ...current,
-                  descriptive: {
-                    ...current.descriptive,
-                    [axis]: { ...current.descriptive[axis as DescriptiveAxisKey], note: next },
-                  },
-                }
-              : {
-                  ...current,
-                  affective: {
-                    ...current.affective,
-                    [axis]: { ...current.affective[axis], note: next },
-                  },
-                },
-          )
-        }
+        onChange={(next) => onChange(withNote(part, axis, next))}
       />
     );
   };
@@ -312,9 +283,7 @@ export function EvaluationGroupCard({
                       removeLabel={texts.removeNoteLabel}
                       value={state.generalObservation}
                       readOnly={readOnly}
-                      onChange={(next) =>
-                        onChange((current) => ({ ...current, generalObservation: next }))
-                      }
+                      onChange={(next) => onChange(withGeneralObservation(next))}
                     />
                   </div>
                 ) : null}

@@ -23,6 +23,12 @@ import type {
   GroupKey,
 } from "@/entities/evaluation";
 import { Card, CardContent, Checkbox, Field, Link, Select } from "@/shared/ui";
+import {
+  withDescriptors,
+  withExtractionMethod,
+  withFragranceNotEvaluated,
+  withRoastLevel,
+} from "../model/form-updates";
 import { DescriptorBlock } from "./DescriptorBlock";
 import { EvaluationGroupCard } from "./EvaluationGroupCard";
 import type { EvaluationGroupTexts } from "./EvaluationGroupCard";
@@ -274,12 +280,7 @@ export function EvaluationForm({
               <Select
                 value={state.roastLevel ?? ""}
                 disabled={readOnly}
-                onChange={(event) =>
-                  setState((current) => ({
-                    ...current,
-                    roastLevel: toRoastLevel(event.target.value),
-                  }))
-                }
+                onChange={(event) => setState(withRoastLevel(event.target.value))}
               >
                 {state.roastLevel === null ? (
                   <option value="">{texts.roastLevelPlaceholder}</option>
@@ -296,12 +297,7 @@ export function EvaluationForm({
             <Select
               value={storedMethod ?? ""}
               disabled={readOnly}
-              onChange={(event) =>
-                setState((current) => ({
-                  ...current,
-                  extractionMethod: event.target.value === "" ? null : event.target.value,
-                }))
-              }
+              onChange={(event) => setState(withExtractionMethod(event.target.value))}
             >
               <option value="">{texts.extractionMethodPlaceholder}</option>
               {EXTRACTION_METHODS.map((method) => (
@@ -334,12 +330,7 @@ export function EvaluationForm({
                   <Checkbox
                     label={texts.fragranceNotEvaluatedLabel}
                     checked={state.fragranceNotEvaluated}
-                    onChange={(event) =>
-                      setState((current) => ({
-                        ...current,
-                        fragranceNotEvaluated: event.target.checked,
-                      }))
-                    }
+                    onChange={(event) => setState(withFragranceNotEvaluated(event.target.checked))}
                   />
                 ) : undefined
               }
@@ -360,12 +351,7 @@ export function EvaluationForm({
                     category={block.key}
                     locale={locale}
                     value={state.descriptors[block.selection]}
-                    onValueChange={(value) =>
-                      setState((current) => ({
-                        ...current,
-                        descriptors: { ...current.descriptors, [block.selection]: value },
-                      }))
-                    }
+                    onValueChange={(value) => setState(withDescriptors(block.selection, value))}
                   />
                 )
               }
