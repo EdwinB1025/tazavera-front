@@ -1,11 +1,7 @@
 "use client";
 
-import {
-  useContext,
-  type ReactNode,
-  type TextareaHTMLAttributes,
-} from "react";
-import { FieldContext } from "@/shared/ui/field-context";
+import type { ReactNode, TextareaHTMLAttributes } from "react";
+import { useFieldControl } from "./use-field-control";
 
 // ─── UI-specific types (declared before the component) ───
 // No generated API type is used here: every text is a prop supplied by the
@@ -58,16 +54,13 @@ export function Textarea({
   className,
   ...rest
 }: TextareaProps): ReactNode {
-  const field = useContext(FieldContext);
-
   // D1: context values are defaults, an explicit prop always wins.
-  const id = idProp ?? field?.controlId;
-  const describedBy =
-    describedByProp ??
-    ([field?.helpId, field?.errorId].filter(Boolean).join(" ") || undefined);
-  const ariaInvalid = ariaInvalidProp ?? (field?.invalid ? "true" : undefined);
-  const required = requiredProp ?? (field?.required ? true : undefined);
-  const invalid = ariaInvalid === true || ariaInvalid === "true";
+  const { id, describedBy, ariaInvalid, required, invalid } = useFieldControl({
+    id: idProp,
+    "aria-describedby": describedByProp,
+    "aria-invalid": ariaInvalidProp,
+    required: requiredProp,
+  });
 
   return (
     <textarea
