@@ -1,4 +1,4 @@
-import type { CoffeeSummary } from "./index";
+import type { operations } from "./schema";
 
 /**
  * The public coffee catalog read (add-offering-facets design.md D1). The
@@ -7,6 +7,12 @@ import type { CoffeeSummary } from "./index";
  * status or transport failure throws; the facets map it to "Options
  * unavailable".
  */
+
+type ListCoffeesResponse =
+  operations["listCoffees"]["responses"][200]["content"]["application/json"];
+
+/** One item of `GET /coffees` `data`; the facets read `country`, `region`, `process`, `variety`, `producer`. */
+export type CoffeeSummary = NonNullable<ListCoffeesResponse["data"]>[number];
 
 /** The coffee fields the facets list. */
 export type CoffeeFacetField = "country" | "region" | "process" | "variety" | "producer";
