@@ -16,7 +16,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 4. SVG wheel
 
-- [ ] 4.1 Create `src/shared/ui/FlavorWheelChart.tsx` (`"use client"`) with `FlavorWheelChartProps`, a local segment component, a local group-arc component and `FlavorWheelChart` (design.md D1–D2), moving the `<svg>` with its segments, group arcs, centre total, active outline and active name, and `GROUP_ARC_RADIUS`, `GROUP_NAME_RADIUS` and `GROUP_NAME_FONT_SIZE`; the wheel wrapper div stays in `FlavorWheel`. Verify: the related tests pass, including the wheel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors. Commit `refactor(feedback): extract the flavor wheel chart`.
+- [x] 4.1 Create `src/shared/ui/FlavorWheelChart.tsx` (`"use client"`) with `FlavorWheelChartProps`, a local segment component, a local group-arc component and `FlavorWheelChart` (design.md D1–D2), moving the `<svg>` with its segments, group arcs, centre total, active outline and active name, and `GROUP_ARC_RADIUS`, `GROUP_NAME_RADIUS` and `GROUP_NAME_FONT_SIZE`; the wheel wrapper div stays in `FlavorWheel`. Verify: the related tests pass, including the wheel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors. Commit `refactor(feedback): extract the flavor wheel chart`.
 
 ## 5. Note list
 

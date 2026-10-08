@@ -1,19 +1,13 @@
 "use client";
 
 import { useId, useRef, useState } from "react";
-import type { CSSProperties, KeyboardEvent, ReactNode } from "react";
+import type { KeyboardEvent, ReactNode } from "react";
 import { ChevronDown, ChevronRight } from "@/shared/ui/icons";
 import { Collapsible, CollapsibleBody, CollapsibleHeader } from "./Collapsible";
 import { cn } from "@/shared/lib/utils";
-import {
-  VIEWBOX,
-  arcPath,
-  labelPath,
-  layoutWheel,
-} from "./flavor-wheel-geometry";
-import { ActiveName, SegmentLabel } from "./FlavorWheelLabels";
+import { layoutWheel } from "./flavor-wheel-geometry";
+import { FlavorWheelChart } from "./FlavorWheelChart";
 import { FlavorWheelPanel } from "./FlavorWheelPanel";
-import { taxonomyColorRule } from "./taxonomy-color";
 import {
   SWATCH_CLASSES,
   arrangeRoots,
@@ -72,11 +66,6 @@ const GROUPED_WHEEL_CLASSES =
   "mx-auto aspect-square w-full max-w-128 @2xl:row-span-3 @2xl:mx-0 @2xl:self-start";
 const GROUP_LEGEND_CLASSES = "flex flex-wrap gap-x-4 gap-y-1";
 
-// The inner group legend inside the centre hole (D19, chosen values): the
-// group's arc at radius 74, 2 units wide, and its name at radius 62.
-const GROUP_ARC_RADIUS = 74;
-const GROUP_NAME_RADIUS = 62;
-const GROUP_NAME_FONT_SIZE = 11;
 const ROW_CLASSES =
   "flex min-h-10 cursor-pointer items-center gap-2 rounded-field px-2 py-1 text-text-primary hover:bg-surface-section focus-visible:focus-ring";
 const ROW_INDENT = ["", "ms-6", "ms-12"];
@@ -115,7 +104,6 @@ export function FlavorWheel({
     groups?.find((group) => group.id === id)?.name ?? "";
   const rows = visibleRows(nodes, expanded);
   const active = activeId === null ? null : findNode(nodes, activeId);
-  const activeSegment = segments.find((s) => s.node.id === activeId);
   const legend = (node: FlavorWheelNode): string => `${node.count}/${total}`;
 
   /** Expand or collapse a parent; collapsing also collapses its descendants. */
@@ -205,110 +193,17 @@ export function FlavorWheel({
       <figcaption className="sr-only">{texts.label}</figcaption>
       <div className={grouped ? GROUPED_LAYOUT_CLASSES : LAYOUT_CLASSES}>
         <div className={grouped ? GROUPED_WHEEL_CLASSES : WHEEL_CLASSES}>
-          <svg
-            viewBox={VIEWBOX}
-            aria-hidden="true"
-            focusable="false"
-            className="block size-full"
-          >
-            {segments.map((segment) => {
-              const { node } = segment;
-              const rule = taxonomyColorRule(node.color, node.level);
-              return (
-                <g
-                  key={node.id}
-                  data-note={node.id}
-                  data-taxonomy=""
-                  className="cursor-pointer"
-                  style={
-                    {
-                      "--taxonomy-label": rule.label,
-                      "--taxonomy-label-dark": rule.labelDark,
-                    } as CSSProperties
-                  }
-                  onPointerEnter={() => setActiveId(node.id)}
-                  onClick={() => activate(node)}
-                >
-                  <path
-                    d={arcPath(
-                      segment.inner,
-                      segment.outer,
-                      segment.start,
-                      segment.end,
-                    )}
-                    fill={node.color}
-                    fillOpacity={rule.opacity}
-                    className="stroke-surface-card"
-                    strokeWidth={4}
-                  />
-                  <SegmentLabel
-                    segment={segment}
-                    legend={legend(node)}
-                    idPrefix={idPrefix}
-                  />
-                </g>
-              );
-            })}
-            {groupArcs.map((arc) => {
-              const mid = (arc.start + arc.end) / 2;
-              const nameId = `${idPrefix}-group-${arc.id}`;
-              return (
-                <g key={arc.id} data-group-legend={arc.id}>
-                  <path
-                    d={labelPath(GROUP_ARC_RADIUS, arc.start, arc.end)}
-                    fill="none"
-                    strokeWidth={2}
-                    className="stroke-text-secondary"
-                  />
-                  <path
-                    id={nameId}
-                    d={labelPath(GROUP_NAME_RADIUS, mid - 90, mid + 90)}
-                    fill="none"
-                  />
-                  <text
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    fontSize={GROUP_NAME_FONT_SIZE}
-                    className="pointer-events-none select-none fill-text-secondary"
-                  >
-                    <textPath href={`#${nameId}`} startOffset="50%">
-                      {groupName(arc.id)}
-                    </textPath>
-                  </text>
-                </g>
-              );
-            })}
-            <text
-              x={0}
-              y={0}
-              textAnchor="middle"
-              dominantBaseline="central"
-              fontSize={28}
-              className="fill-text-primary font-serif font-bold"
-            >
-              {total}
-            </text>
-            {activeSegment ? (
-              <path
-                d={arcPath(
-                  activeSegment.inner,
-                  activeSegment.outer,
-                  activeSegment.start,
-                  activeSegment.end,
-                )}
-                className="pointer-events-none stroke-text-primary"
-                fill="none"
-                strokeWidth={3}
-              />
-            ) : null}
-            {activeSegment ? (
-              <ActiveName
-                segment={activeSegment}
-                legend={legend(activeSegment.node)}
-                idPrefix={idPrefix}
-              />
-            ) : null}
-          </svg>
+          <FlavorWheelChart
+            segments={segments}
+            groupArcs={groupArcs}
+            total={total}
+            activeId={activeId}
+            idPrefix={idPrefix}
+            legend={legend}
+            groupName={groupName}
+            onHover={(node) => setActiveId(node.id)}
+            onActivate={activate}
+          />
         </div>
 
         {grouped ? (
