@@ -51,18 +51,6 @@ The entries below follow this order. The order runs security first, then the sha
 
 Every entry of the technical review (R20–R39) takes the fast lane by Product owner's decision of 2026-10-08, including R30, R31 and R32, which change a design decision, security headers and texts; R17 and R19 ride with R32 and R30. R3 (tests, rides with R31) and R4 (spec wording) are typed `Change`.
 
-## R39 — Ship the code-structure rules as ESLint warnings
-
-- **Duplicated:** none. The code-structure rules added to AGENTS.md on 2026-10-08 (imports inside a segment, no feature-to-feature imports, size and complexity limits) are checked only by review.
-- **Where today:** `eslint.config.mjs`
-- **Why it pays off now:** the refactors R21–R38 and every new change get a mechanical check. ESLint 9's built-in rules `complexity`, `max-lines`, `max-lines-per-function` and `no-restricted-imports` need no new dependency. They start as warnings, because the current code breaks them until the refactors land.
-- **Owning capability:** app-shell
-- **Proposed change:** `add-code-structure-lint-rules` (S)
-- **Open decision (Augusto):** none (Product owner approved shipping the rules through ESLint on 2026-10-08)
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** R21, R23, R27, R33, R34, R36, R37, R38
-
 ## R31 — Harden the response headers
 
 - **Duplicated:** none. The `nosniff`, `Referrer-Policy` and `Permissions-Policy` headers are missing, and `X-Powered-By` is exposed.
