@@ -15,5 +15,5 @@ export { assignWheelGroups } from "./model/flavor-wheel-groups";
 export type { WheelGroupId } from "./model/flavor-wheel-groups";
 export { buildDescriptorRows } from "./model/descriptor-rows";
 export { buildDescriptorTree } from "./model/descriptor-tree";
-export { buildTasteNoteTree } from "./model/taste-note-tree";
-export type { TasteNoteNode } from "./model/taste-note-tree";
+export { buildConsensusNoteTree, buildTasteNoteTree } from "./model/taste-note-tree";
+export type { ConsensusNoteNode, TasteNoteNode } from "./model/taste-note-tree";

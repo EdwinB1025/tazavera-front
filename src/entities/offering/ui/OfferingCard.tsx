@@ -6,23 +6,20 @@ import {
   CardAside,
   CardContent,
   CardFooter,
+  TaxonomyTree,
 } from "@/shared/ui";
+import type { TaxonomyTreeNode } from "@/shared/ui";
 import { ratingTierFor } from "../lib/rating";
 
 // ─── UI-specific types (declared before the component) ───
 // The taxonomy badges arrive already resolved — reference, label, data color,
 // level and children, nested as the consensus tree — from the taxonomy
 // entity's tree resolver, whose type matches this one structurally
-// (nest-card-taste-notes design.md D1). No generated API type is edited or
+// (nest-card-taste-notes design.md D1), and render as the shared taxonomy
+// tree (nest-consensus-notes D1). No generated API type is edited or
 // redefined here.
 
-export type ResolvedTaxonomyBadge = {
-  ref: string;
-  label: string;
-  color: string;
-  level: 0 | 1 | 2;
-  children: ResolvedTaxonomyBadge[];
-};
+export type ResolvedTaxonomyBadge = TaxonomyTreeNode;
 
 /** Every label and caption of the card, as props (design.md D11). */
 export type OfferingCardTexts = {
@@ -48,77 +45,6 @@ export type OfferingCardProps = {
 // ─── Fixed pieces (no interface text; design.md D11) ───
 const SCORE_SCALE = "/100";
 const ORIGIN_SEPARATOR = " · ";
-
-// ─── Taste note trees (nest-card-taste-notes design.md D2) ───
-// The trees side by side, wrapping, so no tree overflows the card.
-const TREES_CLASSES = ["flex", "flex-wrap", "items-start", "gap-3"].join(" ");
-const TREE_CLASSES = ["flex", "flex-col", "items-start", "gap-2"].join(" ");
-// The level-1 column, indented behind a decorative left connector.
-const COLUMN_CLASSES = [
-  "ml-5",
-  "flex",
-  "flex-col",
-  "items-start",
-  "gap-2",
-  "border-l",
-  "border-border-subtle",
-  "pl-3",
-].join(" ");
-const COLUMN_ITEM_CLASSES = ["flex", "flex-col", "items-start", "gap-1.5"].join(
-  " ",
-);
-// The level-2 row, further indented, wrapping.
-const ROW_CLASSES = ["ml-5", "flex", "flex-wrap", "gap-1.5"].join(" ");
-
-/** One taste note's badge, at its own level's treatment. */
-function TasteNoteBadge({ note }: { note: ResolvedTaxonomyBadge }): ReactNode {
-  return (
-    <Badge variant="taxonomy" color={note.color} level={note.level}>
-      {note.label}
-    </Badge>
-  );
-}
-
-/**
- * The taste notes as nested lists following the consensus tree (design.md D2,
- * D3): one tree per top-level note, its children in an indented column, their
- * children in an indented wrapping row. `role="list"` keeps the hierarchy for
- * assistive technologies; a child list renders only when there are children.
- */
-function TasteNoteTrees({
-  notes,
-}: {
-  notes: ResolvedTaxonomyBadge[];
-}): ReactNode {
-  if (notes.length === 0) return null;
-  return (
-    <ul role="list" className={TREES_CLASSES}>
-      {notes.map((root) => (
-        <li key={root.ref} className={TREE_CLASSES}>
-          <TasteNoteBadge note={root} />
-          {root.children.length > 0 ? (
-            <ul role="list" className={COLUMN_CLASSES}>
-              {root.children.map((child) => (
-                <li key={child.ref} className={COLUMN_ITEM_CLASSES}>
-                  <TasteNoteBadge note={child} />
-                  {child.children.length > 0 ? (
-                    <ul role="list" className={ROW_CLASSES}>
-                      {child.children.map((leaf) => (
-                        <li key={leaf.ref}>
-                          <TasteNoteBadge note={leaf} />
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </li>
-      ))}
-    </ul>
-  );
-}
 
 // ─── Card layout (design.md D14) ───
 // Score, `/100` and rating badge on one row above the content.
@@ -191,7 +117,7 @@ export function OfferingCard({
         <p className="type-label">{coffeeshopCaption}</p>
         <p className="type-label">{roasterCaption}</p>
         <p className="type-meta">{origin}</p>
-        <TasteNoteTrees notes={taxonomies} />
+        <TaxonomyTree notes={taxonomies} />
       </CardContent>
       <CardFooter className={FOOTER_CLASSES}>
         <div className={FOOTER_COUNTS_CLASSES}>

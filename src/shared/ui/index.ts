@@ -45,6 +45,8 @@ export type {
 export { DescriptorCascade } from "./DescriptorCascade";
 export type { DescriptorCascadeProps } from "./DescriptorCascade";
 export type { CascadeNode } from "./descriptor-cascade";
+export { TaxonomyTree } from "./TaxonomyTree";
+export type { TaxonomyTreeNode, TaxonomyTreeProps } from "./TaxonomyTree";
 export { ConfirmDialog } from "./ConfirmDialog";
 export type { ConfirmDialogProps } from "./ConfirmDialog";
 export { Loader2, ArrowLeft, type LucideIcon } from "./icons";
