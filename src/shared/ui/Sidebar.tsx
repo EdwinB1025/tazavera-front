@@ -4,7 +4,7 @@ import * as React from "react";
 import { Slot } from "radix-ui";
 import { cn } from "@/shared/lib/utils";
 import { useIsMobile } from "@/shared/lib/hooks";
-import { Button } from "@/shared/ui";
+import { Button } from "./Button";
 import { PanelLeft } from "@/shared/ui/icons";
 import type { LucideIcon } from "@/shared/ui/icons";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./Sheet";
