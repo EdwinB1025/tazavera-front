@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import type { Session } from "@/shared/api";
 import {
   DEFAULT_LOCALE,
@@ -7,6 +7,7 @@ import {
 } from "@/shared/config/locales";
 import { LOCALE_NAMES } from "@/shared/config/locale-names";
 import { getMessages } from "@/shared/lib/i18n";
+import { NavigationTracker } from "./NavigationTracker";
 import { SessionShell } from "./SessionShell";
 
 // ─── UI-specific types (declared before the component) ───
@@ -31,7 +32,9 @@ export type AppShellProps = {
  * Server composition: it resolves the message catalog and passes its texts to
  * `SessionShell`, the `"use client"` seam that owns the session, renders the
  * header above a main area on `bg-surface-page` and chooses the sidebar region
- * (design.md D1; review round 2). The layout is unchanged.
+ * (design.md D1; review round 2). The layout is unchanged. It also mounts the
+ * navigation tracker behind the back link (fix-production-aut-findings
+ * design.md D5).
  */
 export function AppShell({
   locale,
@@ -49,33 +52,39 @@ export function AppShell({
   const texts = getMessages("shell", active);
 
   return (
-    <SessionShell
-      locale={active}
-      session={session}
-      sidebar={sidebar}
-      texts={{
-        topRated: texts.topRated!,
-        exploreCoffeeshops: texts.exploreCoffeeshops!,
-        aboutUs: texts.aboutUs!,
-        signIn: texts.signIn!,
-        // design.md D6: the shell composes one name — the resolved
-        // locale's code in uppercase, then " — ", then the catalog word
-        // with the resolved language's own name, e.g.
-        // "ES — Idioma: Español" for es — and passes it as one string
-        // (spec: "Selector is named"), so the name leads with the code
-        // the trigger shows.
-        languageSelector: `${active.toUpperCase()} — ${texts.languageSelector!}: ${LOCALE_NAMES[active].name}`,
-        brandLink: texts.brandLink!,
-        myAccount: texts.myAccount!,
-        security: texts.security!,
-        themeSelector: texts.themeSelector!,
-        manageOfferings: texts.manageOfferings!,
-        manageEvaluations: texts.manageEvaluations!,
-        signOut: texts.signOut!,
-        toggleSidebar: texts.toggleSidebar!,
-      }}
-    >
-      {children}
-    </SessionShell>
+    <>
+      <Suspense fallback={null}>
+        <NavigationTracker />
+      </Suspense>
+      <SessionShell
+        locale={active}
+        session={session}
+        sidebar={sidebar}
+        texts={{
+          topRated: texts.topRated!,
+          exploreCoffeeshops: texts.exploreCoffeeshops!,
+          aboutUs: texts.aboutUs!,
+          signIn: texts.signIn!,
+          // design.md D6: the shell composes one name — the resolved
+          // locale's code in uppercase, then " — ", then the catalog word
+          // with the resolved language's own name, e.g.
+          // "ES — Idioma: Español" for es — and passes it as one string
+          // (spec: "Selector is named"), so the name leads with the code
+          // the trigger shows.
+          languageSelector: `${active.toUpperCase()} — ${texts.languageSelector!}: ${LOCALE_NAMES[active].name}`,
+          brandLink: texts.brandLink!,
+          myAccount: texts.myAccount!,
+          security: texts.security!,
+          themeSelector: texts.themeSelector!,
+          manageOfferings: texts.manageOfferings!,
+          manageEvaluations: texts.manageEvaluations!,
+          signOut: texts.signOut!,
+          toggleSidebar: texts.toggleSidebar!,
+          navigationMenu: texts.navigationMenu!,
+        }}
+      >
+        {children}
+      </SessionShell>
+    </>
   );
 }

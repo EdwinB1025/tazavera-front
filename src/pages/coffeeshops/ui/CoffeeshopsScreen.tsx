@@ -113,7 +113,10 @@ export function CoffeeshopsScreen({ locale, searchParams }: CoffeeshopsScreenPro
         />
       </PageSection>
       <PageSection surface="page">
+        {/* Keyed by the request so a page change shows the skeleton at once
+            (fix-production-aut-findings design.md D8). */}
         <Suspense
+          key={JSON.stringify(query)}
           fallback={
             <div className={COFFEESHOP_COLUMN_CLASSES}>
               {SKELETON_CARD_KEYS.map((key) => (

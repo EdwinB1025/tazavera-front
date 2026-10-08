@@ -17,7 +17,11 @@ import {
   type OfferingActionsTexts,
   type SelectionToolbarTexts,
 } from "@/features/offering-management";
-import { OfferingCard, type OfferingCardTexts } from "@/entities/offering";
+import {
+  OfferingCard,
+  OfferingViewButton,
+  type OfferingCardTexts,
+} from "@/entities/offering";
 import { buildTaxonomyLookup, type TaxonomyLookup } from "@/entities/taxonomy";
 import {
   Button,
@@ -37,6 +41,7 @@ export type ManageOfferingsTexts = OfferingCardTexts &
   OfferingActionsTexts &
   SelectionToolbarTexts &
   DeleteOfferingsDialogTexts & {
+    viewLabel: string;
     signedOutMessage: string;
     signInLabel: string;
     deletedStatus: string;
@@ -251,17 +256,23 @@ function OwnOfferingsBody({
             <OfferingCard
               key={offering.ulid ?? index}
               offering={offering}
-              locale={locale}
-              taxonomies={resolveTaxonomies(offering.sensoryTaxonomy ?? [], lookup)}
+              taxonomies={resolveTaxonomies(offering, lookup)}
               texts={texts}
               actions={
-                <OfferingActions
-                  offering={offering}
-                  selected={selection.selected.has(offering.ulid ?? "")}
-                  onToggle={() => selection.toggle(offering.ulid ?? "")}
-                  onDelete={() => onDelete({ kind: "one", ulid: offering.ulid ?? "" })}
-                  texts={texts}
-                />
+                <>
+                  <OfferingViewButton
+                    ulid={offering.ulid ?? ""}
+                    locale={locale}
+                    label={texts.viewLabel}
+                  />
+                  <OfferingActions
+                    offering={offering}
+                    selected={selection.selected.has(offering.ulid ?? "")}
+                    onToggle={() => selection.toggle(offering.ulid ?? "")}
+                    onDelete={() => onDelete({ kind: "one", ulid: offering.ulid ?? "" })}
+                    texts={texts}
+                  />
+                </>
               }
             />
           ))}

@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { describe, it, expect, afterEach, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { EvaluationItem, OfferingDetail } from "@/shared/api";
 import { EvaluationRowCard } from "./EvaluationRowCard";
 import type { EvaluationRowCardTexts } from "./EvaluationRowCard";
@@ -50,7 +50,15 @@ const DATE = new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "UTC
   new Date(CLOSED.closedAt as string),
 );
 
-afterEach(cleanup);
+// The public row's actions are route buttons (fix-production-aut-findings
+// design.md D4); the app router is mocked — test infrastructure only.
+const router = vi.hoisted(() => ({ push: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => router }));
+
+afterEach(() => {
+  cleanup();
+  router.push.mockReset();
+});
 
 describe("EvaluationRowCard, public variant (design.md D6)", () => {
   it("maps the score row, the h2, the date line and the captions, with no status badge", () => {
@@ -67,13 +75,20 @@ describe("EvaluationRowCard, public variant (design.md D6)", () => {
     expect(screen.queryByText("Closed")).toBeNull();
   });
 
-  it("links View and View offering with the coffee name as hidden suffix", () => {
+  it("offers View and View offering as buttons with the coffee name as hidden suffix (spec: Unique row link names)", () => {
     render(<EvaluationRowCard variant="public" evaluation={CLOSED} offering={OFFERING} locale="en" texts={TEXTS} />);
-    const view = screen.getByRole("link", { name: "View Finca La Esperanza" });
-    expect(view.getAttribute("href")).toBe(`/en/evaluations/${CLOSED.ulid}`);
-    const offering = screen.getByRole("link", { name: "View offering Finca La Esperanza" });
-    expect(offering.getAttribute("href")).toBe(`/en/offerings/${OFFERING.ulid}`);
+    expect(screen.queryAllByRole("link")).toHaveLength(0);
+    screen.getByRole("button", { name: "View Finca La Esperanza" });
+    const offering = screen.getByRole("button", { name: "View offering Finca La Esperanza" });
     expect(offering.querySelector(".sr-only")?.textContent).toBe("Finca La Esperanza");
+  });
+
+  it("opens the evaluation and the offering from the row's actions (spec: Row actions open their routes)", () => {
+    render(<EvaluationRowCard variant="public" evaluation={CLOSED} offering={OFFERING} locale="en" texts={TEXTS} />);
+    fireEvent.click(screen.getByRole("button", { name: "View Finca La Esperanza" }));
+    expect(router.push).toHaveBeenLastCalledWith(`/en/evaluations/${CLOSED.ulid}`);
+    fireEvent.click(screen.getByRole("button", { name: "View offering Finca La Esperanza" }));
+    expect(router.push).toHaveBeenLastCalledWith(`/en/offerings/${OFFERING.ulid}`);
   });
 
   it("shows the offering-missing heading for a null offeringId, keeping score, date and View", () => {
@@ -88,9 +103,9 @@ describe("EvaluationRowCard, public variant (design.md D6)", () => {
     );
     expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("Offering no longer exists");
     expect(screen.queryByText(/^Roaster:/)).toBeNull();
-    expect(screen.queryByRole("link", { name: /^View offering/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^View offering/ })).toBeNull();
     expect(screen.getByText("84.25")).toBeDefined();
     expect(screen.getByText(`Closed on ${DATE}`)).toBeDefined();
-    expect(screen.getByRole("link", { name: `View Offering no longer exists, ${DATE}` })).toBeDefined();
+    expect(screen.getByRole("button", { name: `View Offering no longer exists, ${DATE}` })).toBeDefined();
   });
 });

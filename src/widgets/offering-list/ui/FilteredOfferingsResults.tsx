@@ -57,7 +57,10 @@ export function FilteredOfferingsResults({
   const { noMatches, clearAll, ...listTexts } = texts;
 
   return (
+    // Keyed by the request so a page change shows the skeleton at once
+    // (fix-production-aut-findings design.md D8).
     <Suspense
+      key={JSON.stringify(query)}
       fallback={
         <div className="@container">
           <div className={CATALOG_GRID_CLASSES}>

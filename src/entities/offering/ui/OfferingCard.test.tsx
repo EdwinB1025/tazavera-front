@@ -15,11 +15,12 @@ afterEach(() => {
 /**
  * OfferingCard tests (design.md D4's card field mapping and D8; the landing
  * spec "Offering card content" — "Score and rating tier", "No score", "Origin
- * line skips null values", "Footer counts", "View link for everyone" — and
+ * line skips null values", "Footer counts" — and
  * "Taxonomy badges on the offering card" — "Rows by level"). The actions slot
  * cases cover replace-offering-card-session's design.md D1 and the spec
  * "Offering card actions" — "Consumer actions after View", "No consumer
- * actions". Written before
+ * actions"; since fix-production-aut-findings (design.md D3) the card renders
+ * no View of its own: its consumers supply every action. Written before
  * the implementation (task 4.2): the import goes through the slice's public
  * API, which fails to resolve until `src/entities/offering/` exists
  * (`lib/rating.ts`, `ui/OfferingCard.tsx` and the entity entry `index.ts`), so
@@ -42,7 +43,6 @@ const TEXTS = {
   roasterCaption: "texts.roasterCaption",
   evaluationsLabel: "texts.evaluationsLabel",
   defectiveLabel: "texts.defectiveLabel",
-  viewLabel: "texts.viewLabel",
   verifiedLabel: "texts.verifiedLabel",
   provisionalLabel: "texts.provisionalLabel",
   ratingExceptionalLabel: "texts.ratingExceptionalLabel",
@@ -177,7 +177,6 @@ function renderCard(options: RenderOptions = {}) {
   return render(
     <OfferingCard
       offering={options.offering ?? OFFERING}
-      locale="es"
       taxonomies={options.taxonomies ?? TAXONOMIES}
       texts={TEXTS}
       actions={options.actions}
@@ -295,37 +294,28 @@ describe("OfferingCard", () => {
     });
   });
 
-  describe("Links (specs: 'View link for everyone', 'Offering card actions')", () => {
-    it("addresses the View link at /{locale}/offerings/{ulid} on every card (spec: 'View link for everyone')", () => {
-      renderCard();
-      renderCard({ actions: ACTION });
+  describe("Actions (spec: 'Offering card actions'; fix-production-aut-findings design.md D3)", () => {
+    it("renders the consumer's actions in the order supplied (spec: 'Consumer actions after View')", () => {
       renderCard({ actions: TWO_ACTIONS });
-      const views = screen.getAllByRole("link", { name: TEXTS.viewLabel });
-      expect(views).toHaveLength(3);
-      for (const view of views) {
-        expect(view.getAttribute("href")).toBe(`/es/offerings/${ULID}`);
-      }
+      const first = screen.getByRole("link", { name: ACTION_LABEL });
+      const second = screen.getByRole("link", { name: SECOND_ACTION_LABEL });
+      const children = Array.from(first.parentElement!.children);
+      expect(children).toEqual([first, second]);
     });
 
-    it("renders the consumer's actions after the View link in the same group (spec: 'Consumer actions after View')", () => {
+    it("renders the consumer's actions in the footer's group of actions (spec: 'Consumer actions after View')", () => {
       renderCard({ actions: ACTION });
-      const view = screen.getByRole("link", { name: TEXTS.viewLabel });
       const action = screen.getByRole("link", { name: ACTION_LABEL });
-      const group = view.parentElement!;
-      expect(action.parentElement).toBe(group);
+      const group = action.parentElement!;
       expect(classTokens(group)).toEqual(
         expect.arrayContaining(["ml-auto", "flex", "gap-4"]),
       );
-      const children = Array.from(group.children);
-      expect(children.indexOf(action)).toBeGreaterThan(children.indexOf(view));
     });
 
     it("renders no action of its own when the consumer supplies none (spec: 'No consumer actions')", () => {
       renderCard();
-      const view = screen.getByRole("link", { name: TEXTS.viewLabel });
-      const group = view.parentElement!;
-      expect(group.childElementCount).toBe(1);
-      expect(group.firstElementChild).toBe(view);
+      expect(screen.queryAllByRole("link")).toHaveLength(0);
+      expect(screen.queryAllByRole("button")).toHaveLength(0);
     });
   });
 
@@ -346,12 +336,10 @@ describe("OfferingCard", () => {
       expect(row.contains(ratingBadges(container)[0])).toBe(true);
     });
 
-    it("separates the counts and groups the links apart at the end of the footer", () => {
-      const { container } = renderCard({ actions: ACTION });
-      const view = Array.from(container.querySelectorAll("a")).find(
-        (link) => link.textContent === TEXTS.viewLabel,
-      )!;
-      const links = view.parentElement!;
+    it("separates the counts and groups the actions apart at the end of the footer", () => {
+      const { container } = renderCard({ actions: TWO_ACTIONS });
+      const action = screen.getByRole("link", { name: ACTION_LABEL });
+      const links = action.parentElement!;
       const counts = findWith(
         container,
         "type-meta",

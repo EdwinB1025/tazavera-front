@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { CoffeeshopDetail } from "@/shared/api";
-import { Link, PageSection, RetryButton } from "@/shared/ui";
+import { BackLink, PageSection, RetryButton } from "@/shared/ui";
 import type { CoffeeshopTab } from "../lib/tab";
 import { CoffeeshopHeader } from "./CoffeeshopHeader";
 import { CoffeeshopTabs } from "./CoffeeshopTabs";
@@ -45,9 +45,9 @@ export function CoffeeshopDetailContent({
   texts,
 }: CoffeeshopDetailContentProps): ReactNode {
   const backLink = (
-    <Link variant="back" href={`/${locale}/coffeeshops`}>
+    <BackLink fallback={`/${locale}/coffeeshops`}>
       {texts.backToDirectory}
-    </Link>
+    </BackLink>
   );
 
   if (result.state === "error") {

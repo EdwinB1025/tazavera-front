@@ -22,6 +22,7 @@ The entries below follow this order. The order runs security first, then the sha
 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
+| 0 | R41 | none (closed: environment, no code) | Deploy note | — | — (closed by Product owner 2026-10-08) |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
 | 3 | R31 (+ R3) | `harden-response-headers` | Refactor (fast lane) | S | — |
@@ -30,7 +31,7 @@ The entries below follow this order. The order runs security first, then the sha
 | 6 | R24 | `route-public-reads-through-client` | Refactor (fast lane) | S | — |
 | 7 | R26 | `share-evaluation-offerings-loader` | Refactor (fast lane) | S | — |
 | 8 | R23 (resolves R13) | `remove-cross-feature-auth-imports` | Refactor (fast lane) | S | — |
-| 9 | R5 | none yet | Refactor (fast lane) | S | R23 |
+| 9 | R5 | `share-active-locale` | Refactor (fast lane) | S | R23 |
 | 10 | R25 | `move-account-requests-to-api` | Refactor (fast lane) | M | — |
 | 11 | R27 | `split-evaluation-row-card` | Refactor (fast lane) | M | — |
 | 12 | R28 | `reduce-shared-client-bundle` | Refactor (fast lane) | M | R21 |
@@ -48,8 +49,21 @@ The entries below follow this order. The order runs security first, then the sha
 | 23 | R10 | none yet | Change (behaviour) | S | before the first facet that shows an error |
 | 24 | R8 | none yet | Change (behaviour) | M | R40; after R25 and R35 |
 | 25 | R1 | none (Playwright suite) | Change (tests) | — | the pre-deployment E2E suite |
+| 26 | R43 | `adopt-next-intl-routing` | Change | L | last priority (Product owner, 2026-10-08); after R28 and R31 |
 
 Every entry of the technical review (R20–R39) takes the fast lane by Product owner's decision of 2026-10-08, including R30, R31 and R32, which change a design decision, security headers and texts; R17 and R19 ride with R32 and R30. R3 (tests, rides with R31) and R4 (spec wording) are typed `Change`.
+
+## R41 — Sign-in does not authenticate (production AUT, 2026-10-08)
+
+- **Duplicated:** none. Defect found in the production AUT: no user ends up signed in, whatever the role (coffee shop and specialist, both freshly registered), and neither after the registration nor through the normal sign-in flow.
+- **Where today:** not located yet; sign-in flow of `src/features/auth`. Ruled out on 2026-10-08: the production build carries the current client `01a11aee-170a-71bc-82aa-43344bf1b12d`; the API accepts it (`/oauth/authorize` answers 302 to `/login`, a wrong client answers `invalid_client`); the API log has no error that day. **Cause found (2026-10-08): environment, not code.** The API completes every step (authorize, login, `POST /oauth/token` 200, `GET /user` 200, CORS ok, `/callback` without COOP). The AUT ran a production build (`npm run build` + `npm start`) against `http://localhost:8000`, and `src/shared/api/tokens.ts` (`add-auth` design.md D8) refuses a non-HTTPS token endpoint when `NODE_ENV=production`; `completePopup` takes the silent error path. Product owner is putting the API behind a local TLS proxy (Caddy) to repeat the AUT; deployment requirements are in `tazavera-documentation/api-implementation-notes.md` and `front-implementation-notes.md`. **No code task until that AUT is repeated**; then the entry is closed or retyped.
+- **Why it pays off now:** it blocks every authenticated flow (account, evaluations, management of offerings and locations), and the AUT cannot continue on that side.
+- **Owning capability:** auth
+- **Proposed change:** none. **Closed by Product owner's decision of 2026-10-08:** the AUTs continue locally with `npm run dev`, which accepts the `http` API, so sign-in works; the deploy (TLS proxy Caddy + Docker) is postponed to a later action. The HTTPS requirement is a deploy note, covered by `tazavera-documentation/api-implementation-notes.md`, `front-implementation-notes.md` and `docker-deploy-guideline.md`.
+- **Open decision (Augusto):** none
+- **Type:** Deploy note (no code)
+- **Status:** closed
+- **Affects:** the deploy (HTTPS for the API's token endpoint in production builds)
 
 ## R20 — Upgrade Next.js to 16.4 (security advisories)
 
@@ -178,10 +192,22 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Why it pays off now:** step-up (6.x) and the callback's return route (8.x) also need the active locale; a third copy is likely
 - **Owning capability:** auth (or `src/shared/lib/i18n` if another slice needs it)
 - **Proposed change:** none
-- **Open decision (Augusto):** answered 2026-10-08: move it to `src/shared/lib/i18n`, as the one function every auth flow uses. The language is chosen only with the language button in the header, which changes the locale segment of the URL; sign-in, sign-out and the return route read it from there. A third copy exists in `src/features/auth/model/return-route.ts`.
+- **Open decision (Augusto):** answered 2026-10-08: move it to `src/shared/lib/i18n`, as the one function every auth flow uses. The language is chosen only with the language button in the header, which changes the locale segment of the URL; sign-in, sign-out and the return route read it from there. A third copy exists in `src/features/auth/model/return-route.ts`. **Updated 2026-10-08 (Product owner):** the function goes in `src/shared/config/locales.ts`, next to `LOCALES`, `DEFAULT_LOCALE` and `isSupportedLocale`, because `src/shared/lib/i18n` loads the catalogs with `node:fs` and breaks the client build. The full next-intl adoption is R43.
 - **Type:** Refactor (fast lane)
 - **Status:** accepted
 - **Affects:** `add-auth`; comes after R23
+
+## R43 — Adopt next-intl for locale routing
+
+- **Duplicated:** locale handling written by hand next to next-intl, which the project uses only for its plugin and `getRequestConfig`: the locale list in `src/shared/config/locales.ts` instead of `defineRouting`, the locale prefix in `proxy.ts` instead of the next-intl middleware, and the active locale read from the URL (R5's `localeFromPath`) instead of `useLocale()` / `getLocale()`
+- **Where today:** `src/shared/config/locales.ts`, `src/shared/lib/i18n/`, `proxy.ts`, `app/layout.tsx`, `src/features/auth` (after R5), the language selector, and every importer of the locale config (~60 files with tests)
+- **Why it pays off now:** one library for i18n, following its standard structure. It moves no grade of `docs/review/technical-review.md`; it risks two of them (JS per route, R28; `proxy.ts` headers and CSP, R31)
+- **Owning capability:** app-shell (with auth)
+- **Proposed change:** `adopt-next-intl-routing` (L, about 3–4 h after the summary is approved)
+- **Open decision (Augusto):** the design summary settles how the next-intl middleware coexists with the CSP nonce and headers of `proxy.ts`, where the provider goes, and how the sign-in code receives the locale. Condition: measure the JS per route before and after; the change must not exceed R28's target. Texts keep reaching components as props (no `useTranslations`)
+- **Type:** Change
+- **Status:** accepted (last priority, Product owner 2026-10-08)
+- **Affects:** R5 (its function is removed here), R28, R31 (both go first)
 
 ## R25 — Move the account requests to the api segment
 

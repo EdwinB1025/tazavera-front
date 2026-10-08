@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { getMessages } from "@/shared/lib/i18n";
 import { EvaluationSheetView, EvaluationSheetViewSkeleton } from "@/widgets/evaluation-sheet";
-import { Link } from "@/shared/ui";
+import { BackLink } from "@/shared/ui";
 import { viewTexts } from "./texts";
 
 // ─── UI-specific types (declared before the component) ───
@@ -20,15 +20,14 @@ export function viewMetadata(locale: string): Metadata {
 
 /**
  * The read-only evaluation view screen (design.md D5; summary §5.3): the two
- * page sections of the view in one `Suspense` boundary, with the back link to
- * the plain list (no query) in section 1 in every state.
+ * page sections of the view in one `Suspense` boundary, with the back link in
+ * section 1 in every state: the previous page, or the plain list (no query)
+ * without one (fix-production-aut-findings design.md D6).
  */
 export function ViewScreen({ locale, ulid }: ViewScreenProps): ReactNode {
   const own = getMessages("public-evaluations", locale);
   const back = (
-    <Link href={`/${locale}/evaluations`} variant="back">
-      {own.backLabel}
-    </Link>
+    <BackLink fallback={`/${locale}/evaluations`}>{own.backLabel}</BackLink>
   );
   return (
     <div className="flex-1">

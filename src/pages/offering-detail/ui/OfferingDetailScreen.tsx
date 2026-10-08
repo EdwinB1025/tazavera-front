@@ -2,7 +2,7 @@ import { Suspense, type ReactNode } from "react";
 import type { Session } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
 import { cn } from "@/shared/lib/utils";
-import { Link, PageSection } from "@/shared/ui";
+import { BackLink, PageSection } from "@/shared/ui";
 import {
   OfferingDetail,
   toDetailTab,
@@ -162,9 +162,9 @@ export function OfferingDetailScreen({
         fallback={
           <PageSection surface="page" containerClassName={BLOCKS_CLASSES}>
             <div className={TOP_CONTAINER_CLASSES}>
-              <Link variant="back" href={`/${locale}/offerings`}>
+              <BackLink fallback={`/${locale}/offerings`}>
                 {texts.backLabel}
-              </Link>
+              </BackLink>
               <div className={BARS_CLASSES}>
                 {BAR_SIZES.map((size) => (
                   <div key={size} className={cn(PLACEHOLDER_CLASSES, size)} />

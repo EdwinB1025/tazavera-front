@@ -6,7 +6,6 @@ import {
   CardAside,
   CardContent,
   CardFooter,
-  Link,
 } from "@/shared/ui";
 import { ratingTierFor } from "../lib/rating";
 
@@ -27,7 +26,6 @@ export type OfferingCardTexts = {
   roasterCaption: string;
   evaluationsLabel: string;
   defectiveLabel: string;
-  viewLabel: string;
   verifiedLabel: string;
   provisionalLabel: string;
   ratingExceptionalLabel: string;
@@ -38,7 +36,6 @@ export type OfferingCardTexts = {
 
 export type OfferingCardProps = {
   offering: OfferingSummary;
-  locale: string;
   taxonomies: ResolvedTaxonomyBadge[];
   texts: OfferingCardTexts;
   actions?: ReactNode;
@@ -60,7 +57,7 @@ const ROWS_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
 const SCORE_ROW_CLASSES = ["flex", "flex-wrap", "items-baseline", "gap-2"].join(
   " ",
 );
-// The counts 1rem apart, the links grouped at the end; the footer wraps.
+// The counts 1rem apart, the actions grouped at the end; the footer wraps.
 const FOOTER_CLASSES = ["flex", "flex-wrap", "items-center", "gap-4"].join(" ");
 const FOOTER_COUNTS_CLASSES = ["flex", "flex-wrap", "gap-4"].join(" ");
 const FOOTER_LINKS_CLASSES = ["ml-auto", "flex", "gap-4"].join(" ");
@@ -69,12 +66,12 @@ const FOOTER_LINKS_CLASSES = ["ml-auto", "flex", "gap-4"].join(" ");
  * One offering filled into the shared card (design.md D4's field mapping and
  * D8; the landing spec "Offering card content" and "Taxonomy badges on the
  * offering card"). Every label and caption arrives as a prop (design.md D11)
- * and the consumer's actions arrive as the `actions` node, rendered after the
- * View link with no wrapper (replace-offering-card-session design.md D1).
+ * and the consumer's actions arrive as the `actions` node, rendered in the
+ * footer's group with no wrapper; the card has no action of its own, the View
+ * action included (fix-production-aut-findings design.md D3).
  */
 export function OfferingCard({
   offering,
-  locale,
   taxonomies,
   texts,
   actions,
@@ -150,12 +147,7 @@ export function OfferingCard({
           <span className="type-meta">{evaluations}</span>
           <span className="type-meta">{defective}</span>
         </div>
-        <div className={FOOTER_LINKS_CLASSES}>
-          <Link href={`/${locale}/offerings/${offering.ulid ?? ""}`}>
-            {texts.viewLabel}
-          </Link>
-          {actions}
-        </div>
+        <div className={FOOTER_LINKS_CLASSES}>{actions}</div>
       </CardFooter>
     </Card>
   );

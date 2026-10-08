@@ -53,7 +53,7 @@ export async function Offerings({
     const lookup = buildTaxonomyLookup(taxonomies.data, locale);
     const items: OfferingListItem[] = offerings.data.map((offering) => ({
       offering,
-      taxonomies: resolveTaxonomies(offering.sensoryTaxonomy ?? [], lookup),
+      taxonomies: resolveTaxonomies(offering, lookup),
     }));
     result =
       items.length === 0
