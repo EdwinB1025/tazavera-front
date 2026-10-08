@@ -16,4 +16,4 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 4. Full checks
 
-- [ ] 4.1 Run, each on its own: `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint`, `npm run build`. Expected: every one exits 0 with no test added, removed or changed; `npm run lint` reports no size or complexity warning for any file of design.md, Files; `git diff origin/qa --stat -- src qa` lists only the files of design.md, Files. This task changes no files: check it off in a commit containing only the checkbox, `chore(offering-management): complete tasks for split-account-and-management-panels`.
+- [x] 4.1 Run, each on its own: `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint`, `npm run build`. Expected: every one exits 0 with no test added, removed or changed; `npm run lint` reports no size or complexity warning for any file of design.md, Files; `git diff origin/qa --stat -- src qa` lists only the files of design.md, Files. This task changes no files: check it off in a commit containing only the checkbox, `chore(offering-management): complete tasks for split-account-and-management-panels`.
