@@ -51,16 +51,18 @@ export function RegisterClient({
   return (
     <Card variant="section">
       <CardContent>
-        {session.state === "loading" ? (
-          <LoadingStatus text={texts.loading} />
-        ) : (
-          <RegisterForm
-            role={role}
-            labelledBy={labelledBy}
-            texts={texts}
-            signIn={() => signIn()}
-          />
-        )}
+        <div className="w-full md:max-w-160">
+          {session.state === "loading" ? (
+            <LoadingStatus text={texts.loading} />
+          ) : (
+            <RegisterForm
+              role={role}
+              labelledBy={labelledBy}
+              texts={texts}
+              signIn={() => signIn()}
+            />
+          )}
+        </div>
       </CardContent>
     </Card>
   );

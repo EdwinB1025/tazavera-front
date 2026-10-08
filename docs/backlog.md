@@ -26,7 +26,6 @@ The entries below follow this order. The order runs security first, then the sha
 | 0d | R47 | none (closed: no code change) | Unplanned fix | — | — (Product owner 2026-10-08, option A: re-test on current develop) |
 | 0e | R48 | `refine-offering-facets-aut` | Correction (fast lane, maximum priority) | M | R46 merged (same files); design lead on finding 16's open points |
 | 0f | R49 | `nest-card-taste-notes` | Correction (fast lane, maximum priority) | M | — |
-| 0g | R51 | `widen-account-cards` | Correction (fast lane, maximum priority) | S | design lead on its open points |
 | 0j | R54 | `rename-coffeeshop-card-action` | Correction (fast lane, maximum priority) | S | design lead on its open points |
 | 0k | R55 | `fit-bean-mark-disc` | Correction (fast lane, maximum priority) | S | design lead on its open points |
 | 0l | R56 | `cascade-evaluation-descriptors` | Correction (fast lane, maximum priority) | M | R48, R49 and round 3 merged (Product owner 2026-10-08: drafts also choose ancestors; read-only views as nested trees; level-2 rows without indent) |
@@ -106,13 +105,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Type:** Correction (fast lane, maximum priority, Product owner's standing rule; replaces the "Rows by level" scenario)
 - **Status:** accepted
 - **Affects:** none
-
-## R51 — Account cards take the full container width (production AUT finding 19, 2026-10-08)
-
-- **Duplicated:** none. `pages/account/ui/AccountScreen.tsx:84` (`flex w-full max-w-lg flex-col gap-8`) keeps the cards in a 32rem start-aligned column (add-user-account D10, adopt-section-card-in-account item 4, from the MVC settings layout); `AccountScreen.test.tsx` asserts `max-w-lg`.
-- **Owning capability:** user-account
-- **Open decision (Augusto):** answered 2026-10-08: the account cards take the full container width with the page's usual side margins ("they look cut off"). Open for the design lead: whether the form fields inside the cards keep a readable maximum width; the register routes (centred 32rem) are not in scope (Product owner spoke only of the account page).
-- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted · **Affects:** none
 
 ## R54 — Coffee-shop card action reads "Ver ofertas" (production AUT finding 22, 2026-10-08)
 

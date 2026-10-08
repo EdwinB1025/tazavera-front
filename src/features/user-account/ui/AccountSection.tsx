@@ -20,7 +20,7 @@ export type AccountSectionProps = {
  * One section of the account page (design.md D9 and D10): a region labelled
  * by its `h2`, holding one section card whose header band holds the heading
  * and an optional description, above the content (adopt-section-card-in-account
- * D1).
+ * D1), whose width is capped from `md` (widen-account-cards D2).
  */
 export function AccountSection({
   heading,
@@ -45,7 +45,11 @@ export function AccountSection({
           </h2>
           {description && <p className="type-body">{description}</p>}
         </CardAside>
-        <CardContent className="flex flex-col gap-6">{children}</CardContent>
+        <CardContent>
+          <div className="flex w-full flex-col gap-6 md:max-w-160">
+            {children}
+          </div>
+        </CardContent>
       </Card>
     </section>
   );

@@ -22,7 +22,7 @@ export function NotFoundScreen({ locale }: NotFoundScreenProps): ReactNode {
   return (
     <div className="flex-1">
       <PageSection surface="page" containerClassName="flex flex-col">
-        <div className="mx-auto w-full max-w-lg">
+        <div className="w-full">
           <Card variant="section">
             <CardAside>
               <h1 className="type-subheading">{catalog.notFoundTitle}</h1>
