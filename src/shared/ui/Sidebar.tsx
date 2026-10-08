@@ -196,19 +196,6 @@ function SidebarTrigger({
   );
 }
 
-function SidebarInset({
-  className,
-  ...props
-}: React.ComponentProps<"main">) {
-  return (
-    <main
-      data-slot="sidebar-inset"
-      className={cn("bg-surface-page flex-1", className)}
-      {...props}
-    />
-  );
-}
-
 function SidebarHeader({
   className,
   ...props
@@ -217,19 +204,6 @@ function SidebarHeader({
     <div
       data-slot="sidebar-header"
       className={cn("flex items-center gap-2 p-2", className)}
-      {...props}
-    />
-  );
-}
-
-function SidebarFooter({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="sidebar-footer"
-      className={cn("mt-auto flex flex-col gap-2 p-2", className)}
       {...props}
     />
   );
@@ -262,45 +236,6 @@ function SidebarSeparator({
 }
 
 // ─── Navigation parts ──
-
-function SidebarGroup({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="sidebar-group"
-      className={cn("flex flex-col gap-1", className)}
-      {...props}
-    />
-  );
-}
-
-function SidebarGroupLabel({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="sidebar-group-label"
-      className={cn("type-meta px-3 py-1", className)}
-      {...props}
-    />
-  );
-}
-
-function SidebarGroupContent({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="sidebar-group-content"
-      className={cn("flex flex-col gap-1", className)}
-      {...props}
-    />
-  );
-}
 
 function SidebarMenu({
   className,
@@ -376,14 +311,9 @@ export {
   SidebarProvider,
   Sidebar,
   SidebarTrigger,
-  SidebarInset,
   SidebarHeader,
-  SidebarFooter,
   SidebarContent,
   SidebarSeparator,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,

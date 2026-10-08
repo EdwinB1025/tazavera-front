@@ -16,7 +16,7 @@
 export type Theme = "traditional" | "dark";
 
 /** Exactly the themes the application offers. */
-export const THEMES: readonly Theme[] = ["traditional", "dark"];
+const THEMES: readonly Theme[] = ["traditional", "dark"];
 
 /** The cookie the preference is kept in (not sensitive). */
 export const THEME_COOKIE = "theme";

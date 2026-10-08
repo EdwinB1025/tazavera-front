@@ -17,7 +17,7 @@ const RINGS_BY_DEPTH: Record<0 | 1 | 2, number[]> = {
 const LABEL_FONT_SIZE = [13, 12, 12];
 
 /** The gap at each group boundary, in degrees (add-offering-catalog D19). */
-export const GROUP_GAP = 6;
+const GROUP_GAP = 6;
 const LINE_HEIGHT = 1.2;
 const CHARACTER_WIDTH = 0.6;
 

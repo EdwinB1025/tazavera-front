@@ -14,8 +14,8 @@ import type { operations } from "./schema";
 export { configureClient, publicRequest, REFERENCE_READ_INIT, request } from "./client";
 export { clearTokens, exchangeCode, getTokens, refreshTokens } from "./tokens";
 export { distinctCoffeeValues, fetchCoffees } from "./coffees";
-export type { CoffeeFacetField, CoffeeSummary } from "./coffees";
-export type { ApiFailureKind, ApiResult } from "./result";
+export type { CoffeeSummary } from "./coffees";
+export type { ApiResult } from "./result";
 
 type UserResponse =
   operations["getTheAuthenticatedUser"]["responses"][200]["content"]["application/json"];
@@ -42,9 +42,6 @@ type GetACoffeeShopResponse =
 
 /** `data` of `GET /user`. All fields are optional in the contract. */
 export type SessionUser = NonNullable<UserResponse["data"]>;
-
-/** Role values the shell branches on. */
-export type UserRole = SessionUser["role"];
 
 /** What the shell receives from the session owner. */
 export type Session =
@@ -132,18 +129,6 @@ export type EvaluationItem = Omit<GeneratedEvaluationItem, "offeringId"> & {
 /** `meta` of `GET /user/evaluations`: `current_page`, `last_page`, `per_page`, `total`. */
 export type EvaluationPageMeta = NonNullable<ListMyEvaluationsResponse["meta"]>;
 
-/** The `descriptive` block of an evaluation: per-axis `{score, note}`. */
-export type EvaluationDescriptive = NonNullable<EvaluationItem["descriptive"]>;
-
-/** The `affective` block of an evaluation: per-axis `{score, note}`, `overall` included. */
-export type EvaluationAffective = NonNullable<EvaluationItem["affective"]>;
-
-/** The `extrinsics` block of an evaluation; the form writes `generalObservation` only. */
-export type EvaluationExtrinsics = NonNullable<EvaluationItem["extrinsics"]>;
-
-/** One item of an evaluation's `tastes`: `{ref, type}`. */
-export type EvaluationTaste = NonNullable<EvaluationItem["tastes"]>[number];
-
 type ListEvaluationsQuery = NonNullable<operations["listEvaluations"]["parameters"]["query"]>;
 
 /** The `evaluationType` values `GET /evaluations` accepts: `specialist` or `baseline`. */
@@ -200,9 +185,6 @@ export type UserLocationsPayload = ListAUsersLocationsResponse;
 
 /** One item of `GET /users/{user_ulid}/locations` `data`: `ulid`, `name`, `description`, `latitud`, `longitud`, `contacts`. */
 export type UserLocation = NonNullable<UserLocationsPayload["data"]>[number];
-
-/** One item of a user location's `contacts`; the card shows the one with `isPrimary`. */
-export type UserLocationContact = NonNullable<UserLocation["contacts"]>[number];
 
 /** Body of `POST /locations` (`createALocation`). */
 export type CreateLocationPayload =

@@ -9,4 +9,4 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
 export { L };
-export type { LatLngTuple, Map as LeafletMap, Marker as LeafletMarker, MapOptions } from "leaflet";
+export type { LatLngTuple, Map as LeafletMap } from "leaflet";
