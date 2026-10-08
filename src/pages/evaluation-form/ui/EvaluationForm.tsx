@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import type { EvaluationItem, OfferingDetail, TaxonomyNode } from "@/shared/api";
 import type { DescriptorBlockKey } from "@/entities/evaluation";
+import { Link } from "@/shared/ui";
 import { useEvaluationForm } from "../model/use-evaluation-form";
 import { ContextFieldsCard } from "./ContextFieldsCard";
 import type { ExtractionMethod } from "./ContextFieldsCard";
@@ -94,9 +95,17 @@ export function EvaluationForm({
       />
       <EvaluationGroupList locale={locale} taxonomies={taxonomies} form={form} texts={texts} />
       {readOnly ? (
-        <p role="status" className="type-body">
-          {model.message}
-        </p>
+        <>
+          <p role="status" className="type-body">
+            {model.message}
+          </p>
+          {/* No action bar: the header's back link again (add-bottom-back-links D4). */}
+          <div>
+            <Link href={`/${locale}/manage/evaluations`} variant="back">
+              {texts.backLabel}
+            </Link>
+          </div>
+        </>
       ) : (
         <FormActions
           saveLabel={texts.actions.saveLabel}

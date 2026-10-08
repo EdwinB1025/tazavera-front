@@ -41,6 +41,9 @@ type ViewData = {
 
 // Section 1: the back link and the header block, 1.5rem apart (summary §5.3).
 const HEADER_CONTAINER_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
+// Section 2: the sheet, then the back link again, 2rem apart
+// (add-bottom-back-links D3).
+const SHEET_CONTAINER_CLASSES = ["flex", "flex-col", "gap-8"].join(" ");
 const HEADER_BLOCK_CLASSES = ["flex", "flex-col", "items-start", "gap-2"].join(" ");
 const STATE_CLASSES = ["flex", "flex-col", "items-center", "gap-4", "text-center"].join(" ");
 const BARS_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
@@ -155,13 +158,14 @@ export async function EvaluationSheetView({
           ) : null}
         </div>
       </PageSection>
-      <PageSection surface="section">
+      <PageSection surface="section" containerClassName={SHEET_CONTAINER_CLASSES}>
         <EvaluationSheet
           evaluation={evaluation}
           taxonomies={taxonomies}
           locale={locale}
           texts={texts}
         />
+        <div>{back}</div>
       </PageSection>
     </>
   );
