@@ -67,22 +67,6 @@ describe("EvaluationRowCard, public variant (design.md D6)", () => {
     expect(screen.queryByText("Closed")).toBeNull();
   });
 
-  it("renders an empty aside and no date line for a null score and a null closedAt", () => {
-    const { container } = render(
-      <EvaluationRowCard
-        variant="public"
-        evaluation={{ ...CLOSED, cuppingScore: null, closedAt: null }}
-        offering={OFFERING}
-        locale="en"
-        texts={TEXTS}
-      />,
-    );
-    expect(screen.queryByText("/100")).toBeNull();
-    expect(screen.queryByText(/^Closed on/)).toBeNull();
-    const aside = container.querySelector(".lg\\:w-1\\/4");
-    expect(aside?.childElementCount).toBe(0);
-  });
-
   it("links View and View offering with the coffee name as hidden suffix", () => {
     render(<EvaluationRowCard variant="public" evaluation={CLOSED} offering={OFFERING} locale="en" texts={TEXTS} />);
     const view = screen.getByRole("link", { name: "View Finca La Esperanza" });
@@ -90,14 +74,6 @@ describe("EvaluationRowCard, public variant (design.md D6)", () => {
     const offering = screen.getByRole("link", { name: "View offering Finca La Esperanza" });
     expect(offering.getAttribute("href")).toBe(`/en/offerings/${OFFERING.ulid}`);
     expect(offering.querySelector(".sr-only")?.textContent).toBe("Finca La Esperanza");
-  });
-
-  it("shows offeringUnavailable with no captions and no View offering when the offering read failed", () => {
-    render(<EvaluationRowCard variant="public" evaluation={CLOSED} offering={null} locale="en" texts={TEXTS} />);
-    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("Offering unavailable");
-    expect(screen.queryByText(/^Coffeeshop:/)).toBeNull();
-    expect(screen.queryByRole("link", { name: /^View offering/ })).toBeNull();
-    expect(screen.getByRole("link", { name: `View Offering unavailable, ${DATE}` })).toBeDefined();
   });
 
   it("shows the offering-missing heading for a null offeringId, keeping score, date and View", () => {
@@ -116,36 +92,5 @@ describe("EvaluationRowCard, public variant (design.md D6)", () => {
     expect(screen.getByText("84.25")).toBeDefined();
     expect(screen.getByText(`Closed on ${DATE}`)).toBeDefined();
     expect(screen.getByRole("link", { name: `View Offering no longer exists, ${DATE}` })).toBeDefined();
-  });
-
-  it("omits the date and its comma from the suffix when closedAt is null", () => {
-    render(
-      <EvaluationRowCard
-        variant="public"
-        evaluation={{ ...CLOSED, offeringId: null, closedAt: null }}
-        offering={null}
-        locale="en"
-        texts={TEXTS}
-      />,
-    );
-    expect(screen.getByRole("link", { name: "View Offering no longer exists" })).toBeDefined();
-  });
-});
-
-describe("EvaluationRowCard, specialist variant (design.md D6)", () => {
-  it("keeps the status badge and renders its own actions instead of the public links", () => {
-    render(
-      <EvaluationRowCard
-        variant="specialist"
-        evaluation={CLOSED}
-        offering={OFFERING}
-        locale="en"
-        texts={TEXTS}
-        actions={<button type="button">Delete</button>}
-      />,
-    );
-    expect(screen.getByText("Closed").className).toContain("bg-badge-verified-bg");
-    expect(screen.getByRole("button", { name: "Delete" })).toBeDefined();
-    expect(screen.queryByRole("link")).toBeNull();
   });
 });

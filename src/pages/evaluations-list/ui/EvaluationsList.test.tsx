@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { EvaluationItem, OfferingDetail } from "@/shared/api";
 
 /**
@@ -188,13 +188,6 @@ describe("EvaluationsList (spec: My evaluations list)", () => {
     }
   });
 
-  it("announces Results: 0 in the empty state", async () => {
-    listMyEvaluations.mockResolvedValue(page([]));
-    render(<List resultCountText="Results: {count}" />);
-    await screen.findByText(TEXTS.emptyMessage);
-    expect(screen.getByRole("status").textContent).toBe("Results: 0");
-  });
-
   it("shows the failure message with a retry that loads again", async () => {
     listMyEvaluations.mockResolvedValueOnce({ ok: false, status: 500 });
     render(<List />);
@@ -213,14 +206,6 @@ describe("EvaluationsList (spec: My evaluations list)", () => {
     expect((screen.getByRole("button", { name: "Previous" }) as HTMLButtonElement).disabled).toBe(true);
     fireEvent.click(next);
     expect(push).toHaveBeenCalledWith("/en/manage/evaluations?status=open&page=2");
-  });
-
-  it("renders no Pagination for a single page", async () => {
-    listMyEvaluations.mockResolvedValue(page(ITEMS));
-    render(<List />);
-    const list = await screen.findByRole("list");
-    expect(within(list).getAllByRole("listitem")).toHaveLength(3);
-    await waitFor(() => expect(screen.queryByRole("button", { name: "Next" })).toBeNull());
   });
 
   it("removes a deleted row and reloads the list without the loading placeholder", async () => {

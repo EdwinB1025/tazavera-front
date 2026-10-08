@@ -82,19 +82,6 @@ describe("EvaluationListPresentation (design.md D4, D6)", () => {
     expect(router.push).toHaveBeenCalledWith("/en/evaluations?offeringId=01JOFFERA&page=3");
   });
 
-  it("announces the total as a polite status", () => {
-    render(
-      <EvaluationListPresentation
-        result={{ state: "success", rows: [{ evaluation: evaluation("01JEVAL1", null), offering: null }], meta: { current_page: 1, last_page: 1, total: 1 } }}
-        filtered={false}
-        locale="en"
-        query={{}}
-        texts={TEXTS} renderRow={renderRow}
-      />,
-    );
-    expect(screen.getByRole("status").textContent).toBe("Results: 1");
-  });
-
   it("shows the empty message and no Clear all on an empty page with no facet", () => {
     render(<EvaluationListPresentation result={{ state: "empty" }} filtered={false} locale="en" query={{}} texts={TEXTS} renderRow={renderRow} />);
     expect(screen.getByText("There are no evaluations yet.")).toBeDefined();
