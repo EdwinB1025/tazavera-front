@@ -87,7 +87,7 @@ The header SHALL show the brand logotype, linking to the root of the active loca
 - **THEN** that entry carries `aria-current="page"` and a bottom bar in the navigation indicator colour, takes no hover fill, and no other entry is marked
 
 ### Requirement: Signed-out header
-While the session is anonymous, the header SHALL show the language selector, the theme switch and a "Sign in" action, and SHALL NOT show a user menu.
+While the session is anonymous, the header SHALL show the language selector, the theme switch and a "Sign in" action, and SHALL NOT show a user menu. On a 375px-wide viewport the signed-out header SHALL fit without horizontal overflow.
 
 #### Scenario: Signed-out header renders
 - **WHEN** the session is anonymous
@@ -96,6 +96,10 @@ While the session is anonymous, the header SHALL show the language selector, the
 #### Scenario: Sign in starts from the current route
 - **WHEN** the user activates "Sign in"
 - **THEN** signing in starts for the route the user is on
+
+#### Scenario: Header fits a small viewport
+- **WHEN** a signed-out visitor opens a page with the sidebar control on a 375px-wide viewport
+- **THEN** the header shows the language selector as an icon with its accessible name, the theme toggle at its full size and the sign-in action without horizontal overflow
 
 ### Requirement: Signed-in header and user menu
 While the session is authenticated, the header SHALL show the brand logotype, the language selector, the theme switch and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The control SHALL show an initials circle and, on a medium or larger viewport, the user's name and a chevron after the circle; below that viewport it SHALL show the circle alone. The menu SHALL offer one account entry pointing at the account page, the security entry as an external link to the API's security page, the management entry for the user's role, for a specialist the offerings entry, and sign out.
@@ -160,7 +164,7 @@ The shell SHALL follow the session state. While the session is still resolving i
 - **THEN** the shell renders as anonymous, with the "Sign in" action and no user menu
 
 ### Requirement: Language selection
-The header SHALL offer a language selector that opens a menu listing exactly the supported locales, and choosing one SHALL open the current route in that locale. Its control SHALL show a globe icon, the code of the current locale and a chevron on every viewport, and its accessible name SHALL identify what it selects and carry the current language in its own name. Each entry SHALL show its language in that language's own name and carry that language's own `lang` attribute, and the entry of the current language SHALL be marked as the list's single choice.
+The header SHALL offer a language selector that opens a menu listing exactly the supported locales, and choosing one SHALL open the current route in that locale. Its control SHALL show a globe icon and a chevron on every viewport and the code of the current locale on medium and larger viewports, and its accessible name SHALL identify what it selects and carry the current language in its own name. Each entry SHALL show its language in that language's own name and carry that language's own `lang` attribute, and the entry of the current language SHALL be marked as the list's single choice.
 
 #### Scenario: Choosing a locale
 - **WHEN** the user chooses a locale in the language selector
@@ -180,7 +184,7 @@ The header SHALL offer a language selector that opens a menu listing exactly the
 
 #### Scenario: Trigger content on every viewport
 - **WHEN** the header renders on any viewport
-- **THEN** the language selector's control shows a globe icon, the code of the current locale and a chevron
+- **THEN** the language selector's control shows a globe icon and a chevron, and on medium and larger viewports also the code of the current locale
 
 #### Scenario: Each language in its own name
 - **WHEN** the language selector's menu renders

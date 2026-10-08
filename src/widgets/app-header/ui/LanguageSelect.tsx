@@ -79,7 +79,8 @@ export function LanguageSelect({
     <DropdownMenu>
       <DropdownMenuTrigger className={TRIGGER_CLASSES} aria-label={label}>
         <Globe className="size-4" />
-        {value.toUpperCase()}
+        {/* The code is hidden visually below md so the header fits at 375px (fit-header-at-375). */}
+        <span className="sr-only md:not-sr-only">{value.toUpperCase()}</span>
         <ChevronDown className="size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent surface="nav">
