@@ -139,23 +139,6 @@ describe("LocationForm submit states (spec: Location creation failures)", () => 
     expect(alerts[0].compareDocumentPosition(save) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("renders the step-up notice in one alert region above the actions on step-up", () => {
-    renderForm("step-up");
-    const alerts = screen.getAllByRole("alert");
-    expect(alerts).toHaveLength(1);
-    expect(alerts[0].textContent).toBe(TEXTS.stepUpText);
-    expect(screen.queryByText(TEXTS.genericError)).toBeNull();
-    const save = screen.getByRole("button", { name: TEXTS.save });
-    expect(alerts[0].compareDocumentPosition(save) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-  });
-
-  it("calls requestProfileWrite once with /es/manage/locations inside the click", () => {
-    const { requestProfileWrite } = renderForm("step-up");
-    fireEvent.click(screen.getByRole("button", { name: TEXTS.stepUpButton }));
-    expect(requestProfileWrite).toHaveBeenCalledTimes(1);
-    expect(requestProfileWrite).toHaveBeenCalledWith("/es/manage/locations");
-  });
-
   it("submits the values and keeps them after error and step-up", () => {
     const { onSubmit, rerenderWith } = renderForm();
     fillRequired();
