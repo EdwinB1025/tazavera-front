@@ -569,3 +569,13 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Por qué:** petición de Product owner, 8 oct.
 - **Afecta:** cierre del proyecto; backlog.
 - **Orden (Product owner, 8 oct):** directory y public-evaluations → `add-not-found-page` (R14, ya no condicionado a que sobre tiempo) → revisión técnica.
+
+### 2026-10-08 — refactorización por vía rápida en `qa` y tipos de cambio (Product owner)
+- **Decisión:** `develop` pasa a `master` para las UAT. Las refactorizaciones van en rondas sobre la rama `qa` (vía rápida: sin design summary, explore ni revisión de artefactos; archivo al pasar validación, suite QA, tsc, lint, build y verify) y `qa` vuelve a `develop` al final de cada ronda tras la revisión visual. Cada cambio y entrada del backlog lleva `Type: Refactor (fast lane)` o `Change`. Toda la hoja de ruta de la revisión técnica (R20–R39) va por vía rápida, incluidas R30 (caché de referencias a 1 h; cambia D9 de add-public-evaluations, resuelve R19), R31 (cabeceras de seguridad, manteniendo permitidos el mapa y la ubicación) y R32 (etiquetas es/en/ca que escribe el arquitecto, con R17). Los tests de QA pasan a `qa/` en el repo del front (`npm run test:qa`). El orquestador lleva las conversaciones de diseño; explore ya no se ejecuta.
+- **Por qué:** Product owner, 8 oct.
+- **Afecta:** add-public-evaluations (D9), todas las rondas de refactorización, `AGENTS.md` (Refactor changes, Testing), `.claude/CLAUDE.md` §13.
+
+### 2026-10-08 — respuestas sobre R4, R5, R8 y R18 (Product owner)
+- **Decisión:** R18: un elemento que no existe muestra en su propia vista un mensaje "<elemento> no encontrado" (o "sin resultados"), sin Reintentar; el estado HTTP no se toca. R5: una sola función de idioma en `src/shared/lib/i18n`; el idioma solo se elige con el botón de idioma de la cabecera. R4: menús de tarjeta a 16px (se ajusta `base-controls`). R8: antes, la API documenta sus 422 y los 404 de lecturas por identificador con ficheros de ejemplo de Scribe (R40, en `tazavera-api`, local).
+- **Por qué:** Product owner, 8 oct.
+- **Afecta:** offering-catalog y evaluations (R18), auth (R5), base-controls (R4), formularios (R8), `tazavera-api` (R40).

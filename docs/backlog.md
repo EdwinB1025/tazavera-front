@@ -22,9 +22,9 @@ The entries below follow this order. The order runs security first, then the sha
 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
-| 1 | R20 | `upgrade-next-16-4` | Change (dependency) | S | PO: dependency approval |
+| 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
-| 3 | R31 (+ R3) | `harden-response-headers` | Change (security) | S | PO: security headers |
+| 3 | R31 (+ R3) | `harden-response-headers` | Refactor (fast lane) | S | — |
 | 4 | R21 | `tidy-shared-imports` | Refactor (fast lane) | S | — |
 | 5 | R22 | `extract-field-control-hook` | Refactor (fast lane) | M | — |
 | 6 | R24 | `route-public-reads-through-client` | Refactor (fast lane) | S | — |
@@ -35,21 +35,21 @@ The entries below follow this order. The order runs security first, then the sha
 | 11 | R27 | `split-evaluation-row-card` | Refactor (fast lane) | M | — |
 | 12 | R28 | `reduce-shared-client-bundle` | Refactor (fast lane) | M | R21 |
 | 13 | R29 (resolves R15) | `speed-up-test-environment` | Refactor (fast lane) | S | — |
-| 14 | R30 (resolves R19) | `cache-reference-reads` | Change (design decision) | S | PO: D9 of add-public-evaluations |
-| 15 | R32 (+ R17) | `label-landmarks-and-headings` | Change (texts, spec) | M | PO: texts and spec wording |
+| 14 | R30 (resolves R19) | `cache-reference-reads` | Refactor (fast lane) | S | — |
+| 15 | R32 (+ R17) | `label-landmarks-and-headings` | Refactor (fast lane) | M | — |
 | 16 | R40 | API branch in `tazavera-api` | Change (API) | M | PO: review of the API diff |
-| 16b | R18 | `show-item-not-found-message` | Change (behaviour, texts) | M | R40; PO: texts and the wrong-role case |
+| 16b | R18 | `show-item-not-found-message` | Change (behaviour, texts) | M | R40 |
 | 17 | R33 | `split-consensus-panel` | Refactor (fast lane) | M | — |
 | 18 | R34 | `split-evaluation-form-state` | Refactor (fast lane) | L | — |
 | 19 | R38 | `split-account-and-management-panels` | Refactor (fast lane) | M | — |
 | 20 | R37 | `split-flavor-wheel` | Refactor (fast lane) | L | — |
-| 21 | R35 | `unify-api-result-shape` | Change (design decision) | L | R24, R25; PO: result type |
+| 21 | R35 | `unify-api-result-shape` | Refactor (fast lane) | L | R24, R25 |
 | 22 | R36 (resolves R16) | `prune-unused-exports` | Refactor (fast lane) | M | the splits above. R4 (16px, spec wording) rides with it as a change |
 | 23 | R10 | none yet | Change (behaviour) | S | before the first facet that shows an error |
 | 24 | R8 | none yet | Change (behaviour) | M | R40; after R25 and R35 |
 | 25 | R1 | none (Playwright suite) | Change (tests) | — | the pre-deployment E2E suite |
 
-R3 (tests, rides with R31) and R4 (visible radius, open decision) are typed `Change`.
+Every entry of the technical review (R20–R39) takes the fast lane by Product owner's decision of 2026-10-08, including R30, R31 and R32, which change a design decision, security headers and texts; R17 and R19 ride with R32 and R30. R3 (tests, rides with R31) and R4 (spec wording) are typed `Change`.
 
 ## R20 — Upgrade Next.js to 16.4 (security advisories)
 
@@ -58,9 +58,9 @@ R3 (tests, rides with R31) and R4 (visible radius, open decision) are typed `Cha
 - **Why it pays off now:** it is the only way to get a clean `npm audit`.
 - **Owning capability:** app-shell
 - **Proposed change:** `upgrade-next-16-4` (S)
-- **Open decision (Augusto):** approve the dependency upgrade
-- **Type:** Change
-- **Status:** proposed
+- **Open decision (Augusto):** answered 2026-10-08: approved; every item of the technical review goes to the fast lane
+- **Type:** Refactor (fast lane)
+- **Status:** accepted
 - **Affects:** every change (full suite, build, axe rerun)
 
 ## R39 — Ship the code-structure rules as ESLint warnings
@@ -82,9 +82,9 @@ R3 (tests, rides with R31) and R4 (visible radius, open decision) are typed `Cha
 - **Why it pays off now:** it raises the Security headers indicator from B to A. R3 can ride with it.
 - **Owning capability:** app-shell
 - **Proposed change:** `harden-response-headers` (S)
-- **Open decision (Augusto):** approve the change to the security headers (it changes specified behaviour)
-- **Type:** Change
-- **Status:** proposed
+- **Open decision (Augusto):** answered 2026-10-08: approved; the headers keep the map and location features allowed (fast lane by Product owner's decision, although it touches security)
+- **Type:** Refactor (fast lane)
+- **Status:** accepted
 - **Affects:** R3
 
 ## R3 — Cover the `/callback` exclusion and the `connect-src` fallback (verify S3)
@@ -250,9 +250,9 @@ R3 (tests, rides with R31) and R4 (visible radius, open decision) are typed `Cha
 - **Why it pays off now:** it would cut a detail view from 3 requests to 1.
 - **Owning capability:** offering-catalog
 - **Proposed change:** `cache-reference-reads` (S)
-- **Open decision (Augusto):** a caching design decision; it changes D9 of add-public-evaluations (R19)
-- **Type:** Change
-- **Status:** proposed
+- **Open decision (Augusto):** answered 2026-10-08: approved, cached with a 1 h refresh; D9 of add-public-evaluations changes (fast lane by Product owner's decision)
+- **Type:** Refactor (fast lane)
+- **Status:** accepted
 - **Affects:** R19
 
 ## R19 — The provisional evaluation loads on every offering-detail request (add-public-evaluations verify W4)
@@ -262,9 +262,9 @@ R3 (tests, rides with R31) and R4 (visible radius, open decision) are typed `Cha
 - **Why it pays off now:** two extra API requests per detail view
 - **Owning capability:** offering-catalog
 - **Proposed change:** none yet. Load the panel only for `?tab=provisional` (design D9 would change).
-- **Open decision (Augusto):** whether to change D9
-- **Type:** Change
-- **Status:** proposed
+- **Open decision (Augusto):** answered 2026-10-08: yes, D9 changes; done inside R30
+- **Type:** Refactor (fast lane)
+- **Status:** accepted
 - **Affects:** none
 
 ## R32 — Label the landmarks and fix the heading order
@@ -274,9 +274,9 @@ R3 (tests, rides with R31) and R4 (visible radius, open decision) are typed `Cha
 - **Why it pays off now:** these are axe best-practice findings (0 A/AA violations), so fixing them raises Usability from B to A.
 - **Owning capability:** app-shell, content-structure
 - **Proposed change:** `label-landmarks-and-headings` (M)
-- **Open decision (Augusto):** the new catalog texts and the spec wording; whether R17 joins this change
-- **Type:** Change
-- **Status:** proposed
+- **Open decision (Augusto):** answered 2026-10-08: approved with R17; the architect writes the labels in es/en/ca and the spec wording (fast lane by Product owner's decision, although it adds texts)
+- **Type:** Refactor (fast lane)
+- **Status:** accepted
 - **Affects:** R17
 
 ## R17 — Result count not announced while the facets overlay is open (add-evaluation-facets verify W2)
@@ -286,9 +286,9 @@ R3 (tests, rides with R31) and R4 (visible radius, open decision) are typed `Cha
 - **Why it pays off now:** the requirement "Filtered evaluation results" says the total is announced after each change; no scenario covers the overlay case
 - **Owning capability:** app-shell (the shared overlay) or filtering
 - **Proposed change:** none yet. It needs a new mechanism, such as an announcement region inside the overlay, so it is a correction for Product owner.
-- **Open decision (Augusto):** whether the count must be announced while the overlay is open
-- **Type:** Change
-- **Status:** proposed
+- **Open decision (Augusto):** answered 2026-10-08: yes, the count is announced while the overlay is open; done inside R32
+- **Type:** Refactor (fast lane)
+- **Status:** accepted
 - **Affects:** none
 
 ## R40 — Document the 422 and 404 responses in the API (tazavera-api)
@@ -312,7 +312,11 @@ R3 (tests, rides with R31) and R4 (visible radius, open decision) are typed `Cha
 - **Why it pays off now:** Product owner's decision (2026-10-08): these are not 404 pages. The view keeps its layout and back link and shows a message naming what is missing ("<item> not found", or "no results" for an empty list), with no Retry. A failed request keeps the error with Retry. Verified: unknown URLs already answer HTTP 404 with the 404 page; a streamed 404 already carries `noindex` (Next.js docs, `loading.md` "Status Codes"), so the HTTP 200 needs no fix.
 - **Owning capability:** offering-catalog, evaluations
 - **Proposed change:** `show-item-not-found-message`
-- **Open decision (Augusto):** the message texts (es/en/ca); whether a signed-in user without the right role on a management route keeps the 404 page
+- **Open decision (Augusto):** answered 2026-10-08: a signed-in user without the right role keeps the 404 page. Texts (orchestrator's recommendation, delegated by Product owner): one title per item and one line under it, inside the view, above the existing back link, with no Retry:
+  - viewing an offering (unknown identifier; also an unknown offering on the new-evaluation form): "Oferta no encontrada" / "Offering not found" / "Oferta no trobada"; "Puede que se haya retirado o que el enlace no sea correcto." / "It may have been removed, or the link may be wrong." / "Pot ser que s'hagi retirat o que l'enllaç no sigui correcte.";
+  - viewing a coffee shop: "Cafetería no encontrada" / "Coffee shop not found" / "Cafeteria no trobada"; same line;
+  - viewing an evaluation (unknown identifier, or not closed on the public view): "Evaluación no encontrada" / "Evaluation not found" / "Avaluació no trobada"; "Puede que aún no esté publicada o que el enlace no sea correcto." / "It may not be published yet, or the link may be wrong." / "Pot ser que encara no estigui publicada o que l'enllaç no sigui correcte." In the specialist area the line is the offering one ("removed").
+  Full strings per item, not a "{item} not found" template, so every language keeps its grammar.
 - **Type:** Change
 - **Status:** accepted
 - **Affects:** R40 (the 404 responses must be documented first)
@@ -372,9 +376,9 @@ R3 (tests, rides with R31) and R4 (visible radius, open decision) are typed `Cha
 - **Why it pays off now:** one way to handle errors across the code. It comes after R24 and R25.
 - **Owning capability:** shared/api (with every consumer)
 - **Proposed change:** `unify-api-result-shape` (L)
-- **Open decision (Augusto):** a design decision on the result type
-- **Type:** Change
-- **Status:** proposed
+- **Open decision (Augusto):** answered 2026-10-08: approved; the architect chooses the result type in design.md; after R24 and R25
+- **Type:** Refactor (fast lane)
+- **Status:** accepted
 - **Affects:** R8
 
 ## R36 — Prune the unused exports (resolves R16)
@@ -408,7 +412,7 @@ R3 (tests, rides with R31) and R4 (visible radius, open decision) are typed `Cha
 - **Why it pays off now:** every new menu built on the card variant inherits the mismatch with `base-controls`
 - **Owning capability:** base-controls
 - **Proposed change:** none yet
-- **Open decision (Augusto):** answered 2026-10-08: 16px. The card panel keeps `rounded-container`; `base-controls` is amended to allow it for card menus. Still open: whether the nav menu stays at 8px.
+- **Open decision (Augusto):** answered 2026-10-08: 16px. The card panel keeps `rounded-container`; `base-controls` is amended to allow it for card menus. The nav menu stays at 8px (orchestrator's recommendation, delegated by Product owner): a panel takes the radius of what opens it, so lists opened from a field or the navigation (Select, Combobox, nav menu) keep `radius-field` and a menu opened from a card keeps `radius-container`. Unifying would change the Select and Combobox lists too, for no gain. Spec wording only; no code change.
 - **Type:** Change
 - **Status:** accepted
 - **Affects:** none
