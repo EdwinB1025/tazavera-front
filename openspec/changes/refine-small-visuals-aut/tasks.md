@@ -16,4 +16,4 @@
 
 ## 4. Integration verification
 
-- [ ] 4.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`, each exiting 0 (report any QA test asserting the old label or geometry)
+- [x] 4.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`, each exiting 0 (report any QA test asserting the old label or geometry)
