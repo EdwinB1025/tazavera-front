@@ -26,7 +26,8 @@ The entries below follow this order. The order runs security first, then the sha
 | 0c | R46 | `search-coffee-facet` | Correction (fast lane, maximum priority) | S | — (Product owner 2026-10-08) |
 | 0d | R47 | `show-filter-loading-at-once` | Unplanned fix (fast lane, maximum priority) | S | — |
 | 0e | R48 | `refine-offering-facets-aut` | Correction (fast lane, maximum priority) | M | R46 merged (same files); design lead on finding 16's open points |
-| 0f | R49 | `nest-card-taste-notes` | Correction (fast lane, maximum priority) | M | design lead on its open points |
+| 0f | R49 | `nest-card-taste-notes` | Correction (fast lane, maximum priority) | M | Product owner: card cap and orphan notes |
+| 16c | R50 | API branch in `tazavera-api` | Change (API) | S | Product owner |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
 | 3 | R31 (+ R3) | `harden-response-headers` | Refactor (fast lane) | S | — |
@@ -109,6 +110,18 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Type:** Correction (fast lane, maximum priority, Product owner's standing rule; replaces the "Rows by level" scenario)
 - **Status:** accepted
 - **Affects:** none
+
+## R50 — Consensus concordance loses the parent of unmarked intermediate notes (API; found by the design lead for R49)
+
+- **Duplicated:** none. Read from the code, not run: `tazavera-api/app/Services/OfferingConsensusService.php:189-197`, `resolveParentOfferingTasteId` looks a node's parent up only among the directly marked references, so a level-1 ancestor that was not itself marked is stored with `parent_id` null and comes back at the top level of `cataConcordance`, apart from its level-0 parent. The seed marks aromatic leaves only (`EvaluationFactory::taxonomyRefs`), so in seeded data almost every level-1 note is affected. The contract example (`contracts/openapi.yaml:6550-6615`) shows a proper three-level tree.
+- **Where today:** the API consensus service; seen on the front in the offering card's taste notes (R49) and the flavor wheel (`buildFlavorWheelNodes` keeps top-level nodes as roots)
+- **Why it pays off now:** R49 renders the notes as nested trees; with this defect many children appear detached from their parent
+- **Owning capability:** API (consumed by landing and offering-catalog)
+- **Proposed change:** none yet: an API fix by Product owner; the front does not adapt to it
+- **Open decision (Augusto):** confirm the defect against real data and fix it at its source
+- **Type:** Change (API)
+- **Status:** proposed
+- **Affects:** R49 (how often its orphan rule applies), the flavor wheel
 
 ## R41 — Sign-in does not authenticate (production AUT, 2026-10-08)
 
