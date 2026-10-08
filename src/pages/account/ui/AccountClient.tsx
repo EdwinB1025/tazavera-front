@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useId, type ReactNode } from "react";
 import {
   refreshProfile,
@@ -60,6 +61,7 @@ export type AccountClientProps = {
  */
 export function AccountClient({ locale, texts }: AccountClientProps): ReactNode {
   const session = useSession();
+  const router = useRouter();
   const profileHeadingId = useId();
   const passwordHeadingId = useId();
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -135,7 +137,7 @@ export function AccountClient({ locale, texts }: AccountClientProps): ReactNode 
               ulid={user.ulid ?? ""}
               locale={locale}
               texts={texts}
-              signOut={signOut}
+              signOut={() => signOut(router.push)}
               requestProfileWrite={requestProfileWrite}
             />
           </AccountSection>

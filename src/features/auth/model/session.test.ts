@@ -309,7 +309,7 @@ describe("silent re-authentication (spec: Silent re-authentication)", () => {
     const seen = consume(loaded);
     await completeSignIn(loaded);
     fetchMock.mockResolvedValue(jsonResponse({ message: "logout successfully." }));
-    loaded.signOut();
+    loaded.signOut(() => {});
     await vi.waitFor(() => {
       expect(seen.current()).toEqual({ state: "anonymous" });
     });
@@ -326,7 +326,7 @@ describe("silent re-authentication (spec: Silent re-authentication)", () => {
 });
 
 describe("sign out (spec: Sign out)", () => {
-  it("posts POST /logout with the Bearer token, clears the in-memory tokens and the marker, ends anonymous and opens the root of the active locale (spec: Signing out)", async () => {
+  it("posts POST /logout with the Bearer token, clears the in-memory tokens and the marker, ends anonymous and opens the root of the active locale through the App Router (spec: Signing out)", async () => {
     const loaded = await load();
     const seen = consume(loaded);
     await completeSignIn(loaded);
@@ -334,8 +334,9 @@ describe("sign out (spec: Sign out)", () => {
     fetchMock.mockReset();
     fetchMock.mockResolvedValue(jsonResponse({ message: "logout successfully." }));
     pushMock.mockClear();
+    const openRoute = vi.fn<(href: string) => void>();
 
-    loaded.signOut();
+    loaded.signOut(openRoute);
 
     await vi.waitFor(() => {
       expect(seen.current()).toEqual({ state: "anonymous" });
@@ -348,8 +349,8 @@ describe("sign out (spec: Sign out)", () => {
     );
     expect(loaded.getTokens()).toBeNull();
     expect(loaded.flow.hasMarker()).toBe(false);
-    expect(pushMock).toHaveBeenCalledTimes(1);
-    expect(pushMock).toHaveBeenCalledWith(null, "", "/en");
+    expect(openRoute).toHaveBeenCalledExactlyOnceWith("/en");
+    expect(pushMock).not.toHaveBeenCalled();
   });
 
   it("completes the local sign out with no error shown when the request fails (spec: The server cannot be reached)", async () => {
@@ -359,8 +360,9 @@ describe("sign out (spec: Sign out)", () => {
     fetchMock.mockReset();
     fetchMock.mockRejectedValue(new Error("the server cannot be reached"));
     pushMock.mockClear();
+    const openRoute = vi.fn<(href: string) => void>();
 
-    loaded.signOut();
+    loaded.signOut(openRoute);
 
     // All the local parts still complete and the state carries no error text.
     await vi.waitFor(() => {
@@ -370,8 +372,8 @@ describe("sign out (spec: Sign out)", () => {
     expect(String(fetchMock.mock.calls[0]![0])).toBe(`${API_URL}/logout`);
     expect(loaded.getTokens()).toBeNull();
     expect(loaded.flow.hasMarker()).toBe(false);
-    expect(pushMock).toHaveBeenCalledTimes(1);
-    expect(pushMock).toHaveBeenCalledWith(null, "", "/en");
+    expect(openRoute).toHaveBeenCalledExactlyOnceWith("/en");
+    expect(pushMock).not.toHaveBeenCalled();
   });
 });
 

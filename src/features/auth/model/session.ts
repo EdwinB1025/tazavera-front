@@ -77,14 +77,22 @@ export function useSession(): Session {
 }
 
 /**
+ * The client-side navigation that opens the root of the active locale after
+ * sign out. The caller passes the App Router's `push`: a native
+ * `history.pushState` only updates the URL and would leave the previous page
+ * rendered (as `ReplaceRoute` of `../api/authorize` at `/callback`).
+ */
+export type OpenRoute = (href: string) => void;
+
+/**
  * Signs out; lands on the root of the active locale (design.md D1 and D5).
  * `POST /logout` carries the Bearer token and its answer is never consulted:
  * a `200`, a `401` when the token is already dead and any transport failure
  * all leave the local sign-out completed — tokens and marker cleared, the
- * session `anonymous`, the root of the active locale open — with no error
- * shown (spec: "Sign out").
+ * session `anonymous`, the root of the active locale open through
+ * `openRoute` — with no error shown (spec: "Sign out").
  */
-export function signOut(): void {
+export function signOut(openRoute: OpenRoute): void {
   void request("/logout", { method: "POST" })
     .catch(() => {
       // The server cannot be reached (spec: "The server cannot be reached").
@@ -93,7 +101,7 @@ export function signOut(): void {
       clearTokens();
       removeMarker();
       settle(ANONYMOUS);
-      window.history.pushState(null, "", localeRoot());
+      openRoute(localeRoot());
     });
 }
 

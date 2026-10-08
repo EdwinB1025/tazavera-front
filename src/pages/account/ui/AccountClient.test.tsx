@@ -26,6 +26,8 @@ vi.mock("@/features/auth", () => ({
   refreshProfile: auth.refreshProfile,
 }));
 
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+
 const API = "https://api.tazavera.test";
 const fetchMock =
   vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>();
