@@ -4,7 +4,7 @@ No derived API type is needed: the builders read the generated `TaxonomyNode` an
 
 ## 1. Shared descriptor cascade (capability `form-fields`)
 
-- [ ] 1.1 Test (spec "Descriptor cascade", one test per scenario). New `src/shared/ui/DescriptorCascade.test.tsx` over a fixture tree `Fruity` (level 0) › `Berry` (level 1) › `Blackberry` (level 2), plus `Dried fruit` (level 1, no children) under `Fruity` and a childless level-0 `Floral`, each with a `#`-hex colour, importing `DescriptorCascade` and `CascadeNode` from `@/shared/ui`:
+- [x] 1.1 Test (spec "Descriptor cascade", one test per scenario). New `src/shared/ui/DescriptorCascade.test.tsx` over a fixture tree `Fruity` (level 0) › `Berry` (level 1) › `Blackberry` (level 2), plus `Dried fruit` (level 1, no children) under `Fruity` and a childless level-0 `Floral`, each with a `#`-hex colour, importing `DescriptorCascade` and `CascadeNode` from `@/shared/ui`:
   - "Children hidden until the parent is chosen": with value `[]`, no "Berry" chip and no group named "Fruity".
   - "Choosing reveals the children unchosen": clicking "Fruity" reports `["fruity"]`; rerendered with `["fruity"]`, the group "Fruity" holds "Berry" and "Dried fruit" with `aria-pressed="false"`.
   - "Unchoosing removes the descendants": with `["fruity", "berry", "blackberry", "floral"]`, clicking "Fruity" reports `["floral"]`; rerendered with `["floral"]`, no group named "Fruity" or "Berry".
