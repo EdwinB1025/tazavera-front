@@ -8,4 +8,4 @@
 
 ## 2. Full checks
 
-- [ ] 2.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: `npm run test:run` passes; `npm run test:qa` fails only in files that also fail on `origin/develop`, plus `qa/src/widgets/offering-list/api/offerings.test.ts` (stale copy of the updated assertion, reported); the typecheck and lint report no errors and the build succeeds.
+- [x] 2.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: `npm run test:run` passes; `npm run test:qa` fails only in files that also fail on `origin/develop`, plus `qa/src/widgets/offering-list/api/offerings.test.ts` (stale copy of the updated assertion, reported); the typecheck and lint report no errors and the build succeeds.
