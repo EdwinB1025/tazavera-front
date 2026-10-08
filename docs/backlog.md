@@ -111,30 +111,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Status:** proposed
 - **Affects:** R30, R35
 
-## R23 — Remove the cross-feature auth imports (resolves R13)
-
-- **Duplicated:** `EvaluationsAccess` duplicates `SessionGate`, and there are 2 same-layer feature imports.
-- **Where today:** `src/features/manage-evaluations/ui/EvaluationsAccess.tsx`, `src/features/evaluate-offering/ui/EvaluateLink.tsx`
-- **Why it pays off now:** these are the only FSD violations left in production code.
-- **Owning capability:** evaluations
-- **Proposed change:** `remove-cross-feature-auth-imports` (S)
-- **Open decision (Augusto):** none
-- **Type:** Refactor (fast lane)
-- **Status:** proposed
-- **Affects:** R13, R5
-
-## R13 — Move `EvaluationsAccess` onto the shared session gate (extract-access-and-status-pieces, verify W1)
-
-- **Duplicated:** the session gate logic (loading / signed-out / role check with `notFound()`) that `extract-access-and-status-pieces` moved to `SessionGate` and `SignedOutPrompt` in `src/shared/ui`
-- **Where today:** `EvaluationsAccess` (`add-specialist-evaluations`), left out of R11 because that change was not merged when R11 was proposed (R11 design summary Open 1, option c)
-- **Why it pays off now:** it is the last protected area with its own gate; `add-coffeeshop-location` will add another protected route on the shared gate
-- **Owning capability:** evaluations (consumer of the app-shell gate)
-- **Proposed change:** none yet — a small refactor change
-- **Open decision (Augusto):** none
-- **Type:** Refactor (fast lane)
-- **Status:** proposed
-- **Affects:** `add-public-evaluations`, `add-evaluation-facets` (both touch the evaluations area)
-
 ## R5 — Single active-locale derivation in `src/features/auth` (add-auth, Build report at 5.2)
 
 - **Duplicated:** the active-locale derivation from the path (first segment, `isSupportedLocale` check, `DEFAULT_LOCALE` fallback)
