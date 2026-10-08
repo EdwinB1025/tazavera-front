@@ -83,6 +83,10 @@ Base: `origin/feature/add-public-evaluations` at af91d8d plus the apply commits,
 - **PASS** — 375 dark: view no horizontal scroll: scrollWidth 375, clientWidth 375
 - **PASS** — 375 dark: view description: Evaluaciones públicas de especialistas
 
+### Re-check of the 404 check
+
+The browser check above matched "404" in the streamed page source, which is weak evidence, so it was re-run reading the visible text: `/es/evaluations/OPEN` (an open evaluation) shows "404 This page could not be found.", the same page as an unknown route. **PASS.** Unlike an unknown route (HTTP 404, `robots: noindex`), it answers HTTP 200 without the `noindex` meta, because `notFound()` runs inside the view's `Suspense` boundary after the response has started streaming. Reported as a finding, not fixed here.
+
 ### Comparison with summary §5.6–§5.7
 
 - Public list at 1280 with the sidebar open, arriving from "Ver evaluaciones": the content column is 960px; the sidebar shows the Offering chip, "Borrar todo", Oferta (Cualquiera / "Huila El Mirador · Tazavera Gràcia" selected), Puntuación, Proceso and Ciudad, and no Estado; the rows match the mock-up (aside score row, `h2`, "Cerrada el …", captions, Ver / Ver oferta at the end) with the pagination below.
