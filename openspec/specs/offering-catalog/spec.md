@@ -81,7 +81,7 @@ The catalog's cards SHALL render in a single column at every viewport width, 1.5
 - **THEN** the column is centered in the region and the page background shows in the side margins on both sides of it
 
 ### Requirement: Offering detail page
-The offering detail route SHALL render one offering of the API, in the locale of the route and with no sign-in required: a back link to the previous page, whose fallback destination is the offerings route, the verification state badge, the coffee name as the page heading, the coffeeshop name and the roaster name as labeled captions, an Evaluate link for a signed-in specialist only, and the offering's tabs below the header. The header and the tabs SHALL sit on the page background, with the tab panels' cards hanging from it. It SHALL show no score in the header and SHALL cover loading, success and error states.
+The offering detail route SHALL render one offering of the API, in the locale of the route and with no sign-in required: a back link to the previous page, whose fallback destination is the offerings route, the verification state badge, the coffee name as the page heading, the coffeeshop name and the roaster name as labeled captions, an Evaluate link for a signed-in specialist only, and the offering's tabs below the header. The header and the tabs SHALL sit on the page background, with the tab panels' cards hanging from it. It SHALL show no score in the header and SHALL cover loading, success and error states. On success it SHALL repeat the back link, with the same text and destination, as the last block of the page, after the tabs and outside any tab panel; the loading and error states SHALL keep only the top back link.
 
 #### Scenario: Header
 - **WHEN** the visitor opens the detail route of an offering
@@ -114,6 +114,10 @@ The offering detail route SHALL render one offering of the API, in the locale of
 #### Scenario: Retry reloads
 - **WHEN** the visitor activates the retry action
 - **THEN** the detail loads again through its loading state into success or error
+
+#### Scenario: Back link at the end
+- **WHEN** the detail of an offering renders its content
+- **THEN** a second back link with the same text and destination renders after the last tab panel, outside any tab panel
 
 ### Requirement: Detail tabs in the address
 The detail page SHALL present its content in two tabs — Inventory data and Consensus — with exactly one panel rendering at a time. The active tab SHALL be kept in the address as a `tab` parameter: selecting a tab changes that parameter at the same route, and an absent or unrecognized value shows the Inventory data tab.
@@ -516,7 +520,7 @@ Below the medium breakpoint the map view SHALL open as a full-screen overlay tit
 - **THEN** the list view renders, the address has no view or focus key, and the focus returns to the Map option or to the card's map action that opened it
 
 ### Requirement: Coffee shop detail page
-The coffee shop detail route SHALL render one coffee shop of the API, in the locale of the route and with no sign-in required: a back link to the previous page, whose fallback destination is the directory, the verified-offerings badge when it has verified offerings, the name as the page heading, its number of locations and its offering counts as captions, and its tabs. It SHALL cover loading, success and error states.
+The coffee shop detail route SHALL render one coffee shop of the API, in the locale of the route and with no sign-in required: a back link to the previous page, whose fallback destination is the directory, the verified-offerings badge when it has verified offerings, the name as the page heading, its number of locations and its offering counts as captions, and its tabs. It SHALL cover loading, success and error states. On success it SHALL repeat the back link, with the same text and destination, as the last block of the page, after the tabs and outside any tab panel; the loading and error states SHALL keep only the top back link.
 
 #### Scenario: Header
 - **WHEN** the visitor opens the detail of a coffee shop with two locations, four offerings and one verified
@@ -533,6 +537,10 @@ The coffee shop detail route SHALL render one coffee shop of the API, in the loc
 #### Scenario: Unknown coffee shop or failure
 - **WHEN** the identifier is unknown, or the request fails or returns any other non-success status
 - **THEN** the back link renders and, below it, a message saying the coffee shop could not be loaded with a retry action, and no tab renders
+
+#### Scenario: Back link at the end
+- **WHEN** the detail of a coffee shop renders its content
+- **THEN** a second back link with the same text and destination renders after the last tab panel, outside any tab panel
 
 ### Requirement: Coffee shop detail tabs in the address
 The detail SHALL present two tabs, Offerings and Locations, with one panel rendering at a time. The active tab SHALL be kept in the `tab` key of the address at the same route; an absent or unrecognized value SHALL show Offerings. Arrow keys SHALL move the focus along the tabs without changing the panel; Enter or Space selects.

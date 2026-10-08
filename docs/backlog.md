@@ -28,7 +28,6 @@ The entries below follow this order. The order runs security first, then the sha
 | 0o | R59 | `drop-step-up-for-everyday-writes` | Correction (auth; fast lane, maximum priority for the front) | S | the regenerated contract in `contracts/openapi.yaml` (API change on `tazavera-api` `dev` `71bc91b`); R51 merged (same account page) |
 | 0q | R61 | `stack-flavor-wheel-layout` | Correction (fast lane, maximum priority) | S | round 3 (`qa`, with R37's FlavorWheel split) merged into `develop` |
 | 0r | R62 | `nest-consensus-notes` | Correction (fast lane, maximum priority) | M | R49 merged (tree rendering to reuse); design lead on its open points |
-| 0s | R63 | `add-bottom-back-links` | Correction (fast lane, maximum priority) | S | design lead on its open points (with R51, layout package) |
 | 16c | R50 | API branch in `tazavera-api` | Change (API) | S | Product owner: verify with real data (the API should deliver the resolved tree) |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
@@ -113,14 +112,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Open decision (Augusto):** answered 2026-10-08: (a) each note's consensus legend (`name n/total`) goes next to its own note box/badge, with no separate legend column; (b) each axis renders only the consensus nodes of that axis as the API's resolved tree (root → its consensus children → their consensus children), nested like the MVC cascade (same model as R49/R56). The API already sends the resolved tree (`sensoryTaxonomy`, `cataConcordance`: `{ref, type, level, count, children[]}` with levels 0–2); front only. Open for the design lead: whether the inline legend also applies to the "Main tastes" and "Defects" selection blocks (recommended yes); reusing one tree component with R49 and R56.
 - **Type:** Correction (fast lane, maximum priority) · **Status:** accepted
 - **Affects:** R56 open point O2 (the consensus panel now goes to nested trees by this decision); waits for R49 (tree rendering)
-
-## R63 — "Back" also at the end of every detail view (production AUT finding 33, 2026-10-08)
-
-- **Duplicated:** the top back link of each detail view, repeated at the end.
-- **Where today:** `/{locale}/offerings/[ulid]`, `/{locale}/coffeeshops/[ulid]`, `/{locale}/evaluations/[ulid]` (public evaluation), `/{locale}/manage/evaluations/[ulid]` (evaluation sheet/form): the back link (`BackLink`, previous page with fallback, from fix-production-aut-findings) shows only at the top.
-- **Owning capability:** base-controls (with offering-catalog, evaluations)
-- **Open decision (Augusto):** answered 2026-10-08: every detail view also shows "Back" at the END of the page, keeping the top one, with the same destination. Open for the design lead: placement after the last tab panel or section, inside the page container and not inside a tab; in the evaluation form, whether the bottom "Back" and R57's "Cancel" are redundant.
-- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted · **Affects:** R57 (evaluation form actions)
 
 ## R50 — Consensus concordance loses the parent of unmarked intermediate notes (API; found by the design lead for R49)
 
