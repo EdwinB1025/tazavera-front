@@ -1,17 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import type { UserLocation, UserLocationsPayload } from "@/shared/api";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { GeocodeOutcome } from "@/shared/lib/geocoding";
-import { Button, Card, CardContent, FormStatus, LoadingStatus } from "@/shared/ui";
-import { Plus } from "@/shared/ui/icons";
-import { ContactDetails } from "@/entities/contact";
-import { LocationCard } from "@/entities/location";
-import { fetchOwnLocations } from "../api/locations";
+import { FormStatus, LoadingStatus } from "@/shared/ui";
 import type { LocationFormValues } from "../model/location-form";
 import { submitLocation } from "../model/submit-location";
 import type { ListState, SubmitState } from "../model/types";
+import { useOwnLocations } from "../model/use-own-locations";
 import { LocationForm, type LocationFormTexts } from "./LocationForm";
+import { LocationList } from "./LocationList";
+import {
+  AddLocationButton,
+  LocationsEmptyCard,
+  LocationsLoadError,
+} from "./LocationsPanelStates";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -42,29 +44,52 @@ type FocusTarget = "name" | "add" | null;
 // ─── Layout (summary §8) ───
 // Toolbar or form, status and list 1.5rem apart.
 const PANEL_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
-// The empty card: the section card's width rule, full width up to 40rem.
-const EMPTY_CARD_CLASSES = ["w-full", "md:max-w-160"].join(" ");
-// The empty text, then its button, 1rem apart; the error text and Try again too.
-const STACK_CLASSES = ["flex", "flex-col", "items-start", "gap-4"].join(" ");
-// The toolbar: a start-aligned row, no padding, border or radius.
-const TOOLBAR_CLASSES = ["flex", "justify-start"].join(" ");
-// One column of cards 1.5rem apart.
-const LIST_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
 
-/** The list state a read's response leads to (design.md D3). */
-async function readOutcome(userUlid: string): Promise<ListState> {
-  try {
-    const response = await fetchOwnLocations(userUlid);
-    if (response.status !== 200) return { status: "error" };
-    const body = (await response.json()) as UserLocationsPayload;
-    return { status: "ready", locations: body.data ?? [] };
-  } catch {
-    return { status: "error" };
+type LocationsContentProps = {
+  list: ListState;
+  /** The open form, or `null` while it is closed. */
+  form: ReactNode;
+  addButton: ReactNode;
+  status: string | null;
+  onRetry: () => void;
+  headingId: string;
+  texts: LocationsPanelTexts;
+};
+
+/** The panel's state: loading, read error, empty card or form, or the list. */
+function LocationsContent({
+  list,
+  form,
+  addButton,
+  status,
+  onRetry,
+  headingId,
+  texts,
+}: LocationsContentProps): ReactNode {
+  if (list.status === "loading") return <LoadingStatus text={texts.loading} />;
+  if (list.status === "error") {
+    return (
+      <LocationsLoadError
+        text={texts.locationsLoadError}
+        retryLabel={texts.retry}
+        onRetry={onRetry}
+      />
+    );
   }
-}
-
-function hasNoMap(location: UserLocation): boolean {
-  return location.latitud == null || location.longitud == null;
+  if (list.locations.length === 0) {
+    return (
+      form ?? (
+        <LocationsEmptyCard text={texts.locationsEmptyText}>{addButton}</LocationsEmptyCard>
+      )
+    );
+  }
+  return (
+    <>
+      {form ?? addButton}
+      {status !== null && <FormStatus kind="success" text={status} />}
+      <LocationList locations={list.locations} headingId={headingId} texts={texts} />
+    </>
+  );
 }
 
 /**
@@ -83,26 +108,12 @@ export function LocationsPanel({
   requestProfileWrite,
 }: LocationsPanelProps): ReactNode {
   const rootRef = useRef<HTMLDivElement>(null);
-  const mounted = useRef(true);
   const geocodeCache = useRef(new Map<string, GeocodeOutcome>());
   const focusTarget = useRef<FocusTarget>(null);
-  const [list, setList] = useState<ListState>({ status: "loading" });
+  const { list, reload, mounted } = useOwnLocations(userUlid);
   const [formOpen, setFormOpen] = useState(false);
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [status, setStatus] = useState<string | null>(null);
-
-  const read = useCallback(async (): Promise<void> => {
-    const next = await readOutcome(userUlid);
-    if (mounted.current) setList(next);
-  }, [userUlid]);
-
-  useEffect(() => {
-    mounted.current = true;
-    void read();
-    return () => {
-      mounted.current = false;
-    };
-  }, [read]);
 
   // Runs once the form has opened or closed.
   useEffect(() => {
@@ -114,11 +125,6 @@ export function LocationsPanel({
     }
     focusTarget.current = null;
   }, [formOpen]);
-
-  function reload(): void {
-    setList({ status: "loading" });
-    void read();
-  }
 
   function openForm(): void {
     setStatus(null);
@@ -161,67 +167,19 @@ export function LocationsPanel({
       requestProfileWrite={requestProfileWrite}
     />
   );
-
-  const addButton = (
-    <div data-add-location className={TOOLBAR_CLASSES}>
-      <Button variant="primary" size="base" icon={Plus} onClick={openForm}>
-        {texts.addLocation}
-      </Button>
-    </div>
-  );
-
-  let content: ReactNode;
-  if (list.status === "loading") {
-    content = <LoadingStatus text={texts.loading} />;
-  } else if (list.status === "error") {
-    content = (
-      <div className={STACK_CLASSES}>
-        <p className="type-body">{texts.locationsLoadError}</p>
-        <Button variant="action-4" size="base" onClick={reload}>
-          {texts.retry}
-        </Button>
-      </div>
-    );
-  } else if (list.locations.length === 0) {
-    content = formOpen ? (
-      form
-    ) : (
-      <Card variant="section" className={EMPTY_CARD_CLASSES}>
-        <CardContent>
-          <div className={STACK_CLASSES}>
-            <p className="type-body">{texts.locationsEmptyText}</p>
-            {addButton}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  } else {
-    content = (
-      <>
-        {formOpen ? form : addButton}
-        {status !== null && <FormStatus kind="success" text={status} />}
-        <ul aria-labelledby={headingId} className={LIST_CLASSES}>
-          {list.locations.map((location) => {
-            const primary = location.contacts?.find((contact) => contact.isPrimary === true);
-            return (
-              <li key={location.ulid}>
-                <LocationCard
-                  name={location.name ?? ""}
-                  description={location.description}
-                  details={primary ? <ContactDetails contact={primary} texts={texts} /> : undefined}
-                  noMapText={hasNoMap(location) ? texts.locationNoMap : undefined}
-                />
-              </li>
-            );
-          })}
-        </ul>
-      </>
-    );
-  }
+  const addButton = <AddLocationButton label={texts.addLocation} onAdd={openForm} />;
 
   return (
     <div ref={rootRef} className={PANEL_CLASSES}>
-      {content}
+      <LocationsContent
+        list={list}
+        form={formOpen ? form : null}
+        addButton={addButton}
+        status={status}
+        onRetry={reload}
+        headingId={headingId}
+        texts={texts}
+      />
     </div>
   );
 }

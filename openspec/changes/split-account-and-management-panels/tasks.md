@@ -12,7 +12,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 3. Locations panel
 
-- [ ] 3.1 In `src/features/location-management/`: add `readOwnLocations` to `api/locations.ts`; create `model/use-own-locations.ts`, `ui/LocationsPanelStates.tsx` and `ui/LocationList.tsx`; reduce `ui/LocationsPanel.tsx` to its types, form state, focus and composition (design.md D4). `LocationsPanelProps` and the keys of `LocationsPanelTexts` do not change. Protecting tests: `src/features/location-management/ui/LocationsPanel.test.tsx`. Verify: the related tests pass with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors and no size or complexity warning for the changed and new files. Commit `refactor(offering-management): split the locations panel`.
+- [x] 3.1 In `src/features/location-management/`: add `readOwnLocations` to `api/locations.ts`; create `model/use-own-locations.ts`, `ui/LocationsPanelStates.tsx` and `ui/LocationList.tsx`; reduce `ui/LocationsPanel.tsx` to its types, form state, focus and composition (design.md D4). `LocationsPanelProps` and the keys of `LocationsPanelTexts` do not change. Protecting tests: `src/features/location-management/ui/LocationsPanel.test.tsx`. Verify: the related tests pass with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors and no size or complexity warning for the changed and new files. Commit `refactor(offering-management): split the locations panel`.
 
 ## 4. Full checks
 
