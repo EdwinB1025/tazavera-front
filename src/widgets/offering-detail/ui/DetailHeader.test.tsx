@@ -21,6 +21,7 @@ const TEXTS = {
   coffeeshopCaption: "texts.coffeeshopCaption",
   roasterCaption: "texts.roasterCaption",
   evaluateLabel: "texts.evaluateLabel",
+  viewEvaluationsLabel: "texts.viewEvaluationsLabel",
 };
 
 const OFFERING: OfferingDetail = {
@@ -93,5 +94,20 @@ describe("DetailHeader", () => {
       ).toBeNull();
       unmount();
     }
+  });
+
+  it("renders View evaluations before Evaluate in the actions row, last in the title group (add-public-evaluations D9)", () => {
+    const { container } = renderHeader(OFFERING, SPECIALIST);
+    const view = screen.getByRole("link", { name: TEXTS.viewEvaluationsLabel });
+    expect(view.getAttribute("href")).toBe(`/es/evaluations?offeringId=${ULID}`);
+    const row = view.parentElement as HTMLElement;
+    for (const name of ["flex", "flex-wrap", "gap-4"]) expect(row.className).toContain(name);
+    expect(container.firstElementChild?.lastElementChild).toBe(row);
+    expect(row.lastElementChild?.textContent).toBe(TEXTS.evaluateLabel);
+  });
+
+  it("always renders View evaluations, whatever the session (spec: The link is always shown)", () => {
+    renderHeader(OFFERING, ANONYMOUS);
+    expect(screen.getByRole("link", { name: TEXTS.viewEvaluationsLabel })).toBeDefined();
   });
 });

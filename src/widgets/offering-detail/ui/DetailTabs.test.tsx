@@ -28,9 +28,10 @@ const ULID = "01K6A3M8Q2V7XH4T9B5N1RCW0D";
 const LABELS = {
   inventory: "texts.tabInventory",
   consensus: "texts.tabConsensus",
+  provisional: "texts.tabProvisional",
 };
 
-function renderTabs(active: "inventory" | "consensus") {
+function renderTabs(active: "inventory" | "consensus" | "provisional") {
   return render(
     <DetailTabs
       active={active}
@@ -39,6 +40,7 @@ function renderTabs(active: "inventory" | "consensus") {
       labels={LABELS}
       inventory={<p>Inventory panel</p>}
       consensus={<p>Consensus panel</p>}
+      provisional={<p>Provisional panel</p>}
     />,
   );
 }
@@ -93,5 +95,24 @@ describe("DetailTabs (design.md D7)", () => {
     );
     expect(screen.getByRole("tabpanel").textContent).toBe("Consensus panel");
     expect(screen.queryByText("Inventory panel")).toBeNull();
+  });
+
+  it("puts Provisional evaluation third and pushes ?tab=provisional on selection (add-public-evaluations D9)", () => {
+    renderTabs("inventory");
+    const tabs = screen.getAllByRole("tab").map((tab) => tab.textContent);
+    expect(tabs).toEqual([LABELS.inventory, LABELS.consensus, LABELS.provisional]);
+    fireEvent.mouseDown(screen.getByRole("tab", { name: LABELS.provisional }), {
+      button: 0,
+      ctrlKey: false,
+    });
+    expect(router.push).toHaveBeenCalledWith(`/es/offerings/${ULID}?tab=provisional`);
+    expect(screen.getByRole("tabpanel").textContent).toBe("Provisional panel");
+  });
+});
+
+describe("toDetailTab with the provisional tab (add-public-evaluations D9)", () => {
+  it("maps provisional to itself and an unknown value to inventory", () => {
+    expect(toDetailTab("provisional")).toBe("provisional");
+    expect(toDetailTab("baseline")).toBe("inventory");
   });
 });
