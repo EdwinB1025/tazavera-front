@@ -155,3 +155,21 @@ describe("proxy.ts Cross-Origin-Opener-Policy (design.md D11)", () => {
     expect(response.headers.has("Cross-Origin-Opener-Policy")).toBe(false);
   });
 });
+
+// ─── Response security headers (app-shell "Response security headers") ───
+// Every document response carries nosniff, the referrer policy and a
+// permissions policy that keeps geolocation for the app's own origin.
+
+describe("proxy.ts response security headers", () => {
+  it("sets nosniff, Referrer-Policy and Permissions-Policy on a page response", () => {
+    vi.stubEnv("NEXT_PUBLIC_API_URL", API_URL);
+    const response = runProxyOn("https://tazavera.test/es/about");
+    expect(response.headers.get("X-Content-Type-Options")).toBe("nosniff");
+    expect(response.headers.get("Referrer-Policy")).toBe(
+      "strict-origin-when-cross-origin",
+    );
+    expect(response.headers.get("Permissions-Policy")).toBe(
+      "camera=(), microphone=(), payment=(), usb=(), geolocation=(self)",
+    );
+  });
+});
