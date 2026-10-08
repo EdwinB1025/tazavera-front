@@ -2,7 +2,7 @@
 
 ## 1. Fit the signed-out header at 375px (app-shell)
 
-- [ ] 1.1 Tests first. In `src/widgets/app-header/ui/AppHeader.test.tsx`, add one test "fits a small viewport (spec: Header fits a small viewport)" in the signed-out block, rendering the header with a `leading` control. It asserts:
+- [x] 1.1 Tests first. In `src/widgets/app-header/ui/AppHeader.test.tsx`, add one test "fits a small viewport (spec: Header fits a small viewport)" in the signed-out block, rendering the header with a `leading` control. It asserts:
   - the language selector keeps its accessible name, and the element holding the locale code `ES` inside its trigger carries `sr-only md:not-sr-only`;
   - the left group carries `gap-2` and `md:gap-4`;
   - the theme toggle carries `shrink-0` and `size-10`.
