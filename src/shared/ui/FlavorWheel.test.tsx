@@ -140,7 +140,7 @@ describe("FlavorWheel — initial render", () => {
     expect(centre?.getAttribute("class")).toBe(
       "fill-text-primary font-serif font-bold",
     );
-    expect(centre?.getAttribute("font-size")).toBe("28");
+    expect(centre?.getAttribute("font-size")).toBe("18");
   });
 });
 
@@ -743,6 +743,29 @@ describe("FlavorWheel — groups (add-offering-catalog design.md D19)", () => {
     expect(rows().map((r) => r.getAttribute("aria-label")?.split(",")[0])).toEqual(
       ["Fruity", "Floral", "Body"],
     );
+  });
+
+  it("stacks wheel, group legend, panel and notes on every width", () => {
+    const { container } = renderWheel({
+      nodes: GROUPED,
+      groups: GROUPS,
+      texts: GROUP_TEXTS,
+    });
+    const figure = container.querySelector("figure")!;
+    expect(figure.getAttribute("class")).toBeNull();
+    const layout = figure.querySelector(":scope > div")!;
+    expect(layout.getAttribute("class")).toBe("flex flex-col gap-6");
+    const [wheel, legend, box, notes] = Array.from(layout.children);
+    expect(layout.children).toHaveLength(4);
+    expect(wheel.getAttribute("class")).toBe("mx-auto aspect-square w-full max-w-128");
+    expect(wheel.querySelector("svg")).not.toBeNull();
+    expect(legend).toBe(screen.getByRole("list", { name: "texts.groupsLabel" }));
+    expect(box).toBe(panel(container));
+    expect(notes.contains(notesToggle())).toBe(true);
+    const twoColumn = Array.from(figure.querySelectorAll("[class]")).filter((el) =>
+      (el.getAttribute("class") ?? "").includes("@2xl"),
+    );
+    expect(twoColumn).toEqual([]);
   });
 
   it("shows no group legend when the roots hold one group only", () => {
