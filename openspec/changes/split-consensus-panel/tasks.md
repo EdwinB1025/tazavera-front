@@ -28,7 +28,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 7. Detail by axis
 
-- [ ] 7.1 Create `src/widgets/offering-detail/ui/AxisDetail.tsx` with `AxisDetailTexts`, `AxisDetailProps`, a local axis section component and `AxisDetail` (design.md D2), moving `AXES`, `AXES_BLOCK_CLASSES`, `AXIS_SECTIONS_CLASSES` and `AXIS_BODY_CLASSES`; `ConsensusPanelTexts` ends as design.md D3 and `ConsensusPanel` as design.md D4. Verify: the related tests pass, including the panel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors; `ConsensusPanel.tsx` and every new file are at most 300 lines and every component at most 80 lines. Commit `refactor(offering-catalog): extract the consensus detail by axis`.
+- [x] 7.1 Create `src/widgets/offering-detail/ui/AxisDetail.tsx` with `AxisDetailTexts`, `AxisDetailProps`, a local axis section component and `AxisDetail` (design.md D2), moving `AXES`, `AXES_BLOCK_CLASSES`, `AXIS_SECTIONS_CLASSES` and `AXIS_BODY_CLASSES`; `ConsensusPanelTexts` ends as design.md D3 and `ConsensusPanel` as design.md D4. Verify: the related tests pass, including the panel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors; `ConsensusPanel.tsx` and every new file are at most 300 lines and every component at most 80 lines. Commit `refactor(offering-catalog): extract the consensus detail by axis`.
 
 ## 8. Full checks
 
