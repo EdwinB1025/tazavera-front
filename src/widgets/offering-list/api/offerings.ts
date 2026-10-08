@@ -1,3 +1,4 @@
+import { publicRequest } from "@/shared/api";
 import type { OfferingsPageMeta, OfferingSummary } from "@/shared/api";
 import type { OfferingsQuery } from "../lib/query";
 
@@ -5,8 +6,8 @@ import type { OfferingsQuery } from "../lib/query";
  * The public offerings fetch of the block (design.md D4; the landing spec
  * "Verified offerings list" — "Error and retry"); the taxonomy read lives in
  * `@/entities/taxonomy`. The read is public — the contract attaches no
- * security scheme to it — so it runs on the server with plain `fetch` against
- * `NEXT_PUBLIC_API_URL` and no credential header.
+ * security scheme to it — so it runs on the server through `publicRequest`
+ * with no credential header.
  * Any non-2xx status or transport failure throws; the API's error body and
  * status never reach the presentation, which maps every failure into its one
  * error state (design.md D4).
@@ -39,8 +40,8 @@ export async function fetchOfferings(
     }
   }
   const search = params.toString();
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/offerings${search ? `?${search}` : ""}`,
+  const response = await publicRequest(
+    `/offerings${search ? `?${search}` : ""}`,
   );
   if (!response.ok) {
     throw new Error("offerings request failed");

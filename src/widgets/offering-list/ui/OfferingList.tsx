@@ -5,11 +5,10 @@ import type {
   ResolvedTaxonomyBadge,
 } from "@/entities/offering";
 import { OfferingCard } from "@/entities/offering";
-import { Pagination } from "@/shared/ui";
+import { Pagination, RetryButton } from "@/shared/ui";
 import type { PaginationTexts } from "@/shared/ui";
-import { OfferingCardActions } from "./OfferingCardActions";
-import { RetryButton } from "./RetryButton";
 import { OFFERING_GRID_CLASSES } from "../lib/grid";
+import { OfferingCardActions } from "./OfferingCardActions";
 
 // ─── UI-specific types (declared before the component) ───
 

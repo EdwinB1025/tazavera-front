@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { fetchTaxonomies } from "@/entities/taxonomy";
-import { EvaluationsAccess } from "@/features/manage-evaluations";
+import { EvaluationsGate } from "@/widgets/evaluations-gate";
 import { getMessages } from "@/shared/lib/i18n";
 import { PageSection } from "@/shared/ui";
 import { EvaluationDetail } from "./EvaluationDetail";
@@ -27,7 +27,7 @@ export async function EvaluationScreen({ locale, ulid }: EvaluationScreenProps):
   return (
     <div className="flex-1">
       <PageSection surface="page">
-        <EvaluationsAccess
+        <EvaluationsGate
           texts={{ message: catalog.accessMessage, signInLabel: catalog.signInLabel }}
         >
           {taxonomies ? (
@@ -44,7 +44,7 @@ export async function EvaluationScreen({ locale, ulid }: EvaluationScreenProps):
           ) : (
             <LoadFailure message={catalog.formLoadErrorMessage} retryLabel={catalog.retryLabel} />
           )}
-        </EvaluationsAccess>
+        </EvaluationsGate>
       </PageSection>
     </div>
   );

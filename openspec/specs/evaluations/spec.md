@@ -446,3 +446,50 @@ One read-only presentation SHALL render an evaluation's results for the evaluati
 #### Scenario: Conditional blocks
 - **WHEN** every note is null and every extrinsic field is null
 - **THEN** the notes and extrinsic-attributes blocks render nothing at all, and each renders only the entries whose value is not null when some are
+
+### Requirement: Offerings of an evaluations page
+
+"My evaluations" and the public evaluations list SHALL read the offerings of a page of evaluations the same way: one offering request per distinct non-null `offeringId` of the page, made in parallel after the page arrives. An evaluation without an `offeringId` SHALL request nothing and show its offering-missing row; an evaluation whose offering read is not found or fails SHALL show its offering-unavailable row. The rows keep the order of the page.
+
+#### Scenario: Shared offering on one page
+
+- **WHEN** a page of either list holds several evaluations of the same offering
+- **THEN** that offering is requested once and every one of those rows shows it
+
+#### Scenario: Evaluation without an offering
+
+- **WHEN** an evaluation of the page has a `null` `offeringId`
+- **THEN** no offering request is sent for it and its row is the offering-missing row
+
+#### Scenario: Offering read not found or failed
+
+- **WHEN** the offering read of an evaluation of the page is not found or fails
+- **THEN** its row is the offering-unavailable row and the other rows still show their offerings
+
+### Requirement: Evaluation routes as protected views
+
+Every `/manage/evaluations` route SHALL be a protected view of the application's protected content gate: its loading presentation SHALL be empty, its signed-out message SHALL be the evaluations access message with the "Sign in" action, and the specialist role SHALL be the only role it allows. The signed-out block of these routes SHALL look and behave the same as the signed-out block of every other protected view.
+
+#### Scenario: Session resolving on an evaluation route
+
+- **WHEN** an evaluation route opens while the session is still resolving
+- **THEN** nothing renders in place of the content and no signed-out message shows
+
+#### Scenario: Signed-out block of an evaluation route
+
+- **WHEN** an anonymous visitor opens an evaluation route
+- **THEN** the evaluations access message and a primary "Sign in" button render in a column 1rem apart, with the button at its own width, and activating it starts sign in for that route inside the click
+
+### Requirement: One row per evaluation-row variant
+
+The "My evaluations" row and the public evaluations row SHALL each be rendered as their own row, with only the elements of their variant: the "My evaluations" row shows the status badge, the level-3 heading, the ISO date and the specialist's actions, and never the public row's View offering action; the public row shows the level-2 heading, the localized closed date and the View and View offering actions, and never a status badge. Both rows show the score row, the coffee name and the coffeeshop and roaster captions the same way, as stated in "My evaluations list" and "Public evaluations list".
+
+#### Scenario: My evaluations row
+
+- **WHEN** a row of "My evaluations" is shown
+- **THEN** it has the status badge, a level-3 heading and the specialist's actions, and no View offering action
+
+#### Scenario: Public evaluations row
+
+- **WHEN** a row of the public evaluations list is shown
+- **THEN** it has a level-2 heading and the View and View offering actions, and no status badge

@@ -14,7 +14,7 @@ import type { operations } from "./schema";
 export { configureClient, publicRequest, request } from "./client";
 export { clearTokens, exchangeCode, getTokens, refreshTokens } from "./tokens";
 export { distinctCoffeeValues, fetchCoffees } from "./coffees";
-export type { CoffeeFacetField } from "./coffees";
+export type { CoffeeFacetField, CoffeeSummary } from "./coffees";
 
 type UserResponse =
   operations["getTheAuthenticatedUser"]["responses"][200]["content"]["application/json"];
@@ -32,8 +32,6 @@ type CreateOfferingsResponse =
   operations["createOfferings"]["responses"][201]["content"]["application/json"];
 type ListMyContactsResponse =
   operations["listMyContacts"]["responses"][200]["content"]["application/json"];
-type ListCoffeesResponse =
-  operations["listCoffees"]["responses"][200]["content"]["application/json"];
 type ListRoasteriesResponse =
   operations["listRoasteries"]["responses"][200]["content"]["application/json"];
 type ListCoffeeShopsResponse =
@@ -69,9 +67,6 @@ export type OfferingTaxonomyNode = NonNullable<
 
 /** One node of `GET /taxonomies` `data`: `ulid`, `level`, `nameEs`, `nameEn`, `nameCa`, `color`, `children`. */
 export type TaxonomyNode = NonNullable<ListTaxonomiesResponse["data"]>[number];
-
-/** One item of `GET /coffees` `data`; the facets read `country`, `region`, `process`, `variety`, `producer`. */
-export type CoffeeSummary = NonNullable<ListCoffeesResponse["data"]>[number];
 
 /** One item of `GET /roasteries` `data`: `ulid`, `name`, `description`. */
 export type RoasterySummary = NonNullable<ListRoasteriesResponse["data"]>[number];

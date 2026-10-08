@@ -1,10 +1,10 @@
 "use client";
 
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
-import { request } from "@/shared/api";
 import type { ProfileUpdatePayload, SessionUser } from "@/shared/api";
 import { Button, Field, Input, FormStatus, StepUpNotice } from "@/shared/ui";
 import { isValidEmail } from "@/entities/contact";
+import { updateProfile } from "../api/account";
 import { RoleRow } from "./RoleRow";
 
 // ─── UI-specific types (declared before the component) ───
@@ -84,28 +84,14 @@ export function ProfileForm({
 
     setPending(true);
     setOutcome(null);
-    const payload: ProfileUpdatePayload = values;
-    let status: number | null = null;
-    try {
-      const response = await request(`/users/${user.ulid}`, {
-        method: "PUT",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-      status = response.status;
-    } catch {
-      // A network failure shows the generic error (spec "Profile settings").
-    }
+    const result = await updateProfile(String(user.ulid), values);
     setPending(false);
-    if (status === 200) {
+    if (result === "success") {
       setOutcome("success");
       void refreshProfile();
       return;
     }
-    setOutcome(status === 403 ? "stepUp" : "error");
+    setOutcome(result);
   }
 
   return (

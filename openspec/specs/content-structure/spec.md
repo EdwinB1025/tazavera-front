@@ -250,6 +250,21 @@ Below 768px Previous and Next SHALL show only a left or right chevron in a 2.5re
 - **WHEN** the viewport is 768px or wider
 - **THEN** Previous and Next show their labels and no chevron
 
+### Requirement: Acyclic shared segment imports
+Every non-test module of a shared segment SHALL import the sibling modules it uses directly, never through the segment's own public index, and no module of the front SHALL consist only of re-exports of another module. The public exports of each shared segment SHALL stay the same.
+
+#### Scenario: Sibling import inside a segment
+- **WHEN** a non-test module of a shared segment uses a sibling module of the same segment
+- **THEN** it imports that sibling module directly and its import graph contains no path back through the segment's public index
+
+#### Scenario: No re-export-only module
+- **WHEN** the front's source modules are inspected
+- **THEN** none of them consists only of re-exports of another module, other than a segment's or slice's public index
+
+#### Scenario: Public exports kept
+- **WHEN** a consumer imports from a shared segment's public index
+- **THEN** every name it exported before the change is still exported with the same meaning
+
 ### Requirement: Prompt page change on server-loaded lists
 When the visitor activates another page, or changes the query, of a list loaded on the server — the entry page's verified offerings, the offering catalog with the coffee shop's Offerings tab, and the coffee shop directory — the list SHALL replace the previous page's content with its loading state at once and SHALL show the requested page once it loads, instead of keeping the previous page in view until the requested one has loaded.
 

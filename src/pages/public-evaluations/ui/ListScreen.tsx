@@ -8,7 +8,7 @@ import {
   parseEvaluationFilters,
   publicEvaluationsQuery,
 } from "@/features/evaluation-facets";
-import { EvaluationRowCard } from "@/widgets/evaluation-row";
+import { PublicEvaluationRowCard } from "@/widgets/evaluation-row";
 import { EvaluationListSkeleton, PublicEvaluationList } from "@/widgets/public-evaluation-list";
 import type { PublicEvaluationRow } from "@/widgets/public-evaluation-list";
 import { PageSection } from "@/shared/ui";
@@ -47,8 +47,7 @@ export function ListScreen({ locale, searchParams }: ListScreenProps): ReactNode
   const query = publicEvaluationsQuery(values, pageFrom(searchParams.page));
   const texts = listTexts(locale);
   const renderRow = (row: PublicEvaluationRow): ReactNode => (
-    <EvaluationRowCard
-      variant="public"
+    <PublicEvaluationRowCard
       evaluation={row.evaluation}
       offering={row.offering}
       locale={locale}

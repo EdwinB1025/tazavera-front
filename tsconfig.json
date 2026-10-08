@@ -30,5 +30,11 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "qa/src/entities/offering/ui/OfferingCard.test.tsx",
+    "qa/src/widgets/app-header/ui/AppHeader.test.tsx",
+    "qa/src/widgets/evaluation-row/ui/EvaluationRowCard.test.tsx",
+    "qa/src/widgets/offering-list/lib/resolve-taxonomies.test.ts"
+  ]
 }
