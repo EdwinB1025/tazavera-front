@@ -226,18 +226,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Status:** accepted
 - **Affects:** R40 (the 404 responses must be documented first)
 
-## R33 — Split `ConsensusPanel`
-
-- **Duplicated:** none; a 480-line file with a 252-line component
-- **Where today:** `src/widgets/offering-detail/ui/ConsensusPanel.tsx`
-- **Why it pays off now:** it raises Modifiability (fewer files over 300 lines).
-- **Owning capability:** offering-catalog
-- **Proposed change:** `split-consensus-panel` (M)
-- **Open decision (Augusto):** none
-- **Type:** Refactor (fast lane)
-- **Status:** proposed
-- **Affects:** none
-
 ## R34 — Move the evaluation form state into a model
 
 - **Duplicated:** none; 9 `useState` calls, cyclomatic complexity 25, and a 205-line `EvaluationGroupCard`
