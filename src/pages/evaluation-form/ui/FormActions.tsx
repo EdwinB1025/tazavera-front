@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Button } from "@/shared/ui";
+import { Button, Link } from "@/shared/ui";
 import type { FormBusy } from "../model/form-model";
 
 // ─── UI-specific types (declared before the component) ───
@@ -9,6 +9,9 @@ import type { FormBusy } from "../model/form-model";
 export type FormActionsProps = {
   saveLabel: string;
   closeLabel: string;
+  /** Leaves the form without saving (add-form-cancel-actions D1). */
+  cancelLabel: string;
+  cancelHref: `/${string}`;
   onSave: () => void;
   onClose: () => void;
   busy: FormBusy;
@@ -17,8 +20,10 @@ export type FormActionsProps = {
 };
 
 // ─── Layout end states (design.md D14; the summary §9) ───
-// Below `md` a sticky bar fixed to the bottom of the viewport; from `md` an
-// actions row with a top border and 1.5rem above the buttons.
+// Below `md` a sticky bar fixed to the bottom of the viewport, stacking the
+// status, the two buttons and Cancel on its own centred line; from `md` an
+// actions row with a top border and 1.5rem above the buttons, Cancel last
+// (add-form-cancel-actions D2).
 const BAR_CLASSES = [
   "fixed",
   "inset-x-0",
@@ -47,13 +52,15 @@ const BUTTONS_CLASSES = ["flex", "gap-4", "md:justify-end"].join(" ");
 const BUTTON_WIDTH_CLASSES = "flex-1 md:flex-none";
 
 /**
- * Save draft and Close evaluation (design.md D4, D14; spec "Saving a draft",
- * "Closing an evaluation"), with the `role="status"` region beside them that
+ * Save draft, Close evaluation and Cancel (design.md D4, D14; spec "Saving a
+ * draft", "Closing an evaluation", "Cancelling the evaluation form"), with the `role="status"` region beside them that
  * carries the confirmation or failure message of the last action.
  */
 export function FormActions({
   saveLabel,
   closeLabel,
+  cancelLabel,
+  cancelHref,
   onSave,
   onClose,
   busy,
@@ -85,6 +92,9 @@ export function FormActions({
           {closeLabel}
         </Button>
       </div>
+      <Link href={cancelHref} className="self-center">
+        {cancelLabel}
+      </Link>
     </div>
   );
 }

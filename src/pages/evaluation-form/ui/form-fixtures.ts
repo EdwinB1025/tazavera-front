@@ -30,6 +30,7 @@ export const FORM_TEXTS: EvaluationFormTexts = {
   actions: {
     saveLabel: "Save draft",
     closeLabel: "Close evaluation",
+    cancelLabel: "Cancel",
     savedMessage: "Draft saved.",
     closedMessage: "Evaluation closed.",
     incompleteMessage: "Complete every group before closing.",

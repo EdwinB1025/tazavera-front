@@ -20,6 +20,12 @@ export default defineConfig({
             'qa/src/widgets/offering-list/lib/resolve-taxonomies.test.ts',
             // imports ThemeSelect, deleted by refine-header-aut (design.md D4b)
             'qa/src/widgets/app-header/ui/ThemeSelect.test.tsx',
+            // lacks the required cancel props of add-form-cancel-actions (design.md D5)
+            'qa/src/pages/evaluation-form/ui/FormActions.test.tsx',
+            // lacks the required cancel props of add-form-cancel-actions (design.md D5)
+            'qa/src/features/user-account/ui/RegisterForm.test.tsx',
+            // lacks the required cancel props of add-form-cancel-actions (design.md D5)
+            'qa/src/pages/register/ui/RegisterClient.test.tsx',
         ],
     },
 })

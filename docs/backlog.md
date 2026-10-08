@@ -25,7 +25,6 @@ The entries below follow this order. The order runs security first, then the sha
 | 0 | R41 | none (closed: environment, no code) | Deploy note | — | — (closed by Product owner 2026-10-08) |
 | 0d | R47 | none (closed: no code change) | Unplanned fix | — | — (Product owner 2026-10-08, option A: re-test on current develop) |
 | 0l | R56 | `cascade-evaluation-descriptors` | Correction (fast lane, maximum priority) | M | R48, R49 and round 3 merged (Product owner 2026-10-08: drafts also choose ancestors; read-only views as nested trees; level-2 rows without indent) |
-| 0m | R57 | `add-form-cancel-actions` | Correction (fast lane, maximum priority) | M | round 3 merged into `develop` (Product owner 2026-10-08: no Cancel on profile/password; add the New offering Cancel scenario) |
 | 0o | R59 | `drop-step-up-for-everyday-writes` | Correction (auth; fast lane, maximum priority for the front) | S | the regenerated contract in `contracts/openapi.yaml` (API change on `tazavera-api` `dev` `71bc91b`); R51 merged (same account page) |
 | 0q | R61 | `stack-flavor-wheel-layout` | Correction (fast lane, maximum priority) | S | round 3 (`qa`, with R37's FlavorWheel split) merged into `develop` |
 | 0r | R62 | `nest-consensus-notes` | Correction (fast lane, maximum priority) | M | R49 merged (tree rendering to reuse); design lead on its open points |
@@ -84,16 +83,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Open decision (Augusto):** answered 2026-10-08 (correction, relayed by the testing/deployment session): the evaluation form's descriptor selectors work like the MVC cascade (`resources/views/layouts/evaluations/partials/descriptor-cascade.blade.php`, used by `evaluation-form.blade.php:63` and `evaluation-axis.blade.php:55,109`): every level-0 node is a selectable chip; level 1 renders only while its root is chosen; level 2 only while its level-1 parent is chosen; choosing adds only that node; unchoosing removes the node and all its descendants. Keep the chip look of finding 16 (taxonomy badge with ✓ when chosen, colour dot when not). Same model as R48 (findings 15/16) and R49 (finding 18). Open for the design lead: whether level 2 is now shown (check the API accepts level-2 refs in the evaluation payload and the consensus); whether the read-only views (evaluation sheet, consensus panel) switch to nested trees; keyboard and ARIA of nested chips (today one tab stop with arrow keys); sharing one cascade component with the offerings facet (R48) and the card trees (R49).
 - **Type:** Correction (fast lane, maximum priority) · **Status:** accepted
 - **Affects:** waits for R48 (shared cascade); R34 on `qa` reorganised the evaluation form (`EvaluationForm`, `EvaluationGroupCard`): the merge of R56 into `develop` and the next `qa` → `develop` must be reconciled
-
-## R57 — Every create/update form offers Cancel (production AUT finding 25, 2026-10-08)
-
-- **Duplicated:** the Cancel pattern exists in some forms only.
-- **Where today:** evaluation form, new and edit (`pages/evaluation-form/ui/EvaluationForm.tsx:251` back link to `/{locale}/manage/evaluations`; `FormActions.tsx:73-88` only Save and Close evaluation): missing, the one reported. New offering (`NewOfferingForm.tsx:142`), location form (`LocationForm.tsx:215`) and account contact section (`ContactSection.tsx:294`): have it. Register forms (`RegisterForm.tsx`): missing. Account profile and password forms (`ProfileForm.tsx:162`, `PasswordForm.tsx:218`): inline, always-open, submit only.
-- **Owning capability:** evaluations, user-account (with base-controls for the actions row)
-- **Proposed change:** `add-form-cancel-actions` (M)
-- **Open decision (Augusto):** answered 2026-10-08: every create/update form offers "Cancel" next to the submit, in the actions-row order of New offering (submit, then Cancel), going to the same destination as the page's back link, sending no request. Open for the design lead: whether Cancel warns about unsaved input in the (long) evaluation form; the evaluation form's action bar with three actions; the register forms' destination (landing or previous page). Open for Product owner: the inline profile and password forms (no Cancel, or a Cancel that restores the saved values).
-- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted
-- **Affects:** R34 on `qa` reorganised the evaluation form (`FormActions.tsx` touched); R38 on `qa` splits `ContactSection`
 
 ## R59 — Step-up only for password and account removal (production AUT finding 27, 2026-10-08)
 

@@ -2,7 +2,7 @@
 
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import type { RegisterPayload } from "@/shared/api";
-import { Button, Field, Input, FormStatus } from "@/shared/ui";
+import { Button, Field, Input, FormStatus, Link } from "@/shared/ui";
 import { isValidEmail } from "@/entities/contact";
 import { registerUser } from "../api/register";
 import { NewPasswordFields } from "./NewPasswordFields";
@@ -32,6 +32,7 @@ export type RegisterFormTexts = RegisterSuccessPanelTexts & {
   emailFormatError: string;
   passwordMismatchError: string;
   registerSubmit: string;
+  cancelLabel: string;
   genericError: string;
 };
 
@@ -42,6 +43,8 @@ export type RegisterFormProps = {
   texts: RegisterFormTexts;
   /** Starts sign in from the success panel (design.md D1). */
   signIn: () => void;
+  /** Where Cancel leads; sends nothing (add-form-cancel-actions D3). */
+  cancelHref: `/${string}`;
 };
 
 type RegisterField =
@@ -103,6 +106,7 @@ export function RegisterForm({
   labelledBy,
   texts,
   signIn,
+  cancelHref,
 }: RegisterFormProps): ReactNode {
   const formRef = useRef<HTMLFormElement>(null);
   const [values, setValues] = useState<RegisterValues>(EMPTY_VALUES);
@@ -194,7 +198,7 @@ export function RegisterForm({
         onChange={update}
       />
       {failed && <FormStatus kind="error" text={texts.genericError} />}
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-col items-center gap-3">
         <Button
           type="submit"
           variant="primary"
@@ -204,6 +208,7 @@ export function RegisterForm({
         >
           {texts.registerSubmit}
         </Button>
+        <Link href={cancelHref}>{texts.cancelLabel}</Link>
       </div>
     </form>
   );

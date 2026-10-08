@@ -36,6 +36,7 @@ export function RegisterScreen({ locale, role }: RegisterScreenProps): ReactNode
     emailFormatError: catalog.emailFormatError,
     passwordMismatchError: catalog.passwordMismatchError,
     registerSubmit: catalog.registerSubmit,
+    cancelLabel: catalog.cancel,
     genericError: catalog.genericError,
     registerSuccessTitle: catalog.registerSuccessTitle,
     registerSuccessText: catalog.registerSuccessText,
