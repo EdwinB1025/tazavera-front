@@ -100,18 +100,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Status:** accepted
 - **Affects:** `add-auth`; comes after R23
 
-## R25 — Move the account requests to the api segment
-
-- **Duplicated:** a 33-line password-fields clone between `PasswordForm` and `RegisterForm`. Separately, the forms do their own transport and status mapping.
-- **Where today:** `src/features/user-account/ui/ProfileForm.tsx`, `PasswordForm.tsx`, `RegisterForm.tsx`, `DangerZone.tsx`
-- **Why it pays off now:** R8 (per-field 422 errors) would land in four places.
-- **Owning capability:** user-account
-- **Proposed change:** `move-account-requests-to-api` (M)
-- **Open decision (Augusto):** none
-- **Type:** Refactor (fast lane)
-- **Status:** proposed
-- **Affects:** R8, R35
-
 ## R27 — Split `EvaluationRowCard`
 
 - **Duplicated:** two render trees behind a flag (cyclomatic complexity 37, the highest in the code)
