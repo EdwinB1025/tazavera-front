@@ -144,7 +144,7 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Why it pays off now:** it raises the Security headers indicator from B to A. R3 can ride with it.
 - **Owning capability:** app-shell
 - **Proposed change:** `harden-response-headers` (S)
-- **Open decision (Augusto):** answered 2026-10-08: approved; the headers keep the map and location features allowed (fast lane by Product owner's decision, although it touches security)
+- **Open decision (Augusto):** answered 2026-10-08: approved; the headers keep the map and location features allowed (fast lane by Product owner's decision, although it touches security). Answered 2026-10-08 (later): the change MAY add the response-header assertions to `proxy.test` (R3's tests), an explicit exception to "a refactor adds no tests"
 - **Type:** Refactor (fast lane)
 - **Status:** accepted
 - **Affects:** R3
