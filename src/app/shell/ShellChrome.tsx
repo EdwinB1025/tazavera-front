@@ -52,8 +52,8 @@ export function ShellChrome({
 
   const handleSignOut = () => {
     // Sign out completes locally and lands on the root of the active locale
-    // (spec: "Sign out").
-    signOut();
+    // through the App Router, which renders it (spec: "Sign out").
+    signOut(router.push);
   };
 
   return (

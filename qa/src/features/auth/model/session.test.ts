@@ -211,11 +211,12 @@ describe("sign out (spec: Sign out)", () => {
     // The `401` of design.md D5 ("the token is already dead").
     fetchMock.mockResolvedValue(jsonResponse({}, 401));
     pushMock.mockClear();
+    const openRoute = vi.fn<(href: string) => void>();
     const openSpy = vi
       .spyOn(window, "open")
       .mockReturnValue(null as unknown as Window);
 
-    loaded.signOut();
+    loaded.signOut(openRoute);
 
     // The answer is never consulted and no recovery runs: `POST /logout` is
     // the only request (no refresh grant), and neither a silent
@@ -229,8 +230,8 @@ describe("sign out (spec: Sign out)", () => {
     expect(openSpy).not.toHaveBeenCalled();
     expect(loaded.getTokens()).toBeNull();
     expect(loaded.flow.hasMarker()).toBe(false);
-    expect(pushMock).toHaveBeenCalledTimes(1);
-    expect(pushMock).toHaveBeenCalledWith(null, "", "/en");
+    expect(openRoute).toHaveBeenCalledExactlyOnceWith("/en");
+    expect(pushMock).not.toHaveBeenCalled();
   });
 });
 
@@ -309,7 +310,7 @@ describe("profile refresh (spec: Session states and profile; design.md D5)", () 
     await vi.waitFor(() => {
       expect(profileRequests()).toHaveLength(1);
     });
-    loaded.signOut();
+    loaded.signOut(() => {});
     await vi.waitFor(() => {
       expect(seen.current()).toEqual({ state: "anonymous" });
     });
