@@ -27,7 +27,6 @@ The entries below follow this order. The order runs security first, then the sha
 | 0e | R48 | `refine-offering-facets-aut` | Correction (fast lane, maximum priority) | M | R46 merged (same files); design lead on finding 16's open points |
 | 0f | R49 | `nest-card-taste-notes` | Correction (fast lane, maximum priority) | M | — |
 | 0g | R51 | `widen-account-cards` | Correction (fast lane, maximum priority) | S | design lead on its open points |
-| 0h | R52 | `open-landing-on-sign-out` | Unplanned fix (fast lane, maximum priority) | S | — |
 | 0i | R53 | `add-explore-offerings-entry` | Correction (fast lane, maximum priority) | S | design lead on its open points |
 | 0j | R54 | `rename-coffeeshop-card-action` | Correction (fast lane, maximum priority) | S | design lead on its open points |
 | 0k | R55 | `fit-bean-mark-disc` | Correction (fast lane, maximum priority) | S | design lead on its open points |
@@ -112,13 +111,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Owning capability:** user-account
 - **Open decision (Augusto):** answered 2026-10-08: the account cards take the full container width with the page's usual side margins ("they look cut off"). Open for the design lead: whether the form fields inside the cards keep a readable maximum width; the register routes (centred 32rem) are not in scope (Product owner spoke only of the account page).
 - **Type:** Correction (fast lane, maximum priority) · **Status:** accepted · **Affects:** none
-
-## R52 — Sign out does not show the landing (production AUT finding 20, 2026-10-08)
-
-- **Duplicated:** none. Defect against `auth` "Sign out" ("…and the application opens the root of the active locale"): `features/auth/model/session.ts:96` calls `window.history.pushState(null, "", localeRoot())`, which per the local Next docs (`01-app/01-getting-started/04-linking-and-navigating.md`, "Native History API") updates the URL without rendering the route; `features/auth/api/authorize.ts:42-46` documents the same limit for `/callback` and uses the App Router's `replace`.
-- **Owning capability:** auth
-- **Open decision (Augusto):** none (unplanned fix): after sign out the landing of the active locale renders (App Router navigation or a full load); both spec scenarios (revocation OK, server unreachable) hold. Found by Product owner in the browser; verified by code and docs, not reproduced.
-- **Type:** Unplanned fix (fast lane, maximum priority) · **Status:** accepted · **Affects:** none
 
 ## R53 — "Explore offerings" entry for the specialist (production AUT finding 21, 2026-10-08)
 
