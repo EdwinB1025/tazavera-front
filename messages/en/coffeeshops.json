@@ -6,7 +6,7 @@
   "locationsCount": "{count} locations",
   "offeringsCount": "Offerings: {count}",
   "verifiedCount": "Verified: {count}",
-  "viewLabel": "View",
+  "viewLabel": "View offerings",
   "listEmpty": "No coffee shops yet.",
   "listError": "The coffee shops could not be loaded.",
   "filtersTitle": "Filters",

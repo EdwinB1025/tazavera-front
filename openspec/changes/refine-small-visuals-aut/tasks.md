@@ -7,7 +7,7 @@
 ## 2. Coffee shop card action (R54, offering-catalog)
 
 - [x] 2.1 In `src/entities/coffeeshop/ui/CoffeeshopCard.test.tsx`, take the fixture `viewLabel` from the es coffee shop catalog and assert the action named "Ver ofertas" in "Card content" and "View link" (destination still `/es/coffeeshops/01SHOP`); in `src/widgets/coffeeshop-list/ui/CoffeeshopList.test.tsx` set the fixture `viewLabel` to "Ver ofertas" — verifying the card tests fail only because the catalog still reads "Ver"
-- [ ] 2.2 Set `viewLabel` in `messages/es/coffeeshops.json` to "Ver ofertas", `messages/en/coffeeshops.json` to "View offerings" and `messages/ca/coffeeshops.json` to "Veure ofertes" (design.md D1) — verifying `npx vitest related` over the changed files passes, and lint and typecheck exit 0
+- [x] 2.2 Set `viewLabel` in `messages/es/coffeeshops.json` to "Ver ofertas", `messages/en/coffeeshops.json` to "View offerings" and `messages/ca/coffeeshops.json` to "Veure ofertes" (design.md D1) — verifying `npx vitest related` over the changed files passes, and lint and typecheck exit 0
 
 ## 3. Bean mark background (R55, form-fields)
 
