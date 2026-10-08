@@ -87,18 +87,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Status:** proposed
 - **Affects:** `add-auth`
 
-## R21 — Remove the intra-segment import cycles
-
-- **Duplicated:** 3 cycles through the `shared/ui` barrel and the `RetryButton` re-export shim
-- **Where today:** `src/shared/ui/Sidebar.tsx:7`, `src/shared/api/coffees.ts:1`, `src/widgets/offering-list/ui/RetryButton.tsx`
-- **Why it pays off now:** R28 needs a barrel without cycles.
-- **Owning capability:** content-structure
-- **Proposed change:** `tidy-shared-imports` (S)
-- **Open decision (Augusto):** none
-- **Type:** Refactor (fast lane)
-- **Status:** proposed
-- **Affects:** R28
-
 ## R22 — Shared Field-control hook
 
 - **Duplicated:** the same Field-context resolution, copied 4–6 times (cyclomatic complexity 15–25)

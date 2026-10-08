@@ -6,9 +6,8 @@ import type {
 } from "@/entities/offering";
 import { OfferingCard } from "@/entities/offering";
 import { EvaluateLink } from "@/features/evaluate-offering";
-import { Pagination } from "@/shared/ui";
+import { Pagination, RetryButton } from "@/shared/ui";
 import type { PaginationTexts } from "@/shared/ui";
-import { RetryButton } from "./RetryButton";
 import { OFFERING_GRID_CLASSES } from "../lib/grid";
 
 // ─── UI-specific types (declared before the component) ───

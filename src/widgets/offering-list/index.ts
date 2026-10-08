@@ -16,8 +16,6 @@ export type {
   OfferingListResult,
   OfferingListTexts,
 } from "./ui/OfferingList";
-export { RetryButton } from "./ui/RetryButton";
-export type { RetryButtonProps } from "./ui/RetryButton";
 export { OfferingSkeletonCard } from "./ui/OfferingSkeletonCard";
 export { CATALOG_GRID_CLASSES, OFFERING_GRID_CLASSES } from "./lib/grid";
 export { buildOfferingsQuery } from "./lib/query";
