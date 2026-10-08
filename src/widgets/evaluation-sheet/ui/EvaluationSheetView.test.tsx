@@ -3,6 +3,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import type { OfferingResult } from "@/entities/offering";
 import type { EvaluationItem } from "@/shared/api";
+import { Link } from "@/shared/ui";
 import { EVALUATION, SHEET_TEXTS, TAXONOMIES } from "./sheet-fixtures";
 
 /**
@@ -50,7 +51,7 @@ const TEXTS: EvaluationViewTexts = {
   retryLabel: "Retry",
 };
 
-const BACK: ReactNode = <a href="/en/evaluations">Back</a>;
+const BACK: ReactNode = <Link href="/en/evaluations">Back</Link>;
 const DATE = new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "UTC" }).format(
   new Date(EVALUATION.closedAt as string),
 );

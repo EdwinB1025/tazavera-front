@@ -8,7 +8,8 @@ import type { ReactNode } from "react";
  * public API by a marker that renders the back link it receives.
  */
 
-vi.mock("@/widgets/evaluation-sheet", () => ({
+vi.mock("@/widgets/evaluation-sheet", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/widgets/evaluation-sheet")>()),
   EvaluationSheetView: ({ ulid, back }: { ulid: string; back: ReactNode }) => (
     <div data-testid="view" data-ulid={ulid}>
       {back}
