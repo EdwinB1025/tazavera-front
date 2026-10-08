@@ -8,7 +8,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 2. Segment labels
 
-- [ ] 2.1 Create `src/shared/ui/FlavorWheelLabels.tsx` with `WheelLabelProps`, `SegmentLabel` and `ActiveName` (design.md D2), moved unchanged. Verify: the related tests pass, including the wheel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors. Commit `refactor(feedback): extract the flavor wheel segment labels`.
+- [x] 2.1 Create `src/shared/ui/FlavorWheelLabels.tsx` with `WheelLabelProps`, `SegmentLabel` and `ActiveName` (design.md D2), moved unchanged. Verify: the related tests pass, including the wheel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors. Commit `refactor(feedback): extract the flavor wheel segment labels`.
 
 ## 3. Description panel
 
