@@ -25,6 +25,7 @@ The entries below follow this order. The order runs security first, then the sha
 | 0 | R41 | none (closed: environment, no code) | Deploy note | — | — (closed by Product owner 2026-10-08) |
 | 0d | R47 | none (closed: no code change) | Unplanned fix | — | — (Product owner 2026-10-08, option A: re-test on current develop) |
 | 16c | R50 | API branch in `tazavera-api` | Change (API) | S | Product owner: verify with real data (the API should deliver the resolved tree) |
+| 16d | R64 | none yet | Change (layout) | S | Product owner: confirm the gap should shrink and to what |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
 | 4 | R21 | `tidy-shared-imports` | Refactor (fast lane) | S | — |
@@ -63,6 +64,16 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Type:** Unplanned fix
 - **Status:** closed (no code)
 - **Affects:** none
+
+## R64 — Empty band above the offerings and coffee-shops lists (design lead's final AUT pass, 2026-10-09)
+
+- **Duplicated:** none. About 100px of empty space sits between the list toolbar (sort / Filtros) and the first card on `/{locale}/offerings` and `/{locale}/coffeeshops`; part is the heading section's `md:py-16` padding, the rest unexplained. Same on `develop` before round 4 (not a regression).
+- **Where today:** the list screens' section stack (`widgets/offering-list`, `widgets/coffeeshop-list`, `PageSection` paddings); not checked against the design summaries.
+- **Why it pays off now:** the lists look detached from their toolbar.
+- **Owning capability:** content-structure
+- **Proposed change:** none yet (spacing review)
+- **Open decision (Augusto):** whether the gap should shrink and to what spacing; the design lead to measure it against the summaries first.
+- **Type:** Change (layout) · **Status:** proposed · **Affects:** none
 
 ## R50 — Consensus concordance loses the parent of unmarked intermediate notes (API; found by the design lead for R49)
 
