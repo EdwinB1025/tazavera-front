@@ -35,7 +35,9 @@ The entries below follow this order. The order runs security first, then the sha
 | 0m | R57 | `add-form-cancel-actions` | Correction (fast lane, maximum priority) | M | design lead on its open points; Product owner on the inline account forms |
 | 0n | R58 | `add-note-plus-icon` | Correction (fast lane, maximum priority) | S | — |
 | 0o | R59 | `drop-step-up-for-everyday-writes` | Correction (auth, API first; fast lane, maximum priority for the front) | S | Product owner's API change and the regenerated contract |
-| 0p | R60 | `add-header-theme-toggle` | Correction (fast lane, maximum priority) | S | design lead on its open points |
+| 0p | R60 | `add-header-theme-toggle` | Correction (fast lane, maximum priority) | S | Product owner: icon shown; 375px fit |
+| 0q | R61 | `stack-flavor-wheel-layout` | Correction (fast lane, maximum priority) | S | round 3 (`qa`, with R37's FlavorWheel split) merged into `develop` |
+| 0r | R62 | `nest-consensus-notes` | Correction (fast lane, maximum priority) | M | R49 merged (tree rendering to reuse); design lead on its open points |
 | 16c | R50 | API branch in `tazavera-api` | Change (API) | S | Product owner: verify with real data (the API should deliver the resolved tree) |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
@@ -186,6 +188,23 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Owning capability:** app-shell
 - **Open decision (Augusto):** answered 2026-10-08: an icon button next to the language selector, on every viewport (visible like the language selector when the primary navigation collapses), switching between traditional and dark, keeping the choice in the browser as today (`shared/lib/theme`, cookie); an accessible name that names the action and the current theme (es/en/ca), with the pressed/current state exposed. Open for the design lead: the icon pair (through `shared/ui/icons.ts`), a toggle or a small menu like the language selector, whether `ThemeSelect` leaves the user menu (and the user-menu spec scenario), and the header contrast in both themes.
 - **Type:** Correction (fast lane, maximum priority) · **Status:** accepted · **Affects:** R53 (also edits the user menu)
+
+## R61 — CATA flavor wheel always stacked (production AUT finding 29, 2026-10-08)
+
+- **Duplicated:** none. `shared/ui/FlavorWheel.tsx:58-66` switches from `@2xl` to a two-column grid (wheel in column 1 `max-w-128`; description panel, group legend and notes list in column 2, `grid-cols-[minmax(0,32rem)_minmax(16rem,1fr)]`), from the add-offering-detail/consensus design (D8, summary §6). Only consumer: `widgets/offering-detail/ui/ConsensusPanel.tsx:459`.
+- **Owning capability:** feedback (with offering-catalog)
+- **Open decision (Augusto):** answered 2026-10-08: the CATA wheel keeps the mobile-first stacked structure on every width, top to bottom: the wheel (centred, `max-w-128`), the description fragment (the hovered/focused note's description and its `n/total` legend), the "Notes" disclosure. With the mouthfeel groups (D19) the general group legend stays in the stacked order, under the wheel and before the description. Drop the `@2xl` grid (LAYOUT_CLASSES, GROUPED_LAYOUT_CLASSES, WHEEL_CLASSES, GROUPED_WHEEL_CLASSES); update `FlavorWheel.test.tsx` assertions on the `@2xl` classes.
+- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted
+- **Affects:** R37 (on `qa`) split `FlavorWheel` into `FlavorWheelChart`, `FlavorWheelPanel`, `FlavorWheelNoteList` and helpers: R61 starts from `develop` once round 3 is merged there
+
+## R62 — Consensus "Notes by attribute" as nested trees with inline counts (production AUT finding 30, 2026-10-08)
+
+- **Duplicated:** a second tree rendering next to R49's card trees.
+- **Where today:** `widgets/offering-detail/ui/ConsensusPanel.tsx` (split by R33 into `AxisDetail.tsx`, `SelectionBlock.tsx`, `ConsensusLegend.tsx`, `lib/identified-counts.ts`): `identifiedCounts` flattens the API tree into a `ref → count` map; the axis sections map it onto `buildDescriptorRows` (the full taxonomy), where a level-0 node with children is only a row title and level 2 is never shown; the legend is a separate `md:w-56` column listing only level-1/shared chips. Settled by add-offering-catalog D13/D18.
+- **Owning capability:** offering-catalog
+- **Open decision (Augusto):** answered 2026-10-08: (a) each note's consensus legend (`name n/total`) goes next to its own note box/badge, with no separate legend column; (b) each axis renders only the consensus nodes of that axis as the API's resolved tree (root → its consensus children → their consensus children), nested like the MVC cascade (same model as R49/R56). The API already sends the resolved tree (`sensoryTaxonomy`, `cataConcordance`: `{ref, type, level, count, children[]}` with levels 0–2); front only. Open for the design lead: whether the inline legend also applies to the "Main tastes" and "Defects" selection blocks (recommended yes); reusing one tree component with R49 and R56.
+- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted
+- **Affects:** R56 open point O2 (the consensus panel now goes to nested trees by this decision); waits for R49 (tree rendering)
 
 ## R50 — Consensus concordance loses the parent of unmarked intermediate notes (API; found by the design lead for R49)
 
