@@ -43,6 +43,13 @@ describe("NoteField (design.md D14)", () => {
     expect(sent).not.toHaveBeenCalled();
   });
 
+  it("shows an aria-hidden plus icon after the Add note text (spec: The Add note control shows a plus icon)", () => {
+    render(<Harness />);
+    const add = screen.getByRole("button", { name: "Add note" });
+    expect(add.lastElementChild?.tagName.toLowerCase()).toBe("svg");
+    expect(add.lastElementChild?.getAttribute("aria-hidden")).toBe("true");
+  });
+
   it("opens the note field with its label, a textarea and the remove control aligned to the end", () => {
     render(<Harness />);
     fireEvent.click(screen.getByRole("button", { name: "Add note" }));

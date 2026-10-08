@@ -158,7 +158,12 @@ Each descriptor block SHALL offer the level-0 and level-1 nodes of `GET /taxonom
 
 ### Requirement: Notes
 
-Every axis and part SHALL hide its optional note behind an "Add note" control; once open, the note can be removed with a remove-note control and the note is sent as that axis's `note`.
+Every axis and part SHALL hide its optional note behind an "Add note" control, which shows a decorative plus icon after its text; once open, the note can be removed with a remove-note control and the note is sent as that axis's `note`.
+
+#### Scenario: The Add note control shows a plus icon
+
+- **WHEN** an axis's note is closed
+- **THEN** the "Add note" control shows a plus icon after its text, hidden from assistive technology, and its accessible name is exactly its text
 
 #### Scenario: Adding a note
 

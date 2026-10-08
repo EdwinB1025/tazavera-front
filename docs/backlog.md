@@ -32,7 +32,6 @@ The entries below follow this order. The order runs security first, then the sha
 | 0k | R55 | `fit-bean-mark-disc` | Correction (fast lane, maximum priority) | S | design lead on its open points |
 | 0l | R56 | `cascade-evaluation-descriptors` | Correction (fast lane, maximum priority) | M | R48, R49 and round 3 merged (Product owner 2026-10-08: drafts also choose ancestors; read-only views as nested trees; level-2 rows without indent) |
 | 0m | R57 | `add-form-cancel-actions` | Correction (fast lane, maximum priority) | M | round 3 merged into `develop` (Product owner 2026-10-08: no Cancel on profile/password; add the New offering Cancel scenario) |
-| 0n | R58 | `add-note-plus-icon` | Correction (fast lane, maximum priority) | S | — |
 | 0o | R59 | `drop-step-up-for-everyday-writes` | Correction (auth; fast lane, maximum priority for the front) | S | the regenerated contract in `contracts/openapi.yaml` (API change on `tazavera-api` `dev` `71bc91b`); R51 merged (same account page) |
 | 0p | R60 | `add-header-theme-toggle` | Correction (fast lane, maximum priority) | S | — (Product owner 2026-10-08: icon of the current theme; `gap-2` below md; with R53 in one package) |
 | 0q | R61 | `stack-flavor-wheel-layout` | Correction (fast lane, maximum priority) | S | round 3 (`qa`, with R37's FlavorWheel split) merged into `develop` |
@@ -157,14 +156,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Open decision (Augusto):** answered 2026-10-08: every create/update form offers "Cancel" next to the submit, in the actions-row order of New offering (submit, then Cancel), going to the same destination as the page's back link, sending no request. Open for the design lead: whether Cancel warns about unsaved input in the (long) evaluation form; the evaluation form's action bar with three actions; the register forms' destination (landing or previous page). Open for Product owner: the inline profile and password forms (no Cancel, or a Cancel that restores the saved values).
 - **Type:** Correction (fast lane, maximum priority) · **Status:** accepted
 - **Affects:** R34 on `qa` reorganised the evaluation form (`FormActions.tsx` touched); R38 on `qa` splits `ContactSection`
-
-## R58 — "Añadir nota" shows a trailing plus icon (production AUT finding 26, 2026-10-08)
-
-- **Duplicated:** none. `pages/evaluation-form/ui/NoteField.tsx:60-67` (catalog `evaluations.json` `addNoteLabel`) shows the text only.
-- **Owning capability:** evaluations
-- **Proposed change:** `add-note-plus-icon` (S)
-- **Open decision (Augusto):** answered 2026-10-08: the link shows a "+" at the end: the `Plus` icon already exported from `src/shared/ui/icons.ts`, `aria-hidden`, after the text (orchestrator's choice over a literal "+", per the icon rule); the visible text and the accessible name stay "Añadir nota" / its locale texts.
-- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted · **Affects:** none
 
 ## R59 — Step-up only for password and account removal (production AUT finding 27, 2026-10-08)
 
