@@ -13,10 +13,18 @@ import {
   labelPath,
   labelRadius,
   layoutWheel,
-  groupRuns,
   type WheelSegment,
 } from "./flavor-wheel-geometry";
 import { taxonomyColorRule } from "./taxonomy-color";
+import {
+  SWATCH_CLASSES,
+  arrangeRoots,
+  descendantIds,
+  descriptionId,
+  findNode,
+  swatchStyle,
+  visibleRows,
+} from "./flavor-wheel-tree";
 
 // ─── UI-specific types (declared before the component) ───
 // The wheel takes resolved, localized notes as props: no generated API type is
@@ -76,59 +84,6 @@ const PANEL_CLASSES =
 const ROW_CLASSES =
   "flex min-h-10 cursor-pointer items-center gap-2 rounded-field px-2 py-1 text-text-primary hover:bg-surface-section focus-visible:focus-ring";
 const ROW_INDENT = ["", "ms-6", "ms-12"];
-const SWATCH_CLASSES = "size-3 shrink-0 rounded-check";
-
-/** A visible note row in wheel order (depth-first), with its tree position. */
-type Row = {
-  node: FlavorWheelNode;
-  depth: number;
-  setSize: number;
-  position: number;
-  parentId: string | null;
-};
-
-function visibleRows(
-  nodes: FlavorWheelNode[],
-  expanded: ReadonlySet<string>,
-  depth = 0,
-  parentId: string | null = null,
-): Row[] {
-  return nodes.flatMap((node, index) => [
-    { node, depth, setSize: nodes.length, position: index + 1, parentId },
-    ...(expanded.has(node.id)
-      ? visibleRows(node.children, expanded, depth + 1, node.id)
-      : []),
-  ]);
-}
-
-function findNode(
-  nodes: FlavorWheelNode[],
-  id: string,
-): FlavorWheelNode | null {
-  for (const node of nodes) {
-    if (node.id === id) return node;
-    const found = findNode(node.children, id);
-    if (found) return found;
-  }
-  return null;
-}
-
-function descendantIds(node: FlavorWheelNode): string[] {
-  return node.children.flatMap((child) => [child.id, ...descendantIds(child)]);
-}
-
-function descriptionId(id: string): string {
-  return `flavor-wheel-desc-${id}`;
-}
-
-/** The swatch's data colour at its depth opacity (design.md D4). */
-function swatchStyle(node: FlavorWheelNode): CSSProperties {
-  return {
-    backgroundColor: node.color,
-    opacity: taxonomyColorRule(node.color, node.level).opacity,
-  };
-}
-
 /**
  * A segment's arched label (design.md D5): one `<text>` per line, set on a
  * `<textPath>` along an unfilled arc near the segment's outer edge. Nothing
@@ -247,12 +202,10 @@ export function FlavorWheel({
     return <p className="type-body">{texts.emptyMessage}</p>;
   }
 
-  // Groups set apart only when two or more of them hold roots (D19); the
-  // roots then follow the group order around the wheel and down the list.
-  const groupOrder = (groups ?? []).map((group) => group.id);
-  const runs = groups ? groupRuns(givenNodes, groupOrder) : [];
-  const grouped = runs.length >= 2;
-  const nodes = grouped ? runs.flatMap((run) => run.roots) : givenNodes;
+  const { nodes, grouped, groupOrder, legendGroups } = arrangeRoots(
+    givenNodes,
+    groups,
+  );
   const { segments, groupArcs } = layoutWheel(
     nodes,
     expanded,
@@ -260,9 +213,6 @@ export function FlavorWheel({
   );
   const groupName = (id: string): string =>
     groups?.find((group) => group.id === id)?.name ?? "";
-  const legendGroups = runs
-    .map((run) => groups?.find((group) => group.id === run.id))
-    .filter((group): group is FlavorWheelGroup => group !== undefined);
   const rows = visibleRows(nodes, expanded);
   const active = activeId === null ? null : findNode(nodes, activeId);
   const activeSegment = segments.find((s) => s.node.id === activeId);

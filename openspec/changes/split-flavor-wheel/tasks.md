@@ -4,7 +4,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 1. Note-tree helpers
 
-- [ ] 1.1 Create `src/shared/ui/flavor-wheel-tree.ts` with `Row`, `SWATCH_CLASSES`, `visibleRows`, `findNode`, `descendantIds`, `descriptionId`, `swatchStyle` and `arrangeRoots` (design.md D2), the last taking the group arrangement of `FlavorWheel` (groups set apart with two or more runs, roots in group order, legend groups). Verify: the related tests pass, including the wheel tests, with no test file changed; `npx tsc --noEmit` reports 0 errors; `npm run lint` reports 0 errors. Commit `refactor(feedback): extract the flavor wheel tree helpers`.
+- [x] 1.1 Create `src/shared/ui/flavor-wheel-tree.ts` with `Row`, `SWATCH_CLASSES`, `visibleRows`, `findNode`, `descendantIds`, `descriptionId`, `swatchStyle` and `arrangeRoots` (design.md D2), the last taking the group arrangement of `FlavorWheel` (groups set apart with two or more runs, roots in group order, legend groups). Verify: the related tests pass, including the wheel tests, with no test file changed; `npx tsc --noEmit` reports 0 errors; `npm run lint` reports 0 errors. Commit `refactor(feedback): extract the flavor wheel tree helpers`.
 
 ## 2. Segment labels
 
