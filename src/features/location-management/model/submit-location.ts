@@ -11,7 +11,6 @@ import {
 
 export type SubmitOutcome =
   | { status: "created"; hadCoordinates: boolean }
-  | { status: "step-up" }
   | { status: "error" };
 
 /** design.md D6: the lookup is aborted after 5 s. */
@@ -49,7 +48,7 @@ export async function submitLocation(
   try {
     const result = await createLocation(toCreateLocationPayload(values, coordinates));
     if (result.ok) return { status: "created", hadCoordinates: coordinates !== null };
-    return { status: result.kind === "forbidden" ? "step-up" : "error" };
+    return { status: "error" };
   } catch {
     return { status: "error" };
   }

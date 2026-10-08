@@ -56,7 +56,7 @@ describe("ThemeToggle", () => {
   it("renders as a ghost icon control with the nav text colours and the focus ring (spec: Switch presentation)", () => {
     renderToggle();
     expect(screen.getByRole("button").className).toBe(
-      "flex size-10 items-center justify-center rounded-field text-nav-text hover:text-nav-text-hover focus-visible:focus-ring",
+      "flex size-10 shrink-0 items-center justify-center rounded-field text-nav-text hover:text-nav-text-hover focus-visible:focus-ring",
     );
   });
 });

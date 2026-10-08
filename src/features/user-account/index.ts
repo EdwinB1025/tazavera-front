@@ -11,6 +11,8 @@ export { AccountSection } from "./ui/AccountSection";
 export { ExternalLink } from "./ui/ExternalLink";
 export { DangerZone } from "./ui/DangerZone";
 export type { DangerZoneTexts } from "./ui/DangerZone";
+export { ProfileDetails } from "./ui/ProfileDetails";
+export type { ProfileDetailsTexts } from "./ui/ProfileDetails";
 export { ProfileForm } from "./ui/ProfileForm";
 export type { ProfileFormTexts } from "./ui/ProfileForm";
 export { PasswordForm } from "./ui/PasswordForm";

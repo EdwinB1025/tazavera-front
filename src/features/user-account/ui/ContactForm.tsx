@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import type { Contact } from "@/shared/api";
-import { Button, FormStatus, StepUpNotice } from "@/shared/ui";
+import { Button, FormStatus } from "@/shared/ui";
 import { ContactFields, type ContactTexts } from "@/entities/contact";
 import type { ContactCheckTexts } from "../model/contact-checks";
 import { useContactForm } from "../model/use-contact-form";
@@ -11,8 +11,6 @@ import { useContactForm } from "../model/use-contact-form";
 
 export type ContactFormTexts = ContactTexts &
   ContactCheckTexts & {
-    stepUpText: string;
-    stepUpButton: string;
     save: string;
     cancel: string;
     genericError: string;
@@ -20,12 +18,9 @@ export type ContactFormTexts = ContactTexts &
 
 export type ContactFormProps = {
   ulid: string;
-  locale: string;
   /** The section heading's id: it names the form. */
   headingId: string;
   texts: ContactFormTexts;
-  /** Starts the write-scope sign in (user-account D6). */
-  requestProfileWrite: (returnRoute: string) => void;
   onCreated: (contact: Contact) => void;
   onExists: () => void;
   onCancel: () => void;
@@ -33,15 +28,13 @@ export type ContactFormProps = {
 
 /**
  * The contact add form (spec "Contact details form"; design.md D3, D4): the
- * fields, the generic error or the step-up notice, Save and Cancel. Address
+ * fields, the generic error, Save and Cancel. Address
  * takes focus when the form opens.
  */
 export function ContactForm({
   ulid,
-  locale,
   headingId,
   texts,
-  requestProfileWrite,
   onCreated,
   onExists,
   onCancel,
@@ -70,13 +63,6 @@ export function ContactForm({
       />
       {form.outcome === "error" && (
         <FormStatus kind="error" text={texts.genericError} />
-      )}
-      {form.outcome === "stepUp" && (
-        <StepUpNotice
-          text={texts.stepUpText}
-          actionLabel={texts.stepUpButton}
-          onConfirm={() => requestProfileWrite(`/${locale}/account`)}
-        />
       )}
       <div className="flex flex-wrap gap-3">
         <Button type="submit" variant="primary" size="base" loading={form.pending}>

@@ -236,7 +236,7 @@ export interface paths {
             path: {
                 /**
                  * @description The evaluation.
-                 * @example architecto
+                 * @example 01M4E1CZ8YNRJNN32PG9AKGMSH
                  */
                 evaluation: string;
                 /**
@@ -411,8 +411,8 @@ export interface paths {
          *     The coordinates are optional and computed by the client; when one is
          *     sent, the other is required.
          *
-         *     **Authorization:** requires the `coffeeshop` role and the `profile:write`
-         *     scope.
+         *     **Authorization:** requires the `coffeeshop` role and the `profile:read`
+         *     or `profile:write` scope (no step-up re-authentication).
          */
         post: operations["createALocation"];
         delete?: never;
@@ -587,6 +587,15 @@ export interface paths {
          *     registration endpoint. User creation and role assignment happen in a
          *     single transaction; if role assignment fails, the whole operation is
          *     rolled back.
+         *
+         *     The new user is also signed in: the response carries a `token` block
+         *     with the same fields as `POST /oauth/token` (`token_type`,
+         *     `expires_in`, `access_token`, `refresh_token`), issued on the front
+         *     client with the default scope (`profile:read`) by an internal grant
+         *     that `POST /oauth/token` does not offer. The refresh token is refreshed
+         *     with the front client's usual `refresh_token` request. If the tokens
+         *     cannot be issued, the user is still created and the response has no
+         *     `token` block.
          */
         post: operations["registerAUser"];
         delete?: never;
@@ -648,8 +657,9 @@ export interface paths {
          *     `409 Conflict`. `isPrimary` is always set by the API, never taken from
          *     the body.
          *
-         *     **Authorization:** requires the `profile:write` scope and permission to
-         *     update this user (policy). Another user receives `403 Forbidden`.
+         *     **Authorization:** requires the `profile:read` or `profile:write` scope
+         *     (no step-up re-authentication) and permission to update this user
+         *     (policy). Another user receives `403 Forbidden`.
          */
         post: operations["createMyPrimaryContact"];
         delete?: never;
@@ -1061,6 +1071,11 @@ export interface operations {
                  * @example 1
                  */
                 page?: number;
+                /**
+                 * @description Must be at least 1. Must not be greater than 50.
+                 * @example 1
+                 */
+                perPage?: number;
             };
             header?: never;
             path?: never;
@@ -1628,6 +1643,16 @@ export interface operations {
                  * @example desc
                  */
                 orderDirection?: "asc" | "desc";
+                /**
+                 * @description Must be at least 1.
+                 * @example 16
+                 */
+                page?: number;
+                /**
+                 * @description Must be at least 1. Must not be greater than 50.
+                 * @example 22
+                 */
+                perPage?: number;
             };
             header?: never;
             path?: never;
@@ -2100,6 +2125,16 @@ export interface operations {
                  * @example desc
                  */
                 orderDirection?: "asc" | "desc";
+                /**
+                 * @description Must be at least 1.
+                 * @example 16
+                 */
+                page?: number;
+                /**
+                 * @description Must be at least 1. Must not be greater than 50.
+                 * @example 22
+                 */
+                perPage?: number;
             };
             header?: never;
             path: {
@@ -2578,6 +2613,16 @@ export interface operations {
                  * @example desc
                  */
                 orderDirection?: "asc" | "desc";
+                /**
+                 * @description Must be at least 1.
+                 * @example 16
+                 */
+                page?: number;
+                /**
+                 * @description Must be at least 1. Must not be greater than 50.
+                 * @example 22
+                 */
+                perPage?: number;
             };
             header?: never;
             path?: never;
@@ -3475,7 +3520,7 @@ export interface operations {
             path: {
                 /**
                  * @description The evaluation.
-                 * @example architecto
+                 * @example 01M4E1CZ8YNRJNN32PG9AKGMSH
                  */
                 evaluation: string;
                 /**
@@ -5352,6 +5397,16 @@ export interface operations {
                  * @example desc
                  */
                 orderDirection?: "asc" | "desc";
+                /**
+                 * @description Must be at least 1.
+                 * @example 22
+                 */
+                page?: number;
+                /**
+                 * @description Must be at least 1. Must not be greater than 50.
+                 * @example 7
+                 */
+                perPage?: number;
             };
             header?: never;
             path?: never;
@@ -6637,6 +6692,16 @@ export interface operations {
                         };
                         /** @example Profile created. */
                         message?: string;
+                        token?: {
+                            /** @example Bearer */
+                            token_type?: string;
+                            /** @example 1800 */
+                            expires_in?: number;
+                            /** @example eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9... */
+                            access_token?: string;
+                            /** @example def50200a1b2c3... */
+                            refresh_token?: string;
+                        };
                     };
                 };
             };

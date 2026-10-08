@@ -129,7 +129,24 @@ describe("AppHeader, signed-out state", () => {
     // the group itself is never gated by a breakpoint (design.md D14: only
     // the navigation and the logotype form change at `md`)
     expect(left.className).not.toContain("hidden");
-    expect(left.className).not.toContain("md:");
+  });
+
+  it("fits a small viewport (spec: Header fits a small viewport)", () => {
+    renderHeader(ANONYMOUS, <button type="button">sidebar</button>);
+    const header = screen.getByRole("banner");
+    const left = header.children[0] as HTMLElement;
+    // the selector keeps its name; its locale code is hidden visually below md
+    const language = screen.getByRole("button", { name: TEXTS.languageSelector });
+    expect(within(language).getByText("ES").className).toBe("sr-only md:not-sr-only");
+    // the left group tightens below md
+    expect(left.className.split(/\s+/)).toEqual(
+      expect.arrayContaining(["gap-2", "md:gap-4"]),
+    );
+    // the theme toggle keeps its full size
+    const theme = screen.getByRole("button", { name: TEXTS.themeToggleToDark });
+    expect(theme.className.split(/\s+/)).toEqual(
+      expect.arrayContaining(["shrink-0", "size-10"]),
+    );
   });
 
   it("pushes the language selector, the theme switch and Sign in to the right edge as one group, in that order, after the left group (spec: Header grouping on every viewport)", () => {

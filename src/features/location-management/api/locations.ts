@@ -34,12 +34,11 @@ export async function readOwnLocations(userUlid: string): Promise<ApiResult<User
 
 /**
  * A location's creation (design.md D4): `POST /locations`. A `201` is
- * created, a `403` the step-up, anything else or a transport failure an
- * error.
+ * created, anything else (a `403` included) or a transport failure an error.
  */
 export async function createLocation(
   payload: CreateLocationPayload,
-): Promise<ApiResult<null, "forbidden">> {
+): Promise<ApiResult<null>> {
   try {
     const response = await request("/locations", {
       method: "POST",
@@ -50,7 +49,7 @@ export async function createLocation(
       body: JSON.stringify(payload),
     });
     if (response.status === 201) return { ok: true, data: null };
-    return { ok: false, kind: response.status === 403 ? "forbidden" : "error" };
+    return { ok: false, kind: "error" };
   } catch {
     return { ok: false, kind: "error" };
   }

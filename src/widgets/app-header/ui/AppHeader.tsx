@@ -79,7 +79,8 @@ const HEADER_CLASSES = ["flex", "h-16", "items-center", "gap-4", "bg-nav-surface
 // signed in) are one group pushed to the right edge. Neither group is gated by a breakpoint, so
 // the same two-group layout holds on every viewport while only the navigation
 // and the logotype form change at `md` (design summary §3).
-const LEFT_GROUP_CLASSES = ["flex", "items-center", "gap-4"].join(" ");
+// The left group tightens below `md` too, so the signed-out header fits at 375px (fit-header-at-375).
+const LEFT_GROUP_CLASSES = ["flex", "items-center", "gap-2", "md:gap-4"].join(" ");
 // The right group tightens below `md` so it fits at 375px (refine-header-aut D1).
 const RIGHT_GROUP_CLASSES = ["ml-auto", "flex", "items-center", "gap-2", "md:gap-4"].join(" ");
 

@@ -16,13 +16,11 @@ import {
 const auth = vi.hoisted(() => ({
   session: { state: "loading" } as Session,
   signIn: vi.fn<(returnRoute?: string) => void>(),
-  requestProfileWrite: vi.fn<(returnRoute: string) => void>(),
 }));
 
 vi.mock("@/features/auth", () => ({
   useSession: () => auth.session,
   signIn: auth.signIn,
-  requestProfileWrite: auth.requestProfileWrite,
 }));
 
 const { notFound } = vi.hoisted(() => ({ notFound: vi.fn() }));

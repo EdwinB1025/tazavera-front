@@ -45,12 +45,12 @@ export async function readPrimaryContact(ulid: string): Promise<PrimaryContactRe
 }
 
 /** The contact creation's outcome (design.md D3, D4; unify-api-result-shape design.md D2). */
-export type ContactWrite = ApiResult<Contact, "conflict" | "forbidden">;
+export type ContactWrite = ApiResult<Contact, "conflict">;
 
 /**
  * The contact creation with its status mapped to an outcome: a `201` the
- * created contact, a `409` a conflict (it exists), a `403` the step-up
- * (`forbidden`), anything else the generic error.
+ * created contact, a `409` a conflict (it exists), anything else (a `403`
+ * included) the generic error.
  */
 export async function submitContact(
   ulid: string,
@@ -70,5 +70,5 @@ export async function submitContact(
   }
   if (status === 201 && created !== undefined) return { ok: true, data: created };
   if (status === 409) return { ok: false, kind: "conflict" };
-  return { ok: false, kind: status === 403 ? "forbidden" : "error" };
+  return { ok: false, kind: "error" };
 }

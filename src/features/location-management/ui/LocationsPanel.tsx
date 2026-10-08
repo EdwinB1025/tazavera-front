@@ -30,12 +30,9 @@ export type LocationsPanelTexts = LocationFormTexts & {
 
 export type LocationsPanelProps = {
   userUlid: string;
-  locale: string;
   /** The page `h1`'s id: it names the list and takes focus after a creation. */
   headingId: string;
   texts: LocationsPanelTexts;
-  /** Starts the write-scope sign in (user-account D6). */
-  requestProfileWrite: (returnRoute: string) => void;
 };
 
 /** Where focus goes once the form has opened or closed (design.md D3). */
@@ -102,10 +99,8 @@ function LocationsContent({
  */
 export function LocationsPanel({
   userUlid,
-  locale,
   headingId,
   texts,
-  requestProfileWrite,
 }: LocationsPanelProps): ReactNode {
   const rootRef = useRef<HTMLDivElement>(null);
   const geocodeCache = useRef(new Map<string, GeocodeOutcome>());
@@ -159,12 +154,10 @@ export function LocationsPanel({
 
   const form = (
     <LocationForm
-      locale={locale}
       texts={texts}
       submitState={submitState}
       onSubmit={(values) => void handleSubmit(values)}
       onCancel={closeForm}
-      requestProfileWrite={requestProfileWrite}
     />
   );
   const addButton = <AddLocationButton label={texts.addLocation} onAdd={openForm} />;

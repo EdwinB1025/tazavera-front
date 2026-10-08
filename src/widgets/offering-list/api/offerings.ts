@@ -24,18 +24,33 @@ export type VerifiedOfferingsPayload = {
 export type OfferingsPayload = VerifiedOfferingsPayload;
 
 /**
+ * The array query parameters of `GET /offerings`: the API reads an array only
+ * from `name[]` pairs (send-array-filters-with-brackets design.md D1).
+ */
+const ARRAY_PARAMS = new Set([
+  "cataRef",
+  "fragranceCata",
+  "aromaCata",
+  "flavorCata",
+  "aftertasteCata",
+  "mouthfeelCata",
+]);
+
+/**
  * One page of offerings for a kept query: `GET /offerings?{query}`
- * (add-offering-catalog design.md D1, D2). Repeated keys stay repeated and no
- * filter of its own is added.
+ * (add-offering-catalog design.md D1, D2). Repeated keys stay repeated, an
+ * array parameter is sent as `name[]` once per value, and no filter of its
+ * own is added.
  */
 export async function fetchOfferings(
   query: OfferingsQuery,
 ): Promise<ApiResult<OfferingsPayload>> {
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(query)) {
+    const name = ARRAY_PARAMS.has(key) ? `${key}[]` : key;
     for (const item of Array.isArray(value) ? value : [value]) {
       if (item !== undefined) {
-        params.append(key, item);
+        params.append(name, item);
       }
     }
   }

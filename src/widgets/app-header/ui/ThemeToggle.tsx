@@ -26,6 +26,8 @@ export type ThemeToggleProps = {
 const TOGGLE_CLASSES = [
   "flex",
   "size-10",
+  // it never shrinks in the right group (fit-header-at-375)
+  "shrink-0",
   "items-center",
   "justify-center",
   "rounded-field",

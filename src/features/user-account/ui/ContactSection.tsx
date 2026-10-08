@@ -32,10 +32,7 @@ export type ContactSectionTexts = ContactFormTexts & {
 
 export type ContactSectionProps = {
   ulid: string;
-  locale: string;
   texts: ContactSectionTexts;
-  /** Starts the write-scope sign in (user-account D6). */
-  requestProfileWrite: (returnRoute: string) => void;
 };
 
 /** The status shown above the contact after a write (design.md D3). */
@@ -62,14 +59,12 @@ async function readOutcome(ulid: string): Promise<SectionState> {
  * on mount and shows the primary one read-only, the empty state with "Add
  * contact details", or the read error with "Try again". The add form sends
  * `POST /users/{ulid}/contacts`: a `201` shows the created contact, a `409`
- * reads again, a `403` shows the step-up notice, anything else the generic
- * error. Focus moves to the heading whenever the focused control disappears.
+ * reads again, anything else (a `403` included) the generic error. Focus
+ * moves to the heading whenever the focused control disappears.
  */
 export function ContactSection({
   ulid,
-  locale,
   texts,
-  requestProfileWrite,
 }: ContactSectionProps): ReactNode {
   const headingId = useId();
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -133,10 +128,8 @@ export function ContactSection({
       {state.kind === "form" && (
         <ContactForm
           ulid={ulid}
-          locale={locale}
           headingId={headingId}
           texts={texts}
-          requestProfileWrite={requestProfileWrite}
           onCreated={(contact) => {
             setState({ kind: "details", contact, status: "saved" });
             headingRef.current?.focus();

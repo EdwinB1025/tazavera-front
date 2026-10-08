@@ -2,10 +2,10 @@ import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { render, screen, cleanup, fireEvent, act } from "@testing-library/react";
 
 /**
- * The Contact details section (specs "Contact details", "Contact details
- * form" and "Writes and the step-up"; design.md D3, D4, D6 and D7). The token
- * client is replaced by a spy so every response can be driven; every text
- * comes from the fixture below.
+ * The Contact details section (specs "Contact details" and "Contact details
+ * form"; design.md D3, D4, D6 and D7). The token client is replaced by a
+ * spy so every response can be driven; every text comes from the fixture
+ * below.
  */
 const { request } = vi.hoisted(() => ({ request: vi.fn() }));
 vi.mock("@/shared/api", () => ({ request }));
@@ -28,8 +28,6 @@ const TEXTS = {
   contactEmailLabel: "fx-email",
   contactWebLabel: "fx-web",
   contactSocialLabel: "fx-social",
-  stepUpText: "fx-step-up",
-  stepUpButton: "fx-confirm-identity",
   save: "fx-save",
   cancel: "fx-cancel",
   genericError: "fx-generic",
@@ -88,16 +86,7 @@ afterEach(() => {
 });
 
 function renderSection() {
-  const requestProfileWrite = vi.fn<(returnRoute: string) => void>();
-  const utils = render(
-    <ContactSection
-      ulid="u1"
-      locale="es"
-      texts={TEXTS}
-      requestProfileWrite={requestProfileWrite}
-    />,
-  );
-  return { ...utils, requestProfileWrite };
+  return render(<ContactSection ulid="u1" texts={TEXTS} />);
 }
 
 async function settle(): Promise<void> {
@@ -401,16 +390,16 @@ describe("ContactSection — the add form", () => {
     expect(region().textContent).not.toContain(API_MESSAGE);
   });
 
-  it("403 shows the step-up notice above the actions and keeps every value", async () => {
-    const { requestProfileWrite } = await submitWith(() =>
-      Promise.resolve(json(403, { message: API_MESSAGE })),
-    );
-    const notice = screen.getByText(TEXTS.stepUpText);
-    expect(precedes(notice, actionsRow())).toBe(true);
+  it("403 shows the generic error above the actions, keeps every value and shows no step-up notice", async () => {
+    await submitWith(() => Promise.resolve(json(403, { message: API_MESSAGE })));
+    const alert = screen.getByRole("alert");
+    expect(alert.textContent).toBe(TEXTS.genericError);
+    expect(precedes(alert, actionsRow())).toBe(true);
     expectTypedValuesKept();
-    fireEvent.click(screen.getByRole("button", { name: TEXTS.stepUpButton }));
-    expect(requestProfileWrite).toHaveBeenCalledTimes(1);
-    expect(requestProfileWrite).toHaveBeenCalledWith("/es/account");
+    expect(screen.getAllByRole("button").map((button) => button.textContent)).toEqual([
+      TEXTS.save,
+      TEXTS.cancel,
+    ]);
     expect(region().textContent).not.toContain(API_MESSAGE);
   });
 

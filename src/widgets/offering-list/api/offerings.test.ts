@@ -58,9 +58,17 @@ describe("fetchOfferings (add-offering-catalog design.md D1, D2)", () => {
       page: "3",
     });
     expect(fetchSpy).toHaveBeenCalledWith(
-      `${API_URL}/offerings?verified=1&cataRef=01JREFA&cataRef=01JREFB&orderBy=cupping_avg&page=3`,
+      `${API_URL}/offerings?verified=1&cataRef%5B%5D=01JREFA&cataRef%5B%5D=01JREFB&orderBy=cupping_avg&page=3`,
     );
     expect(result).toEqual({ ok: true, data: OFFERINGS_PAYLOAD });
+  });
+
+  it("sends the chosen taste notes as cataRef[] pairs (filtering spec: Taste notes sent as an array)", async () => {
+    fetchSpy.mockResolvedValue(okResponse(OFFERINGS_PAYLOAD));
+    await fetchOfferings({ cataRef: ["01JREFA", "01JREFB"] });
+    expect(fetchSpy).toHaveBeenCalledWith(
+      `${API_URL}/offerings?cataRef%5B%5D=01JREFA&cataRef%5B%5D=01JREFB`,
+    );
   });
 
   it("requests /offerings with no query and no verification filter for an empty query", async () => {

@@ -22,6 +22,7 @@
   "accountTitle": "Mi cuenta",
   "accountIntro": "Gestiona tus datos, tu contraseña y la seguridad de tu cuenta.",
   "profileHeading": "Perfil",
+  "editProfileHeading": "Editar perfil",
   "passwordHeading": "Contraseña",
   "securityHeading": "Seguridad",
   "securityDescription": "Autenticación en dos pasos y llaves de acceso.",

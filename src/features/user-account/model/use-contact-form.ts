@@ -24,7 +24,7 @@ export type ContactFormHandlers = {
   onExists: () => void;
 };
 
-export type ContactFormOutcome = "error" | "stepUp" | null;
+export type ContactFormOutcome = "error" | null;
 
 export type ContactFormState = {
   values: ContactFieldValues;
@@ -39,7 +39,7 @@ export type ContactFormState = {
  * The add form's state and submit (spec "Contact details form"; design.md
  * D3, D4): the client checks with focus on the first failing field, then
  * `POST /users/{ulid}/contacts`; a `201` and a `409` go to the section's
- * handlers, a `403` shows the step-up notice, anything else the generic error.
+ * handlers, anything else (a `403` included) shows the generic error.
  */
 export function useContactForm(
   ulid: string,
@@ -83,7 +83,7 @@ export function useContactForm(
     setPending(false);
     if (result.ok) onCreated(result.data);
     else if (result.kind === "conflict") onExists();
-    else setOutcome(result.kind === "forbidden" ? "stepUp" : "error");
+    else setOutcome("error");
   }
 
   return { values, errors, pending, outcome, update, handleSubmit };
