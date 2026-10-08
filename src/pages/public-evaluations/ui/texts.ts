@@ -1,6 +1,6 @@
 import { getMessages } from "@/shared/lib/i18n";
 import type { AppliedEvaluationTexts, EvaluationFacetsTexts, EvaluationsToolbarTexts } from "@/features/evaluation-facets";
-import type { EvaluationRowCardTexts } from "@/widgets/evaluation-row";
+import type { PublicEvaluationRowCardTexts } from "@/widgets/evaluation-row";
 import type { EvaluationListTexts } from "@/widgets/public-evaluation-list";
 
 /**
@@ -8,15 +8,12 @@ import type { EvaluationListTexts } from "@/widgets/public-evaluation-list";
  * (design.md D3): `public-evaluations`, `evaluations`, `landing` and `filters`.
  */
 
-export function listTexts(locale: string): EvaluationListTexts & EvaluationRowCardTexts {
+export function listTexts(locale: string): EvaluationListTexts & PublicEvaluationRowCardTexts {
   const own = getMessages("public-evaluations", locale);
   const evaluations = getMessages("evaluations", locale);
   const landing = getMessages("landing", locale);
   const filters = getMessages("filters", locale);
   return {
-    openLabel: evaluations.statusOpen,
-    closedLabel: evaluations.statusClosed,
-    createdOnLabel: evaluations.createdOnLabel,
     closedOnLabel: evaluations.closedOnLabel,
     coffeeshopCaption: landing.cardCoffeeshopCaption,
     roasterCaption: landing.cardRoasterCaption,

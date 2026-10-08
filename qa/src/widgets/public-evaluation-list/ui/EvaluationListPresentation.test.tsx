@@ -22,7 +22,7 @@ vi.mock("@/shared/ui", async (importOriginal) => ({
   ClearFiltersButton: (props: { label: string; keep: readonly string[] }) => clearFilters(props),
 }));
 
-import { EvaluationRowCard } from "@/widgets/evaluation-row";
+import { PublicEvaluationRowCard } from "@/widgets/evaluation-row";
 import { EvaluationListPresentation } from "@/widgets/public-evaluation-list/ui/EvaluationListPresentation";
 import type { PublicEvaluationRow } from "@/widgets/public-evaluation-list/ui/EvaluationListPresentation";
 import { ROW_TEXTS, TEXTS, evaluation } from "@/widgets/public-evaluation-list/ui/fixtures";
@@ -30,8 +30,7 @@ import { ROW_TEXTS, TEXTS, evaluation } from "@/widgets/public-evaluation-list/u
 /** The row slot, composed as the host page composes it. */
 function renderRow(row: PublicEvaluationRow) {
   return (
-    <EvaluationRowCard
-      variant="public"
+    <PublicEvaluationRowCard
       evaluation={row.evaluation}
       offering={row.offering}
       locale="en"

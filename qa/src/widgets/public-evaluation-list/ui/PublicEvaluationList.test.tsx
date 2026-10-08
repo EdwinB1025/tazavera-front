@@ -27,7 +27,7 @@ vi.mock("@/entities/offering", async (importOriginal) => ({
   fetchOffering: (ulid: string) => fetchOffering(ulid),
 }));
 
-import { EvaluationRowCard } from "@/widgets/evaluation-row";
+import { PublicEvaluationRowCard } from "@/widgets/evaluation-row";
 import { PublicEvaluationList } from "@/widgets/public-evaluation-list/ui/PublicEvaluationList";
 import type { PublicEvaluationRow } from "@/widgets/public-evaluation-list/ui/EvaluationListPresentation";
 import { ROW_TEXTS, TEXTS } from "@/widgets/public-evaluation-list/ui/fixtures";
@@ -35,8 +35,7 @@ import { ROW_TEXTS, TEXTS } from "@/widgets/public-evaluation-list/ui/fixtures";
 /** The row slot, composed as the host page composes it. */
 function renderRow(row: PublicEvaluationRow) {
   return (
-    <EvaluationRowCard
-      variant="public"
+    <PublicEvaluationRowCard
       evaluation={row.evaluation}
       offering={row.offering}
       locale="en"

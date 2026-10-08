@@ -3,8 +3,8 @@
 import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import type { EvaluationItem, OfferingDetail } from "@/shared/api";
-import { EvaluationRowCard } from "@/widgets/evaluation-row";
-import type { EvaluationRowCardTexts } from "@/widgets/evaluation-row";
+import { SpecialistEvaluationRowCard } from "@/widgets/evaluation-row";
+import type { SpecialistEvaluationRowCardTexts } from "@/widgets/evaluation-row";
 import { Button } from "@/shared/ui";
 import { DeleteEvaluationAction } from "./DeleteEvaluationAction";
 import type { DeleteEvaluationTexts } from "./DeleteEvaluationAction";
@@ -13,8 +13,9 @@ import type { DeleteEvaluationTexts } from "./DeleteEvaluationAction";
 
 /** Every label and caption of a row, from the `evaluations` catalog (design.md D14). */
 export type EvaluationRowTexts = DeleteEvaluationTexts &
-  EvaluationRowCardTexts & {
+  SpecialistEvaluationRowCardTexts & {
     editLabel: string;
+    viewLabel: string;
   };
 
 export type SpecialistEvaluationRowProps = {
@@ -46,11 +47,9 @@ export function SpecialistEvaluationRow({
   const formRoute = `/${locale}/manage/evaluations/${evaluation.ulid ?? ""}`;
 
   return (
-    <EvaluationRowCard
-      variant="specialist"
+    <SpecialistEvaluationRowCard
       evaluation={evaluation}
       offering={offering}
-      locale={locale}
       texts={texts}
       actions={
         <>
