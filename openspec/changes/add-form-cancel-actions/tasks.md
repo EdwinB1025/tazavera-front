@@ -20,4 +20,4 @@
 
 ## 5. Integration verification
 
-- [ ] 5.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`, each exiting 0 (report every QA test excluded or failing because of this change)
+- [x] 5.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`, each exiting 0 (report every QA test excluded or failing because of this change)
