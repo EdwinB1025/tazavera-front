@@ -12,6 +12,26 @@ import { NOMINATIM_ORIGIN } from "@/shared/lib/geocoding";
 const COOP = "same-origin-allow-popups";
 
 /**
+ * Response security headers (app-shell "Response security headers"), set on
+ * every document response next to the CSP: no MIME sniffing, the referrer
+ * trimmed to the origin across origins, and only geolocation allowed — for
+ * the app's own origin, for the location features (the map tiles need no
+ * permission).
+ */
+const SECURITY_HEADERS: Record<string, string> = {
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Permissions-Policy":
+    "camera=(), microphone=(), payment=(), usb=(), geolocation=(self)",
+};
+
+function setSecurityHeaders(response: NextResponse) {
+  for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
+    response.headers.set(name, value);
+  }
+}
+
+/**
  * Front-wide proxy (Next 16 file convention; `middleware` is deprecated).
  *
  * Locale routing (design.md D2): a bare path is prefixed with the default
@@ -79,6 +99,7 @@ export function proxy(request: NextRequest) {
       },
     });
     response.headers.set("Content-Security-Policy", cspHeader);
+    setSecurityHeaders(response);
     return response;
   }
 
@@ -98,6 +119,7 @@ export function proxy(request: NextRequest) {
       new URL(`${target}${search}`, request.url),
     );
     response.headers.set("Content-Security-Policy", cspHeader);
+    setSecurityHeaders(response);
     response.headers.set("Cross-Origin-Opener-Policy", COOP);
     return response;
   }
@@ -113,6 +135,7 @@ export function proxy(request: NextRequest) {
     },
   });
   response.headers.set("Content-Security-Policy", cspHeader);
+  setSecurityHeaders(response);
   response.headers.set("Cross-Origin-Opener-Policy", COOP);
 
   return response;
