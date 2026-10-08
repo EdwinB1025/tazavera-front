@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import type { Session } from "@/shared/api";
+import type { Theme } from "@/shared/lib/theme";
 import { LOCALES } from "@/shared/config/locales";
 import { useSession } from "@/features/auth";
 import { EvaluationsSidebarEntry } from "@/features/manage-evaluations";
@@ -24,6 +25,8 @@ export type SessionShellProps = {
   sidebar?: ReactNode;
   /** The catalog texts `AppShell` resolves on the server (design.md D1). */
   texts: AppHeaderTexts & { toggleSidebar: string };
+  /** The server-resolved theme (refine-header-aut D3). */
+  theme?: Theme;
   children?: ReactNode;
 };
 
@@ -50,6 +53,7 @@ export function SessionShell({
   session,
   sidebar,
   texts,
+  theme,
   children,
 }: SessionShellProps): ReactNode {
   const hookValue = useSession();
@@ -77,6 +81,7 @@ export function SessionShell({
           locale={locale}
           locales={[...LOCALES]}
           texts={texts}
+          theme={theme}
           leading={<SidebarReopenControl />}
         />
         <main className={MAIN_CLASSES}>

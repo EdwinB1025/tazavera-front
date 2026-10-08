@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { AppHeader } from "@/widgets/app-header";
 import type { AppHeaderTexts } from "@/widgets/app-header";
 import type { Session } from "@/shared/api";
+import type { Theme } from "@/shared/lib/theme";
 import { signIn, signOut } from "@/features/auth";
 
 /**
@@ -22,6 +23,8 @@ export type ShellChromeProps = {
   locale: string;
   locales: string[];
   texts: AppHeaderTexts;
+  /** The server-resolved theme (refine-header-aut D3). */
+  theme?: Theme;
   /** Rendered first in the header (add-sidebar-slot design.md D6). */
   leading?: ReactNode;
 };
@@ -31,6 +34,7 @@ export function ShellChrome({
   locale,
   locales,
   texts,
+  theme,
   leading,
 }: ShellChromeProps): ReactNode {
   const router = useRouter();
@@ -62,6 +66,7 @@ export function ShellChrome({
       locale={locale}
       locales={locales}
       texts={texts}
+      theme={theme}
       onSignIn={handleSignIn}
       onSignOut={handleSignOut}
       onLocaleChange={handleLocaleChange}

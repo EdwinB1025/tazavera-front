@@ -2,7 +2,7 @@
 
 ## 1. Theme switch in the header (R60, app-shell)
 
-- [ ] 1.1 Tests first. Create `src/widgets/app-header/ui/ThemeToggle.test.tsx`, one test per scenario:
+- [x] 1.1 Tests first. Create `src/widgets/app-header/ui/ThemeToggle.test.tsx`, one test per scenario:
   - "Switching the theme": a click writes `theme=dark` to the cookie and sets `data-theme="dark"`.
   - "Switch is named": the button is named with `themeToggleToDark` in traditional and with `themeToggleToTraditional` after the click, and has no `aria-pressed`.
   - "Switch icon": a sun icon (`lucide-sun`) in traditional and a moon icon (`lucide-moon`) with `initialTheme="dark"`, with no visible text.
@@ -15,7 +15,7 @@
   - the small-viewport test → the theme switch is not gated by a breakpoint.
 
   Update `src/app/shell/AppShell.test.tsx` (~228-235): 2 → 3 buttons besides the navigation menu control. Expected: the new and updated tests fail only because ThemeToggle is missing.
-- [ ] 1.2 Implement design.md D1–D3:
+- [x] 1.2 Implement design.md D1–D3:
   - `ThemeToggle.tsx`, and `Sun`/`Moon` in `src/shared/ui/icons.ts`;
   - the toggle in the AppHeader right group, with `gap-2 md:gap-4`;
   - remove ThemeSelect from `UserMenu.tsx` and delete `ThemeSelect.tsx`;
