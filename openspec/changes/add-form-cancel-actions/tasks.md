@@ -12,7 +12,7 @@
 ## 3. Registration Cancel (R57, user-account)
 
 - [x] 3.1 Update the fixtures: `RegisterForm.test.tsx` `TEXTS.cancelLabel` and `cancelHref="/es"` in its render helper; `RegisterClient.test.tsx` `TEXTS.cancelLabel`. In `RegisterClient.test.tsx` add the case for "Cancel opens the locale root without sending anything" (anonymous session, locale `es`: the link named with the fixture's `cancelLabel` has `href` `/es`, its parent has classes `flex-col` and `items-center`; after activating it no request was sent) — verifying it fails because the link is missing and every other related case passes
-- [ ] 3.2 Implement design.md D3 in `RegisterForm.tsx`, `RegisterClient.tsx` and `RegisterScreen.tsx`; apply design.md D5 to `qa/src/features/user-account/ui/RegisterForm.test.tsx` and `qa/src/pages/register/ui/RegisterClient.test.tsx` where they fail — verifying `npx vitest related` over the changed files passes, and lint and typecheck exit 0
+- [x] 3.2 Implement design.md D3 in `RegisterForm.tsx`, `RegisterClient.tsx` and `RegisterScreen.tsx`; apply design.md D5 to `qa/src/features/user-account/ui/RegisterForm.test.tsx` and `qa/src/pages/register/ui/RegisterClient.test.tsx` where they fail — verifying `npx vitest related` over the changed files passes, and lint and typecheck exit 0
 
 ## 4. New offering Cancel scenario (R57, offering-management)
 

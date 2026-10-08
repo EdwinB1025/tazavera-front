@@ -60,6 +60,7 @@ export function RegisterClient({
               labelledBy={labelledBy}
               texts={texts}
               signIn={() => signIn()}
+              cancelHref={`/${locale}`}
             />
           )}
         </div>
