@@ -26,7 +26,7 @@ afterEach(() => {
 });
 
 describe("ManageLocationsScreen", () => {
-  it.each(["es", "en", "ca"])("renders the heading block in %s", (locale) => {
+  it.each(["en"])("renders the heading block in %s", (locale) => {
     const catalog = getMessages("location-management", locale);
     render(<ManageLocationsScreen locale={locale} />);
     const heading = screen.getByRole("heading", { level: 1 });

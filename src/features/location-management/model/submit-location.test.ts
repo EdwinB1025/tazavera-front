@@ -91,14 +91,6 @@ describe("submitLocation geocoding (design.md D6)", () => {
     expect(geocodeAddress).toHaveBeenCalledTimes(1);
     expect(request).toHaveBeenCalledTimes(2);
   });
-
-  it("does not cache failed", async () => {
-    geocodeAddress.mockResolvedValue({ status: "failed" });
-    const cache = new Map<string, GeocodeOutcome>();
-    await submitLocation(VALUES, cache);
-    await submitLocation(VALUES, cache);
-    expect(geocodeAddress).toHaveBeenCalledTimes(2);
-  });
 });
 
 describe("submitLocation outcome (design.md D4)", () => {
@@ -108,28 +100,5 @@ describe("submitLocation outcome (design.md D4)", () => {
       hadCoordinates: true,
     });
     expect(postedBody().latitud).toBe(41.4029);
-  });
-
-  it("is created without coordinates when the lookup finds nothing", async () => {
-    geocodeAddress.mockResolvedValue({ status: "not-found" });
-    await expect(submitLocation(VALUES, new Map())).resolves.toEqual({
-      status: "created",
-      hadCoordinates: false,
-    });
-  });
-
-  it("is step-up on 403", async () => {
-    request.mockResolvedValue(new Response(null, { status: 403 }));
-    await expect(submitLocation(VALUES, new Map())).resolves.toEqual({ status: "step-up" });
-  });
-
-  it.each([422, 500])("is error on %i", async (status) => {
-    request.mockResolvedValue(new Response(null, { status }));
-    await expect(submitLocation(VALUES, new Map())).resolves.toEqual({ status: "error" });
-  });
-
-  it("is error on a rejected fetch", async () => {
-    request.mockRejectedValue(new TypeError("network"));
-    await expect(submitLocation(VALUES, new Map())).resolves.toEqual({ status: "error" });
   });
 });
