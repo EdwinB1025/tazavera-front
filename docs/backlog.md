@@ -22,6 +22,7 @@ The entries below follow this order. The order runs security first, then the sha
 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
+| 0 | R41 | `fix-sign-in` | Refactor (fast lane) | S | — (maximum priority, Product owner 2026-10-08) |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
 | 3 | R31 (+ R3) | `harden-response-headers` | Refactor (fast lane) | S | — |
@@ -50,6 +51,18 @@ The entries below follow this order. The order runs security first, then the sha
 | 25 | R1 | none (Playwright suite) | Change (tests) | — | the pre-deployment E2E suite |
 
 Every entry of the technical review (R20–R39) takes the fast lane by Product owner's decision of 2026-10-08, including R30, R31 and R32, which change a design decision, security headers and texts; R17 and R19 ride with R32 and R30. R3 (tests, rides with R31) and R4 (spec wording) are typed `Change`.
+
+## R41 — Sign-in does not authenticate (production AUT, 2026-10-08)
+
+- **Duplicated:** none. Defect found in the production AUT: no user ends up signed in, whatever the role (coffee shop and specialist, both freshly registered), and neither after the registration nor through the normal sign-in flow.
+- **Where today:** not located yet; sign-in flow of `src/features/auth`. Ruled out on 2026-10-08: the production build carries the current client `01a11aee-170a-71bc-82aa-43344bf1b12d`; the API accepts it (`/oauth/authorize` answers 302 to `/login`, a wrong client answers `invalid_client`); the API log has no error that day. Still to check: the login and consent screens, the `/callback` return and the token exchange.
+- **Why it pays off now:** it blocks every authenticated flow (account, evaluations, management of offerings and locations), and the AUT cannot continue on that side.
+- **Owning capability:** auth
+- **Proposed change:** `fix-sign-in` (S)
+- **Open decision (Augusto):** none. Maximum priority and fast lane by Product owner's decision of 2026-10-08
+- **Type:** Refactor (fast lane)
+- **Status:** accepted
+- **Affects:** AUT points 10 and 11 (coffee shop locations after the first sign-in)
 
 ## R20 — Upgrade Next.js to 16.4 (security advisories)
 
