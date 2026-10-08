@@ -14,5 +14,6 @@
   "toggleSidebar": "Mostrar o amagar la navegació",
   "notFoundTitle": "Pàgina no trobada",
   "notFoundText": "La pàgina que cerques no existeix o no hi tens accés.",
-  "notFoundHomeLink": "Tornar a l'inici"
+  "notFoundHomeLink": "Tornar a l'inici",
+  "navigationMenu": "Menú de navegació"
 }

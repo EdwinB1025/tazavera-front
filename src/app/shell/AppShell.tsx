@@ -80,6 +80,7 @@ export function AppShell({
           manageEvaluations: texts.manageEvaluations!,
           signOut: texts.signOut!,
           toggleSidebar: texts.toggleSidebar!,
+          navigationMenu: texts.navigationMenu!,
         }}
       >
         {children}

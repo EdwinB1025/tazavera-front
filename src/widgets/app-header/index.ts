@@ -6,6 +6,8 @@
  */
 export { AppHeader } from "./ui/AppHeader";
 export type { AppHeaderProps, AppHeaderTexts } from "./ui/AppHeader";
+export { NavigationMenu } from "./ui/NavigationMenu";
+export type { NavigationMenuProps, NavigationMenuTexts } from "./ui/NavigationMenu";
 export { PrimaryNav } from "./ui/PrimaryNav";
 export type { PrimaryNavProps, PrimaryNavTexts } from "./ui/PrimaryNav";
 export { LanguageSelect } from "./ui/LanguageSelect";
