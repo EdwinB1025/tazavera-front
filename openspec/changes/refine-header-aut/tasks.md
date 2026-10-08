@@ -28,7 +28,7 @@
 
 ## 2. "Explore offerings" for the specialist (R53)
 
-- [ ] 2.1 (app-shell) Tests first in `src/widgets/app-header/ui/AppHeader.test.tsx`:
+- [x] 2.1 (app-shell) Tests first in `src/widgets/app-header/ui/AppHeader.test.tsx`:
   - add `exploreOfferings` to TEXTS;
   - "Management entry for a specialist": "Explore offerings" points at `/es/offerings` and directly follows "Manage evaluations" among the menu items;
   - "Menu content": the coffeeshop menu shows no explore entry.

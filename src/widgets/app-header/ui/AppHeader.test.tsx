@@ -47,6 +47,7 @@ const TEXTS = {
   themeToggleToTraditional: "texts.themeToggleToTraditional",
   manageOfferings: "texts.manageOfferings",
   manageEvaluations: "texts.manageEvaluations",
+  exploreOfferings: "texts.exploreOfferings",
   signOut: "texts.signOut",
   navigationMenu: "texts.navigationMenu",
 };
@@ -669,14 +670,19 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
     expect(
       screen.getByRole("menuitem", { name: TEXTS.manageOfferings }).getAttribute("href"),
     ).toBe("/es/manage/offerings");
+    // only a specialist gets the offerings entry (spec: Menu content)
+    expect(screen.queryByText(TEXTS.exploreOfferings)).toBeNull();
   });
 
-  it("offers \"Manage evaluations\" to /es/manage/evaluations for a specialist (spec: Management entry for a specialist)", () => {
+  it("offers \"Manage evaluations\" to /es/manage/evaluations followed by \"Explore offerings\" to /es/offerings for a specialist (spec: Management entry for a specialist)", () => {
     renderSignedIn("specialist");
     openMenu();
-    expect(
-      screen.getByRole("menuitem", { name: TEXTS.manageEvaluations }).getAttribute("href"),
-    ).toBe("/es/manage/evaluations");
+    const manage = screen.getByRole("menuitem", { name: TEXTS.manageEvaluations });
+    expect(manage.getAttribute("href")).toBe("/es/manage/evaluations");
+    const explore = screen.getByRole("menuitem", { name: TEXTS.exploreOfferings });
+    expect(explore.getAttribute("href")).toBe("/es/offerings");
+    const items = screen.getAllByRole("menuitem");
+    expect(items.indexOf(explore)).toBe(items.indexOf(manage) + 1);
   });
 
   it("offers the account entry and sign out with no management entry for any other role (spec: No management entry for the role)", () => {
