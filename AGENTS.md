@@ -43,6 +43,17 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Application code lives in `src/`, organized in FSD layers, from top to bottom: `app`, `pages`, `widgets`, `features`, `entities`, `shared`.
 - A layer may only import from layers below it. Never import upwards or between slices of the same layer.
 - Before designing a change or creating files under `app/` or `src/`, load the `fsd-architecture` skill.
+- Inside a segment, import sibling files directly, never through the segment's own public index. Do not add files that only re-export another file.
+- When a slice needs data or behaviour from another slice of the same layer, a slice of a higher layer composes both and passes it in.
+- A slice's public index exports only what other slices import.
+
+## Code structure
+
+- Every API call goes through the project's shared request client. Never build an API URL by hand.
+- Requests and the mapping of response statuses live in the slice's `api` segment, never in a UI component.
+- Before writing a helper, hook or loader, search for an existing one and reuse it. When reuse would break a layer or slice rule, report the duplication in your final report as a backlog candidate instead of copying more than about 20 lines.
+- Do not switch between two render trees with a boolean prop: write one component per variant and share their parts.
+- Size limits: a component or function of at most 80 lines, a file of at most 300 lines, and a cyclomatic complexity of at most 15. The architect splits anything larger in design.md; the build reports in its final report any unit it cannot keep within the limits.
 
 ## API contract
 
