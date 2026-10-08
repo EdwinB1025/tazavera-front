@@ -38,7 +38,7 @@ The entries below follow this order. The order runs security first, then the sha
 | 14 | R30 (resolves R19) | `cache-reference-reads` | Refactor (fast lane) | S | — |
 | 15 | R32 (+ R17) | `label-landmarks-and-headings` | Refactor (fast lane) | M | — |
 | 16 | R40 | API branch in `tazavera-api` | Change (API) | M | PO: review of the API diff |
-| 16b | R18 | `show-item-not-found-message` | Change (behaviour, texts) | M | R40; PO: texts and the wrong-role case |
+| 16b | R18 | `show-item-not-found-message` | Change (behaviour, texts) | M | R40 |
 | 17 | R33 | `split-consensus-panel` | Refactor (fast lane) | M | — |
 | 18 | R34 | `split-evaluation-form-state` | Refactor (fast lane) | L | — |
 | 19 | R38 | `split-account-and-management-panels` | Refactor (fast lane) | M | — |
@@ -312,7 +312,11 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Why it pays off now:** Product owner's decision (2026-10-08): these are not 404 pages. The view keeps its layout and back link and shows a message naming what is missing ("<item> not found", or "no results" for an empty list), with no Retry. A failed request keeps the error with Retry. Verified: unknown URLs already answer HTTP 404 with the 404 page; a streamed 404 already carries `noindex` (Next.js docs, `loading.md` "Status Codes"), so the HTTP 200 needs no fix.
 - **Owning capability:** offering-catalog, evaluations
 - **Proposed change:** `show-item-not-found-message`
-- **Open decision (Augusto):** the message texts (es/en/ca); whether a signed-in user without the right role on a management route keeps the 404 page
+- **Open decision (Augusto):** answered 2026-10-08: a signed-in user without the right role keeps the 404 page. Texts (orchestrator's recommendation, delegated by Product owner): one title per item and one line under it, inside the view, above the existing back link, with no Retry:
+  - viewing an offering (unknown identifier; also an unknown offering on the new-evaluation form): "Oferta no encontrada" / "Offering not found" / "Oferta no trobada"; "Puede que se haya retirado o que el enlace no sea correcto." / "It may have been removed, or the link may be wrong." / "Pot ser que s'hagi retirat o que l'enllaç no sigui correcte.";
+  - viewing a coffee shop: "Cafetería no encontrada" / "Coffee shop not found" / "Cafeteria no trobada"; same line;
+  - viewing an evaluation (unknown identifier, or not closed on the public view): "Evaluación no encontrada" / "Evaluation not found" / "Avaluació no trobada"; "Puede que aún no esté publicada o que el enlace no sea correcto." / "It may not be published yet, or the link may be wrong." / "Pot ser que encara no estigui publicada o que l'enllaç no sigui correcte." In the specialist area the line is the offering one ("removed").
+  Full strings per item, not a "{item} not found" template, so every language keeps its grammar.
 - **Type:** Change
 - **Status:** accepted
 - **Affects:** R40 (the 404 responses must be documented first)
@@ -408,7 +412,7 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Why it pays off now:** every new menu built on the card variant inherits the mismatch with `base-controls`
 - **Owning capability:** base-controls
 - **Proposed change:** none yet
-- **Open decision (Augusto):** answered 2026-10-08: 16px. The card panel keeps `rounded-container`; `base-controls` is amended to allow it for card menus. Still open: whether the nav menu stays at 8px.
+- **Open decision (Augusto):** answered 2026-10-08: 16px. The card panel keeps `rounded-container`; `base-controls` is amended to allow it for card menus. The nav menu stays at 8px (orchestrator's recommendation, delegated by Product owner): a panel takes the radius of what opens it, so lists opened from a field or the navigation (Select, Combobox, nav menu) keep `radius-field` and a menu opened from a card keeps `radius-container`. Unifying would change the Select and Combobox lists too, for no gain. Spec wording only; no code change.
 - **Type:** Change
 - **Status:** accepted
 - **Affects:** none
