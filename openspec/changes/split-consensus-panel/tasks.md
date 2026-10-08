@@ -8,7 +8,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 2. Attributes card
 
-- [ ] 2.1 Create `src/widgets/offering-detail/ui/AttributesCard.tsx` with `AttributesCardTexts`, `AttributesCardProps` and `AttributesCard` (design.md D2), moving the attributes card, its one-decimal formatting, `ATTRIBUTES` and `SCALES_CLASSES`; the not-verified card stays inline in the panel (design.md D4). Verify: the related tests pass, including the panel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors. Commit `refactor(offering-catalog): extract the consensus attributes card`.
+- [x] 2.1 Create `src/widgets/offering-detail/ui/AttributesCard.tsx` with `AttributesCardTexts`, `AttributesCardProps` and `AttributesCard` (design.md D2), moving the attributes card, its one-decimal formatting, `ATTRIBUTES` and `SCALES_CLASSES`; the not-verified card stays inline in the panel (design.md D4). Verify: the related tests pass, including the panel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors. Commit `refactor(offering-catalog): extract the consensus attributes card`.
 
 ## 3. Status card
 
