@@ -88,6 +88,12 @@ describe("EvaluationSheet scales (spec: Intensity and preference values)", () =>
     expect(preference[0]?.getAttribute("aria-valuetext")).toBe("7 de 9");
     expect(within(card("Preference")).queryByText("Overall")).toBeNull();
   });
+
+  it("omits an affective scale whose score is 0, as an unscored one", () => {
+    renderSheet({ ...EVALUATION, affective: { ...EVALUATION.affective, mouthfeel: { score: 0, note: null } } });
+    expect(within(card("Preference")).getAllByRole("meter")).toHaveLength(6);
+    expect(within(card("Preference")).queryByText("Mouthfeel")).toBeNull();
+  });
 });
 
 describe("EvaluationSheet descriptors (spec: Descriptor blocks, An unresolved descriptor reference)", () => {

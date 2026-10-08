@@ -235,8 +235,9 @@ export function EvaluationSheet({
       <SheetCard heading={texts.preferenceHeading}>
         <div className={SCALES_CLASSES}>
           {AFFECTIVE_AXES.map((axis) => {
+            // 0 is not on the 1–9 scale: unscored, like null (the specialist form's `|| null`).
             const score = evaluation.affective?.[axis]?.score;
-            return score === null || score === undefined ? null : (
+            return !score ? null : (
               <BeanScale
                 key={axis}
                 label={texts.axisLabels[axis]}
