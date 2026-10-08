@@ -55,6 +55,7 @@ export function AppShell({
       sidebar={sidebar}
       texts={{
         topRated: texts.topRated!,
+        exploreCoffeeshops: texts.exploreCoffeeshops!,
         aboutUs: texts.aboutUs!,
         signIn: texts.signIn!,
         // design.md D6: the shell composes one name — the resolved

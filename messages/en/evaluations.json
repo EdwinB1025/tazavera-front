@@ -92,5 +92,6 @@
   "roastLevelRequired": "Choose the roast level to save.",
   "fragranceNotEvaluatedLabel": "Fragrance not evaluated — use aroma values",
   "closedMessage": "Evaluation closed.",
-  "incompleteMessage": "The evaluation cannot be closed yet: complete the highlighted groups."
+  "incompleteMessage": "The evaluation cannot be closed yet: complete the highlighted groups.",
+  "resultCount": "Results: {count}"
 }

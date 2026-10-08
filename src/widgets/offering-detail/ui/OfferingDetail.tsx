@@ -17,6 +17,8 @@ export type OfferingDetailProps = {
   tab: DetailTab;
   session: Session;
   texts: OfferingDetailTexts;
+  /** The provisional tab's panel, composed by the page (add-public-evaluations D9). */
+  provisional: ReactNode;
 };
 
 /**
@@ -31,6 +33,7 @@ export async function OfferingDetail({
   tab,
   session,
   texts,
+  provisional,
 }: OfferingDetailProps): Promise<ReactNode> {
   let result: OfferingDetailResult;
   const offering = await fetchOffering(ulid);
@@ -57,6 +60,7 @@ export async function OfferingDetail({
       tab={tab}
       session={session}
       texts={texts}
+      provisional={provisional}
     />
   );
 }

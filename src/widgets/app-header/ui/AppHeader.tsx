@@ -15,6 +15,7 @@ import { UserMenu } from "./UserMenu";
 
 export type AppHeaderTexts = {
   topRated: string;
+  exploreCoffeeshops: string;
   aboutUs: string;
   signIn: string;
   /**

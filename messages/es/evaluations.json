@@ -92,5 +92,6 @@
   "roastLevelRequired": "Elige el nivel de tueste para guardar.",
   "fragranceNotEvaluatedLabel": "Fragancia no evaluada — usar los valores de aroma",
   "closedMessage": "Evaluación cerrada.",
-  "incompleteMessage": "Todavía no se puede cerrar la evaluación: completa los grupos resaltados."
+  "incompleteMessage": "Todavía no se puede cerrar la evaluación: completa los grupos resaltados.",
+  "resultCount": "Resultados: {count}"
 }

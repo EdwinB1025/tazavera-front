@@ -21,6 +21,7 @@ export type OfferingDetailTexts = DetailHeaderTexts &
     retryLabel: string;
     tabInventory: string;
     tabConsensus: string;
+    tabProvisional: string;
   };
 
 /** The fetch result, mapped before it reaches this view (design.md D8). */
@@ -35,6 +36,8 @@ export type OfferingDetailContentProps = {
   tab: DetailTab;
   session: Session;
   texts: OfferingDetailTexts;
+  /** The provisional tab's panel, composed by the page (add-public-evaluations D9). */
+  provisional: ReactNode;
 };
 
 // The back link and the block below it, 1.5rem apart (design.md D9).
@@ -63,6 +66,7 @@ export function OfferingDetailContent({
   tab,
   session,
   texts,
+  provisional,
 }: OfferingDetailContentProps): ReactNode {
   const backLink = (
     <Link variant="back" href={`/${locale}/offerings`}>
@@ -101,6 +105,7 @@ export function OfferingDetailContent({
         labels={{
           inventory: texts.tabInventory,
           consensus: texts.tabConsensus,
+          provisional: texts.tabProvisional,
         }}
         inventory={<InventoryPanel offering={result.offering} texts={texts} />}
         consensus={
@@ -111,6 +116,7 @@ export function OfferingDetailContent({
             texts={texts}
           />
         }
+        provisional={provisional}
       />
     </PageSection>
   );

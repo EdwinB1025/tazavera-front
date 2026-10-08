@@ -22,6 +22,8 @@ export type OfferingsProps = {
    * replaces only `page`; omitted, the list pages at landing's `/${locale}`.
    */
   path?: string;
+  /** Keys added to the pagination's query only, never to the request (add-coffeeshop-directory design.md D17). */
+  paginationQuery?: OfferingsQuery;
   /** Replaces the grid classes; landing's grid by default. */
   gridClassName?: string;
   /** Rendered below the empty message (add-offering-facets design.md D9). */
@@ -40,6 +42,7 @@ export async function Offerings({
   query,
   texts,
   path,
+  paginationQuery,
   gridClassName,
   emptyAction,
 }: OfferingsProps): Promise<ReactNode> {
@@ -66,7 +69,7 @@ export async function Offerings({
       locale={locale}
       texts={texts}
       path={path}
-      query={path === undefined ? undefined : query}
+      query={path === undefined ? undefined : { ...query, ...paginationQuery }}
       gridClassName={gridClassName}
       emptyAction={emptyAction}
     />

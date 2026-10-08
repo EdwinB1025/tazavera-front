@@ -37,3 +37,5 @@ export {
   updateAnEvaluation,
 } from "./api/user-evaluations";
 export type { EvaluationCallResult, EvaluationPage } from "./api/user-evaluations";
+export { fetchEvaluation, fetchEvaluations } from "./api/public-evaluations";
+export type { EvaluationsQuery } from "./api/public-evaluations";

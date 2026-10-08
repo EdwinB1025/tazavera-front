@@ -36,6 +36,7 @@ const ANONYMOUS: Session = { state: "anonymous" };
 const LOCALES = ["es", "en", "ca"];
 const TEXTS = {
   topRated: "texts.topRated",
+  exploreCoffeeshops: "texts.exploreCoffeeshops",
   aboutUs: "texts.aboutUs",
   signIn: "texts.signIn",
   languageSelector: "texts.languageSelector",
@@ -154,15 +155,22 @@ describe("AppHeader, signed-out state", () => {
 
 describe("PrimaryNav", () => {
   function renderNav() {
-    return render(<PrimaryNav locale="es" texts={{ topRated: TEXTS.topRated, aboutUs: TEXTS.aboutUs }} />);
+    return render(<PrimaryNav locale="es" texts={{ topRated: TEXTS.topRated, exploreCoffeeshops: TEXTS.exploreCoffeeshops, aboutUs: TEXTS.aboutUs }} />);
   }
 
-  it("shows Top rated and About us with their destinations from the spec at md and up", () => {
+  it("shows Top rated, Explore coffee shops and About us in that order with their destinations at md and up (spec: Primary navigation on a medium or larger viewport)", () => {
     renderNav();
+    expect(screen.getAllByRole("link").map((link) => link.textContent)).toEqual([
+      TEXTS.topRated,
+      TEXTS.exploreCoffeeshops,
+      TEXTS.aboutUs,
+    ]);
     const topRated = screen.getByRole("link", { name: TEXTS.topRated });
     expect(topRated.getAttribute("href")).toBe(
       "/es/offerings?verified=1&orderBy=cupping_avg&orderDirection=desc",
     );
+    const explore = screen.getByRole("link", { name: TEXTS.exploreCoffeeshops });
+    expect(explore.getAttribute("href")).toBe("/es/coffeeshops");
     const aboutUs = screen.getByRole("link", { name: TEXTS.aboutUs });
     expect(aboutUs.getAttribute("href")).toBe("/es/about");
   });
@@ -210,7 +218,7 @@ describe("PrimaryNav", () => {
       <PrimaryNav
         locale="es"
         currentPath="/es/about"
-        texts={{ topRated: TEXTS.topRated, aboutUs: TEXTS.aboutUs }}
+        texts={{ topRated: TEXTS.topRated, exploreCoffeeshops: TEXTS.exploreCoffeeshops, aboutUs: TEXTS.aboutUs }}
       />,
     );
     const about = screen.getByRole("link", { name: TEXTS.aboutUs });
@@ -221,7 +229,17 @@ describe("PrimaryNav", () => {
     expect(about.classList.contains("hover:text-nav-text-hover")).toBe(false);
     const topRated = screen.getByRole("link", { name: TEXTS.topRated });
     expect(topRated.getAttribute("aria-current")).toBeNull();
-    expect(topRated.classList.contains("hover:bg-nav-hover")).toBe(true);
+    expect(topRated.classList.contains("hover:bg-nav-hover")).toBe(true);    cleanup();
+    render(
+      <PrimaryNav
+        locale="es"
+        currentPath="/es/coffeeshops"
+        texts={{ topRated: TEXTS.topRated, exploreCoffeeshops: TEXTS.exploreCoffeeshops, aboutUs: TEXTS.aboutUs }}
+      />,
+    );
+    const explore = screen.getByRole("link", { name: TEXTS.exploreCoffeeshops });
+    expect(explore.getAttribute("aria-current")).toBe("page");
+    expect(explore.classList.contains("border-nav-indicator")).toBe(true);
   });
 
   it("matches the current page by path, ignoring the query", () => {
@@ -229,7 +247,7 @@ describe("PrimaryNav", () => {
       <PrimaryNav
         locale="es"
         currentPath="/es/offerings"
-        texts={{ topRated: TEXTS.topRated, aboutUs: TEXTS.aboutUs }}
+        texts={{ topRated: TEXTS.topRated, exploreCoffeeshops: TEXTS.exploreCoffeeshops, aboutUs: TEXTS.aboutUs }}
       />,
     );
     expect(

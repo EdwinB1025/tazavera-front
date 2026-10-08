@@ -37,6 +37,8 @@ const TEXTS = {
   retryLabel: "texts.retryLabel",
   tabInventory: "texts.tabInventory",
   tabConsensus: "texts.tabConsensus",
+  tabProvisional: "texts.tabProvisional",
+  viewEvaluationsLabel: "texts.viewEvaluationsLabel",
   verifiedLabel: "texts.verifiedLabel",
   provisionalLabel: "texts.provisionalLabel",
   coffeeshopCaption: "texts.coffeeshopCaption",
@@ -58,7 +60,7 @@ const ANONYMOUS: Session = { state: "anonymous" };
 
 function renderContent(
   result: OfferingDetailResult,
-  tab: "inventory" | "consensus" = "inventory",
+  tab: "inventory" | "consensus" | "provisional" = "inventory",
 ) {
   return render(
     <OfferingDetailContent
@@ -68,6 +70,7 @@ function renderContent(
       tab={tab}
       session={ANONYMOUS}
       texts={TEXTS}
+      provisional={<p>Provisional panel error</p>}
     />,
   );
 }
@@ -132,5 +135,12 @@ describe("OfferingDetailContent", () => {
     renderContent({ state: "error" });
     fireEvent.click(screen.getByRole("button", { name: TEXTS.retryLabel }));
     expect(router.refresh).toHaveBeenCalledTimes(1);
+  });
+
+  it("renders the provisional slot in its tab, leaving the header and the other tabs (add-public-evaluations D9)", () => {
+    renderContent(SUCCESS, "provisional");
+    expect(screen.getByRole("tabpanel").textContent).toBe("Provisional panel error");
+    expect(screen.getByRole("heading", { level: 1, name: "Huila El Mirador" })).toBeDefined();
+    expect(screen.getAllByRole("tab")).toHaveLength(3);
   });
 });

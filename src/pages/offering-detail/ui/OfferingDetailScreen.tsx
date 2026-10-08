@@ -9,6 +9,12 @@ import {
   type OfferingDetailTexts,
 } from "@/widgets/offering-detail";
 import { OfferingSkeletonCard } from "@/widgets/offering-list";
+import {
+  EvaluationSheetBaseline,
+  EvaluationSheetSkeleton,
+  evaluationSheetTexts,
+  type EvaluationBaselineTexts,
+} from "@/widgets/evaluation-sheet";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -54,7 +60,8 @@ const SKELETON_CARD_KEYS = [0, 1] as const;
  * "Offering detail page"). A thin composition: it loads the `catalog` and
  * `landing` texts of the route's locale, maps the raw `tab` value to a tab and
  * renders the detail block inside a `Suspense` boundary whose fallback is the
- * back link, the placeholder bars and two skeleton cards.
+ * back link, the placeholder bars and two skeleton cards; it composes the
+ * provisional tab's baseline panel and passes it down as a slot.
  */
 export function OfferingDetailScreen({
   locale,
@@ -71,6 +78,8 @@ export function OfferingDetailScreen({
     retryLabel: landing.listRetryLabel,
     tabInventory: catalog.detailTabInventory,
     tabConsensus: catalog.detailTabConsensus,
+    tabProvisional: catalog.detailTabProvisional,
+    viewEvaluationsLabel: catalog.detailViewEvaluations,
     verifiedLabel: landing.cardVerifiedLabel,
     provisionalLabel: landing.cardProvisionalLabel,
     coffeeshopCaption: landing.cardCoffeeshopCaption,
@@ -127,6 +136,26 @@ export function OfferingDetailScreen({
     detailAxesHeading: catalog.detailAxesHeading,
   };
 
+  // The provisional tab's panel (add-public-evaluations design.md D9): the
+  // page composes it, since one widget cannot import another, and its own
+  // boundary keeps its states inside the panel.
+  const baselineTexts: EvaluationBaselineTexts = {
+    ...evaluationSheetTexts({
+      publicEvaluations: getMessages("public-evaluations", locale),
+      evaluations: getMessages("evaluations", locale),
+      scales,
+      landing,
+    }),
+    emptyMessage: catalog.detailProvisionalEmpty,
+    errorMessage: catalog.detailProvisionalError,
+    retryLabel: landing.listRetryLabel,
+  };
+  const provisional = (
+    <Suspense fallback={<EvaluationSheetSkeleton />}>
+      <EvaluationSheetBaseline locale={locale} offeringUlid={ulid} texts={baselineTexts} />
+    </Suspense>
+  );
+
   return (
     <div className="flex-1">
       <Suspense
@@ -156,6 +185,7 @@ export function OfferingDetailScreen({
           tab={toDetailTab(tab)}
           session={ANONYMOUS_SESSION}
           texts={texts}
+          provisional={provisional}
         />
       </Suspense>
     </div>

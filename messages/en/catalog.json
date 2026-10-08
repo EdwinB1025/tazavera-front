@@ -51,5 +51,9 @@
   "wheelNotesToggle": "Notes",
   "wheelGroupsLabel": "Note groups",
   "wheelGroupAromatics": "Aromatics",
-  "resultCount": "Results: {count}"
+  "resultCount": "Results: {count}",
+  "detailViewEvaluations": "View evaluations",
+  "detailTabProvisional": "Provisional evaluation",
+  "detailProvisionalEmpty": "This offering has no provisional evaluation yet.",
+  "detailProvisionalError": "The provisional evaluation could not be loaded."
 }

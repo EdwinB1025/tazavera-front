@@ -5,9 +5,9 @@
 
 // ─── UI-specific types (declared before the function) ───
 
-export type DetailTab = "inventory" | "consensus";
+export type DetailTab = "inventory" | "consensus" | "provisional";
 
-/** The route's raw `tab` value as a tab: inventory unless it names consensus. */
+/** The route's raw `tab` value as a tab: inventory unless it names another tab. */
 export function toDetailTab(value: string | string[] | undefined): DetailTab {
-  return value === "consensus" ? "consensus" : "inventory";
+  return value === "consensus" || value === "provisional" ? value : "inventory";
 }
