@@ -26,7 +26,6 @@ The entries below follow this order. The order runs security first, then the sha
 | 0c | R46 | `search-coffee-facet` | Correction (fast lane, maximum priority) | S | — (Product owner 2026-10-08) |
 | 0d | R47 | `show-filter-loading-at-once` | Unplanned fix (fast lane, maximum priority) | S | — |
 | 0e | R48 | `refine-offering-facets-aut` | Correction (fast lane, maximum priority) | M | R46 merged (same files); design lead on finding 16's open points |
-| 0f | R49 | `nest-card-taste-notes` | Correction (fast lane, maximum priority) | M | — |
 | 16c | R50 | API branch in `tazavera-api` | Change (API) | S | Product owner: verify with real data (the API should deliver the resolved tree) |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
@@ -98,18 +97,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Type:** Correction (fast lane, maximum priority, Product owner's standing rule)
 - **Status:** accepted
 - **Affects:** waits for R46 (same files); whether 15 also applies to the evaluations taste-notes facet (shared `FacetCascade`) is to be confirmed by Product owner
-
-## R49 — Taste notes on the offering card as nested trees (production AUT finding 18, 2026-10-08)
-
-- **Duplicated:** none. The card renders the taste notes in three flat rows, one per level (`src/entities/offering/ui/OfferingCard.tsx:127-139`), as the `landing` spec "Taxonomy badges on the offering card", scenario "Rows by level", states.
-- **Where today:** `src/entities/offering/ui/OfferingCard.tsx`; the taxonomy resolution of the offering list (`src/widgets/offering-list/lib/resolve-taxonomies.ts`)
-- **Why it pays off now:** Product owner's AUT
-- **Owning capability:** landing (with offering-catalog)
-- **Proposed change:** `nest-card-taste-notes` (M)
-- **Open decision (Augusto):** answered 2026-10-08 (correction, relayed by the testing/deployment session): the taste notes render as nested trees: each level-0 note with its children (and theirs) nested under it, and the trees side by side, wrapping. Visual reference: the MVC descriptor cascade (`C:/Porjects/Full Stack/Sprint4/MVC/tazavera-app/resources/views/layouts/evaluations/partials/descriptor-cascade.blade.php`): each root a block in a `flex flex-wrap gap-3` container; level 1 under its root with `ml-5 mt-2`, a left border and `pl-3`, in a column; level 2 under its level-1 parent with `ml-5 mt-1.5`, wrapping; pills smaller with depth (to be translated into this project's semantic tokens). Open for the design lead: how a child whose parent is not among the offering's notes is placed; keeping the card from growing too tall; keeping the existing taxonomy badge colours and level treatment. Answered 2026-10-08 (Product owner): the API always delivers the consensus tree resolved, so the card renders the concordance tree as it arrives (a note sits where the tree places it; no re-attachment); no cap on the card (real evaluations identify few flavours; the high counts come from the seeders). Only evaluation data, which arrives flat, is resolved into a tree by the front.
-- **Type:** Correction (fast lane, maximum priority, Product owner's standing rule; replaces the "Rows by level" scenario)
-- **Status:** accepted
-- **Affects:** none
 
 ## R50 — Consensus concordance loses the parent of unmarked intermediate notes (API; found by the design lead for R49)
 
