@@ -1,11 +1,6 @@
 import type { ReactNode } from "react";
 import type { OfferingDetail, TaxonomyNode } from "@/shared/api";
-import {
-  assignWheelGroups,
-  buildDescriptorRows,
-  buildFlavorWheelNodes,
-  buildTaxonomyLookup,
-} from "@/entities/taxonomy";
+import { buildDescriptorRows } from "@/entities/taxonomy";
 import {
   Card,
   CardAside,
@@ -14,11 +9,12 @@ import {
   CollapsibleBody,
   CollapsibleHeader,
   DescriptorChipGroup,
-  FlavorWheel,
 } from "@/shared/ui";
 import { identifiedCounts } from "../lib/identified-counts";
 import { AttributesCard } from "./AttributesCard";
 import type { AttributesCardTexts } from "./AttributesCard";
+import { CataCard } from "./CataCard";
+import type { CataCardTexts } from "./CataCard";
 import { ConsensusLegend } from "./ConsensusLegend";
 import { ScoreCard } from "./ScoreCard";
 import type { ScoreCardTexts } from "./ScoreCard";
@@ -32,20 +28,12 @@ import type { StatusCardTexts } from "./StatusCard";
 export type ConsensusPanelTexts = ScoreCardTexts &
   AttributesCardTexts &
   StatusCardTexts &
-  SelectionBlockTexts & {
+  SelectionBlockTexts &
+  CataCardTexts & {
   detailMainTastesHeading: string;
   detailDefectsHeading: string;
-  detailCataHeading: string;
   /** The not-verified message shown instead of the SCA card (D20). */
   detailNotVerifiedMessage: string;
-  wheelLabel: string;
-  wheelHint: string;
-  /** `{count} de {total} evaluadores`: a wheel note's accessible count. */
-  wheelCount: string;
-  wheelNotesToggle: string;
-  /** The wheel's general group legend name and the aromatics group (D19). */
-  wheelGroupsLabel: string;
-  wheelGroupAromatics: string;
   /** The heading of the detail by axis (D18). */
   detailAxesHeading: string;
 };
@@ -68,12 +56,6 @@ const PANEL_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
 const GRID_CLASSES = ["grid", "grid-cols-1", "gap-6", "lg:grid-cols-2"].join(
   " ",
 );
-
-// Each card: the heading and its content, 1rem apart.
-const CONTENT_CLASSES = ["flex", "flex-col", "gap-4"].join(" ");
-
-// A card spanning both grid columns from `lg`.
-const WIDE_CARD_CLASSES = "lg:col-span-2";
 
 // The detail by axis (design.md D18): the sensory axes in order, with the
 // label key of each and the taxonomy category its descriptor rows come from.
@@ -156,28 +138,6 @@ export function ConsensusPanel({
     );
   }
 
-  // The CATA wheel (design.md D14, D19): one `FlavorWheel` fed the
-  // `aromatics` group of `cataConcordance`, its roots grouped into aromatics
-  // and mouthfeel; an empty concordance shows the empty text instead.
-  const lookup = buildTaxonomyLookup(taxonomies, locale);
-  const wheelTexts = {
-    label: texts.wheelLabel,
-    hint: texts.wheelHint,
-    emptyMessage: texts.detailTasteEmpty,
-    notesToggle: texts.wheelNotesToggle,
-    groupsLabel: texts.wheelGroupsLabel,
-  };
-  const wheelGroups = [
-    { id: "aromatics", name: texts.wheelGroupAromatics },
-    { id: "mouthfeel", name: texts.attrMouthfeel },
-  ];
-  function countLabel(count: number, of: number): string {
-    return texts.wheelCount
-      .replace("{count}", String(count))
-      .replace("{total}", String(of));
-  }
-  const cata = offering.cataConcordance ?? [];
-
   return (
     <div className={PANEL_CLASSES}>
       <ScoreCard offering={offering} texts={texts} />
@@ -208,24 +168,12 @@ export function ConsensusPanel({
           heading={texts.detailDefectsHeading}
           texts={texts}
         />
-        <Card layout="stacked" className={WIDE_CARD_CLASSES}>
-          <CardContent className={CONTENT_CLASSES}>
-            <h2 className="type-subheading">{texts.detailCataHeading}</h2>
-            {cata.length > 0 ? (
-              <FlavorWheel
-                nodes={assignWheelGroups(
-                  buildFlavorWheelNodes(cata, lookup, total, countLabel),
-                  taxonomies,
-                )}
-                total={total}
-                texts={wheelTexts}
-                groups={wheelGroups}
-              />
-            ) : (
-              <p className="type-body">{texts.detailTasteEmpty}</p>
-            )}
-          </CardContent>
-        </Card>
+        <CataCard
+          offering={offering}
+          taxonomies={taxonomies}
+          locale={locale}
+          texts={texts}
+        />
         <div className={AXES_BLOCK_CLASSES}>
           <h2 className="type-subheading">{texts.detailAxesHeading}</h2>
           <div className={AXIS_SECTIONS_CLASSES}>{AXES.map(axisSection)}</div>

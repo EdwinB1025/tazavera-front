@@ -24,7 +24,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 6. CATA card
 
-- [ ] 6.1 Create `src/widgets/offering-detail/ui/CataCard.tsx` with `CataCardTexts`, `CataCardProps` and `CataCard` (design.md D2), moving the wheel card, its lookup, wheel texts, wheel groups, count label and `WIDE_CARD_CLASSES`. Verify: the related tests pass, including the panel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors. Commit `refactor(offering-catalog): extract the consensus cata card`.
+- [x] 6.1 Create `src/widgets/offering-detail/ui/CataCard.tsx` with `CataCardTexts`, `CataCardProps` and `CataCard` (design.md D2), moving the wheel card, its lookup, wheel texts, wheel groups, count label and `WIDE_CARD_CLASSES`. Verify: the related tests pass, including the panel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors. Commit `refactor(offering-catalog): extract the consensus cata card`.
 
 ## 7. Detail by axis
 
