@@ -34,6 +34,8 @@ The entries below follow this order. The order runs security first, then the sha
 | 0l | R56 | `cascade-evaluation-descriptors` | Correction (fast lane, maximum priority) | M | R48 merged (shared cascade); design lead on its open points |
 | 0m | R57 | `add-form-cancel-actions` | Correction (fast lane, maximum priority) | M | design lead on its open points; Product owner on the inline account forms |
 | 0n | R58 | `add-note-plus-icon` | Correction (fast lane, maximum priority) | S | — |
+| 0o | R59 | `drop-step-up-for-everyday-writes` | Correction (auth, API first; fast lane, maximum priority for the front) | S | Product owner's API change and the regenerated contract |
+| 0p | R60 | `add-header-theme-toggle` | Correction (fast lane, maximum priority) | S | design lead on its open points |
 | 16c | R50 | API branch in `tazavera-api` | Change (API) | S | Product owner: verify with real data (the API should deliver the resolved tree) |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
@@ -168,6 +170,22 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Proposed change:** `add-note-plus-icon` (S)
 - **Open decision (Augusto):** answered 2026-10-08: the link shows a "+" at the end: the `Plus` icon already exported from `src/shared/ui/icons.ts`, `aria-hidden`, after the text (orchestrator's choice over a literal "+", per the icon rule); the visible text and the accessible name stay "Añadir nota" / its locale texts.
 - **Type:** Correction (fast lane, maximum priority) · **Status:** accepted · **Affects:** none
+
+## R59 — Step-up only for password and account removal (production AUT finding 27, 2026-10-08)
+
+- **Duplicated:** none. The front asks for step-up (`requestProfileWrite`) before operations that, by Product owner's decision, no longer need `profile:write`.
+- **Where today:** `ProfileForm.tsx:158`, `ContactSection.tsx:283`, `LocationForm.tsx:203`, `ManageOfferingsPanel.tsx:181` / `DeleteOfferingsDialog` (they drop step-up); `PasswordForm.tsx:214` and `DangerZone.tsx:97` (they keep it); `NewOfferingForm.tsx:87` also calls it although `POST /offerings` needs no write scope (check against the contract). API routes in `tazavera-api/routes/api.php` (`:49-50`, `:54-57`, `:86`, `:88`, `:90`, `:92`, `:94`).
+- **Owning capability:** auth (with user-account, offering-management)
+- **Open decision (Augusto):** answered 2026-10-08: no longer `profile:write`: `POST /locations`, `POST /users/{user}/contacts`, `PUT /users/{user}`, `DELETE /offerings/{offering}` and `DELETE /offerings` (the confirmation dialog stays). Keep `profile:write`: `PUT /users/{user}/password`, `DELETE /users/{user}`, `DELETE /users/{user}/force` (the two account ones also keep their confirmation dialog). The API's security page is unchanged. Product owner changes the API first.
+- **Type:** Correction (touches the auth flow and the API contract; front in the fast lane at maximum priority once the contract lands) · **Status:** accepted
+- **Affects:** waits for the API change and the regenerated `contracts/openapi.yaml`: do not start the front until the contract shows the new scopes. R38 (on `qa`) split `ContactSection`, `LocationsPanel` and `ManageOfferingsPanel`.
+
+## R60 — Theme switch in the header for every visitor (production AUT finding 28, 2026-10-08)
+
+- **Duplicated:** none. The only theme control is `ThemeSelect`, a native `<select>` inside the signed-in user menu (`widgets/app-header/ui/UserMenu.tsx:125-127`); anonymous visitors have none although `app-shell` "Theme selection" says the choice "needs no sign in"; the select shows the raw value "traditional", untranslated, with no visible label.
+- **Owning capability:** app-shell
+- **Open decision (Augusto):** answered 2026-10-08: an icon button next to the language selector, on every viewport (visible like the language selector when the primary navigation collapses), switching between traditional and dark, keeping the choice in the browser as today (`shared/lib/theme`, cookie); an accessible name that names the action and the current theme (es/en/ca), with the pressed/current state exposed. Open for the design lead: the icon pair (through `shared/ui/icons.ts`), a toggle or a small menu like the language selector, whether `ThemeSelect` leaves the user menu (and the user-menu spec scenario), and the header contrast in both themes.
+- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted · **Affects:** R53 (also edits the user menu)
 
 ## R50 — Consensus concordance loses the parent of unmarked intermediate notes (API; found by the design lead for R49)
 
