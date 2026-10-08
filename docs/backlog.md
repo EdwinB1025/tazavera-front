@@ -23,7 +23,6 @@ The entries below follow this order. The order runs security first, then the sha
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
 | 0 | R41 | `fix-sign-in` | Refactor (fast lane) | S | — (maximum priority, Product owner 2026-10-08) |
-| 0b | R42 | `fix-production-aut-findings` (one package, merged into `develop` together) | Refactor (fast lane) | M | — (maximum priority, Product owner 2026-10-08) |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
 | 3 | R31 (+ R3) | `harden-response-headers` | Refactor (fast lane) | S | — |
@@ -64,23 +63,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Type:** Refactor (fast lane)
 - **Status:** accepted
 - **Affects:** AUT points 10 and 11 (coffee shop locations after the first sign-in)
-
-## R42 — Production AUT findings (priority package, 2026-10-08)
-
-- **Duplicated:** none. Corrections found by Product owner in the production AUT of 2026-10-08, delivered as **one package**: one change, merged into `develop` together, as soon as possible.
-  1. **Offering card flavours (AUT 4).** The cards show duplicated flavour values. Expected: the values come from the **consensus**; with no consensus, from the **baseline evaluation**; no tree is duplicated — each value is shown **once**; a value repeated on more than one axis is condensed into a single **aromatics** axis.
-  2. **Card actions (AUT 5).** Every action of a card is an **action button** (shared `Button`, variants `action-1` … `action-4`), not a link — **except the map actions**. On the offering card, "View" is shown **only to an authenticated user**.
-  3. **"Back" link in the list headers (AUT 6).** It returns to the **previous URL** (the page the user came from), not to a fixed route written in the code.
-  4. **Header on mobile (AUT 7).** The header options disappear on mobile. Expected: a **menu icon (three lines)** in the mobile header replaces them and renders the options **the same way the user menu does**.
-  5. **Pagination links (AUT 9, low priority inside the package).** Navigating between pages takes long to resolve; expected a prompt page change.
-- **Where today:** not located per point; the architect maps each point to its capability and files.
-- **Why it pays off now:** user-visible defects found in the production AUT, before the deploy.
-- **Owning capability:** several (offering catalog cards, app-shell header, list headers, pagination); one commit per capability inside the one change.
-- **Proposed change:** `fix-production-aut-findings` (M)
-- **Open decision (Augusto):** none. Fast lane, maximum priority and single-package delivery by Product owner's decision of 2026-10-08, although points 1–4 change what users see (the fast-lane definition covers behaviour-keeping refactors; the decision overrides it for this package, as for the technical-review entries).
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** AUT points 4, 5, 6, 7, 9. Not included: AUT 10 / R41 (sign-in; cause found in the environment, see R41) and AUT 11 (no correction, decided)
 
 ## R20 — Upgrade Next.js to 16.4 (security advisories)
 
