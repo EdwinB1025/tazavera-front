@@ -60,14 +60,14 @@ export function useDeleteFlow({ onDeleted }: DeleteFlowOptions): DeleteFlow {
     setPending(true);
     const sent =
       target.kind === "one" ? deleteOffering(target.ulid) : deleteOfferings(target.ulids);
-    sent.then((outcome) => {
+    sent.then((result) => {
       setPending(false);
-      if (outcome === "ok") {
+      if (result.ok) {
         setTarget(null);
         setError("none");
         onDeleted(target.kind === "one" ? 1 : target.ulids.length);
       } else {
-        setError(outcome === "forbidden" ? "step-up" : "failed");
+        setError(result.kind === "forbidden" ? "step-up" : "failed");
       }
     });
   };

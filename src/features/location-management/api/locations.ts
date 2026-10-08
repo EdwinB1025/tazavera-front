@@ -1,43 +1,57 @@
 import {
   request,
+  type ApiResult,
   type CreateLocationPayload,
+  type UserLocation,
   type UserLocationsPayload,
 } from "@/shared/api";
-import type { ListState } from "../model/types";
 
 /**
  * The session user's locations read (design.md D3): `GET
- * /users/{ulid}/locations` through the token client. The caller reads the
- * status and the body.
+ * /users/{ulid}/locations` through the token client.
  */
-export function fetchOwnLocations(userUlid: string): Promise<Response> {
+function fetchOwnLocations(userUlid: string): Promise<Response> {
   return request(`/users/${userUlid}/locations`, {
     headers: { Accept: "application/json" },
   });
 }
 
-/** The list state a read's response leads to (design.md D3). */
-export async function readOwnLocations(
-  userUlid: string,
-): Promise<Exclude<ListState, { status: "loading" }>> {
+/**
+ * The read with its status mapped to the shared result (design.md D3;
+ * unify-api-result-shape design.md D2, D4): a `200` carries the locations,
+ * anything else or a transport failure is an error.
+ */
+export async function readOwnLocations(userUlid: string): Promise<ApiResult<UserLocation[]>> {
   try {
     const response = await fetchOwnLocations(userUlid);
-    if (response.status !== 200) return { status: "error" };
+    if (response.status !== 200) return { ok: false, kind: "error" };
     const body = (await response.json()) as UserLocationsPayload;
-    return { status: "ready", locations: body.data ?? [] };
+    return { ok: true, data: body.data ?? [] };
   } catch {
-    return { status: "error" };
+    return { ok: false, kind: "error" };
   }
 }
 
-/** A location's creation (design.md D4): `POST /locations`. */
-export function createLocation(payload: CreateLocationPayload): Promise<Response> {
-  return request("/locations", {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
+/**
+ * A location's creation (design.md D4): `POST /locations`. A `201` is
+ * created, a `403` the step-up, anything else or a transport failure an
+ * error.
+ */
+export async function createLocation(
+  payload: CreateLocationPayload,
+): Promise<ApiResult<null, "forbidden">> {
+  try {
+    const response = await request("/locations", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+    if (response.status === 201) return { ok: true, data: null };
+    return { ok: false, kind: response.status === 403 ? "forbidden" : "error" };
+  } catch {
+    return { ok: false, kind: "error" };
+  }
 }

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { CoffeeInventoryItem } from "@/shared/api";
-import { createOfferings, fetchMyLocations, type LocationsResult } from "../api/management";
+import type { CoffeeInventoryItem, LocationItem } from "@/shared/api";
+import { createOfferings, fetchMyLocations } from "../api/management";
 
 /**
  * The create form's state (design.md D5, D10; spec "Creating offerings"): the
@@ -24,6 +24,9 @@ export type CreateStatus =
   | { state: "created"; count: number }
   | { state: "failed" }
   | { state: "step-up" };
+
+/** A settled locations read (unify-api-result-shape design.md D5). */
+export type LocationsResult = { state: "success"; data: LocationItem[] } | { state: "error" };
 
 export type LocationsState = { state: "loading" } | LocationsResult;
 
@@ -65,7 +68,10 @@ export function useCreateFlow({ enabled }: CreateFlowOptions): CreateFlow {
   useEffect(() => {
     if (!enabled) return;
     let current = true;
-    fetchMyLocations().then((result) => {
+    fetchMyLocations().then((read) => {
+      const result: LocationsResult = read.ok
+        ? { state: "success", data: read.data }
+        : { state: "error" };
       if (current) setSettled({ attempt, result });
     });
     return () => {
@@ -108,12 +114,12 @@ export function useCreateFlow({ enabled }: CreateFlowOptions): CreateFlow {
     }
     setStatus({ state: "pending" });
     createOfferings(item.ulid ?? "", selectedLocations).then((result) => {
-      if (result.outcome === "ok") {
+      if (result.ok) {
         setItem(null);
         setPicked(null);
-        setStatus({ state: "created", count: result.count });
+        setStatus({ state: "created", count: result.data });
       } else {
-        setStatus({ state: result.outcome === "forbidden" ? "step-up" : "failed" });
+        setStatus({ state: result.kind === "forbidden" ? "step-up" : "failed" });
       }
     });
     return true;

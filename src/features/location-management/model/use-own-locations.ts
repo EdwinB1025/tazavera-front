@@ -18,7 +18,10 @@ export function useOwnLocations(userUlid: string): OwnLocations {
   const [list, setList] = useState<ListState>({ status: "loading" });
 
   const read = useCallback(async (): Promise<void> => {
-    const next = await readOwnLocations(userUlid);
+    const read = await readOwnLocations(userUlid);
+    const next: ListState = read.ok
+      ? { status: "ready", locations: read.data }
+      : { status: "error" };
     if (mounted.current) setList(next);
   }, [userUlid]);
 

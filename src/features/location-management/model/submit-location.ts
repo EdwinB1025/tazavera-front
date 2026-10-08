@@ -47,10 +47,9 @@ export async function submitLocation(
   const coordinates =
     outcome.status === "found" ? { lat: outcome.lat, lon: outcome.lon } : null;
   try {
-    const response = await createLocation(toCreateLocationPayload(values, coordinates));
-    if (response.status === 201) return { status: "created", hadCoordinates: coordinates !== null };
-    if (response.status === 403) return { status: "step-up" };
-    return { status: "error" };
+    const result = await createLocation(toCreateLocationPayload(values, coordinates));
+    if (result.ok) return { status: "created", hadCoordinates: coordinates !== null };
+    return { status: result.kind === "forbidden" ? "step-up" : "error" };
   } catch {
     return { status: "error" };
   }

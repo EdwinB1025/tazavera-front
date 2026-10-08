@@ -21,7 +21,8 @@ describe("fetchOwnOfferings (design.md D1)", () => {
     publicRequest.mockRejectedValue(new TypeError("Failed to fetch"));
 
     await expect(fetchOwnOfferings("01USER", 1)).resolves.toEqual({
-      state: "error",
+      ok: false,
+      kind: "error",
     });
   });
 });

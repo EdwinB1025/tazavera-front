@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { OfferingsPageMeta, OfferingSummary } from "@/shared/api";
-import { fetchOwnOfferings, type OwnOfferingsResult } from "../api/management";
+import { fetchOwnOfferings } from "../api/management";
 
 /**
  * The own-list state (design.md D1, D7; specs "My offerings list" and
@@ -15,11 +15,13 @@ import { fetchOwnOfferings, type OwnOfferingsResult } from "../api/management";
 
 // ─── State (declared before the hook) ───
 
-export type OwnOfferingsState =
-  | { state: "loading" }
+/** A settled read of the own list (unify-api-result-shape design.md D5). */
+export type OwnOfferingsResult =
   | { state: "success"; data: OfferingSummary[]; meta: OfferingsPageMeta }
   | { state: "empty" }
   | { state: "error" };
+
+export type OwnOfferingsState = { state: "loading" } | OwnOfferingsResult;
 
 export type OfferingSelection = {
   selected: ReadonlySet<string>;
@@ -39,6 +41,13 @@ export type OwnOfferings = {
 
 const NONE: ReadonlySet<string> = new Set();
 
+/** The list state of a read: an empty page is `empty`. */
+function toResult(read: Awaited<ReturnType<typeof fetchOwnOfferings>>): OwnOfferingsResult {
+  if (!read.ok) return { state: "error" };
+  const { data, meta } = read.data;
+  return data.length === 0 ? { state: "empty" } : { state: "success", data, meta };
+}
+
 export function useOwnOfferings(coffeeshopUlid: string, page: number): OwnOfferings {
   // Bumped by `reload`, so the same page loads again.
   const [attempt, setAttempt] = useState(0);
@@ -52,8 +61,8 @@ export function useOwnOfferings(coffeeshopUlid: string, page: number): OwnOfferi
 
   useEffect(() => {
     let current = true;
-    fetchOwnOfferings(coffeeshopUlid, page).then((result) => {
-      if (current) setSettled({ key: `${coffeeshopUlid}|${page}|${attempt}`, result });
+    fetchOwnOfferings(coffeeshopUlid, page).then((read) => {
+      if (current) setSettled({ key: `${coffeeshopUlid}|${page}|${attempt}`, result: toResult(read) });
     });
     return () => {
       current = false;
