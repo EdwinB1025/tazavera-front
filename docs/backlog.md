@@ -26,8 +26,8 @@ The entries below follow this order. The order runs security first, then the sha
 | 0c | R46 | `search-coffee-facet` | Correction (fast lane, maximum priority) | S | — (Product owner 2026-10-08) |
 | 0d | R47 | `show-filter-loading-at-once` | Unplanned fix (fast lane, maximum priority) | S | — |
 | 0e | R48 | `refine-offering-facets-aut` | Correction (fast lane, maximum priority) | M | R46 merged (same files); design lead on finding 16's open points |
-| 0f | R49 | `nest-card-taste-notes` | Correction (fast lane, maximum priority) | M | Product owner: card cap and orphan notes |
-| 16c | R50 | API branch in `tazavera-api` | Change (API) | S | Product owner |
+| 0f | R49 | `nest-card-taste-notes` | Correction (fast lane, maximum priority) | M | — |
+| 16c | R50 | API branch in `tazavera-api` | Change (API) | S | Product owner: verify with real data (the API should deliver the resolved tree) |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
 | 3 | R31 (+ R3) | `harden-response-headers` | Refactor (fast lane) | S | — |
@@ -106,7 +106,7 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Why it pays off now:** Product owner's AUT
 - **Owning capability:** landing (with offering-catalog)
 - **Proposed change:** `nest-card-taste-notes` (M)
-- **Open decision (Augusto):** answered 2026-10-08 (correction, relayed by the testing/deployment session): the taste notes render as nested trees: each level-0 note with its children (and theirs) nested under it, and the trees side by side, wrapping. Visual reference: the MVC descriptor cascade (`C:/Porjects/Full Stack/Sprint4/MVC/tazavera-app/resources/views/layouts/evaluations/partials/descriptor-cascade.blade.php`): each root a block in a `flex flex-wrap gap-3` container; level 1 under its root with `ml-5 mt-2`, a left border and `pl-3`, in a column; level 2 under its level-1 parent with `ml-5 mt-1.5`, wrapping; pills smaller with depth (to be translated into this project's semantic tokens). Open for the design lead: how a child whose parent is not among the offering's notes is placed; keeping the card from growing too tall; keeping the existing taxonomy badge colours and level treatment.
+- **Open decision (Augusto):** answered 2026-10-08 (correction, relayed by the testing/deployment session): the taste notes render as nested trees: each level-0 note with its children (and theirs) nested under it, and the trees side by side, wrapping. Visual reference: the MVC descriptor cascade (`C:/Porjects/Full Stack/Sprint4/MVC/tazavera-app/resources/views/layouts/evaluations/partials/descriptor-cascade.blade.php`): each root a block in a `flex flex-wrap gap-3` container; level 1 under its root with `ml-5 mt-2`, a left border and `pl-3`, in a column; level 2 under its level-1 parent with `ml-5 mt-1.5`, wrapping; pills smaller with depth (to be translated into this project's semantic tokens). Open for the design lead: how a child whose parent is not among the offering's notes is placed; keeping the card from growing too tall; keeping the existing taxonomy badge colours and level treatment. Answered 2026-10-08 (Product owner): the API always delivers the consensus tree resolved, so the card renders the concordance tree as it arrives (a note sits where the tree places it; no re-attachment); no cap on the card (real evaluations identify few flavours; the high counts come from the seeders). Only evaluation data, which arrives flat, is resolved into a tree by the front.
 - **Type:** Correction (fast lane, maximum priority, Product owner's standing rule; replaces the "Rows by level" scenario)
 - **Status:** accepted
 - **Affects:** none
@@ -118,9 +118,9 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Why it pays off now:** R49 renders the notes as nested trees; with this defect many children appear detached from their parent
 - **Owning capability:** API (consumed by landing and offering-catalog)
 - **Proposed change:** none yet: an API fix by Product owner; the front does not adapt to it
-- **Open decision (Augusto):** confirm the defect against real data and fix it at its source
+- **Open decision (Augusto):** Product owner (2026-10-08): the API always delivers the consensus tree resolved; the very high note counts come from anomalous seeders (real evaluations identify few flavours). Verify the code reading against real data before any work; if the tree arrives resolved, close this entry
 - **Type:** Change (API)
-- **Status:** proposed
+- **Status:** deferred
 - **Affects:** R49 (how often its orphan rule applies), the flavor wheel
 
 ## R41 — Sign-in does not authenticate (production AUT, 2026-10-08)
