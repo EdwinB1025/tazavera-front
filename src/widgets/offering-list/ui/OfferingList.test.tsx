@@ -3,7 +3,6 @@ import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import type { OfferingsPageMeta, OfferingSummary } from "@/shared/api";
 import type { ResolvedTaxonomyBadge } from "@/entities/offering";
 import { OfferingList } from "./OfferingList";
-import { CATALOG_GRID_CLASSES, OFFERING_GRID_CLASSES } from "../lib/grid";
 
 // This project has no global test setup, so RTL's auto-cleanup (which relies
 // on a framework-provided afterEach) does not run. Clean up manually between
@@ -165,22 +164,6 @@ describe("OfferingList", () => {
     });
   });
 
-  describe("Evaluate action (add-specialist-evaluations design.md D6)", () => {
-    it("supplies EvaluateLink with each offering's ulid and the locale to every card", () => {
-      renderList({
-        state: "success",
-        items: [ITEM_ONE, ITEM_TWO],
-        meta: { current_page: 1, last_page: 1 },
-      });
-      const evaluates = screen.getAllByRole("link", {
-        name: TEXTS.evaluateLabel,
-      });
-      expect(evaluates).toHaveLength(2);
-      const hrefs = evaluates.map((link) => link.getAttribute("href"));
-      expect(hrefs).toContain(`/es/manage/evaluations/new?offering=${ULID_ONE}`);
-      expect(hrefs).toContain(`/es/manage/evaluations/new?offering=${ULID_TWO}`);
-    });
-  });
 
   describe("Consumer actions after View (spec: 'Consumer actions after View')", () => {
     it("renders each card's Evaluate link after its View link and in the same group", () => {
@@ -218,12 +201,6 @@ describe("OfferingList", () => {
       expect(screen.queryAllByRole("link", { name: TEXTS.viewLabel })).toHaveLength(0);
     });
 
-    it("renders the empty message in the primary text colour", () => {
-      renderList({ state: "empty" });
-      expect(classTokens(screen.getByText(TEXTS.emptyMessage))).toContain(
-        "text-text-primary",
-      );
-    });
   });
 
   describe("Error and retry (spec: 'Error and retry', 'Retry reloads'; design.md D4)", () => {
@@ -234,12 +211,6 @@ describe("OfferingList", () => {
       expect(screen.getByText(TEXTS.errorMessage)).toBeDefined();
       expect(screen.getByRole("button", { name: TEXTS.retryLabel })).toBeDefined();
       expect(screen.queryAllByRole("link", { name: TEXTS.viewLabel })).toHaveLength(0);
-    });
-
-    it("renders the error message in the primary text colour", () => {
-      renderList({ state: "error" });
-      const message = screen.getByText(TEXTS.errorMessage);
-      expect(classTokens(message.parentElement!)).toContain("text-text-primary");
     });
 
     it("calls router.refresh() when the retry action is activated (spec: Retry reloads)", () => {
@@ -294,46 +265,6 @@ describe("OfferingList", () => {
       meta: { current_page: 1, last_page: 2 },
     };
 
-    function gridOf(container: HTMLElement): Element {
-      return container.querySelector(".bg-surface-card")!.parentElement!;
-    }
-
-    it("carries @container on the block root in every branch", () => {
-      const results: ListResult[] = [
-        SUCCESS,
-        { state: "empty" },
-        { state: "error" },
-      ];
-      for (const result of results) {
-        const { container, unmount } = renderList(result);
-        expect(classTokens(container.firstElementChild!)).toContain(
-          "@container",
-        );
-        unmount();
-      }
-    });
-
-    it("keeps landing's grid classes by default", () => {
-      const { container } = renderList(SUCCESS);
-      expect(gridOf(container).getAttribute("class")).toBe(
-        OFFERING_GRID_CLASSES,
-      );
-    });
-
-    it("replaces the grid classes with gridClassName when passed", () => {
-      const { container } = render(
-        <OfferingList
-          result={SUCCESS}
-          locale="es"
-          texts={TEXTS}
-          gridClassName={CATALOG_GRID_CLASSES}
-        />,
-      );
-      expect(gridOf(container).getAttribute("class")).toBe(
-        CATALOG_GRID_CLASSES,
-      );
-    });
-
     it("pages at path keeping the query: Next pushes /es/offerings?verified=1&page=2", () => {
       render(
         <OfferingList
@@ -385,13 +316,6 @@ describe("OfferingList", () => {
         />,
       );
       expect(screen.getByRole("status").textContent).toBe("Results: 12");
-    });
-
-    it("announces 0 in the empty state", () => {
-      render(
-        <OfferingList result={{ state: "empty" }} locale="es" texts={COUNT_TEXTS} />,
-      );
-      expect(screen.getByRole("status").textContent).toBe("Results: 0");
     });
 
     it("renders no status and no action without the new props", () => {

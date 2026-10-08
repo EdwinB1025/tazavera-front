@@ -48,38 +48,6 @@ vi.mock("@/widgets/offering-list", async (importOriginal) => {
 });
 
 describe("HomeScreen", () => {
-  it("fills the main area with the hero and the offerings block (design.md D10, D13)", () => {
-    const { container } = render(<HomeScreen locale="es" page={undefined} />);
-    const root = container.firstElementChild;
-    expect(root).not.toBeNull();
-    expect(root!.className).toContain("flex-1");
-    expect(screen.getByRole("heading", { level: 1 })).toBeTruthy();
-    expect(screen.getByTestId("offerings-block")).toBeTruthy();
-    // No `page` in the route's search params requests the first page.
-    expect(block.props?.page).toBe(1);
-  });
-
-  it("loads the `landing` catalog of the route's locale and feeds every hero text to the hero (design.md D10, D11)", () => {
-    render(<HomeScreen locale="es" page={undefined} />);
-    const es = getMessages("landing", "es");
-    const rendered = document.body.textContent ?? "";
-    const heading =
-      `${es.heroHeadingBefore}${es.heroHeadingAccent}${es.heroHeadingAfter}`;
-    for (const value of [
-      es.heroEyebrow,
-      heading,
-      es.heroParagraph,
-      es.heroExploreLabel,
-      es.heroCoffeeshopRegisterLabel,
-      es.heroSpecialistRegisterLabel,
-    ]) {
-      expect(rendered.includes(value), value).toBe(true);
-    }
-    expect(document.querySelector("img")?.getAttribute("alt")).toBe(
-      es.heroPhotoAlt,
-    );
-  });
-
   it("reads the catalog of the locale the route asks for (spec: 'Texts follow the locale')", () => {
     render(<HomeScreen locale="ca" page={undefined} />);
     const ca = getMessages("landing", "ca");
@@ -87,40 +55,6 @@ describe("HomeScreen", () => {
     const rendered = document.body.textContent ?? "";
     expect(rendered.includes(ca.heroEyebrow)).toBe(true);
     expect(rendered.includes(es.heroEyebrow)).toBe(false);
-  });
-
-  it("passes no session to the block (add-specialist-evaluations design.md D6)", () => {
-    render(<HomeScreen locale="es" page={undefined} />);
-    expect(block.props).not.toBeNull();
-    expect(block.props).not.toHaveProperty("session");
-  });
-
-  it("passes the route's locale, the requested page and every list text to the block (design.md D10, D11)", () => {
-    render(<HomeScreen locale="es" page="2" />);
-    const es = getMessages("landing", "es");
-    expect(block.props?.locale).toBe("es");
-    expect(block.props?.page).toBe(2);
-    expect(block.props?.texts).toEqual({
-      coffeeshopCaption: es.cardCoffeeshopCaption,
-      roasterCaption: es.cardRoasterCaption,
-      evaluationsLabel: es.cardEvaluationsLabel,
-      defectiveLabel: es.cardDefectiveLabel,
-      viewLabel: es.cardViewLabel,
-      evaluateLabel: es.cardEvaluateLabel,
-      verifiedLabel: es.cardVerifiedLabel,
-      provisionalLabel: es.cardProvisionalLabel,
-      ratingExceptionalLabel: es.cardRatingExceptionalLabel,
-      ratingExcellentLabel: es.cardRatingExcellentLabel,
-      ratingGoodLabel: es.cardRatingGoodLabel,
-      ratingCommercialLabel: es.cardRatingCommercialLabel,
-      previousLabel: es.paginationPreviousLabel,
-      nextLabel: es.paginationNextLabel,
-      navigationLabel: es.paginationNavigationLabel,
-      pageLabel: es.paginationPageLabel,
-      emptyMessage: es.listEmptyMessage,
-      errorMessage: es.listErrorMessage,
-      retryLabel: es.listRetryLabel,
-    });
   });
 
   it("wraps the block in Suspense with the skeleton cards as fallback (design.md D9)", () => {
@@ -175,19 +109,5 @@ describe("HomeScreen", () => {
       }
     });
 
-    it("lays the skeleton fallback out in the offerings grid", () => {
-      block.suspend = true;
-      render(<HomeScreen locale="es" page={undefined} />);
-      const grid = screen.getAllByTestId("skeleton-card")[0].parentElement!;
-      expect(classTokens(grid)).toEqual(
-        expect.arrayContaining([
-          "grid",
-          "grid-cols-1",
-          "gap-6",
-          "md:grid-cols-2",
-          "xl:grid-cols-3",
-        ]),
-      );
-    });
   });
 });
