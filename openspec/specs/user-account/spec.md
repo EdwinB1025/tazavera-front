@@ -6,7 +6,7 @@ Lets a visitor create a Tazavera account as a specialist or as a coffeeshop, and
 ## Requirements
 
 ### Requirement: Registration routes
-The application SHALL offer registration as a specialist at `/{locale}/register` and as a coffeeshop at `/{locale}/register/coffeeshop`, reachable from the entry page and the About us page, and each route SHALL send its own role with the registration. While the session is resolving a registration route SHALL wait with no form shown, and when the session is authenticated the application SHALL open the root of the active locale through client-side navigation. Each registration route SHALL present the loading status, the form and the success panel in one section card with no header band.
+The application SHALL offer registration as a specialist at `/{locale}/register` and as a coffeeshop at `/{locale}/register/coffeeshop`, reachable from the entry page and the About us page, and each route SHALL send its own role with the registration. While the session is resolving a registration route SHALL wait with no form shown, and when the session is authenticated the application SHALL open the root of the active locale through client-side navigation. Each registration route SHALL present the loading status, the form and the success panel in one section card with no header band. The registration card SHALL fill the page container's width, its content at most 40rem wide from the medium breakpoint.
 
 #### Scenario: The specialist route registers a specialist
 - **WHEN** a visitor submits the registration form on `/{locale}/register`
@@ -26,7 +26,7 @@ The application SHALL offer registration as a specialist at `/{locale}/register`
 
 #### Scenario: The registration card
 - **WHEN** a registration route renders while the session resolves, while it shows the form, or after a `201` has replaced the form with the success panel
-- **THEN** that content sits in one section card with no header band
+- **THEN** that content sits in one section card with no header band that spans the page container's width, and from the medium breakpoint that content is at most 40rem wide
 
 ### Requirement: Registration form
 The registration form SHALL collect name, surname, email, password and password confirmation, and SHALL send `POST /register` without credentials with `name`, `surname`, `email`, `password`, `passwordConfirmation` and the route's `role`. Before sending, the form SHALL check only the rules its request documents: the five fields are required, the email is a valid address and the confirmation equals the password. A failing check SHALL show its message under the field, mark the field as invalid, move focus to the first failing field and send nothing. While the request is pending the submit action SHALL show its busy state and the fields SHALL stay editable.
@@ -63,7 +63,7 @@ A registration answered with `201` SHALL replace the form with a success panel c
 - **THEN** the generic form-level error renders above the actions, every entered value is kept except the password and its confirmation, which are cleared, and the API's message is never rendered
 
 ### Requirement: Account page and its session gate
-The account page at `/{locale}/account` SHALL show one heading block and, for an authenticated session, five sections in order — Profile, Contact details, Password, Security and Danger zone — each named by its heading; the Profile section is filled from the session user's `data.name`, `data.surname`, `data.email` and `data.role`. Each of the five sections SHALL be a section card whose header band holds its heading and, where it has one, its description, and the five section cards SHALL be 1rem apart with the page background showing between them. While the session is resolving, the page SHALL show the heading block and one section card with no header band, holding the loading status, in place of the sections. While the session is anonymous — including after a declined step-up or a write whose `401` no recovery resolves — the page SHALL show the heading block and one section card with no header band, holding the signed-out text and a "Sign in" action, with no automatic redirect.
+The account page at `/{locale}/account` SHALL show one heading block and, for an authenticated session, five sections in order — Profile, Contact details, Password, Security and Danger zone — each named by its heading; the Profile section is filled from the session user's `data.name`, `data.surname`, `data.email` and `data.role`. Each of the five sections SHALL be a section card whose header band holds its heading and, where it has one, its description, and the five section cards SHALL be 1rem apart with the page background showing between them. The heading block and the section cards SHALL fill the page container's width; from the medium breakpoint the content of each section card SHALL be at most 40rem wide, aligned to the card's start. While the session is resolving, the page SHALL show the heading block and one section card with no header band, holding the loading status, in place of the sections. While the session is anonymous — including after a declined step-up or a write whose `401` no recovery resolves — the page SHALL show the heading block and one section card with no header band, holding the signed-out text and a "Sign in" action, with no automatic redirect.
 
 #### Scenario: The session is resolving
 - **WHEN** the account page opens while the session is still resolving
@@ -96,6 +96,10 @@ The account page at `/{locale}/account` SHALL show one heading block and, for an
 #### Scenario: Contact details is the second section
 - **WHEN** the session is authenticated
 - **THEN** the page shows Profile, Contact details, Password, Security and Danger zone in that order, each named by its heading
+
+#### Scenario: Sections fill the container
+- **WHEN** the session is authenticated on a medium or larger viewport
+- **THEN** the section cards span the page container's width and each card's content is at most 40rem wide, start-aligned
 
 ### Requirement: Profile settings
 The Profile section SHALL show the user's `data.role` as the API returns it, as a read-only value, and a form for name, surname and email prefilled with `data.name`, `data.surname` and `data.email`, which SHALL send `PUT /users/{data.ulid}` with `name`, `surname` and `email`. Before sending, the form SHALL check only the email's format; no field is required. A failing check SHALL show its message under the field, mark the field as invalid, move focus to it and send nothing. A `200` SHALL keep the submitted values in the form, show the success status above the actions, and refresh the profile in the session from `GET /user`, so the rest of the interface follows. A `422`, a server error, a network failure or any other status except `403` SHALL show the generic form-level error above the actions and keep the values.
