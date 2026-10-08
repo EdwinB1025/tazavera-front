@@ -38,7 +38,7 @@ None.
 
 ## Impact
 
-- Code: `src/shared/ui/FacetCascade.tsx`, `src/shared/ui/Badge.tsx`, `src/shared/ui/taxonomy-color.ts`, `src/app/styles/globals.css`, `src/features/offering-facets/model/options.ts`, `src/features/offering-facets/model/query.ts`, `src/features/offering-facets/model/texts.ts`, `src/features/offering-facets/ui/OfferingFacets.tsx`, `messages/{es,en,ca}/filters.json`, `tsconfig.json` (stale QA copies, design.md D6).
+- Code: `src/shared/ui/FacetCascade.tsx`, `src/shared/ui/Badge.tsx`, `src/shared/ui/taxonomy-color.ts`, `src/app/styles/globals.css`, `src/features/offering-facets/model/options.ts`, `src/features/offering-facets/model/query.ts`, `src/features/offering-facets/model/texts.ts`, `src/features/offering-facets/ui/OfferingFacets.tsx`, `messages/{es,en,ca}/filters.json`.
 - Tests (validation suite): `src/shared/ui/FacetCascade.test.tsx`, `src/shared/ui/facet-disabled.test.tsx`, `src/shared/ui/Badge.test.tsx`, `src/features/offering-facets/model/query.test.ts`, `src/features/offering-facets/model/options.test.ts`, `src/features/offering-facets/ui/OfferingFacets.test.tsx`.
 - QA suite: tests that assert the old cascade or the 0 lower bound go stale (design.md D6); they are reported, never edited.
 - APIs, dependencies: none.

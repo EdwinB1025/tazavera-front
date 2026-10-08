@@ -50,11 +50,11 @@ The facet root keeps `flex min-w-0 flex-col wrap-anywhere`. Inside it: a wrapper
 
 ### D5. Removals and option data
 
-The checkbox rows, the expand control, its local state and the `toggleChildren` text go. `FacetCascadeTexts` becomes `SeeMoreTexts`; `toggleChildren` is removed from `OfferingFilterTexts` (`src/features/offering-facets/model/texts.ts`) and from `messages/{es,en,ca}/filters.json`. `CascadeOption` becomes `FacetOption & { color: string; children?: (FacetOption & { color: string })[] }` (the level 0/1 of each chip follows from its position, D3). `tasteNoteOptions` in `src/features/offering-facets/model/options.ts` maps `node.color ?? ""` for parents and children, as `entities/taxonomy/model/descriptor-rows.ts` does.
+The checkbox rows, the expand control, its local state and the `toggleChildren` text go. `FacetCascadeTexts` becomes `SeeMoreTexts`; `toggleChildren` is removed from `OfferingFilterTexts` (`src/features/offering-facets/model/texts.ts`) and from `messages/{es,en,ca}/filters.json`. `CascadeOption` becomes `FacetOption & { color?: string; children?: (FacetOption & { color?: string })[] }`; a chip takes `color ?? ""`, as `descriptor-rows.ts` does for a node without colour (the level 0/1 of each chip follows from its position, D3). The colour is optional in the type only so the QA fixtures without it keep typechecking (D6); `tasteNoteOptions` always sets it. `tasteNoteOptions` in `src/features/offering-facets/model/options.ts` maps `node.color ?? ""` for parents and children, as `entities/taxonomy/model/descriptor-rows.ts` does.
 
 ### D6. Stale QA tests
 
-The QA suite holds copies that assert the old cascade (`qa/src/shared/ui/FacetCascade.test.tsx`, `qa/src/shared/ui/facet-disabled.test.tsx`), the 0 lower bound (`qa/src/features/offering-facets/model/query.test.ts`) or the option shape without colour (`qa/src/features/offering-facets/model/options.test.ts`, `qa/src/features/offering-facets/model/applied.test.ts`). The build never edits their assertions and reports every failing one. The QA fixtures typed `CascadeOption[]` / `TasteNoteOption[]` without `color` stop typechecking, which would break `npx tsc --noEmit` and `npm run build`; each QA file that fails the typecheck for that reason only is added to the `exclude` list of `tsconfig.json`, as split-evaluation-row-card did for the other stale QA copies. The QA run's own exclusions (`vitest.qa.config.mts`) stay Product owner's decision.
+The QA suite holds copies that assert the old cascade (`qa/src/shared/ui/FacetCascade.test.tsx`, `qa/src/shared/ui/facet-disabled.test.tsx`), the 0 lower bound (`qa/src/features/offering-facets/model/query.test.ts`) or the option shape without colour (`qa/src/features/offering-facets/model/options.test.ts`, `qa/src/features/offering-facets/model/applied.test.ts`). The build never edits their assertions and reports every failing one. The QA fixtures typed `CascadeOption[]` / `TasteNoteOption[]` without `color` keep typechecking because the colour is optional in the type (D5), so no QA file is excluded from `tsconfig.json`: the test runner resolves the `@/` alias through `tsconfig.json`, so an excluded QA file can no longer load (correction of 2026-10-08, after task 3.2 excluded four files and `npm run test:qa` failed to load them; task 3.3 reverts it). The QA copy `qa/src/app/styles/theme-tokens.test.ts` ("reassigns exactly the eight tokens of design.md D2") also goes stale with D1's ninth reassignment. The QA run's own exclusions (`vitest.qa.config.mts`) stay Product owner's decision.
 
 ### D7. Score scale
 
@@ -73,7 +73,6 @@ The QA suite holds copies that assert the old cascade (`qa/src/shared/ui/FacetCa
 | `src/features/offering-facets/model/query.ts` | features | D7 |
 | `src/features/offering-facets/ui/OfferingFacets.tsx` | features | D5 texts prop |
 | `messages/{es,en,ca}/filters.json` | — | D5 key removed |
-| `tsconfig.json` | — | D6 |
 
 ## Risks / Trade-offs
 
