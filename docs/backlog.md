@@ -26,7 +26,6 @@ The entries below follow this order. The order runs security first, then the sha
 | 0d | R47 | none (closed: no code change) | Unplanned fix | — | — (Product owner 2026-10-08, option A: re-test on current develop) |
 | 0m | R57 | `add-form-cancel-actions` | Correction (fast lane, maximum priority) | M | round 3 merged into `develop` (Product owner 2026-10-08: no Cancel on profile/password; add the New offering Cancel scenario) |
 | 0o | R59 | `drop-step-up-for-everyday-writes` | Correction (auth; fast lane, maximum priority for the front) | S | the regenerated contract in `contracts/openapi.yaml` (API change on `tazavera-api` `dev` `71bc91b`); R51 merged (same account page) |
-| 0q | R61 | `stack-flavor-wheel-layout` | Correction (fast lane, maximum priority) | S | round 3 (`qa`, with R37's FlavorWheel split) merged into `develop` |
 | 0s | R63 | `add-bottom-back-links` | Correction (fast lane, maximum priority) | S | design lead on its open points (with R51, layout package) |
 | 16c | R50 | API branch in `tazavera-api` | Change (API) | S | Product owner: verify with real data (the API should deliver the resolved tree) |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
@@ -92,17 +91,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Updated 2026-10-08 (Product owner, option A):** only adding a contact (`POST /users/{user}/contacts`) and adding a location (`POST /locations`) leave `profile:write`; updating the profile (`PUT /users/{user}`), the password, deactivating and deleting the account, and deleting offerings KEEP it. The account page splits into two parts: one that shows the profile data and lets the user add a contact and a location with no step-up, and an "Edit profile" part that asks for the permission (with the password and account removal). API change done by the orchestrator on `tazavera-api` branch `feature/relax-contact-location-scopes`, fast-forwarded into `dev` (`71bc91b`; API tests 145/149, the 4 failures are `WebThemeAndLocaleTest` needing a Vite build in the worktree); Product owner ports it to `PROD`. Front: `ContactSection` and `LocationForm` drop `requestProfileWrite`; `ProfileForm`, `PasswordForm`, `DangerZone` and the offering deletions keep it; check `NewOfferingForm` (`POST /offerings` needs no write scope). The account-page split needs the design lead.
 - **Type:** Correction (touches the auth flow and the API contract; front in the fast lane at maximum priority once the contract lands) · **Status:** accepted
 - **Affects:** waits for the API change and the regenerated `contracts/openapi.yaml`: do not start the front until the contract shows the new scopes. R38 (on `qa`) split `ContactSection`, `LocationsPanel` and `ManageOfferingsPanel`.
-
-## R61 — CATA flavor wheel always stacked (production AUT finding 29, 2026-10-08)
-
-- **Duplicated:** none. `shared/ui/FlavorWheel.tsx:58-66` switches from `@2xl` to a two-column grid (wheel in column 1 `max-w-128`; description panel, group legend and notes list in column 2, `grid-cols-[minmax(0,32rem)_minmax(16rem,1fr)]`), from the add-offering-detail/consensus design (D8, summary §6). Only consumer: `widgets/offering-detail/ui/ConsensusPanel.tsx:459`.
-- **Owning capability:** feedback (with offering-catalog)
-- **Open decision (Augusto):** answered 2026-10-08: the CATA wheel keeps the mobile-first stacked structure on every width, top to bottom: the wheel (centred, `max-w-128`), the description fragment (the hovered/focused note's description and its `n/total` legend), the "Notes" disclosure. With the mouthfeel groups (D19) the general group legend stays in the stacked order, under the wheel and before the description. Drop the `@2xl` grid (LAYOUT_CLASSES, GROUPED_LAYOUT_CLASSES, WHEEL_CLASSES, GROUPED_WHEEL_CLASSES); update `FlavorWheel.test.tsx` assertions on the `@2xl` classes.
-- **Also in this package (findings 31 and 32, 2026-10-08):**
-  - **31, rings:** "the parents are the first levels inside the circle, then the children grow outwards". Today only ring 0 is drawn on arrival and children appear after expanding a note (`feedback` "Flavor wheel": "Ring 0 only at first", "Rings follow the deepest expanded level"). Testing session's reading, to confirm by the design lead: draw every consensus level from the start (level 0 inside, then 1, then 2 outwards); if expansion stays, it focuses or zooms a branch instead of revealing rings. Decision change.
-  - **32, centre number:** the evaluation total in the centre (`<text font-size="28">`, viewBox `-204 -204 408 408`, `fill-text-primary font-serif font-bold`) gets smaller, in proportion with the ring labels (font-size 13); the design lead picks the size.
-- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted
-- **Affects:** R37 (on `qa`) split `FlavorWheel` into `FlavorWheelChart`, `FlavorWheelPanel`, `FlavorWheelNoteList` and helpers: R61 starts from `develop` once round 3 is merged there
 
 ## R63 — "Back" also at the end of every detail view (production AUT finding 33, 2026-10-08)
 

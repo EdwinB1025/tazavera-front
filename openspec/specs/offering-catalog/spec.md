@@ -237,7 +237,7 @@ The Consensus tab SHALL present one interactive flavor wheel fed only the `aroma
 - **THEN** its card shows the empty text and no wheel renders
 
 ### Requirement: Mouthfeel group in the CATA wheel
-When the CATA wheel holds aromatic and mouthfeel notes — a note is mouthfeel when its top-level taxonomy is in the mouthfeel category — each group SHALL occupy one contiguous arc, the arcs separated by a gap wider than between ordinary segments; a legend inside the wheel SHALL mark and name each arc, and a general legend beside it SHALL name the groups as text. With notes of one group only, no gap or group legend SHALL show.
+When the CATA wheel holds aromatic and mouthfeel notes — a note is mouthfeel when its top-level taxonomy is in the mouthfeel category — each group SHALL occupy one contiguous arc, the arcs separated by a gap wider than between ordinary segments; a legend inside the wheel SHALL mark and name each arc, and a general legend below it, before the description panel, SHALL name the groups as text. With notes of one group only, no gap or group legend SHALL show.
 
 #### Scenario: Two groups
 - **WHEN** the CATA concordance carries aromatic and mouthfeel notes
