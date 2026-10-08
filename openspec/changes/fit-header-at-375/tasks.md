@@ -18,4 +18,4 @@
   - `ThemeToggle.tsx`: add `shrink-0` after `size-10`.
 
   Verify: `npx vitest related <changed files> --run` passes, `npx tsc --noEmit` and `npm run lint` report no errors.
-- [ ] 1.3 Full checks, each on its own: `npm run test:run`, `npm run test:qa` (only failures that also fail on `origin/develop` are allowed), `npx tsc --noEmit`, `npm run lint`, `npm run build`. On a production build (`npx next start -p 3123`) at 375px signed out, es/ca/en, on offerings, coffee shops and coffee-shop detail: `document.documentElement.scrollWidth` ≤ 375, the theme toggle 40px wide and "Sign in" fully visible. Expected: all pass.
+- [x] 1.3 Full checks, each on its own: `npm run test:run`, `npm run test:qa` (only failures that also fail on `origin/develop` are allowed), `npx tsc --noEmit`, `npm run lint`, `npm run build`. On a production build (`npx next start -p 3123`) at 375px signed out, es/ca/en, on offerings, coffee shops and coffee-shop detail: `document.documentElement.scrollWidth` ≤ 375, the theme toggle 40px wide and "Sign in" fully visible. Expected: all pass.
