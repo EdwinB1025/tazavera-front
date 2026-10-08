@@ -15,7 +15,7 @@
 
 ## 4. Coffee shop card View (point 2, offering-catalog)
 
-- [ ] 4.1 Write the test (offering-catalog spec "Coffee shop card" — "View link"; design.md D4), test first. In `src/entities/coffeeshop/ui/CoffeeshopCard.test.tsx` mock `useRouter`; the two View cases find a button named "Ver" (no link) and clicking it pushes `/es/coffeeshops/01SHOP`. Verification: only those cases fail; lint and typecheck pass. Commit `test(offering-catalog): show the coffee shop card view as a button`.
+- [x] 4.1 Write the test (offering-catalog spec "Coffee shop card" — "View link"; design.md D4), test first. In `src/entities/coffeeshop/ui/CoffeeshopCard.test.tsx` mock `useRouter`; the two View cases find a button named "Ver" (no link) and clicking it pushes `/es/coffeeshops/01SHOP`. Verification: only those cases fail; lint and typecheck pass. Commit `test(offering-catalog): show the coffee shop card view as a button`.
 - [ ] 4.2 Implement D4 in `src/entities/coffeeshop/ui/CoffeeshopCard.tsx`. Verification: related tests (`CoffeeshopCard`, `CoffeeshopList`, `CoffeeshopsMapView`), typecheck and lint pass. Commit `fix(offering-catalog): show the coffee shop card view as a button`.
 
 ## 5. Back link to the previous page (point 3, base-controls)
