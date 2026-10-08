@@ -22,7 +22,11 @@ import {
   OfferingViewButton,
   type OfferingCardTexts,
 } from "@/entities/offering";
-import { buildTaxonomyLookup, type TaxonomyLookup } from "@/entities/taxonomy";
+import {
+  buildTasteNoteTree,
+  buildTaxonomyLookup,
+  type TaxonomyLookup,
+} from "@/entities/taxonomy";
 import {
   Button,
   Link,
@@ -32,7 +36,6 @@ import {
   type PaginationTexts,
 } from "@/shared/ui";
 import { OfferingSkeletonCard } from "@/widgets/offering-list";
-import { resolveTaxonomies } from "../lib/resolve-taxonomies";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -256,7 +259,7 @@ function OwnOfferingsBody({
             <OfferingCard
               key={offering.ulid ?? index}
               offering={offering}
-              taxonomies={resolveTaxonomies(offering, lookup)}
+              taxonomies={buildTasteNoteTree(offering, lookup)}
               texts={texts}
               actions={
                 <>

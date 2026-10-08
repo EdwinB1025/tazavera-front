@@ -13,7 +13,7 @@ This fast-lane change modifies observable behaviour by Product owner's decision,
 
 ## 3. Manage offerings
 
-- [ ] 3.1 In `src/pages/manage-offerings/ui/ManageOfferingsPanel.tsx` call `buildTasteNoteTree(offering, lookup)` from `@/entities/taxonomy` and delete `src/pages/manage-offerings/lib/resolve-taxonomies.ts` (design.md D4). Verify: the related tests pass with no test changed; tsc and lint 0 errors. Commit `refactor(offering-catalog): resolve the panel's taste notes with the shared tree resolver`.
+- [x] 3.1 In `src/pages/manage-offerings/ui/ManageOfferingsPanel.tsx` call `buildTasteNoteTree(offering, lookup)` from `@/entities/taxonomy` and delete `src/pages/manage-offerings/lib/resolve-taxonomies.ts` (design.md D4). Verify: the related tests pass with no test changed; tsc and lint 0 errors. Commit `refactor(offering-catalog): resolve the panel's taste notes with the shared tree resolver`.
 
 ## 4. Card trees
 
