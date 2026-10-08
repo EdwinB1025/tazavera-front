@@ -1,6 +1,6 @@
 ## 1. Split the row card
 
-- [ ] 1.1 Create `src/widgets/evaluation-row/ui/EvaluationRowParts.tsx` (design.md D1), `src/widgets/evaluation-row/ui/SpecialistEvaluationRowCard.tsx` (D2) and `src/widgets/evaluation-row/ui/PublicEvaluationRowCard.tsx` (D3), taking the logic of `EvaluationRowCard.tsx` without changing markup, classes or texts, and export the two components and their texts types from `src/widgets/evaluation-row/index.ts` next to the current exports (D4). Protecting tests: `src/widgets/evaluation-row/ui/EvaluationRowCard.test.tsx`. Verify: `npx vitest related` on the changed files passes with the same test count as before; `npx tsc --noEmit` reports no errors; `npm run lint` reports no errors and no complexity warning in the new files.
+- [x] 1.1 Create `src/widgets/evaluation-row/ui/EvaluationRowParts.tsx` (design.md D1), `src/widgets/evaluation-row/ui/SpecialistEvaluationRowCard.tsx` (D2) and `src/widgets/evaluation-row/ui/PublicEvaluationRowCard.tsx` (D3), taking the logic of `EvaluationRowCard.tsx` without changing markup, classes or texts, and export the two components and their texts types from `src/widgets/evaluation-row/index.ts` next to the current exports (D4). Protecting tests: `src/widgets/evaluation-row/ui/EvaluationRowCard.test.tsx`. Verify: `npx vitest related` on the changed files passes with the same test count as before; `npx tsc --noEmit` reports no errors; `npm run lint` reports no errors and no complexity warning in the new files.
 
 ## 2. Callers
 
