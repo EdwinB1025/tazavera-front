@@ -50,7 +50,16 @@ const TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 const COPYRIGHT_URL = "https://www.openstreetmap.org/copyright";
 const MAX_ZOOM = 19;
 const SINGLE_POINT_ZOOM = 16;
-const FIT_PADDING: [number, number] = [32, 32];
+// The fit keeps 2rem from every edge and also clears the zoom controls in the
+// top-right corner (ZOOM_CLASSES: 0.75rem inset, one 2rem column across, two
+// 2rem buttons with a 0.5rem gap down).
+const FIT_PADDING = 32;
+const ZOOM_CONTROLS_WIDTH = 12 + 32;
+const ZOOM_CONTROLS_HEIGHT = 12 + 32 + 8 + 32;
+const FIT_OPTIONS: L.FitBoundsOptions = {
+  paddingTopLeft: [FIT_PADDING, FIT_PADDING + ZOOM_CONTROLS_HEIGHT],
+  paddingBottomRight: [FIT_PADDING + ZOOM_CONTROLS_WIDTH, FIT_PADDING],
+};
 
 // The marker: a 2rem pill in the primary action fill with a card-coloured
 // border; hover, focus and the selected look take the hover fill.
@@ -144,7 +153,7 @@ export function LocationsMap({
     if (target.length === 1) {
       map.setView(latLng(target[0]!), SINGLE_POINT_ZOOM);
     } else if (target.length > 1) {
-      map.fitBounds(L.latLngBounds(target.map(latLng)), { padding: FIT_PADDING });
+      map.fitBounds(L.latLngBounds(target.map(latLng)), FIT_OPTIONS);
     }
 
     const markers = markersRef.current;

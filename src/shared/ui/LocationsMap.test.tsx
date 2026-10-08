@@ -139,6 +139,11 @@ function renderMap(props: Partial<Parameters<typeof LocationsMap>[0]> = {}) {
   );
 }
 
+// The 2rem fit padding plus the zoom controls in the top-right corner: 0.75rem
+// inset and a 2rem column across, 0.75rem inset and two 2rem buttons with a
+// 0.5rem gap down (design.md D14, orchestrator decision W2).
+const FIT_OPTIONS = { paddingTopLeft: [32, 116], paddingBottomRight: [76, 32] };
+
 function marker(name: string): HTMLElement {
   return screen.getByRole("button", { name });
 }
@@ -240,11 +245,11 @@ describe("LocationsMap", () => {
     expect(document.activeElement).toBe(gracia);
   });
 
-  it("fits and selects the focused group and opens its first panel (spec: Focus from a card)", () => {
+  it("fits and selects the focused group, clear of the zoom controls, and opens its first panel (spec: Focus from a card)", () => {
     renderMap({ focusGroupId: "01NOMAD" });
     expect(fake.map?.fitBounds).toHaveBeenCalledWith(
       { points: [[41.3975, 2.192], [41.3861, 2.1794]] },
-      { padding: [32, 32] },
+      FIT_OPTIONS,
     );
     expect(marker("Nomad Coffee — Pujades").getAttribute("data-selected")).toBe("true");
     expect(marker("Nomad Coffee — Born").getAttribute("data-selected")).toBe("true");
@@ -256,7 +261,7 @@ describe("LocationsMap", () => {
     renderMap({ focusGroupId: "01OTHER" });
     expect(fake.map?.fitBounds).toHaveBeenCalledWith(
       { points: POINTS.map((point) => [point.lat, point.lng]) },
-      { padding: [32, 32] },
+      FIT_OPTIONS,
     );
     for (const point of POINTS) {
       expect(marker(point.label).getAttribute("data-selected")).toBe("false");
