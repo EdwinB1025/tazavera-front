@@ -62,6 +62,8 @@ function NoteRow({
       aria-setsize={setSize}
       aria-posinset={position}
       aria-expanded={isParent ? isExpanded : undefined}
+      // The active note's row is the selected one (label-landmarks-and-headings D4).
+      aria-selected={isActive}
       aria-describedby={
         isActive && node.description !== null
           ? descriptionId(node.id)

@@ -21,7 +21,7 @@ No test is added and no assertion's expected value changes. The only test edits 
 
 ## 5. Selected row of the note list (feedback)
 
-- [ ] 5.1 `FlavorWheelNoteList`: each `treeitem` carries `aria-selected`, `true` for the active note's row and `false` otherwise (design.md D4). Expected: as 1.1, and `npm run lint` no longer reports `jsx-a11y/role-has-required-aria-props` for the file.
+- [x] 5.1 `FlavorWheelNoteList`: each `treeitem` carries `aria-selected`, `true` for the active note's row and `false` otherwise (design.md D4). Expected: as 1.1, and `npm run lint` no longer reports `jsx-a11y/role-has-required-aria-props` for the file.
 
 ## 6. Full checks
 
