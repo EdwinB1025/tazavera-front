@@ -1,9 +1,5 @@
 import type { ReactNode } from "react";
-import type {
-  OfferingDetail,
-  OfferingTaxonomyNode,
-  TaxonomyNode,
-} from "@/shared/api";
+import type { OfferingDetail, TaxonomyNode } from "@/shared/api";
 import {
   assignWheelGroups,
   buildDescriptorRows,
@@ -20,8 +16,10 @@ import {
   DescriptorChipGroup,
   FlavorWheel,
 } from "@/shared/ui";
+import { identifiedCounts } from "../lib/identified-counts";
 import { AttributesCard } from "./AttributesCard";
 import type { AttributesCardTexts } from "./AttributesCard";
+import { ConsensusLegend } from "./ConsensusLegend";
 import { ScoreCard } from "./ScoreCard";
 import type { ScoreCardTexts } from "./ScoreCard";
 import { StatusCard } from "./StatusCard";
@@ -86,17 +84,6 @@ const SELECTION_BLOCK_CLASSES = [
   "lg:col-span-2",
 ].join(" ");
 
-// The consensus legend: one meta line per identified note, in a fixed 14rem
-// column from `md`, the same in every block (design.md D13).
-const LEGEND_CLASSES = [
-  "flex",
-  "flex-col",
-  "gap-1",
-  "md:w-56",
-  "md:shrink-0",
-  "break-words",
-].join(" ");
-
 // The detail by axis (design.md D18): the sensory axes in order, with the
 // label key of each and the taxonomy category its descriptor rows come from.
 const AXES = [
@@ -126,29 +113,6 @@ const AXIS_BODY_CLASSES = [
   "md:gap-6",
 ].join(" ");
 
-/** One line of a consensus legend: a note's name and its count. */
-export type ConsensusLegendEntry = { label: string; count: number };
-
-/** `ref` → `count` of every node of the offering's tree of one `type`, descendants included. */
-function identifiedCounts(
-  nodes: OfferingTaxonomyNode[],
-  type: string,
-): Map<string, number> {
-  const counts = new Map<string, number>();
-  function visit(node: OfferingTaxonomyNode) {
-    counts.set(node.ref ?? "", node.count ?? 0);
-    for (const child of node.children ?? []) {
-      visit(child as OfferingTaxonomyNode);
-    }
-  }
-  for (const node of nodes) {
-    if (node.type === type) {
-      visit(node);
-    }
-  }
-  return counts;
-}
-
 /**
  * The Consensus panel (add-offering-catalog design.md D12–D14; the spec's
  * "Consensus …" requirements): the score card for a verified offering, then
@@ -166,36 +130,6 @@ export function ConsensusPanel({
   // Main tastes and Defects (design.md D13): the identified notes of one
   // `type` as a read-only selection over the category's descriptor rows, and
   // the consensus legend beside the card, in card order.
-  // The consensus legend of a selection (design.md D13): one meta line per
-  // shown note, in card order; nothing when no shown note was identified.
-  function consensusLegend(
-    rows: ReturnType<typeof buildDescriptorRows>,
-    counts: Map<string, number>,
-  ): ReactNode {
-    const legend: ConsensusLegendEntry[] = rows
-      .flatMap((row) => row.options)
-      .filter((option) => counts.has(option.value))
-      .map((option) => ({
-        label: option.label,
-        count: counts.get(option.value) ?? 0,
-      }));
-    if (legend.length === 0) {
-      return null;
-    }
-    return (
-      <ul className={LEGEND_CLASSES}>
-        {legend.map((entry) => {
-          const line = `${entry.label} ${entry.count}/${total}`;
-          return (
-            <li key={entry.label} className="type-meta">
-              {line}
-            </li>
-          );
-        })}
-      </ul>
-    );
-  }
-
   function selectionBlock(category: string, heading: string): ReactNode {
     const rows = buildDescriptorRows(taxonomies, category, locale);
     const counts = identifiedCounts(offering.cataConcordance ?? [], category);
@@ -213,7 +147,7 @@ export function ConsensusPanel({
             />
           </CardContent>
         </Card>
-        {consensusLegend(rows, counts)}
+        <ConsensusLegend rows={rows} counts={counts} total={total} />
       </div>
     );
   }
@@ -248,7 +182,7 @@ export function ConsensusPanel({
                   emptyText={texts.detailTasteEmpty}
                 />
               </div>
-              {consensusLegend(rows, counts)}
+              <ConsensusLegend rows={rows} counts={counts} total={total} />
             </CardContent>
           </CollapsibleBody>
         </Card>
