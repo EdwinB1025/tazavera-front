@@ -1,9 +1,10 @@
 "use client";
 
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
-import { publicRequest, type RegisterPayload } from "@/shared/api";
+import type { RegisterPayload } from "@/shared/api";
 import { Button, Field, Input, PasswordInput, FormStatus } from "@/shared/ui";
 import { isValidEmail } from "@/entities/contact";
+import { registerUser } from "../api/register";
 import {
   RegisterSuccessPanel,
   type RegisterSuccessPanelTexts,
@@ -134,22 +135,9 @@ export function RegisterForm({
     setPending(true);
     setFailed(false);
     const payload: RegisterPayload = { ...values, role };
-    let ok = false;
-    try {
-      const response = await publicRequest("/register", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-      ok = response.status === 201;
-    } catch {
-      // A network failure shows the generic error (spec "Registration result").
-    }
+    const result = await registerUser(payload);
     setPending(false);
-    if (ok) {
+    if (result === "created") {
       setCreated(true);
       return;
     }
