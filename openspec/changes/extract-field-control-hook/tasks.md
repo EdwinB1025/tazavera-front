@@ -4,7 +4,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 1. Shared hook
 
-- [ ] 1.1 Create `src/shared/ui/use-field-control.ts` exactly as design.md D1–D2 (`"use client"` first; `FieldControlProps` and `FieldControl` declared before the hook; not exported from `src/shared/ui/index.ts`) and adopt it in `src/shared/ui/Input.tsx` as design.md D3, importing it as `./use-field-control`. Verify: the related tests pass, including `Input.test.tsx`, `Field.test.tsx`, `Combobox.test.tsx` and `client-boundary.test.ts` in both suites, with no test file changed; `npx tsc --noEmit` reports 0 errors; `npm run lint` reports 0 errors. Commit `refactor(form-fields): extract the field control hook from the input`.
+- [x] 1.1 Create `src/shared/ui/use-field-control.ts` exactly as design.md D1–D2 (`"use client"` first; `FieldControlProps` and `FieldControl` declared before the hook; not exported from `src/shared/ui/index.ts`) and adopt it in `src/shared/ui/Input.tsx` as design.md D3, importing it as `./use-field-control`. Verify: the related tests pass, including `Input.test.tsx`, `Field.test.tsx`, `Combobox.test.tsx` and `client-boundary.test.ts` in both suites, with no test file changed; `npx tsc --noEmit` reports 0 errors; `npm run lint` reports 0 errors. Commit `refactor(form-fields): extract the field control hook from the input`.
 
 ## 2. Remaining controls
 
