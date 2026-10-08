@@ -14,4 +14,4 @@ No API type is involved: the wheel takes resolved props.
 
 ## 3. Full checks
 
-- [ ] 3.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes with one test more than before this change; the QA suite passes except the stale QA copies of design.md D4 and the earlier changes', listed in the final report; the typecheck and lint report no errors; the build succeeds.
+- [x] 3.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes with one test more than before this change; the QA suite passes except the stale QA copies of design.md D4 and the earlier changes', listed in the final report; the typecheck and lint report no errors; the build succeeds.
