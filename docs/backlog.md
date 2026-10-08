@@ -151,8 +151,12 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
   - (A) the front calls `signIn()` after the 201: it still asks for the credentials, and the browser blocks the popup outside a click;
   - (B) recommended: registration on the API's web side, which signs the user in with a web session and redirects to `/oauth/authorize`; the user ends up signed in through PKCE, tokens stay in memory and silent re-authentication (`prompt=none`) keeps working;
   - (C) the register controller returns tokens (personal access token or an internal password grant): the user stays signed in only until the first reload, because tokens live in memory and silent re-authentication needs a web session that does not exist; it also needs a new token entry point in `src/shared/api/tokens.ts` (security).
+- **Decided 2026-10-08 (Product owner): option C with the password grant**, accepting that the session ends on the first reload. A personal access token was ruled out because it carries no refresh token.
+  - API: `UserController::store` issues the tokens with an internal `POST /oauth/token` (`grant_type=password`) through the front's existing public PKCE client (from `FrontClientSeeder`), with `password` added to that client's grant types. No new client, so the front's `refreshTokens()` keeps working (a refresh token is bound to its client). Rate limiting on `oauth/token`, since the public client now accepts the password grant. Scopes as a normal sign-in (no `profile:write`; step-up unchanged).
+  - Contract: the 201 of `POST /register` keeps the user and `message` and adds the token block in the RFC 6749 §5.1 shape (`access_token`, `token_type`, `expires_in`, `refresh_token`); Scribe `@responseFile` updated and regenerated. To settle in the API design: if the token call fails after the user is created, the 201 is returned without the block (no rollback) and the front falls back to today's success panel.
+  - Front (normal flow, design summary first): a new grant entry point in `tokens.ts` (memory only) and what the register screen shows when the block arrives (where it navigates; whether a confirmation text is shown).
 - **Type:** Change (touches the auth flow and the API contract)
-- **Status:** deferred
+- **Status:** accepted (design pending; API first)
 - **Affects:** needs an API change by Product owner and a `contracts/openapi.yaml` update before any front work
 
 ## R45 — Ask for the first location in coffee-shop registration
