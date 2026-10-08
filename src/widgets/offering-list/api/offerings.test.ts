@@ -58,7 +58,7 @@ describe("fetchOfferings (add-offering-catalog design.md D1, D2)", () => {
       page: "3",
     });
     expect(fetchSpy).toHaveBeenCalledWith(
-      `${API_URL}/offerings?verified=1&cataRef=01JREFA&cataRef=01JREFB&orderBy=cupping_avg&page=3`,
+      `${API_URL}/offerings?verified=1&cataRef%5B%5D=01JREFA&cataRef%5B%5D=01JREFB&orderBy=cupping_avg&page=3`,
     );
     expect(result.data).toEqual(OFFERINGS_PAYLOAD.data);
     expect(result.meta).toEqual(OFFERINGS_PAYLOAD.meta);
