@@ -112,18 +112,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Status:** proposed
 - **Affects:** R8, R35
 
-## R27 — Split `EvaluationRowCard`
-
-- **Duplicated:** two render trees behind a flag (cyclomatic complexity 37, the highest in the code)
-- **Where today:** `src/widgets/evaluation-row/ui/EvaluationRowCard.tsx`
-- **Why it pays off now:** it is the most complex unit in the codebase.
-- **Owning capability:** evaluations
-- **Proposed change:** `split-evaluation-row-card` (M)
-- **Open decision (Augusto):** none
-- **Type:** Refactor (fast lane)
-- **Status:** proposed
-- **Affects:** none
-
 ## R28 — Reduce the shared client bundle
 
 - **Duplicated:** cmdk and Radix (68 KB gzipped) load on every route; each route ships about 220 KB gzipped.
