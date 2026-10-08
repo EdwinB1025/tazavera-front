@@ -1,7 +1,8 @@
 "use client";
 
 import { useId, useState, type ReactNode } from "react";
-import { DescriptorChipGroup, type ChipOption, type ChipRow } from "./DescriptorChipGroup";
+import { DescriptorCascade } from "./DescriptorCascade";
+import type { CascadeNode } from "./descriptor-cascade";
 import { SEE_MORE_THRESHOLD, type FacetOption } from "./FacetRadioList";
 import { SeeMoreButton, type SeeMoreTexts } from "./SeeMoreButton";
 
@@ -29,55 +30,17 @@ export type FacetCascadeProps = {
   disabled?: boolean;
 };
 
-function chip(option: CascadeChildOption, level: 0 | 1): ChipOption {
-  return { value: option.value, label: option.label, color: option.color ?? "", level };
-}
-
-/**
- * The chip rows (refine-offering-facets-aut D3): the visible top-level chips
- * in untitled rows, broken after each chosen parent with children, which is
- * followed by its children row titled with its label.
- */
-function cascadeRows(visible: CascadeOption[], chosen: Set<string>): ChipRow[] {
-  const rows: ChipRow[] = [];
-  let line: ChipOption[] = [];
-  for (const option of visible) {
-    line.push(chip(option, 0));
-    const children = option.children ?? [];
-    if (!chosen.has(option.value) || children.length === 0) continue;
-    rows.push({ id: `line-${option.value}`, options: line });
-    rows.push({
-      id: `children-${option.value}`,
-      title: option.label,
-      options: children.map((child) => chip(child, 1)),
-    });
-    line = [];
-  }
-  if (line.length > 0) rows.push({ id: "line-end", options: line });
-  return rows;
-}
-
-/**
- * The value to report: the next chosen set without the children of every
- * parent that became unchosen, in option order (parent before its children).
- */
-function cascadeValue(options: CascadeOption[], previous: string[], next: string[]): string[] {
-  const kept = new Set(next);
-  for (const option of options) {
-    if (previous.includes(option.value) && !kept.has(option.value)) {
-      for (const child of option.children ?? []) kept.delete(child.value);
-    }
-  }
-  return options
-    .flatMap((option) => [option.value, ...(option.children ?? []).map((c) => c.value)])
-    .filter((id) => kept.has(id));
+/** An option as a cascade node: level by depth, no colour as `""` (D3). */
+function toNode(option: CascadeChildOption, level: 0 | 1, children: CascadeNode[] = []): CascadeNode {
+  return { value: option.value, label: option.label, color: option.color ?? "", level, children };
 }
 
 /**
  * Taxonomy chip cascade facet (spec filtering "Taxonomy chip cascade facet";
- * refine-offering-facets-aut D3, D4): a descriptor chip group whose children
- * render only while their parent is chosen. "See more" applies to the
- * top-level chips, a chosen parent always visible.
+ * refine-offering-facets-aut D3, D4): the shared descriptor cascade
+ * (cascade-evaluation-descriptors D3), whose children render only while their
+ * parent is chosen. "See more" applies to the top-level chips, a chosen
+ * parent always visible.
  */
 export function FacetCascade({
   legend,
@@ -102,11 +65,13 @@ export function FacetCascade({
     // `wrap-anywhere` (inherited) wraps long labels without break points.
     <div className="flex min-w-0 flex-col wrap-anywhere">
       <div id={wrapperId} className="px-3 pt-1">
-        <DescriptorChipGroup
+        <DescriptorCascade
           legend={legend}
-          rows={cascadeRows(visible, chosen)}
+          nodes={visible.map((option) =>
+            toNode(option, 0, (option.children ?? []).map((child) => toNode(child, 1))),
+          )}
           value={value}
-          onValueChange={(next) => onChange(cascadeValue(options, value, next))}
+          onValueChange={onChange}
           disabled={disabled}
           help={help}
         />
