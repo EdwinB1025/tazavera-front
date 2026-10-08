@@ -40,7 +40,6 @@ The entries below follow this order. The order runs security first, then the sha
 | 12 | R28 | `reduce-shared-client-bundle` | Refactor (fast lane) | M | R21 |
 | 13 | R29 (resolves R15) | `speed-up-test-environment` | Refactor (fast lane) | S | — |
 | 14 | R30 (resolves R19) | `cache-reference-reads` | Refactor (fast lane) | S | — |
-| 15 | R32 (+ R17) | `label-landmarks-and-headings` | Refactor (fast lane) | M | — |
 | 16 | R40 | API branch in `tazavera-api` | Change (API) | M | PO: review of the API diff |
 | 16b | R18 | `show-item-not-found-message` | Change (behaviour, texts) | M | R40 |
 | 17 | R33 | `split-consensus-panel` | Refactor (fast lane) | M | — |
@@ -189,30 +188,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Open decision (Augusto):** none
 - **Type:** Refactor (fast lane)
 - **Status:** proposed
-- **Affects:** none
-
-## R32 — Label the landmarks and fix the heading order
-
-- **Duplicated:** 4 unlabelled `<nav>`, card headings that skip a level, a signed-out prompt without an `h1`, and a `treeitem` without `aria-selected`.
-- **Where today:** `PrimaryNav.tsx:65`, `HomeHero.tsx:78`, `AboutContent.tsx:114`, `AppSidebar.tsx:67`, `OfferingCard.tsx:125`, `CoffeeshopCard.tsx:49`, `FlavorWheel.tsx:516`
-- **Why it pays off now:** these are axe best-practice findings (0 A/AA violations), so fixing them raises Usability from B to A.
-- **Owning capability:** app-shell, content-structure
-- **Proposed change:** `label-landmarks-and-headings` (M)
-- **Open decision (Augusto):** answered 2026-10-08: approved with R17; the architect writes the labels in es/en/ca and the spec wording (fast lane by Product owner's decision, although it adds texts)
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** R17
-
-## R17 — Result count not announced while the facets overlay is open (add-evaluation-facets verify W2)
-
-- **Duplicated:** none. The list's `role="status"` result count sits in the page body. The open mobile filters overlay sets `aria-hidden` on everything behind it, so screen readers do not hear the count while the overlay is open. This affects every list with facets in the sidebar overlay: the catalog and "My evaluations".
-- **Where today:** `src/pages/evaluations-list/ui/EvaluationsList.tsx`, `src/widgets/offering-list` (results status), and the shared `Sidebar` overlay in `src/shared/ui/Sidebar.tsx`
-- **Why it pays off now:** the requirement "Filtered evaluation results" says the total is announced after each change; no scenario covers the overlay case
-- **Owning capability:** app-shell (the shared overlay) or filtering
-- **Proposed change:** none yet. It needs a new mechanism, such as an announcement region inside the overlay, so it is a correction for Product owner.
-- **Open decision (Augusto):** answered 2026-10-08: yes, the count is announced while the overlay is open; done inside R32
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
 - **Affects:** none
 
 ## R40 — Document the 422 and 404 responses in the API (tazavera-api)

@@ -506,12 +506,12 @@ Every `/manage/evaluations` route SHALL be a protected view of the application's
 
 ### Requirement: One row per evaluation-row variant
 
-The "My evaluations" row and the public evaluations row SHALL each be rendered as their own row, with only the elements of their variant: the "My evaluations" row shows the status badge, the level-3 heading, the ISO date and the specialist's actions, and never the public row's View offering action; the public row shows the level-2 heading, the localized closed date and the View and View offering actions, and never a status badge. Both rows show the score row, the coffee name and the coffeeshop and roaster captions the same way, as stated in "My evaluations list" and "Public evaluations list".
+The "My evaluations" row and the public evaluations row SHALL each be rendered as their own row, with only the elements of their variant: the "My evaluations" row shows the status badge, the level-2 heading, the ISO date and the specialist's actions, and never the public row's View offering action; the public row shows the level-2 heading, the localized closed date and the View and View offering actions, and never a status badge. Both rows show the score row, the coffee name and the coffeeshop and roaster captions the same way, as stated in "My evaluations list" and "Public evaluations list".
 
 #### Scenario: My evaluations row
 
 - **WHEN** a row of "My evaluations" is shown
-- **THEN** it has the status badge, a level-3 heading and the specialist's actions, and no View offering action
+- **THEN** it has the status badge, a level-2 heading and the specialist's actions, and no View offering action
 
 #### Scenario: Public evaluations row
 
@@ -543,3 +543,14 @@ An editable evaluation form, new or existing, SHALL show a "Cancel" link after t
 #### Scenario: No Cancel on a closed evaluation
 - **WHEN** a closed evaluation renders read-only
 - **THEN** no "Cancel" link renders
+
+### Requirement: Evaluation route headings
+The "My evaluations" list heading SHALL be the page's level-1 heading, and on every evaluation route the signed-out view SHALL expose the evaluations access message as the page's level-1 heading, both keeping their present type style.
+
+#### Scenario: My evaluations heading
+- **WHEN** a signed-in specialist opens "My evaluations"
+- **THEN** "My evaluations" is the page's level-1 heading
+
+#### Scenario: Signed-out evaluation route
+- **WHEN** an anonymous visitor opens an evaluation route
+- **THEN** the evaluations access message is the page's level-1 heading, in the body type style, followed by the "Sign in" button
