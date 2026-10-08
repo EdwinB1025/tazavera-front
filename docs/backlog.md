@@ -160,30 +160,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Status:** proposed
 - **Affects:** none
 
-## R30 — Cache the reference reads (with R19)
-
-- **Duplicated:** `/taxonomies` and `/coffees` are fetched uncached on every render.
-- **Where today:** `src/entities/taxonomy/api/taxonomies.ts`, `src/shared/api/coffees.ts`, `src/pages/offering-detail/ui/OfferingDetailScreen.tsx`
-- **Why it pays off now:** it would cut a detail view from 3 requests to 1.
-- **Owning capability:** offering-catalog
-- **Proposed change:** `cache-reference-reads` (S)
-- **Open decision (Augusto):** answered 2026-10-08: approved, cached with a 1 h refresh; D9 of add-public-evaluations changes (fast lane by Product owner's decision)
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** R19
-
-## R19 — The provisional evaluation loads on every offering-detail request (add-public-evaluations verify W4)
-
-- **Duplicated:** none. The baseline wrapper is a server element passed as a slot (`OfferingDetailScreen.tsx:154-155,188`), so its baseline and taxonomy requests run on every render, whatever the tab, even when the offering is not found.
-- **Where today:** `src/pages/offering-detail/ui/OfferingDetailScreen.tsx`, `src/widgets/evaluation-sheet/ui/EvaluationSheetBaseline.tsx`
-- **Why it pays off now:** two extra API requests per detail view
-- **Owning capability:** offering-catalog
-- **Proposed change:** none yet. Load the panel only for `?tab=provisional` (design D9 would change).
-- **Open decision (Augusto):** answered 2026-10-08: yes, D9 changes; done inside R30
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** none
-
 ## R32 — Label the landmarks and fix the heading order
 
 - **Duplicated:** 4 unlabelled `<nav>`, card headings that skip a level, a signed-out prompt without an `h1`, and a `treeitem` without `aria-selected`.
