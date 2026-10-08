@@ -9,11 +9,13 @@ import type { Session } from "@/shared/api";
  */
 
 const useSession = vi.fn<() => Session>();
-vi.mock("@/features/auth", () => ({
-  useSession: () => useSession(),
-}));
 
-import { EvaluateLink } from "@/features/evaluate-offering/ui/EvaluateLink";
+import { EvaluateLink, type EvaluateLinkProps } from "@/features/evaluate-offering/ui/EvaluateLink";
+
+// The link's caller: supplies the mocked session as a prop.
+function SessionEvaluateLink(props: Omit<EvaluateLinkProps, "session">) {
+  return <EvaluateLink session={useSession()} {...props} />;
+}
 
 const ULID = "01JOFFER000000000000000001";
 
@@ -26,7 +28,7 @@ describe("EvaluateLink (design.md D6)", () => {
   ])("renders nothing while %s", (_case, session) => {
     useSession.mockReturnValue(session);
     const { container } = render(
-      <EvaluateLink ulid={ULID} locale="es" texts={{ evaluateLabel: "Evaluar" }} />,
+      <SessionEvaluateLink ulid={ULID} locale="es" texts={{ evaluateLabel: "Evaluar" }} />,
     );
     expect(container.innerHTML).toBe("");
   });

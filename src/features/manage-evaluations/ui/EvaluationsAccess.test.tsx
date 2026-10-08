@@ -15,11 +15,6 @@ const notFound = vi.fn(() => {
   throw new Error("NEXT_HTTP_ERROR_FALLBACK;404");
 });
 
-vi.mock("@/features/auth", () => ({
-  useSession: () => useSession(),
-  signIn: (...args: unknown[]) => signIn(...args),
-}));
-
 vi.mock("next/navigation", () => ({
   notFound: () => notFound(),
 }));
@@ -28,12 +23,17 @@ import { EvaluationsAccess } from "./EvaluationsAccess";
 
 const TEXTS = { message: "Sign in to manage your evaluations.", signInLabel: "Sign in" };
 
-function renderGate() {
-  return render(
-    <EvaluationsAccess texts={TEXTS}>
+// The gate's caller: supplies the mocked session and sign-in action as props.
+function Gate() {
+  return (
+    <EvaluationsAccess session={useSession()} signIn={signIn} texts={TEXTS}>
       <p>Protected content</p>
-    </EvaluationsAccess>,
+    </EvaluationsAccess>
   );
+}
+
+function renderGate() {
+  return render(<Gate />);
 }
 
 function user(role: "specialist" | "coffeeshop"): Session {
