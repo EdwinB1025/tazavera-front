@@ -60,10 +60,11 @@ export function SessionShell({
   const supplied = session ?? hookValue;
   // The management area's entries for the session's role, by the user menu's
   // role rule (add-specialist-evaluations design.md D5): a specialist gets
-  // "My evaluations"; no other role contributes entries here.
+  // "My evaluations" and "Explore offerings" (refine-header-aut D5); no other
+  // role contributes entries here.
   const entries =
     supplied.state === "authenticated" && supplied.user.role === "specialist" ? (
-      <EvaluationsSidebarEntry locale={locale} texts={{ label: texts.manageEvaluations }} />
+      <EvaluationsSidebarEntry locale={locale} texts={{ label: texts.manageEvaluations, explore: texts.exploreOfferings }} />
     ) : undefined;
 
   // design.md D5: one sidebar state for the header, the sidebar and the page
