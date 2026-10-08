@@ -102,6 +102,16 @@ describe("EvaluationSheetView (design.md D1, D4)", () => {
     expect(fetchOffering).toHaveBeenCalledWith("01JOFFERA");
   });
 
+  it("Back link at the end", async () => {
+    await renderView();
+    const links = screen.getAllByRole("link", { name: "Back" });
+    expect(links.map((link) => link.getAttribute("href"))).toEqual(["/en/evaluations", "/en/evaluations"]);
+    const second = document.body.querySelectorAll("section")[1]!;
+    expect(second.contains(links[1])).toBe(true);
+    const context = screen.getByRole("heading", { level: 2, name: "Context" });
+    expect(context.compareDocumentPosition(links[1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it("renders the 404 page for an evaluation that is not closed", async () => {
     fetchEvaluation.mockResolvedValue({ ...EVALUATION, status: "open" });
     await expect(renderView()).rejects.toThrow("NEXT_NOT_FOUND");
@@ -124,7 +134,7 @@ describe("EvaluationSheetView (design.md D1, D4)", () => {
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Offering no longer exists");
     expect(screen.queryByText(/^Roaster:/)).toBeNull();
     expect(screen.queryByRole("link", { name: "View offering" })).toBeNull();
-    expect(screen.getByRole("link", { name: "Back" })).toBeDefined();
+    expect(screen.getAllByRole("link", { name: "Back" })[0]).toBeDefined();
     expect(screen.getByRole("heading", { level: 2, name: "Context" })).toBeDefined();
   });
 

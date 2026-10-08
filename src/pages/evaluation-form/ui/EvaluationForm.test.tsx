@@ -436,6 +436,16 @@ describe("EvaluationForm: read-only presentation (design.md D4, D14; tasks 7.3)"
     renderForm({ evaluation: CLOSED });
     expect(screen.queryByRole("link", { name: "Cancel" })).toBeNull();
   });
+  it("Back link at the end of a read-only evaluation", () => {
+    renderForm({ evaluation: CLOSED });
+    const links = screen.getAllByRole("link", { name: "My evaluations" });
+    expect(links.map((link) => link.getAttribute("href"))).toEqual([
+      "/en/manage/evaluations",
+      "/en/manage/evaluations",
+    ]);
+    const status = screen.getByRole("status");
+    expect(status.compareDocumentPosition(links[1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
 });
 
 describe("EvaluationForm: section states (design.md D15; tasks 11.3)", () => {
@@ -558,7 +568,7 @@ describe("EvaluationForm: an evaluation of a deleted offering (design.md D17; ta
 
   it("keeps the back link and the eyebrow and shows the message as the heading, with no captions", () => {
     renderOrphan();
-    expect(screen.getByRole("link", { name: "My evaluations" })).toBeDefined();
+    expect(screen.getAllByRole("link", { name: "My evaluations" })[0]).toBeDefined();
     expect(screen.getByText("Evaluation")).toBeDefined();
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Offering no longer exists");
     expect(screen.queryByText(/^Coffeeshop:/)).toBeNull();

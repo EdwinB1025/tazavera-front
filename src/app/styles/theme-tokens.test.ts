@@ -322,6 +322,9 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "text-link", bg: "surface-page", kind: "text" },
   { fg: "text-link", bg: "surface-form", kind: "text" },
   { fg: "text-link-hover", bg: "surface-form", kind: "text" },
+  // add-bottom-back-links design.md D3
+  { fg: "text-link", bg: "surface-section", kind: "text" },
+  { fg: "text-link-hover", bg: "surface-section", kind: "text" },
   { fg: "action-primary-text", bg: "action-primary", kind: "text" },
   { fg: "action-primary-text", bg: "action-primary-hover", kind: "text" },
   { fg: "action-1-text", bg: "action-1-bg", kind: "text" },
@@ -602,6 +605,9 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "text-link", bg: "surface-page", kind: "text" },
   { fg: "text-link", bg: "surface-form", kind: "text" },
   { fg: "text-link-hover", bg: "surface-form", kind: "text" },
+  // add-bottom-back-links design.md D3
+  { fg: "text-link", bg: "surface-section", kind: "text" },
+  { fg: "text-link-hover", bg: "surface-section", kind: "text" },
   { fg: "action-primary-text", bg: "action-primary", kind: "text" },
   { fg: "action-primary-text", bg: "action-primary-hover", kind: "text" },
   { fg: "action-1-text", bg: "action-1-bg", kind: "text" },
