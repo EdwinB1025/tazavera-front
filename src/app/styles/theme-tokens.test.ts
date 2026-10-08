@@ -500,6 +500,12 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "evaluation-bean-mark-off", bg: "evaluation-bean-off", kind: "icon" },
   // evaluation-bean-on is translucent: measured over its documented bases
   { fg: "evaluation-bean-mark-on", bg: "evaluation-bean-on", kind: "icon" },
+  // refine-small-visuals-aut D3: the bean background no longer frames the
+  // bean, so the on background and the off outline sit on the host surface
+  { fg: "evaluation-bean-on", bg: "surface-card", kind: "icon" },
+  { fg: "evaluation-bean-on", bg: "surface-form", kind: "icon" },
+  { fg: "evaluation-bean-mark-off", bg: "surface-card", kind: "icon" },
+  { fg: "evaluation-bean-mark-off", bg: "surface-form", kind: "icon" },
   { fg: "evaluation-slider-thumb", bg: "surface-form", kind: "bound" },
   { fg: "evaluation-slider-thumb", bg: "surface-card", kind: "bound" },
   { fg: "evaluation-slider-thumb", bg: "evaluation-slider-track", kind: "bound" },
@@ -733,6 +739,12 @@ const DARK_PAIRS: ContrastPair[] = [
   // rides the documented bases of DOCUMENTED_BASES (evaluation-bean-on is
   // translucent in the traditional theme)
   { fg: "evaluation-bean-mark-on", bg: "evaluation-bean-on", kind: "icon" },
+  // refine-small-visuals-aut D3: the bean background no longer frames the
+  // bean, so the on background and the off outline sit on the host surface
+  { fg: "evaluation-bean-on", bg: "surface-card", kind: "icon" },
+  { fg: "evaluation-bean-on", bg: "surface-form", kind: "icon" },
+  { fg: "evaluation-bean-mark-off", bg: "surface-card", kind: "icon" },
+  { fg: "evaluation-bean-mark-off", bg: "surface-form", kind: "icon" },
   { fg: "evaluation-slider-thumb", bg: "surface-form", kind: "bound" },
   { fg: "evaluation-slider-thumb", bg: "surface-card", kind: "bound" },
   { fg: "evaluation-slider-thumb", bg: "evaluation-slider-track", kind: "bound" },

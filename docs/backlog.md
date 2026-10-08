@@ -24,8 +24,6 @@ The entries below follow this order. The order runs security first, then the sha
 |:-:|---|---|---|:-:|---|
 | 0 | R41 | none (closed: environment, no code) | Deploy note | — | — (closed by Product owner 2026-10-08) |
 | 0d | R47 | none (closed: no code change) | Unplanned fix | — | — (Product owner 2026-10-08, option A: re-test on current develop) |
-| 0j | R54 | `rename-coffeeshop-card-action` | Correction (fast lane, maximum priority) | S | design lead on its open points |
-| 0k | R55 | `fit-bean-mark-disc` | Correction (fast lane, maximum priority) | S | design lead on its open points |
 | 0l | R56 | `cascade-evaluation-descriptors` | Correction (fast lane, maximum priority) | M | R48, R49 and round 3 merged (Product owner 2026-10-08: drafts also choose ancestors; read-only views as nested trees; level-2 rows without indent) |
 | 0m | R57 | `add-form-cancel-actions` | Correction (fast lane, maximum priority) | M | round 3 merged into `develop` (Product owner 2026-10-08: no Cancel on profile/password; add the New offering Cancel scenario) |
 | 0o | R59 | `drop-step-up-for-everyday-writes` | Correction (auth; fast lane, maximum priority for the front) | S | the regenerated contract in `contracts/openapi.yaml` (API change on `tazavera-api` `dev` `71bc91b`); R51 merged (same account page) |
@@ -76,20 +74,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Type:** Unplanned fix
 - **Status:** closed (no code)
 - **Affects:** none
-
-## R54 — Coffee-shop card action reads "Ver ofertas" (production AUT finding 22, 2026-10-08)
-
-- **Duplicated:** none. `messages/es/coffeeshops.json:9` `"viewLabel": "Ver"`; spec `offering-catalog` "Coffee shop card" (a View action to the coffee shop detail; scenarios "Card content" and "View link").
-- **Owning capability:** offering-catalog
-- **Open decision (Augusto):** answered 2026-10-08: the label reads "Ver ofertas" (en "View offerings", ca "Veure ofertes", to be confirmed by the design lead); destination unchanged (the coffee shop detail). Open for the design lead: whether it opens the Offerings tab explicitly.
-- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted · **Affects:** none
-
-## R55 — Bean mark disc inside the bean (production AUT finding 23, 2026-10-08)
-
-- **Duplicated:** none. `shared/ui/icons.ts` `BeanMark` (used by `BeanScale`: evaluation form, evaluation sheet, consensus panel, scale legend): the disc is a `rect` with `rx 14.4` filling the viewBox (`icons.ts:68-75`) and the bean path is scaled ×1.33 (`icons.ts:38-41`), so the disc frames the bean as a coin (add-evaluation-scales design.md D4).
-- **Owning capability:** feedback
-- **Open decision (Augusto):** answered 2026-10-08: "the circle is the background of the bean; it must not go beyond the bean's outline": a smaller disc behind the bean, entirely inside its outer contour (closer to the MVC `flux/icon/coffee-bean.blade.php`, circle `scale(0.58)`); reverses D4. Open for the design lead: disc radius and centre (or a shape following the bean), whether the bean keeps its ×1.33 scale, the on/off contrast of `evaluation-bean-on`/`-off` once the disc no longer frames the bean, and the readOnly partial-bean cut (`BeanScale.tsx:167-173`).
-- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted · **Affects:** every `BeanMark` consumer
 
 ## R56 — Evaluation form descriptors as the MVC cascade (production AUT finding 24, 2026-10-08)
 

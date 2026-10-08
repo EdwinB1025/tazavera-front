@@ -6,7 +6,7 @@
   "locationsCount": "{count} ubicacions",
   "offeringsCount": "Ofertes: {count}",
   "verifiedCount": "Verificades: {count}",
-  "viewLabel": "Veure",
+  "viewLabel": "Veure ofertes",
   "listEmpty": "Encara no hi ha cafeteries.",
   "listError": "No s'han pogut carregar les cafeteries.",
   "filtersTitle": "Filtres",
