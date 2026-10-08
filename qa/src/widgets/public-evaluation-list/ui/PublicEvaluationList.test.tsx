@@ -15,7 +15,9 @@ vi.mock("next/navigation", () => ({
 }));
 
 const fetchEvaluations = vi.fn();
-vi.mock("@/entities/evaluation", () => ({
+vi.mock("@/entities/evaluation", async (importOriginal) => ({
+  loadEvaluationOfferings: (await importOriginal<typeof import("@/entities/evaluation")>())
+    .loadEvaluationOfferings,
   fetchEvaluations: (...args: unknown[]) => fetchEvaluations(...args),
 }));
 

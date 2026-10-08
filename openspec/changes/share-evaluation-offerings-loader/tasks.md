@@ -4,7 +4,7 @@
 
 ## 2. Public evaluations list adopts the shared loader
 
-- [ ] 2.1 Make `src/widgets/public-evaluation-list/ui/PublicEvaluationList.tsx` use `loadEvaluationOfferings` with `fetchOffering` inside its `try`, keeping its error and empty mapping (D3). In the `vi.mock("@/entities/evaluation", …)` factory of `src/widgets/public-evaluation-list/ui/PublicEvaluationList.test.tsx` and `qa/src/widgets/public-evaluation-list/ui/PublicEvaluationList.test.tsx`, also provide the real `loadEvaluationOfferings` (D4); no assertion changes. Verify: `npx vitest related` on the changed files passes with the same test count as before, and `npx vitest run --config vitest.qa.config.mts qa/src/widgets/public-evaluation-list/ui/PublicEvaluationList.test.tsx` passes; `npx tsc --noEmit` reports no errors; `npm run lint` reports no errors; `src/entities/evaluation` imports nothing from `src/entities/offering`.
+- [x] 2.1 Make `src/widgets/public-evaluation-list/ui/PublicEvaluationList.tsx` use `loadEvaluationOfferings` with `fetchOffering` inside its `try`, keeping its error and empty mapping (D3). In the `vi.mock("@/entities/evaluation", …)` factory of `src/widgets/public-evaluation-list/ui/PublicEvaluationList.test.tsx` and `qa/src/widgets/public-evaluation-list/ui/PublicEvaluationList.test.tsx`, also provide the real `loadEvaluationOfferings` (D4); no assertion changes. Verify: `npx vitest related` on the changed files passes with the same test count as before, and `npx vitest run --config vitest.qa.config.mts qa/src/widgets/public-evaluation-list/ui/PublicEvaluationList.test.tsx` passes; `npx tsc --noEmit` reports no errors; `npm run lint` reports no errors; `src/entities/evaluation` imports nothing from `src/entities/offering`.
 
 ## 3. Full checks
 
