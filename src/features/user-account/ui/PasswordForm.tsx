@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
-import { request } from "@/shared/api";
 import type { PasswordUpdatePayload } from "@/shared/api";
 import {
   Button,
@@ -10,7 +9,9 @@ import {
   FormStatus,
   StepUpNotice,
 } from "@/shared/ui";
+import { updatePassword } from "../api/account";
 import { ExternalLink } from "./ExternalLink";
+import { NewPasswordFields } from "./NewPasswordFields";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -118,26 +119,10 @@ export function PasswordForm({
 
     setPending(true);
     setOutcome(null);
-    let status: number | null = null;
-    try {
-      const response = await request(`/users/${ulid}/password`, {
-        method: "PUT",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
-      status = response.status;
-    } catch {
-      // A network failure shows the generic error (spec "Password change").
-    }
+    const result = await updatePassword(ulid, values);
     setPending(false);
-    if (status === 403) {
-      setOutcome("stepUp");
-      return;
-    }
-    setOutcome(status === 200 ? "success" : "error");
+    setOutcome(result);
+    if (result === "stepUp") return;
     setValues(EMPTY_VALUES);
   }
 
@@ -170,37 +155,14 @@ export function PasswordForm({
           </ExternalLink>
         </p>
       </div>
-      <Field
-        label={texts.newPasswordLabel}
-        help={texts.passwordHelp}
-        error={errors.password}
-        required
-      >
-        <PasswordInput
-          name="password"
-          autoComplete="new-password"
-          showPasswordLabel={texts.showPassword}
-          hidePasswordLabel={texts.hidePassword}
-          value={values.password}
-          onChange={(event) => update("password", event.target.value)}
-        />
-      </Field>
-      <Field
-        label={texts.passwordConfirmationLabel}
-        error={errors.passwordConfirmation}
-        required
-      >
-        <PasswordInput
-          name="passwordConfirmation"
-          autoComplete="new-password"
-          showPasswordLabel={texts.showPassword}
-          hidePasswordLabel={texts.hidePassword}
-          value={values.passwordConfirmation}
-          onChange={(event) =>
-            update("passwordConfirmation", event.target.value)
-          }
-        />
-      </Field>
+      <NewPasswordFields
+        texts={{ ...texts, passwordLabel: texts.newPasswordLabel }}
+        password={values.password}
+        passwordConfirmation={values.passwordConfirmation}
+        passwordError={errors.password}
+        passwordConfirmationError={errors.passwordConfirmation}
+        onChange={update}
+      />
       {outcome === "success" && (
         <FormStatus kind="success" text={texts.passwordUpdated} />
       )}

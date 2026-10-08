@@ -1,9 +1,11 @@
 "use client";
 
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
-import { publicRequest, type RegisterPayload } from "@/shared/api";
-import { Button, Field, Input, PasswordInput, FormStatus } from "@/shared/ui";
+import type { RegisterPayload } from "@/shared/api";
+import { Button, Field, Input, FormStatus } from "@/shared/ui";
 import { isValidEmail } from "@/entities/contact";
+import { registerUser } from "../api/register";
+import { NewPasswordFields } from "./NewPasswordFields";
 import {
   RegisterSuccessPanel,
   type RegisterSuccessPanelTexts,
@@ -134,22 +136,9 @@ export function RegisterForm({
     setPending(true);
     setFailed(false);
     const payload: RegisterPayload = { ...values, role };
-    let ok = false;
-    try {
-      const response = await publicRequest("/register", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-      ok = response.status === 201;
-    } catch {
-      // A network failure shows the generic error (spec "Registration result").
-    }
+    const result = await registerUser(payload);
     setPending(false);
-    if (ok) {
+    if (result === "created") {
       setCreated(true);
       return;
     }
@@ -196,37 +185,14 @@ export function RegisterForm({
           onChange={(event) => update("email", event.target.value)}
         />
       </Field>
-      <Field
-        label={texts.passwordLabel}
-        help={texts.passwordHelp}
-        error={errors.password}
-        required
-      >
-        <PasswordInput
-          name="password"
-          autoComplete="new-password"
-          showPasswordLabel={texts.showPassword}
-          hidePasswordLabel={texts.hidePassword}
-          value={values.password}
-          onChange={(event) => update("password", event.target.value)}
-        />
-      </Field>
-      <Field
-        label={texts.passwordConfirmationLabel}
-        error={errors.passwordConfirmation}
-        required
-      >
-        <PasswordInput
-          name="passwordConfirmation"
-          autoComplete="new-password"
-          showPasswordLabel={texts.showPassword}
-          hidePasswordLabel={texts.hidePassword}
-          value={values.passwordConfirmation}
-          onChange={(event) =>
-            update("passwordConfirmation", event.target.value)
-          }
-        />
-      </Field>
+      <NewPasswordFields
+        texts={texts}
+        password={values.password}
+        passwordConfirmation={values.passwordConfirmation}
+        passwordError={errors.password}
+        passwordConfirmationError={errors.passwordConfirmation}
+        onChange={update}
+      />
       {failed && <FormStatus kind="error" text={texts.genericError} />}
       <div className="flex flex-wrap gap-3">
         <Button

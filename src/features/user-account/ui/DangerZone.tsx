@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { request } from "@/shared/api";
 import { Button, ConfirmDialog, StepUpNotice } from "@/shared/ui";
+import { deactivateAccount, deleteAccount } from "../api/account";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -70,23 +70,14 @@ export function DangerZone({
     if (pending) return;
     setPending(true);
     setError(null);
-    const path = action === "delete" ? `/users/${ulid}/force` : `/users/${ulid}`;
-    let status: number | null = null;
-    try {
-      const response = await request(path, {
-        method: "DELETE",
-        headers: { Accept: "application/json" },
-      });
-      status = response.status;
-    } catch {
-      // A network failure shows the generic error (design.md D7).
-    }
+    const send = action === "delete" ? deleteAccount : deactivateAccount;
+    const result = await send(ulid);
     setPending(false);
-    if (status === 200) {
+    if (result === "success") {
       signOut();
       return;
     }
-    setError(status === 403 ? "stepUp" : "generic");
+    setError(result === "stepUp" ? "stepUp" : "generic");
   }
 
   const errorContent =
