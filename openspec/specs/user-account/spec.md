@@ -295,3 +295,10 @@ The Contact details section SHALL render its states — reading, read error with
 #### Scenario: Contact requests unchanged
 - **WHEN** the section reads the contacts or creates the primary contact
 - **THEN** the API receives the same method, path, headers and body as before the refactor, and the status is mapped to an outcome by the account feature's request layer
+
+### Requirement: Cancelling registration
+Both registration forms, specialist and coffee shop, SHALL show a "Cancel" link under the full-width submit action, centred, that opens the root of the active locale `/{locale}` without sending anything. The success panel and the loading state SHALL have no Cancel link. No warning about unsaved input SHALL be shown.
+
+#### Scenario: Cancel opens the locale root without sending anything
+- **WHEN** the registration form renders and the user activates "Cancel"
+- **THEN** the link under the submit action addresses `/{locale}` and no `POST /register` is sent
