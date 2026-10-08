@@ -27,7 +27,6 @@ The entries below follow this order. The order runs security first, then the sha
 | 0m | R57 | `add-form-cancel-actions` | Correction (fast lane, maximum priority) | M | round 3 merged into `develop` (Product owner 2026-10-08: no Cancel on profile/password; add the New offering Cancel scenario) |
 | 0o | R59 | `drop-step-up-for-everyday-writes` | Correction (auth; fast lane, maximum priority for the front) | S | the regenerated contract in `contracts/openapi.yaml` (API change on `tazavera-api` `dev` `71bc91b`); R51 merged (same account page) |
 | 0q | R61 | `stack-flavor-wheel-layout` | Correction (fast lane, maximum priority) | S | round 3 (`qa`, with R37's FlavorWheel split) merged into `develop` |
-| 0r | R62 | `nest-consensus-notes` | Correction (fast lane, maximum priority) | M | R49 merged (tree rendering to reuse); design lead on its open points |
 | 0s | R63 | `add-bottom-back-links` | Correction (fast lane, maximum priority) | S | design lead on its open points (with R51, layout package) |
 | 16c | R50 | API branch in `tazavera-api` | Change (API) | S | Product owner: verify with real data (the API should deliver the resolved tree) |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
@@ -104,15 +103,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
   - **32, centre number:** the evaluation total in the centre (`<text font-size="28">`, viewBox `-204 -204 408 408`, `fill-text-primary font-serif font-bold`) gets smaller, in proportion with the ring labels (font-size 13); the design lead picks the size.
 - **Type:** Correction (fast lane, maximum priority) · **Status:** accepted
 - **Affects:** R37 (on `qa`) split `FlavorWheel` into `FlavorWheelChart`, `FlavorWheelPanel`, `FlavorWheelNoteList` and helpers: R61 starts from `develop` once round 3 is merged there
-
-## R62 — Consensus "Notes by attribute" as nested trees with inline counts (production AUT finding 30, 2026-10-08)
-
-- **Duplicated:** a second tree rendering next to R49's card trees.
-- **Where today:** `widgets/offering-detail/ui/ConsensusPanel.tsx` (split by R33 into `AxisDetail.tsx`, `SelectionBlock.tsx`, `ConsensusLegend.tsx`, `lib/identified-counts.ts`): `identifiedCounts` flattens the API tree into a `ref → count` map; the axis sections map it onto `buildDescriptorRows` (the full taxonomy), where a level-0 node with children is only a row title and level 2 is never shown; the legend is a separate `md:w-56` column listing only level-1/shared chips. Settled by add-offering-catalog D13/D18.
-- **Owning capability:** offering-catalog
-- **Open decision (Augusto):** answered 2026-10-08: (a) each note's consensus legend (`name n/total`) goes next to its own note box/badge, with no separate legend column; (b) each axis renders only the consensus nodes of that axis as the API's resolved tree (root → its consensus children → their consensus children), nested like the MVC cascade (same model as R49/R56). The API already sends the resolved tree (`sensoryTaxonomy`, `cataConcordance`: `{ref, type, level, count, children[]}` with levels 0–2); front only. Open for the design lead: whether the inline legend also applies to the "Main tastes" and "Defects" selection blocks (recommended yes); reusing one tree component with R49 and R56.
-- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted
-- **Affects:** R56 open point O2 (the consensus panel now goes to nested trees by this decision); waits for R49 (tree rendering)
 
 ## R63 — "Back" also at the end of every detail view (production AUT finding 33, 2026-10-08)
 
