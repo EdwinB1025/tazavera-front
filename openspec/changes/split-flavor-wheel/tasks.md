@@ -20,7 +20,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 5. Note list
 
-- [ ] 5.1 Create `src/shared/ui/FlavorWheelNoteList.tsx` (`"use client"`) with `FlavorWheelNoteListProps`, a local row component and `FlavorWheelNoteList` (design.md D1–D2), moving the `Collapsible` with the `role="tree"` list, the rows with their `aria-*` attributes, roving `tabIndex` and handlers, the tab-stop computation, `ROW_CLASSES` and `ROW_INDENT`. Verify: the related tests pass, including the wheel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors. Commit `refactor(feedback): extract the flavor wheel note list`.
+- [x] 5.1 Create `src/shared/ui/FlavorWheelNoteList.tsx` (`"use client"`) with `FlavorWheelNoteListProps`, a local row component and `FlavorWheelNoteList` (design.md D1–D2), moving the `Collapsible` with the `role="tree"` list, the rows with their `aria-*` attributes, roving `tabIndex` and handlers, the tab-stop computation, `ROW_CLASSES` and `ROW_INDENT`. Verify: the related tests pass, including the wheel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors. Commit `refactor(feedback): extract the flavor wheel note list`.
 
 ## 6. Keyboard model
 
