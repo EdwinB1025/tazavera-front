@@ -25,6 +25,27 @@ export type FieldControl = {
   invalid: boolean; // ariaInvalid is true or "true"
 };
 
+/** The field's values, the defaults each explicit prop overrides. */
+function fieldDefaults(field: FieldContextValue | null): Omit<FieldControl, "invalid"> {
+  if (field === null) {
+    return {
+      variant: "default",
+      id: undefined,
+      describedBy: undefined,
+      ariaInvalid: undefined,
+      required: undefined,
+    };
+  }
+  return {
+    variant: field.variant,
+    id: field.controlId,
+    describedBy:
+      [field.helpId, field.errorId].filter(Boolean).join(" ") || undefined,
+    ariaInvalid: field.invalid ? "true" : undefined,
+    required: field.required ? true : undefined,
+  };
+}
+
 /**
  * Resolves a control's field attributes (extract-field-control-hook design.md
  * D2): context values are defaults, an explicit prop always wins (form-fields
@@ -36,19 +57,15 @@ export function useFieldControl(
   ownField?: FieldContextValue,
 ): FieldControl {
   const context = useContext(FieldContext);
-  const field = ownField ?? context;
-
-  const ariaInvalid =
-    props["aria-invalid"] ?? (field?.invalid ? "true" : undefined);
+  const defaults = fieldDefaults(ownField ?? context);
+  const ariaInvalid = props["aria-invalid"] ?? defaults.ariaInvalid;
 
   return {
-    variant: props.variant ?? field?.variant ?? "default",
-    id: props.id ?? field?.controlId,
-    describedBy:
-      props["aria-describedby"] ??
-      ([field?.helpId, field?.errorId].filter(Boolean).join(" ") || undefined),
+    variant: props.variant ?? defaults.variant,
+    id: props.id ?? defaults.id,
+    describedBy: props["aria-describedby"] ?? defaults.describedBy,
     ariaInvalid,
-    required: props.required ?? (field?.required ? true : undefined),
+    required: props.required ?? defaults.required,
     invalid: ariaInvalid === true || ariaInvalid === "true",
   };
 }
