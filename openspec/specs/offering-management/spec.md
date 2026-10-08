@@ -356,19 +356,19 @@ The form SHALL send `POST /locations` with `name`, the non-empty optional `descr
 - **THEN** the status no longer renders
 
 ### Requirement: Location creation failures
-A `403` answer to the create request SHALL show the step-up notice above the form's actions. A `422`, a server error, a network failure or any other status SHALL show the generic form error above the actions. In both cases the form SHALL stay open with every value kept.
+A `422`, a `403`, a server error, a network failure or any other status answer to the create request SHALL show the generic form error above the actions, and the form SHALL stay open with every value kept. No step-up notice SHALL render on the locations page.
 
 #### Scenario: The creation is rejected or fails
-- **WHEN** the create request answers `422`, a server error or any other status except `201` and `403`, or the request fails
-- **THEN** the generic form error renders above the actions, every value is kept, and the API's message is never rendered
+- **WHEN** the create request answers any status except `201`, or the request fails
+- **THEN** the generic form error renders above the actions, every value is kept, no step-up notice renders, and the API's message is never rendered
 
 #### Scenario: Step-up after 403
 - **WHEN** the create request answers `403`
-- **THEN** the step-up notice and its "Confirm identity" action render above the actions and every value is kept
+- **THEN** the generic form error renders above the actions, every value is kept, and no step-up notice or "Confirm identity" action renders
 
 #### Scenario: Confirming identity
-- **WHEN** the user activates "Confirm identity"
-- **THEN** the write-scope sign in starts synchronously inside that click for the locations route, keeping the page and the typed values, and activating "Save" again sends the request with the new token
+- **WHEN** the user activates "Save" again after a rejected creation
+- **THEN** the create request is sent again with the current token and no write-scope sign in starts
 
 ### Requirement: Localized location texts
 Every text of the locations page — heading, intro, list and form states, group legends, field labels, actions, help, attribution, statuses and the sidebar entry — SHALL render in the active locale (Spanish, English or Catalan) from the message catalog. Location and contact values SHALL render exactly as the API returns them, and no `message` string of an API or geocoding response SHALL render.
