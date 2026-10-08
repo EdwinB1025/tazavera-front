@@ -64,6 +64,14 @@ describe("fetchOfferings (add-offering-catalog design.md D1, D2)", () => {
     expect(result.meta).toEqual(OFFERINGS_PAYLOAD.meta);
   });
 
+  it("sends the chosen taste notes as cataRef[] pairs (filtering spec: Taste notes sent as an array)", async () => {
+    fetchSpy.mockResolvedValue(okResponse(OFFERINGS_PAYLOAD));
+    await fetchOfferings({ cataRef: ["01JREFA", "01JREFB"] });
+    expect(fetchSpy).toHaveBeenCalledWith(
+      `${API_URL}/offerings?cataRef%5B%5D=01JREFA&cataRef%5B%5D=01JREFB`,
+    );
+  });
+
   it("requests /offerings with no query and no verification filter for an empty query", async () => {
     fetchSpy.mockResolvedValue(okResponse(OFFERINGS_PAYLOAD));
     await fetchOfferings({});
