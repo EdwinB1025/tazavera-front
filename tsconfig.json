@@ -41,6 +41,9 @@
     "qa/src/widgets/offering-list/lib/resolve-taxonomies.test.ts",
     "qa/src/pages/evaluation-form/ui/FormActions.test.tsx",
     "qa/src/features/user-account/ui/RegisterForm.test.tsx",
-    "qa/src/pages/register/ui/RegisterClient.test.tsx"
+    "qa/src/pages/register/ui/RegisterClient.test.tsx",
+    "qa/src/features/user-account/ui/ContactSection.test.tsx",
+    "qa/src/features/user-account/ui/ProfileForm.test.tsx",
+    "qa/src/features/location-management/ui/LocationForm.test.tsx"
   ]
 }

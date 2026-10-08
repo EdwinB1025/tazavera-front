@@ -13,7 +13,6 @@ import { ProfileForm, type ProfileFormTexts } from "@/features/user-account";
 const API = "https://api.tazavera.test";
 
 const TEXTS: ProfileFormTexts = {
-  roleLabel: "fx-role",
   nameLabel: "fx-name",
   surnameLabel: "fx-surname",
   emailLabel: "fx-email",
@@ -103,13 +102,6 @@ function sentBody(): unknown {
 }
 
 describe("ProfileForm — view", () => {
-  it("shows the role row with data.role exactly as returned", () => {
-    renderForm();
-    const list = document.querySelector("dl")!;
-    expect(list.querySelector("dt")?.textContent).toBe(TEXTS.roleLabel);
-    expect(list.querySelector("dd")?.textContent).toBe("specialist");
-  });
-
   it("prefills the three fields from the session, with no required marker and their autofill names", () => {
     renderForm();
     expect(field(TEXTS.nameLabel).value).toBe("Ana");

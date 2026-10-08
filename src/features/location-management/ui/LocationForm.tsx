@@ -10,7 +10,6 @@ import {
   FormStatus,
   Input,
   LINK_CLASSES,
-  StepUpNotice,
   Textarea,
 } from "@/shared/ui";
 import { ContactFields, type ContactFieldKey, type ContactTexts } from "@/entities/contact";
@@ -38,19 +37,14 @@ export type LocationFormTexts = ContactTexts &
     save: string;
     cancel: string;
     genericError: string;
-    stepUpText: string;
-    stepUpButton: string;
   };
 
 export type LocationFormProps = {
-  locale: string;
   texts: LocationFormTexts;
   submitState: SubmitState;
   /** Called with the values once the client checks pass. */
   onSubmit: (values: LocationFormValues) => void;
   onCancel: () => void;
-  /** Starts the write-scope sign in (user-account D6). */
-  requestProfileWrite: (returnRoute: string) => void;
 };
 
 const EMPTY_VALUES: LocationFormValues = {
@@ -108,12 +102,10 @@ function Attribution({ texts }: { texts: LocationFormTexts }): ReactNode {
  * and the client checks; the panel owns the request and passes its state.
  */
 export function LocationForm({
-  locale,
   texts,
   submitState,
   onSubmit,
   onCancel,
-  requestProfileWrite,
 }: LocationFormProps): ReactNode {
   const headingId = useId();
   const formRef = useRef<HTMLFormElement>(null);
@@ -196,13 +188,6 @@ export function LocationForm({
             <Attribution texts={texts} />
           </div>
           {submitState === "error" && <FormStatus kind="error" text={texts.genericError} />}
-          {submitState === "step-up" && (
-            <StepUpNotice
-              text={texts.stepUpText}
-              actionLabel={texts.stepUpButton}
-              onConfirm={() => requestProfileWrite(`/${locale}/manage/locations`)}
-            />
-          )}
           <div className={ACTIONS_CLASSES}>
             <Button type="submit" variant="primary" size="base" loading={submitting}>
               {texts.save}

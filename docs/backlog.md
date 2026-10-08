@@ -24,7 +24,6 @@ The entries below follow this order. The order runs security first, then the sha
 |:-:|---|---|---|:-:|---|
 | 0 | R41 | none (closed: environment, no code) | Deploy note | — | — (closed by Product owner 2026-10-08) |
 | 0d | R47 | none (closed: no code change) | Unplanned fix | — | — (Product owner 2026-10-08, option A: re-test on current develop) |
-| 0o | R59 | `drop-step-up-for-everyday-writes` | Correction (auth; fast lane, maximum priority for the front) | S | the regenerated contract in `contracts/openapi.yaml` (API change on `tazavera-api` `dev` `71bc91b`); R51 merged (same account page) |
 | 16c | R50 | API branch in `tazavera-api` | Change (API) | S | Product owner: verify with real data (the API should deliver the resolved tree) |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
@@ -69,16 +68,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Type:** Unplanned fix
 - **Status:** closed (no code)
 - **Affects:** none
-
-## R59 — Step-up only for password and account removal (production AUT finding 27, 2026-10-08)
-
-- **Duplicated:** none. The front asks for step-up (`requestProfileWrite`) before operations that, by Product owner's decision, no longer need `profile:write`.
-- **Where today:** `ProfileForm.tsx:158`, `ContactSection.tsx:283`, `LocationForm.tsx:203`, `ManageOfferingsPanel.tsx:181` / `DeleteOfferingsDialog` (they drop step-up); `PasswordForm.tsx:214` and `DangerZone.tsx:97` (they keep it); `NewOfferingForm.tsx:87` also calls it although `POST /offerings` needs no write scope (check against the contract). API routes in `tazavera-api/routes/api.php` (`:49-50`, `:54-57`, `:86`, `:88`, `:90`, `:92`, `:94`).
-- **Owning capability:** auth (with user-account, offering-management)
-- **Open decision (Augusto):** answered 2026-10-08: no longer `profile:write`: `POST /locations`, `POST /users/{user}/contacts`, `PUT /users/{user}`, `DELETE /offerings/{offering}` and `DELETE /offerings` (the confirmation dialog stays). Keep `profile:write`: `PUT /users/{user}/password`, `DELETE /users/{user}`, `DELETE /users/{user}/force` (the two account ones also keep their confirmation dialog). The API's security page is unchanged. Product owner changes the API first.
-- **Updated 2026-10-08 (Product owner, option A):** only adding a contact (`POST /users/{user}/contacts`) and adding a location (`POST /locations`) leave `profile:write`; updating the profile (`PUT /users/{user}`), the password, deactivating and deleting the account, and deleting offerings KEEP it. The account page splits into two parts: one that shows the profile data and lets the user add a contact and a location with no step-up, and an "Edit profile" part that asks for the permission (with the password and account removal). API change done by the orchestrator on `tazavera-api` branch `feature/relax-contact-location-scopes`, fast-forwarded into `dev` (`71bc91b`; API tests 145/149, the 4 failures are `WebThemeAndLocaleTest` needing a Vite build in the worktree); Product owner ports it to `PROD`. Front: `ContactSection` and `LocationForm` drop `requestProfileWrite`; `ProfileForm`, `PasswordForm`, `DangerZone` and the offering deletions keep it; check `NewOfferingForm` (`POST /offerings` needs no write scope). The account-page split needs the design lead.
-- **Type:** Correction (touches the auth flow and the API contract; front in the fast lane at maximum priority once the contract lands) · **Status:** accepted
-- **Affects:** waits for the API change and the regenerated `contracts/openapi.yaml`: do not start the front until the contract shows the new scopes. R38 (on `qa`) split `ContactSection`, `LocationsPanel` and `ManageOfferingsPanel`.
 
 ## R50 — Consensus concordance loses the parent of unmarked intermediate notes (API; found by the design lead for R49)
 

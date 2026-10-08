@@ -101,4 +101,9 @@ describe("submitLocation outcome (design.md D4)", () => {
     });
     expect(postedBody().latitud).toBe(41.4029);
   });
+
+  it("is an error when the create request answers 403", async () => {
+    request.mockResolvedValue(new Response(null, { status: 403 }));
+    await expect(submitLocation(VALUES, new Map())).resolves.toEqual({ status: "error" });
+  });
 });

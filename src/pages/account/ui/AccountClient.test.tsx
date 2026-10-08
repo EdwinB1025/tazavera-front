@@ -51,6 +51,7 @@ const TEXTS = {
   signedOutText: "fx-signed-out",
   signIn: "fx-sign-in",
   profileHeading: "fx-profile",
+  editProfileHeading: "fx-edit-profile",
   passwordHeading: "fx-password",
   securityHeading: "fx-security",
   securityDescription: "fx-security-description",
@@ -100,7 +101,7 @@ describe("AccountClient — the session gate", () => {
     expect(auth.signIn).toHaveBeenCalledTimes(1);
   });
 
-  it("while authenticated shows Profile, Contact details, Password, Security and Danger zone in order, each named by its heading", () => {
+  it("while authenticated shows Profile, Contact details, Edit profile, Password, Security and Danger zone in order, each named by its heading", () => {
     auth.session = { state: "authenticated", user: USER };
     renderClient();
     const names = screen
@@ -110,6 +111,7 @@ describe("AccountClient — the session gate", () => {
     expect(names).toEqual([
       TEXTS.profileHeading,
       TEXTS.contactHeading,
+      TEXTS.editProfileHeading,
       TEXTS.passwordHeading,
       TEXTS.securityHeading,
       TEXTS.dangerZoneHeading,
@@ -119,7 +121,7 @@ describe("AccountClient — the session gate", () => {
   it("shows the signed-out state when the session turns anonymous while the page is open", () => {
     auth.session = { state: "authenticated", user: USER };
     const { rerender } = renderClient();
-    expect(screen.getAllByRole("region")).toHaveLength(5);
+    expect(screen.getAllByRole("region")).toHaveLength(6);
     auth.session = { state: "anonymous" };
     rerender(<AccountClient locale="es" texts={TEXTS} />);
     expect(screen.queryAllByRole("region")).toHaveLength(0);
@@ -144,7 +146,7 @@ describe("AccountClient — the session gate", () => {
 });
 
 describe("AccountClient — sections group", () => {
-  it("places the five sections as the children of one flex column 1rem apart", () => {
+  it("places the six sections as the children of one flex column 1rem apart", () => {
     auth.session = { state: "authenticated", user: USER };
     renderClient();
     const regions = screen.getAllByRole("region");

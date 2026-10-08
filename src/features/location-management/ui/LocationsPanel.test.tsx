@@ -37,8 +37,6 @@ const TEXTS: LocationsPanelTexts = {
   save: "fx-save",
   cancel: "fx-cancel",
   genericError: "fx-generic-error",
-  stepUpText: "fx-step-up",
-  stepUpButton: "fx-confirm",
   requiredError: "fx-required",
   emailFormatError: "fx-email-format",
   contactAddressLabel: "fx-address",
@@ -121,22 +119,18 @@ afterEach(() => {
 });
 
 function renderPanel() {
-  const requestProfileWrite = vi.fn<(returnRoute: string) => void>();
-  const utils = render(
+  return render(
     <>
       <h1 id={HEADING_ID} tabIndex={-1}>
         fx-page-title
       </h1>
       <LocationsPanel
         userUlid="u1"
-        locale="es"
         headingId={HEADING_ID}
         texts={TEXTS}
-        requestProfileWrite={requestProfileWrite}
       />
     </>,
   );
-  return { ...utils, requestProfileWrite };
 }
 
 async function settle(): Promise<void> {
