@@ -34,7 +34,7 @@
   - "Menu content": the coffeeshop menu shows no explore entry.
 
   Expected: the tests fail only because the entry is missing.
-- [ ] 2.2 (app-shell) Implement D5 in `UserMenu.tsx`, `AppHeader.tsx` (texts type), `AppShell.tsx` and the catalogs es/en/ca (`exploreOfferings`). Verify as in 1.2.
+- [x] 2.2 (app-shell) Implement D5 in `UserMenu.tsx`, `AppHeader.tsx` (texts type), `AppShell.tsx` and the catalogs es/en/ca (`exploreOfferings`). Verify as in 1.2.
 - [ ] 2.3 (evaluations) Test first in `src/features/manage-evaluations/ui/EvaluationsSidebarEntry.test.tsx`, for "The explore entry": on the list route, the second link of the same list is named with the explore text, points at `/es/offerings` and has no `aria-current`. Update the existing renders to pass the new `explore` text. Expected: the test fails only because the entry is missing.
 - [ ] 2.4 (evaluations) Implement D5 in `EvaluationsSidebarEntry.tsx` and `SessionShell.tsx`. Verify as in 1.2.
 

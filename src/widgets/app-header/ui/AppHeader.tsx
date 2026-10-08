@@ -37,6 +37,7 @@ export type AppHeaderTexts = {
   themeToggleToTraditional: string;
   manageOfferings: string;
   manageEvaluations: string;
+  exploreOfferings: string;
   signOut: string;
   /** The small-viewport navigation menu control (fix-production-aut-findings D7). */
   navigationMenu: string;

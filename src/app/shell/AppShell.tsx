@@ -87,6 +87,7 @@ export function AppShell({
           themeToggleToTraditional: texts.themeToggleToTraditional!,
           manageOfferings: texts.manageOfferings!,
           manageEvaluations: texts.manageEvaluations!,
+          exploreOfferings: texts.exploreOfferings!,
           signOut: texts.signOut!,
           toggleSidebar: texts.toggleSidebar!,
           navigationMenu: texts.navigationMenu!,

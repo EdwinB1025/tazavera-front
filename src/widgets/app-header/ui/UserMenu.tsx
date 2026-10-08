@@ -22,6 +22,8 @@ export type UserMenuTexts = {
   security: string;
   manageOfferings: string;
   manageEvaluations: string;
+  /** The specialist's offerings entry (refine-header-aut D5). */
+  exploreOfferings: string;
   signOut: string;
 };
 
@@ -87,7 +89,8 @@ const CIRCLE_CLASSES = [
  * security entry as the API's web page rendered
  * natively (an external destination, not the internal link treatment per
  * `base-controls`), the management entry for the user's
- * role, and sign out.
+ * role, for a specialist the offerings entry (refine-header-aut D5), and
+ * sign out.
  */
 export function UserMenu({
   user,
@@ -124,6 +127,11 @@ export function UserMenu({
         {management && (
           <DropdownMenuItem asChild>
             <Link href={management.href}>{management.text}</Link>
+          </DropdownMenuItem>
+        )}
+        {user.role === "specialist" && (
+          <DropdownMenuItem asChild>
+            <Link href={`/${locale}/offerings`}>{texts.exploreOfferings}</Link>
           </DropdownMenuItem>
         )}
         <DropdownMenuItem onSelect={onSignOut}>{texts.signOut}</DropdownMenuItem>
