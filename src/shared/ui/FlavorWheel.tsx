@@ -4,6 +4,7 @@ import { useId, useRef, useState } from "react";
 import type { KeyboardEvent, ReactNode } from "react";
 import { layoutWheel } from "./flavor-wheel-geometry";
 import { FlavorWheelChart } from "./FlavorWheelChart";
+import { handleTreeKey } from "./flavor-wheel-keys";
 import { FlavorWheelNoteList } from "./FlavorWheelNoteList";
 import { FlavorWheelPanel } from "./FlavorWheelPanel";
 import {
@@ -126,53 +127,21 @@ export function FlavorWheel({
     rowElements.current.get(id)?.focus();
   };
 
-  /** APG Tree View keys over the visible rows, plus Escape (design.md D6). */
   const handleKeyDown = (
     event: KeyboardEvent<HTMLLIElement>,
     index: number,
   ): void => {
-    const { node, parentId } = rows[index];
-    const isExpanded = expanded.has(node.id);
-    switch (event.key) {
-      case "ArrowDown":
-        if (index < rows.length - 1) focusRow(rows[index + 1].node.id);
-        break;
-      case "ArrowUp":
-        if (index > 0) focusRow(rows[index - 1].node.id);
-        break;
-      case "ArrowRight":
-        if (node.children.length === 0) break;
-        if (isExpanded) focusRow(node.children[0].id);
-        else setExpansion(node, true);
-        break;
-      case "ArrowLeft":
-        if (node.children.length > 0 && isExpanded) setExpansion(node, false);
-        else if (parentId !== null) focusRow(parentId);
-        break;
-      case "Home":
-        focusRow(rows[0].node.id);
-        break;
-      case "End":
-        focusRow(rows[rows.length - 1].node.id);
-        break;
-      case "Enter":
-      case " ":
-        toggle(node);
-        break;
-      case "Escape": {
-        const root = nodes.find(
-          (candidate) =>
-            candidate.id === node.id ||
-            descendantIds(candidate).includes(node.id),
-        );
-        setExpanded(new Set());
-        if (root) focusRow(root.id);
-        break;
-      }
-      default:
-        return;
-    }
-    event.preventDefault();
+    const context = {
+      rows,
+      index,
+      nodes,
+      expanded,
+      focusRow,
+      setExpansion,
+      toggle,
+      collapseAll: () => setExpanded(new Set()),
+    };
+    if (handleTreeKey(event.key, context)) event.preventDefault();
   };
 
   return (

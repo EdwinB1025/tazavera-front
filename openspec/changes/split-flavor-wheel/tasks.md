@@ -24,7 +24,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 6. Keyboard model
 
-- [ ] 6.1 Create `src/shared/ui/flavor-wheel-keys.ts` with `TreeKeyContext` and `handleTreeKey` (design.md D2), one handler per key with today's effects; `FlavorWheel`'s row key handler calls it and prevents the default only when it returns true. Verify: the related tests pass, including the wheel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors and no `complexity` warning in `flavor-wheel-keys.ts`. Commit `refactor(feedback): extract the flavor wheel keyboard model`.
+- [x] 6.1 Create `src/shared/ui/flavor-wheel-keys.ts` with `TreeKeyContext` and `handleTreeKey` (design.md D2), one handler per key with today's effects; `FlavorWheel`'s row key handler calls it and prevents the default only when it returns true. Verify: the related tests pass, including the wheel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors and no `complexity` warning in `flavor-wheel-keys.ts`. Commit `refactor(feedback): extract the flavor wheel keyboard model`.
 
 ## 7. Wheel state
 
