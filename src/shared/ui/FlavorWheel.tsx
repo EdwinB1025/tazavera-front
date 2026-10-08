@@ -1,18 +1,13 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
 import type { KeyboardEvent, ReactNode } from "react";
 import { layoutWheel } from "./flavor-wheel-geometry";
 import { FlavorWheelChart } from "./FlavorWheelChart";
 import { handleTreeKey } from "./flavor-wheel-keys";
 import { FlavorWheelNoteList } from "./FlavorWheelNoteList";
 import { FlavorWheelPanel } from "./FlavorWheelPanel";
-import {
-  arrangeRoots,
-  descendantIds,
-  findNode,
-  visibleRows,
-} from "./flavor-wheel-tree";
+import { arrangeRoots, findNode, visibleRows } from "./flavor-wheel-tree";
+import { useFlavorWheelState } from "./use-flavor-wheel-state";
 
 // ─── UI-specific types (declared before the component) ───
 // The wheel takes resolved, localized notes as props: no generated API type is
@@ -75,10 +70,8 @@ export function FlavorWheel({
   texts,
   groups,
 }: FlavorWheelProps): ReactNode {
-  const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const idPrefix = useId();
-  const rowElements = useRef(new Map<string, HTMLLIElement>());
+  const wheel = useFlavorWheelState();
+  const { expanded, activeId, idPrefix, setActiveId, activate } = wheel;
 
   if (total === 0 || givenNodes.length === 0) {
     return <p className="type-body">{texts.emptyMessage}</p>;
@@ -98,50 +91,15 @@ export function FlavorWheel({
   const rows = visibleRows(nodes, expanded);
   const active = activeId === null ? null : findNode(nodes, activeId);
   const legend = (node: FlavorWheelNode): string => `${node.count}/${total}`;
-
-  /** Expand or collapse a parent; collapsing also collapses its descendants. */
-  const setExpansion = (node: FlavorWheelNode, open: boolean): void => {
-    setExpanded((current) => {
-      const next = new Set(current);
-      if (open) {
-        next.add(node.id);
-      } else {
-        next.delete(node.id);
-        for (const id of descendantIds(node)) next.delete(id);
-      }
-      return next;
-    });
-  };
-
-  const toggle = (node: FlavorWheelNode): void => {
-    if (node.children.length > 0) setExpansion(node, !expanded.has(node.id));
-  };
-
-  /** Activate a note and, when it has children, toggle its expansion. */
-  const activate = (node: FlavorWheelNode): void => {
-    setActiveId(node.id);
-    toggle(node);
-  };
-
-  const focusRow = (id: string): void => {
-    rowElements.current.get(id)?.focus();
-  };
+  const hover = (node: FlavorWheelNode): void => setActiveId(node.id);
 
   const handleKeyDown = (
     event: KeyboardEvent<HTMLLIElement>,
     index: number,
   ): void => {
-    const context = {
-      rows,
-      index,
-      nodes,
-      expanded,
-      focusRow,
-      setExpansion,
-      toggle,
-      collapseAll: () => setExpanded(new Set()),
-    };
-    if (handleTreeKey(event.key, context)) event.preventDefault();
+    if (handleTreeKey(event.key, { ...wheel, rows, index, nodes })) {
+      event.preventDefault();
+    }
   };
 
   return (
@@ -157,7 +115,7 @@ export function FlavorWheel({
             idPrefix={idPrefix}
             legend={legend}
             groupName={groupName}
-            onHover={(node) => setActiveId(node.id)}
+            onHover={hover}
             onActivate={activate}
           />
         </div>
@@ -182,11 +140,8 @@ export function FlavorWheel({
             label={texts.label}
             notesToggle={texts.notesToggle}
             legend={legend}
-            registerRow={(id, element) => {
-              if (element) rowElements.current.set(id, element);
-              else rowElements.current.delete(id);
-            }}
-            onHover={(node) => setActiveId(node.id)}
+            registerRow={wheel.registerRow}
+            onHover={hover}
             onActivate={activate}
             onKeyDown={handleKeyDown}
           />

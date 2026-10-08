@@ -28,7 +28,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 7. Wheel state
 
-- [ ] 7.1 Create `src/shared/ui/use-flavor-wheel-state.ts` (`"use client"`) with `FlavorWheelState` and `useFlavorWheelState` (design.md D2), moving the expansion and active-note state, `useId`, the row refs and `setExpansion`, `toggle`, `activate`, `focusRow`, plus `collapseAll` and `registerRow`; `FlavorWheel` ends as design.md D3. Verify: the related tests pass, including the wheel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors and no `max-lines`, `max-lines-per-function` or `complexity` warning in `FlavorWheel.tsx` or any new file; `FlavorWheel.tsx` and every new file are at most 300 lines and every component and function at most 80 lines. Commit `refactor(feedback): extract the flavor wheel state`.
+- [x] 7.1 Create `src/shared/ui/use-flavor-wheel-state.ts` (`"use client"`) with `FlavorWheelState` and `useFlavorWheelState` (design.md D2), moving the expansion and active-note state, `useId`, the row refs and `setExpansion`, `toggle`, `activate`, `focusRow`, plus `collapseAll` and `registerRow`; `FlavorWheel` ends as design.md D3. Verify: the related tests pass, including the wheel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors and no `max-lines`, `max-lines-per-function` or `complexity` warning in `FlavorWheel.tsx` or any new file; `FlavorWheel.tsx` and every new file are at most 300 lines and every component and function at most 80 lines. Commit `refactor(feedback): extract the flavor wheel state`.
 
 ## 8. Full checks
 
