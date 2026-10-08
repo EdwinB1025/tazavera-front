@@ -44,7 +44,6 @@ The entries below follow this order. The order runs security first, then the sha
 | 18 | R34 | `split-evaluation-form-state` | Refactor (fast lane) | L | — |
 | 19 | R38 | `split-account-and-management-panels` | Refactor (fast lane) | M | — |
 | 20 | R37 | `split-flavor-wheel` | Refactor (fast lane) | L | — |
-| 21 | R35 | `unify-api-result-shape` | Refactor (fast lane) | L | R24, R25 |
 | 22 | R36 (resolves R16) | `prune-unused-exports` | Refactor (fast lane) | M | the splits above. R4 (16px, spec wording) rides with it as a change |
 | 23 | R10 | none yet | Change (behaviour) | S | before the first facet that shows an error |
 | 24 | R8 | none yet | Change (behaviour) | M | R40; after R25 and R35 |
@@ -181,18 +180,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Type:** Change
 - **Status:** accepted
 - **Affects:** R40 (the 404 responses must be documented first)
-
-## R35 — Unify the API result shape
-
-- **Duplicated:** 4 result styles for not-found and failure
-- **Where today:** every `*/api/*.ts`
-- **Why it pays off now:** one way to handle errors across the code. It comes after R24 and R25.
-- **Owning capability:** shared/api (with every consumer)
-- **Proposed change:** `unify-api-result-shape` (L)
-- **Open decision (Augusto):** answered 2026-10-08: approved; the architect chooses the result type in design.md; after R24 and R25
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** R8
 
 ## R36 — Prune the unused exports (resolves R16)
 
