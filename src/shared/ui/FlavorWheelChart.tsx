@@ -156,7 +156,7 @@ export function FlavorWheelChart({
         y={0}
         textAnchor="middle"
         dominantBaseline="central"
-        fontSize={28}
+        fontSize={18}
         className="fill-text-primary font-serif font-bold"
       >
         {total}
