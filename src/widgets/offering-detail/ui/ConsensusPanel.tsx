@@ -19,28 +19,19 @@ import {
   CollapsibleHeader,
   DescriptorChipGroup,
   FlavorWheel,
-  LabelValueRow,
 } from "@/shared/ui";
-import { concordanceBand } from "../lib/concordance";
-import type { ConcordanceBand } from "../lib/concordance";
 import { AttributesCard } from "./AttributesCard";
 import type { AttributesCardTexts } from "./AttributesCard";
 import { ScoreCard } from "./ScoreCard";
 import type { ScoreCardTexts } from "./ScoreCard";
+import { StatusCard } from "./StatusCard";
+import type { StatusCardTexts } from "./StatusCard";
 
 // ─── UI-specific types (declared before the component) ───
 
 export type ConsensusPanelTexts = ScoreCardTexts &
-  AttributesCardTexts & {
-  detailStatusHeading: string;
-  fieldEvaluationCount: string;
-  fieldDefectiveCount: string;
-  fieldConcordanceAffective: string;
-  fieldConcordanceDescriptive: string;
-  concordanceLow: string;
-  concordanceModerate: string;
-  concordanceHigh: string;
-  concordanceExcellent: string;
+  AttributesCardTexts &
+  StatusCardTexts & {
   detailMainTastesHeading: string;
   detailDefectsHeading: string;
   detailTasteEmpty: string;
@@ -80,9 +71,6 @@ const GRID_CLASSES = ["grid", "grid-cols-1", "gap-6", "lg:grid-cols-2"].join(
 
 // Each card: the heading and its content, 1rem apart.
 const CONTENT_CLASSES = ["flex", "flex-col", "gap-4"].join(" ");
-
-// The label/value rows (design.md D5's grid).
-const LIST_CLASSES = ["grid", "gap-x-6", "gap-y-3", "md:grid-cols-2"].join(" ");
 
 // A card spanning both grid columns from `lg`.
 const WIDE_CARD_CLASSES = "lg:col-span-2";
@@ -161,9 +149,6 @@ function identifiedCounts(
   return counts;
 }
 
-// A concordance value and its band word, 0.5rem apart, wrapping.
-const CONCORDANCE_CLASSES = ["flex", "flex-wrap", "gap-2"].join(" ");
-
 /**
  * The Consensus panel (add-offering-catalog design.md D12–D14; the spec's
  * "Consensus …" requirements): the score card for a verified offering, then
@@ -177,43 +162,6 @@ export function ConsensusPanel({
   texts,
 }: ConsensusPanelProps): ReactNode {
   const total = offering.evaluationCount ?? 0;
-  const bandWords: Record<ConcordanceBand, string> = {
-    low: texts.concordanceLow,
-    moderate: texts.concordanceModerate,
-    high: texts.concordanceHigh,
-    excellent: texts.concordanceExcellent,
-  };
-
-  function concordance(value: string): ReactNode {
-    return (
-      <span className={CONCORDANCE_CLASSES}>
-        <span>{value}</span>
-        <span>{bandWords[concordanceBand(value)]}</span>
-      </span>
-    );
-  }
-
-  const statusRows: { label: string; value: ReactNode | undefined }[] = [
-    { label: texts.fieldEvaluationCount, value: offering.evaluationCount },
-    {
-      label: texts.fieldDefectiveCount,
-      value: offering.defectiveEvaluationCount,
-    },
-    {
-      label: texts.fieldConcordanceAffective,
-      value:
-        offering.concordanceAffective != null
-          ? concordance(offering.concordanceAffective)
-          : undefined,
-    },
-    {
-      label: texts.fieldConcordanceDescriptive,
-      value:
-        offering.concordanceDescriptive != null
-          ? concordance(offering.concordanceDescriptive)
-          : undefined,
-    },
-  ];
 
   // Main tastes and Defects (design.md D13): the identified notes of one
   // `type` as a read-only selection over the category's descriptor rows, and
@@ -343,22 +291,7 @@ export function ConsensusPanel({
             </CardContent>
           </Card>
         )}
-        <Card layout="stacked">
-          <CardContent className={CONTENT_CLASSES}>
-            <h2 className="type-subheading">{texts.detailStatusHeading}</h2>
-            <dl className={LIST_CLASSES}>
-              {statusRows
-                .filter((row) => row.value != null)
-                .map((row) => (
-                  <LabelValueRow
-                    key={row.label}
-                    label={row.label}
-                    value={row.value}
-                  />
-                ))}
-            </dl>
-          </CardContent>
-        </Card>
+        <StatusCard offering={offering} texts={texts} />
         {selectionBlock("main_tastes", texts.detailMainTastesHeading)}
         {selectionBlock("defects", texts.detailDefectsHeading)}
         <Card layout="stacked" className={WIDE_CARD_CLASSES}>

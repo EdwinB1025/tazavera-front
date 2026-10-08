@@ -12,7 +12,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 3. Status card
 
-- [ ] 3.1 Create `src/widgets/offering-detail/ui/StatusCard.tsx` with `StatusCardTexts`, `StatusCardProps` and `StatusCard` (design.md D2), moving the status rows, the concordance value with its band word, `LIST_CLASSES` and `CONCORDANCE_CLASSES`. Verify: the related tests pass, including the panel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors. Commit `refactor(offering-catalog): extract the consensus status card`.
+- [x] 3.1 Create `src/widgets/offering-detail/ui/StatusCard.tsx` with `StatusCardTexts`, `StatusCardProps` and `StatusCard` (design.md D2), moving the status rows, the concordance value with its band word, `LIST_CLASSES` and `CONCORDANCE_CLASSES`. Verify: the related tests pass, including the panel tests, with no test file changed; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors. Commit `refactor(offering-catalog): extract the consensus status card`.
 
 ## 4. Consensus legend
 
