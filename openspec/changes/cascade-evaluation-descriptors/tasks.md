@@ -22,7 +22,7 @@ No derived API type is needed: the builders read the generated `TaxonomyNode` an
 ## 3. Read-only presentation as the read-only cascade (capability `evaluations`)
 
 - [x] 3.1 Test (spec "Read-only evaluation presentation", scenario "Descriptor blocks"). In `src/widgets/evaluation-sheet/ui/EvaluationSheet.test.tsx`, "groups the tastes into the five blocks by type…": render with the fixture taxonomies where `Berry` gains a level-2 child `Blackberry` (`01JBLACKBERRY`, `aromatics`) and the fixture evaluation's `tastes` plus `{ ref: "01JBLACKBERRY", type: "fragrance" }` (both built in the test, the shared fixtures unchanged); add that the Fragrance / Aroma block's group "Berry" holds "Blackberry". Other assertions unchanged. Expected: the test fails (level 2 not shown); every other test of the file passes; `npx tsc --noEmit` and `npm run lint` report no errors.
-- [ ] 3.2 Implementation (design.md D6): `src/widgets/evaluation-sheet/ui/EvaluationSheet.tsx` renders each block as a read-only `DescriptorCascade` over `buildDescriptorTree`. Protecting tests: `src/widgets/evaluation-sheet/ui/*.test.tsx`. Expected: `npx vitest related src/widgets/evaluation-sheet/ui/EvaluationSheet.tsx --run` passes, `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 3.2 Implementation (design.md D6): `src/widgets/evaluation-sheet/ui/EvaluationSheet.tsx` renders each block as a read-only `DescriptorCascade` over `buildDescriptorTree`. Protecting tests: `src/widgets/evaluation-sheet/ui/*.test.tsx`. Expected: `npx vitest related src/widgets/evaluation-sheet/ui/EvaluationSheet.tsx --run` passes, `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 4. Full checks
 

@@ -86,7 +86,7 @@ describe("EvaluationSheet descriptors (spec: Descriptor blocks, An unresolved de
       "Mouthfeel",
       "Defects",
     ]);
-    expect(within(groups[0]!).getByText("Berry")).toBeDefined();
+    expect(within(within(groups[0]!).getByRole("group", { name: "Fruity" })).getByText("Berry")).toBeDefined();
     expect(within(within(groups[0]!).getByRole("group", { name: "Berry" })).getByText("Blackberry")).toBeDefined();
     expect(within(groups[2]!).getByText("Sweet")).toBeDefined();
     // The unresolved ref of Flavor / Aftertaste renders no badge.
