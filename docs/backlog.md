@@ -135,18 +135,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Status:** proposed
 - **Affects:** R30, R35
 
-## R26 — Shared "page + distinct offerings" loader for evaluations
-
-- **Duplicated:** the offering join for a page of evaluations
-- **Where today:** `src/pages/evaluations-list/ui/EvaluationsList.tsx:56–78`, `src/widgets/public-evaluation-list/ui/PublicEvaluationList.tsx:44–60`
-- **Why it pays off now:** any third evaluation list would copy it.
-- **Owning capability:** evaluations
-- **Proposed change:** `share-evaluation-offerings-loader` (S)
-- **Open decision (Augusto):** none
-- **Type:** Refactor (fast lane)
-- **Status:** proposed
-- **Affects:** none
-
 ## R23 — Remove the cross-feature auth imports (resolves R13)
 
 - **Duplicated:** `EvaluationsAccess` duplicates `SessionGate`, and there are 2 same-layer feature imports.
