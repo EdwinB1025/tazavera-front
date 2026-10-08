@@ -31,6 +31,7 @@ The entries below follow this order. The order runs security first, then the sha
 | 0i | R53 | `add-explore-offerings-entry` | Correction (fast lane, maximum priority) | S | design lead on its open points |
 | 0j | R54 | `rename-coffeeshop-card-action` | Correction (fast lane, maximum priority) | S | design lead on its open points |
 | 0k | R55 | `fit-bean-mark-disc` | Correction (fast lane, maximum priority) | S | design lead on its open points |
+| 0l | R56 | `cascade-evaluation-descriptors` | Correction (fast lane, maximum priority) | M | R48 merged (shared cascade); design lead on its open points |
 | 16c | R50 | API branch in `tazavera-api` | Change (API) | S | Product owner: verify with real data (the API should deliver the resolved tree) |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
@@ -137,6 +138,16 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Owning capability:** feedback
 - **Open decision (Augusto):** answered 2026-10-08: "the circle is the background of the bean; it must not go beyond the bean's outline": a smaller disc behind the bean, entirely inside its outer contour (closer to the MVC `flux/icon/coffee-bean.blade.php`, circle `scale(0.58)`); reverses D4. Open for the design lead: disc radius and centre (or a shape following the bean), whether the bean keeps its ×1.33 scale, the on/off contrast of `evaluation-bean-on`/`-off` once the disc no longer frames the bean, and the readOnly partial-bean cut (`BeanScale.tsx:167-173`).
 - **Type:** Correction (fast lane, maximum priority) · **Status:** accepted · **Affects:** every `BeanMark` consumer
+
+## R56 — Evaluation form descriptors as the MVC cascade (production AUT finding 24, 2026-10-08)
+
+- **Duplicated:** the cascade behaviour R48 builds for the offerings taste-notes facet; the evaluation form would carry a second one.
+- **Where today:** `src/pages/evaluation-form/ui/DescriptorBlock.tsx:43-66` and `src/entities/taxonomy/model/descriptor-rows.ts` build `DescriptorChipGroup` rows: one row per level-0 node with level-1 children (the root a non-selectable row title, the children always visible), one shared row for the roots without children; level 2 never shown (add-offering-catalog D13, evaluation-form design.md D7, `form-fields` "Descriptor chip group"). Used for the main tastes and each axis' CATA.
+- **Owning capability:** evaluations (with form-fields)
+- **Proposed change:** `cascade-evaluation-descriptors` (M)
+- **Open decision (Augusto):** answered 2026-10-08 (correction, relayed by the testing/deployment session): the evaluation form's descriptor selectors work like the MVC cascade (`resources/views/layouts/evaluations/partials/descriptor-cascade.blade.php`, used by `evaluation-form.blade.php:63` and `evaluation-axis.blade.php:55,109`): every level-0 node is a selectable chip; level 1 renders only while its root is chosen; level 2 only while its level-1 parent is chosen; choosing adds only that node; unchoosing removes the node and all its descendants. Keep the chip look of finding 16 (taxonomy badge with ✓ when chosen, colour dot when not). Same model as R48 (findings 15/16) and R49 (finding 18). Open for the design lead: whether level 2 is now shown (check the API accepts level-2 refs in the evaluation payload and the consensus); whether the read-only views (evaluation sheet, consensus panel) switch to nested trees; keyboard and ARIA of nested chips (today one tab stop with arrow keys); sharing one cascade component with the offerings facet (R48) and the card trees (R49).
+- **Type:** Correction (fast lane, maximum priority) · **Status:** accepted
+- **Affects:** waits for R48 (shared cascade); R34 on `qa` reorganised the evaluation form (`EvaluationForm`, `EvaluationGroupCard`): the merge of R56 into `develop` and the next `qa` → `develop` must be reconciled
 
 ## R50 — Consensus concordance loses the parent of unmarked intermediate notes (API; found by the design lead for R49)
 
