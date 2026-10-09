@@ -12,7 +12,7 @@ Every updated case queries a header back control by role `link` and asserts its 
 
 ## 2. Implementation (one commit per capability)
 
-- [ ] 2.1 `base-controls`: `use-back-href.ts` returns the previous page or the fallback; `BackLink` renders `Link` with variant `back`; new `BackButton` renders `RouteButton` (`action-3`, `sm`, `ArrowLeft`); both exported from `@/shared/ui` — verifying 1.1 passes, lint and typecheck exit 0
+- [x] 2.1 `base-controls`: `use-back-href.ts` returns the previous page or the fallback; `BackLink` renders `Link` with variant `back`; new `BackButton` renders `RouteButton` (`action-3`, `sm`, `ArrowLeft`); both exported from `@/shared/ui` — verifying 1.1 passes, lint and typecheck exit 0
 - [ ] 2.2 `offering-catalog`: `OfferingDetailContent` and `CoffeeshopDetailContent` render `BackLink` at the top and `BackButton` at the end; the screens' skeletons keep `BackLink` — verifying 1.2 passes, lint and typecheck exit 0
 - [ ] 2.3 `evaluations`: `EvaluationSheetView` takes `back` (header) and `bottomBack` (end) and renders "View offering" as `RouteButton` (`action-3`, `sm`); `ViewScreen` passes a `BackLink` and a `BackButton`; `EvaluationFormHeader` renders `BackLink` and the read-only `EvaluationForm` a `BackButton`, both with fallback `/{locale}/manage/evaluations` — verifying 1.3 passes, lint and typecheck exit 0
 - [ ] 2.4 `user-account`: no code change (`PasswordScreen` keeps `BackLink`, now a link) — verifying 1.4 passes

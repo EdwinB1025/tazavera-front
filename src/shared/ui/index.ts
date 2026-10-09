@@ -9,6 +9,7 @@ export { Button } from "./Button";
 export { Link, LINK_CLASSES } from "./Link";
 export { RouteButton } from "./RouteButton";
 export { BackLink } from "./BackLink";
+export { BackButton } from "./BackButton";
 export { Field } from "./Field";
 export { Input } from "./Input";
 export { PasswordInput } from "./PasswordInput";

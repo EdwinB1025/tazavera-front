@@ -1,10 +1,9 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { usePreviousUrl } from "@/shared/lib/navigation-history";
-import { ArrowLeft } from "@/shared/ui/icons";
+import { Link } from "./Link";
 import type { LinkProps } from "./Link";
-import { RouteButton } from "./RouteButton";
+import { useBackHref } from "./use-back-href";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -15,22 +14,15 @@ export type BackLinkProps = {
 };
 
 /**
- * The back control (fix-production-aut-findings design.md D5; the base-controls
- * spec "Back link to the previous page"): an action button
- * (render-navigation-actions-as-buttons) with the back arrow, opening the page the user came from, with its query, or its
- * fallback when there is none. The first render, on the server and at
- * hydration, addresses the fallback.
+ * The back control on the first line of a page header (apply-header-link-rule;
+ * the base-controls specs "Back link to the previous page" and "Navigation
+ * controls by position"): the shared link with its back arrow, opening the
+ * page the user came from, with its query, or its fallback when there is none.
  */
 export function BackLink({ fallback, children }: BackLinkProps): ReactNode {
-  const previous = usePreviousUrl();
   return (
-    <RouteButton
-      href={(previous ?? fallback) as LinkProps["href"]}
-      variant="action-3"
-      size="sm"
-      icon={ArrowLeft}
-    >
+    <Link href={useBackHref(fallback)} variant="back">
       {children}
-    </RouteButton>
+    </Link>
   );
 }
