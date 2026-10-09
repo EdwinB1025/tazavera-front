@@ -20,7 +20,7 @@ No derived API types are needed: the change only moves `variant` values. Each im
 ## 5. Add contact details (user-account)
 
 - [x] 5.1 For the `base-controls` scenario "Create or start", add to an existing test of `src/features/user-account/ui/ContactSection.test.tsx` that renders the empty state an assertion that "Add contact details" carries `bg-action-1-bg`. Keep `qa/src/features/user-account/ui/ContactSection.test.tsx` (it asserts the old `bg-action-primary`) out of `vitest.qa.config.mts` with a comment naming this change. Verify: the new assertion fails on the current section; the other tests of the file pass; typecheck and lint report no errors.
-- [ ] 5.2 "Add contact details" in `src/features/user-account/ui/ContactSectionStates.tsx` takes `action-1`. Verify: `npx vitest related` on the changed file passes, the assertion of 5.1 included; typecheck and lint report no errors.
+- [x] 5.2 "Add contact details" in `src/features/user-account/ui/ContactSectionStates.tsx` takes `action-1`. Verify: `npx vitest related` on the changed file passes, the assertion of 5.1 included; typecheck and lint report no errors.
 
 ## 6. Evaluation actions (evaluations)
 
