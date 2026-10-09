@@ -20,7 +20,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 5. Descriptor chip group
 
-- [ ] 5.1 Create `src/shared/ui/DescriptorChipRows.tsx` and split `DescriptorChipGroup` as design.md D7. Commit `refactor(form-fields): split the descriptor chip group`.
+- [x] 5.1 Create `src/shared/ui/DescriptorChipRows.tsx` and split `DescriptorChipGroup` as design.md D7. Commit `refactor(form-fields): split the descriptor chip group`.
 
 ## 6. Locations map
 
