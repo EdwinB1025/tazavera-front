@@ -1,5 +1,5 @@
 import { Suspense, type ReactNode } from "react";
-import { getMessages } from "@/shared/lib/i18n";
+import { getMessages, type MessageCatalog } from "@/shared/lib/i18n";
 import { PageSection } from "@/shared/ui";
 import {
   CoffeeshopsToolbar,
@@ -41,22 +41,14 @@ function firstValue(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
-/**
- * The coffee shop directory screen (add-coffeeshop-directory design.md D7;
- * specs "Directory heading and results column" and "Coffee shop directory
- * page"): the heading block, the toolbar and the list on the page background,
- * the list inside a `Suspense` boundary whose fallback is three skeleton cards
- * in the directory column.
- */
-export function CoffeeshopsScreen({ locale, searchParams }: CoffeeshopsScreenProps): ReactNode {
-  const coffeeshops = getMessages("coffeeshops", locale);
-  const landing = getMessages("landing", locale);
-  const filters = getMessages("filters", locale);
-  const catalog = getMessages("catalog", locale);
-  const filterTexts = coffeeshopFacetsTexts(coffeeshops, filters);
-  const values = parseCoffeeshopFilters(searchParams);
-  const applied = appliedCoffeeshopFilters(values, filterTexts);
-  const texts: CoffeeshopListTexts = {
+/** The list texts from the catalogs of the route's locale. */
+function listTexts(
+  coffeeshops: MessageCatalog,
+  landing: MessageCatalog,
+  filters: MessageCatalog,
+  catalog: MessageCatalog,
+): CoffeeshopListTexts {
+  return {
     verifiedBadge: coffeeshops.verifiedBadge,
     locationsCount: coffeeshops.locationsCount,
     offeringsCount: coffeeshops.offeringsCount,
@@ -74,7 +66,11 @@ export function CoffeeshopsScreen({ locale, searchParams }: CoffeeshopsScreenPro
     clearAll: filters.clearAll,
     showOnMapLabel: coffeeshops.showOnMapLabel,
   };
-  const mapTexts: CoffeeshopListMapTexts = {
+}
+
+/** The map view texts from the `coffeeshops` catalog. */
+function mapTextsFrom(coffeeshops: MessageCatalog): CoffeeshopListMapTexts {
+  return {
     mapLabel: coffeeshops.mapLabel,
     mapHelp: coffeeshops.mapHelp,
     mapEmpty: coffeeshops.mapEmpty,
@@ -88,6 +84,25 @@ export function CoffeeshopsScreen({ locale, searchParams }: CoffeeshopsScreenPro
     backToList: coffeeshops.backToList,
     mapLoading: coffeeshops.mapLoading,
   };
+}
+
+/**
+ * The coffee shop directory screen (add-coffeeshop-directory design.md D7;
+ * specs "Directory heading and results column" and "Coffee shop directory
+ * page"): the heading block, the toolbar and the list on the page background,
+ * the list inside a `Suspense` boundary whose fallback is three skeleton cards
+ * in the directory column.
+ */
+export function CoffeeshopsScreen({ locale, searchParams }: CoffeeshopsScreenProps): ReactNode {
+  const coffeeshops = getMessages("coffeeshops", locale);
+  const landing = getMessages("landing", locale);
+  const filters = getMessages("filters", locale);
+  const catalog = getMessages("catalog", locale);
+  const filterTexts = coffeeshopFacetsTexts(coffeeshops, filters);
+  const values = parseCoffeeshopFilters(searchParams);
+  const applied = appliedCoffeeshopFilters(values, filterTexts);
+  const texts = listTexts(coffeeshops, landing, filters, catalog);
+  const mapTexts = mapTextsFrom(coffeeshops);
   const view = firstValue(searchParams.view) === "map" ? "map" : undefined;
   const focus = firstValue(searchParams.focus);
   const query = sanitizeCoffeeshopQuery(buildCoffeeshopsQuery(searchParams));
