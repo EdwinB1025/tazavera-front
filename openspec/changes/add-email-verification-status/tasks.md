@@ -3,7 +3,7 @@ No derived API types are needed: `SessionUser` already carries `emailVerifiedAt`
 ## 1. Profile verification row (user-account)
 
 - [x] 1.1 Add to `src/features/user-account/ui/ProfileDetails.test.tsx` one test per scenario: "A verified email" (`emailVerifiedAt` set: the row after the email row has the `emailVerificationLabel` label and the `emailVerified` value), "An unverified email" (`null`: same row with `emailNotVerified`), "No verification state" (absent: no `emailVerificationLabel` text); add the three new keys to the `TEXTS` fixture. Verify: the "verified" and "unverified" tests fail on the current `ProfileDetails`; the rest pass; `npx tsc --noEmit` reports only errors for the new text keys; `npm run lint` reports no errors.
-- [ ] 1.2 Implement design.md D1 and the D3 keys `emailVerificationLabel`, `emailVerified`, `emailNotVerified` (catalogs and `AccountScreen`). Protecting tests: `ProfileDetails.test.tsx`, `AccountScreen.test.tsx`. Verify: `npx vitest related` on the changed files passes; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 1.2 Implement design.md D1 and the D3 keys `emailVerificationLabel`, `emailVerified`, `emailNotVerified` (catalogs and `AccountScreen`). Protecting tests: `ProfileDetails.test.tsx`, `AccountScreen.test.tsx`. Verify: `npx vitest related` on the changed files passes; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 2. Security verification entry (user-account)
 

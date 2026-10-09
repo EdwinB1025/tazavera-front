@@ -60,5 +60,8 @@
   "changePassword": "Change password",
   "twoFactor": "Two-factor authentication",
   "passkeys": "Passkeys",
-  "backToAccount": "Back to my account"
+  "backToAccount": "Back to my account",
+  "emailVerificationLabel": "Email verification",
+  "emailVerified": "Verified",
+  "emailNotVerified": "Not verified"
 }

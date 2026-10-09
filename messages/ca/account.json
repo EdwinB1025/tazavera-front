@@ -60,5 +60,8 @@
   "changePassword": "Canviar la contrasenya",
   "twoFactor": "Verificació en dos passos",
   "passkeys": "Claus d'accés",
-  "backToAccount": "Tornar al meu compte"
+  "backToAccount": "Tornar al meu compte",
+  "emailVerificationLabel": "Verificació del correu",
+  "emailVerified": "Verificat",
+  "emailNotVerified": "Sense verificar"
 }
