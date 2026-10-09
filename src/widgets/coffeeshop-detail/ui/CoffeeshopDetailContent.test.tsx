@@ -177,7 +177,7 @@ describe("CoffeeshopDetailContent", () => {
     expect(within(card("Nomad Born")).queryByText("Sin posición en el mapa")).toBeNull();
   });
 
-  it("renders the title and the line above the back link, with no retry action and no tab (spec: Unknown coffee shop)", () => {
+  it("renders the title and the line above the back button, with no retry action and no tab (spec: Unknown coffee shop)", () => {
     render(
       <CoffeeshopDetailContent result={{ state: "not-found" }} locale="es" ulid="01SHOP" tab="offerings" texts={TEXTS} />,
     );

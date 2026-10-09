@@ -40,7 +40,7 @@ const NOT_FOUND_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
  * spec "Coffee shop detail page"): on success the back link, the header and
  * the two tabs on the page background; on a failed read the back link, the
  * error message and the retry action, and no tab; for an unknown coffee shop
- * the not-found title and line above the back link, with no retry
+ * the not-found title and line above the back button, with no retry
  * (show-item-not-found-message D2).
  */
 export function CoffeeshopDetailContent({
@@ -64,7 +64,9 @@ export function CoffeeshopDetailContent({
           <h1 className="type-heading">{texts.notFoundTitle}</h1>
           <p className="type-body">{texts.notFoundLine}</p>
         </div>
-        <div>{backLink}</div>
+        <div>
+          <BackButton fallback={`/${locale}/coffeeshops`}>{texts.backToDirectory}</BackButton>
+        </div>
       </PageSection>
     );
   }

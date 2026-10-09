@@ -66,7 +66,7 @@ const NOT_FOUND_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
  * two tabs, whose panels' cards hang from that background; on an
  * error, the back link and, below it, the message with the retry action
  * instead of the tabs; for an unknown offering, the not-found title and line
- * above the back link, with no retry (show-item-not-found-message D2). Every
+ * above the back button, with no retry (show-item-not-found-message D2). Every
  * text arrives as a prop.
  */
 export function OfferingDetailContent({
@@ -91,7 +91,9 @@ export function OfferingDetailContent({
           <h1 className="type-heading">{texts.notFoundTitle}</h1>
           <p className="type-body">{texts.notFoundLine}</p>
         </div>
-        <div>{backLink}</div>
+        <div>
+          <BackButton fallback={`/${locale}/offerings`}>{texts.backLabel}</BackButton>
+        </div>
       </PageSection>
     );
   }

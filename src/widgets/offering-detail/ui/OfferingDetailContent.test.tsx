@@ -144,7 +144,7 @@ describe("OfferingDetailContent", () => {
     expect(container.querySelector("h1")).toBeNull();
   });
 
-  it("renders the title and the line above the back link, with no retry action and no tabs (spec: Unknown offering)", () => {
+  it("renders the title and the line above the back button, with no retry action and no tabs (spec: Unknown offering)", () => {
     renderContent({ state: "not-found" });
     const title = screen.getByRole("heading", { level: 1, name: "Offering not found" });
     const back = screen.getByRole("button", { name: TEXTS.backLabel });
