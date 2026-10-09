@@ -232,6 +232,26 @@ describe("LocationsPanel — reading (spec: Own locations list)", () => {
   });
 });
 
+describe("LocationsPanel — texts (spec: Localized location texts)", () => {
+  it("renders no message string of a failed or successful response (spec: Response messages not shown)", async () => {
+    request
+      .mockResolvedValueOnce(json(500, { message: "fx-api-read-failed" }))
+      .mockResolvedValueOnce(json(200, { data: [], message: "fx-api-read-ok" }))
+      .mockResolvedValueOnce(json(500, { message: "fx-api-create-failed" }));
+    geocodeAddress.mockResolvedValue({ status: "not-found" });
+    renderPanel();
+    await settle();
+    expect(document.body.textContent).not.toContain("fx-api-");
+    fireEvent.click(screen.getByRole("button", { name: TEXTS.retry }));
+    await settle();
+    expect(document.body.textContent).not.toContain("fx-api-");
+    fireEvent.click(addButton());
+    await submitValidForm();
+    expect(screen.getByText(TEXTS.genericError)).toBeDefined();
+    expect(document.body.textContent).not.toContain("fx-api-");
+  });
+});
+
 describe("LocationsPanel — reveal (spec: Location form)", () => {
   it.each([
     ["empty", []],
