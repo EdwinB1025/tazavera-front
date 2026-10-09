@@ -1,17 +1,13 @@
 "use client";
 
-import { useContext, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useContext, useId, useRef, type ReactNode } from "react";
 import { Command } from "cmdk";
 import { Popover } from "radix-ui";
-import { Check } from "@/shared/ui/icons";
 import { FieldContext } from "@/shared/ui/field-context";
+import { ComboboxPopup } from "./ComboboxPopup";
 import { Input, type InputVariant } from "./Input";
-import {
-  MIN_SEARCH_LENGTH,
-  useComboboxSearch,
-  type ComboboxOption,
-  type ComboboxSearch,
-} from "./use-combobox-search";
+import { useComboboxInput, useComboboxLabelFor } from "./use-combobox-input";
+import type { ComboboxOption, ComboboxSearch } from "./use-combobox-search";
 
 // ─── UI-specific types (declared before the component) ───
 // `ComboboxOption` and `ComboboxSearch` are declared beside the search hook
@@ -46,33 +42,6 @@ export type ComboboxProps = ComboboxBaseProps &
     | { search: ComboboxSearch; options?: never } // search mode
   );
 
-// ─── Treatment classes (design.md D9) ───
-// The popup copies the nav content of DropdownMenu.tsx plus width and height.
-
-const POPUP_CLASSES =
-  "z-50 w-(--radix-popover-trigger-width) max-h-60 overflow-y-auto rounded-field border border-border-strong bg-nav-surface p-1 text-nav-text shadow-md";
-
-const OPTION_CLASSES =
-  "relative flex min-h-11 cursor-default select-none items-center gap-2 rounded-field px-3 py-2 text-nav-text data-[selected=true]:bg-nav-hover data-[selected=true]:text-nav-text-hover";
-
-const STATE_ROW_CLASSES = "type-option-detail px-3 py-2";
-
-/** The label with the first case-insensitive occurrence of `term` in bold. */
-function highlight(label: string, term: string): ReactNode {
-  const index = term === "" ? -1 : label.toLowerCase().indexOf(term.toLowerCase());
-  if (index < 0) return label;
-  return (
-    <>
-      {label.slice(0, index)}
-      <strong className="font-bold">{label.slice(index, index + term.length)}</strong>
-      {label.slice(index + term.length)}
-    </>
-  );
-}
-
-/** Search mode never runs: the hook needs a function in local mode too. */
-const NO_SEARCH: ComboboxSearch = async () => [];
-
 /**
  * Combobox (spec filtering "Combobox"; design.md D9): cmdk `Command` with
  * the project `Input` as its input (`Command.Input asChild`) and a Radix
@@ -80,7 +49,8 @@ const NO_SEARCH: ComboboxSearch = async () => [];
  * "contains"; search mode runs the consumer's search through
  * `useComboboxSearch`. cmdk fixes `aria-expanded="true"` and its own input
  * id, so a layout effect after every render sets `aria-expanded` to the
- * popup state and the visible label's `for` to the input id. Inside a
+ * popup state and the visible label's `for` to the input id
+ * (`useComboboxLabelFor`; split-oversized-facets design.md D2). Inside a
  * `Field` (design.md D14) it renders no label or help of its own: the input
  * keeps cmdk's id, which cmdk needs to refocus it when results change, and
  * drops cmdk's `aria-labelledby`; the same effect points the Field's label
@@ -105,84 +75,8 @@ export function Combobox({
   const hasHelp = !inField && help != null && help !== "";
   const labelRef = useRef<HTMLLabelElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const searchMode = search !== undefined;
-  // cmdk highlights the first option as soon as the rows change; the next
-  // ArrowDown keeps it there instead of moving to the second (spec scenario
-  // "Keyboard choice").
-  const firstPending = useRef(false);
-
-  const [term, setTerm] = useState(value?.label ?? "");
-  // Only typed text searches (refine-facet-controls design.md D3): false
-  // while the input holds a label the combobox set itself.
-  const [typed, setTyped] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [previousValue, setPreviousValue] = useState(value);
-  if (value !== previousValue) {
-    setPreviousValue(value);
-    setTerm(value?.label ?? "");
-    setTyped(false);
-  }
-
-  const trimmed = term.trim();
-  const searchState = useComboboxSearch(search ?? NO_SEARCH, searchMode && typed ? term : "");
-
-  // Rows: the shown options, or one state text in their place.
-  let shown: ComboboxOption[] = [];
-  let stateText: string | undefined;
-  if (!searchMode) {
-    const needle = term.toLowerCase();
-    shown = (options ?? []).filter((option) => option.label.toLowerCase().includes(needle));
-    if (shown.length === 0) stateText = texts.noMatches;
-  } else if (searchState.status === "error") {
-    stateText = texts.loadError;
-  } else if (searchState.status === "success") {
-    shown = searchState.results;
-    if (shown.length === 0) stateText = texts.noMatches;
-  } else {
-    stateText = texts.searching;
-  }
-  const status = !open
-    ? ""
-    : (stateText ?? texts.optionCount.replace("{count}", String(shown.length)));
-
-  useLayoutEffect(() => {
-    const input = inputRef.current;
-    if (!input) return;
-    input.setAttribute("aria-expanded", String(open));
-    if (inField && labelRef.current === null) {
-      labelRef.current =
-        Array.from(document.getElementsByTagName("label")).find(
-          (label) => label.htmlFor === field.controlId,
-        ) ?? null;
-    }
-    labelRef.current?.setAttribute("for", input.id);
-  });
-
-  function changeTerm(next: string): void {
-    setTerm(next);
-    setTyped(true);
-    firstPending.current = true;
-    setOpen(searchMode ? next.trim().length >= MIN_SEARCH_LENGTH : next !== "");
-  }
-
-  function choose(option: ComboboxOption): void {
-    onChange(option);
-    setTerm(option.label);
-    setTyped(false);
-    setOpen(false);
-  }
-
-  function clearIfEmpty(): void {
-    if (term === "" && value !== null) onChange(null);
-  }
-
-  // Abandoned typed text (refine-facet-controls design.md D2): the input
-  // shows the chosen value's label again, or empties, and nothing is reported.
-  function restore(): void {
-    setTerm(value?.label ?? "");
-    setTyped(false);
-    setOpen(false);
-  }
+  const input = useComboboxInput({ value, onChange, texts, options, search });
+  useComboboxLabelFor(inputRef, labelRef, input.open, field?.controlId ?? null);
 
   return (
     <div className={variant === "inverse" ? "variant-inverse" : undefined}>
@@ -192,35 +86,15 @@ export function Combobox({
         </label>
       )}
       <Command label={inField ? undefined : label} shouldFilter={false} vimBindings={false}>
-        <Popover.Root open={open} onOpenChange={setOpen} modal={false}>
+        <Popover.Root open={input.open} onOpenChange={input.setOpen} modal={false}>
           <Popover.Anchor>
             <Command.Input
               asChild
               ref={inputRef}
-              value={term}
-              onValueChange={changeTerm}
-              onKeyDown={(event) => {
-                if (event.key === "ArrowDown" && !open && !searchMode && term !== "") {
-                  event.preventDefault();
-                  firstPending.current = true;
-                  setOpen(true);
-                } else if (event.key === "ArrowDown" && open && firstPending.current) {
-                  event.preventDefault();
-                  firstPending.current = false;
-                } else if (event.key === "Enter" && term === "") {
-                  clearIfEmpty();
-                } else if (event.key === "Escape") {
-                  restore();
-                }
-              }}
-              onBlur={() => {
-                if (term === "") {
-                  setOpen(false);
-                  clearIfEmpty();
-                } else {
-                  restore();
-                }
-              }}
+              value={input.term}
+              onValueChange={input.changeTerm}
+              onKeyDown={input.onKeyDown}
+              onBlur={input.onBlur}
             >
               <Input
                 variant={variant}
@@ -232,48 +106,15 @@ export function Combobox({
               />
             </Command.Input>
           </Popover.Anchor>
-          <Popover.Portal>
-            <Popover.Content
-              align="start"
-              sideOffset={4}
-              onOpenAutoFocus={(event) => event.preventDefault()}
-              onInteractOutside={(event) => {
-                if (event.target === inputRef.current) event.preventDefault();
-              }}
-              // Keep focus in the input when an option is pressed.
-              onMouseDown={(event) => event.preventDefault()}
-              className={POPUP_CLASSES}
-            >
-              <Command.List label={label}>
-                {stateText !== undefined ? (
-                  <div role="presentation" className={STATE_ROW_CLASSES}>
-                    {stateText}
-                  </div>
-                ) : (
-                  shown.map((option) => (
-                    <Command.Item
-                      key={option.value}
-                      value={option.value}
-                      onSelect={() => choose(option)}
-                      className={OPTION_CLASSES}
-                    >
-                      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                        <span className="type-option truncate">
-                          {highlight(option.label, trimmed)}
-                        </span>
-                        {option.detail && (
-                          <span className="type-option-detail truncate">{option.detail}</span>
-                        )}
-                      </span>
-                      {value?.value === option.value && (
-                        <Check className="size-4 shrink-0" aria-hidden="true" />
-                      )}
-                    </Command.Item>
-                  ))
-                )}
-              </Command.List>
-            </Popover.Content>
-          </Popover.Portal>
+          <ComboboxPopup
+            label={label}
+            inputRef={inputRef}
+            shown={input.shown}
+            stateText={input.stateText}
+            term={input.term.trim()}
+            value={value}
+            onChoose={input.choose}
+          />
         </Popover.Root>
       </Command>
       {hasHelp && (
@@ -282,7 +123,7 @@ export function Combobox({
         </p>
       )}
       <div role="status" className="sr-only">
-        {status}
+        {input.status}
       </div>
     </div>
   );
