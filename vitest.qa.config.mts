@@ -36,6 +36,8 @@ export default defineConfig({
             'qa/src/pages/new-offering/ui/NewOfferingForm.test.tsx',
             // asserts the old primary add button; stale since align-button-variants
             'qa/src/features/user-account/ui/ContactSection.test.tsx',
+            // closes incomplete evaluations and expects the read-only switch; stale since refine-evaluation-flow
+            'qa/src/pages/evaluation-form/ui/EvaluationForm.test.tsx',
         ],
     },
 })

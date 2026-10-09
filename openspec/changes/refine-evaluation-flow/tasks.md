@@ -32,4 +32,4 @@
 
 ## 5. Full checks
 
-- [ ] 5.1 Run each on its own: `npm run test:run`, `npm run test:qa` (only failures also on `origin/develop` allowed; stale `qa/` copies listed), `npx tsc --noEmit`, `npm run lint`, `npm run build`. Expected: all pass.
+- [x] 5.1 Run each on its own: `npm run test:run`, `npm run test:qa` (only failures also on `origin/develop` allowed; stale `qa/` copies listed), `npx tsc --noEmit`, `npm run lint`, `npm run build`. Expected: all pass.
