@@ -32,7 +32,7 @@ vi.mock("@/entities/offering", async (importOriginal) => ({
 const fetchTaxonomies = vi.fn();
 vi.mock("@/entities/taxonomy", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/entities/taxonomy")>()),
-  fetchTaxonomies: () => fetchTaxonomies(),
+  fetchTaxonomiesCovering: () => fetchTaxonomies(),
 }));
 
 import { EvaluationSheetView, EvaluationSheetViewSkeleton } from "./EvaluationSheetView";
