@@ -12,7 +12,7 @@ No derived API types are needed: the change only moves layout classes and adds t
 
 ## 3. Dialog footer (feedback)
 
-- [ ] 3.1 Update `src/shared/ui/ConfirmDialog.test.tsx` ("orders cancel before confirm in a row from sm and stacks confirm above cancel at full width below it": the parent's class list and the buttons' `w-full` / `sm:w-auto`) for the modified scenarios "Actions on a narrow viewport" and "Actions on a wider viewport": cancel precedes confirm in one parent carrying `grid-cols-2` and `md:justify-end`, and neither button carries `w-full`. Verify: the updated test fails on the current dialog.
+- [x] 3.1 Update `src/shared/ui/ConfirmDialog.test.tsx` ("orders cancel before confirm in a row from sm and stacks confirm above cancel at full width below it": the parent's class list and the buttons' `w-full` / `sm:w-auto`) for the modified scenarios "Actions on a narrow viewport" and "Actions on a wider viewport": cancel precedes confirm in one parent carrying `grid-cols-2` and `md:justify-end`, and neither button carries `w-full`. Verify: the updated test fails on the current dialog.
 - [ ] 3.2 `ConfirmDialog.tsx`: Cancel and the destructive action in one `ActionGroup align="end"` (keeping `mt-6`); remove `w-full sm:w-auto`. Verify: `npx vitest related` passes, 3.1 included; typecheck and lint clean.
 
 ## 4. Account screens (user-account)
