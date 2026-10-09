@@ -49,6 +49,7 @@ beforeEach(() => {
 
 function renderForm(role: "specialist" | "coffeeshop" = "specialist") {
   const signIn = vi.fn<() => void>();
+  const signInWithToken = vi.fn<() => Promise<boolean>>();
   render(
     <>
       <h1 id="register-title">title</h1>
@@ -57,6 +58,7 @@ function renderForm(role: "specialist" | "coffeeshop" = "specialist") {
         labelledBy="register-title"
         texts={TEXTS}
         signIn={signIn}
+        signInWithToken={signInWithToken}
         cancelHref="/es"
       />
     </>,
