@@ -1699,6 +1699,18 @@ export interface operations {
                     };
                 };
             };
+            /** @description Not found or not closed */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The requested resource was not found. */
+                        message?: string;
+                    };
+                };
+            };
         };
     };
     listEvaluations: {
@@ -2182,6 +2194,32 @@ export interface operations {
                             to?: number;
                             /** @example 2 */
                             total?: number;
+                        };
+                    };
+                };
+            };
+            /** @description Invalid filters */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The selected status is invalid. (and 1 more error) */
+                        message?: string;
+                        errors?: {
+                            /**
+                             * @example [
+                             *       "The selected status is invalid."
+                             *     ]
+                             */
+                            status?: string[];
+                            /**
+                             * @example [
+                             *       "The score max field must be greater than or equal to 90."
+                             *     ]
+                             */
+                            scoreMax?: string[];
                         };
                     };
                 };
@@ -2674,6 +2712,44 @@ export interface operations {
                     };
                 };
             };
+            /** @description Unknown user */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The requested resource was not found. */
+                        message?: string;
+                    };
+                };
+            };
+            /** @description Invalid filters */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The selected status is invalid. (and 1 more error) */
+                        message?: string;
+                        errors?: {
+                            /**
+                             * @example [
+                             *       "The selected status is invalid."
+                             *     ]
+                             */
+                            status?: string[];
+                            /**
+                             * @example [
+                             *       "The score min field must not be greater than 100."
+                             *     ]
+                             */
+                            scoreMin?: string[];
+                        };
+                    };
+                };
+            };
         };
     };
     listMyEvaluations: {
@@ -3156,6 +3232,32 @@ export interface operations {
                     };
                 };
             };
+            /** @description Invalid filters */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The selected status is invalid. (and 1 more error) */
+                        message?: string;
+                        errors?: {
+                            /**
+                             * @example [
+                             *       "The selected status is invalid."
+                             *     ]
+                             */
+                            status?: string[];
+                            /**
+                             * @example [
+                             *       "The score min field must not be greater than 100."
+                             *     ]
+                             */
+                            scoreMin?: string[];
+                        };
+                    };
+                };
+            };
         };
     };
     createAnEvaluation: {
@@ -3630,6 +3732,44 @@ export interface operations {
                     };
                 };
             };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The selected offering id is invalid. (and 3 more errors) */
+                        message?: string;
+                        errors?: {
+                            /**
+                             * @example [
+                             *       "The selected offering id is invalid."
+                             *     ]
+                             */
+                            offeringId?: string[];
+                            /**
+                             * @example [
+                             *       "The descriptive.roast level field is required."
+                             *     ]
+                             */
+                            "descriptive.roastLevel"?: string[];
+                            /**
+                             * @example [
+                             *       "The descriptive.fragrance.score field must be between 0 and 15."
+                             *     ]
+                             */
+                            "descriptive.fragrance.score"?: string[];
+                            /**
+                             * @example [
+                             *       "The affective.overall.score field must be between 1 and 9."
+                             *     ]
+                             */
+                            "affective.overall.score"?: string[];
+                        };
+                    };
+                };
+            };
         };
     };
     getMyEvaluation: {
@@ -3815,7 +3955,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @example No query results for model [App\Models\Evaluation]. */
+                        /** @example The requested resource was not found. */
                         message?: string;
                     };
                 };
@@ -4255,6 +4395,18 @@ export interface operations {
                     };
                 };
             };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The requested resource was not found. */
+                        message?: string;
+                    };
+                };
+            };
             /** @description Evaluation already closed */
             409: {
                 headers: {
@@ -4264,6 +4416,38 @@ export interface operations {
                     "application/json": {
                         /** @example Evaluation cannot be updated. */
                         message?: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The selected descriptive.roast level is invalid. (and 2 more errors) */
+                        message?: string;
+                        errors?: {
+                            /**
+                             * @example [
+                             *       "The selected descriptive.roast level is invalid."
+                             *     ]
+                             */
+                            "descriptive.roastLevel"?: string[];
+                            /**
+                             * @example [
+                             *       "The descriptive.aroma.score field must be between 0 and 15."
+                             *     ]
+                             */
+                            "descriptive.aroma.score"?: string[];
+                            /**
+                             * @example [
+                             *       "The affective.flavor.score field must be between 1 and 9."
+                             *     ]
+                             */
+                            "affective.flavor.score"?: string[];
+                        };
                     };
                 };
             };
@@ -4308,6 +4492,18 @@ export interface operations {
                     };
                 };
             };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The requested resource was not found. */
+                        message?: string;
+                    };
+                };
+            };
         };
     };
     closeAnEvaluation: {
@@ -4347,6 +4543,18 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @example One or more evaluations do not belong to the user. */
+                        message?: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The requested resource was not found. */
                         message?: string;
                     };
                 };
@@ -4503,6 +4711,18 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @example This action is unauthorized. */
+                        message?: string;
+                    };
+                };
+            };
+            /** @description Unknown user */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The requested resource was not found. */
                         message?: string;
                     };
                 };
@@ -5263,6 +5483,18 @@ export interface operations {
                     };
                 };
             };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The requested resource was not found. */
+                        message?: string;
+                    };
+                };
+            };
         };
     };
     deleteAnOffering: {
@@ -5288,6 +5520,18 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @example Offering(s) deleted. */
+                        message?: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The requested resource was not found. */
                         message?: string;
                     };
                 };
@@ -6238,6 +6482,32 @@ export interface operations {
                     };
                 };
             };
+            /** @description Invalid filters */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The city field must not be greater than 90 characters. (and 1 more error) */
+                        message?: string;
+                        errors?: {
+                            /**
+                             * @example [
+                             *       "The city field must not be greater than 90 characters."
+                             *     ]
+                             */
+                            city?: string[];
+                            /**
+                             * @example [
+                             *       "The verified field must be true or false."
+                             *     ]
+                             */
+                            verified?: string[];
+                        };
+                    };
+                };
+            };
         };
     };
     createOfferings: {
@@ -6411,6 +6681,32 @@ export interface operations {
                     };
                 };
             };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The selected coffee inventory id is invalid. (and 1 more error) */
+                        message?: string;
+                        errors?: {
+                            /**
+                             * @example [
+                             *       "The selected coffee inventory id is invalid."
+                             *     ]
+                             */
+                            coffeeInventoryId?: string[];
+                            /**
+                             * @example [
+                             *       "The locations field is required."
+                             *     ]
+                             */
+                            locations?: string[];
+                        };
+                    };
+                };
+            };
         };
     };
     deleteMultipleOfferings: {
@@ -6443,6 +6739,26 @@ export interface operations {
                     "application/json": {
                         /** @example Offering(s) deleted. */
                         message?: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The selected offerings.0 is invalid. */
+                        message?: string;
+                        errors?: {
+                            /**
+                             * @example [
+                             *       "The selected offerings.0 is invalid."
+                             *     ]
+                             */
+                            "offerings.0"?: string[];
+                        };
                     };
                 };
             };
@@ -6824,6 +7140,53 @@ export interface operations {
                     };
                 };
             };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The name field is required. (and 7 more errors) */
+                        message?: string;
+                        errors?: {
+                            /**
+                             * @example [
+                             *       "The name field is required."
+                             *     ]
+                             */
+                            name?: string[];
+                            /**
+                             * @example [
+                             *       "The surname field is required."
+                             *     ]
+                             */
+                            surname?: string[];
+                            /**
+                             * @example [
+                             *       "The email field must be a valid email address."
+                             *     ]
+                             */
+                            email?: string[];
+                            /**
+                             * @example [
+                             *       "The password field must match password confirmation.",
+                             *       "The password field must be at least 8 characters.",
+                             *       "The password field must contain at least one uppercase and one lowercase letter.",
+                             *       "The password field must contain at least one number."
+                             *     ]
+                             */
+                            password?: string[];
+                            /**
+                             * @example [
+                             *       "The selected role is invalid."
+                             *     ]
+                             */
+                            role?: string[];
+                        };
+                    };
+                };
+            };
         };
     };
     getTheAuthenticatedUser: {
@@ -6940,6 +7303,18 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @example This action is unauthorized. */
+                        message?: string;
+                    };
+                };
+            };
+            /** @description Unknown user */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The requested resource was not found. */
                         message?: string;
                     };
                 };
@@ -7171,6 +7546,26 @@ export interface operations {
                     };
                 };
             };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The email field must be a valid email address. */
+                        message?: string;
+                        errors?: {
+                            /**
+                             * @example [
+                             *       "The email field must be a valid email address."
+                             *     ]
+                             */
+                            email?: string[];
+                        };
+                    };
+                };
+            };
         };
     };
     deactivateAUser: {
@@ -7270,6 +7665,35 @@ export interface operations {
                     "application/json": {
                         /** @example This action is unauthorized. */
                         message?: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example The current password field is required. (and 4 more errors) */
+                        message?: string;
+                        errors?: {
+                            /**
+                             * @example [
+                             *       "The current password field is required."
+                             *     ]
+                             */
+                            currentPassword?: string[];
+                            /**
+                             * @example [
+                             *       "The password field must match password confirmation.",
+                             *       "The password field must be at least 8 characters.",
+                             *       "The password field must contain at least one uppercase and one lowercase letter.",
+                             *       "The password field must contain at least one number."
+                             *     ]
+                             */
+                            password?: string[];
+                        };
                     };
                 };
             };
