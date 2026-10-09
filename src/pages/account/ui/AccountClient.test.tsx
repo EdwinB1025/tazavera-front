@@ -18,15 +18,31 @@ const auth = vi.hoisted(() => ({
   signOut: vi.fn<() => void>(),
   requestProfileWrite: vi.fn<(returnRoute: string) => Promise<StepUpOutcome>>(),
   refreshProfile: vi.fn<() => Promise<void>>(),
+  endProfileWrite: vi.fn<() => void>(),
 }));
 
-vi.mock("@/features/auth", () => ({
-  useSession: () => auth.session,
-  signIn: auth.signIn,
-  signOut: auth.signOut,
-  requestProfileWrite: auth.requestProfileWrite,
-  refreshProfile: auth.refreshProfile,
-}));
+vi.mock("@/features/auth", async () => {
+  const { useEffect } = await import("react");
+  return {
+    useSession: () => auth.session,
+    signIn: auth.signIn,
+    signOut: auth.signOut,
+    requestProfileWrite: auth.requestProfileWrite,
+    refreshProfile: auth.refreshProfile,
+    endProfileWrite: auth.endProfileWrite,
+    // A stand-in for the write-scope hook over the mocked endProfileWrite: it
+    // ends the scope when inactive and when an active consumer unmounts.
+    useProfileWriteScope: (active: boolean) => {
+      useEffect(() => {
+        if (!active) {
+          auth.endProfileWrite();
+          return;
+        }
+        return () => auth.endProfileWrite();
+      }, [active]);
+    },
+  };
+});
 
 const nav = vi.hoisted(() => ({
   query: "",
@@ -231,6 +247,16 @@ describe("AccountClient — edit mode", () => {
     const message = await screen.findByText(TEXTS.stepUpOtherAccount);
     expect(message.getAttribute("role")).toBe("status");
     expect(nav.replace).not.toHaveBeenCalled();
+  });
+
+  it("leaving edit mode for read mode ends the write permission (spec: The action ends)", () => {
+    auth.session = { state: "authenticated", user: USER };
+    nav.query = "edit=1";
+    const { rerender } = renderClient();
+    auth.endProfileWrite.mockClear();
+    nav.query = "";
+    rerender(<AccountClient locale="es" texts={TEXTS} />);
+    expect(auth.endProfileWrite).toHaveBeenCalled();
   });
 
   it("Done returns to read mode and sends nothing", () => {

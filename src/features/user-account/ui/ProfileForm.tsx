@@ -31,6 +31,8 @@ export type ProfileFormProps = {
   refreshProfile: () => Promise<void>;
   /** Starts the write-scope sign in (design.md D6). */
   requestProfileWrite: (returnRoute: string) => void;
+  /** Ends the write permission of a granted step-up (scope-write-token-to-action design.md D4). */
+  endProfileWrite?: () => void;
 };
 
 type ProfileValues = Required<ProfileUpdatePayload>;
@@ -56,6 +58,7 @@ export function ProfileForm({
   texts,
   refreshProfile,
   requestProfileWrite,
+  endProfileWrite,
 }: ProfileFormProps): ReactNode {
   const formRef = useRef<HTMLFormElement>(null);
   const [values, setValues] = useState<ProfileValues>({
@@ -92,6 +95,7 @@ export function ProfileForm({
     const result = await updateProfile(String(user.ulid), values);
     setPending(false);
     if (result.ok) {
+      endProfileWrite?.();
       setOutcome("success");
       void refreshProfile();
       return;

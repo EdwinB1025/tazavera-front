@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, type ReactNode } from "react";
-import { refreshProfile, requestProfileWrite } from "@/features/auth";
+import { endProfileWrite, refreshProfile, requestProfileWrite } from "@/features/auth";
 import {
   AccountSection,
   ContactSection,
@@ -64,6 +64,7 @@ export function AccountEditView({
           texts={texts}
           refreshProfile={refreshProfile}
           requestProfileWrite={requestProfileWrite}
+          endProfileWrite={endProfileWrite}
         />
         <div>
           <Button variant="action-4" size="base" onClick={onDone}>
@@ -85,6 +86,7 @@ export function AccountEditView({
           texts={texts}
           signOut={signOut}
           requestProfileWrite={requestProfileWrite}
+          endProfileWrite={endProfileWrite}
         />
       </AccountSection>
     </div>

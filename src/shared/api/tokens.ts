@@ -31,6 +31,14 @@ export type TokenGrantError = {
 /** The grant held in module memory (design.md D3). Never written to any storage. */
 let tokens: TokenGrant | null = null;
 
+/**
+ * The grant that was in use before a step-up's write grant was installed
+ * (scope-write-token-to-action design.md D1 and D2): `null` when no write
+ * grant is in place, `{ read: null }` when the write grant came with no grant
+ * to restore (a full-page step-up). Never written to any storage.
+ */
+let setAside: { read: TokenGrant | null } | null = null;
+
 /** The grant held in memory, or `null` before the first successful sign in. */
 export function getTokens(): TokenGrant | null {
   return tokens;
@@ -39,6 +47,7 @@ export function getTokens(): TokenGrant | null {
 /** Clears the token memory (spec: "After sign out": no trace of the session). */
 export function clearTokens(): void {
   tokens = null;
+  setAside = null;
 }
 
 /**
@@ -109,9 +118,26 @@ export async function exchangeCodeForGrant(
   );
 }
 
-/** Installs a grant obtained by `exchangeCodeForGrant` (secure-step-up design.md D3). */
+/**
+ * Installs a step-up's write grant obtained by `exchangeCodeForGrant`
+ * (secure-step-up design.md D3), setting the grant in use aside first
+ * (scope-write-token-to-action design.md D1). A second step-up in the same
+ * action keeps the grant set aside by the first.
+ */
 export function keepTokens(grant: TokenGrant): void {
+  if (setAside === null) setAside = { read: tokens };
   tokens = grant;
+}
+
+/**
+ * Ends the write grant (scope-write-token-to-action design.md D1 and D2): the
+ * grant set aside is in use again, with no request. Nothing set aside changes
+ * nothing.
+ */
+export function restoreReadTokens(): void {
+  if (setAside === null) return;
+  tokens = setAside.read;
+  setAside = null;
 }
 
 /**

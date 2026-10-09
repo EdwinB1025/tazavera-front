@@ -60,6 +60,7 @@ afterEach(() => {
 function renderForm() {
   const refreshProfile = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
   const requestProfileWrite = vi.fn<(returnRoute: string) => void>();
+  const endProfileWrite = vi.fn<() => void>();
   render(
     <>
       <h2 id="profile-heading">heading</h2>
@@ -70,10 +71,11 @@ function renderForm() {
         texts={TEXTS}
         refreshProfile={refreshProfile}
         requestProfileWrite={requestProfileWrite}
+        endProfileWrite={endProfileWrite}
       />
     </>,
   );
-  return { refreshProfile, requestProfileWrite };
+  return { refreshProfile, requestProfileWrite, endProfileWrite };
 }
 
 function field(label: string): HTMLInputElement {
@@ -174,6 +176,13 @@ describe("ProfileForm — the write", () => {
     expect(refreshProfile).toHaveBeenCalledWith();
     expect(screen.queryByText("From-PUT")).toBeNull();
     expect(screen.queryByText("api-message")).toBeNull();
+  });
+
+  it("a 200 ends the write permission once (spec: The action ends)", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(200, { data: USER }));
+    const { endProfileWrite } = renderForm();
+    await save();
+    expect(endProfileWrite).toHaveBeenCalledTimes(1);
   });
 
   for (const [label, outcome] of [

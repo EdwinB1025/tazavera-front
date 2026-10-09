@@ -42,6 +42,8 @@ export type PasswordFormProps = {
   texts: PasswordFormTexts;
   /** Starts the write-scope sign in (design.md D6). */
   requestProfileWrite: (returnRoute: string) => void;
+  /** Ends the write permission of a granted step-up (scope-write-token-to-action design.md D4). */
+  endProfileWrite?: () => void;
 };
 
 type PasswordField = keyof PasswordUpdatePayload;
@@ -95,6 +97,7 @@ export function PasswordForm({
   labelledBy,
   texts,
   requestProfileWrite,
+  endProfileWrite,
 }: PasswordFormProps): ReactNode {
   const formRef = useRef<HTMLFormElement>(null);
   const [values, setValues] = useState<PasswordUpdatePayload>(EMPTY_VALUES);
@@ -127,6 +130,7 @@ export function PasswordForm({
     setOutcome(null);
     const result = await updatePassword(ulid, values);
     setPending(false);
+    if (result.ok) endProfileWrite?.();
     if (!result.ok && result.kind === "validation") {
       setOutcome(server.show(result.errors) ? "error" : null);
     } else {
