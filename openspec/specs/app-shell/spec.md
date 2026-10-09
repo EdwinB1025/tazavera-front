@@ -101,6 +101,10 @@ While the session is anonymous, the header SHALL show the language selector, the
 - **WHEN** a signed-out visitor opens a page with the sidebar control on a 375px-wide viewport
 - **THEN** the header shows the language selector as an icon with its accessible name, the theme toggle at its full size and the sign-in action without horizontal overflow
 
+#### Scenario: Catalan sign-in label fits on one line
+- **WHEN** a signed-out visitor opens a page in Catalan on a 375px-wide viewport
+- **THEN** the header's sign-in label fits on one line
+
 ### Requirement: Signed-in header and user menu
 While the session is authenticated, the header SHALL show the brand logotype, the language selector, the theme switch and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The control SHALL show an initials circle and, on a medium or larger viewport, the user's name and a chevron after the circle; below that viewport it SHALL show the circle alone. The menu SHALL offer one account entry pointing at the account page, the security entry as an external link to the API's security page, the management entry for the user's role, for a specialist the offerings entry, and sign out.
 
