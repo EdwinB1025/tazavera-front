@@ -21,8 +21,10 @@ export type AddLocationButtonProps = {
   onAdd: () => void;
 };
 
-// The empty card: the section card's width rule, full width up to 40rem.
-const EMPTY_CARD_CLASSES = ["w-full", "md:max-w-160"].join(" ");
+// The empty card fills the container (widen-location-and-offering-forms D1).
+const EMPTY_CARD_CLASSES = "w-full";
+// The empty card's content: full width, at most 40rem from `md`, start-aligned.
+const EMPTY_CONTENT_CLASSES = ["w-full", "md:max-w-160"].join(" ");
 // The empty text, then its button, 1rem apart; the error text and Try again too.
 const STACK_CLASSES = ["flex", "flex-col", "items-start", "gap-4"].join(" ");
 // The toolbar: a start-aligned row, no padding, border or radius.
@@ -49,9 +51,11 @@ export function LocationsEmptyCard({ text, children }: LocationsEmptyCardProps):
   return (
     <Card variant="section" className={EMPTY_CARD_CLASSES}>
       <CardContent>
-        <div className={STACK_CLASSES}>
-          <p className="type-body">{text}</p>
-          {children}
+        <div className={EMPTY_CONTENT_CLASSES}>
+          <div className={STACK_CLASSES}>
+            <p className="type-body">{text}</p>
+            {children}
+          </div>
         </div>
       </CardContent>
     </Card>

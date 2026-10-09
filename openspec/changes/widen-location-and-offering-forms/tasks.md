@@ -7,7 +7,7 @@ No derived API types are needed: the change only moves layout classes.
 
 ## 2. Location cards fill the container (offering-management)
 
-- [ ] 2.1 Implement design.md D1 in `src/features/location-management/ui/LocationForm.tsx` and `src/features/location-management/ui/LocationsPanelStates.tsx`. No test asserts these cards' classes; none is added. Protecting tests: `src/features/location-management/ui/LocationForm.test.tsx`, `src/features/location-management/ui/LocationsPanel.test.tsx`. Verify: `npx vitest related` on the changed files passes; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 2.1 Implement design.md D1 in `src/features/location-management/ui/LocationForm.tsx` and `src/features/location-management/ui/LocationsPanelStates.tsx`. No test asserts these cards' classes; none is added. Protecting tests: `src/features/location-management/ui/LocationForm.test.tsx`, `src/features/location-management/ui/LocationsPanel.test.tsx`. Verify: `npx vitest related` on the changed files passes; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 3. Full checks
 
