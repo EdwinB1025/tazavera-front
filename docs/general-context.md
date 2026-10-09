@@ -591,3 +591,8 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Decisión:** el Product owner da permiso al orquestador para fusionar `develop` en `master` y subir `master` (paso 5 de la secuencia final). Hecho: `50f6fba`, árbol idéntico a `develop` comprobado. Excepción a "solo el Product owner fusiona en `master`" para esta secuencia.
 - **Por qué:** Product owner, 9 oct ("You have the permission to merge master").
 - **Afecta:** secuencia final, paso 5.
+
+### 2026-10-09 — carga diferida de las facetas (Product owner)
+- **Decisión:** sí. Los combobox de facetas (y lo que solo usan ellos, como cmdk) se cargan con un import dinámico la primera vez que se abre el panel de filtros (como Leaflet), con un breve estado de carga en esa primera apertura; objetivo ≤ 170 KB gz de JS por ruta de lista, sin cambiar qué filtros hay, su orden ni su comportamiento una vez cargados. Cambio normal (`lazy-load-facet-controls`, filtering), lanzado en la nube de propose a archive. La ronda de refactor de las advertencias de lint sigue en paralelo sin tocar las facetas hasta que este cambio se integre.
+- **Por qué:** Product owner, 9 oct ("Yes"), riesgo 3 del informe técnico 2026-10-09.
+- **Afecta:** filtering, app-shell (sidebar); la ronda de refactor de lint.
