@@ -44,7 +44,7 @@ The shell SHALL present the header above a main area that holds the content of t
 - **THEN** the main area shows the light blue-green backdrop, and cards on it show the cream card surface; and in the dark theme the backdrop is darker than the cards on it
 
 ### Requirement: Header brand and primary navigation
-The header SHALL show the brand logotype, linking to the root of the active locale. The brand logotype and the primary navigation SHALL sit in one group on the left, and the language selector, the theme switch and the session control SHALL sit in one group on the right, in that order, on every viewport. On medium and larger viewports it SHALL also show the "Top rated", "Explore coffee shops" and "About us" entries, in that order; on small viewports those entries SHALL NOT be shown in the header and a navigation menu control, showing a three-lines menu icon and named from the active locale's catalog, SHALL take their place, opening a menu that lists the same entries, in the same order and with the same destinations, presented like the entries of the user menu, the entry of the current route marked as the current page. The primary navigation entries SHALL be presented as navigation items of the header, not as inline text links, and the entry of the current route SHALL be marked as the current page.
+The header SHALL show the brand logotype, linking to the root of the active locale. The brand logotype and the primary navigation SHALL sit in one group on the left, and the language selector, the theme switch and the session control SHALL sit in one group on the right, in that order, on every viewport. On medium and larger viewports it SHALL also show the "Top rated", "Explore coffee shops" and "About us" entries, in that order; on small viewports those entries SHALL NOT be shown in the header and a navigation menu control, showing a three-lines menu icon and named from the active locale's catalog, SHALL take their place, opening a menu that lists the same entries, in the same order and with the same destinations, presented like the entries of the user menu, the entry of the current route marked as the current page, each entry showing a decorative icon that reflects it before its text. The entries of that menu SHALL take the header menu entry treatment, not the inline link treatment. The primary navigation entries SHALL be presented as navigation items of the header, not as inline text links, and the entry of the current route SHALL be marked as the current page.
 
 #### Scenario: Brand link
 - **WHEN** the user activates the brand logotype in the header
@@ -86,6 +86,10 @@ The header SHALL show the brand logotype, linking to the root of the active loca
 - **WHEN** the current route's path equals an entry's path, ignoring the query
 - **THEN** that entry carries `aria-current="page"` and a bottom bar in the navigation indicator colour, takes no hover fill, and no other entry is marked
 
+#### Scenario: Navigation menu entries carry icons and the header look
+- **WHEN** the user opens the navigation menu on a small viewport
+- **THEN** each entry shows a decorative icon hidden from assistive technology before its text, takes `nav-text` with `nav-text-hover` on hover and focus, and shows no underline and no link colour, in both themes
+
 ### Requirement: Signed-out header
 While the session is anonymous, the header SHALL show the language selector, the theme switch and a "Sign in" action, and SHALL NOT show a user menu. On a 375px-wide viewport the signed-out header SHALL fit without horizontal overflow.
 
@@ -106,7 +110,7 @@ While the session is anonymous, the header SHALL show the language selector, the
 - **THEN** the header's sign-in label fits on one line
 
 ### Requirement: Signed-in header and user menu
-While the session is authenticated, the header SHALL show the brand logotype, the language selector, the theme switch and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The control SHALL show an initials circle and, on a medium or larger viewport, the user's name and a chevron after the circle; below that viewport it SHALL show the circle alone. The menu SHALL offer one account entry pointing at the account page, the security entry as an external link to the API's security page, the management entry for the user's role, for a specialist the offerings entry, and sign out.
+While the session is authenticated, the header SHALL show the brand logotype, the language selector, the theme switch and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The control SHALL show an initials circle and, on a medium or larger viewport, the user's name and a chevron after the circle; below that viewport it SHALL show the circle alone. The menu SHALL offer one account entry pointing at the account page, the security entry as an external link to the API's security page, the management entry for the user's role, for a specialist the offerings entry, and sign out. Each entry SHALL show a decorative icon that reflects its action before its text and SHALL take the header menu entry treatment, not the inline link treatment, while keeping its order, destination and behaviour.
 
 #### Scenario: User control carries the user's initials
 - **WHEN** the session is authenticated
@@ -155,6 +159,10 @@ While the session is authenticated, the header SHALL show the brand logotype, th
 #### Scenario: Sign out
 - **WHEN** the user activates "Sign out"
 - **THEN** the application signs the user out and the header renders as anonymous
+
+#### Scenario: Menu entries carry icons and the header look
+- **WHEN** the user opens the user menu
+- **THEN** each entry shows a decorative icon hidden from assistive technology before its text, takes `nav-text` with `nav-text-hover` on hover and focus, and shows no underline and no link colour, in both themes
 
 ### Requirement: Session states in the shell
 The shell SHALL follow the session state. While the session is still resolving it SHALL show neither the "Sign in" action nor the user menu, and when the session cannot be resolved it SHALL render the anonymous shell.
