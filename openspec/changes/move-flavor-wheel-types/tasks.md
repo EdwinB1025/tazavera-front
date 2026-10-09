@@ -8,4 +8,4 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 2. Full checks
 
-- [ ] 2.1 Run, each on its own: `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint`, `npm run build`, `npx -y madge@8 --circular --extensions ts,tsx src/shared/ui`. Expected: every one exits 0 with no test added, removed or changed, and madge reports no circular dependency; `git diff origin/develop --stat -- src qa` lists only the files of design.md, Files. This task changes no files: check it off in a commit containing only the checkbox, `chore(feedback): complete tasks for move-flavor-wheel-types`.
+- [x] 2.1 Run, each on its own: `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint`, `npm run build`, `npx -y madge@8 --circular --extensions ts,tsx src/shared/ui`. Expected: every one exits 0 with no test added, removed or changed, and madge reports no circular dependency; `git diff origin/develop --stat -- src qa` lists only the files of design.md, Files. This task changes no files: check it off in a commit containing only the checkbox, `chore(feedback): complete tasks for move-flavor-wheel-types`.
