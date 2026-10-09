@@ -63,8 +63,10 @@ const EMPTY_VALUES: LocationFormValues = {
 const OSM_COPYRIGHT_URL = "https://www.openstreetmap.org/copyright";
 
 // ─── Layout (summary §8) ───
-// The section card: full width, at most 40rem from `md`.
-const CARD_CLASSES = ["w-full", "md:max-w-160"].join(" ");
+// The section card fills the container (widen-location-and-offering-forms D1).
+const CARD_CLASSES = "w-full";
+// The form's wrapper: full width, at most 40rem from `md`, start-aligned.
+const CONTENT_CLASSES = ["w-full", "md:max-w-160"].join(" ");
 // The form's blocks (fieldsets, notes, alert, actions) 1.5rem apart.
 const FORM_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
 // The two fieldsets 2rem apart.
@@ -139,70 +141,72 @@ export function LocationForm({
         </h2>
       </CardAside>
       <CardContent>
-        <form
-          ref={formRef}
-          noValidate
-          aria-labelledby={headingId}
-          onSubmit={handleSubmit}
-          className={FORM_CLASSES}
-        >
-          <div className={GROUPS_CLASSES}>
-            <fieldset className={FIELDSET_CLASSES}>
-              <legend className={LEGEND_CLASSES}>{texts.locationGroupLegend}</legend>
-              <div className={FIELDS_CLASSES}>
-                <Field label={texts.locationNameLabel} error={errors.name} required>
-                  <Input
-                    name="name"
-                    autoComplete="organization"
-                    maxLength={150}
-                    value={values.name}
-                    onChange={(event) => update("name", event.target.value)}
+        <div className={CONTENT_CLASSES}>
+          <form
+            ref={formRef}
+            noValidate
+            aria-labelledby={headingId}
+            onSubmit={handleSubmit}
+            className={FORM_CLASSES}
+          >
+            <div className={GROUPS_CLASSES}>
+              <fieldset className={FIELDSET_CLASSES}>
+                <legend className={LEGEND_CLASSES}>{texts.locationGroupLegend}</legend>
+                <div className={FIELDS_CLASSES}>
+                  <Field label={texts.locationNameLabel} error={errors.name} required>
+                    <Input
+                      name="name"
+                      autoComplete="organization"
+                      maxLength={150}
+                      value={values.name}
+                      onChange={(event) => update("name", event.target.value)}
+                    />
+                  </Field>
+                  <Field label={texts.locationDescriptionLabel} error={errors.description}>
+                    <Textarea
+                      name="description"
+                      autoComplete="off"
+                      maxLength={255}
+                      value={values.description}
+                      onChange={(event) => update("description", event.target.value)}
+                    />
+                  </Field>
+                </div>
+              </fieldset>
+              <fieldset className={FIELDSET_CLASSES}>
+                <legend className={LEGEND_CLASSES}>{texts.contactGroupLegend}</legend>
+                <div className={FIELDS_CLASSES}>
+                  <ContactFields
+                    values={values}
+                    errors={errors}
+                    onChange={(key: ContactFieldKey, value) => update(key, value)}
+                    texts={texts}
+                    layout="paired"
                   />
-                </Field>
-                <Field label={texts.locationDescriptionLabel} error={errors.description}>
-                  <Textarea
-                    name="description"
-                    autoComplete="off"
-                    maxLength={255}
-                    value={values.description}
-                    onChange={(event) => update("description", event.target.value)}
-                  />
-                </Field>
-              </div>
-            </fieldset>
-            <fieldset className={FIELDSET_CLASSES}>
-              <legend className={LEGEND_CLASSES}>{texts.contactGroupLegend}</legend>
-              <div className={FIELDS_CLASSES}>
-                <ContactFields
-                  values={values}
-                  errors={errors}
-                  onChange={(key: ContactFieldKey, value) => update(key, value)}
-                  texts={texts}
-                  layout="paired"
-                />
-              </div>
-            </fieldset>
-          </div>
-          <div className={NOTES_CLASSES}>
-            <p className="type-meta">{texts.geocodingHelp}</p>
-            <Attribution texts={texts} />
-          </div>
-          {submitState === "error" && <FormStatus kind="error" text={texts.genericError} />}
-          <div className={ACTIONS_CLASSES}>
-            <Button type="submit" variant="primary" size="base" loading={submitting}>
-              {texts.save}
-            </Button>
-            <Button
-              type="button"
-              variant="action-4"
-              size="base"
-              disabled={submitting}
-              onClick={onCancel}
-            >
-              {texts.cancel}
-            </Button>
-          </div>
-        </form>
+                </div>
+              </fieldset>
+            </div>
+            <div className={NOTES_CLASSES}>
+              <p className="type-meta">{texts.geocodingHelp}</p>
+              <Attribution texts={texts} />
+            </div>
+            {submitState === "error" && <FormStatus kind="error" text={texts.genericError} />}
+            <div className={ACTIONS_CLASSES}>
+              <Button type="submit" variant="primary" size="base" loading={submitting}>
+                {texts.save}
+              </Button>
+              <Button
+                type="button"
+                variant="action-4"
+                size="base"
+                disabled={submitting}
+                onClick={onCancel}
+              >
+                {texts.cancel}
+              </Button>
+            </div>
+          </form>
+        </div>
       </CardContent>
     </Card>
   );
