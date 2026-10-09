@@ -8,7 +8,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 - [x] 1.2 Split `EvaluationsListScreen` (D1). Commit `refactor(evaluations): move the my evaluations list texts to a function`.
 - [x] 1.3 Split `useEvaluationForm` (D4). Commit `refactor(evaluations): move the evaluation form failure helpers out of the hook`.
 - [x] 1.4 Split `formTextsFrom` (D1). Commit `refactor(evaluations): move the evaluation group texts to a function`.
-- [ ] 1.5 Split `EvaluationSheet` into `EvaluationSheetCards.tsx` (D3). Commit `refactor(evaluations): move the evaluation sheet cards to their own file`.
+- [x] 1.5 Split `EvaluationSheet` into `EvaluationSheetCards.tsx` (D3). Commit `refactor(evaluations): move the evaluation sheet cards to their own file`.
 - [ ] 1.6 Split `EvaluationSheetView` (D3). Commit `refactor(evaluations): split the evaluation view states`.
 
 ## 2. offering-catalog
