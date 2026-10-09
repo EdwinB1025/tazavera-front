@@ -31,7 +31,6 @@ export type EvaluationFormTexts = {
     saveLabel: string;
     closeLabel: string;
     cancelLabel: string;
-    savedMessage: string;
     closedMessage: string;
     incompleteMessage: string;
     notYoursMessage: string;

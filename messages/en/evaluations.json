@@ -87,7 +87,6 @@
   "extrinsicNoteLabel": "General observation",
   "saveLabel": "Save draft",
   "closeLabel": "Close evaluation",
-  "savedMessage": "Draft saved.",
   "alreadyClosedMessage": "This evaluation is already closed and can no longer be changed.",
   "roastLevelRequired": "Choose the roast level to save.",
   "fragranceNotEvaluatedLabel": "Fragrance not evaluated — use aroma values",
