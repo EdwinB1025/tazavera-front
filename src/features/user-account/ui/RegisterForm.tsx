@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
-import type { RegisterPayload } from "@/shared/api";
+import type { RegisterPayload, RegistrationToken } from "@/shared/api";
 import { Button, Field, Input, FormStatus, Link } from "@/shared/ui";
 import { isValidEmail } from "@/entities/contact";
 import { registerUser } from "../api/register";
@@ -43,6 +43,11 @@ export type RegisterFormProps = {
   texts: RegisterFormTexts;
   /** Starts sign in from the success panel (design.md D1). */
   signIn: () => void;
+  /**
+   * Signs in with a `201`'s token block and resolves whether it succeeded
+   * (sign-in-after-registration design.md D4); the page navigates on success.
+   */
+  signInWithToken: (token: RegistrationToken) => Promise<boolean>;
   /** Where Cancel leads; sends nothing (add-form-cancel-actions D3). */
   cancelHref: `/${string}`;
 };
@@ -98,14 +103,17 @@ function check(
  * The registration form (specs "Registration form" and "Registration
  * result"; design.md D2, D9 and D10). It checks only what `registerAUser`
  * documents, sends `POST /register` through the public client with the
- * route's role, and on a `201` gives way to the success panel. Every other
- * outcome shows the generic error and clears the two password fields.
+ * route's role, and on a `201` signs in with its token block through
+ * `signInWithToken` or, without a block or when that fails, gives way to the
+ * success panel. Every other outcome shows the generic error and clears the
+ * two password fields.
  */
 export function RegisterForm({
   role,
   labelledBy,
   texts,
   signIn,
+  signInWithToken,
   cancelHref,
 }: RegisterFormProps): ReactNode {
   const formRef = useRef<HTMLFormElement>(null);
@@ -141,11 +149,14 @@ export function RegisterForm({
     setFailed(false);
     const payload: RegisterPayload = { ...values, role };
     const result = await registerUser(payload);
-    setPending(false);
     if (result.ok) {
+      // Signed in: the submit stays loading while the page navigates.
+      if (result.data !== null && (await signInWithToken(result.data))) return;
+      setPending(false);
       setCreated(true);
       return;
     }
+    setPending(false);
     setFailed(true);
     setValues((current) => ({
       ...current,
