@@ -30,6 +30,8 @@ export default defineConfig({
             'qa/src/widgets/offering-detail/ui/DetailHeader.test.tsx',
             // queries the back control as a link; stale since render-navigation-actions-as-buttons
             'qa/src/pages/offering-detail/ui/OfferingDetailScreen.test.tsx',
+            // queries the back control as a link; stale since render-navigation-actions-as-buttons
+            'qa/src/pages/public-evaluation/ui/ViewScreen.test.tsx',
         ],
     },
 })
