@@ -584,3 +584,8 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Decisión:** el control de navegación en la primera línea del encabezado de una página (volver, encima del título) es un enlace. Cualquier otro control de navegación es un botón de acción (`RouteButton`, con la variante según "Action variants by kind"), tanto en el encabezado después de la primera línea como al final de la vista, la lista o la tarjeta. Una misma acción en dos sitios usa un único componente (p. ej. "Nueva oferta" en la cabecera y en la lista vacía).
 - **Por qué:** Product owner, 9 oct (hallazgos AUT).
 - **Afecta:** `apply-header-link-rule` y toda vista futura con encabezado o acciones finales.
+
+### 2026-10-09 — R43 `adopt-next-intl-routing`: respuestas a los Open (Product owner)
+- **Decisión:** se aceptan todas las recomendaciones del resumen: Open 1 A (`request.ts` lee el locale de la cabecera del middleware; no se mueve `<html>`); Open 2 A (`alternateLinks: false`); Open 3 B (los importadores usan `routing.locales`, `routing.defaultLocale` y `hasLocale`, y desaparecen los alias); Open 4 A (`createNavigation` solo para el selector de idioma); Open 5 C (`useSession()` registra el locale con `useLocale()` y el flujo de sesión lo lee de ahí, con `es` como valor por defecto); Open 6 B con un margen de **+3 KB gz por ruta de locale** respecto a la medición "antes"; Open 7 B (`request.ts` sin catálogos).
+- **Por qué:** Product owner, 9 oct ("ok a tu propuesta").
+- **Afecta:** `adopt-next-intl-routing` (app-shell, auth).
