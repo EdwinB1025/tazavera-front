@@ -3,7 +3,12 @@
 import type { ReactNode } from "react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/shared/ui";
+import {
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarSubsectionOutlet,
+} from "@/shared/ui";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -25,7 +30,8 @@ export type EvaluationsSidebarEntryProps = {
  * The specialist area's management sidebar entries (design.md D5; spec
  * "Management sidebar entry"): "My evaluations", a link to the list, marked
  * as the current page while the list is in view, then "Explore offerings",
- * the full offerings list, never marked (refine-header-aut D5). The links
+ * the full offerings list, never marked (refine-header-aut D5). The current
+ * entry holds the list's sub-section (collapse-sidebar-filters). The links
  * render through the menu button's link form so they carry the sidebar entry
  * treatment, not the inline link one.
  */
@@ -40,6 +46,7 @@ export function EvaluationsSidebarEntry({ locale, texts }: EvaluationsSidebarEnt
             {texts.label}
           </NextLink>
         </SidebarMenuButton>
+        {current && <SidebarSubsectionOutlet />}
       </SidebarMenuItem>
       <SidebarMenuItem>
         <SidebarMenuButton asChild>
