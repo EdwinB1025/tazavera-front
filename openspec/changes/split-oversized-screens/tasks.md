@@ -20,7 +20,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 3. user-account
 
-- [ ] 3.1 Split `RegisterForm` into `useRegisterForm` (D2). Commit `refactor(user-account): move the registration form state to a hook`.
+- [x] 3.1 Split `RegisterForm` into `useRegisterForm` (D2). Commit `refactor(user-account): move the registration form state to a hook`.
 - [ ] 3.2 Split `PasswordForm` into `usePasswordForm` (D2). Commit `refactor(user-account): move the password form state to a hook`.
 - [ ] 3.3 Split `ProfileForm` into `useProfileForm` (D2). Commit `refactor(user-account): move the profile form state to a hook`.
 - [ ] 3.4 Split `DangerZone` (D1, D3). Commit `refactor(user-account): split the danger zone blocks`.
