@@ -24,7 +24,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 |:-:|---|---|---|:-:|---|
 | 1 | R40 | API branch in `tazavera-api` | Change (API) | M | PO: review of the API diff |
 | 2 | R18 | `show-item-not-found-message` | Change (behaviour, texts) | M | R40 |
-| 3 | R8 | none yet | Change (behaviour) | M | R40 |
 | 4 | R10 | none yet | Change (behaviour) | S | before the first facet that shows an error |
 | 5 | R50 | API branch in `tazavera-api` | Change (API) | S | API fix (confirmed on local data 2026-10-09: level-1 notes come back at the top of `cataConcordance`) |
 | 6 | R43 | `adopt-next-intl-routing` | Change | L | its design summary |
@@ -60,18 +59,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 - **Type:** Change
 - **Status:** accepted
 - **Affects:** R40 (the 404 responses must be documented first)
-
-## R8 — Map 422 validation errors to their fields (decisions log 2026-10-06, "escrituras, rutas protegidas y 422")
-
-- **Duplicated:** none yet; every form shows one generic form-level error for any 422
-- **Where today:** the forms of `add-user-account`, `add-offering-management` and `add-specialist-evaluations` (planned)
-- **Why it pays off now:** the API returns per-field messages, but the contract documents no 422 body; once Scribe documents it, each form can show the message under its `Field`
-- **Owning capability:** form-fields (shared mapping), consumed by each form
-- **Proposed change:** none yet — needs the 422 response documented in the API (Product owner)
-- **Open decision (Augusto):** answered 2026-10-08: the API documents its 422 responses first (R40), then the change is scheduled
-- **Type:** Change
-- **Status:** proposed
-- **Affects:** `add-user-account`, `add-offering-management`, `add-specialist-evaluations`
 
 ## R10 — Error boundary of the row facets in the traditional theme (refine-facet-controls Q2)
 
