@@ -23,7 +23,7 @@ None.
 
 ## Impact
 
-- Files: a new shared loader for the combobox (`src/shared/ui`), the sidebar sub-section (`SidebarMenuSub`, which tells its content whether it has been opened), the offering facet panel and its texts, and the two sidebar screens that pass the texts.
+- Files: a new shared loader for the combobox (`src/shared/ui`), the sidebar sub-section (`SidebarMenuSub`, which tells its content whether it has been opened), the offering facet panel, and the widget that passes it the loading text (`FilteredOfferingsFacets`).
 - Tests: one new test per added scenario; three existing tests of `OfferingFacets.test.tsx` wait for the lazily loaded comboboxes (query calls only, assertions unchanged).
 - Target: every list route (offerings, public evaluations, coffee shop directory, coffee shop detail) at or under 170 KB gz First Load JS with the review's method. The floor measured by the review (206.8 KB gz on About, which renders no facet) is above that target, so the target is not reachable by this change alone; the change is implemented anyway and the before/after numbers are reported (design.md "Measurement plan").
 

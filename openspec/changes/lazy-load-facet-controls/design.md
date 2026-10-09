@@ -24,7 +24,7 @@ The placeholder is the existing `LoadingStatus` (feedback "Request status messag
 
 ### D3. The loading text
 
-No `filters` key holds a loading text. The existing `loading` key of the `account` catalog ("Loading…", es "Cargando…", ca "Carregant…") is the text. `OfferingFilterTexts` gains a `loading` key (`offeringFacetsTexts` reads it from the catalog it receives, empty when missing), and the two screens that render the offering facets (`OfferingsSidebarScreen`, `CoffeeshopDetailSidebarScreen`) pass the `filters` catalog together with the `account` catalog's `loading`. No catalog file changes.
+No `filters` key holds a loading text. The existing `loading` key of the `account` catalog ("Loading…", es "Cargando…", ca "Carregant…") is the text. `OfferingFacets` takes `texts` as `OfferingFilterTexts` plus `loading`; `OfferingFilterTexts` and `offeringFacetsTexts` stay as they are. The widget that renders the panel, `FilteredOfferingsFacets` (`src/widgets/offering-list`), already receives the locale: it reads `loading` from the `account` catalog of that locale and adds it to the texts it passes. The two sidebar screens and the texts they pass stay unchanged, and so do their tests. No catalog file changes.
 
 ## Measurement plan
 
