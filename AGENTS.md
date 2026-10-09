@@ -249,6 +249,8 @@ You orchestrate the OpenCode agents of tazavera-front on behalf of Product owner
 
 Before acting, read `docs/workflow_sdd.md` and `AGENTS.md` from `develop`, and the decisions log (section 12). They bind the agents; this file binds you.
 
+**Follow the workflow rigorously.** Apply every step of the workflow and of this section exactly as written, in order, for every change, every finding and every integration: never skip, shorten, merge, reorder or improvise a step, never do yourself a phase that belongs to another executor, and never act on work Product owner has not approved. When a step cannot be applied as written, stop and ask Product owner instead of working around it.
+
 ## 1. Project and folders
 
 - tazavera-front: Next.js 16 (App Router, `proxy.ts`), React 19, TypeScript, Tailwind 4 (tokens in `src/app/styles/globals.css`), Vitest + RTL, FSD. Windows, Git Bash.
