@@ -235,6 +235,25 @@ describe("EvaluationForm: saving a draft (design.md D4; tasks 6.1)", () => {
     expect(push).not.toHaveBeenCalled();
   });
 
+  it("The API names an invalid field: a 422 message shows under the roast level and clears on change", async () => {
+    updateAnEvaluation.mockResolvedValue({
+      ok: false,
+      kind: "validation",
+      errors: { "descriptive.roastLevel": ["fx-roast-invalid"] },
+    });
+    renderForm({ evaluation: OPEN_EVALUATION });
+    save();
+    const roast = screen.getByLabelText(/Roast level/);
+    await waitFor(() => expect(roast.getAttribute("aria-invalid")).toBe("true"));
+    const describedBy = roast.getAttribute("aria-describedby") ?? "";
+    expect(document.getElementById(describedBy)?.textContent).toBe("fx-roast-invalid");
+    expect(screen.getByRole("status").textContent).toBe("");
+    expect(push).not.toHaveBeenCalled();
+
+    fireEvent.change(roast, { target: { value: "dark" } });
+    expect(screen.queryByText("fx-roast-invalid")).toBeNull();
+  });
+
   it("sends each descriptor block's selection to its request field (design.md D7)", async () => {
     createAnEvaluation.mockResolvedValue({ ok: true, data: CREATED });
     renderForm();
