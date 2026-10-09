@@ -5351,42 +5351,42 @@ export interface operations {
                  *       "architecto"
                  *     ]
                  */
-                cataRef?: string[];
+                "cataRef[]"?: string[];
                 /**
                  * @description Must match an existing stored value.
                  * @example [
                  *       "architecto"
                  *     ]
                  */
-                fragranceCata?: string[];
+                "fragranceCata[]"?: string[];
                 /**
                  * @description Must match an existing stored value.
                  * @example [
                  *       "architecto"
                  *     ]
                  */
-                aromaCata?: string[];
+                "aromaCata[]"?: string[];
                 /**
                  * @description Must match an existing stored value.
                  * @example [
                  *       "architecto"
                  *     ]
                  */
-                flavorCata?: string[];
+                "flavorCata[]"?: string[];
                 /**
                  * @description Must match an existing stored value.
                  * @example [
                  *       "architecto"
                  *     ]
                  */
-                aftertasteCata?: string[];
+                "aftertasteCata[]"?: string[];
                 /**
                  * @description Must match an existing stored value.
                  * @example [
                  *       "architecto"
                  *     ]
                  */
-                mouthfeelCata?: string[];
+                "mouthfeelCata[]"?: string[];
                 /**
                  * @description Sort field. One of: cupping_avg, evaluation_count, created_at.
                  * @example cupping_avg
