@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
-import { requestProfileWrite, signOut, useSession } from "@/features/auth";
+import { refreshProfile, requestProfileWrite, signOut, useSession } from "@/features/auth";
 import { SessionGate } from "@/shared/ui";
 import { AccountEditView, type AccountEditViewTexts } from "./AccountEditView";
 import {
@@ -69,6 +69,7 @@ export function AccountClient({ locale, texts }: AccountClientProps): ReactNode 
               router.replace(editRoute, { scroll: false });
             }}
             onChangePassword={changePassword}
+            refreshProfile={refreshProfile}
           />
         )
       }

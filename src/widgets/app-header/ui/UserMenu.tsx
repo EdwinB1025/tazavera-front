@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import type { SessionUser } from "@/shared/api";
+import { openSecurityPopup } from "@/shared/lib/security-popup";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -79,7 +80,8 @@ const CIRCLE_CLASSES = [
 // the internal `Link` treatment (`base-controls`: internal routes only), so
 // they navigate client-side and a reload — which would wipe the in-memory
 // tokens `add-auth` keeps — never happens. Only the API's `/user/security` is
-// an external destination and stays a native anchor (design.md).
+// an external destination and stays a native anchor (design.md), opened in a
+// popup window so the tab keeps its tokens (open-security-pages-in-popup D4).
 
 /**
  * User menu (design.md D5; spec "Signed-in header and user menu").
@@ -121,7 +123,9 @@ export function UserMenu({
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <a href={securityUrl}>{texts.security}</a>
+          <a href={securityUrl} onClick={(event) => openSecurityPopup(event)}>
+            {texts.security}
+          </a>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         {management && (
