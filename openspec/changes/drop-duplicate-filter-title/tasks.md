@@ -7,4 +7,4 @@ No derived API types are needed: the change only moves the panel's title.
 
 ## 2. Full checks
 
-- [ ] 2.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: every validation test passes; the QA suite fails only in files that also fail on `origin/develop`; no typecheck or lint errors; the build succeeds. Any QA test that fails on the removed heading is reported to Product owner, not edited.
+- [x] 2.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: every validation test passes; the QA suite fails only in files that also fail on `origin/develop`; no typecheck or lint errors; the build succeeds. Any QA test that fails on the removed heading is reported to Product owner, not edited.
