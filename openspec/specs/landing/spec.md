@@ -94,7 +94,7 @@ The entry page SHALL list the verified offerings of the API, 6 per page at every
 - **THEN** Previous is unavailable, and when it shows the last page Next is unavailable
 
 ### Requirement: Offering card content
-Each offering card SHALL show the offering's data as mapped from the API: the cupping score out of 100 with a rating badge classifying it — exceptional at 90 or above, excellent at 85 or above and below 90, good at 80 or above and below 85, commercial below 80; the verification state badge (verified or provisional); the coffee name; the coffeeshop name and the roaster name as labeled captions; one origin line joining country, region, process and variety and omitting any null value; the taxonomy badges of the offering; and a footer with the evaluation count, the defective evaluation count, a View action for a signed-in user only and an Evaluate action for a signed-in specialist only, both supplied by the entry-page list as the card's actions and both rendered as action buttons.
+Each offering card SHALL show the offering's data as mapped from the API: the cupping score out of 100 with a rating badge classifying it — exceptional at 90 or above, excellent at 85 or above and below 90, good at 80 or above and below 85, commercial below 80; the verification state badge (verified or provisional); the coffee name; the coffeeshop name and the roaster name as labeled captions; one origin line joining country, region, process and variety and omitting any null value; the taxonomy badges of the offering; and a footer with the evaluation count, the defective evaluation count, in this order a View action for a signed-in user only, a "View evaluations" action for every viewer and an Evaluate action for a signed-in specialist only, all supplied by the entry-page list as the card's actions and all rendered as action buttons.
 
 #### Scenario: Score and rating tier
 - **WHEN** an offering carries a cupping average
@@ -131,6 +131,10 @@ Each offering card SHALL show the offering's data as mapped from the API: the cu
 #### Scenario: No Evaluate link for other viewers
 - **WHEN** the viewer is anonymous or signed in with another role
 - **THEN** no Evaluate action renders on the card
+
+#### Scenario: View evaluations action for everyone
+- **WHEN** any viewer, anonymous or signed in, sees an offering card
+- **THEN** a "View evaluations" action button renders after the View action and before the Evaluate action, with the same text as the offering detail's "View evaluations" link, and activating it opens `/{locale}/evaluations?offeringId={ulid}` in the active locale with the offering's identifier
 
 ### Requirement: About us page
 The about route SHALL render five sections with alternating page and section backgrounds, in this order: a brief hero with an eyebrow label and a heading with one emphasized word in the accent text color; the story of the gap between a coffee label and what is in the cup and why the guide is built on objective evaluations; how we evaluate as three cards — the coffeeshop registers its offering as provisional, specialists cup it with the SCA method, and the consensus verifies it; who it is for, naming coffeeshops and specialists with their registration links; and a closing primary action that opens the entry page of the active locale.
