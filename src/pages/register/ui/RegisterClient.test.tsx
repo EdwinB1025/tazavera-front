@@ -25,8 +25,10 @@ vi.mock("@/features/auth", () => ({
 }));
 
 const routerReplace = vi.hoisted(() => vi.fn<(href: string) => void>());
+// Cancel is a route button (render-navigation-actions-as-buttons).
+const routerPush = vi.hoisted(() => vi.fn<(href: string) => void>());
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace: routerReplace, push: vi.fn() }),
+  useRouter: () => ({ replace: routerReplace, push: routerPush }),
 }));
 
 const fetchMock =
@@ -125,11 +127,11 @@ describe("RegisterClient — cancelling (add-form-cancel-actions design.md D3)",
   it("Cancel opens the locale root without sending anything", () => {
     auth.session = { state: "anonymous" };
     renderClient();
-    const cancel = screen.getByRole("link", { name: TEXTS.cancelLabel });
-    expect(cancel.getAttribute("href")).toBe("/es");
+    const cancel = screen.getByRole("button", { name: TEXTS.cancelLabel });
     expect(cancel.parentElement!.className).toContain("flex-col");
     expect(cancel.parentElement!.className).toContain("items-center");
     fireEvent.click(cancel);
+    expect(routerPush).toHaveBeenCalledWith("/es");
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });
