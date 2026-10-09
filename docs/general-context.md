@@ -581,3 +581,8 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Decisión:** el orquestador decide por su cuenta todo lo que no cambia el comportamiento pedido (archives, integraciones, compuertas, límites, orden del trabajo, redacción de artefactos), lo registra aquí o en el tablero y actúa sin preguntar. Solo pregunta cuando la decisión cambia lo que el usuario ve o lo que se pidió. Primera aplicación: `open-security-pages-in-popup` deja de esperar la prueba en navegador y se archiva como fast lane (comprobaciones completas y verify sin CRITICAL).
 - **Por qué:** Product owner, 9 oct ("you are autonomous to make decision if it does not change the expected behavior requested").
 - **Afecta:** todas las decisiones del orquestador; `open-security-pages-in-popup`.
+
+### 2026-10-09 — riesgos del informe técnico 2026-10-09 (orquestador, autonomía)
+- **Decisión:** (1) el toggle "Filtros" del sidebar (1,06:1 en el tema tradicional) usa en reposo el token de texto de las entradas del sidebar: arreglo no planificado, sin token nuevo. (2) Los 9 escenarios sin test de la pasada 2 se cubren como cobertura no planificada (sustituye la pregunta al Product owner del tablero). (3) El Purpose de `openspec/specs/testing/spec.md` se escribe a mano, excepción única a "specs nunca a mano". (4) `move-flavor-wheel-types`, refactor fast lane para los 11 ciclos de tipos. (5) Las 48 advertencias de lint van a la siguiente ronda de refactor. **No decidido** (cambia cuándo cargan las facetas): cargar los combobox de facetas solo al abrir el panel (riesgo 3), pregunta al Product owner en el tablero.
+- **Por qué:** `docs/review/technical-review-2026-10-09.md` (riesgos 1–6); regla de autonomía del 9 oct.
+- **Afecta:** app-shell, theming, testing, feedback.
