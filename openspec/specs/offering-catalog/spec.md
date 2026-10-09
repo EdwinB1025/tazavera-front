@@ -81,7 +81,7 @@ The catalog's cards SHALL render in a single column at every viewport width, 1.5
 - **THEN** the column is centered in the region and the page background shows in the side margins on both sides of it
 
 ### Requirement: Offering detail page
-The offering detail route SHALL render one offering of the API, in the locale of the route and with no sign-in required: a back link to the previous page, whose fallback destination is the offerings route, the verification state badge, the coffee name as the page heading, the coffeeshop name and the roaster name as labeled captions, an Evaluate button for a signed-in specialist only, and the offering's tabs below the header. The header and the tabs SHALL sit on the page background, with the tab panels' cards hanging from it. It SHALL show no score in the header and SHALL cover loading, success and error states. On success it SHALL repeat the back control as a back button, with the same text and destination, as the last block of the page, after the tabs and outside any tab panel; the loading and error states SHALL keep only the top back link.
+The offering detail route SHALL render one offering of the API, in the locale of the route and with no sign-in required: a back link to the previous page, whose fallback destination is the offerings route, the verification state badge, the coffee name as the page heading, the coffeeshop name and the roaster name as labeled captions, an Evaluate button for a signed-in specialist only, and the offering's tabs below the header. The header and the tabs SHALL sit on the page background, with the tab panels' cards hanging from it. It SHALL show no score in the header and SHALL cover loading, success and error states. On success it SHALL repeat the back control as a back button, with the same text and destination, as the last block of the page, after the tabs and outside any tab panel; the loading and error states SHALL keep only the top back link. It SHALL also cover the not-found state: when the API answers `404` for the identifier, the page SHALL show, in place of the header and the tabs, the title "Offering not found" as the page heading and the line "It may have been removed, or the link may be wrong." below it (in the route's locale), followed by the back button, with no retry action and no back link.
 
 #### Scenario: Header
 - **WHEN** the visitor opens the detail route of an offering
@@ -107,8 +107,12 @@ The offering detail route SHALL render one offering of the API, in the locale of
 - **WHEN** the offering is loading
 - **THEN** placeholder shapes render in the header's place and skeleton cards render in the tabs' place
 
+#### Scenario: Unknown offering
+- **WHEN** the offering request answers `404` for the identifier
+- **THEN** the heading "Offering not found" and the line "It may have been removed, or the link may be wrong." render, the back button renders below them, and no retry action and no tab render
+
 #### Scenario: Error and retry
-- **WHEN** the offering cannot be loaded — the request fails, returns a non-success status, or the identifier is unknown
+- **WHEN** the offering cannot be loaded — the request fails or returns a non-success status other than `404`
 - **THEN** the back link renders and, below it, a message with a retry action renders instead of the tabs
 
 #### Scenario: Retry reloads
@@ -528,7 +532,7 @@ Below the medium breakpoint the map view SHALL open as a full-screen overlay tit
 - **THEN** the list view renders, the address has no view or focus key, and the focus returns to the Map option or to the card's map action that opened it
 
 ### Requirement: Coffee shop detail page
-The coffee shop detail route SHALL render one coffee shop of the API, in the locale of the route and with no sign-in required: a back link to the previous page, whose fallback destination is the directory, the verified-offerings badge when it has verified offerings, the name as the page heading, its number of locations and its offering counts as captions, and its tabs. It SHALL cover loading, success and error states. On success it SHALL repeat the back control as a back button, with the same text and destination, as the last block of the page, after the tabs and outside any tab panel; the loading and error states SHALL keep only the top back link.
+The coffee shop detail route SHALL render one coffee shop of the API, in the locale of the route and with no sign-in required: a back link to the previous page, whose fallback destination is the directory, the verified-offerings badge when it has verified offerings, the name as the page heading, its number of locations and its offering counts as captions, and its tabs. It SHALL cover loading, success and error states. On success it SHALL repeat the back control as a back button, with the same text and destination, as the last block of the page, after the tabs and outside any tab panel; the loading and error states SHALL keep only the top back link. It SHALL also cover the not-found state: when the API answers `404` for the identifier, the page SHALL show, in place of the header and the tabs, the title "Coffee shop not found" as the page heading and the line "It may have been removed, or the link may be wrong." below it (in the route's locale), followed by the back button, with no retry action and no back link.
 
 #### Scenario: Header
 - **WHEN** the visitor opens the detail of a coffee shop with two locations, four offerings and one verified
@@ -542,8 +546,12 @@ The coffee shop detail route SHALL render one coffee shop of the API, in the loc
 - **WHEN** the coffee shop is loading
 - **THEN** the back link, placeholder bars in the header's place and skeleton cards in the tabs' place render
 
+#### Scenario: Unknown coffee shop
+- **WHEN** the coffee shop request answers `404` for the identifier
+- **THEN** the heading "Coffee shop not found" and the line "It may have been removed, or the link may be wrong." render, the back button renders below them, and no retry action and no tab render
+
 #### Scenario: Unknown coffee shop or failure
-- **WHEN** the identifier is unknown, or the request fails or returns any other non-success status
+- **WHEN** the request fails or returns a non-success status other than `404`
 - **THEN** the back link renders and, below it, a message saying the coffee shop could not be loaded with a retry action, and no tab renders
 
 #### Scenario: Back link at the end

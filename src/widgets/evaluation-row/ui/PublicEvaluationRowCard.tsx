@@ -1,7 +1,13 @@
 import type { ReactNode } from "react";
 import type { EvaluationItem, OfferingDetail } from "@/shared/api";
 import { Card, CardAside, CardContent, CardFooter, RouteButton } from "@/shared/ui";
-import { CONTENT_CLASSES, FOOTER_CLASSES, OfferingCaptions, scoreRow } from "./EvaluationRowParts";
+import {
+  CONTENT_CLASSES,
+  FOOTER_CLASSES,
+  OfferingCaptions,
+  ViewOfferingButton,
+  scoreRow,
+} from "./EvaluationRowParts";
 import type { EvaluationRowSharedTexts } from "./EvaluationRowParts";
 
 // ─── UI-specific types (declared before the component) ───
@@ -64,14 +70,12 @@ function RowActions({ evaluation, locale, texts, suffix, available }: RowActions
         <span className="sr-only">{suffix}</span>
       </RouteButton>
       {available ? (
-        <RouteButton
-          href={`/${locale}/offerings/${evaluation.offeringId ?? ""}`}
-          variant="action-3"
-          size="sm"
-        >
-          {texts.viewOfferingLabel}{" "}
-          <span className="sr-only">{suffix}</span>
-        </RouteButton>
+        <ViewOfferingButton
+          locale={locale}
+          offeringId={evaluation.offeringId ?? ""}
+          label={texts.viewOfferingLabel}
+          suffix={suffix}
+        />
       ) : null}
     </CardFooter>
   );

@@ -19,6 +19,8 @@ export type OfferingDetailTexts = DetailHeaderTexts &
     backLabel: string;
     errorMessage: string;
     retryLabel: string;
+    notFoundTitle: string;
+    notFoundLine: string;
     tabInventory: string;
     tabConsensus: string;
     tabProvisional: string;
@@ -27,6 +29,7 @@ export type OfferingDetailTexts = DetailHeaderTexts &
 /** The fetch result, mapped before it reaches this view (design.md D8). */
 export type OfferingDetailResult =
   | { state: "success"; offering: OfferingDetail; taxonomies: TaxonomyNode[] }
+  | { state: "not-found" }
   | { state: "error" };
 
 export type OfferingDetailContentProps = {
@@ -52,13 +55,19 @@ const BLOCKS_CLASSES = ["flex", "flex-col", "gap-8"].join(" ");
 // own width.
 const ERROR_CLASSES = ["flex", "flex-col", "items-start", "gap-4"].join(" ");
 
+// The not-found title and its line, 0.5rem apart (show-item-not-found-message
+// design.md D2).
+const NOT_FOUND_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
+
 /**
  * The offering detail's presentation (add-offering-catalog design.md D8, D9;
  * spec "Offering detail page"). On success, one section on the page
  * background holds the header block (the back link and the header) and the
  * two tabs, whose panels' cards hang from that background; on an
  * error, the back link and, below it, the message with the retry action
- * instead of the tabs. Every text arrives as a prop.
+ * instead of the tabs; for an unknown offering, the not-found title and line
+ * above the back button, with no retry (show-item-not-found-message D2). Every
+ * text arrives as a prop.
  */
 export function OfferingDetailContent({
   result,
@@ -74,6 +83,20 @@ export function OfferingDetailContent({
       {texts.backLabel}
     </BackLink>
   );
+
+  if (result.state === "not-found") {
+    return (
+      <PageSection surface="page" containerClassName={TOP_CONTAINER_CLASSES}>
+        <div className={NOT_FOUND_CLASSES}>
+          <h1 className="type-heading">{texts.notFoundTitle}</h1>
+          <p className="type-body">{texts.notFoundLine}</p>
+        </div>
+        <div>
+          <BackButton fallback={`/${locale}/offerings`}>{texts.backLabel}</BackButton>
+        </div>
+      </PageSection>
+    );
+  }
 
   if (result.state === "error") {
     return (

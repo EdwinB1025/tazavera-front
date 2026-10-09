@@ -178,6 +178,10 @@ export function ExtrinsicNotes({
         <ExtrinsicField
           key={field}
           label={texts.extrinsicLabels[field]}
+          // As a pair's notes: the group holds several "Add note" controls.
+          noteLabel={`${texts.noteLabel} (${texts.extrinsicLabels[field]})`}
+          addLabel={`${texts.addNoteLabel} (${texts.extrinsicLabels[field]})`}
+          removeLabel={texts.removeNoteLabel}
           value={state.extrinsics[field]}
           readOnly={readOnly}
           onChange={(next) => onChange(withExtrinsic(field, next))}

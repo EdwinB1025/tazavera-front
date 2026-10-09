@@ -38,8 +38,6 @@ export type FormAction =
   | { type: "create"; ulid: string }
   /** An action ends: busy cleared; the message set unless `null`. */
   | { type: "settle"; message: string | null }
-  /** The close succeeded: busy cleared, read-only, every group and the legend open. */
-  | { type: "close"; message: string }
   /**
    * The close failed: busy cleared and the message set; on a `409`
    * (`incomplete` not `null`) those groups open and the form is highlighted.
@@ -58,12 +56,14 @@ export function initialFormModel(
   offering: OfferingDetail | null,
   evaluation: EvaluationItem | undefined,
   taxonomies: TaxonomyNode[],
+  viewOnly = false,
 ): FormModel {
   // The read carries no roast level: the offering's prefills it (design.md D11).
   const roastLevel = toRoastLevel(offering?.coffeeInventory?.coffee?.roastLevel);
   // Without its offering the evaluation can be neither updated nor closed:
-  // it opens read-only, as a closed one (design.md D17).
-  const closed = evaluation?.status === "closed" || offering === null;
+  // it opens read-only, as a closed one (design.md D17), and so does any
+  // evaluation opened with `?mode=view` (refine-evaluation-flow D4).
+  const closed = evaluation?.status === "closed" || offering === null || viewOnly;
   return {
     // An editable draft also chooses the ancestors of its chosen descriptors;
     // a closed one shows what was saved (cascade-evaluation-descriptors D7).
@@ -113,15 +113,6 @@ export function formReducer(model: FormModel, action: FormAction): FormModel {
       return { ...model, ulid: action.ulid };
     case "settle":
       return { ...model, busy: null, message: action.message ?? model.message };
-    case "close":
-      return {
-        ...model,
-        busy: null,
-        closed: true,
-        openGroups: allGroups(true),
-        legendOpen: true,
-        message: action.message,
-      };
     case "refuse":
       return {
         ...model,

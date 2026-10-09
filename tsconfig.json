@@ -56,6 +56,7 @@
     "qa/src/entities/evaluation/model/body.test.ts",
     "qa/src/pages/evaluations-list/ui/EvaluationRowCard.test.tsx",
     "qa/src/pages/evaluations-list/ui/EvaluationsList.test.tsx",
-    "qa/src/features/offering-management/ui/DeleteOfferingsDialog.test.tsx"
+    "qa/src/features/offering-management/ui/DeleteOfferingsDialog.test.tsx",
+    "qa/src/pages/evaluation-form/ui/EvaluationDetail.test.tsx"
   ]
 }

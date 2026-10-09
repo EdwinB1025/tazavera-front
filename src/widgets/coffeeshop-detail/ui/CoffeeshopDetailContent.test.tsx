@@ -177,6 +177,18 @@ describe("CoffeeshopDetailContent", () => {
     expect(within(card("Nomad Born")).queryByText("Sin posición en el mapa")).toBeNull();
   });
 
+  it("renders the title and the line above the back button, with no retry action and no tab (spec: Unknown coffee shop)", () => {
+    render(
+      <CoffeeshopDetailContent result={{ state: "not-found" }} locale="es" ulid="01SHOP" tab="offerings" texts={TEXTS} />,
+    );
+    const title = screen.getByRole("heading", { level: 1, name: "Cafetería no encontrada" });
+    const back = screen.getByRole("button", { name: "Volver a cafeterías" });
+    expect(screen.getByText("Puede que se haya retirado o que el enlace no sea correcto.")).toBeDefined();
+    expect(title.compareDocumentPosition(back) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Reintentar" })).toBeNull();
+    expect(screen.queryByRole("tab")).toBeNull();
+  });
+
   it("renders the back link, the error and the retry action, and no tab (spec: Unknown coffee shop or failure)", () => {
     render(
       <CoffeeshopDetailContent result={{ state: "error" }} locale="es" ulid="01SHOP" tab="offerings" texts={TEXTS} />,

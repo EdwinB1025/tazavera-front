@@ -12,6 +12,8 @@ import { formTextsFrom } from "./form-texts";
 export type EvaluationScreenProps = {
   locale: string;
   ulid: string;
+  /** `?mode=view`: the evaluation is shown read-only (refine-evaluation-flow D4). */
+  viewOnly?: boolean;
 };
 
 /**
@@ -20,7 +22,11 @@ export type EvaluationScreenProps = {
  * the client inside the access gate (the evaluation needs the token). A
  * failed taxonomy read shows the failure message with a retry.
  */
-export async function EvaluationScreen({ locale, ulid }: EvaluationScreenProps): Promise<ReactNode> {
+export async function EvaluationScreen({
+  locale,
+  ulid,
+  viewOnly = false,
+}: EvaluationScreenProps): Promise<ReactNode> {
   const catalog = getMessages("evaluations", locale);
   const read = await fetchTaxonomies();
   const taxonomies = read.ok ? read.data : null;
@@ -35,11 +41,14 @@ export async function EvaluationScreen({ locale, ulid }: EvaluationScreenProps):
             <EvaluationDetail
               locale={locale}
               ulid={ulid}
+              viewOnly={viewOnly}
               taxonomies={taxonomies.data}
               texts={{
                 ...formTextsFrom(catalog),
                 loadErrorMessage: catalog.formLoadErrorMessage,
                 retryLabel: catalog.retryLabel,
+                notFoundTitle: catalog.formNotFoundTitle,
+                notFoundLine: catalog.formNotFoundLine,
               }}
             />
           ) : (

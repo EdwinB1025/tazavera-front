@@ -23,7 +23,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
 | 1 | R40 | API branch in `tazavera-api` | Change (API) | M | PO: review of the API diff |
-| 2 | R18 | `show-item-not-found-message` | Change (behaviour, texts) | M | R40 |
 | 3 | R8 | none yet | Change (behaviour) | M | R40 |
 | 4 | R10 | none yet | Change (behaviour) | S | before the first facet that shows an error |
 | 5 | R50 | API branch in `tazavera-api` | Change (API) | S | API fix (confirmed on local data 2026-10-09: level-1 notes come back at the top of `cataConcordance`) |
@@ -42,24 +41,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 - **Type:** Change
 - **Status:** accepted
 - **Affects:** R8, R18
-
-## R18 — An item that does not exist shows a "not found" message in its own view (replaces "notFound() inside a streamed boundary answers HTTP 200", add-public-evaluations verify W3)
-
-- **Duplicated:** two wrong answers to "this item does not exist":
-  - an unknown offering, coffee shop or public evaluation shows "could not be loaded" with a Retry that can never succeed (`offering-catalog` "Error and retry", "Unknown coffee shop or failure"; `evaluations` read-only view, unknown ULID), because the contract documents no 404 for these reads;
-  - a public evaluation that is not closed, an unknown evaluation in the specialist area and an unknown offering on the new-evaluation form show the whole 404 page.
-- **Where today:** `src/widgets/evaluation-sheet/ui/EvaluationSheetView.tsx`, `src/pages/offering-detail`, `src/pages/coffeeshop-detail`, `src/pages/evaluation-form` (`EvaluationDetail.tsx`, `NewEvaluationScreen.tsx`)
-- **Why it pays off now:** Product owner's decision (2026-10-08): these are not 404 pages. The view keeps its layout and back link and shows a message naming what is missing ("<item> not found", or "no results" for an empty list), with no Retry. A failed request keeps the error with Retry. Verified: unknown URLs already answer HTTP 404 with the 404 page; a streamed 404 already carries `noindex` (Next.js docs, `loading.md` "Status Codes"), so the HTTP 200 needs no fix.
-- **Owning capability:** offering-catalog, evaluations
-- **Proposed change:** `show-item-not-found-message`
-- **Open decision (Augusto):** answered 2026-10-08: a signed-in user without the right role keeps the 404 page. Texts (orchestrator's recommendation, delegated by Product owner): one title per item and one line under it, inside the view, above the existing back link, with no Retry:
-  - viewing an offering (unknown identifier; also an unknown offering on the new-evaluation form): "Oferta no encontrada" / "Offering not found" / "Oferta no trobada"; "Puede que se haya retirado o que el enlace no sea correcto." / "It may have been removed, or the link may be wrong." / "Pot ser que s'hagi retirat o que l'enllaç no sigui correcte.";
-  - viewing a coffee shop: "Cafetería no encontrada" / "Coffee shop not found" / "Cafeteria no trobada"; same line;
-  - viewing an evaluation (unknown identifier, or not closed on the public view): "Evaluación no encontrada" / "Evaluation not found" / "Avaluació no trobada"; "Puede que aún no esté publicada o que el enlace no sea correcto." / "It may not be published yet, or the link may be wrong." / "Pot ser que encara no estigui publicada o que l'enllaç no sigui correcte." In the specialist area the line is the offering one ("removed").
-  Full strings per item, not a "{item} not found" template, so every language keeps its grammar.
-- **Type:** Change
-- **Status:** accepted
-- **Affects:** R40 (the 404 responses must be documented first)
 
 ## R8 — Map 422 validation errors to their fields (decisions log 2026-10-06, "escrituras, rutas protegidas y 422")
 

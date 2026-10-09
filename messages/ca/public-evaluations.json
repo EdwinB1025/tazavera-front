@@ -28,5 +28,7 @@
   "extrinsicGeneralObservation": "Observació general",
   "offeringFacet": "Oferta",
   "offeringFilterFallback": "Oferta seleccionada",
-  "metaDescription": "Avaluacions públiques d'especialistes"
+  "metaDescription": "Avaluacions públiques d'especialistes",
+  "viewNotFoundTitle": "Avaluació no trobada",
+  "viewNotFoundLine": "Pot ser que encara no estigui publicada o que l'enllaç no sigui correcte."
 }

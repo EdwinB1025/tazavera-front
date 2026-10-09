@@ -77,6 +77,8 @@ export function OfferingDetailScreen({
     backLabel: catalog.detailBackLabel,
     errorMessage: catalog.detailErrorMessage,
     retryLabel: landing.listRetryLabel,
+    notFoundTitle: catalog.detailNotFoundTitle,
+    notFoundLine: catalog.detailNotFoundLine,
     tabInventory: catalog.detailTabInventory,
     tabConsensus: catalog.detailTabConsensus,
     tabProvisional: catalog.detailTabProvisional,
