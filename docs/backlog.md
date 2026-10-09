@@ -16,112 +16,20 @@ One section per candidate, in this format:
 - **Status:** proposed | accepted | deferred
 - **Affects:** <changes that should wait for it or reference it>
 
-## Priority order (2026-10-08)
+## Priority order (2026-10-09)
 
-The entries below follow this order. The order runs security first, then the shared layers before their consumers (FSD), then the entries that wait for a decision, and last the blocked or deferred ones. An entry that another change resolves sits right after it. R20–R38 come from `docs/review/technical-review.md` §3, which has each candidate's files, principle, risk, protecting tests and expected grade. Effort: S < 2 h, M 2–6 h, L > 6 h.
+The table lists only open entries, in the order they are to be taken. Effort: S < 2 h, M 2–6 h, L > 6 h.
 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
-| 0 | R41 | none (closed: environment, no code) | Deploy note | — | — (closed by Product owner 2026-10-08) |
-| 0d | R47 | none (closed: no code change) | Unplanned fix | — | — (Product owner 2026-10-08, option A: re-test on current develop) |
-| 16c | R50 | API branch in `tazavera-api` | Change (API) | S | Product owner: verify with real data (the API should deliver the resolved tree) |
-| 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
-| 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
-| 4 | R21 | `tidy-shared-imports` | Refactor (fast lane) | S | — |
-| 5 | R22 | `extract-field-control-hook` | Refactor (fast lane) | M | — |
-| 6 | R24 | `route-public-reads-through-client` | Refactor (fast lane) | S | — |
-| 7 | R26 | `share-evaluation-offerings-loader` | Refactor (fast lane) | S | — |
-| 8 | R23 (resolves R13) | `remove-cross-feature-auth-imports` | Refactor (fast lane) | S | — |
-| 9 | R5 | `share-active-locale` | Refactor (fast lane) | S | R23 |
-| 10 | R25 | `move-account-requests-to-api` | Refactor (fast lane) | M | — |
-| 11 | R27 | `split-evaluation-row-card` | Refactor (fast lane) | M | — |
-| 13 | R29 (resolves R15) | `speed-up-test-environment` | Refactor (fast lane) | S | — |
-| 14 | R30 (resolves R19) | `cache-reference-reads` | Refactor (fast lane) | S | — |
-| 16 | R40 | API branch in `tazavera-api` | Change (API) | M | PO: review of the API diff |
-| 16b | R18 | `show-item-not-found-message` | Change (behaviour, texts) | M | R40 |
-| 17 | R33 | `split-consensus-panel` | Refactor (fast lane) | M | — |
-| 18 | R34 | `split-evaluation-form-state` | Refactor (fast lane) | L | — |
-| 19 | R38 | `split-account-and-management-panels` | Refactor (fast lane) | M | — |
-| 20 | R37 | `split-flavor-wheel` | Refactor (fast lane) | L | — |
-| 23 | R10 | none yet | Change (behaviour) | S | before the first facet that shows an error |
-| 24 | R8 | none yet | Change (behaviour) | M | R40; after R25 and R35 |
-| 25 | R1 | none (Playwright suite) | Change (tests) | — | the pre-deployment E2E suite |
-| 26 | R43 | `adopt-next-intl-routing` | Change | L | last priority (Product owner, 2026-10-08); after R28 and R31 |
-| 28 | R45 | none yet | Change (behaviour, API) | M | Product owner: API change and contract update; not to be designed yet |
-
-Every entry of the technical review (R20–R39) takes the fast lane by Product owner's decision of 2026-10-08, including R30, R31 and R32, which change a design decision, security headers and texts; R17 and R19 ride with R32 and R30. R3 (tests, rides with R31) and R4 (spec wording) are typed `Change`.
-
-## R47 — Filter chips and "Clear all" show no loading state (production AUT finding 13, 2026-10-08)
-
-- **Duplicated:** none. Defect against `content-structure` "Prompt page change on server-loaded lists" ("…or changes the query…: the list SHALL replace the previous page's content with its loading state at once").
-- **Where today:** the offerings list with its `@sidebar/offerings` slot. Measured in a production build: "Clear all" changed the URL after 4.4 s, a chip ✕ after 5.9 s, no `.animate-pulse` at any time, the `_rsc` requests for `/es/offerings` took 3.6–5.8 s; `GET /offerings?verified=1` takes about 3.8 s on the API itself. Probable cause (not verified): the async sidebar slot (`FilteredOfferingsFacets` awaits `/coffees` and `/taxonomies`) has no `Suspense`, so the transition waits for it before the list's keyed `Suspense` fallback shows
-- **Why it pays off now:** Product owner's AUT; the old cards stay for seconds with no feedback
-- **Owning capability:** content-structure (with filtering)
-- **Proposed change:** `show-filter-loading-at-once` (S)
-- **Open decision (Augusto):** answered 2026-10-08, option A: no code change. The cloud session reproduced the cause (the sidebar facets and the toolbar await `/coffees` and `/taxonomies` outside any `Suspense`, so the navigation waits for them) and measured that with those reads cached (R30's one-hour cache, merged after the AUT build) the list skeleton and the URL change show in ~110 ms. Option B (keyed `Suspense` around facets and toolbar) was rejected: the facets would go blank while the reads load. Product owner re-tests on current develop.
-- **Type:** Unplanned fix
-- **Status:** closed (no code)
-- **Affects:** none
-
-## R50 — Consensus concordance loses the parent of unmarked intermediate notes (API; found by the design lead for R49)
-
-- **Duplicated:** none. Read from the code, not run: `tazavera-api/app/Services/OfferingConsensusService.php:189-197`, `resolveParentOfferingTasteId` looks a node's parent up only among the directly marked references, so a level-1 ancestor that was not itself marked is stored with `parent_id` null and comes back at the top level of `cataConcordance`, apart from its level-0 parent. The seed marks aromatic leaves only (`EvaluationFactory::taxonomyRefs`), so in seeded data almost every level-1 note is affected. The contract example (`contracts/openapi.yaml:6550-6615`) shows a proper three-level tree.
-- **Where today:** the API consensus service; seen on the front in the offering card's taste notes (R49) and the flavor wheel (`buildFlavorWheelNodes` keeps top-level nodes as roots)
-- **Why it pays off now:** R49 renders the notes as nested trees; with this defect many children appear detached from their parent
-- **Owning capability:** API (consumed by landing and offering-catalog)
-- **Proposed change:** none yet: an API fix by Product owner; the front does not adapt to it
-- **Open decision (Augusto):** Product owner (2026-10-08): the API always delivers the consensus tree resolved; the very high note counts come from anomalous seeders (real evaluations identify few flavours). Verify the code reading against real data before any work; if the tree arrives resolved, close this entry
-- **Type:** Change (API)
-- **Status:** deferred
-- **Affects:** R49 (how often its orphan rule applies), the flavor wheel
-
-## R41 — Sign-in does not authenticate (production AUT, 2026-10-08)
-
-- **Duplicated:** none. Defect found in the production AUT: no user ends up signed in, whatever the role (coffee shop and specialist, both freshly registered), and neither after the registration nor through the normal sign-in flow.
-- **Where today:** not located yet; sign-in flow of `src/features/auth`. Ruled out on 2026-10-08: the production build carries the current client `01a11aee-170a-71bc-82aa-43344bf1b12d`; the API accepts it (`/oauth/authorize` answers 302 to `/login`, a wrong client answers `invalid_client`); the API log has no error that day. **Cause found (2026-10-08): environment, not code.** The API completes every step (authorize, login, `POST /oauth/token` 200, `GET /user` 200, CORS ok, `/callback` without COOP). The AUT ran a production build (`npm run build` + `npm start`) against `http://localhost:8000`, and `src/shared/api/tokens.ts` (`add-auth` design.md D8) refuses a non-HTTPS token endpoint when `NODE_ENV=production`; `completePopup` takes the silent error path. Product owner is putting the API behind a local TLS proxy (Caddy) to repeat the AUT; deployment requirements are in `tazavera-documentation/api-implementation-notes.md` and `front-implementation-notes.md`. **No code task until that AUT is repeated**; then the entry is closed or retyped.
-- **Why it pays off now:** it blocks every authenticated flow (account, evaluations, management of offerings and locations), and the AUT cannot continue on that side.
-- **Owning capability:** auth
-- **Proposed change:** none. **Closed by Product owner's decision of 2026-10-08:** the AUTs continue locally with `npm run dev`, which accepts the `http` API, so sign-in works; the deploy (TLS proxy Caddy + Docker) is postponed to a later action. The HTTPS requirement is a deploy note, covered by `tazavera-documentation/api-implementation-notes.md`, `front-implementation-notes.md` and `docker-deploy-guideline.md`.
-- **Open decision (Augusto):** none
-- **Type:** Deploy note (no code)
-- **Status:** closed
-- **Affects:** the deploy (HTTPS for the API's token endpoint in production builds)
-
-## R43 — Adopt next-intl for locale routing
-
-- **Duplicated:** locale handling written by hand next to next-intl, which the project uses only for its plugin and `getRequestConfig`: the locale list in `src/shared/config/locales.ts` instead of `defineRouting`, the locale prefix in `proxy.ts` instead of the next-intl middleware, and the active locale read from the URL (R5's `localeFromPath`) instead of `useLocale()` / `getLocale()`
-- **Where today:** `src/shared/config/locales.ts`, `src/shared/lib/i18n/`, `proxy.ts`, `app/layout.tsx`, `src/features/auth` (after R5), the language selector, and every importer of the locale config (~60 files with tests)
-- **Why it pays off now:** one library for i18n, following its standard structure. It moves no grade of `docs/review/technical-review.md`; it risks two of them (JS per route, R28; `proxy.ts` headers and CSP, R31)
-- **Owning capability:** app-shell (with auth)
-- **Proposed change:** `adopt-next-intl-routing` (L, about 3–4 h after the summary is approved)
-- **Open decision (Augusto):** the design summary settles how the next-intl middleware coexists with the CSP nonce and headers of `proxy.ts`, where the provider goes, and how the sign-in code receives the locale. Condition: measure the JS per route before and after; the change must not exceed R28's target. Texts keep reaching components as props (no `useTranslations`)
-- **Type:** Change
-- **Status:** accepted (last priority, Product owner 2026-10-08)
-- **Affects:** R5 (its function is removed here), R28, R31 (both go first)
-
-## R45 — Ask for the first location in coffee-shop registration
-
-- **Duplicated:** none. Coffee-shop registration does not ask for a location; the user creates the first one after signing in, in Manage locations.
-- **Where today:** the coffee-shop register form (`/[locale]/register/coffeeshop`, `src/features/user-account`); the Manage locations form (`src/features/location-management`)
-- **Why it pays off now:** the coffee shop is usable as soon as it registers, without a second step
-- **Owning capability:** user-account, offering-management
-- **Proposed change:** none yet. Later, through the normal flow (design summary needed): the coffee-shop register form adds the location fields, reusing the Manage locations form fields; Manage locations stays for editing and adding more locations
-- **Open decision (Augusto):** answered 2026-10-08: registration asks for the first location's data, reversing production AUT point 11, decision A ("the location is created after the first sign-in, in Manage locations") once this entry is done; until then the current behaviour stays. Not to be designed now. It cannot be front-only today: `POST /locations` needs `auth:api` + `profile:write`, and the front has no token right after `POST /register` (see R44); `POST /register` (`StoreUserRequest`) does not accept location data. API change first, by Product owner: `StoreUserRequest` accepts a `location` block with the `StoreLocationRequest` rules (`name`, `description`, `latitud`/`longitud`, `contact` with `address` and `city`), required when `role=coffeeshop`; `UserController::store` creates the location and its primary contact in the same `DB::transaction`; Scribe regenerated and `contracts/openapi.yaml` updated
-- **Type:** Change (changes what users see and the API contract)
-- **Status:** deferred
-- **Affects:** R44 (same registration step); the coffee-shop register screen and Manage locations
-
-## R15 — Slow `EvaluationForm` tests under load (add-user-contact checks)
-
-- **Duplicated:** none; `src/pages/evaluation-form/ui/EvaluationForm.test.tsx` takes about 16s alone and about 58s in the full suite, where one case ("sends each descriptor block's selection to its request field") hit the 5000ms test timeout once and passed on re-run
-- **Where today:** `src/pages/evaluation-form/ui/EvaluationForm.test.tsx`
-- **Why it pays off now:** a flaky timeout breaks the checks of unrelated changes
-- **Owning capability:** evaluations
-- **Proposed change:** none yet — unplanned coverage fix (split the file or reduce user-event typing)
-- **Open decision (Augusto):** none
-- **Type:** Refactor (fast lane)
-- **Status:** proposed
-- **Affects:** none
+| 1 | R40 | API branch in `tazavera-api` | Change (API) | M | PO: review of the API diff |
+| 2 | R18 | `show-item-not-found-message` | Change (behaviour, texts) | M | R40 |
+| 3 | R8 | none yet | Change (behaviour) | M | R40 |
+| 4 | R10 | none yet | Change (behaviour) | S | before the first facet that shows an error |
+| 5 | R50 | API branch in `tazavera-api` | Change (API) | S | API fix (confirmed on local data 2026-10-09: level-1 notes come back at the top of `cataConcordance`) |
+| 6 | R43 | `adopt-next-intl-routing` | Change | L | its design summary |
+| 7 | R45 | none yet | Change (behaviour, API) | M | Product owner: API change and contract update; not to be designed yet |
+| 8 | R1 | none (Playwright suite) | Change (tests) | — | the pre-deployment Playwright suite |
 
 ## R40 — Document the 422 and 404 responses in the API (tazavera-api)
 
@@ -153,18 +61,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Status:** accepted
 - **Affects:** R40 (the 404 responses must be documented first)
 
-## R10 — Error boundary of the row facets in the traditional theme (refine-facet-controls Q2)
-
-- **Duplicated:** none; the row facets' radio and checkbox boxes take the error boundary colour in the dark theme only — in the traditional theme they keep the cream boundary under an error
-- **Where today:** the row facet controls of `add-facet-controls` (inside the sidebar's `variant-inverse` scope); seen in `docs/design/refine-facet-controls/captures/375-light.png` vs `375-dark.png` ("Proceso", "Solo disponibles")
-- **Why it pays off now:** no consumer passes an error to a facet today; the first facet that shows a validation error would show it only by the left bar and the text in the traditional theme
-- **Owning capability:** filtering
-- **Proposed change:** none yet — schedule it before a facet consumer shows errors
-- **Open decision (Augusto):** none
-- **Type:** Change
-- **Status:** accepted
-- **Affects:** `add-offering-facets`, `add-evaluation-facets`
-
 ## R8 — Map 422 validation errors to their fields (decisions log 2026-10-06, "escrituras, rutas protegidas y 422")
 
 - **Duplicated:** none yet; every form shows one generic form-level error for any 422
@@ -177,6 +73,54 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Status:** proposed
 - **Affects:** `add-user-account`, `add-offering-management`, `add-specialist-evaluations`
 
+## R10 — Error boundary of the row facets in the traditional theme (refine-facet-controls Q2)
+
+- **Duplicated:** none; the row facets' radio and checkbox boxes take the error boundary colour in the dark theme only — in the traditional theme they keep the cream boundary under an error
+- **Where today:** the row facet controls of `add-facet-controls` (inside the sidebar's `variant-inverse` scope); seen in `docs/design/refine-facet-controls/captures/375-light.png` vs `375-dark.png` ("Proceso", "Solo disponibles")
+- **Why it pays off now:** no consumer passes an error to a facet today; the first facet that shows a validation error would show it only by the left bar and the text in the traditional theme
+- **Owning capability:** filtering
+- **Proposed change:** none yet — schedule it before a facet consumer shows errors
+- **Open decision (Augusto):** none
+- **Type:** Change
+- **Status:** accepted
+- **Affects:** `add-offering-facets`, `add-evaluation-facets`
+
+## R50 — Consensus concordance loses the parent of unmarked intermediate notes (API; found by the design lead for R49)
+
+- **Duplicated:** none. Read from the code, not run: `tazavera-api/app/Services/OfferingConsensusService.php:189-197`, `resolveParentOfferingTasteId` looks a node's parent up only among the directly marked references, so a level-1 ancestor that was not itself marked is stored with `parent_id` null and comes back at the top level of `cataConcordance`, apart from its level-0 parent. The seed marks aromatic leaves only (`EvaluationFactory::taxonomyRefs`), so in seeded data almost every level-1 note is affected. The contract example (`contracts/openapi.yaml:6550-6615`) shows a proper three-level tree.
+- **Where today:** the API consensus service; seen on the front in the offering card's taste notes (R49) and the flavor wheel (`buildFlavorWheelNodes` keeps top-level nodes as roots)
+- **Why it pays off now:** R49 renders the notes as nested trees; with this defect many children appear detached from their parent
+- **Owning capability:** API (consumed by landing and offering-catalog)
+- **Proposed change:** none yet: an API fix by Product owner; the front does not adapt to it
+- **Open decision (Augusto):** Product owner (2026-10-08): the API always delivers the consensus tree resolved; the very high note counts come from anomalous seeders (real evaluations identify few flavours). Verify the code reading against real data before any work; if the tree arrives resolved, close this entry
+- **Type:** Change (API)
+- **Status:** deferred
+- **Affects:** R49 (how often its orphan rule applies), the flavor wheel
+
+## R43 — Adopt next-intl for locale routing
+
+- **Duplicated:** locale handling written by hand next to next-intl, which the project uses only for its plugin and `getRequestConfig`: the locale list in `src/shared/config/locales.ts` instead of `defineRouting`, the locale prefix in `proxy.ts` instead of the next-intl middleware, and the active locale read from the URL (R5's `localeFromPath`) instead of `useLocale()` / `getLocale()`
+- **Where today:** `src/shared/config/locales.ts`, `src/shared/lib/i18n/`, `proxy.ts`, `app/layout.tsx`, `src/features/auth` (after R5), the language selector, and every importer of the locale config (~60 files with tests)
+- **Why it pays off now:** one library for i18n, following its standard structure. It moves no grade of `docs/review/technical-review.md`; it risks two of them (JS per route, R28; `proxy.ts` headers and CSP, R31)
+- **Owning capability:** app-shell (with auth)
+- **Proposed change:** `adopt-next-intl-routing` (L, about 3–4 h after the summary is approved)
+- **Open decision (Augusto):** the design summary settles how the next-intl middleware coexists with the CSP nonce and headers of `proxy.ts`, where the provider goes, and how the sign-in code receives the locale. Condition: measure the JS per route before and after; the change must not exceed R28's target. Texts keep reaching components as props (no `useTranslations`)
+- **Type:** Change
+- **Status:** accepted (last priority, Product owner 2026-10-08)
+- **Affects:** R5 (its function is removed here), R28, R31 (both go first)
+
+## R45 — Ask for the first location in coffee-shop registration
+
+- **Duplicated:** none. Coffee-shop registration does not ask for a location; the user creates the first one after signing in, in Manage locations.
+- **Where today:** the coffee-shop register form (`/[locale]/register/coffeeshop`, `src/features/user-account`); the Manage locations form (`src/features/location-management`)
+- **Why it pays off now:** the coffee shop is usable as soon as it registers, without a second step
+- **Owning capability:** user-account, offering-management
+- **Proposed change:** none yet. Later, through the normal flow (design summary needed): the coffee-shop register form adds the location fields, reusing the Manage locations form fields; Manage locations stays for editing and adding more locations
+- **Open decision (Augusto):** answered 2026-10-08: registration asks for the first location's data, reversing production AUT point 11, decision A ("the location is created after the first sign-in, in Manage locations") once this entry is done; until then the current behaviour stays. Not to be designed now. It cannot be front-only today: `POST /locations` needs `auth:api` + `profile:write`, and the front has no token right after `POST /register` (see R44); `POST /register` (`StoreUserRequest`) does not accept location data. API change first, by Product owner: `StoreUserRequest` accepts a `location` block with the `StoreLocationRequest` rules (`name`, `description`, `latitud`/`longitud`, `contact` with `address` and `city`), required when `role=coffeeshop`; `UserController::store` creates the location and its primary contact in the same `DB::transaction`; Scribe regenerated and `contracts/openapi.yaml` updated
+- **Type:** Change (changes what users see and the API contract)
+- **Status:** deferred
+- **Affects:** R44 (same registration step); the coffee-shop register screen and Manage locations
+
 ## R1 — End-to-end test of "Choosing a locale" (verify W1, deferred here by the product owner)
 
 - **Duplicated:** none
@@ -187,4 +131,30 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Open decision (Augusto):** none
 - **Type:** Change
 - **Status:** deferred
+- **Affects:** none
+
+## Closed entries
+
+## R41 — Sign-in does not authenticate (production AUT, 2026-10-08)
+
+- **Duplicated:** none. Defect found in the production AUT: no user ends up signed in, whatever the role (coffee shop and specialist, both freshly registered), and neither after the registration nor through the normal sign-in flow.
+- **Where today:** not located yet; sign-in flow of `src/features/auth`. Ruled out on 2026-10-08: the production build carries the current client `01a11aee-170a-71bc-82aa-43344bf1b12d`; the API accepts it (`/oauth/authorize` answers 302 to `/login`, a wrong client answers `invalid_client`); the API log has no error that day. **Cause found (2026-10-08): environment, not code.** The API completes every step (authorize, login, `POST /oauth/token` 200, `GET /user` 200, CORS ok, `/callback` without COOP). The AUT ran a production build (`npm run build` + `npm start`) against `http://localhost:8000`, and `src/shared/api/tokens.ts` (`add-auth` design.md D8) refuses a non-HTTPS token endpoint when `NODE_ENV=production`; `completePopup` takes the silent error path. Product owner is putting the API behind a local TLS proxy (Caddy) to repeat the AUT; deployment requirements are in `tazavera-documentation/api-implementation-notes.md` and `front-implementation-notes.md`. **No code task until that AUT is repeated**; then the entry is closed or retyped.
+- **Why it pays off now:** it blocks every authenticated flow (account, evaluations, management of offerings and locations), and the AUT cannot continue on that side.
+- **Owning capability:** auth
+- **Proposed change:** none. **Closed by Product owner's decision of 2026-10-08:** the AUTs continue locally with `npm run dev`, which accepts the `http` API, so sign-in works; the deploy (TLS proxy Caddy + Docker) is postponed to a later action. The HTTPS requirement is a deploy note, covered by `tazavera-documentation/api-implementation-notes.md`, `front-implementation-notes.md` and `docker-deploy-guideline.md`.
+- **Open decision (Augusto):** none
+- **Type:** Deploy note (no code)
+- **Status:** closed
+- **Affects:** the deploy (HTTPS for the API's token endpoint in production builds)
+
+## R47 — Filter chips and "Clear all" show no loading state (production AUT finding 13, 2026-10-08)
+
+- **Duplicated:** none. Defect against `content-structure` "Prompt page change on server-loaded lists" ("…or changes the query…: the list SHALL replace the previous page's content with its loading state at once").
+- **Where today:** the offerings list with its `@sidebar/offerings` slot. Measured in a production build: "Clear all" changed the URL after 4.4 s, a chip ✕ after 5.9 s, no `.animate-pulse` at any time, the `_rsc` requests for `/es/offerings` took 3.6–5.8 s; `GET /offerings?verified=1` takes about 3.8 s on the API itself. Probable cause (not verified): the async sidebar slot (`FilteredOfferingsFacets` awaits `/coffees` and `/taxonomies`) has no `Suspense`, so the transition waits for it before the list's keyed `Suspense` fallback shows
+- **Why it pays off now:** Product owner's AUT; the old cards stay for seconds with no feedback
+- **Owning capability:** content-structure (with filtering)
+- **Proposed change:** `show-filter-loading-at-once` (S)
+- **Open decision (Augusto):** answered 2026-10-08, option A: no code change. The cloud session reproduced the cause (the sidebar facets and the toolbar await `/coffees` and `/taxonomies` outside any `Suspense`, so the navigation waits for them) and measured that with those reads cached (R30's one-hour cache, merged after the AUT build) the list skeleton and the URL change show in ~110 ms. Option B (keyed `Suspense` around facets and toolbar) was rejected: the facets would go blank while the reads load. Product owner re-tests on current develop.
+- **Type:** Unplanned fix
+- **Status:** closed (no code)
 - **Affects:** none
