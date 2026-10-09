@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import type { Session } from "@/shared/api";
 import { AccountClient, type AccountClientTexts } from "./AccountClient";
 
@@ -10,11 +10,13 @@ import { AccountClient, type AccountClientTexts } from "./AccountClient";
  * `@/features/auth`, both mocked here.
  */
 
+type StepUpOutcome = "granted" | "cancelled" | "failed" | "other-account";
+
 const auth = vi.hoisted(() => ({
   session: { state: "loading" } as Session,
   signIn: vi.fn<(returnRoute?: string) => void>(),
   signOut: vi.fn<() => void>(),
-  requestProfileWrite: vi.fn<(returnRoute: string) => void>(),
+  requestProfileWrite: vi.fn<(returnRoute: string) => Promise<StepUpOutcome>>(),
   refreshProfile: vi.fn<() => Promise<void>>(),
 }));
 
@@ -88,6 +90,7 @@ const TEXTS = {
   contactEmailLabel: "fx-email",
   contactWebLabel: "fx-web",
   contactSocialLabel: "fx-social",
+  stepUpOtherAccount: "fx-step-up-other-account",
 } as AccountClientTexts;
 
 const USER = {
@@ -188,13 +191,46 @@ describe("AccountClient — sections group", () => {
 });
 
 describe("AccountClient — edit mode", () => {
-  it("Edit profile starts the identity check for the edit-mode route and opens it", () => {
+  it("Edit profile starts the identity check for the edit-mode route and opens it", async () => {
     auth.session = { state: "authenticated", user: USER };
+    auth.requestProfileWrite.mockResolvedValue("granted");
     renderClient();
     fireEvent.click(screen.getByRole("button", { name: TEXTS.editProfileHeading }));
     expect(auth.requestProfileWrite).toHaveBeenCalledTimes(1);
     expect(auth.requestProfileWrite).toHaveBeenCalledWith("/es/account?edit=1");
-    expect(nav.replace).toHaveBeenCalledWith("/es/account?edit=1", { scroll: false });
+    await waitFor(() => {
+      expect(nav.replace).toHaveBeenCalledWith("/es/account?edit=1", { scroll: false });
+    });
+  });
+
+  it("stays in read mode while the identity check is pending (spec: Edit mode waits for the identity check)", () => {
+    auth.session = { state: "authenticated", user: USER };
+    auth.requestProfileWrite.mockReturnValue(new Promise(() => {}));
+    renderClient();
+    fireEvent.click(screen.getByRole("button", { name: TEXTS.editProfileHeading }));
+    expect(nav.replace).not.toHaveBeenCalled();
+    expect(screen.getByRole("region", { name: TEXTS.profileHeading })).toBeTruthy();
+  });
+
+  it("stays in read mode with no message when the identity check popup is closed (spec: The identity check popup is closed)", async () => {
+    auth.session = { state: "authenticated", user: USER };
+    const outcome = Promise.resolve<StepUpOutcome>("cancelled");
+    auth.requestProfileWrite.mockReturnValue(outcome);
+    renderClient();
+    fireEvent.click(screen.getByRole("button", { name: TEXTS.editProfileHeading }));
+    await outcome;
+    expect(nav.replace).not.toHaveBeenCalled();
+    expect(screen.queryByText(TEXTS.stepUpOtherAccount)).toBeNull();
+  });
+
+  it("stays in read mode and shows one status message when another account completes the identity check (spec: The identity check is completed by another account)", async () => {
+    auth.session = { state: "authenticated", user: USER };
+    auth.requestProfileWrite.mockResolvedValue("other-account");
+    renderClient();
+    fireEvent.click(screen.getByRole("button", { name: TEXTS.editProfileHeading }));
+    const message = await screen.findByText(TEXTS.stepUpOtherAccount);
+    expect(message.getAttribute("role")).toBe("status");
+    expect(nav.replace).not.toHaveBeenCalled();
   });
 
   it("Done returns to read mode and sends nothing", () => {
@@ -208,13 +244,17 @@ describe("AccountClient — edit mode", () => {
 });
 
 describe("AccountClient — Security section", () => {
-  it("Change password starts the identity check for the password view and opens it", () => {
+  it("Change password starts the identity check for the password view and opens it once granted (spec: The password route waits for the identity check)", async () => {
     auth.session = { state: "authenticated", user: USER };
+    auth.requestProfileWrite.mockResolvedValue("granted");
     renderClient();
     fireEvent.click(screen.getByRole("button", { name: TEXTS.changePassword }));
     expect(auth.requestProfileWrite).toHaveBeenCalledTimes(1);
     expect(auth.requestProfileWrite).toHaveBeenCalledWith("/es/account/password");
-    expect(nav.push).toHaveBeenCalledWith("/es/account/password");
+    expect(nav.push).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(nav.push).toHaveBeenCalledWith("/es/account/password");
+    });
   });
 
   it("shows its description and external same-tab links to {API}/user/security for two-factor and passkeys, sending no request", () => {
