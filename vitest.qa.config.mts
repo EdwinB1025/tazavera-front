@@ -8,10 +8,6 @@ export default defineConfig({
         ...baseConfig.test,
         exclude: [
             ...configDefaults.exclude,
-            // fails since it was moved; see the setup report
-            'qa/src/app/shell/AppShell.test.tsx',
-            // stale since fix-production-aut-findings (R42); see the merge report
-            'qa/src/widgets/app-header/ui/AppHeader.test.tsx',
             // stale since fix-production-aut-findings (R42); see the merge report
             'qa/src/widgets/offering-list/lib/resolve-taxonomies.test.ts',
             // imports ThemeSelect, deleted by refine-header-aut (design.md D4b)
