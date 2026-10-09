@@ -527,6 +527,7 @@ describe("requestProfileWrite — step-up in the popup of design.md D10 (spec: S
       expect(profileRequests()).toEqual([
         `Bearer ${GRANT.access_token}`,
         `Bearer ${WRITE_GRANT.access_token}`,
+        `Bearer ${WRITE_GRANT.access_token}`,
       ]);
     });
     await vi.waitFor(() => {
@@ -564,6 +565,95 @@ describe("requestProfileWrite — step-up in the popup of design.md D10 (spec: S
     expect(locationMock.assign).not.toHaveBeenCalled();
     expect(reloadMock).not.toHaveBeenCalled();
     expect(pushMock).not.toHaveBeenCalled();
+  });
+
+  /** The `POST /logout` requests so far, with the Bearer token each carried. */
+  function logoutRequests(): string[] {
+    return fetchMock.mock.calls
+      .filter(([input, init]) => String(input).endsWith("/logout") && init?.method === "POST")
+      .map(([, init]) => new Headers(init?.headers).get("authorization") ?? "");
+  }
+
+  /** `GET /user` answers `OTHER` for the write token, `PROFILE` otherwise. */
+  const OTHER = { ...PROFILE, ulid: "user-ulid-2", email: "other@example.test" };
+  function answerOtherUserForWriteToken(): void {
+    fetchMock.mockImplementation((input, init) => {
+      const url = String(input);
+      if (url.includes("/oauth/token")) return Promise.resolve(jsonResponse(tokenAnswer));
+      if (url.endsWith("/logout")) return Promise.resolve(jsonResponse({}));
+      const bearer = new Headers(init?.headers).get("authorization");
+      const user = bearer === `Bearer ${WRITE_GRANT.access_token}` ? OTHER : PROFILE;
+      return Promise.resolve(jsonResponse({ data: user }));
+    });
+  }
+
+  it("resolves granted once the same user completes the write sign in (spec: The step-up is granted)", async () => {
+    const loaded = await loadWithSession();
+    await signedIn(loaded);
+    const outcome = loaded.requestProfileWrite(route);
+    await vi.waitFor(() => {
+      expect(popup.location.assign).toHaveBeenCalledTimes(1);
+    });
+    tokenAnswer = WRITE_GRANT;
+
+    answer({ code: "code-2", state: loaded.flow.readHeldFlow()!.state });
+
+    expect(await outcome).toBe("granted");
+    expect(loaded.getTokens()?.access_token).toBe(WRITE_GRANT.access_token);
+  });
+
+  it("resolves cancelled and leaves tokens and session unchanged when the popup closes (spec: The popup is closed during the step-up)", async () => {
+    const loaded = await loadWithSession();
+    const session = await signedIn(loaded);
+    const outcome = loaded.requestProfileWrite(route);
+    await vi.waitFor(() => {
+      expect(popup.location.assign).toHaveBeenCalledTimes(1);
+    });
+
+    popup.closed = true;
+
+    expect(await outcome).toBe("cancelled");
+    expect(loaded.getTokens()?.access_token).toBe(GRANT.access_token);
+    expect(session.current).toEqual({ state: "authenticated", user: PROFILE });
+  });
+
+  it("keeps the previous tokens and session, ends the other user's web session and resolves other-account when another user signs in (spec: Another user completes the step-up)", async () => {
+    const loaded = await loadWithSession();
+    const session = await signedIn(loaded);
+    answerOtherUserForWriteToken();
+    const outcome = loaded.requestProfileWrite(route);
+    await vi.waitFor(() => {
+      expect(popup.location.assign).toHaveBeenCalledTimes(1);
+    });
+    tokenAnswer = WRITE_GRANT;
+
+    answer({ code: "code-2", state: loaded.flow.readHeldFlow()!.state });
+
+    expect(await outcome).toBe("other-account");
+    expect(logoutRequests()).toEqual([`Bearer ${WRITE_GRANT.access_token}`]);
+    expect(loaded.getTokens()?.access_token).toBe(GRANT.access_token);
+    expect(session.current).toEqual({ state: "authenticated", user: PROFILE });
+    expect(loaded.flow.hasMarker()).toBe(true);
+  });
+
+  it("ends the other user's web session and the session anonymous at the callback when another user completes a full-page step-up (spec: Another user completes the step-up after a full-page redirect)", async () => {
+    const loaded = await loadWithSession();
+    answerOtherUserForWriteToken();
+    tokenAnswer = WRITE_GRANT;
+    loaded.flow.setMarker();
+    loaded.flow.saveFlow({
+      verifier: "verifier-2",
+      state: "state-2",
+      returnRoute: route,
+      expectedUlid: PROFILE.ulid,
+    });
+
+    await loaded.completeCallback({ code: "code-2", state: "state-2" }, replaceRouteMock);
+
+    expect(logoutRequests()).toEqual([`Bearer ${WRITE_GRANT.access_token}`]);
+    expect(loaded.getTokens()).toBeNull();
+    expect(loaded.flow.hasMarker()).toBe(false);
+    expect(openedRoute()).toBe(route);
   });
 });
 
