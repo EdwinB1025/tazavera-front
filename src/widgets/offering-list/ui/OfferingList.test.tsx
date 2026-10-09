@@ -76,6 +76,7 @@ const TEXTS = {
   defectiveLabel: "texts.defectiveLabel",
   viewLabel: "texts.viewLabel",
   evaluateLabel: "texts.evaluateLabel",
+  viewEvaluationsLabel: "texts.viewEvaluationsLabel",
   verifiedLabel: "texts.verifiedLabel",
   provisionalLabel: "texts.provisionalLabel",
   ratingExceptionalLabel: "texts.ratingExceptionalLabel",
@@ -203,6 +204,22 @@ describe("OfferingList", () => {
           children.indexOf(view),
         );
       }
+    });
+  });
+
+  describe("View evaluations action (spec: 'View evaluations action for everyone'; add-card-evaluations-action)", () => {
+    it("renders View evaluations after View in the same group, opening the offering's evaluations", () => {
+      renderList({
+        state: "success",
+        items: [ITEM_ONE],
+        meta: { current_page: 1, last_page: 1 },
+      });
+      const view = screen.getByRole("button", { name: TEXTS.viewLabel });
+      const evaluations = screen.getByRole("button", { name: TEXTS.viewEvaluationsLabel });
+      const children = Array.from(view.parentElement!.children);
+      expect(children.indexOf(evaluations)).toBe(children.indexOf(view) + 1);
+      fireEvent.click(evaluations);
+      expect(router.push).toHaveBeenCalledWith(`/es/evaluations?offeringId=${ULID_ONE}`);
     });
   });
 
