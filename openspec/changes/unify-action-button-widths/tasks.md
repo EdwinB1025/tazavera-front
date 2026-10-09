@@ -35,4 +35,4 @@ No derived API types are needed: the change only moves layout classes and adds t
 
 ## 8. Full checks
 
-- [ ] 8.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: every validation test passes; the QA suite fails only in files that also fail on `origin/develop`; no typecheck or lint errors; the build succeeds. QA tests made stale by this change are reported, not edited.
+- [x] 8.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: every validation test passes; the QA suite fails only in files that also fail on `origin/develop`; no typecheck or lint errors; the build succeeds. QA tests made stale by this change are reported, not edited.

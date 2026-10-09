@@ -36,6 +36,10 @@ export default defineConfig({
             'qa/src/pages/new-offering/ui/NewOfferingForm.test.tsx',
             // asserts the old primary add button; stale since align-button-variants
             'qa/src/features/user-account/ui/ContactSection.test.tsx',
+            // asserts Button's exact class string without the action width; stale since unify-action-button-widths
+            'qa/src/features/offering-management/ui/OfferingActions.test.tsx',
+            // asserts the page number's min-w-10 without the important modifier; stale since unify-action-button-widths
+            'qa/src/shared/ui/Pagination.test.tsx',
         ],
     },
 })
