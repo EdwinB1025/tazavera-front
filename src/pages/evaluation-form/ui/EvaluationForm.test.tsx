@@ -558,7 +558,7 @@ describe("EvaluationForm: the 1–9 legend (design.md D16; tasks 12.2)", () => {
   it("is the first section, after the header and before the context fields, as no group and with no indicator", () => {
     renderForm();
     const header = legendHeader();
-    const back = screen.getByRole("link", { name: "My evaluations" });
+    const back = screen.getByRole("button", { name: "My evaluations" });
     const roast = screen.getByLabelText(/Roast level/);
     expect(back.compareDocumentPosition(header) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(roast.compareDocumentPosition(header) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
