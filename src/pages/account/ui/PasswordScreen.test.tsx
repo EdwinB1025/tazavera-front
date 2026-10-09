@@ -47,7 +47,7 @@ describe("PasswordScreen", () => {
       es.newPasswordLabel,
       es.passwordConfirmationLabel,
     ]) {
-      expect(region.contains(screen.getByLabelText(label))).toBe(true);
+      expect(region.contains(screen.getByLabelText(new RegExp(`^${label}`)))).toBe(true);
     }
   });
 
