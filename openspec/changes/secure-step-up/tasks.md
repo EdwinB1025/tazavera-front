@@ -12,4 +12,4 @@ No derived API types are needed: the change reads `data.ulid` of the existing `S
 
 ## 3. Full checks
 
-- [ ] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: every validation test passes; the QA suite fails only in files that also fail on `origin/develop` or in QA copies of the tests updated in 1.1 and 2.1, which are reported (and kept out of `vitest.qa.config.mts` and `tsconfig.json` if they break the run), never edited; no typecheck or lint errors; the build succeeds.
+- [x] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: every validation test passes; the QA suite fails only in files that also fail on `origin/develop` or in QA copies of the tests updated in 1.1 and 2.1, which are reported (and kept out of `vitest.qa.config.mts` and `tsconfig.json` if they break the run), never edited; no typecheck or lint errors; the build succeeds.
