@@ -71,6 +71,23 @@ function renderHeader(session: Session = ANONYMOUS, leading?: ReactNode) {
   return { ...utils, onSignIn, onSignOut, onLocaleChange };
 }
 
+// Each header menu entry: a decorative icon before its text, the header menu
+// entry treatment and no inline-link look (add-user-menu-icons).
+function expectHeaderMenuEntries(entries: HTMLElement[]) {
+  expect(entries.length).toBeGreaterThan(0);
+  for (const entry of entries) {
+    const icon = entry.firstElementChild;
+    expect(icon?.tagName.toLowerCase(), entry.textContent ?? "").toBe("svg");
+    expect(icon?.getAttribute("aria-hidden")).toBe("true");
+    const tokens = entry.className.split(/\s+/);
+    expect(tokens).toEqual(
+      expect.arrayContaining(["type-navlist-item", "hover:text-nav-text-hover"]),
+    );
+    expect(tokens).not.toContain("underline");
+    expect(tokens).not.toContain("text-text-link");
+  }
+}
+
 describe("AppHeader, signed-out state", () => {
   it("links the brand logotype to the locale root", () => {
     renderHeader();
@@ -711,5 +728,11 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
       screen.getByRole("menuitem", { name: TEXTS.myAccount }).getAttribute("href"),
     ).toBe("/es/account");
     expect(screen.getByRole("menuitem", { name: TEXTS.signOut })).toBeDefined();
+  });
+
+  it("shows a decorative icon and the header look on every entry (spec: Menu entries carry icons and the header look)", () => {
+    renderSignedIn("specialist");
+    openMenu();
+    expectHeaderMenuEntries(screen.getAllByRole("menuitem"));
   });
 });
