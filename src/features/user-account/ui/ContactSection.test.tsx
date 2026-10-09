@@ -151,7 +151,7 @@ describe("ContactSection — reading", () => {
     renderSection();
     await settle();
     expect(screen.getByText(TEXTS.contactEmptyText)).toBeTruthy();
-    expect(screen.getByRole("button", { name: TEXTS.contactAddButton })).toBeTruthy();
+    expect(screen.getByRole("button", { name: TEXTS.contactAddButton }).className).toContain("bg-action-1-bg");
     expect(document.querySelector("form")).toBeNull();
     expect(document.querySelector("dl")).toBeNull();
   });
