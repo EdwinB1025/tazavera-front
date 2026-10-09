@@ -11,12 +11,20 @@
  */
 import type { operations } from "./schema";
 
-export { configureClient, publicRequest, REFERENCE_READ_INIT, request } from "./client";
+export {
+  configureClient,
+  publicRequest,
+  REFERENCE_READ_INIT,
+  request,
+  requestWithToken,
+} from "./client";
 export {
   clearTokens,
   exchangeCode,
+  exchangeCodeForGrant,
   getTokens,
   keepRegistrationGrant,
+  keepTokens,
   refreshTokens,
 } from "./tokens";
 export { distinctCoffeeValues, fetchCoffees } from "./coffees";

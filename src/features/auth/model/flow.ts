@@ -15,6 +15,11 @@ export type PendingFlow = {
   verifier: string;
   state: string;
   returnRoute: string;
+  /**
+   * A step-up's expected user (secure-step-up design.md D2): the `ulid` of the
+   * session user when it started. Absent for sign in and the silent restore.
+   */
+  expectedUlid?: string;
 };
 
 const FLOW_KEY = "tazavera.pending-flow";

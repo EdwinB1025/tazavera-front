@@ -233,4 +233,8 @@ configureClient({
 configureSession({
   authenticated: loadProfile,
   anonymous: () => settle(ANONYMOUS),
+  currentUlid: () => {
+    const current = snapshot();
+    return current.state === "authenticated" ? current.user.ulid : undefined;
+  },
 });
