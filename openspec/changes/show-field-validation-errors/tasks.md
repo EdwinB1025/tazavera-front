@@ -1,7 +1,7 @@
 ## 1. Shared mapping (form-fields)
 
-- [ ] 1.1 Add `src/shared/api/validation.test.ts` with one test for "A 422 maps to its fields": `splitFieldErrors(toFieldErrors(body), ["email", "postalCode"], { postal_code: "postalCode" })` with `body = { message: "m", errors: { email: ["e1", "e2"], postal_code: ["p1"], role: ["r1"] } }` gives `fields` `{ email: "e1", postalCode: "p1" }` and `unmatched: true`. Verify: it fails only because `validation.ts` does not exist yet; `npm run lint` reports no errors.
-- [ ] 1.2 Implement design.md D1–D3: `src/shared/api/validation.ts`, the `validation` kind in `result.ts`, the exports in `src/shared/api/index.ts`, `useServerFieldErrors` in `src/shared/lib/hooks/index.ts`. Verify: `npx vitest related` on the changed files passes; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 1.1 Add `src/shared/api/validation.test.ts` with one test for "A 422 maps to its fields": `splitFieldErrors(toFieldErrors(body), ["email", "postalCode"], { postal_code: "postalCode" })` with `body = { message: "m", errors: { email: ["e1", "e2"], postal_code: ["p1"], role: ["r1"] } }` gives `fields` `{ email: "e1", postalCode: "p1" }` and `unmatched: true`. Verify: it fails only because `validation.ts` does not exist yet; `npm run lint` reports no errors.
+- [x] 1.2 Implement design.md D1–D3: `src/shared/api/validation.ts`, the `validation` kind in `result.ts`, the exports in `src/shared/api/index.ts`, `useServerFieldErrors` in `src/shared/lib/hooks/index.ts`. Verify: `npx vitest related` on the changed files passes; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 2. Account forms (user-account)
 
