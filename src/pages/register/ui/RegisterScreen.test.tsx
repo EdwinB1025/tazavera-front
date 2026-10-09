@@ -38,15 +38,15 @@ describe("RegisterScreen", () => {
     expect(document.querySelector("form")).toBeNull();
   });
 
-  it("fills the page container with the registration card, its content capped from md", () => {
+  it("fills the page container with the registration card, its content capped and centred from md", () => {
     render(<RegisterScreen locale="es" role="specialist" />);
     const column = screen.getByRole("heading", { level: 1 }).parentElement!
       .parentElement!;
     expect(column.classList.contains("w-full")).toBe(true);
     expect(column.classList.contains("max-w-lg")).toBe(false);
     expect(column.classList.contains("mx-auto")).toBe(false);
-    expect(
-      screen.getByRole("status").closest(".md\\:max-w-160"),
-    ).not.toBeNull();
+    const content = screen.getByRole("status").closest(".md\\:max-w-160");
+    expect(content).not.toBeNull();
+    expect(content!.classList.contains("md:mx-auto")).toBe(true);
   });
 });
