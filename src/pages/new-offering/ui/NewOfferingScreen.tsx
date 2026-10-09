@@ -50,8 +50,6 @@ export function NewOfferingScreen({ locale }: NewOfferingScreenProps): ReactNode
     createError: catalog.createError,
     createdStatus: catalog.createdStatus,
     viewMyOfferings: catalog.viewMyOfferings,
-    stepUpMessage: catalog.stepUpMessage,
-    stepUpLabel: catalog.stepUpLabel,
   };
 
   return (

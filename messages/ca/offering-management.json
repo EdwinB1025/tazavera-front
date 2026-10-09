@@ -20,8 +20,6 @@
   "cancelLabel": "Cancel·la",
   "deleteError": "No s'ha pogut eliminar. Torna-ho a provar.",
   "deletedStatus": "Ofertes eliminades:",
-  "stepUpMessage": "Per continuar, confirma la teva identitat.",
-  "stepUpLabel": "Confirma la identitat",
   "signedOutMessage": "Inicia sessió per gestionar les teves ofertes.",
   "signInLabel": "Iniciar sessió",
   "newHeading": "Nova oferta",

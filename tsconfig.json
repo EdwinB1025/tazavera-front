@@ -54,6 +54,7 @@
     "qa/src/widgets/offering-list/ui/OfferingList.test.tsx",
     "qa/src/widgets/offering-list/ui/FilteredOfferingsResults.test.tsx",
     "qa/src/pages/evaluations-list/ui/EvaluationRowCard.test.tsx",
-    "qa/src/pages/evaluations-list/ui/EvaluationsList.test.tsx"
+    "qa/src/pages/evaluations-list/ui/EvaluationsList.test.tsx",
+    "qa/src/features/offering-management/ui/DeleteOfferingsDialog.test.tsx"
   ]
 }

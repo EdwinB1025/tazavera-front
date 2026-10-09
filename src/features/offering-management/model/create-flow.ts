@@ -11,9 +11,9 @@ import { createOfferings, fetchMyLocations } from "../api/management";
  * selected; with none the submit is unavailable. An empty selection is sent
  * as is: the contract does not require `locations` (M2). A submit with no item chosen
  * marks the item missing and sends nothing. A 201 reports the created count
- * and resets the choice and the selection; a failure or a 422 keeps every value with the
- * generic error; a 403 keeps every value with the step-up (the identity check
- * runs in a popup and the user submits again).
+ * and resets the choice and the selection; a failure, a 422 or a 403 keeps every
+ * value with the generic error: the create is a plain write with no identity
+ * check (drop-step-up-for-offerings).
  */
 
 // ─── State (declared before the hook) ───
@@ -22,8 +22,7 @@ export type CreateStatus =
   | { state: "idle" }
   | { state: "pending" }
   | { state: "created"; count: number }
-  | { state: "failed" }
-  | { state: "step-up" };
+  | { state: "failed" };
 
 /** A settled locations read (unify-api-result-shape design.md D5). */
 export type LocationsResult = { state: "success"; data: LocationItem[] } | { state: "error" };
@@ -119,7 +118,7 @@ export function useCreateFlow({ enabled }: CreateFlowOptions): CreateFlow {
         setPicked(null);
         setStatus({ state: "created", count: result.data });
       } else {
-        setStatus({ state: result.kind === "forbidden" ? "step-up" : "failed" });
+        setStatus({ state: "failed" });
       }
     });
     return true;

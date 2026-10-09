@@ -95,7 +95,7 @@ In the success state of the list, each offering card SHALL offer a Select contro
 - **THEN** the selection empties
 
 ### Requirement: Deleting offerings
-Deleting one offering or the selected offerings SHALL ask for confirmation first and send nothing to the API before it: the single delete confirms one named offering and the bulk delete confirms the selected offerings, each with a text stating the deletion cannot be undone. While the request is pending the confirm action shows its busy state and the cancel action is unavailable. On success the confirmation closes, a status line announces the number of deleted offerings, the current page loads again, a bulk delete empties the selection, and keyboard focus moves to the page heading. When the reloaded page comes back empty and is not the first page, the list SHALL move to the previous page. On failure the confirmation stays open with an error text and the confirm action can be tried again. On a 403 the confirmation's error area SHALL show the step-up text and its "Confirm your identity" action inside the dialog's single alert region, carrying no alert role of their own, and after confirming identity the coffeeshop repeats the delete with the same confirmation still open.
+Deleting one offering or the selected offerings SHALL ask for confirmation first and send nothing to the API before it: the single delete confirms one named offering and the bulk delete confirms the selected offerings, each with a text stating the deletion cannot be undone. While the request is pending the confirm action shows its busy state and the cancel action is unavailable. On success the confirmation closes, a status line announces the number of deleted offerings, the current page loads again, a bulk delete empties the selection, and keyboard focus moves to the page heading. When the reloaded page comes back empty and is not the first page, the list SHALL move to the previous page. On failure, a 403 included, the confirmation stays open with an error text and the confirm action can be tried again. A delete SHALL be a plain write: no identity check runs before or after it.
 
 #### Scenario: Confirmation required
 - **WHEN** the coffeeshop activates a single delete or the bulk delete
@@ -110,19 +110,19 @@ Deleting one offering or the selected offerings SHALL ask for confirmation first
 - **THEN** the confirmation closes, the status line announces the number of deleted offerings, the selection empties, and the current page loads again
 
 #### Scenario: Delete failure keeps the confirmation open
-- **WHEN** the delete request fails or returns a non-success status other than 403
+- **WHEN** the delete request fails or returns a non-success status
 - **THEN** the confirmation stays open with its error text, the entered state is kept and the confirm action can be tried again
 
 #### Scenario: Step-up after 403
-- **WHEN** the delete request returns 403
-- **THEN** the confirmation's error area shows the step-up text and its "Confirm your identity" action inside the single alert region of the dialog, the confirmation stays open, and activating the action starts the identity check
+- **WHEN** the coffeeshop confirms a single or a bulk delete and the request returns 403
+- **THEN** the delete request was sent directly with no identity check before it, the confirmation stays open with the same error text as any other failure, and no step-up text or "Confirm your identity" action renders
 
 #### Scenario: Last page emptied
 - **WHEN** a successful delete empties a page that is not the first one
 - **THEN** the list moves to the previous page
 
 ### Requirement: Creating offerings
-The create route's form SHALL create one offering per chosen location for one chosen coffee-inventory item. The form SHALL render inside a section card (content-structure "Section card") with no header band, that fills the page container's width, its content at most 40rem wide and start-aligned from 768px. The inventory item is chosen in a search-as-you-type list over the API's coffee inventory filtered by the typed coffee name: while searching the list shows a searching row, the results replace the previous ones, an empty result shows a no-matches row and a failed search shows a failure row. Each result row SHALL show the coffee name and, on a second line, the roastery name, the coffee's country and its process joined in that order with empty parts skipped. Choosing a row sets the item, shows the coffee name in the input, and the field's help then shows that item's `roastLot` and `productionDate` joined in that order; clearing the input clears the choice and the typing hint returns. The locations group SHALL offer one checkbox per location of the coffeeshop by its name, covering loading, empty and error states, preselect the location when the coffeeshop has exactly one, and disable the submit action when the coffeeshop has none. On submit, an unchosen inventory item SHALL show an error under the field, mark the field invalid, move focus to it and send nothing; an empty location set is not checked in the browser and the request is sent. On success the status line announces the number of created offerings with a link to the list route, and the form resets. On failure or a 422 the form error shows and every chosen value is kept. On a 403 the form's error area shows the step-up text and its "Confirm your identity" action inside the form's single alert region, carrying no alert role of their own, and every chosen value is kept. A "Cancel" button after the submit action SHALL open the list route without sending any request.
+The create route's form SHALL create one offering per chosen location for one chosen coffee-inventory item. The form SHALL render inside a section card (content-structure "Section card") with no header band, that fills the page container's width, its content at most 40rem wide and start-aligned from 768px. The inventory item is chosen in a search-as-you-type list over the API's coffee inventory filtered by the typed coffee name: while searching the list shows a searching row, the results replace the previous ones, an empty result shows a no-matches row and a failed search shows a failure row. Each result row SHALL show the coffee name and, on a second line, the roastery name, the coffee's country and its process joined in that order with empty parts skipped. Choosing a row sets the item, shows the coffee name in the input, and the field's help then shows that item's `roastLot` and `productionDate` joined in that order; clearing the input clears the choice and the typing hint returns. The locations group SHALL offer one checkbox per location of the coffeeshop by its name, covering loading, empty and error states, preselect the location when the coffeeshop has exactly one, and disable the submit action when the coffeeshop has none. On submit, an unchosen inventory item SHALL show an error under the field, mark the field invalid, move focus to it and send nothing; an empty location set is not checked in the browser and the request is sent. On success the status line announces the number of created offerings with a link to the list route, and the form resets. On failure, a 422 or a 403 the form error shows and every chosen value is kept. A create SHALL be a plain write: no identity check runs before or after it. A "Cancel" button after the submit action SHALL open the list route without sending any request.
 
 #### Scenario: The form panel is a section card
 - **WHEN** the create form renders, including while the session resolves
@@ -181,12 +181,12 @@ The create route's form SHALL create one offering per chosen location for one ch
 - **THEN** the status line announces the number of created offerings with a link to the list route, and the inventory choice and the location checkboxes reset
 
 #### Scenario: Create failure keeps values
-- **WHEN** the create request fails, returns a non-success status other than 403, or returns a 422
+- **WHEN** the create request fails, returns a non-success status, or returns a 422
 - **THEN** the generic form error shows and every chosen value is kept
 
 #### Scenario: Step-up after 403
-- **WHEN** the create request returns 403
-- **THEN** the form's error area shows the step-up text and its "Confirm your identity" action inside the form's single alert region, every chosen value is kept, and activating the action starts the identity check
+- **WHEN** the coffeeshop submits the create form and the request returns 403
+- **THEN** the create request was sent directly with no identity check before it, the generic form error shows in the form's single alert region, every chosen value is kept, and no step-up text or "Confirm your identity" action renders
 
 #### Scenario: Cancel leaves for the list
 - **WHEN** the create form renders and the user activates "Cancel"

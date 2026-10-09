@@ -20,8 +20,6 @@
   "cancelLabel": "Cancel",
   "deleteError": "It could not be deleted. Try again.",
   "deletedStatus": "Offerings deleted:",
-  "stepUpMessage": "To continue, confirm your identity.",
-  "stepUpLabel": "Confirm your identity",
   "signedOutMessage": "Sign in to manage your offerings.",
   "signInLabel": "Sign in",
   "newHeading": "New offering",

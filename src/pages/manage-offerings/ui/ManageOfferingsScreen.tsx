@@ -71,8 +71,6 @@ export async function ManageOfferingsScreen({
     cancelLabel: catalog.cancelLabel,
     deleteError: catalog.deleteError,
     deletedStatus: catalog.deletedStatus,
-    stepUpMessage: catalog.stepUpMessage,
-    stepUpLabel: catalog.stepUpLabel,
   };
 
   return (

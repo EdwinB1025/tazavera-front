@@ -90,8 +90,6 @@ const TEXTS = {
   cancelLabel: "Cancel",
   deleteError: "It could not be deleted. Try again.",
   deletedStatus: "Offerings deleted:",
-  stepUpMessage: "To continue, confirm your identity.",
-  stepUpLabel: "Confirm your identity",
 };
 
 const COFFEESHOP: Session = {
@@ -500,7 +498,7 @@ describe("ManageOfferingsPanel — deleting (spec 'Deleting offerings')", () => 
     expect(screen.queryByRole("status")).toBeNull();
   });
 
-  it("offers the step-up on a 403, calling requestProfileWrite with the route within the click", async () => {
+  it("keeps the confirmation open with its error on a 403, with no step-up", async () => {
     await loaded();
     fireEvent.click(screen.getByRole("button", { name: DELETE_A }));
     mocks.request.mockResolvedValue(jsonResponse(403, {}));
@@ -508,9 +506,11 @@ describe("ManageOfferingsPanel — deleting (spec 'Deleting offerings')", () => 
       fireEvent.click(confirmButton());
     });
 
-    fireEvent.click(screen.getByRole("button", { name: TEXTS.stepUpLabel }));
-    expect(mocks.requestProfileWrite).toHaveBeenCalledWith("/en/manage/offerings");
-    expect(screen.getByRole("alertdialog")).toBeTruthy();
+    expect(mocks.request).toHaveBeenCalledTimes(1);
+    const dialog = screen.getByRole("alertdialog");
+    expect(within(dialog).getByRole("alert").textContent).toBe(TEXTS.deleteError);
+    expect(screen.queryByRole("button", { name: "Confirm your identity" })).toBeNull();
+    expect(mocks.requestProfileWrite).not.toHaveBeenCalled();
   });
 
   it("moves to the previous page when a delete empties a page beyond the first", async () => {
