@@ -31,10 +31,25 @@ export type IntensitySliderProps = {
 );
 
 // ─── Treatment classes (design.md D5) ───
-// The track's layers and the scale live in IntensitySliderParts.
+// The track's layers and the scale live in IntensitySliderParts. The range
+// lies on top with a transparent track; the thumb is the
+// `intensity-slider-thumb` utility of `globals.css`.
 
 const HEADER_CLASSES = "mb-2 flex items-baseline justify-between gap-3";
 const VALUE_TEXT_CLASSES = "type-body italic tabular-nums text-text-primary";
+const INPUT_CLASSES = [
+  "absolute",
+  "inset-0",
+  "h-5",
+  "w-full",
+  "appearance-none",
+  "bg-transparent",
+  "rounded-pill",
+  "cursor-pointer",
+  "intensity-slider-thumb",
+  "focus-visible:focus-ring",
+  "disabled:cursor-not-allowed",
+].join(" ");
 
 /**
  * Tazavera intensity slider.
@@ -81,6 +96,7 @@ export function IntensitySlider(props: IntensitySliderProps): ReactNode {
           inputId={inputId}
           invalid={messages.hasError}
           onChange={props.onChange}
+          inputClasses={INPUT_CLASSES}
         />
       )}
       <IntensityScale scaleLabels={scaleLabels} />

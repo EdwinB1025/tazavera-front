@@ -20,28 +20,17 @@ export type ToggleChipRowsProps = {
   onValueChange: (value: string[]) => void;
   disabled?: boolean;
   legendId: string;
+  /** The chip button's treatment classes, owned by DescriptorChipGroup. */
+  chipClasses: string;
 };
 
 // ─── Treatment classes (design.md D6) ───
-// The chip button carries only the 2px muted-border shell; its one content
-// child carries the badge geometry, so both states measure the same. Hover
-// changes only the cursor; disabled is 50% opacity with a not-allowed cursor.
+// The chip button's classes arrive from DescriptorChipGroup; its one content
+// child carries the badge geometry, so both states measure the same.
 
 const ROWS_CLASSES = "flex flex-col gap-3";
 const ROW_TITLE_CLASSES = "type-meta mb-1.5 block";
 const CHIPS_CLASSES = "flex flex-wrap gap-2";
-const CHIP_CLASSES = [
-  "inline-flex",
-  "items-center",
-  "rounded-field",
-  "border-2",
-  "border-border-muted",
-  "cursor-pointer",
-  "focus-visible:focus-ring",
-  "disabled:opacity-50",
-  "disabled:cursor-not-allowed",
-].join(" ");
-
 const NEXT_KEYS = new Set(["ArrowRight", "ArrowDown"]);
 const PREVIOUS_KEYS = new Set(["ArrowLeft", "ArrowUp"]);
 
@@ -160,6 +149,7 @@ export function ToggleChipRows({
   onValueChange,
   disabled,
   legendId,
+  chipClasses,
 }: ToggleChipRowsProps): ReactNode {
   return (
     <ToggleGroup
@@ -177,7 +167,7 @@ export function ToggleChipRows({
             <ToggleGroupItem
               key={option.value}
               value={option.value}
-              className={CHIP_CLASSES}
+              className={chipClasses}
             >
               <ChipContent
                 option={option}

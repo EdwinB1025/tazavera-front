@@ -34,7 +34,10 @@ export type BeanScaleProps = {
 );
 
 // ─── Treatment classes (design.md D3) ───
-// The bean classes and the key handling live with the beans (BeanScaleBeans).
+// Each bean is a square without padding or border, sized by `size`; `sm` only
+// reaches the read-only display (D2). Hover changes only the cursor; disabled
+// is 50% opacity with a not-allowed cursor (the `add-base-control` rule). The
+// key handling lives with the beans (BeanScaleBeans).
 
 const SIZE_CLASSES: Record<BeanScaleSize, string> = {
   sm: "size-4",
@@ -42,6 +45,15 @@ const SIZE_CLASSES: Record<BeanScaleSize, string> = {
   lg: "size-8",
   responsive: "size-6 md:size-8",
 };
+
+const BEAN_CLASSES = [
+  "shrink-0",
+  "rounded-full",
+  "cursor-pointer",
+  "focus-visible:focus-ring",
+  "disabled:opacity-50",
+  "disabled:cursor-not-allowed",
+].join(" ");
 
 const ROW_CLASSES = "flex flex-wrap items-center gap-x-3 gap-y-1";
 const VALUE_TEXT_CLASSES = "type-body italic tabular-nums text-text-primary";
@@ -61,12 +73,8 @@ export function BeanScale(props: BeanScaleProps): ReactNode {
     props;
   const labelId = useId();
   const messages = useControlMessages(help, error);
-  const beans = {
-    value,
-    sizeClasses: SIZE_CLASSES[size],
-    labelId,
-    describedBy: messages.describedBy,
-  };
+  const sizeClasses = SIZE_CLASSES[size];
+  const beans = { value, labelId, describedBy: messages.describedBy };
 
   return (
     <div>
@@ -75,7 +83,7 @@ export function BeanScale(props: BeanScaleProps): ReactNode {
       </span>
       <div className={ROW_CLASSES}>
         {props.readOnly ? (
-          <BeanMeter {...beans} valueLabel={props.valueLabel} />
+          <BeanMeter {...beans} valueLabel={props.valueLabel} sizeClasses={sizeClasses} />
         ) : (
           <BeanRadios
             {...beans}
@@ -83,6 +91,7 @@ export function BeanScale(props: BeanScaleProps): ReactNode {
             disabled={disabled}
             required={required}
             invalid={messages.hasError}
+            beanClasses={`${BEAN_CLASSES} ${sizeClasses}`}
           />
         )}
         <span className={VALUE_TEXT_CLASSES}>{valueText}</span>

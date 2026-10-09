@@ -43,6 +43,22 @@ export type RadioGroupProps = {
   id?: string; // fieldset id; else a generated one
 };
 
+// ─── Treatment classes ───
+// The circle keeps its classes here; the option row, its dot and its label
+// classes live in RadioOptionRow.
+
+const CIRCLE_CLASSES = [
+  "peer",
+  "size-4",
+  "appearance-none",
+  "rounded-full",
+  "border-2",
+  "checked:bg-surface-checked",
+  "focus-visible:focus-ring",
+  "disabled:opacity-50",
+  "disabled:cursor-not-allowed",
+].join(" ");
+
 /**
  * Tazavera radio group.
  *
@@ -96,6 +112,7 @@ export function RadioGroup({
       disabled={disabled}
       hasError={messages.hasError}
       presentation={presentation}
+      circleClasses={CIRCLE_CLASSES}
     />
   ));
 

@@ -30,9 +30,23 @@ export type DescriptorChipGroupProps = {
 );
 
 // ─── Treatment classes (design.md D6) ───
-// The chip and row classes live with the rows (DescriptorChipRows).
+// The chip button carries only the 2px muted-border shell; its one content
+// child carries the badge geometry, so both states measure the same. Hover
+// changes only the cursor; disabled is 50% opacity with a not-allowed cursor.
+// The row classes live with the rows (DescriptorChipRows).
 
 const FIELDSET_CLASSES = "m-0 min-w-0 border-0 p-0";
+const CHIP_CLASSES = [
+  "inline-flex",
+  "items-center",
+  "rounded-field",
+  "border-2",
+  "border-border-muted",
+  "cursor-pointer",
+  "focus-visible:focus-ring",
+  "disabled:opacity-50",
+  "disabled:cursor-not-allowed",
+].join(" ");
 
 /**
  * Tazavera descriptor chip group.
@@ -70,6 +84,7 @@ export function DescriptorChipGroup(
           onValueChange={props.onValueChange}
           disabled={disabled}
           legendId={legendId}
+          chipClasses={CHIP_CLASSES}
         />
       )}
       <ControlMessages ids={messages} help={help} error={error} />

@@ -8,33 +8,26 @@ import { BeanMark } from "@/shared/ui/icons";
 
 type BeansProps = {
   value: number | null;
-  sizeClasses: string;
   labelId: string;
   describedBy: string | undefined;
 };
 
-export type BeanMeterProps = BeansProps & { valueLabel: string };
+export type BeanMeterProps = BeansProps & {
+  valueLabel: string;
+  sizeClasses: string;
+};
 
 export type BeanRadiosProps = BeansProps & {
   onChange: (value: number) => void;
   disabled?: boolean;
   required?: boolean;
   invalid: boolean;
+  /** The bean's treatment and size classes, owned by BeanScale. */
+  beanClasses: string;
 };
 
 // ─── Treatment classes (design.md D3) ───
-// Each bean is a square without padding or border, sized by `size`; `sm` only
-// reaches the read-only display (D2). Hover changes only the cursor; disabled
-// is 50% opacity with a not-allowed cursor (the `add-base-control` rule).
-
-const BEAN_CLASSES = [
-  "shrink-0",
-  "rounded-full",
-  "cursor-pointer",
-  "focus-visible:focus-ring",
-  "disabled:opacity-50",
-  "disabled:cursor-not-allowed",
-].join(" ");
+// The interactive bean's classes arrive from BeanScale.
 
 const BEANS_CLASSES = "flex flex-nowrap gap-1";
 
@@ -114,7 +107,7 @@ export function BeanRadios({
   disabled,
   required,
   invalid,
-  sizeClasses,
+  beanClasses,
   labelId,
   describedBy,
 }: BeanRadiosProps): ReactNode {
@@ -156,7 +149,7 @@ export function BeanRadios({
           value={String(bean)}
           aria-label={String(bean)}
           tabIndex={!disabled && bean === tabStop ? 0 : -1}
-          className={`${BEAN_CLASSES} ${sizeClasses}`}
+          className={beanClasses}
         >
           <BeanMark
             variant={value !== null && bean <= value ? "on" : "off"}

@@ -20,6 +20,8 @@ export type RadioOptionRowProps = {
   disabled?: boolean;
   hasError: boolean;
   presentation: ControlPresentation;
+  /** The circle's treatment classes, owned by RadioGroup. */
+  circleClasses: string;
 };
 
 // ─── Treatment classes ───
@@ -33,18 +35,6 @@ export type RadioOptionRowProps = {
 // The border swaps to the error treatment when the error message is shown
 // (D9). The clickable option label keeps the hit area at least 24 by 24
 // pixels (D9: flex min-h-6 min-w-6 items-center gap-2).
-
-const CIRCLE_CLASSES = [
-  "peer",
-  "size-4",
-  "appearance-none",
-  "rounded-full",
-  "border-2",
-  "checked:bg-surface-checked",
-  "focus-visible:focus-ring",
-  "disabled:opacity-50",
-  "disabled:cursor-not-allowed",
-].join(" ");
 
 const OPTION_LABEL_CLASSES = [
   "flex",
@@ -80,6 +70,7 @@ export function RadioOptionRow({
   disabled,
   hasError,
   presentation,
+  circleClasses,
 }: RadioOptionRowProps): ReactNode {
   const isRow = presentation === "row";
   const row = isRow
@@ -108,7 +99,7 @@ export function RadioOptionRow({
           required={required}
           disabled={disabled}
           className={[
-            isRow ? withoutDisabledFade(CIRCLE_CLASSES) : CIRCLE_CLASSES,
+            isRow ? withoutDisabledFade(circleClasses) : circleClasses,
             hasError
               ? "border-feedback-error"
               : isRow

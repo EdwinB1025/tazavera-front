@@ -17,13 +17,15 @@ export type IntensityInputProps = TrackProps & {
   inputId: string;
   invalid: boolean;
   onChange: (value: number) => void;
+  /** The range's treatment classes, owned by IntensitySlider. */
+  inputClasses: string;
 };
 
 // ─── Treatment classes (design.md D5) ───
 // The track block (20px, the thumb) layers a 6px gradient spanning the whole
 // width, an off layer from `--fill` to the right edge and, when interactive,
-// the native range on top with a transparent track. The thumb is the
-// `intensity-slider-thumb` utility of `globals.css`.
+// the native range on top with a transparent track (its classes arrive from
+// IntensitySlider).
 
 const MAX = 15;
 
@@ -41,19 +43,6 @@ const OFF_CLASSES = [
   "left-(--fill)",
   "right-0",
   "bg-evaluation-slider-track",
-].join(" ");
-const INPUT_CLASSES = [
-  "absolute",
-  "inset-0",
-  "h-5",
-  "w-full",
-  "appearance-none",
-  "bg-transparent",
-  "rounded-pill",
-  "cursor-pointer",
-  "intensity-slider-thumb",
-  "focus-visible:focus-ring",
-  "disabled:cursor-not-allowed",
 ].join(" ");
 // Inset by half the thumb so each mark sits under the thumb centre.
 const MARKS_CLASSES = "mx-2.5 mt-1 flex justify-between type-meta tabular-nums";
@@ -120,6 +109,7 @@ export function IntensityInput({
   inputId,
   invalid,
   onChange,
+  inputClasses,
 }: IntensityInputProps): ReactNode {
   return (
     <div data-slot="track" {...trackAttributes(intensity, disabled)}>
@@ -136,7 +126,7 @@ export function IntensityInput({
         aria-valuetext={valueLabel}
         aria-describedby={describedBy}
         aria-invalid={invalid ? "true" : undefined}
-        className={INPUT_CLASSES}
+        className={inputClasses}
       />
     </div>
   );
