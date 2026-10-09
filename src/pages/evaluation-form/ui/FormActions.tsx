@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Button, RouteButton } from "@/shared/ui";
+import { ActionGroup, Button, RouteButton } from "@/shared/ui";
 import type { FormBusy } from "../model/form-model";
 
 // ─── UI-specific types (declared before the component) ───
@@ -22,9 +22,10 @@ export type FormActionsProps = {
 
 // ─── Layout end states (design.md D14; the summary §9) ───
 // Below `md` a sticky bar fixed to the bottom of the viewport, stacking the
-// status, the two buttons and Cancel on its own centred line; from `md` an
-// actions row with a top border and 1.5rem above the buttons, Cancel last
-// (add-form-cancel-actions D2).
+// status and the action group (Save draft and Close side by side, Cancel on
+// the next line at the same width); from `md` an actions row with a top
+// border and 1.5rem above the buttons, Cancel last (add-form-cancel-actions
+// D2, unify-action-button-widths D3).
 const BAR_CLASSES = [
   "fixed",
   "inset-x-0",
@@ -49,8 +50,6 @@ const BAR_CLASSES = [
   "md:pb-0",
   "md:pt-6",
 ].join(" ");
-const BUTTONS_CLASSES = ["flex", "gap-4", "md:justify-end"].join(" ");
-const BUTTON_WIDTH_CLASSES = "flex-1 md:flex-none";
 
 /**
  * Save draft, Close evaluation and Cancel (design.md D4, D14; spec "Saving a
@@ -75,10 +74,9 @@ export function FormActions({
       <p role="status" className="type-body">
         {message}
       </p>
-      <div className={BUTTONS_CLASSES}>
+      <ActionGroup align="end">
         <Button
           variant="primary"
-          className={BUTTON_WIDTH_CLASSES}
           loading={busy === "save"}
           onClick={idle ? onSave : undefined}
         >
@@ -87,19 +85,16 @@ export function FormActions({
         {onClose ? (
           <Button
             variant="action-2"
-            className={BUTTON_WIDTH_CLASSES}
             loading={busy === "close"}
             onClick={idle ? onClose : undefined}
           >
             {closeLabel}
           </Button>
         ) : null}
-      </div>
-      <div className="self-center">
         <RouteButton href={cancelHref} variant="action-4" size="base">
           {cancelLabel}
         </RouteButton>
-      </div>
+      </ActionGroup>
     </div>
   );
 }

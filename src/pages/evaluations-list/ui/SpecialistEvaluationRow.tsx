@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import type { EvaluationItem, OfferingDetail } from "@/shared/api";
 import { SpecialistEvaluationRowCard } from "@/widgets/evaluation-row";
 import type { SpecialistEvaluationRowCardTexts } from "@/widgets/evaluation-row";
-import { Button } from "@/shared/ui";
+import { ActionGroup, Button } from "@/shared/ui";
 import { CloseEvaluationAction } from "./CloseEvaluationAction";
 import type { CloseEvaluationTexts } from "./CloseEvaluationAction";
 import { DeleteEvaluationAction } from "./DeleteEvaluationAction";
@@ -33,6 +33,10 @@ export type SpecialistEvaluationRowProps = {
   /** Called once the row's evaluation is closed. */
   onClosed: (ulid: string) => void;
 };
+
+// The row's action group fills the footer below `md`; the status line stays
+// outside it (unify-action-button-widths D3).
+const GROUP_CLASSES = "max-md:w-full";
 
 /**
  * One row of "My evaluations" (spec "My evaluations list" and "Row
@@ -70,22 +74,24 @@ export function SpecialistEvaluationRow({
               {message}
             </p>
           ) : null}
-          <Button variant={viewOnly ? "action-3" : "action-4"} onClick={() => router.push(formRoute)}>
-            {viewOnly ? texts.viewLabel : texts.editLabel}
-          </Button>
-          {viewOnly ? null : (
-            <CloseEvaluationAction
+          <ActionGroup align="end" className={GROUP_CLASSES}>
+            <Button variant={viewOnly ? "action-3" : "action-4"} onClick={() => router.push(formRoute)}>
+              {viewOnly ? texts.viewLabel : texts.editLabel}
+            </Button>
+            {viewOnly ? null : (
+              <CloseEvaluationAction
+                ulid={evaluation.ulid ?? ""}
+                texts={texts}
+                onMessage={setMessage}
+                onClosed={onClosed}
+              />
+            )}
+            <DeleteEvaluationAction
               ulid={evaluation.ulid ?? ""}
               texts={texts}
-              onMessage={setMessage}
-              onClosed={onClosed}
+              onDeleted={onDeleted}
             />
-          )}
-          <DeleteEvaluationAction
-            ulid={evaluation.ulid ?? ""}
-            texts={texts}
-            onDeleted={onDeleted}
-          />
+          </ActionGroup>
         </>
       }
     />
