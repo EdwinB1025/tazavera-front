@@ -2,8 +2,8 @@
 
 ## 1. Close only for a saved evaluation (evaluations)
 
-- [ ] 1.1 Test first, in `src/pages/evaluation-form/ui/EvaluationForm.test.tsx`: "No close on a new evaluation" (a new form, no `evaluation`, renders no "Close evaluation" button) and "Close on a saved open evaluation" (a form with `OPEN_EVALUATION` renders it). The first fails before 1.2.
-- [ ] 1.2 `FormActions` renders Close only when the form's evaluation exists (its `ulid` is set: loaded, or created by the first save); `EvaluationForm` passes that. Save draft, Cancel and the status region unchanged. No existing validation test closes a new form, so no assertion changes.
+- [x] 1.1 Test first, in `src/pages/evaluation-form/ui/EvaluationForm.test.tsx`: "No close on a new evaluation" (a new form, no `evaluation`, renders no "Close evaluation" button) and "Close on a saved open evaluation" (a form with `OPEN_EVALUATION` renders it). The first fails before 1.2.
+- [x] 1.2 `FormActions` renders Close only when the form's evaluation exists (its `ulid` is set: loaded, or created by the first save); `EvaluationForm` passes that. Save draft, Cancel and the status region unchanged. No existing validation test closes a new form, so no assertion changes.
 
   Verify: `npx vitest related src/pages/evaluation-form/ui/FormActions.tsx src/pages/evaluation-form/ui/EvaluationForm.tsx --run`, `npx tsc --noEmit`, `npm run lint`. Expected: all pass.
 

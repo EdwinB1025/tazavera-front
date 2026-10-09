@@ -119,7 +119,8 @@ export function EvaluationForm({
           cancelLabel={texts.actions.cancelLabel}
           cancelHref={`/${locale}/manage/evaluations`}
           onSave={form.onSave}
-          onClose={form.onClose}
+          // Close only once the evaluation exists (close-evaluation-only-when-saved).
+          onClose={model.ulid ? form.onClose : undefined}
           busy={model.busy}
           message={model.message}
         />

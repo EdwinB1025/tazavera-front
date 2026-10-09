@@ -13,7 +13,8 @@ export type FormActionsProps = {
   cancelLabel: string;
   cancelHref: `/${string}`;
   onSave: () => void;
-  onClose: () => void;
+  /** Absent while the evaluation is not saved yet: no Close then (close-evaluation-only-when-saved). */
+  onClose?: () => void;
   busy: FormBusy;
   /** The confirmation or failure message of the last action. */
   message: string | null;
@@ -83,14 +84,16 @@ export function FormActions({
         >
           {saveLabel}
         </Button>
-        <Button
-          variant="primary"
-          className={BUTTON_WIDTH_CLASSES}
-          loading={busy === "close"}
-          onClick={idle ? onClose : undefined}
-        >
-          {closeLabel}
-        </Button>
+        {onClose ? (
+          <Button
+            variant="primary"
+            className={BUTTON_WIDTH_CLASSES}
+            loading={busy === "close"}
+            onClick={idle ? onClose : undefined}
+          >
+            {closeLabel}
+          </Button>
+        ) : null}
       </div>
       <Link href={cancelHref} className="self-center">
         {cancelLabel}
