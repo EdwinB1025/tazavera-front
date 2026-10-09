@@ -25,7 +25,7 @@
   "editProfileHeading": "Editar perfil",
   "passwordHeading": "Contraseña",
   "securityHeading": "Seguridad",
-  "securityDescription": "Contraseña, verificación en dos pasos y llaves de acceso.",
+  "securityDescription": "Contraseña, verificación del correo, verificación en dos pasos y llaves de acceso.",
   "dangerZoneHeading": "Zona peligrosa",
   "signedOutText": "Inicia sesión para gestionar tu cuenta.",
   "deactivateHeading": "Desactivar cuenta",
@@ -60,5 +60,10 @@
   "changePassword": "Cambiar la contraseña",
   "twoFactor": "Verificación en dos pasos",
   "passkeys": "Llaves de acceso",
-  "backToAccount": "Volver a mi cuenta"
+  "backToAccount": "Volver a mi cuenta",
+  "emailVerificationLabel": "Verificación del correo",
+  "emailVerified": "Verificado",
+  "emailNotVerified": "Sin verificar",
+  "verifyEmail": "Verificar el correo",
+  "emailVerifiedStatus": "Correo verificado"
 }

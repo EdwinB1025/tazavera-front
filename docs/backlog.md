@@ -25,7 +25,6 @@ The entries below follow this order. The order runs security first, then the sha
 | 0 | R41 | none (closed: environment, no code) | Deploy note | — | — (closed by Product owner 2026-10-08) |
 | 0d | R47 | none (closed: no code change) | Unplanned fix | — | — (Product owner 2026-10-08, option A: re-test on current develop) |
 | 16c | R50 | API branch in `tazavera-api` | Change (API) | S | Product owner: verify with real data (the API should deliver the resolved tree) |
-| 16e | R66 | API branch in `tazavera-api`, then front | Change (API) | M | Product owner: enables `MustVerifyEmail` in the API himself |
 | 16d | R64 | none yet | Change (layout) | S | Product owner: confirm the gap should shrink and to what |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
@@ -65,19 +64,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Type:** Unplanned fix
 - **Status:** closed (no code)
 - **Affects:** none
-
-## R66 — Email verification (API + front, 2026-10-09)
-
-- **Duplicated:** none. The API has the verify-email view (`FortifyServiceProvider` `verifyEmailView`) but the feature is off: `Features::emailVerification()` is commented out in `config/fortify.php` and `User` does not implement `MustVerifyEmail`.
-- **Where today:** `tazavera-api` (`config/fortify.php`, `app/Models/User.php`, mail configuration); front: the account page's Security section.
-- **Why it pays off now:** Product owner wants "Verify email" in the Security section.
-- **Owning capability:** API, then user-account
-- **Proposed change:** an API feature branch, then a front change adding the button or status
-- **Decided (Product owner, 2026-10-09):** enable email verification (`MustVerifyEmail`); Product owner makes the API change himself.
-- **Action for Product owner:** in `tazavera-api`, enable `Features::emailVerification()`, make `User` implement `MustVerifyEmail`, configure mail sending, and tell the orchestrator whether the user resource (`GET /user`) exposes the verification state; if it does, copy the regenerated contract into `contracts/openapi.yaml`.
-- **Then:** the front adds "Verify email" (a button to the API's verification page, or a verified status) to the account page's Security section.
-- **Decided (Product owner, 2026-10-09, front part):** the API exposes `emailVerifiedAt` (null or an ISO date) on the user resource, and after verifying, Fortify redirects to the front's account page (`{FRONT_URL}/es/account?verified=1`). The account page confirms the state in two places: the read-only Profile shows the email's verification state, and the Security section's "Verify email" entry shows the user as verified when `emailVerifiedAt` is set; otherwise it offers the action to verify (the API's verification page).
-- **Type:** Change (API) · **Status:** accepted · **Affects:** none
 
 ## R64 — Empty band above the offerings and coffee-shops lists (design lead's final AUT pass, 2026-10-09)
 
