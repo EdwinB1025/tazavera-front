@@ -8,6 +8,10 @@ import { FormActions } from "./FormActions";
  * region beside them, a sticky bar below `md` and an actions row from `md`.
  */
 
+// Cancel is a route button (render-navigation-actions-as-buttons); the app
+// router is mocked — test infrastructure only.
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+
 afterEach(cleanup);
 
 function renderActions(props: Partial<Parameters<typeof FormActions>[0]> = {}) {
