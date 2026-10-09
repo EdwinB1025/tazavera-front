@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useContext, useEffect, useId } from "react";
 import type { ReactNode } from "react";
 import { Collapsible, CollapsibleBody, CollapsibleHeader } from "./Collapsible";
 import { useSidebar } from "./Sidebar";
@@ -30,16 +30,28 @@ const TOGGLE_CLASSES = [
  */
 export function SidebarMenuSub({ title, children }: SidebarMenuSubProps): ReactNode {
   const { subsectionOpen, setSubsectionOpen } = useSidebar();
+  const toggleId = useId();
   useEffect(() => () => setSubsectionOpen(false), [setSubsectionOpen]);
   return (
     <Collapsible open={subsectionOpen} onOpenChange={setSubsectionOpen}>
       <div data-slot="sidebar-menu-sub" className="flex flex-col gap-1 ps-3">
-        <CollapsibleHeader className={TOGGLE_CLASSES}>{title}</CollapsibleHeader>
-        <CollapsibleBody>{children}</CollapsibleBody>
+        <CollapsibleHeader id={toggleId} className={TOGGLE_CLASSES}>
+          {title}
+        </CollapsibleHeader>
+        <SubsectionToggleContext.Provider value={toggleId}>
+          <CollapsibleBody>{children}</CollapsibleBody>
+        </SubsectionToggleContext.Provider>
       </div>
     </Collapsible>
   );
 }
+
+/**
+ * The id of the enclosing sub-section's toggle, or `null` outside one
+ * (drop-duplicate-filter-title design.md D1): content titled by the toggle,
+ * such as the facet panel, shows no title of its own.
+ */
+export const SubsectionToggleContext = createContext<string | null>(null);
 
 const SidebarSubsectionContext = createContext<ReactNode>(null);
 

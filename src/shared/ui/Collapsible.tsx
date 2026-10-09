@@ -27,6 +27,8 @@ export type CollapsibleHeaderProps = {
   headingLevel?: 2 | 3 | 4 | 5 | 6;
   /** Class extension, merged with `cn`. */
   className?: string;
+  /** Optional id of the header button. */
+  id?: string;
 };
 
 export type CollapsibleBodyProps = HTMLAttributes<HTMLDivElement>;
@@ -150,6 +152,7 @@ export function CollapsibleHeader({
   aside,
   headingLevel,
   className,
+  id,
 }: CollapsibleHeaderProps): ReactNode {
   const { open, toggle, bodyId } = useCollapsible();
   const titleId = useId();
@@ -158,6 +161,7 @@ export function CollapsibleHeader({
 
   const button = (
     <button
+      id={id}
       type="button"
       aria-expanded={open}
       aria-controls={bodyId}
