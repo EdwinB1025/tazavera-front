@@ -6,7 +6,7 @@ The coffeeshop's management area: its own offerings as a list with selection and
 ## Requirements
 
 ### Requirement: Access to the management area
-Both management routes — `/{locale}/manage/offerings` and `/{locale}/manage/offerings/new` — SHALL present their content only to a signed-in coffeeshop. While the session is being resolved the route shows its loading presentation and no gate message. An anonymous visitor SHALL see a signed-out message and a "Sign in" action in place of the form on the create route and in place of the list on the list route, and SHALL see no "New offering" link. A signed-in user whose role is not `coffeeshop` SHALL get the 404 page.
+Both management routes — `/{locale}/manage/offerings` and `/{locale}/manage/offerings/new` — SHALL present their content only to a signed-in coffeeshop. While the session is being resolved the route shows its loading presentation and no gate message. An anonymous visitor SHALL see a signed-out message and a "Sign in" action in place of the form on the create route and in place of the list on the list route, and SHALL see no "New offering" button. A signed-in user whose role is not `coffeeshop` SHALL get the 404 page.
 
 #### Scenario: Session loading
 - **WHEN** a visitor opens either management route while the session is being resolved
@@ -14,7 +14,7 @@ Both management routes — `/{locale}/manage/offerings` and `/{locale}/manage/of
 
 #### Scenario: Anonymous visitor on the list route
 - **WHEN** an anonymous visitor opens the list route
-- **THEN** the page heading renders, the signed-out message and its "Sign in" action render in place of the list, and no "New offering" link renders
+- **THEN** the page heading renders, the signed-out message and its "Sign in" action render in place of the list, and no "New offering" button renders
 
 #### Scenario: Anonymous visitor on the create route
 - **WHEN** an anonymous visitor opens the create route
@@ -45,7 +45,7 @@ The list route SHALL show the offerings of the signed-in coffeeshop — the API'
 
 #### Scenario: Empty
 - **WHEN** the coffeeshop has no offerings
-- **THEN** a message and a "create an offering" link to the create route render and no offering card renders
+- **THEN** a message and the "New offering" button render and no offering card renders
 
 #### Scenario: Error and retry
 - **WHEN** the offerings cannot be loaded, whether the request fails or returns a non-success status
@@ -62,6 +62,10 @@ The list route SHALL show the offerings of the signed-in coffeeshop — the API'
 #### Scenario: Paging at the boundaries
 - **WHEN** the list shows the first page
 - **THEN** Previous is unavailable, and when it shows the last page Next is unavailable
+
+#### Scenario: New offering action
+- **WHEN** the list route renders for a signed-in coffeeshop, in its header or in the empty state
+- **THEN** "New offering" is a button in positional treatment 1, not a link, and activating it opens the create route
 
 ### Requirement: Offering selection
 In the success state of the list, each offering card SHALL offer a Select control whose accessible name identifies that offering by its coffee name and its location name, and the selection toolbar SHALL offer a select-all checkbox labelled for the page and show the number of selected offerings. The select-all checkbox SHALL be unchecked when nothing is selected and checked when every card on the page is selected, and activating it on a partial selection SHALL select all offerings of the page. The bulk delete action SHALL be unavailable at zero selected. The selection SHALL cover the current page only and SHALL clear on a page change and after a successful delete.
