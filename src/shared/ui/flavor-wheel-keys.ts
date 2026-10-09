@@ -1,5 +1,5 @@
 import { descendantIds, type Row } from "./flavor-wheel-tree";
-import type { FlavorWheelNode } from "./FlavorWheel";
+import type { FlavorWheelNode } from "./flavor-wheel-types";
 
 export type TreeKeyContext = {
   rows: Row[];

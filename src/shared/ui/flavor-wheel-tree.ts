@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { groupRuns } from "./flavor-wheel-geometry";
 import { taxonomyColorRule } from "./taxonomy-color";
-import type { FlavorWheelGroup, FlavorWheelNode } from "./FlavorWheel";
+import type { FlavorWheelGroup, FlavorWheelNode } from "./flavor-wheel-types";
 
 export const SWATCH_CLASSES = "size-3 shrink-0 rounded-check";
 

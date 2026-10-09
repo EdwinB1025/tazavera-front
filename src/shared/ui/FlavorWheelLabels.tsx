@@ -7,7 +7,7 @@ import {
   labelRadius,
   type WheelSegment,
 } from "./flavor-wheel-geometry";
-import type { FlavorWheelNode } from "./FlavorWheel";
+import type { FlavorWheelNode } from "./flavor-wheel-types";
 
 export type WheelLabelProps = {
   segment: WheelSegment<FlavorWheelNode>;

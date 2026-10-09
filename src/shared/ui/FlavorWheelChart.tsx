@@ -10,7 +10,7 @@ import {
 } from "./flavor-wheel-geometry";
 import { ActiveName, SegmentLabel } from "./FlavorWheelLabels";
 import { taxonomyColorRule } from "./taxonomy-color";
-import type { FlavorWheelNode } from "./FlavorWheel";
+import type { FlavorWheelNode } from "./flavor-wheel-types";
 
 export type FlavorWheelChartProps = {
   segments: WheelSegment<FlavorWheelNode>[];

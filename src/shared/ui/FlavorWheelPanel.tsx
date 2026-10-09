@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { SWATCH_CLASSES, descriptionId, swatchStyle } from "./flavor-wheel-tree";
-import type { FlavorWheelNode } from "./FlavorWheel";
+import type { FlavorWheelNode } from "./flavor-wheel-types";
 
 export type FlavorWheelPanelProps = {
   active: FlavorWheelNode | null;
