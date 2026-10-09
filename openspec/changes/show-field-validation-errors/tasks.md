@@ -16,7 +16,7 @@
 ## 4. Evaluation form (evaluations)
 
 - [x] 4.1 Add to `src/pages/evaluation-form/ui/EvaluationForm.test.tsx` one test for "The API names an invalid field": a save whose `updateAnEvaluation` resolves `{ ok: false, kind: "validation", errors: { "descriptive.roastLevel": ["fx-roast-invalid"] } }` shows `fx-roast-invalid` as the roast level field's description with `aria-invalid="true"`, no failure message in the status region, no navigation; changing the roast level removes the message. Verify: only the new test fails (typecheck errors only for the missing `validation` kind of `EvaluationCallResult`); `npm run lint` reports no errors.
-- [ ] 4.2 Implement design.md D4–D6 for the evaluation form. Protecting tests: `EvaluationForm.test.tsx`, `EvaluationDetail.test.tsx`. Verify: `npx vitest related` on the changed files passes; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 4.2 Implement design.md D4–D6 for the evaluation form. Protecting tests: `EvaluationForm.test.tsx`, `EvaluationDetail.test.tsx`. Verify: `npx vitest related` on the changed files passes; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 5. Full checks
 
