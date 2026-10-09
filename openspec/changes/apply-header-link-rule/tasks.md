@@ -20,4 +20,4 @@ Every updated case queries a header back control by role `link` and asserts its 
 
 ## 3. Integration verification
 
-- [ ] 3.1 Run `npm run test:run`, `npm run test:qa` (only failures also present on `origin/develop`), `npx tsc --noEmit`, `npm run lint` and `npm run build`, each on its own; keep the stale `qa/` copies of the tests above out of `vitest.qa.config.mts` and `tsconfig.json`
+- [x] 3.1 Run `npm run test:run`, `npm run test:qa` (only failures also present on `origin/develop`), `npx tsc --noEmit`, `npm run lint` and `npm run build`, each on its own; keep the stale `qa/` copies of the tests above out of `vitest.qa.config.mts` and `tsconfig.json`
