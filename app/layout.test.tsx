@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { LOCALES } from "@/shared/config/locales";
+import { routing } from "@/shared/config/locales";
 import { getMessages } from "@/shared/lib/i18n";
 import { generateMetadata } from "./layout";
 
@@ -31,7 +31,7 @@ vi.mock("@/app/fonts", () => ({
 
 describe("app/layout.tsx page metadata (spec: Metadata by locale)", () => {
   it("titles the document exactly `Tazavera`", async () => {
-    for (const locale of LOCALES) {
+    for (const locale of routing.locales) {
       request.locale = locale;
       const metadata = await generateMetadata();
       expect(metadata.title).toBe("Tazavera");

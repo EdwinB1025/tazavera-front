@@ -19,7 +19,7 @@
 
 ## 5. Importers use the routing definition (app-shell)
 
-- [ ] 5.1 Replace `LOCALES`, `DEFAULT_LOCALE`, `Locale` and `isSupportedLocale` in every importer (`src/app/shell/AppShell.tsx`, `SessionShell.tsx`, `src/widgets/app-header/ui/LanguageSelect.tsx`, `src/pages/not-found/ui/NotFoundScreen.tsx`, `src/shared/config/locale-names.ts`, `src/shared/lib/i18n/request.ts`, `messages.ts`, `proxy.ts`, and test files that import them) with `routing.locales`, `routing.defaultLocale`, `hasLocale` and `Locale` from `next-intl`, and remove those exports from `locales.ts` (design.md D1). No assertion changes. Expected: `grep` finds no `LOCALES`, `DEFAULT_LOCALE`, `isSupportedLocale` or `localeFromPath` import in `app/`, `src/`, `qa/` or `proxy*.ts`; `npx vitest related` on the changed files passes; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 5.1 Replace `LOCALES`, `DEFAULT_LOCALE`, `Locale` and `isSupportedLocale` in every importer (`src/app/shell/AppShell.tsx`, `SessionShell.tsx`, `src/widgets/app-header/ui/LanguageSelect.tsx`, `src/pages/not-found/ui/NotFoundScreen.tsx`, `src/shared/config/locale-names.ts`, `src/shared/lib/i18n/request.ts`, `messages.ts`, `proxy.ts`, and test files that import them) with `routing.locales`, `routing.defaultLocale`, `hasLocale` and `Locale` from `next-intl`, and remove those exports from `locales.ts` (design.md D1). No assertion changes. Expected: `grep` finds no `LOCALES`, `DEFAULT_LOCALE`, `isSupportedLocale` or `localeFromPath` import in `app/`, `src/`, `qa/` or `proxy*.ts`; `npx vitest related` on the changed files passes; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 6. Language selector through next-intl navigation (app-shell)
 

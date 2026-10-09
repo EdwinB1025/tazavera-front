@@ -10,7 +10,8 @@ import {
 } from "@/shared/ui";
 import { ChevronDown, Globe } from "@/shared/ui/icons";
 import { LOCALE_NAMES } from "@/shared/config/locale-names";
-import { isSupportedLocale } from "@/shared/config/locales";
+import { hasLocale } from "next-intl";
+import { routing } from "@/shared/config/locales";
 
 // ─── UI-specific types (declared before the component) ───
 // The accessible name arrives as a prop (design.md D10) and the languages'
@@ -85,7 +86,9 @@ export function LanguageSelect({
       </DropdownMenuTrigger>
       <DropdownMenuContent surface="nav">
         <DropdownMenuRadioGroup value={value} onValueChange={handleValueChange}>
-          {locales.filter(isSupportedLocale).map((code) => (
+          {locales
+            .filter((code) => hasLocale(routing.locales, code))
+            .map((code) => (
             <DropdownMenuRadioItem
               key={code}
               value={code}

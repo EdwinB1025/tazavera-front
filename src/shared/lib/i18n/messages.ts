@@ -10,7 +10,8 @@
 
 import { readFileSync } from "node:fs";
 import { resolve as pathResolve } from "node:path";
-import { isSupportedLocale } from "@/shared/config/locales";
+import { hasLocale } from "next-intl";
+import { routing } from "@/shared/config/locales";
 
 /** One area's texts: flat text-key to rendered text. */
 export type MessageCatalog = Record<string, string>;
@@ -18,7 +19,7 @@ export type MessageCatalog = Record<string, string>;
 const MESSAGES_DIR = pathResolve(process.cwd(), "messages");
 
 function requireSupportedLocale(locale: string): void {
-  if (!isSupportedLocale(locale)) {
+  if (!hasLocale(routing.locales, locale)) {
     throw new Error(`Unsupported locale: ${locale}`);
   }
 }
