@@ -3843,8 +3843,6 @@ export interface operations {
                      * @example null
                      */
                     offeringId?: string;
-                    /** @example architecto */
-                    status?: string | null;
                     /**
                      * @description Brewing/extraction method used (max 60 chars). El campo value no debe ser mayor que 60 caracteres.
                      * @example v60
