@@ -1,68 +1,35 @@
 # Contexto general — tazavera-front
 
-Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`.claude/CLAUDE.md` §12): se reescribe para seguir vigente, salvo el registro de decisiones del final, al que solo se añade. Fuentes de verdad que este archivo no repite:
-- `docs/change-progress.md`: fase, responsable y bloqueo de cada cambio, y la cobertura del contrato.
-- `docs/backlog.md`: lo usan los agentes según `.claude/workflow_sdd.md` §4. El build reporta candidatos, Product owner los añade y el arquitecto los retira al archivar el cambio que los resuelve.
-- `.claude/CLAUDE.md` y `.claude/agents/design-lead.md`: reglas del orquestador y del design lead.
-- `AGENTS.md` y `.claude/workflow_sdd.md`: reglas y flujo de los agentes OpenCode.
+Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`AGENTS.md`, sección del orquestador, §12): se reescribe para seguir vigente, salvo el registro de decisiones del final, al que solo se añade. Fuentes de verdad que este archivo no repite:
+- `docs/change-progress.md`: fase, responsable y bloqueo de cada cambio, y la cobertura del contrato. Lo más reciente va al principio de su primera línea.
+- `docs/backlog.md`: lo usan los agentes según el workflow. El build reporta candidatos, Product owner los añade y el arquitecto los retira al archivar el cambio que los resuelve.
+- `AGENTS.md`: **todas las reglas**, con unas reglas comunes y una sección por agente (arquitecto, build, orquestador, design lead); cada agente ignora las secciones de los demás. `.claude/CLAUDE.md` y `.claude/agents/design-lead.md` solo remiten a su sección (desde el 9 oct).
 - El `handoff.md` y el `corrections.md` de cada cambio.
 
-**Actualizado:** 2026-10-07 20:30 UTC (22:30 local).
+**Actualizado:** 2026-10-09 ~17:40 UTC.
 
-## Mandato de Product owner para la próxima sesión (7 oct ~20:50 UTC)
+## Al retomar (sesión cerrada el 9 oct ~17:40 UTC)
 
-Texto literal: "verifica tus pendientes, eres autonomo de tomar decisiones segun las reglas de orchestrador, en esta sesion eres tu el orchestrador. si tu limite sesion diaria esta por debajo del 90%, puedes asignar trabajo en local, puedes siempre usar la nube, y openspec solo para propose, y archivar cambios. el objetivo es terminar mañana en la mañana."
+**Primer paso, siempre:** arrancar el loop de asignación (tarea recurrente cada 10 minutos con el prompt de revisión; `AGENTS.md`, orquestador, primera regla y §9). No se para mientras quede algo que mover. El loop anterior (`1bcede58`) era solo de esa sesión.
 
-- Objetivo: terminar la entrega la mañana del 8 oct.
-- Trabajo local (design lead, capturas) solo si `~/.claude/usage-snapshot.json` marca menos del 90% en la ventana de 5 h. Si marca 90% o más, o no se puede leer, solo la nube. La nube se puede usar siempre.
-- OpenSpec (el arquitecto de OpenCode) solo para propose y archive; todo lo demás va a la nube.
+**Mandato del Product owner (9 oct):** implementar solo lo aprobado; seguir el workflow con rigor; todos los cambios en curso son `Refactor (fast lane)` (se archivan al pasar las comprobaciones completas sin CRITICAL en verify, sin pedírselo); los hallazgos AUT van en la nube con prioridad máxima; los conflictos de integración los resuelve una sesión en la nube, nunca en local.
 
-**Estado a las ~21:00 UTC (después de `git fetch`):**
-- `origin/claude/refine-list-pagination-apply2` ha terminado: tareas 3.1–4.2 (`0cb6da7`, `1f329ba`, `ac482e0`, `2060b73`), en orden test→feat. Falta revisarlo, pasar los checks e integrarlo con `--ff-only` en `feature/refine-list-pagination` (worktree en `b6cc6f3`). Después, la 5.1 (checks) y la 5.2 (capturas).
-- `origin/claude/test-reduction-plan` (`e5bda59`, `docs/testing/test-reduction-plan.md`): 159 archivos y 2.239 casos sobre `8803904`, con una acción por archivo. Espera a que Product owner revise los totales.
-- Las sesiones en la nube de `add-coffeeshop-location` y `add-evaluation-facets` seguían en marcha (último evento 20:48).
-- Pendiente de Product owner:
-  - aplicar las viñetas corregidas de `## Testing` en AGENTS.md: alcance "spec" (`openspec/specs/` o el spec del cambio), no borrar ni mover tests durante un cambio, excepción para el test de un arreglo no planificado y para la cobertura que pase Product owner, y nombres de clase en lo que comprueba un test;
-  - resolver el choque de `.claude/CLAUDE.md` §3 ("never remove or weaken a test") con la reducción.
+**En vuelo en la nube** (rutinas de un solo uso; estado con la lista de ejecuciones y el registro de cada rutina; integrar en `develop` cuando archiven, simulando antes con `git merge-tree`):
+- `claude/integrate-forms-buttons` (`trig_01WQtzE6aTVR9htYhY34YqVZ`): fusiona R8 `show-field-validation-errors` y `unify-action-button-widths` con `develop`.
+- `claude/adopt-next-intl-routing` (`trig_0144QiwHSsbeMZ2C9TLwuxtr`): R43, propose + apply con la instrucción de no archivar; al terminar, una sesión de seguimiento lo archiva (ahora es fast lane).
+- `claude/scope-write-token-to-action` (`trig_015Kxy5XSgKR1A3BycigCVRJ`): el permiso de escritura dura solo la acción y el front envía `login_hint`; si recibe `access_denied`, mantiene la sesión.
 
-## Al retomar (sesión cerrada el 7 oct ~20:30 UTC para reiniciar)
+**Secuencia final aprobada** (cuando todo esté implementado y archivado): (1) fusionar `develop` en `qa`; (2) poner al día los tests de QA (los desactualizados se corrigen, en la nube; uno conocido: `qa/src/pages/public-evaluations/ui/ListScreen.test.tsx:69-70`); (3) correr el QA completo; (4) si pasa, subir `qa` a GitHub y quitar el worktree de `Sprint5`; (5) pasar `develop` a `master` (autorizado por el Product owner); (6) el informe técnico nuevo (ISO 25010, mismo formato que `docs/review/technical-review.md`, con fecha en el nombre) en `docs/review/`, comparado con el anterior.
 
-**Mergeado hoy en `develop` (`8803904`):** add-user-account, refine-page-surfaces, add-offering-catalog, fix-collapsible-overflow, fix-auth-return-query, add-offering-management, adopt-section-card-in-account, add-specialist-evaluations, add-offering-facets, extract-access-and-status-pieces (R11), add-user-contact, extract-clear-filters-button (R9).
+**API (`tazavera-api`):** `dev` = `PROD` = `89e25c4`, en local y en GitHub; el checkout local está en `PROD`. Toda implementación va por `feature/*` o `hotfix/*` desde `dev`; al terminar, el orquestador fusiona en `dev` y alinea `PROD`. Hechos el 9 oct: R40 (422/404 documentados, 404 traducido), R50 (consenso sin notas huérfanas), login para las páginas de verificación de correo, `login_hint` del step-up (`RequireHintedUserForStepUp`). Scribe se ejecuta desde la carpeta del API.
 
-**Pendiente de integrar o cerrar (por orden):**
-1. **`extract-filtered-offerings` (R12):** worktree `tazavera-front-r12`, `feature/extract-filtered-offerings` `ebeb90c` (apply completo + `develop` `8803904` mezclado; conflicto con R9 resuelto: el widget `FilteredOfferingsResults` usa `ClearFiltersButton` de `@/shared/ui` con `keep={OFFERING_SORT_KEYS}`). Checks: 2245 tests (1 timeout conocido de `EvaluationForm`, R15; aislado en verde), lint, tsc, build en verde. **Falta:** revisión visual del design lead de R9 + R12 juntos en el catálogo (`/es/offerings`, estado vacío filtrado con "Limpiar filtros"; R9 sin revisión visual propia, cerrado para revisión), verify, archive (quita R12 del backlog), merge, borrar worktree y rama.
-2. **Sesiones en la nube** (rutinas de un solo uso; leer con `RemoteTrigger list_runs` / `get_run_log`; integrar con `--ff-only` tras revisar commits y pasar checks):
-   - `refine-list-pagination` apply desde la 3.1 → `claude/refine-list-pagination-apply2` (`trig_011fVL34CTSeSMTtSabZVP9A`, 20:12 UTC). Worktree `tazavera-front-pagination` en `b6cc6f3` (tareas 1.1–2.2 + arreglo de D3 fila 10). Abierto para el directorio: los enlaces de paginación descartan `?tab=` (R12 Propose status, Open 1).
-   - `add-coffeeshop-location` actualización de artefactos + apply → `claude/add-coffeeshop-location-apply2` (`trig_01MQFoVTtn69bc7vqFSrt5p4`, 20:17 UTC). Decisión del orquestador: `isValidEmail` se mueve sin cambios a `@/entities/contact` (registro).
-   - `add-evaluation-facets` apply → `claude/add-evaluation-facets-apply` (`trig_018Qa9oF9KJhqTLZf3ouxZEv`, 20:21 UTC). Worktree `tazavera-front-evfacets` en `39a4504` (artefactos actualizados: usa `ClearFiltersButton` compartido).
-   - Plan de reducción de tests → `claude/test-reduction-plan`, `docs/testing/test-reduction-plan.md` (`trig_01CDd4hdvUPViuPzVLakGH4X`, 20:16 UTC). Solo análisis: pasar los totales a Product owner antes de borrar o mover nada.
-3. **Después:** `add-public-evaluations` apply (worktree `tazavera-front-pubevals` en `8b13c84`, artefactos actualizados; espera el merge de evaluation-facets); `add-coffeeshop-directory` apply (espera R12 y la decisión de `?tab=` en la paginación).
-4. **Esperan a Product owner:** `fix-combobox-blur` (borrador de resumen en `claude/fix-combobox-blur`); R15 (tests lentos de `EvaluationForm`, ¿lanzar?); texto de la sección Testing de AGENTS.md (abajo).
-
-**Reducción de la suite de tests (Product owner, 7 oct):** en el repo solo quedan los tests que verifican las capacidades originales (requisitos de `openspec/specs/`), simplificados y unificados, más las guardas de reglas del proyecto. Lo de los refactors se borra o pasa a calidad. El resto va a la carpeta local `Sprint5/tazavera-front-qa` (git local, sin remoto, README creado), no se corre en cada cambio y se ejecuta una vez al final del proyecto. Los agentes escriben solo los tests que nombra cada tarea. Aplicar la limpieza cuando las ramas en vuelo estén integradas, para no crear conflictos.
-
-**AGENTS.md (pendiente; Product owner lo autorizó, pero el permiso local deniega la edición):** añadir en `## Testing`, tras la primera viñeta, las cuatro viñetas de la regla de tests (texto en el mensaje del orquestador del 7 oct ~20:30 y en la memoria `test-suite-reduction`).
-
-**Reglas nuevas de Product owner (7 oct):** nada se añade al diseño sin su autorización (trabajar con los componentes actuales; R14, la página 404, queda en el backlog con la última prioridad); OpenCode no se usa mientras el portátil vaya justo de memoria (todo a la nube); procesos pesados de uno en uno.
-
-**Permisos:** en Bash, `taskkill` y `git merge` se deniegan; desde PowerShell funcionan (`taskkill /PID n /T /F`, `git -C <dir> merge`), sin tuberías. Recordar al final del proyecto restaurar el `ask` global de `git merge` en `~/.claude/settings.json`.
-
-## Para revisión de Product owner
-
-**Cerrado por el orquestador para tu revisión (7 oct):**
-- Pruebas de navegador dadas por cerradas sin captura de todos los estados: accountcard 4.2 (carga/éxito); evaluations 10.2, 11.5, 12.8, 13.5 (expansión del 409 y estados de carga/fallo cubiertos por tests); R11 (estados de carga); user-contact (Guardar/Cancelar en curso y el 409, cubiertos por tests); R9 (sin revisión visual propia, va en la conjunta con R12).
-- offering-facets F3: arreglo de `FacetCascade` (componente compartido); el texto "Orden predeterminado" se recorta a 375 con un filtro, aceptado tal cual (opcional: acortar `sortDefault` en `messages/es/filters.json`).
-- refine-list-pagination: fila 10 de la tabla de D3 corregida para seguir la regla de D3 (no cambia lo que se ve).
-- add-coffeeshop-location: `isValidEmail` se mueve sin cambios a `@/entities/contact`.
-- Observaciones sin cambio: el "Ver" de la tarjeta de gestión queda ~4px más alto; el hueco barra–primera tarjeta del catálogo (8rem/6rem) viene del layout; aviso de lint ya existente en `FlavorWheel.tsx:516`.
-
-**Anteriores, aún por revisar:** `Combobox` dentro de `Field` sin etiqueta ni ayuda propias (management C1); la rueda reescalada deja activa la nota bajo el puntero (refine-flavor-wheel D1); llamada de catalog a `FlavorWheel` con la interfaz real (catalog D1).
+**Permisos:** la sesión corre en modo "no preguntar": escribir en `.claude/` se deniega siempre (carpeta protegida); `AGENTS.md` depende de la regla `deny` de `Sprint5/.claude/settings.local.json`. Si una edición se deniega, darle el texto al Product owner.
 
 ## Estado
 
 - **Entrega del bootcamp esta semana.** Mínimo: consumir el contrato, salvo `listTheEvaluationsOfAUser`, fuera del alcance. Lo que queda del contrato: `listEvaluations`/`getAnEvaluation` (public-evaluations), `listAUsersLocations`/`createALocation` (location), `listCoffeeShops`/`getACoffeeShop` (directory).
-- **Ejecutores:** Claude en la nube con rutinas de un solo uso (`RemoteTrigger create`, entorno `env_01DTNNGR37Cgqdaa5ym4Zagr`, modelo `claude-opus-5-5`, rama `claude/<change-id>-<tarea>`). Claude local (arquitecto, build y design lead como subagentes) mientras el uso esté < 90 % (7 días al 47 % a las 19:00 UTC). OpenCode en pausa por memoria. El orquestador mergea en `develop` y archiva con `node run-in.mjs <dir> openspec archive <id> --yes`.
-- **Scripts de sesión** (scratchpad de la sesión `b545f592…`; recrearlos si se pierden): `check-noci.mjs` / `check-build.mjs <dir>` (install, typegen, tests, lint, tsc[, build]), `retry-push.mjs <dir> <rama>`, `watch-heads.mjs <min> <ramas…>`, `run-in.mjs <dir> <cmd…>`, mocks y capturas del design lead (`mock-proxy.mjs`, `mock-contact.mjs`, `pre6-r11.mjs`, `pre7-contact.mjs`).
+- **Ejecutores:** sesiones en la nube programadas de un solo uso (entorno `env_01DTNNGR37Cgqdaa5ym4Zagr`, modelo `claude-opus-5-5`, rama `claude/<change-id>`); el prompt da el rol, las reglas, el alcance, las comprobaciones y "solo esa rama, sin force/merge/rebase/PR". El orquestador integra en `develop` (simulación con `git merge-tree`, validación, tsc, push). OpenCode en pausa por memoria.
+- **Cliente OAuth local del front:** `01a120d6-90fe-71fa-932e-f3dbbfc7c4eb` (cambia con cada `migrate:fresh`).
 - **Fases por cambio:** ver el tablero.
 
 ## Forma de trabajar
