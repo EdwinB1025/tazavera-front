@@ -27,6 +27,9 @@ export type CoffeeshopsScreenProps = {
   searchParams: CoffeeshopsQuery;
 };
 
+// One section: the header column and the results, 1.5rem apart at every width
+// (tighten-list-toolbar-spacing, R64).
+const SECTION_CONTAINER_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
 // The heading block and the toolbar, 2rem apart.
 const HEADER_CONTAINER_CLASSES = ["flex", "flex-col", "gap-8"].join(" ");
 // The eyebrow, the heading and the intro, 0.5rem apart.
@@ -91,28 +94,28 @@ export function CoffeeshopsScreen({ locale, searchParams }: CoffeeshopsScreenPro
 
   return (
     <div className="flex-1">
-      <PageSection surface="page" containerClassName={HEADER_CONTAINER_CLASSES}>
-        <div className={HEADING_BLOCK_CLASSES}>
-          <p className="type-eyebrow">{coffeeshops.listEyebrow}</p>
-          <h1 className="type-heading">{coffeeshops.listHeading}</h1>
-          <p className="type-body">{coffeeshops.listIntro}</p>
+      <PageSection surface="page" containerClassName={SECTION_CONTAINER_CLASSES}>
+        <div className={HEADER_CONTAINER_CLASSES}>
+          <div className={HEADING_BLOCK_CLASSES}>
+            <p className="type-eyebrow">{coffeeshops.listEyebrow}</p>
+            <h1 className="type-heading">{coffeeshops.listHeading}</h1>
+            <p className="type-body">{coffeeshops.listIntro}</p>
+          </div>
+          <CoffeeshopsToolbar
+            count={applied.length}
+            sort={values.sort}
+            texts={filterTexts}
+            viewSlot={
+              <CoffeeshopsViewToggle
+                texts={{
+                  viewToggleLabel: coffeeshops.viewToggleLabel,
+                  viewList: coffeeshops.viewList,
+                  viewMap: coffeeshops.viewMap,
+                }}
+              />
+            }
+          />
         </div>
-        <CoffeeshopsToolbar
-          count={applied.length}
-          sort={values.sort}
-          texts={filterTexts}
-          viewSlot={
-            <CoffeeshopsViewToggle
-              texts={{
-                viewToggleLabel: coffeeshops.viewToggleLabel,
-                viewList: coffeeshops.viewList,
-                viewMap: coffeeshops.viewMap,
-              }}
-            />
-          }
-        />
-      </PageSection>
-      <PageSection surface="page">
         {/* Keyed by the request so a page change shows the skeleton at once
             (fix-production-aut-findings design.md D8). */}
         <Suspense
