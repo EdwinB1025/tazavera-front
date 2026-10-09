@@ -6,20 +6,17 @@ Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`A
 - `AGENTS.md`: **todas las reglas**, con unas reglas comunes y una sección por agente (arquitecto, build, orquestador, design lead); cada agente ignora las secciones de los demás. `.claude/CLAUDE.md` y `.claude/agents/design-lead.md` solo remiten a su sección (desde el 9 oct).
 - El `handoff.md` y el `corrections.md` de cada cambio.
 
-**Actualizado:** 2026-10-09 ~17:40 UTC.
+**Actualizado:** 2026-10-09 ~21:12 UTC.
 
-## Al retomar (sesión cerrada el 9 oct ~17:40 UTC)
+## Al retomar (sesión cerrada el 9 oct ~21:12 UTC)
 
-**Primer paso, siempre:** arrancar el loop de asignación (tarea recurrente cada 10 minutos con el prompt de revisión; `AGENTS.md`, orquestador, primera regla y §9). No se para mientras quede algo que mover. El loop anterior (`1bcede58`) era solo de esa sesión.
+**Primer paso, siempre:** arrancar el loop de asignación (tarea recurrente cada 10 minutos con el prompt de revisión; `AGENTS.md`, orquestador, primera regla y §9). El loop de la sesión del 9 oct (`16453fe0`) se detuvo al cerrar: no quedaba trabajo aprobado ni preguntas abiertas.
 
-**Mandato del Product owner (9 oct):** implementar solo lo aprobado; seguir el workflow con rigor; todos los cambios en curso son `Refactor (fast lane)` (se archivan al pasar las comprobaciones completas sin CRITICAL en verify, sin pedírselo); los hallazgos AUT van en la nube con prioridad máxima; los conflictos de integración los resuelve una sesión en la nube, nunca en local.
+**Mandato del Product owner (9 oct):** implementar solo lo aprobado; el orquestador decide solo lo que no cambia el comportamiento pedido (registro de decisiones, "autonomía del orquestador"); los conflictos de integración los resuelve una sesión en la nube, nunca en local; el orquestador puede fusionar `develop` en `master` tras una comprobación completa.
 
-**En vuelo en la nube** (rutinas de un solo uso; estado con la lista de ejecuciones y el registro de cada rutina; integrar en `develop` cuando archiven, simulando antes con `git merge-tree`):
-- `claude/integrate-forms-buttons` (`trig_01WQtzE6aTVR9htYhY34YqVZ`): fusiona R8 `show-field-validation-errors` y `unify-action-button-widths` con `develop`.
-- `claude/adopt-next-intl-routing` (`trig_0144QiwHSsbeMZ2C9TLwuxtr`): R43, propose + apply con la instrucción de no archivar; al terminar, una sesión de seguimiento lo archiva (ahora es fast lane).
-- `claude/scope-write-token-to-action` (`trig_015Kxy5XSgKR1A3BycigCVRJ`): el permiso de escritura dura solo la acción y el front envía `login_hint`; si recibe `access_denied`, mantiene la sesión.
+**Estado al cerrar:** `master` = `develop` = `qa` en contenido (`master` `7a19ce0`). La secuencia final (pasos 1–6) está hecha, con el informe técnico `docs/review/technical-review-2026-10-09.md`; sus riesgos 1–6 están resueltos (contraste, cobertura de la pasada 2, Purpose de `testing`, ciclos de tipos, carga diferida de las facetas y ronda de lint: 48 → 1 aviso residual en un test QA). Nada en vuelo en la nube. Abierto en el backlog, sin aprobar para diseño: R40, R10, R50, R45, R1.
 
-**Secuencia final aprobada** (cuando todo esté implementado y archivado): (1) fusionar `develop` en `qa`; (2) poner al día los tests de QA (los desactualizados se corrigen, en la nube; uno conocido: `qa/src/pages/public-evaluations/ui/ListScreen.test.tsx:69-70`); (3) correr el QA completo; (4) si pasa, subir `qa` a GitHub y quitar el worktree de `Sprint5`; (5) pasar `develop` a `master` (autorizado por el Product owner); (6) el informe técnico nuevo (ISO 25010, mismo formato que `docs/review/technical-review.md`, con fecha en el nombre) en `docs/review/`, comparado con el anterior.
+**Rutinas en la nube:** se programan con al menos 3–5 minutos de margen; si la hora queda en el pasado al crearla, se mueve la hora (nunca se lanza a mano además del planificador: duplica la sesión).
 
 **API (`tazavera-api`):** `dev` = `PROD` = `89e25c4`, en local y en GitHub; el checkout local está en `PROD`. Toda implementación va por `feature/*` o `hotfix/*` desde `dev`; al terminar, el orquestador fusiona en `dev` y alinea `PROD`. Hechos el 9 oct: R40 (422/404 documentados, 404 traducido), R50 (consenso sin notas huérfanas), login para las páginas de verificación de correo, `login_hint` del step-up (`RequireHintedUserForStepUp`). Scribe se ejecuta desde la carpeta del API.
 
