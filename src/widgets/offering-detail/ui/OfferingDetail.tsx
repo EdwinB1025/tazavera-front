@@ -24,8 +24,9 @@ export type OfferingDetailProps = {
 /**
  * The offering detail block as a thin async Server Component
  * (add-offering-catalog design.md D8). It holds only the two public reads and
- * the result mapping — one `error` result for a not-found or failed offering
- * or a taxonomy failure — and delegates every branch to the sync presentation.
+ * the result mapping — `not-found` for the offering's `404`, one `error`
+ * result for a failed offering or a taxonomy failure — and delegates every
+ * branch to the sync presentation.
  */
 export async function OfferingDetail({
   locale,
@@ -38,7 +39,7 @@ export async function OfferingDetail({
   let result: OfferingDetailResult;
   const offering = await fetchOffering(ulid);
   if (!offering.ok) {
-    result = { state: "error" };
+    result = { state: offering.kind === "not-found" ? "not-found" : "error" };
   } else {
     try {
       const taxonomies = await fetchTaxonomiesCovering(
