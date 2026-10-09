@@ -20,4 +20,4 @@ Every updated case queries the control by role `button` instead of `link` and as
 
 ## 3. Integration verification
 
-- [ ] 3.1 Run `npm run test:run`, `npm run test:qa` (only failures also present on `origin/develop`), `npx tsc --noEmit`, `npm run lint` and `npm run build`, each on its own
+- [x] 3.1 Run `npm run test:run`, `npm run test:qa` (only failures also present on `origin/develop`), `npx tsc --noEmit`, `npm run lint` and `npm run build`, each on its own
