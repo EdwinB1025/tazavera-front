@@ -107,18 +107,20 @@ describe("CoffeeshopDetailContent", () => {
 
   it("links back to the directory of the locale (spec: Back link)", () => {
     renderDetail("offerings");
-    fireEvent.click(screen.getAllByRole("button", { name: "Volver a cafeterías" })[0]);
-    expect(router.push).toHaveBeenCalledWith("/es/coffeeshops");
+    expect(screen.getByRole("link", { name: "Volver a cafeterías" }).getAttribute("href")).toBe(
+      "/es/coffeeshops",
+    );
   });
 
   it("Back link at the end", () => {
     renderDetail("offerings");
-    const links = screen.getAllByRole("button", { name: "Volver a cafeterías" });
-    links.forEach((link) => fireEvent.click(link));
-    expect(router.push.mock.calls).toEqual([["/es/coffeeshops"], ["/es/coffeeshops"]]);
+    const top = screen.getByRole("link", { name: "Volver a cafeterías" });
+    const end = screen.getByRole("button", { name: "Volver a cafeterías" });
+    fireEvent.click(end);
+    expect([top.getAttribute("href"), ...router.push.mock.calls[0]]).toEqual(["/es/coffeeshops", "/es/coffeeshops"]);
     const panel = screen.getByRole("tabpanel");
-    expect(panel.contains(links[1])).toBe(false);
-    expect(panel.compareDocumentPosition(links[1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(panel.contains(end)).toBe(false);
+    expect(panel.compareDocumentPosition(end) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("selects Ofertas with no tab or an unknown one (spec: Default tab)", () => {
@@ -179,7 +181,7 @@ describe("CoffeeshopDetailContent", () => {
     render(
       <CoffeeshopDetailContent result={{ state: "error" }} locale="es" ulid="01SHOP" tab="offerings" texts={TEXTS} />,
     );
-    expect(screen.getByRole("button", { name: "Volver a cafeterías" })).toBeDefined();
+    expect(screen.getByRole("link", { name: "Volver a cafeterías" })).toBeDefined();
     expect(screen.getByText("No se pudo cargar la cafetería.")).toBeDefined();
     expect(screen.getByRole("button", { name: "Reintentar" })).toBeDefined();
     expect(screen.queryByRole("tab")).toBeNull();

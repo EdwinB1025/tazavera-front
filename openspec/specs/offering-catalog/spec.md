@@ -81,7 +81,7 @@ The catalog's cards SHALL render in a single column at every viewport width, 1.5
 - **THEN** the column is centered in the region and the page background shows in the side margins on both sides of it
 
 ### Requirement: Offering detail page
-The offering detail route SHALL render one offering of the API, in the locale of the route and with no sign-in required: a back button to the previous page, whose fallback destination is the offerings route, the verification state badge, the coffee name as the page heading, the coffeeshop name and the roaster name as labeled captions, an Evaluate button for a signed-in specialist only, and the offering's tabs below the header. The header and the tabs SHALL sit on the page background, with the tab panels' cards hanging from it. It SHALL show no score in the header and SHALL cover loading, success and error states. On success it SHALL repeat the back button, with the same text and destination, as the last block of the page, after the tabs and outside any tab panel; the loading and error states SHALL keep only the top back button.
+The offering detail route SHALL render one offering of the API, in the locale of the route and with no sign-in required: a back link to the previous page, whose fallback destination is the offerings route, the verification state badge, the coffee name as the page heading, the coffeeshop name and the roaster name as labeled captions, an Evaluate button for a signed-in specialist only, and the offering's tabs below the header. The header and the tabs SHALL sit on the page background, with the tab panels' cards hanging from it. It SHALL show no score in the header and SHALL cover loading, success and error states. On success it SHALL repeat the back control as a back button, with the same text and destination, as the last block of the page, after the tabs and outside any tab panel; the loading and error states SHALL keep only the top back link.
 
 #### Scenario: Header
 - **WHEN** the visitor opens the detail route of an offering
@@ -89,7 +89,7 @@ The offering detail route SHALL render one offering of the API, in the locale of
 
 #### Scenario: Detail on the page background
 - **WHEN** the detail of an offering renders
-- **THEN** the back button, the header, the tab bar and the panels' cards render on the page background, and no section background renders on the page
+- **THEN** the back link, the header, the tab bar and the panels' cards render on the page background, and no section background renders on the page
 
 #### Scenario: Evaluate link for specialists
 - **WHEN** the viewer is signed in with the specialist role
@@ -100,7 +100,7 @@ The offering detail route SHALL render one offering of the API, in the locale of
 - **THEN** no Evaluate button renders
 
 #### Scenario: Back link
-- **WHEN** the visitor activates the back button
+- **WHEN** the visitor activates the back link
 - **THEN** the previous page of the application opens with its query, or the offerings route of the active locale when there is no previous page of the application
 
 #### Scenario: Loading
@@ -109,7 +109,7 @@ The offering detail route SHALL render one offering of the API, in the locale of
 
 #### Scenario: Error and retry
 - **WHEN** the offering cannot be loaded — the request fails, returns a non-success status, or the identifier is unknown
-- **THEN** the back button renders and, below it, a message with a retry action renders instead of the tabs
+- **THEN** the back link renders and, below it, a message with a retry action renders instead of the tabs
 
 #### Scenario: Retry reloads
 - **WHEN** the visitor activates the retry action
@@ -120,8 +120,8 @@ The offering detail route SHALL render one offering of the API, in the locale of
 - **THEN** a second back button with the same text and destination renders after the last tab panel, outside any tab panel
 
 #### Scenario: Back buttons on the offering detail
-- **WHEN** the detail of an offering renders
-- **THEN** its back controls, at the top and at the end, are buttons, not links, with the same text and destination, and the Evaluate action for a specialist is a button, not a link
+- **WHEN** the detail of an offering renders, while loading, on an error or with its content
+- **THEN** its top back control is a link, the one at the end is a button with the same text and destination, and the Evaluate action for a specialist is a button, not a link
 
 ### Requirement: Detail tabs in the address
 The detail page SHALL present its content in two tabs — Inventory data and Consensus — with exactly one panel rendering at a time. The active tab SHALL be kept in the address as a `tab` parameter: selecting a tab changes that parameter at the same route, and an absent or unrecognized value shows the Inventory data tab.
@@ -528,7 +528,7 @@ Below the medium breakpoint the map view SHALL open as a full-screen overlay tit
 - **THEN** the list view renders, the address has no view or focus key, and the focus returns to the Map option or to the card's map action that opened it
 
 ### Requirement: Coffee shop detail page
-The coffee shop detail route SHALL render one coffee shop of the API, in the locale of the route and with no sign-in required: a back button to the previous page, whose fallback destination is the directory, the verified-offerings badge when it has verified offerings, the name as the page heading, its number of locations and its offering counts as captions, and its tabs. It SHALL cover loading, success and error states. On success it SHALL repeat the back button, with the same text and destination, as the last block of the page, after the tabs and outside any tab panel; the loading and error states SHALL keep only the top back button.
+The coffee shop detail route SHALL render one coffee shop of the API, in the locale of the route and with no sign-in required: a back link to the previous page, whose fallback destination is the directory, the verified-offerings badge when it has verified offerings, the name as the page heading, its number of locations and its offering counts as captions, and its tabs. It SHALL cover loading, success and error states. On success it SHALL repeat the back control as a back button, with the same text and destination, as the last block of the page, after the tabs and outside any tab panel; the loading and error states SHALL keep only the top back link.
 
 #### Scenario: Header
 - **WHEN** the visitor opens the detail of a coffee shop with two locations, four offerings and one verified
@@ -540,19 +540,19 @@ The coffee shop detail route SHALL render one coffee shop of the API, in the loc
 
 #### Scenario: Loading
 - **WHEN** the coffee shop is loading
-- **THEN** the back button, placeholder bars in the header's place and skeleton cards in the tabs' place render
+- **THEN** the back link, placeholder bars in the header's place and skeleton cards in the tabs' place render
 
 #### Scenario: Unknown coffee shop or failure
 - **WHEN** the identifier is unknown, or the request fails or returns any other non-success status
-- **THEN** the back button renders and, below it, a message saying the coffee shop could not be loaded with a retry action, and no tab renders
+- **THEN** the back link renders and, below it, a message saying the coffee shop could not be loaded with a retry action, and no tab renders
 
 #### Scenario: Back link at the end
 - **WHEN** the detail of a coffee shop renders its content
 - **THEN** a second back button with the same text and destination renders after the last tab panel, outside any tab panel
 
 #### Scenario: Back buttons on the coffee shop detail
-- **WHEN** the detail of a coffee shop renders
-- **THEN** its back controls, at the top and at the end, are buttons, not links, with the same text and destination
+- **WHEN** the detail of a coffee shop renders its content
+- **THEN** its top back control is a link and the one at the end is a button, with the same text and destination
 
 ### Requirement: Coffee shop detail tabs in the address
 The detail SHALL present two tabs, Offerings and Locations, with one panel rendering at a time. The active tab SHALL be kept in the `tab` key of the address at the same route; an absent or unrecognized value SHALL show Offerings. Arrow keys SHALL move the focus along the tabs without changing the panel; Enter or Space selects.

@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import type { DeleteTarget, OwnOfferings } from "@/features/offering-management";
 import type { TaxonomyLookup } from "@/entities/taxonomy";
-import { Button, Link } from "@/shared/ui";
+import { Button } from "@/shared/ui";
+import { NewOfferingButton } from "./NewOfferingButton";
 import { OwnOfferingsGrid, type OwnOfferingsGridTexts } from "./OwnOfferingsGrid";
 import { SkeletonGrid } from "./SkeletonGrid";
 
@@ -9,7 +10,8 @@ import { SkeletonGrid } from "./SkeletonGrid";
 
 export type OwnOfferingsBodyTexts = OwnOfferingsGridTexts & {
   listEmptyMessage: string;
-  listEmptyCreateLink: string;
+  /** The "New offering" action's text, shared with the panel header. */
+  newOfferingLink: string;
   listErrorMessage: string;
   retryLabel: string;
 };
@@ -64,7 +66,7 @@ export function OwnOfferingsBody({
     return (
       <div className={MESSAGE_CLASSES}>
         <p className="type-body">{texts.listEmptyMessage}</p>
-        <Link href={`/${locale}/manage/offerings/new`}>{texts.listEmptyCreateLink}</Link>
+        <NewOfferingButton locale={locale} label={texts.newOfferingLink} />
       </div>
     );
   }

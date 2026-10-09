@@ -72,7 +72,6 @@ const TEXTS = {
   listHeading: "My offerings",
   newOfferingLink: "New offering",
   listEmptyMessage: "You have no offerings yet.",
-  listEmptyCreateLink: "Create an offering",
   listErrorMessage: "Your offerings could not be loaded.",
   retryLabel: "Retry",
   signedOutMessage: "Sign in to manage your offerings.",
@@ -168,8 +167,8 @@ describe("ManageOfferingsPanel — header (design.md D6)", () => {
     const heading = screen.getByRole("heading", { level: 1, name: TEXTS.listHeading });
     expect(heading.className).toBe("type-heading");
     expect(heading.getAttribute("tabindex")).toBe("-1");
-    const link = screen.getByRole("link", { name: TEXTS.newOfferingLink });
-    expect(link.getAttribute("href")).toBe("/en/manage/offerings/new");
+    fireEvent.click(screen.getByRole("button", { name: TEXTS.newOfferingLink }));
+    expect(mocks.push).toHaveBeenCalledWith("/en/manage/offerings/new");
     await screen.findAllByRole("heading", { level: 2 });
   });
 
@@ -178,7 +177,7 @@ describe("ManageOfferingsPanel — header (design.md D6)", () => {
     renderPanel();
 
     expect(screen.getByRole("heading", { level: 1, name: TEXTS.listHeading })).toBeTruthy();
-    expect(screen.queryByRole("link", { name: TEXTS.newOfferingLink })).toBeNull();
+    expect(screen.queryByRole("button", { name: TEXTS.newOfferingLink })).toBeNull();
     expect(screen.getByText(TEXTS.signedOutMessage)).toBeTruthy();
     expect(mocks.publicRequest).not.toHaveBeenCalled();
   });
@@ -266,8 +265,11 @@ describe("ManageOfferingsPanel — list states (spec 'My offerings list')", () =
     renderPanel();
 
     const message = await screen.findByText(TEXTS.listEmptyMessage);
-    const link = screen.getByRole("link", { name: TEXTS.listEmptyCreateLink });
-    expect(link.getAttribute("href")).toBe("/en/manage/offerings/new");
+    const buttons = screen.getAllByRole("button", { name: TEXTS.newOfferingLink });
+    expect(buttons).toHaveLength(2);
+    mocks.push.mockClear();
+    fireEvent.click(buttons[1]);
+    expect(mocks.push).toHaveBeenCalledWith("/en/manage/offerings/new");
     expect(screen.queryByRole("heading", { level: 2 })).toBeNull();
     expect(message.parentElement!.className).toBe(
       "flex flex-col items-center gap-4 text-center",

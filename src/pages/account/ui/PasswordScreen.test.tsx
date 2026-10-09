@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { render, screen, cleanup } from "@testing-library/react";
 import type { Session } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
 import { resetNavigationHistory } from "@/shared/lib/navigation-history";
@@ -11,8 +11,8 @@ import { PasswordScreen } from "./PasswordScreen";
  * the password form in a section card and a back link to the account page.
  */
 
-// The back control is a route button (render-navigation-actions-as-buttons);
-// the app router is mocked — test infrastructure only.
+// The back control is a link (apply-header-link-rule); the app router is
+// mocked for the form's buttons — test infrastructure only.
 const router = vi.hoisted(() => ({ push: vi.fn() }));
 vi.mock("next/navigation", () => ({ useRouter: () => router }));
 
@@ -58,8 +58,9 @@ describe("PasswordScreen", () => {
 
   it("addresses the account page from its back link (spec: Back to the account)", () => {
     render(<PasswordScreen locale="es" />);
-    fireEvent.click(screen.getByRole("button", { name: es.backToAccount }));
-    expect(router.push).toHaveBeenCalledWith("/es/account");
+    expect(screen.getByRole("link", { name: es.backToAccount }).getAttribute("href")).toBe(
+      "/es/account",
+    );
   });
 
   it("while anonymous shows the signed-out text and Sign in, with no section (spec: The view's session gate)", () => {

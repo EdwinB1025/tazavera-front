@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 import type { ReactNode } from "react";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { render, screen, cleanup } from "@testing-library/react";
 import type { FilteredOfferingsResultsProps, FilteredOfferingsToolbarProps } from "@/widgets/offering-list";
 import { CoffeeshopDetailScreen } from "./CoffeeshopDetailScreen";
 
@@ -57,8 +57,9 @@ describe("CoffeeshopDetailScreen", () => {
   it("shows the back link, three placeholder bars and two skeleton cards while loading (spec: Loading)", () => {
     block.suspend = true;
     const { container } = render(<CoffeeshopDetailScreen locale="es" ulid="01SHOP" searchParams={{}} />);
-    fireEvent.click(screen.getByRole("button", { name: "Volver a cafeterías" }));
-    expect(router.push).toHaveBeenCalledWith("/es/coffeeshops");
+    expect(screen.getByRole("link", { name: "Volver a cafeterías" }).getAttribute("href")).toBe(
+      "/es/coffeeshops",
+    );
     expect(container.querySelectorAll(".animate-pulse.h-4, .animate-pulse.h-6").length).toBeGreaterThanOrEqual(3);
     expect(container.querySelectorAll(".grid > *")).toHaveLength(2);
   });

@@ -348,7 +348,7 @@ The Security section SHALL carry a short text covering the password, email verif
 - **THEN** the first item of its list is the text "Email verified" and there is no "Verify email" link
 
 ### Requirement: Change password view
-The application SHALL offer the Change password view at `/{locale}/account/password`, with the account page's session gate and page shell: a back button to `/{locale}/account`, a heading block, and, for an authenticated session, one section card named "Change password" holding the password form of "Password change", its states and its reactive step-up unchanged.
+The application SHALL offer the Change password view at `/{locale}/account/password`, with the account page's session gate and page shell: a back link to the previous page, whose fallback destination is `/{locale}/account`, a heading block, and, for an authenticated session, one section card named "Change password" holding the password form of "Password change", its states and its reactive step-up unchanged.
 
 #### Scenario: The password form
 - **WHEN** the Change password view opens for an authenticated session
@@ -356,7 +356,7 @@ The application SHALL offer the Change password view at `/{locale}/account/passw
 
 #### Scenario: Back to the account
 - **WHEN** the Change password view renders and the user has no previous page of the application
-- **THEN** its back button addresses `/{locale}/account`
+- **THEN** its back link addresses `/{locale}/account`
 
 #### Scenario: The view's session gate
 - **WHEN** the Change password view opens and the session is anonymous
@@ -364,4 +364,4 @@ The application SHALL offer the Change password view at `/{locale}/account/passw
 
 #### Scenario: Back is a button
 - **WHEN** the Change password view renders
-- **THEN** its back control is a button, not a link, that navigates to the destination it addresses
+- **THEN** its back control, on the first line of its header, is a link with the back arrow, not a button

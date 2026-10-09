@@ -61,9 +61,8 @@ function renderNew() {
 describe("EvaluationForm: header and tree (tasks 4.1)", () => {
   it("renders the page header block", () => {
     renderNew();
-    const back = screen.getByRole("button", { name: "My evaluations" });
-    fireEvent.click(back);
-    expect(router.push).toHaveBeenCalledWith("/en/manage/evaluations");
+    const back = screen.getByRole("link", { name: "My evaluations" });
+    expect(back.getAttribute("href")).toBe("/en/manage/evaluations");
     expect(back.className).toContain("inline-flex");
     expect(screen.getByText("Evaluation")).toBeDefined();
     const heading = screen.getByRole("heading", { level: 1, name: "Finca La Esperanza" });
@@ -461,15 +460,16 @@ describe("EvaluationForm: read-only presentation (design.md D4, D14; tasks 7.3)"
   });
   it("Back link at the end of a read-only evaluation", () => {
     renderForm({ evaluation: CLOSED });
-    const links = screen.getAllByRole("button", { name: "My evaluations" });
+    const top = screen.getByRole("link", { name: "My evaluations" });
+    const end = screen.getByRole("button", { name: "My evaluations" });
     router.push.mockClear();
-    links.forEach((link) => fireEvent.click(link));
-    expect(router.push.mock.calls).toEqual([
-      ["/en/manage/evaluations"],
-      ["/en/manage/evaluations"],
+    fireEvent.click(end);
+    expect([top.getAttribute("href"), ...router.push.mock.calls[0]]).toEqual([
+      "/en/manage/evaluations",
+      "/en/manage/evaluations",
     ]);
     const status = screen.getByRole("status");
-    expect(status.compareDocumentPosition(links[1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(status.compareDocumentPosition(end) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
 
@@ -560,7 +560,7 @@ describe("EvaluationForm: the 1–9 legend (design.md D16; tasks 12.2)", () => {
   it("is the first section, after the header and before the context fields, as no group and with no indicator", () => {
     renderForm();
     const header = legendHeader();
-    const back = screen.getByRole("button", { name: "My evaluations" });
+    const back = screen.getByRole("link", { name: "My evaluations" });
     const roast = screen.getByLabelText(/Roast level/);
     expect(back.compareDocumentPosition(header) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(roast.compareDocumentPosition(header) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
@@ -593,7 +593,7 @@ describe("EvaluationForm: an evaluation of a deleted offering (design.md D17; ta
 
   it("keeps the back link and the eyebrow and shows the message as the heading, with no captions", () => {
     renderOrphan();
-    expect(screen.getAllByRole("button", { name: "My evaluations" })[0]).toBeDefined();
+    expect(screen.getByRole("link", { name: "My evaluations" })).toBeDefined();
     expect(screen.getByText("Evaluation")).toBeDefined();
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Offering no longer exists");
     expect(screen.queryByText(/^Coffeeshop:/)).toBeNull();

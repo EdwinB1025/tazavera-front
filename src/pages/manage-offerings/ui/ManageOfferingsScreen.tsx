@@ -53,7 +53,6 @@ export async function ManageOfferingsScreen({
     listHeading: catalog.listHeading,
     newOfferingLink: catalog.newOfferingLink,
     listEmptyMessage: catalog.listEmptyMessage,
-    listEmptyCreateLink: catalog.listEmptyCreateLink,
     listErrorMessage: catalog.listErrorMessage,
     retryLabel: catalog.retryLabel,
     signedOutMessage: catalog.signedOutMessage,

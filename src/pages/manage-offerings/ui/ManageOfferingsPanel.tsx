@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { TaxonomyNode } from "@/shared/api";
 import { signIn, useSession } from "@/features/auth";
-import { Link, SessionGate, SignedOutPrompt } from "@/shared/ui";
+import { SessionGate, SignedOutPrompt } from "@/shared/ui";
+import { NewOfferingButton } from "./NewOfferingButton";
 import { OwnOfferingsList, type OwnOfferingsListTexts } from "./OwnOfferingsList";
 import { SkeletonGrid } from "./SkeletonGrid";
 
@@ -49,7 +50,7 @@ const TITLE_GROUP_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
 
 /**
  * The client composition of "My offerings" (design.md D1, D2, D6; spec "My
- * offerings list"). The header always renders — the "New offering" link only
+ * offerings list"). The header always renders — the "New offering" button only
  * for a signed-in coffeeshop — and the gate renders the own list in its
  * place: skeleton cards while the session resolves, the signed-out branch for
  * an anonymous visitor, the 404 for another role. The list loads on the
@@ -89,7 +90,7 @@ export function ManageOfferingsPanel({
           </h1>
         </div>
         {isCoffeeshop ? (
-          <Link href={`/${locale}/manage/offerings/new`}>{texts.newOfferingLink}</Link>
+          <NewOfferingButton locale={locale} label={texts.newOfferingLink} />
         ) : null}
       </div>
       <div className={BODY_CLASSES}>

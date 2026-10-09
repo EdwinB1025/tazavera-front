@@ -84,18 +84,20 @@ const SUCCESS: OfferingDetailResult = {
 describe("OfferingDetailContent", () => {
   it("renders the back link to the offerings route of the locale (spec: Back link)", () => {
     renderContent(SUCCESS);
-    fireEvent.click(screen.getAllByRole("button", { name: TEXTS.backLabel })[0]);
-    expect(router.push).toHaveBeenCalledWith("/es/offerings");
+    expect(screen.getByRole("link", { name: TEXTS.backLabel }).getAttribute("href")).toBe(
+      "/es/offerings",
+    );
   });
 
   it("Back link at the end", () => {
     renderContent(SUCCESS);
-    const links = screen.getAllByRole("button", { name: TEXTS.backLabel });
-    links.forEach((link) => fireEvent.click(link));
-    expect(router.push.mock.calls).toEqual([["/es/offerings"], ["/es/offerings"]]);
+    const top = screen.getByRole("link", { name: TEXTS.backLabel });
+    const end = screen.getByRole("button", { name: TEXTS.backLabel });
+    fireEvent.click(end);
+    expect([top.getAttribute("href"), ...router.push.mock.calls[0]]).toEqual(["/es/offerings", "/es/offerings"]);
     const panel = screen.getByRole("tabpanel");
-    expect(panel.contains(links[1])).toBe(false);
-    expect(panel.compareDocumentPosition(links[1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(panel.contains(end)).toBe(false);
+    expect(panel.compareDocumentPosition(end) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("renders the header block and the tabs in one section on the page background, 2rem apart (spec: Detail on the page background; design.md D9)", () => {
@@ -105,7 +107,7 @@ describe("OfferingDetailContent", () => {
     const section = sections[0];
     expect(section.className.split(/\s+/)).toContain("bg-surface-page");
     expect(container.querySelector('[class~="bg-surface-section"]')).toBeNull();
-    const back = screen.getAllByRole("button", { name: TEXTS.backLabel })[0];
+    const back = screen.getByRole("link", { name: TEXTS.backLabel });
     const heading = screen.getByRole("heading", { level: 1 });
     const tablist = screen.getByRole("tablist");
     for (const element of [back, heading, tablist]) {
@@ -126,7 +128,7 @@ describe("OfferingDetailContent", () => {
 
   it("renders the back link, then the message and the retry action below it, and no tabs on error (spec: Error and retry)", () => {
     const { container } = renderContent({ state: "error" });
-    const back = screen.getByRole("button", { name: TEXTS.backLabel });
+    const back = screen.getByRole("link", { name: TEXTS.backLabel });
     const message = screen.getByText(TEXTS.errorMessage);
     const retry = screen.getByRole("button", { name: TEXTS.retryLabel });
     expect(

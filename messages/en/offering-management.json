@@ -4,7 +4,6 @@
   "listHeading": "My offerings",
   "newOfferingLink": "New offering",
   "listEmptyMessage": "You have no offerings yet.",
-  "listEmptyCreateLink": "Create an offering",
   "listErrorMessage": "Your offerings could not be loaded.",
   "retryLabel": "Retry",
   "selectAllLabel": "Select all on this page",

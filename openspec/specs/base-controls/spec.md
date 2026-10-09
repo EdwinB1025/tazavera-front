@@ -150,27 +150,27 @@ Icon artwork SHALL render from one shared source, and an icon inside a control S
 - **THEN** verification fails and reports the duplicated source
 
 ### Requirement: Back link to the previous page
-A back button SHALL open the previous page of the application — the page the user came from, with its query — and SHALL open its fallback destination, a fixed route of the active locale, when the user has no previous page of the application, such as a page opened in a new tab or from outside the application. Changing only the query of the page in view, such as a tab, a filter or a page number, SHALL NOT make that page its own previous page, and changing the language SHALL keep the previous page, in the new language.
+A back control SHALL open the previous page of the application — the page the user came from, with its query — and SHALL open its fallback destination, a fixed route of the active locale, when the user has no previous page of the application, such as a page opened in a new tab or from outside the application. The back control on the first line of a page header SHALL be a link with the back treatment, its leading back arrow; the back control repeated at the end of a view SHALL be an action button in positional treatment 3 with the same text, arrow and destination. Changing only the query of the page in view, such as a tab, a filter or a page number, SHALL NOT make that page its own previous page, and changing the language SHALL keep the previous page, in the new language.
 
 #### Scenario: Back to the previous page
-- **WHEN** the user moved from one page of the application, such as a filtered list on its second page, to a page with a back button
-- **THEN** the back button addresses that previous page with its query
+- **WHEN** the user moved from one page of the application, such as a filtered list on its second page, to a page with a back control
+- **THEN** the back control addresses that previous page with its query
 
 #### Scenario: No previous page
-- **WHEN** the page with the back button is the first page the user opened in the application
-- **THEN** the back button addresses its fallback destination
+- **WHEN** the page with the back control is the first page the user opened in the application
+- **THEN** the back control addresses its fallback destination
 
 #### Scenario: Query changes on the page in view
-- **WHEN** the user, on a page with a back button, changes only its query, such as switching a tab
-- **THEN** the back button still addresses the page the user came from before that page
+- **WHEN** the user, on a page with a back control, changes only its query, such as switching a tab
+- **THEN** the back control still addresses the page the user came from before that page
 
 #### Scenario: Language change
-- **WHEN** the user changes the language on a page with a back button
-- **THEN** the back button addresses the same previous page in the new language
+- **WHEN** the user changes the language on a page with a back control
+- **THEN** the back control addresses the same previous page in the new language
 
 #### Scenario: Back control is a button
-- **WHEN** a page with a back button renders
-- **THEN** the back control is a button with the back text, not a link, and activating it navigates within the application to the destination it addresses
+- **WHEN** a page renders a back control on the first line of its header and the same back control at the end of the view
+- **THEN** the header's back control is a link with the back arrow and the one at the end is a button, both with the back text and addressing the same destination
 
 ### Requirement: Action variants by kind
 Every action button of the application SHALL take the treatment of its kind of action: the primary treatment for the main action of a form or dialog (Save, Confirm, Sign in, Create offering, Register); positional treatment 1 for an action that creates or starts something (Evaluate, New offering, Add location, Add contact details); positional treatment 2 for a destructive or irreversible action (Delete, Deactivate, Delete account, Close evaluation); positional treatment 3 for an action that navigates or consults (View, View evaluations, View offerings, Show on map, Back, pagination); and positional treatment 4 for a secondary or in-page edit action (Cancel, Edit, Edit profile, Change password, Done). An action that fits more than one kind SHALL take the most specific, in this order: destructive, main action of a form or dialog, create, edit or cancel, navigate.
@@ -194,3 +194,10 @@ Every action button of the application SHALL take the treatment of its kind of a
 #### Scenario: Secondary or in-page edit
 - **WHEN** an open row of My evaluations renders its "Edit" action
 - **THEN** the action renders in positional treatment 4
+
+### Requirement: Navigation controls by position
+A navigation control on the first line of a page header, the back control above the eyebrow and the title, SHALL be a link. Every other navigation control — in a page header but not on its first line, or among the actions at the end of a view, a list or a card — SHALL be an action button that opens its in-application route, with the treatment of its kind ("Action variants by kind"). Links inside running text are not navigation controls and stay links.
+
+#### Scenario: Header link, other navigation as buttons
+- **WHEN** a page header shows a back control on its first line and a navigation action after its title, and its view ends with a back control
+- **THEN** the first-line back control is a link, and the navigation action after the title and the back control at the end are buttons
