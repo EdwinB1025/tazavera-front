@@ -56,6 +56,7 @@ afterEach(() => {
 
 function renderForm() {
   const requestProfileWrite = vi.fn<(returnRoute: string) => void>();
+  const endProfileWrite = vi.fn<() => void>();
   render(
     <>
       <h2 id="password-heading">heading</h2>
@@ -65,10 +66,11 @@ function renderForm() {
         labelledBy="password-heading"
         texts={TEXTS}
         requestProfileWrite={requestProfileWrite}
+        endProfileWrite={endProfileWrite}
       />
     </>,
   );
-  return { requestProfileWrite };
+  return { requestProfileWrite, endProfileWrite };
 }
 
 function field(label: string): HTMLInputElement {
@@ -170,6 +172,14 @@ describe("PasswordForm — the write", () => {
     expectCleared();
     expect(screen.getByRole("status").textContent).toBe(TEXTS.passwordUpdated);
     expect(screen.queryByText("api-message")).toBeNull();
+  });
+
+  it("a 200 ends the write permission once (spec: The action ends)", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(200, { message: "api-message" }));
+    const { endProfileWrite } = renderForm();
+    fillValid();
+    await save();
+    expect(endProfileWrite).toHaveBeenCalledTimes(1);
   });
 
   for (const [label, outcome] of [
