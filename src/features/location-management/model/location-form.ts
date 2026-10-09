@@ -34,6 +34,21 @@ export const LOCATION_FIELD_ORDER: readonly LocationFieldKey[] = [
   "social",
 ];
 
+/**
+ * show-field-validation-errors D5: the `createALocation` keys of a `422` that
+ * name a form field under another name.
+ */
+export const LOCATION_API_ALIASES: Readonly<Record<string, LocationFieldKey>> = {
+  "contact.address": "address",
+  "contact.postal_code": "postalCode",
+  "contact.city": "city",
+  "contact.country": "country",
+  "contact.phone": "phone",
+  "contact.email": "email",
+  "contact.web": "web",
+  "contact.social": "social",
+};
+
 const REQUIRED: readonly LocationFieldKey[] = ["name", "address", "city"];
 
 /**

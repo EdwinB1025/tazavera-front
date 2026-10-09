@@ -1,4 +1,5 @@
 import { request } from "@/shared/api";
+import { readFieldErrors } from "@/shared/lib/field-errors";
 import type {
   ApiResult,
   EvaluationCreateBody,
@@ -17,6 +18,12 @@ import type {
  */
 
 export type EvaluationCallResult<T> = ApiResult<T, "forbidden" | "not-found" | "conflict">;
+
+/** A create or update: a `422` carries its field messages (show-field-validation-errors D4). */
+export type EvaluationWriteResult<T> = ApiResult<
+  T,
+  "forbidden" | "not-found" | "conflict" | "validation"
+>;
 
 /** The failure kind of a non-2xx status. */
 function failureKind(status: number): "forbidden" | "not-found" | "conflict" | "error" {
@@ -58,6 +65,20 @@ function json(method: "POST" | "PUT", body: unknown): RequestInit {
 
 const item = (payload: Record<string, unknown>) => payload.data as EvaluationItem;
 
+/** A create or update: `call`'s mapping, with a `422` read for its field messages. */
+async function write(path: string, init: RequestInit): Promise<EvaluationWriteResult<EvaluationItem>> {
+  try {
+    const response = await request(path, init);
+    if (response.status === 422) {
+      return { ok: false, kind: "validation", errors: await readFieldErrors(response) };
+    }
+    if (!response.ok) return { ok: false, kind: failureKind(response.status) };
+    return { ok: true, data: item((await response.json()) ?? {}) };
+  } catch {
+    return { ok: false, kind: "error" };
+  }
+}
+
 /**
  * `GET /user/evaluations` with the serialized request query, its sort pair
  * and `page` included (design.md endpoint 1; add-evaluation-facets D1).
@@ -81,16 +102,16 @@ export function getMyEvaluation(ulid: string): Promise<EvaluationCallResult<Eval
 /** `POST /user/evaluations`. */
 export function createAnEvaluation(
   body: EvaluationCreateBody,
-): Promise<EvaluationCallResult<EvaluationItem>> {
-  return call("/user/evaluations", json("POST", body), item);
+): Promise<EvaluationWriteResult<EvaluationItem>> {
+  return write("/user/evaluations", json("POST", body));
 }
 
 /** `PUT /user/evaluations/{evaluation_ulid}`; the body carries no `offeringId`. */
 export function updateAnEvaluation(
   ulid: string,
   body: EvaluationUpdateBody,
-): Promise<EvaluationCallResult<EvaluationItem>> {
-  return call(`/user/evaluations/${ulid}`, json("PUT", body), item);
+): Promise<EvaluationWriteResult<EvaluationItem>> {
+  return write(`/user/evaluations/${ulid}`, json("PUT", body));
 }
 
 /** `PATCH /user/evaluations/{evaluation_ulid}/close`, no body. */

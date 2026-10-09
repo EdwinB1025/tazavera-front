@@ -11,10 +11,16 @@ import {
   isReadyForClosing,
   updateAnEvaluation,
 } from "@/entities/evaluation";
-import type { EvaluationCallResult, GroupKey } from "@/entities/evaluation";
+import type { EvaluationWriteResult, GroupKey } from "@/entities/evaluation";
+import { useServerFieldErrors } from "@/shared/lib/hooks";
 import { formReducer, initialFormModel } from "./form-model";
 import type { FormModel } from "./form-model";
 import type { FormStateUpdate } from "./form-updates";
+
+/** The fields a `422` names (show-field-validation-errors D5): the context card's two. */
+const SERVER_FIELDS = ["descriptive.roastLevel", "extractionMethod"] as const;
+
+export type EvaluationServerField = (typeof SERVER_FIELDS)[number];
 
 /** The messages of the actions (design.md D4 and its error table). */
 export type FormMessages = {
@@ -43,6 +49,10 @@ export type EvaluationFormModel = {
   /** The saved evaluation passes the contract's close rule (refine-evaluation-flow D3). */
   closable: boolean;
   completeness: ReturnType<typeof completenessOf>;
+  /** A `422`'s messages under the context card's fields. */
+  fieldErrors: Partial<Record<EvaluationServerField, string>>;
+  /** Drops a field's `422` message when the specialist edits it. */
+  clearFieldError: (field: EvaluationServerField) => void;
   edit: FormStateUpdate;
   setGroupOpen: (group: GroupKey, open: boolean) => void;
   setLegendOpen: (open: boolean) => void;
@@ -68,15 +78,16 @@ export function useEvaluationForm({
   );
   const { values, ulid } = model;
   const completeness = completenessOf(values);
+  const server = useServerFieldErrors(SERVER_FIELDS);
 
   /** The failure message of a write (design.md's error table). */
-  const failureFor = (kind: Extract<EvaluationCallResult<unknown>, { ok: false }>["kind"], conflict: string) =>
+  const failureFor = (kind: Extract<EvaluationWriteResult<unknown>, { ok: false }>["kind"], conflict: string) =>
     kind === "forbidden" ? messages.notYoursMessage : kind === "conflict" ? conflict : messages.failureMessage;
 
   /**
    * Save draft (design.md D4): creates the evaluation the first time and
    * updates it afterwards. The contract's required roast level is the only
-   * client validation.
+   * client validation; a `422` names its fields (show-field-validation-errors D6).
    */
   const save = async (): Promise<string | null> => {
     const roastLevel = values.roastLevel;
@@ -85,12 +96,14 @@ export function useEvaluationForm({
       return null;
     }
     dispatch({ type: "send" });
+    server.reset();
     const sendable = { ...values, roastLevel };
-    const result: EvaluationCallResult<{ ulid?: string }> = ulid
+    const result: EvaluationWriteResult<{ ulid?: string }> = ulid
       ? await updateAnEvaluation(ulid, buildUpdateBody(sendable))
       : await createAnEvaluation(buildCreateBody(sendable, offering?.ulid ?? ""));
     if (!result.ok) {
-      dispatch({ type: "fail", message: failureFor(result.kind, messages.alreadyClosedMessage) });
+      const message = failureFor(result.kind, messages.alreadyClosedMessage);
+      if (result.kind !== "validation" || server.show(result.errors)) dispatch({ type: "fail", message });
       return null;
     }
     const saved = ulid ?? result.data.ulid ?? null;
@@ -145,6 +158,8 @@ export function useEvaluationForm({
     // evaluation is the saved state the API checks.
     closable: evaluation !== undefined && isReadyForClosing(evaluation),
     completeness,
+    fieldErrors: server.errors,
+    clearFieldError: server.clear,
     edit: (update) => dispatch({ type: "edit", update }),
     setGroupOpen: (group, open) => dispatch({ type: "groupOpen", group, open }),
     setLegendOpen: (open) => dispatch({ type: "legendOpen", open }),

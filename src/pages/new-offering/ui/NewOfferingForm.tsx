@@ -76,7 +76,7 @@ function CreateForm({ locale, disabled = false, texts }: CreateFormProps): React
   const created =
     status.state === "created" ? `${texts.createdStatus} ${status.count}` : null;
 
-  const alert = status.state === "failed" ? texts.createError : null;
+  const alert = status.state === "failed" || flow.serverUnmatched ? texts.createError : null;
 
   return (
     <Card variant="section" className={PANEL_CLASSES}>
@@ -95,7 +95,7 @@ function CreateForm({ locale, disabled = false, texts }: CreateFormProps): React
               ref={fieldRef}
               value={flow.item}
               onChange={flow.choose}
-              error={flow.itemMissing ? texts.inventoryRequired : undefined}
+              error={flow.itemMissing ? texts.inventoryRequired : flow.fieldErrors.coffeeInventoryId}
               disabled={disabled}
               texts={texts}
             />

@@ -126,7 +126,7 @@ Deleting one offering or the selected offerings SHALL ask for confirmation first
 - **THEN** the list moves to the previous page
 
 ### Requirement: Creating offerings
-The create route's form SHALL create one offering per chosen location for one chosen coffee-inventory item. The form SHALL render inside a section card (content-structure "Section card") with no header band, that fills the page container's width, its content at most 40rem wide and start-aligned from 768px. The inventory item is chosen in a search-as-you-type list over the API's coffee inventory filtered by the typed coffee name: while searching the list shows a searching row, the results replace the previous ones, an empty result shows a no-matches row and a failed search shows a failure row. Each result row SHALL show the coffee name and, on a second line, the roastery name, the coffee's country and its process joined in that order with empty parts skipped. Choosing a row sets the item, shows the coffee name in the input, and the field's help then shows that item's `roastLot` and `productionDate` joined in that order; clearing the input clears the choice and the typing hint returns. The locations group SHALL offer one checkbox per location of the coffeeshop by its name, covering loading, empty and error states, preselect the location when the coffeeshop has exactly one, and disable the submit action when the coffeeshop has none. On submit, an unchosen inventory item SHALL show an error under the field, mark the field invalid, move focus to it and send nothing; an empty location set is not checked in the browser and the request is sent. On success the status line announces the number of created offerings with a link to the list route, and the form resets. On failure, a 422 or a 403 the form error shows and every chosen value is kept. A create SHALL be a plain write: no identity check runs before or after it. A "Cancel" button after the submit action SHALL open the list route without sending any request.
+The create route's form SHALL create one offering per chosen location for one chosen coffee-inventory item. The form SHALL render inside a section card (content-structure "Section card") with no header band, that fills the page container's width, its content at most 40rem wide and start-aligned from 768px. The inventory item is chosen in a search-as-you-type list over the API's coffee inventory filtered by the typed coffee name: while searching the list shows a searching row, the results replace the previous ones, an empty result shows a no-matches row and a failed search shows a failure row. Each result row SHALL show the coffee name and, on a second line, the roastery name, the coffee's country and its process joined in that order with empty parts skipped. Choosing a row sets the item, shows the coffee name in the input, and the field's help then shows that item's `roastLot` and `productionDate` joined in that order; clearing the input clears the choice and the typing hint returns. The locations group SHALL offer one checkbox per location of the coffeeshop by its name, covering loading, empty and error states, preselect the location when the coffeeshop has exactly one, and disable the submit action when the coffeeshop has none. On submit, an unchosen inventory item SHALL show an error under the field, mark the field invalid, move focus to it and send nothing; an empty location set is not checked in the browser and the request is sent. On success the status line announces the number of created offerings with a link to the list route, and the form resets. On failure or a 403 the form error shows and every chosen value is kept. A 422 SHALL show the message for `coffeeInventoryId` under the inventory field as form-fields "Server validation errors" states, and the form error only when one of its keys names no field (the locations group carries no field error, so a message for `locations` shows the form error); every chosen value is kept. A create SHALL be a plain write: no identity check runs before or after it. A "Cancel" button after the submit action SHALL open the list route without sending any request.
 
 #### Scenario: The form panel is a section card
 - **WHEN** the create form renders, including while the session resolves
@@ -185,8 +185,12 @@ The create route's form SHALL create one offering per chosen location for one ch
 - **THEN** the status line announces the number of created offerings with a link to the list route, and the inventory choice and the location checkboxes reset
 
 #### Scenario: Create failure keeps values
-- **WHEN** the create request fails, returns a non-success status, or returns a 422
+- **WHEN** the create request fails, or returns a non-success status other than 422
 - **THEN** the generic form error shows and every chosen value is kept
+
+#### Scenario: The create names the inventory field
+- **WHEN** the create request returns a 422 with a message for `coffeeInventoryId`
+- **THEN** that message renders under the inventory field, which is marked invalid, no form error shows, every chosen value is kept, and the message clears when the user changes the inventory choice
 
 #### Scenario: Step-up after 403
 - **WHEN** the coffeeshop submits the create form and the request returns 403
@@ -368,11 +372,15 @@ The form SHALL send `POST /locations` with `name`, the non-empty optional `descr
 - **THEN** the status no longer renders
 
 ### Requirement: Location creation failures
-A `422`, a `403`, a server error, a network failure or any other status answer to the create request SHALL show the generic form error above the actions, and the form SHALL stay open with every value kept. No step-up notice SHALL render on the locations page.
+A `422` answer to the create request SHALL show each field's first message under that field as form-fields "Server validation errors" states — `name` and `description` name the location fields, `contact.<key>` the contact fields, `contact.postal_code` the Postal code field — and the generic form error above the actions only when one of its keys names no field (`latitud` and `longitud` name none); the form SHALL stay open with every value kept. A `403`, a server error, a network failure or any other status answer SHALL show the generic form error above the actions, and the form SHALL stay open with every value kept. No step-up notice SHALL render on the locations page.
 
 #### Scenario: The creation is rejected or fails
-- **WHEN** the create request answers any status except `201`, or the request fails
+- **WHEN** the create request answers any status except `201` and `422`, or the request fails
 - **THEN** the generic form error renders above the actions, every value is kept, no step-up notice renders, and the API's message is never rendered
+
+#### Scenario: The creation names invalid fields
+- **WHEN** the create request answers `422` with a message for `contact.city`
+- **THEN** that message renders under the City field, which is marked invalid, every value is kept, no generic form error renders, and the message clears when the user edits the City field
 
 #### Scenario: Step-up after 403
 - **WHEN** the create request answers `403`

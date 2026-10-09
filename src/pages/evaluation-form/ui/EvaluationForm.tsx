@@ -102,6 +102,8 @@ export function EvaluationForm({
         values={model.values}
         readOnly={readOnly}
         roastLevelMissing={model.roastLevelMissing}
+        fieldErrors={form.fieldErrors}
+        onFieldEdit={form.clearFieldError}
         onEdit={form.edit}
         texts={texts}
       />

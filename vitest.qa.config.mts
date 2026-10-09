@@ -40,6 +40,8 @@ export default defineConfig({
             'qa/src/pages/evaluation-form/ui/EvaluationForm.test.tsx',
             // asserts the 404 page of an unknown evaluation; stale since show-item-not-found-message
             'qa/src/pages/evaluation-form/ui/EvaluationDetail.test.tsx',
+            // asserts a 422 maps to error; stale since show-field-validation-errors (design.md D6)
+            'qa/src/features/location-management/model/submit-location.test.ts',
         ],
     },
 })

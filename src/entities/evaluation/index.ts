@@ -30,7 +30,7 @@ export {
   listMyEvaluations,
   updateAnEvaluation,
 } from "./api/user-evaluations";
-export type { EvaluationCallResult } from "./api/user-evaluations";
+export type { EvaluationCallResult, EvaluationWriteResult } from "./api/user-evaluations";
 export { fetchEvaluation, fetchEvaluations } from "./api/public-evaluations";
 export { loadEvaluationOfferings } from "./lib/offerings";
 export type { EvaluationsQuery } from "./api/public-evaluations";

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent, type RefObject } from "react";
 import type { Contact } from "@/shared/api";
+import { useServerFieldErrors } from "@/shared/lib/hooks";
 import type {
   ContactFieldErrors,
   ContactFieldKey,
@@ -28,6 +29,7 @@ export type ContactFormOutcome = "error" | null;
 
 export type ContactFormState = {
   values: ContactFieldValues;
+  /** A client check's message, else the API's `422` message (show-field-validation-errors D3). */
   errors: ContactFieldErrors;
   pending: boolean;
   outcome: ContactFormOutcome;
@@ -39,7 +41,9 @@ export type ContactFormState = {
  * The add form's state and submit (spec "Contact details form"; design.md
  * D3, D4): the client checks with focus on the first failing field, then
  * `POST /users/{ulid}/contacts`; a `201` and a `409` go to the section's
- * handlers, anything else (a `403` included) shows the generic error.
+ * handlers, a `422` shows its messages under their fields and the generic
+ * error only for a key that names no field, anything else (a `403`
+ * included) shows the generic error.
  */
 export function useContactForm(
   ulid: string,
@@ -52,6 +56,7 @@ export function useContactForm(
   const [errors, setErrors] = useState<ContactFieldErrors>({});
   const [pending, setPending] = useState(false);
   const [outcome, setOutcome] = useState<ContactFormOutcome>(null);
+  const server = useServerFieldErrors(CONTACT_FIELD_ORDER, { postal_code: "postalCode" });
 
   useEffect(() => {
     mounted.current = true;
@@ -62,11 +67,13 @@ export function useContactForm(
 
   function update(key: ContactFieldKey, value: string): void {
     setValues((current) => ({ ...current, [key]: value }));
+    server.clear(key);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     if (pending) return;
+    server.reset();
     const failed = checkContact(values, texts);
     setErrors(failed);
     const first = CONTACT_FIELD_ORDER.find((key) => failed[key] !== undefined);
@@ -83,8 +90,15 @@ export function useContactForm(
     setPending(false);
     if (result.ok) onCreated(result.data);
     else if (result.kind === "conflict") onExists();
-    else setOutcome("error");
+    else if (result.kind !== "validation" || server.show(result.errors)) setOutcome("error");
   }
 
-  return { values, errors, pending, outcome, update, handleSubmit };
+  return {
+    values,
+    errors: { ...server.errors, ...errors },
+    pending,
+    outcome,
+    update,
+    handleSubmit,
+  };
 }

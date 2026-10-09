@@ -3,6 +3,7 @@
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import type { ProfileUpdatePayload, SessionUser } from "@/shared/api";
 import { Button, Field, Input, FormStatus, StepUpNotice } from "@/shared/ui";
+import { useServerFieldErrors } from "@/shared/lib/hooks";
 import { isValidEmail } from "@/entities/contact";
 import { updateProfile } from "../api/account";
 
@@ -36,14 +37,17 @@ type ProfileValues = Required<ProfileUpdatePayload>;
 
 type Outcome = "success" | "error" | "stepUp" | null;
 
+const PROFILE_FIELDS: (keyof ProfileValues)[] = ["name", "surname", "email"];
+
 /**
  * The Edit profile section's content (specs "Profile settings" and "Writes
  * and the step-up"; design.md D2, D6, D9 and D10): the form for name,
  * surname and email, prefilled from the session. Only the email format
  * is checked (no field is required); the form sends `PUT /users/{ulid}` and,
  * on a `200`, keeps the values, shows the success status and refreshes the
- * session profile. A `403` shows the step-up notice, anything else the
- * generic error.
+ * session profile. A `403` shows the step-up notice, a `422` its messages
+ * under their fields (show-field-validation-errors D3) and the generic error
+ * only for a key that names no field, anything else the generic error.
  */
 export function ProfileForm({
   user,
@@ -62,14 +66,17 @@ export function ProfileForm({
   const [emailError, setEmailError] = useState<string | undefined>();
   const [pending, setPending] = useState(false);
   const [outcome, setOutcome] = useState<Outcome>(null);
+  const server = useServerFieldErrors(PROFILE_FIELDS);
 
   function update(field: keyof ProfileValues, value: string): void {
     setValues((current) => ({ ...current, [field]: value }));
+    server.clear(field);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     if (pending) return;
+    server.reset();
     // An empty email is not a format failure: it is sent like any emptied
     // field (design.md D2).
     if (values.email !== "" && !isValidEmail(values.email)) {
@@ -89,6 +96,10 @@ export function ProfileForm({
       void refreshProfile();
       return;
     }
+    if (result.kind === "validation") {
+      setOutcome(server.show(result.errors) ? "error" : null);
+      return;
+    }
     setOutcome(result.kind === "forbidden" ? "stepUp" : "error");
   }
 
@@ -100,7 +111,7 @@ export function ProfileForm({
       onSubmit={handleSubmit}
       className="flex flex-col gap-6"
     >
-      <Field label={texts.nameLabel}>
+      <Field label={texts.nameLabel} error={server.errors.name}>
         <Input
           name="name"
           type="text"
@@ -109,7 +120,7 @@ export function ProfileForm({
           onChange={(event) => update("name", event.target.value)}
         />
       </Field>
-      <Field label={texts.surnameLabel}>
+      <Field label={texts.surnameLabel} error={server.errors.surname}>
         <Input
           name="surname"
           type="text"
@@ -118,7 +129,7 @@ export function ProfileForm({
           onChange={(event) => update("surname", event.target.value)}
         />
       </Field>
-      <Field label={texts.emailLabel} error={emailError}>
+      <Field label={texts.emailLabel} error={emailError ?? server.errors.email}>
         <Input
           name="email"
           type="email"

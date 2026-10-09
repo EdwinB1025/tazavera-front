@@ -404,7 +404,7 @@ describe("ContactSection — the add form", () => {
   });
 
   it.each([
-    ["422", () => Promise.resolve(json(422, { message: API_MESSAGE, errors: { city: ["fx-api-field-error"] } }))],
+    ["422", () => Promise.resolve(json(422, { message: API_MESSAGE, errors: { unknownKey: ["fx-api-field-error"] } }))],
   ])("%s shows the generic error above the actions and keeps every value", async (_, respond) => {
     await submitWith(respond);
     const alert = screen.getByRole("alert");

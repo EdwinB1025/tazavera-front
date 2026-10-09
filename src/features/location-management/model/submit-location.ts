@@ -1,3 +1,4 @@
+import type { FieldErrors } from "@/shared/lib/field-errors";
 import { geocodeAddress, type GeocodeOutcome } from "@/shared/lib/geocoding";
 import { createLocation } from "../api/locations";
 import {
@@ -11,6 +12,8 @@ import {
 
 export type SubmitOutcome =
   | { status: "created"; hadCoordinates: boolean }
+  /** A `422` and its field messages (show-field-validation-errors D6). */
+  | { status: "invalid"; errors: FieldErrors }
   | { status: "error" };
 
 /** design.md D6: the lookup is aborted after 5 s. */
@@ -48,6 +51,7 @@ export async function submitLocation(
   try {
     const result = await createLocation(toCreateLocationPayload(values, coordinates));
     if (result.ok) return { status: "created", hadCoordinates: coordinates !== null };
+    if (result.kind === "validation") return { status: "invalid", errors: result.errors };
     return { status: "error" };
   } catch {
     return { status: "error" };
