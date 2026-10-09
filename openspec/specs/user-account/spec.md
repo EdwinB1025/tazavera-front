@@ -6,7 +6,7 @@ Lets a visitor create a Tazavera account as a specialist or as a coffeeshop, and
 ## Requirements
 
 ### Requirement: Registration routes
-The application SHALL offer registration as a specialist at `/{locale}/register` and as a coffeeshop at `/{locale}/register/coffeeshop`, reachable from the entry page and the About us page, and each route SHALL send its own role with the registration. While the session is resolving a registration route SHALL wait with no form shown, and when the session is authenticated the application SHALL open the root of the active locale through client-side navigation. Each registration route SHALL present the loading status, the form and the success panel in one section card with no header band. The registration card SHALL fill the page container's width, its content at most 40rem wide from the medium breakpoint.
+The application SHALL offer registration as a specialist at `/{locale}/register` and as a coffeeshop at `/{locale}/register/coffeeshop`, reachable from the entry page and the About us page, and each route SHALL send its own role with the registration. While the session is resolving a registration route SHALL wait with no form shown, and when the session is authenticated the application SHALL open the root of the active locale through client-side navigation. Each registration route SHALL present the loading status, the form and the success panel in one section card with no header band. The registration card SHALL fill the page container's width, its content at most 40rem wide and centred horizontally in the card from the medium breakpoint.
 
 #### Scenario: The specialist route registers a specialist
 - **WHEN** a visitor submits the registration form on `/{locale}/register`
@@ -26,7 +26,7 @@ The application SHALL offer registration as a specialist at `/{locale}/register`
 
 #### Scenario: The registration card
 - **WHEN** a registration route renders while the session resolves, while it shows the form, or after a `201` has replaced the form with the success panel
-- **THEN** that content sits in one section card with no header band that spans the page container's width, and from the medium breakpoint that content is at most 40rem wide
+- **THEN** that content sits in one section card with no header band that spans the page container's width, and from the medium breakpoint that content is at most 40rem wide and centred horizontally in the card
 
 ### Requirement: Registration form
 The registration form SHALL collect name, surname, email, password and password confirmation, and SHALL send `POST /register` without credentials with `name`, `surname`, `email`, `password`, `passwordConfirmation` and the route's `role`. Before sending, the form SHALL check only the rules its request documents: the five fields are required, the email is a valid address and the confirmation equals the password. A failing check SHALL show its message under the field, mark the field as invalid, move focus to the first failing field and send nothing. While the request is pending the submit action SHALL show its busy state and the fields SHALL stay editable.
