@@ -501,8 +501,10 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   // above. The two mark pairs fail until task 1.4 defines
   // --color-evaluation-bean-mark-on/off.
   { fg: "evaluation-bean-mark-off", bg: "evaluation-bean-off", kind: "icon" },
-  // evaluation-bean-on is translucent: measured over its documented bases
-  { fg: "evaluation-bean-mark-on", bg: "evaluation-bean-on", kind: "icon" },
+  // unify-bean-outline: the bean's lines keep mark-off over the on disc, as
+  // the MVC; Product owner decided (2026-10-09) the contrast is sufficient as
+  // designed, so the pair is decorative and exempt.
+  { fg: "evaluation-bean-mark-off", bg: "evaluation-bean-on", kind: "icon", exempt: true },
   // refine-small-visuals-aut D3: the bean background no longer frames the
   // bean, so the on background and the off outline sit on the host surface
   { fg: "evaluation-bean-on", bg: "surface-card", kind: "icon" },
@@ -742,9 +744,10 @@ const DARK_PAIRS: ContrastPair[] = [
   // above. The two mark pairs fail until task 1.4 defines
   // --color-evaluation-bean-mark-on/off.
   { fg: "evaluation-bean-mark-off", bg: "evaluation-bean-off", kind: "icon" },
-  // rides the documented bases of DOCUMENTED_BASES (evaluation-bean-on is
-  // translucent in the traditional theme)
-  { fg: "evaluation-bean-mark-on", bg: "evaluation-bean-on", kind: "icon" },
+  // unify-bean-outline: the bean's lines keep mark-off over the on disc, as
+  // the MVC; Product owner decided (2026-10-09) the contrast is sufficient as
+  // designed, so the pair is decorative and exempt.
+  { fg: "evaluation-bean-mark-off", bg: "evaluation-bean-on", kind: "icon", exempt: true },
   // refine-small-visuals-aut D3: the bean background no longer frames the
   // bean, so the on background and the off outline sit on the host surface
   { fg: "evaluation-bean-on", bg: "surface-card", kind: "icon" },
