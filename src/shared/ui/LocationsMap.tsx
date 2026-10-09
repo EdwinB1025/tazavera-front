@@ -222,8 +222,8 @@ export function LocationsMap({
         className="size-full focus-visible:focus-ring"
       />
       <div className={ZOOM_CLASSES}>
-        <Button variant="action-4" size="sm" icon={Plus} aria-label={texts.zoomIn} onClick={() => mapRef.current?.zoomIn()} />
-        <Button variant="action-4" size="sm" icon={Minus} aria-label={texts.zoomOut} onClick={() => mapRef.current?.zoomOut()} />
+        <Button variant="action-3" size="sm" icon={Plus} aria-label={texts.zoomIn} onClick={() => mapRef.current?.zoomIn()} />
+        <Button variant="action-3" size="sm" icon={Minus} aria-label={texts.zoomOut} onClick={() => mapRef.current?.zoomOut()} />
       </div>
       {panelPoint ? (
         <div
@@ -236,9 +236,9 @@ export function LocationsMap({
         >
           <Card>
             <CardContent className="relative flex flex-col gap-1 p-4">
-              <h3 id={panelHeadingId} className="type-card-heading pr-10">
+              <h2 id={panelHeadingId} className="type-card-heading pr-10">
                 {panelPoint.title}
-              </h3>
+              </h2>
               <p className="type-label">{panelPoint.subtitle}</p>
               <p className="type-meta">{panelPoint.addressLine}</p>
               {renderPanelLink ? <div className="mt-2">{renderPanelLink(panelPoint)}</div> : null}

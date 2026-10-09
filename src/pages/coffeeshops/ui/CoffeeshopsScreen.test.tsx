@@ -57,11 +57,28 @@ describe("CoffeeshopsScreen", () => {
     expect(screen.getByText("Cafeterías de especialidad y sus ubicaciones.")).toBeTruthy();
   });
 
+  it("renders the heading, the trigger, the view control and the sort in the route's locale (spec: Localized texts)", () => {
+    render(<CoffeeshopsScreen locale="en" searchParams={{}} />);
+    expect(screen.getByRole("heading", { level: 1, name: "Explore coffee shops" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Filters" })).toBeTruthy();
+    expect(screen.getByRole("radiogroup", { name: "View" })).toBeTruthy();
+    expect(screen.getByRole("combobox", { name: "Sort by" })).toBeTruthy();
+  });
+
   it("shows three skeleton cards in the one-column list while loading (spec: Loading)", () => {
     block.suspend = true;
     const { container } = render(<CoffeeshopsScreen locale="es" searchParams={{}} />);
     const column = container.querySelector(".grid.grid-cols-1.gap-6");
     expect(column?.children).toHaveLength(3);
     expect(screen.queryByTestId("coffeeshops-block")).toBeNull();
+  });
+
+  it("holds the heading, toolbar and results in one section, the results 1.5rem below the toolbar (spec: Directory toolbar close to its results)", () => {
+    render(<CoffeeshopsScreen locale="es" searchParams={{}} />);
+    const container = screen
+      .getByRole("heading", { level: 1 })
+      .closest("section")!.firstElementChild!;
+    expect(container.contains(screen.getByTestId("coffeeshops-block"))).toBe(true);
+    expect(container.getAttribute("class")!.split(/\s+/)).toContain("gap-6");
   });
 });

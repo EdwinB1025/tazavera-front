@@ -31,7 +31,7 @@ vi.mock("next/navigation", () => ({
  * app-shell spec "Management sidebar").
  */
 describe("CoffeeshopsSidebarScreen", () => {
-  it("renders the sidebar with the coffee shop facets and no navigation (spec: Shown on the coffee shop directory)", () => {
+  function renderScreen() {
     render(
       <SidebarProvider>
         <AppSidebarProvider session={{ state: "anonymous" }} toggleLabel="sidebar.toggle">
@@ -39,9 +39,21 @@ describe("CoffeeshopsSidebarScreen", () => {
         </AppSidebarProvider>
       </SidebarProvider>,
     );
-    const sidebar = screen.getByRole("complementary");
-    expect(screen.queryByRole("navigation")).toBeNull();
+    return screen.getByRole("complementary");
+  }
+
+  it("renders the sidebar with the list's entry holding the coffee shop facets (spec: Shown on the coffee shop directory)", () => {
+    const sidebar = renderScreen();
+    const entry = within(screen.getByRole("navigation")).getByRole("link", { name: "Explora coffees" });
+    expect(entry.getAttribute("aria-current")).toBe("page");
     expect(within(sidebar).getByRole("search", { name: "Filtros" })).toBeDefined();
+    // spec filtering "Title shown once in the sidebar": the toggle is the only title.
+    expect(within(sidebar).queryByRole("heading", { name: "Filtros" })).toBeNull();
+  });
+
+  it("keeps the applied value while the facets are collapsed (spec: Filters keep applying while collapsed)", () => {
+    const sidebar = renderScreen();
+    expect(within(sidebar).getByRole("button", { name: "Filtros" }).getAttribute("aria-expanded")).toBe("false");
     expect((within(sidebar).getByRole("searchbox", { name: "Nombre" }) as HTMLInputElement).value).toBe("nomad");
   });
 });

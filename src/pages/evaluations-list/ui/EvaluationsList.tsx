@@ -4,10 +4,10 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import type { ReactNode } from "react";
 import type { QueryRecord } from "@/shared/lib/filter-query";
 import type { EvaluationItem, EvaluationPageMeta, OfferingDetail } from "@/shared/api";
-import { listMyEvaluations } from "@/entities/evaluation";
+import { listMyEvaluations, loadEvaluationOfferings } from "@/entities/evaluation";
 import { evaluationListQuery, type EvaluationFilterValues } from "@/features/evaluation-facets";
 import { fetchOffering } from "@/entities/offering";
-import { Button, Card, CardContent, Pagination } from "@/shared/ui";
+import { Button, Card, CardContent, Pagination, ResultStatus } from "@/shared/ui";
 import type { PaginationTexts } from "@/shared/ui";
 import { cn } from "@/shared/lib/utils";
 import { SpecialistEvaluationRow } from "./SpecialistEvaluationRow";
@@ -59,21 +59,9 @@ async function loadPage(requestQuery: string): Promise<ListState> {
   if (!result.ok) {
     return { state: "error" };
   }
-  // A `null` id is a deleted offering: nothing to request (design.md D17).
-  const ids = [...new Set(result.data.data.map((item) => item.offeringId ?? ""))].filter(Boolean);
-  const offerings = new Map<string, OfferingDetail>();
-  await Promise.all(
-    ids.map(async (id) => {
-      const offering = await fetchOffering(id);
-      if (offering.status === "found") offerings.set(id, offering.offering);
-    }),
-  );
   return {
     state: "success",
-    rows: result.data.data.map((evaluation) => ({
-      evaluation,
-      offering: offerings.get(evaluation.offeringId ?? "") ?? null,
-    })),
+    rows: await loadEvaluationOfferings(result.data.data, fetchOffering),
     meta: result.data.meta,
   };
 }
@@ -138,32 +126,40 @@ export function EvaluationsList({
 
   const retry = useCallback(() => setAttempt((count) => count + 1), []);
 
-  const removeRow = (ulid: string) => {
+  // A deleted row leaves and a closed row shows its closed state in place
+  // while the page reloads behind them (close-evaluation-only-when-saved).
+  const updateRows = (change: (rows: ListRow[]) => ListRow[]) => {
     setLoaded((current) =>
       current && current.list.state === "success"
-        ? {
-            ...current,
-            list: {
-              ...current.list,
-              rows: current.list.rows.filter((row) => row.evaluation.ulid !== ulid),
-            },
-          }
+        ? { ...current, list: { ...current.list, rows: change(current.list.rows) } }
         : current,
     );
     setQuietKey(`${requestQuery}:${attempt + 1}`);
     setAttempt(attempt + 1);
   };
+  const removeRow = (ulid: string) =>
+    updateRows((rows) => rows.filter((row) => row.evaluation.ulid !== ulid));
+  const markClosed = (ulid: string) =>
+    updateRows((rows) =>
+      rows.map((row) =>
+        row.evaluation.ulid === ulid
+          ? { ...row, evaluation: { ...row.evaluation, status: "closed" } }
+          : row,
+      ),
+    );
 
   return (
     <div ref={blockRef} className={BLOCK_CLASSES}>
-      <h2 className="type-heading">{texts.heading}</h2>
+      <h1 className="type-heading">{texts.heading}</h1>
       {resultCountText !== undefined ? (
         // Mounted in every state so each new total is announced (design.md D9).
-        <div role="status" className="sr-only">
-          {list.state === "success"
-            ? resultCountText.replace("{count}", String(list.meta.total ?? list.rows.length))
-            : null}
-        </div>
+        <ResultStatus
+          text={
+            list.state === "success"
+              ? resultCountText.replace("{count}", String(list.meta.total ?? list.rows.length))
+              : null
+          }
+        />
       ) : null}
       {list.state === "loading" ? (
         <div aria-busy="true" className={ROWS_CLASSES}>
@@ -205,6 +201,7 @@ export function EvaluationsList({
                   locale={locale}
                   texts={texts}
                   onDeleted={removeRow}
+                  onClosed={markClosed}
                 />
               </li>
             ))}

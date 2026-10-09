@@ -51,10 +51,10 @@ export function buildUpdateBody(state: SendableFormState): EvaluationUpdateBody 
       defects: descriptors.defects,
     },
     extrinsics: {
-      farming: null,
-      processing: null,
-      trading: null,
-      certifications: null,
+      farming: sentNote(state.extrinsics.farming),
+      processing: sentNote(state.extrinsics.processing),
+      trading: sentNote(state.extrinsics.trading),
+      certifications: sentNote(state.extrinsics.certifications),
       generalObservation: sentNote(state.generalObservation),
     },
   };

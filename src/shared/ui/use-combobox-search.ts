@@ -19,7 +19,7 @@ export type ComboboxSearchState = { status: ComboboxSearchStatus; results: Combo
 export const MIN_SEARCH_LENGTH = 2;
 
 /** Wait after the last change before a search runs, in milliseconds. */
-export const SEARCH_DELAY_MS = 300;
+const SEARCH_DELAY_MS = 300;
 
 const IDLE: ComboboxSearchState = { status: "idle", results: [] };
 

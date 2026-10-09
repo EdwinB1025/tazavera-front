@@ -1,9 +1,12 @@
 "use client";
 
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
-import { publicRequest, type RegisterPayload } from "@/shared/api";
-import { Button, Field, Input, PasswordInput, FormStatus } from "@/shared/ui";
+import type { RegisterPayload, RegistrationToken } from "@/shared/api";
+import { ActionGroup, Button, Field, Input, FormStatus, RouteButton } from "@/shared/ui";
+import { useServerFieldErrors } from "@/shared/lib/hooks";
 import { isValidEmail } from "@/entities/contact";
+import { registerUser } from "../api/register";
+import { NewPasswordFields } from "./NewPasswordFields";
 import {
   RegisterSuccessPanel,
   type RegisterSuccessPanelTexts,
@@ -30,6 +33,7 @@ export type RegisterFormTexts = RegisterSuccessPanelTexts & {
   emailFormatError: string;
   passwordMismatchError: string;
   registerSubmit: string;
+  cancelLabel: string;
   genericError: string;
 };
 
@@ -40,6 +44,13 @@ export type RegisterFormProps = {
   texts: RegisterFormTexts;
   /** Starts sign in from the success panel (design.md D1). */
   signIn: () => void;
+  /**
+   * Signs in with a `201`'s token block and resolves whether it succeeded
+   * (sign-in-after-registration design.md D4); the page navigates on success.
+   */
+  signInWithToken: (token: RegistrationToken) => Promise<boolean>;
+  /** Where Cancel leads; sends nothing (add-form-cancel-actions D3). */
+  cancelHref: `/${string}`;
 };
 
 type RegisterField =
@@ -93,14 +104,20 @@ function check(
  * The registration form (specs "Registration form" and "Registration
  * result"; design.md D2, D9 and D10). It checks only what `registerAUser`
  * documents, sends `POST /register` through the public client with the
- * route's role, and on a `201` gives way to the success panel. Every other
- * outcome shows the generic error and clears the two password fields.
+ * route's role, and on a `201` signs in with its token block through
+ * `signInWithToken` or, without a block or when that fails, gives way to the
+ * success panel. A `422` shows its messages under their fields
+ * (show-field-validation-errors D3); every outcome but a `201` shows the
+ * generic error, a `422` only for a key that names no field, and clears the
+ * two password fields.
  */
 export function RegisterForm({
   role,
   labelledBy,
   texts,
   signIn,
+  signInWithToken,
+  cancelHref,
 }: RegisterFormProps): ReactNode {
   const formRef = useRef<HTMLFormElement>(null);
   const [values, setValues] = useState<RegisterValues>(EMPTY_VALUES);
@@ -110,6 +127,7 @@ export function RegisterForm({
   const [pending, setPending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [created, setCreated] = useState(false);
+  const server = useServerFieldErrors(FIELD_ORDER);
 
   if (created) {
     return <RegisterSuccessPanel texts={texts} signIn={signIn} />;
@@ -117,11 +135,13 @@ export function RegisterForm({
 
   function update(field: RegisterField, value: string): void {
     setValues((current) => ({ ...current, [field]: value }));
+    server.clear(field);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     if (pending) return;
+    server.reset();
     const found = check(values, texts);
     setErrors(found);
     const firstInvalid = FIELD_ORDER.find((field) => found[field]);
@@ -134,26 +154,16 @@ export function RegisterForm({
     setPending(true);
     setFailed(false);
     const payload: RegisterPayload = { ...values, role };
-    let ok = false;
-    try {
-      const response = await publicRequest("/register", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-      ok = response.status === 201;
-    } catch {
-      // A network failure shows the generic error (spec "Registration result").
-    }
-    setPending(false);
-    if (ok) {
+    const result = await registerUser(payload);
+    if (result.ok) {
+      // Signed in: the submit stays loading while the page navigates.
+      if (result.data !== null && (await signInWithToken(result.data))) return;
+      setPending(false);
       setCreated(true);
       return;
     }
-    setFailed(true);
+    setPending(false);
+    setFailed(result.kind === "validation" ? server.show(result.errors) : true);
     setValues((current) => ({
       ...current,
       password: "",
@@ -169,7 +179,7 @@ export function RegisterForm({
       onSubmit={handleSubmit}
       className="flex flex-col gap-6"
     >
-      <Field label={texts.nameLabel} error={errors.name} required>
+      <Field label={texts.nameLabel} error={errors.name ?? server.errors.name} required>
         <Input
           name="name"
           type="text"
@@ -178,7 +188,7 @@ export function RegisterForm({
           onChange={(event) => update("name", event.target.value)}
         />
       </Field>
-      <Field label={texts.surnameLabel} error={errors.surname} required>
+      <Field label={texts.surnameLabel} error={errors.surname ?? server.errors.surname} required>
         <Input
           name="surname"
           type="text"
@@ -187,7 +197,7 @@ export function RegisterForm({
           onChange={(event) => update("surname", event.target.value)}
         />
       </Field>
-      <Field label={texts.emailLabel} error={errors.email} required>
+      <Field label={texts.emailLabel} error={errors.email ?? server.errors.email} required>
         <Input
           name="email"
           type="email"
@@ -196,49 +206,25 @@ export function RegisterForm({
           onChange={(event) => update("email", event.target.value)}
         />
       </Field>
-      <Field
-        label={texts.passwordLabel}
-        help={texts.passwordHelp}
-        error={errors.password}
-        required
-      >
-        <PasswordInput
-          name="password"
-          autoComplete="new-password"
-          showPasswordLabel={texts.showPassword}
-          hidePasswordLabel={texts.hidePassword}
-          value={values.password}
-          onChange={(event) => update("password", event.target.value)}
-        />
-      </Field>
-      <Field
-        label={texts.passwordConfirmationLabel}
-        error={errors.passwordConfirmation}
-        required
-      >
-        <PasswordInput
-          name="passwordConfirmation"
-          autoComplete="new-password"
-          showPasswordLabel={texts.showPassword}
-          hidePasswordLabel={texts.hidePassword}
-          value={values.passwordConfirmation}
-          onChange={(event) =>
-            update("passwordConfirmation", event.target.value)
-          }
-        />
-      </Field>
+      <NewPasswordFields
+        texts={texts}
+        password={values.password}
+        passwordConfirmation={values.passwordConfirmation}
+        passwordError={errors.password ?? server.errors.password}
+        passwordConfirmationError={
+          errors.passwordConfirmation ?? server.errors.passwordConfirmation
+        }
+        onChange={update}
+      />
       {failed && <FormStatus kind="error" text={texts.genericError} />}
-      <div className="flex flex-wrap gap-3">
-        <Button
-          type="submit"
-          variant="primary"
-          size="base"
-          loading={pending}
-          className="w-full"
-        >
+      <ActionGroup>
+        <Button type="submit" variant="primary" size="base" loading={pending}>
           {texts.registerSubmit}
         </Button>
-      </div>
+        <RouteButton href={cancelHref} variant="action-4" size="base">
+          {texts.cancelLabel}
+        </RouteButton>
+      </ActionGroup>
     </form>
   );
 }

@@ -1,12 +1,10 @@
 import { Suspense, type ReactNode } from "react";
 import type { Session } from "@/shared/api";
-import {
-  DEFAULT_LOCALE,
-  isSupportedLocale,
-  type Locale,
-} from "@/shared/config/locales";
+import { hasLocale, type Locale } from "next-intl";
+import { routing } from "@/shared/config/locales";
 import { LOCALE_NAMES } from "@/shared/config/locale-names";
 import { getMessages } from "@/shared/lib/i18n";
+import type { Theme } from "@/shared/lib/theme";
 import { NavigationTracker } from "./NavigationTracker";
 import { SessionShell } from "./SessionShell";
 
@@ -22,6 +20,11 @@ export type AppShellProps = {
   session?: Session;
   /** The `@sidebar` slot of the `[locale]` layout (add-sidebar-slot D1). */
   sidebar?: ReactNode;
+  /**
+   * The theme the server resolved from the cookie, for the header's theme
+   * switch (refine-header-aut D3).
+   */
+  theme?: Theme;
   children?: ReactNode;
 };
 
@@ -40,15 +43,18 @@ export function AppShell({
   locale,
   session,
   sidebar,
+  theme,
   children,
 }: AppShellProps): ReactNode {
   // design.md D6 (correction 3 of round 1): the locale is resolved with
-  // `isSupportedLocale` and never cast. An unsupported locale resolves to
-  // DEFAULT_LOCALE (es) for the whole composition — catalog word, code and
+  // `hasLocale` and never cast. An unsupported locale resolves to the
+  // default locale (es) for the whole composition — catalog word, code and
   // own name — so the name reads "ES — Idioma: Español" and the shell
   // renders without throwing (the catalog included, since `getMessages`
   // rejects an unsupported locale).
-  const active: Locale = isSupportedLocale(locale) ? locale : DEFAULT_LOCALE;
+  const active: Locale = hasLocale(routing.locales, locale)
+    ? locale
+    : routing.defaultLocale;
   const texts = getMessages("shell", active);
 
   return (
@@ -60,10 +66,12 @@ export function AppShell({
         locale={active}
         session={session}
         sidebar={sidebar}
+        theme={theme}
         texts={{
           topRated: texts.topRated!,
           exploreCoffeeshops: texts.exploreCoffeeshops!,
           aboutUs: texts.aboutUs!,
+          primaryNavigation: texts.primaryNavigation!,
           signIn: texts.signIn!,
           // design.md D6: the shell composes one name — the resolved
           // locale's code in uppercase, then " — ", then the catalog word
@@ -75,11 +83,14 @@ export function AppShell({
           brandLink: texts.brandLink!,
           myAccount: texts.myAccount!,
           security: texts.security!,
-          themeSelector: texts.themeSelector!,
+          themeToggleToDark: texts.themeToggleToDark!,
+          themeToggleToTraditional: texts.themeToggleToTraditional!,
           manageOfferings: texts.manageOfferings!,
           manageEvaluations: texts.manageEvaluations!,
+          exploreOfferings: texts.exploreOfferings!,
           signOut: texts.signOut!,
           toggleSidebar: texts.toggleSidebar!,
+          sidebarNavigation: texts.sidebarNavigation!,
           navigationMenu: texts.navigationMenu!,
         }}
       >

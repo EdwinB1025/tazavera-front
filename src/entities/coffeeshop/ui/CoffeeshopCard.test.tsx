@@ -1,6 +1,7 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import type { CoffeeshopSummary } from "@/shared/api";
+import { getMessages } from "@/shared/lib/i18n";
 import { CoffeeshopCard, type CoffeeshopCardTexts } from "./CoffeeshopCard";
 
 // The View action is a route button (fix-production-aut-findings design.md
@@ -23,7 +24,7 @@ const TEXTS: CoffeeshopCardTexts = {
   locationsCount: "{count} ubicaciones",
   offeringsCount: "Ofertas: {count}",
   verifiedCount: "Verificadas: {count}",
-  viewLabel: "Ver",
+  viewLabel: getMessages("coffeeshops", "es").viewLabel,
 };
 
 const NOMAD: CoffeeshopSummary = {
@@ -39,17 +40,17 @@ const NOMAD: CoffeeshopSummary = {
 };
 
 describe("CoffeeshopCard", () => {
-  it("shows the badge, name, locations, city once, counts and View action (spec: Card content)", () => {
+  it("shows the badge, name, locations, city once, counts and View offerings action (spec: Card content)", () => {
     render(<CoffeeshopCard coffeeshop={NOMAD} locale="es" texts={TEXTS} />);
     expect(screen.getByText("Con ofertas verificadas")).toBeTruthy();
-    expect(screen.getByRole("heading", { level: 3, name: "Nomad Coffee" }).className).toContain(
+    expect(screen.getByRole("heading", { level: 2, name: "Nomad Coffee" }).className).toContain(
       "type-card-heading",
     );
     expect(screen.getByText("2 ubicaciones").className).toContain("type-label");
     expect(screen.getByText("Barcelona").className).toContain("type-meta");
     expect(screen.getByText("Ofertas: 4")).toBeTruthy();
     expect(screen.getByText("Verificadas: 1")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Ver" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Ver ofertas" })).toBeTruthy();
   });
 
   it("shows no badge without a verified offering (spec: No verified offering)", () => {
@@ -59,10 +60,10 @@ describe("CoffeeshopCard", () => {
     expect(screen.queryByText("Con ofertas verificadas")).toBeNull();
   });
 
-  it("opens the coffee shop detail in the locale from the View button, not a link (spec: View link)", () => {
+  it("opens the coffee shop detail in the locale from the View offerings button, not a link (spec: View link)", () => {
     render(<CoffeeshopCard coffeeshop={NOMAD} locale="es" texts={TEXTS} />);
-    expect(screen.queryByRole("link", { name: "Ver" })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Ver" }));
+    expect(screen.queryByRole("link", { name: "Ver ofertas" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Ver ofertas" }));
     expect(router.push).toHaveBeenCalledWith("/es/coffeeshops/01SHOP");
   });
 });

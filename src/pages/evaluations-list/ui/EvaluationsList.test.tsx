@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import type { EvaluationItem, OfferingDetail } from "@/shared/api";
 
 /**
@@ -17,9 +17,15 @@ vi.mock("next/navigation", () => ({
 
 const listMyEvaluations = vi.fn();
 const deleteAnEvaluation = vi.fn();
-vi.mock("@/entities/evaluation", () => ({
+const closeAnEvaluation = vi.fn();
+vi.mock("@/entities/evaluation", async (importOriginal) => ({
+  loadEvaluationOfferings: (await importOriginal<typeof import("@/entities/evaluation")>())
+    .loadEvaluationOfferings,
   listMyEvaluations: (...args: unknown[]) => listMyEvaluations(...args),
   deleteAnEvaluation: (...args: unknown[]) => deleteAnEvaluation(...args),
+  closeAnEvaluation: (...args: unknown[]) => closeAnEvaluation(...args),
+  isReadyForClosing: (await importOriginal<typeof import("@/entities/evaluation")>())
+    .isReadyForClosing,
 }));
 
 const fetchOffering = vi.fn();
@@ -42,6 +48,10 @@ const TEXTS: EvaluationsListTexts = {
   roasterCaption: "Roaster:",
   editLabel: "Edit",
   viewLabel: "View",
+  viewOfferingLabel: "View offering",
+  closeLabel: "Close evaluation",
+  closedMessage: "Evaluation closed.",
+  incompleteMessage: "Complete every group before closing.",
   ratingExceptionalLabel: "Exceptional",
   ratingExcellentLabel: "Excellent",
   ratingGoodLabel: "Good",
@@ -93,13 +103,13 @@ const ITEMS: EvaluationItem[] = [
 ];
 
 function page(data: EvaluationItem[], meta = { current_page: 1, last_page: 1, per_page: 15, total: data.length }) {
-  return { ok: true, status: 200, data: { data, meta } };
+  return { ok: true, data: { data, meta } };
 }
 
 beforeEach(() => {
   listMyEvaluations.mockReset();
   fetchOffering.mockReset();
-  fetchOffering.mockImplementation(async (ulid: string) => ({ status: "found", offering: OFFERINGS[ulid] }));
+  fetchOffering.mockImplementation(async (ulid: string) => ({ ok: true, data: OFFERINGS[ulid] }));
 });
 
 afterEach(cleanup);
@@ -116,20 +126,20 @@ describe("EvaluationsList (spec: My evaluations list)", () => {
   it("renders one row per evaluation in API order with its offering", async () => {
     listMyEvaluations.mockResolvedValue(page(ITEMS));
     render(<List />);
-    const headings = await screen.findAllByRole("heading", { level: 3 });
+    const headings = await screen.findAllByRole("heading", { level: 2 });
     expect(headings.map((heading) => heading.textContent)).toEqual(["Beta", "Alpha", "Alpha"]);
     expect(listMyEvaluations).toHaveBeenCalledWith("orderBy=created_at&orderDirection=desc&page=1");
     expect(fetchOffering).toHaveBeenCalledWith("01JOFFERA");
     expect(fetchOffering).toHaveBeenCalledWith("01JOFFERB");
     expect(fetchOffering).toHaveBeenCalledTimes(2);
     expect(screen.getAllByText("Coffeeshop: Alpha shop")).toHaveLength(2);
-    expect(screen.getByRole("heading", { level: 2, name: "My evaluations" }).className).toContain("type-heading");
+    expect(screen.getByRole("heading", { level: 1, name: "My evaluations" }).className).toContain("type-heading");
   });
 
   it("requests the filtered page with evaluationListQuery", async () => {
     listMyEvaluations.mockResolvedValue(page(ITEMS, { current_page: 2, last_page: 2, per_page: 15, total: 18 }));
     render(<List page={2} values={parseEvaluationFilters({ status: "open" })} query={{ status: "open", page: "2" }} />);
-    await screen.findAllByRole("heading", { level: 3 });
+    await screen.findAllByRole("heading", { level: 2 });
     expect(listMyEvaluations).toHaveBeenCalledWith("status=open&orderBy=created_at&orderDirection=desc&page=2");
   });
 
@@ -158,7 +168,7 @@ describe("EvaluationsList (spec: My evaluations list)", () => {
   it("announces the result total in a status element that stays mounted while loading", async () => {
     listMyEvaluations.mockResolvedValueOnce(page(ITEMS, { current_page: 1, last_page: 1, per_page: 15, total: 12 }));
     const { rerender } = render(<List resultCountText="Results: {count}" />);
-    await screen.findAllByRole("heading", { level: 3 });
+    await screen.findAllByRole("heading", { level: 2 });
     const status = screen.getByRole("status");
     expect(status.textContent).toBe("Results: 12");
     listMyEvaluations.mockReturnValueOnce(new Promise(() => {}));
@@ -174,7 +184,7 @@ describe("EvaluationsList (spec: My evaluations list)", () => {
       let resolveReload: (value: unknown) => void = () => {};
       listMyEvaluations.mockReturnValueOnce(new Promise((done) => (resolveReload = done)));
       const { container, rerender } = render(<List />);
-      await screen.findAllByRole("heading", { level: 3 });
+      await screen.findAllByRole("heading", { level: 2 });
       const block = container.firstElementChild as HTMLElement;
       expect(block.style.minHeight).toBe("");
       rerender(<List values={parseEvaluationFilters({ status: "open" })} />);
@@ -189,12 +199,12 @@ describe("EvaluationsList (spec: My evaluations list)", () => {
   });
 
   it("shows the failure message with a retry that loads again", async () => {
-    listMyEvaluations.mockResolvedValueOnce({ ok: false, status: 500 });
+    listMyEvaluations.mockResolvedValueOnce({ ok: false, kind: "error" });
     render(<List />);
     expect(await screen.findByText(TEXTS.loadErrorMessage)).toBeDefined();
     listMyEvaluations.mockResolvedValueOnce(page(ITEMS));
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
-    await screen.findAllByRole("heading", { level: 3 });
+    await screen.findAllByRole("heading", { level: 2 });
     expect(listMyEvaluations).toHaveBeenCalledTimes(2);
     expect(screen.queryByText(TEXTS.loadErrorMessage)).toBeNull();
   });
@@ -210,11 +220,11 @@ describe("EvaluationsList (spec: My evaluations list)", () => {
 
   it("removes a deleted row and reloads the list without the loading placeholder", async () => {
     listMyEvaluations.mockResolvedValueOnce(page(ITEMS));
-    deleteAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: null });
+    deleteAnEvaluation.mockResolvedValue({ ok: true, data: null });
     let resolveReload: (value: unknown) => void = () => {};
     listMyEvaluations.mockReturnValueOnce(new Promise((done) => (resolveReload = done)));
     const { container } = render(<List />);
-    await screen.findAllByRole("heading", { level: 3 });
+    await screen.findAllByRole("heading", { level: 2 });
     fireEvent.click(screen.getAllByRole("button", { name: "Delete" })[0]);
     fireEvent.click(screen.getByRole("button", { name: "Delete evaluation" }));
     await waitFor(() => expect(screen.getAllByRole("listitem")).toHaveLength(2));
@@ -223,11 +233,45 @@ describe("EvaluationsList (spec: My evaluations list)", () => {
     expect(container.querySelector('[aria-busy="true"]')).toBeNull();
     resolveReload(page(ITEMS.slice(1)));
     await waitFor(() =>
-      expect(screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual([
+      expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).toEqual([
         "Alpha",
         "Alpha",
       ]),
     );
+  });
+});
+
+describe("EvaluationsList: closing a row (close-evaluation-only-when-saved)", () => {
+  it("The row's close succeeds", async () => {
+    const axes = ["fragrance", "aroma", "flavor", "aftertaste", "acidity", "sweetness", "mouthfeel"];
+    const scores = (score: number, keys: string[]) =>
+      Object.fromEntries(keys.map((axis) => [axis, { score, note: null }]));
+    // The first item is complete for the close rule (refine-evaluation-flow D3).
+    const complete = {
+      ...ITEMS[0],
+      descriptive: scores(5, axes),
+      affective: scores(6, [...axes, "overall"]),
+      tastes: [
+        { ref: "01JTAXSWEET", type: "main_tastes" },
+        { ref: "01JTAXSILKY", type: "mouthfeel" },
+        { ref: "01JTAXFLORAL", type: "aroma" },
+      ],
+    } as EvaluationItem;
+    listMyEvaluations.mockResolvedValueOnce(page([complete, ...ITEMS.slice(1)]));
+    listMyEvaluations.mockReturnValueOnce(new Promise(() => {}));
+    closeAnEvaluation.mockResolvedValue({ ok: true, data: null });
+    const { container } = render(<List />);
+    await screen.findAllByRole("heading", { level: 2 });
+    const row = () => screen.getAllByRole("listitem")[0];
+    fireEvent.click(within(row()).getByRole("button", { name: "Close evaluation" }));
+    await waitFor(() =>
+      expect(within(row()).getByRole("status").textContent).toBe("Evaluation closed."),
+    );
+    expect(closeAnEvaluation).toHaveBeenCalledWith("01JEVAL3");
+    expect(within(row()).getByRole("button", { name: "View" })).toBeDefined();
+    expect(within(row()).queryByRole("button", { name: "Edit" })).toBeNull();
+    expect(within(row()).queryByRole("button", { name: "Close evaluation" })).toBeNull();
+    expect(container.querySelector('[aria-busy="true"]')).toBeNull();
   });
 });
 
@@ -243,7 +287,7 @@ describe("EvaluationsList: an evaluation of a deleted offering (design.md D17; t
     };
     listMyEvaluations.mockResolvedValue(page([orphan, ...ITEMS]));
     render(<List />);
-    const headings = await screen.findAllByRole("heading", { level: 3 });
+    const headings = await screen.findAllByRole("heading", { level: 2 });
     expect(headings.map((heading) => heading.textContent)).toEqual([
       "Offering no longer exists",
       "Beta",

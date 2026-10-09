@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { getMessages } from "@/shared/lib/i18n";
-import { Link, PageSection } from "@/shared/ui";
+import { BackLink, PageSection } from "@/shared/ui";
 import { NewOfferingForm, type NewOfferingFormTexts } from "./NewOfferingForm";
 
 // ─── UI-specific types (declared before the component) ───
@@ -50,17 +50,13 @@ export function NewOfferingScreen({ locale }: NewOfferingScreenProps): ReactNode
     createError: catalog.createError,
     createdStatus: catalog.createdStatus,
     viewMyOfferings: catalog.viewMyOfferings,
-    stepUpMessage: catalog.stepUpMessage,
-    stepUpLabel: catalog.stepUpLabel,
   };
 
   return (
     <div className="flex-1">
       <PageSection surface="page">
         <div className={COLUMN_CLASSES}>
-          <Link variant="back" href={`/${locale}/manage/offerings`}>
-            {catalog.backLabel}
-          </Link>
+          <BackLink fallback={`/${locale}/manage/offerings`}>{catalog.backLabel}</BackLink>
           <div className={BODY_CLASSES}>
             <div className={TITLE_GROUP_CLASSES}>
               <p className="type-eyebrow-strong">{catalog.eyebrow}</p>

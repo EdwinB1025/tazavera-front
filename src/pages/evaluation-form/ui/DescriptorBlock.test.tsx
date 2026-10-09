@@ -5,9 +5,9 @@ import { DescriptorBlock } from "./DescriptorBlock";
 
 /**
  * One descriptor block over the `GET /taxonomies` tree (design.md D7; spec
- * "Descriptor blocks"; tasks 5.1): one row per level-0 node with matching
- * level-1 children, one shared row for the matching level-0 nodes without
- * one, level 2 never, labels in the route's locale, multiple selection.
+ * "Descriptor blocks"; cascade-evaluation-descriptors D5): the category's
+ * nodes as a cascade down to level 2, a node offered only when its parent is,
+ * labels in the route's locale, multiple selection.
  */
 
 afterEach(cleanup);
@@ -39,7 +39,7 @@ const TREE: TaxonomyNode[] = [
   ]),
   node("FLORAL", 0, "Floral", ["aromatics"]),
   node("SWEET", 0, "Sweet", ["main_tastes", "aromatics"]),
-  node("TEXTURE", 0, "Texture", [], [
+  node("TEXTURE", 0, "Texture", ["mouthfeel"], [
     node("SILKY", 1, "Silky", ["mouthfeel"]),
     node("ROUGH", 1, "Rough", ["mouthfeel"]),
   ]),
@@ -71,43 +71,45 @@ function chipLabels(container: HTMLElement): string[] {
 }
 
 describe("DescriptorBlock (design.md D7)", () => {
-  it("renders a row per level-0 node with matching children and one shared row", () => {
+  it("shows the category's level-0 chips and each chosen node's children, down to level 2", () => {
     renderBlock("aromatics");
-    const fruity = screen.getByRole("group", { name: "Fruity" });
-    expect(chipLabels(fruity)).toEqual(["Berry", "Citrus"]);
-    const chips = screen.getAllByRole("button").map((chip) => chip.textContent);
-    expect(chips).toEqual(["Berry", "Citrus", "Floral", "Sweet"]);
-    expect(screen.queryByText("Strawberry")).toBeNull();
-    expect(screen.queryByText("Acetic")).toBeNull();
-  });
-
-  it("filters by the block's category and shows a node in every block it matches", () => {
-    renderBlock("main_tastes");
     expect(screen.getAllByRole("button").map((chip) => chip.textContent)).toEqual([
-      "Citrus",
+      "Fruity",
+      "Floral",
       "Sweet",
     ]);
     cleanup();
-    renderBlock("mouthfeel");
+    renderBlock("aromatics", "en", ["FRUITY"]);
+    expect(chipLabels(screen.getByRole("group", { name: "Fruity" }))).toEqual(["Berry", "Citrus"]);
+    cleanup();
+    renderBlock("aromatics", "en", ["FRUITY", "BERRY"]);
+    expect(chipLabels(screen.getByRole("group", { name: "Berry" }))).toEqual(["Strawberry"]);
+  });
+
+  it("filters by the block's category and offers no node whose parent is not offered", () => {
+    renderBlock("main_tastes");
+    expect(screen.getAllByRole("button").map((chip) => chip.textContent)).toEqual(["Sweet"]);
+    cleanup();
+    renderBlock("mouthfeel", "en", ["TEXTURE"]);
     const texture = screen.getByRole("group", { name: "Texture" });
     expect(chipLabels(texture)).toEqual(["Silky", "Rough"]);
     cleanup();
     renderBlock("defects");
-    expect(chipLabels(screen.getByRole("group", { name: "Fruity" }))).toEqual(["Acetic"]);
+    expect(screen.queryByText("Acetic")).toBeNull();
   });
 
   it("labels the options with the node name of the route's locale", () => {
-    renderBlock("mouthfeel", "es");
+    renderBlock("mouthfeel", "es", ["TEXTURE"]);
     expect(screen.getByRole("group", { name: "Texture (es)" })).toBeDefined();
     expect(screen.getByRole("button", { name: "Silky (es)" })).toBeDefined();
     cleanup();
-    renderBlock("mouthfeel", "ca");
+    renderBlock("mouthfeel", "ca", ["TEXTURE"]);
     expect(screen.getByRole("button", { name: "Rough (ca)" })).toBeDefined();
   });
 
   it("selects several options with no limit", () => {
-    const onValueChange = renderBlock("aromatics", "en", ["BERRY", "CITRUS", "FLORAL"]);
+    const onValueChange = renderBlock("aromatics", "en", ["FRUITY", "BERRY", "CITRUS", "FLORAL"]);
     fireEvent.click(screen.getByRole("button", { name: "Sweet" }));
-    expect(onValueChange).toHaveBeenCalledWith(["BERRY", "CITRUS", "FLORAL", "SWEET"]);
+    expect(onValueChange).toHaveBeenCalledWith(["FRUITY", "BERRY", "CITRUS", "FLORAL", "SWEET"]);
   });
 });

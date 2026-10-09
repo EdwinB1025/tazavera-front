@@ -322,6 +322,9 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   { fg: "text-link", bg: "surface-page", kind: "text" },
   { fg: "text-link", bg: "surface-form", kind: "text" },
   { fg: "text-link-hover", bg: "surface-form", kind: "text" },
+  // add-bottom-back-links design.md D3
+  { fg: "text-link", bg: "surface-section", kind: "text" },
+  { fg: "text-link-hover", bg: "surface-section", kind: "text" },
   { fg: "action-primary-text", bg: "action-primary", kind: "text" },
   { fg: "action-primary-text", bg: "action-primary-hover", kind: "text" },
   { fg: "action-1-text", bg: "action-1-bg", kind: "text" },
@@ -498,8 +501,16 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   // above. The two mark pairs fail until task 1.4 defines
   // --color-evaluation-bean-mark-on/off.
   { fg: "evaluation-bean-mark-off", bg: "evaluation-bean-off", kind: "icon" },
-  // evaluation-bean-on is translucent: measured over its documented bases
-  { fg: "evaluation-bean-mark-on", bg: "evaluation-bean-on", kind: "icon" },
+  // unify-bean-outline: the bean's lines keep mark-off over the on disc, as
+  // the MVC; Product owner decided (2026-10-09) the contrast is sufficient as
+  // designed, so the pair is decorative and exempt.
+  { fg: "evaluation-bean-mark-off", bg: "evaluation-bean-on", kind: "icon", exempt: true },
+  // refine-small-visuals-aut D3: the bean background no longer frames the
+  // bean, so the on background and the off outline sit on the host surface
+  { fg: "evaluation-bean-on", bg: "surface-card", kind: "icon" },
+  { fg: "evaluation-bean-on", bg: "surface-form", kind: "icon" },
+  { fg: "evaluation-bean-mark-off", bg: "surface-card", kind: "icon" },
+  { fg: "evaluation-bean-mark-off", bg: "surface-form", kind: "icon" },
   { fg: "evaluation-slider-thumb", bg: "surface-form", kind: "bound" },
   { fg: "evaluation-slider-thumb", bg: "surface-card", kind: "bound" },
   { fg: "evaluation-slider-thumb", bg: "evaluation-slider-track", kind: "bound" },
@@ -596,6 +607,9 @@ const DARK_PAIRS: ContrastPair[] = [
   { fg: "text-link", bg: "surface-page", kind: "text" },
   { fg: "text-link", bg: "surface-form", kind: "text" },
   { fg: "text-link-hover", bg: "surface-form", kind: "text" },
+  // add-bottom-back-links design.md D3
+  { fg: "text-link", bg: "surface-section", kind: "text" },
+  { fg: "text-link-hover", bg: "surface-section", kind: "text" },
   { fg: "action-primary-text", bg: "action-primary", kind: "text" },
   { fg: "action-primary-text", bg: "action-primary-hover", kind: "text" },
   { fg: "action-1-text", bg: "action-1-bg", kind: "text" },
@@ -730,9 +744,16 @@ const DARK_PAIRS: ContrastPair[] = [
   // above. The two mark pairs fail until task 1.4 defines
   // --color-evaluation-bean-mark-on/off.
   { fg: "evaluation-bean-mark-off", bg: "evaluation-bean-off", kind: "icon" },
-  // rides the documented bases of DOCUMENTED_BASES (evaluation-bean-on is
-  // translucent in the traditional theme)
-  { fg: "evaluation-bean-mark-on", bg: "evaluation-bean-on", kind: "icon" },
+  // unify-bean-outline: the bean's lines keep mark-off over the on disc, as
+  // the MVC; Product owner decided (2026-10-09) the contrast is sufficient as
+  // designed, so the pair is decorative and exempt.
+  { fg: "evaluation-bean-mark-off", bg: "evaluation-bean-on", kind: "icon", exempt: true },
+  // refine-small-visuals-aut D3: the bean background no longer frames the
+  // bean, so the on background and the off outline sit on the host surface
+  { fg: "evaluation-bean-on", bg: "surface-card", kind: "icon" },
+  { fg: "evaluation-bean-on", bg: "surface-form", kind: "icon" },
+  { fg: "evaluation-bean-mark-off", bg: "surface-card", kind: "icon" },
+  { fg: "evaluation-bean-mark-off", bg: "surface-form", kind: "icon" },
   { fg: "evaluation-slider-thumb", bg: "surface-form", kind: "bound" },
   { fg: "evaluation-slider-thumb", bg: "surface-card", kind: "bound" },
   { fg: "evaluation-slider-thumb", bg: "evaluation-slider-track", kind: "bound" },
@@ -792,6 +813,12 @@ const EXPECTED_RADIUS_TRADITIONAL: Record<string, string> = {
   "--radius-container": "16px",
   "--radius-field": "8px",
   "--radius-check": "4px",
+};
+
+// The minimum action width per button size (unify-action-button-widths D1).
+const EXPECTED_ACTION_WIDTHS: Record<string, string> = {
+  "--container-action-sm": "7.5rem",
+  "--container-action-base": "10rem",
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1240,6 +1267,13 @@ describe("Theme tokens guard", () => {
         }
       },
     ]);
+
+    // Action width tokens (unify-action-button-widths D1): same value in both
+    // themes, so the dark theme does not reassign them.
+    for (const [token, value] of Object.entries(EXPECTED_ACTION_WIDTHS)) {
+      items.push([`traditional @theme defines ${token}: ${value}`, () => expect(tradProps.get(token)).toBe(value)]);
+      items.push([`dark theme keeps ${token}`, () => expect(darkProps.has(token)).toBe(false)]);
+    }
 
     // Shared focus indicator: @utility focus-ring (design.md D4)
     const blocks = extractFocusRingUtilities(css);

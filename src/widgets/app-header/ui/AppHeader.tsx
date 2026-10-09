@@ -3,9 +3,11 @@
 import type { ReactNode } from "react";
 import { Logo, Button } from "@/shared/ui";
 import type { Session } from "@/shared/api";
+import type { Theme } from "@/shared/lib/theme";
 import { NavigationMenu } from "./NavigationMenu";
 import { PrimaryNav } from "./PrimaryNav";
 import { LanguageSelect } from "./LanguageSelect";
+import { ThemeToggle } from "./ThemeToggle";
 import { UserMenu } from "./UserMenu";
 
 // ─── UI-specific types (declared before the component) ───
@@ -18,6 +20,8 @@ export type AppHeaderTexts = {
   topRated: string;
   exploreCoffeeshops: string;
   aboutUs: string;
+  /** Accessible name of the primary navigation landmark (label-landmarks-and-headings D1). */
+  primaryNavigation?: string;
   signIn: string;
   /**
    * The composed accessible name of the language control the shell passes
@@ -30,9 +34,12 @@ export type AppHeaderTexts = {
   // the user menu (spec: "Menu content")
   myAccount: string;
   security: string;
-  themeSelector: string;
+  /** The theme switch names (refine-header-aut D2). */
+  themeToggleToDark: string;
+  themeToggleToTraditional: string;
   manageOfferings: string;
   manageEvaluations: string;
+  exploreOfferings: string;
   signOut: string;
   /** The small-viewport navigation menu control (fix-production-aut-findings D7). */
   navigationMenu: string;
@@ -45,6 +52,11 @@ export type AppHeaderProps = {
   /** Exactly the supported locales, for the language selector. */
   locales: string[];
   texts: AppHeaderTexts;
+  /**
+   * The theme the server resolved from the cookie, for the theme switch's
+   * first render (refine-header-aut D3); absent, the traditional fallback.
+   */
+  theme?: Theme;
   /** The session's sign in (spec: "Sign in starts from the current route"). */
   onSignIn: () => void;
   /** The session's sign out (spec: "Sign out"). */
@@ -62,23 +74,25 @@ export type AppHeaderProps = {
 const HEADER_CLASSES = ["flex", "h-16", "items-center", "gap-4", "bg-nav-surface", "px-4"].join(" ");
 
 // ─── The two groups of the header layout (corrections.md round 3) ───
-// The logo and the primary navigation sit on the left; the language selector
-// and the session control ("Sign in", or the avatar once signed in) are one
-// group pushed to the right edge. Neither group is gated by a breakpoint, so
+// The logo and the primary navigation sit on the left; the language selector,
+// the theme switch and the session control ("Sign in", or the avatar once
+// signed in) are one group pushed to the right edge. Neither group is gated by a breakpoint, so
 // the same two-group layout holds on every viewport while only the navigation
 // and the logotype form change at `md` (design summary §3).
-const LEFT_GROUP_CLASSES = ["flex", "items-center", "gap-4"].join(" ");
-const RIGHT_GROUP_CLASSES = ["ml-auto", "flex", "items-center", "gap-4"].join(" ");
+// The left group tightens below `md` too, so the signed-out header fits at 375px (fit-header-at-375).
+const LEFT_GROUP_CLASSES = ["flex", "items-center", "gap-2", "md:gap-4"].join(" ");
+// The right group tightens below `md` so it fits at 375px (refine-header-aut D1).
+const RIGHT_GROUP_CLASSES = ["ml-auto", "flex", "items-center", "gap-2", "md:gap-4"].join(" ");
 
 /**
  * Tazavera app header (design summary §3).
  *
  * Signed out it shows the brand logotype, the primary navigation (from `md`;
  * below it the navigation menu control, fix-production-aut-findings D7),
- * the language selector and the "Sign in" action; signed in it shows the user
- * menu instead of the "Sign in" action; while the session resolves it shows
- * neither (spec: "Session resolving"). The user menu carries the account
- * entry, security, theme selector, management entry and sign out.
+ * the language selector, the theme switch and the "Sign in" action; signed in
+ * it shows the user menu instead of the "Sign in" action; while the session
+ * resolves it shows neither (spec: "Session resolving"). The user menu
+ * carries the account entry, security, management entry and sign out.
  *
  * The logotype renders in both forms (design.md D7): the drawing alone below
  * `md` and the wordmark form from `md` up, so the brand stays visible at
@@ -89,6 +103,7 @@ export function AppHeader({
   locale,
   locales,
   texts,
+  theme = "traditional",
   onSignIn,
   onSignOut,
   onLocaleChange,
@@ -120,6 +135,7 @@ export function AppHeader({
           value={locale}
           onLocaleChange={onLocaleChange}
         />
+        <ThemeToggle initialTheme={theme} texts={texts} />
         {session.state === "anonymous" && (
           <Button variant="nav-button" onClick={onSignIn}>
             {texts.signIn}

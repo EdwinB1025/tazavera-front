@@ -4,9 +4,13 @@ import { FormActions } from "./FormActions";
 
 /**
  * The form's actions (design.md D4, D14; the summary §9; tasks 6.1): Save
- * draft (`action-3`) and Close evaluation (`primary`), the `role="status"`
+ * draft (`primary`) and Close evaluation (`action-2`), the `role="status"`
  * region beside them, a sticky bar below `md` and an actions row from `md`.
  */
+
+// Cancel is a route button (render-navigation-actions-as-buttons); the app
+// router is mocked — test infrastructure only.
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
 afterEach(cleanup);
 
@@ -17,6 +21,8 @@ function renderActions(props: Partial<Parameters<typeof FormActions>[0]> = {}) {
     <FormActions
       saveLabel="Save draft"
       closeLabel="Close evaluation"
+      cancelLabel="Cancel"
+      cancelHref="/es/manage/evaluations"
       onSave={onSave}
       onClose={onClose}
       busy={null}

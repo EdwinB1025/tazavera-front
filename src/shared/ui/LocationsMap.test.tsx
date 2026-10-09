@@ -182,6 +182,17 @@ describe("LocationsMap", () => {
     expect(fake.map?.zoomOut).toHaveBeenCalledTimes(1);
   });
 
+  it("keeps the markers and the controls usable when a map image fails to load (spec: Failed tiles)", () => {
+    renderMap();
+    const tile = document.createElement("img");
+    fake.map!.container.appendChild(tile);
+    fireEvent.error(tile);
+    fireEvent.click(screen.getByRole("button", { name: "Acercar" }));
+    expect(fake.map?.zoomIn).toHaveBeenCalledTimes(1);
+    act(() => fireEvent.click(marker("Syra Coffee — Gràcia")));
+    expect(screen.getByRole("region", { name: "Syra Coffee" })).toBeDefined();
+  });
+
   it("shows the attribution linking to the copyright page (spec: Attribution)", () => {
     renderMap();
     const link = screen.getByRole("link", { name: "OpenStreetMap contributors" });

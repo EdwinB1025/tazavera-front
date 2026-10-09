@@ -6,7 +6,7 @@
   "locationsCount": "{count} ubicacions",
   "offeringsCount": "Ofertes: {count}",
   "verifiedCount": "Verificades: {count}",
-  "viewLabel": "Veure",
+  "viewLabel": "Veure ofertes",
   "listEmpty": "Encara no hi ha cafeteries.",
   "listError": "No s'han pogut carregar les cafeteries.",
   "filtersTitle": "Filtres",
@@ -39,5 +39,7 @@
   "osmAttribution": "© {link}",
   "osmContributors": "OpenStreetMap contributors",
   "backToList": "Torna a la llista",
-  "mapLoading": "Carregant el mapa…"
+  "mapLoading": "Carregant el mapa…",
+  "detailNotFoundTitle": "Cafeteria no trobada",
+  "detailNotFoundLine": "Pot ser que s'hagi retirat o que l'enllaç no sigui correcte."
 }

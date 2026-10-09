@@ -4,10 +4,11 @@ import * as React from "react";
 import { Slot } from "radix-ui";
 import { cn } from "@/shared/lib/utils";
 import { useIsMobile } from "@/shared/lib/hooks";
-import { Button } from "@/shared/ui";
+import { Button } from "./Button";
 import { PanelLeft } from "@/shared/ui/icons";
 import type { LucideIcon } from "@/shared/ui/icons";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./Sheet";
+import { OverlayStatus, SidebarAnnouncementProvider } from "./ResultStatus";
 
 /**
  * Sidebar, pulled from the shadcn registry (Radix base) and rewired to the
@@ -36,6 +37,9 @@ type SidebarContextValue = {
    * mounted-sidebar count again (design.md D3).
    */
   register: () => () => void;
+  /** Whether the sidebar entry's sub-section is open (collapse-sidebar-filters). */
+  subsectionOpen: boolean;
+  setSubsectionOpen: (open: boolean) => void;
 };
 
 /**
@@ -56,15 +60,32 @@ function useSidebar(): SidebarContextValue {
 }
 
 function SidebarProvider({
+  route = null,
   children,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & {
+  /** The route in view (its pathname): a new one is a new arrival. */
+  route?: string | null;
+}) {
   // Two states (design.md D3): expanded on arrival from `md`, closed on
   // arrival below it.
   const [openDesktop, setOpenDesktop] = React.useState(true);
   const [openMobile, setOpenMobile] = React.useState(false);
   const [count, setCount] = React.useState(0);
+  // Closed on arrival; the toolbar's "Filters" opens it (collapse-sidebar-filters).
+  const [subsectionOpen, setSubsectionOpen] = React.useState(false);
   const isMobile = useIsMobile();
+
+  // The provider outlives navigations (it sits in the locale layout), so a
+  // new route resets the mobile sheet and the sub-section to their arrival
+  // state, during render so no open sheet is committed (spec "Closed on
+  // arrival on a small viewport").
+  const [arrivedAt, setArrivedAt] = React.useState(route);
+  if (route !== arrivedAt) {
+    setArrivedAt(route);
+    setOpenMobile(false);
+    setSubsectionOpen(false);
+  }
 
   const open = isMobile ? openMobile : openDesktop;
   const setOpen = isMobile ? setOpenMobile : setOpenDesktop;
@@ -87,6 +108,8 @@ function SidebarProvider({
         isMobile,
         present: count > 0,
         register,
+        subsectionOpen,
+        setSubsectionOpen,
       }}
     >
       <div
@@ -94,7 +117,7 @@ function SidebarProvider({
         className="flex min-h-full w-full flex-col"
         {...props}
       >
-        {children}
+        <SidebarAnnouncementProvider>{children}</SidebarAnnouncementProvider>
       </div>
     </SidebarContext.Provider>
   );
@@ -152,6 +175,7 @@ function Sidebar({
           <div className="variant-inverse flex h-full w-full flex-col">
             {children}
           </div>
+          <OverlayStatus />
         </SheetContent>
       </Sheet>
     );
@@ -194,19 +218,6 @@ function SidebarTrigger({
   );
 }
 
-function SidebarInset({
-  className,
-  ...props
-}: React.ComponentProps<"main">) {
-  return (
-    <main
-      data-slot="sidebar-inset"
-      className={cn("bg-surface-page flex-1", className)}
-      {...props}
-    />
-  );
-}
-
 function SidebarHeader({
   className,
   ...props
@@ -215,19 +226,6 @@ function SidebarHeader({
     <div
       data-slot="sidebar-header"
       className={cn("flex items-center gap-2 p-2", className)}
-      {...props}
-    />
-  );
-}
-
-function SidebarFooter({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="sidebar-footer"
-      className={cn("mt-auto flex flex-col gap-2 p-2", className)}
       {...props}
     />
   );
@@ -260,45 +258,6 @@ function SidebarSeparator({
 }
 
 // ─── Navigation parts ──
-
-function SidebarGroup({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="sidebar-group"
-      className={cn("flex flex-col gap-1", className)}
-      {...props}
-    />
-  );
-}
-
-function SidebarGroupLabel({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="sidebar-group-label"
-      className={cn("type-meta px-3 py-1", className)}
-      {...props}
-    />
-  );
-}
-
-function SidebarGroupContent({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="sidebar-group-content"
-      className={cn("flex flex-col gap-1", className)}
-      {...props}
-    />
-  );
-}
 
 function SidebarMenu({
   className,
@@ -374,14 +333,9 @@ export {
   SidebarProvider,
   Sidebar,
   SidebarTrigger,
-  SidebarInset,
   SidebarHeader,
-  SidebarFooter,
   SidebarContent,
   SidebarSeparator,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,

@@ -118,15 +118,18 @@ function panel(container: HTMLElement): HTMLElement {
   ) as HTMLElement;
 }
 
+/** Every note of `NODES`, depth first: the wheel draws them all from the start. */
+const ALL_SEGMENTS = ["fruity", "berry", "strawberry", "dried", "floral", "jasmine", "nutty"];
+
 const ROW_CLASSES =
   "flex min-h-10 cursor-pointer items-center gap-2 rounded-field px-2 py-1 text-text-primary hover:bg-surface-section focus-visible:focus-ring";
 
 describe("FlavorWheel — initial render", () => {
-  it("draws only the level-0 segments, one per root", () => {
+  it("draws every level from the start", () => {
     const { container } = renderWheel();
-    expect(segmentIds(container)).toEqual(["fruity", "floral", "nutty"]);
+    expect(segmentIds(container)).toEqual(ALL_SEGMENTS);
     expect(container.querySelectorAll("svg g[data-note] > path")).toHaveLength(
-      3,
+      7,
     );
   });
 
@@ -137,7 +140,7 @@ describe("FlavorWheel — initial render", () => {
     expect(centre?.getAttribute("class")).toBe(
       "fill-text-primary font-serif font-bold",
     );
-    expect(centre?.getAttribute("font-size")).toBe("28");
+    expect(centre?.getAttribute("font-size")).toBe("18");
   });
 });
 
@@ -354,13 +357,7 @@ describe("FlavorWheel — expand and collapse", () => {
   it("expands a parent one level when its segment is clicked, and collapses it on a second click", () => {
     const { container } = renderWheel();
     fireEvent.click(segment(container, "fruity")!);
-    expect(segmentIds(container)).toEqual([
-      "fruity",
-      "berry",
-      "dried",
-      "floral",
-      "nutty",
-    ]);
+    expect(segmentIds(container)).toEqual(ALL_SEGMENTS);
     expect(rows().map((r) => r.textContent)).toEqual([
       "Fruity4/5",
       "Berry4/5",
@@ -377,7 +374,7 @@ describe("FlavorWheel — expand and collapse", () => {
     expect(row("Dried").getAttribute("aria-posinset")).toBe("2");
 
     fireEvent.click(segment(container, "fruity")!);
-    expect(segmentIds(container)).toEqual(["fruity", "floral", "nutty"]);
+    expect(segmentIds(container)).toEqual(ALL_SEGMENTS);
     expect(rows()).toHaveLength(3);
     expect(row("Fruity").getAttribute("aria-expanded")).toBe("false");
   });
@@ -386,32 +383,19 @@ describe("FlavorWheel — expand and collapse", () => {
     const { container } = renderWheel();
     fireEvent.click(row("Fruity"));
     fireEvent.click(row("Floral"));
-    expect(segmentIds(container)).toEqual([
-      "fruity",
-      "berry",
-      "dried",
-      "floral",
-      "jasmine",
-      "nutty",
-    ]);
+    expect(segmentIds(container)).toEqual(ALL_SEGMENTS);
     fireEvent.click(row("Floral"));
-    expect(segmentIds(container)).toEqual([
-      "fruity",
-      "berry",
-      "dried",
-      "floral",
-      "nutty",
-    ]);
+    expect(segmentIds(container)).toEqual(ALL_SEGMENTS);
   });
 
   it("collapses the descendants of a collapsed note", () => {
     const { container } = renderWheel();
     fireEvent.click(row("Fruity"));
     fireEvent.click(row("Berry"));
-    expect(segmentIds(container)).toContain("strawberry");
+    expect(segmentIds(container)).toEqual(ALL_SEGMENTS);
     fireEvent.click(row("Fruity"));
     fireEvent.click(row("Fruity"));
-    expect(segmentIds(container)).not.toContain("strawberry");
+    expect(segmentIds(container)).toEqual(ALL_SEGMENTS);
     expect(row("Berry").getAttribute("aria-expanded")).toBe("false");
   });
 
@@ -431,7 +415,7 @@ describe("FlavorWheel — expand and collapse", () => {
     const before = document.activeElement;
     fireEvent.click(row("Fruity"));
     expect(row("Fruity").getAttribute("aria-expanded")).toBe("true");
-    expect(segmentIds(container)).toContain("berry");
+    expect(segmentIds(container)).toEqual(ALL_SEGMENTS);
     expect(row("Fruity").className).toBe(`${ROW_CLASSES} bg-surface-section`);
     expect(
       panel(container).querySelector(".type-subheading")?.textContent,
@@ -439,22 +423,18 @@ describe("FlavorWheel — expand and collapse", () => {
     expect(document.activeElement).toBe(before);
   });
 
-  it("rescales ring 0 as a root expands and after Escape", () => {
+  it("keeps every ring through expansion and Escape", () => {
     const { container } = renderWheel();
     const fruityPath = (): string | null =>
       segment(container, "fruity")!.querySelector("path")!.getAttribute("d");
-    const fruityArc = (expanded: Set<string>) =>
-      layoutWheel(NODES, expanded).segments.find(
-        (s) => s.node.id === "fruity",
-      )!;
-    const atRest = fruityArc(new Set());
-    expect(atRest).toMatchObject({ inner: 80, outer: 200 });
-    const restPath = arcPath(80, 200, atRest.start, atRest.end);
+    const atRest = layoutWheel(NODES).segments.find(
+      (s) => s.node.id === "fruity",
+    )!;
+    expect(atRest).toMatchObject({ inner: 80, outer: 120 });
+    const restPath = arcPath(80, 120, atRest.start, atRest.end);
     expect(fruityPath()).toBe(restPath);
     fireEvent.click(segment(container, "fruity")!);
-    const expanded = fruityArc(new Set(["fruity"]));
-    expect(expanded).toMatchObject({ inner: 80, outer: 140 });
-    expect(fruityPath()).toBe(arcPath(80, 140, expanded.start, expanded.end));
+    expect(fruityPath()).toBe(restPath);
     row("Fruity").focus();
     fireEvent.keyDown(document.activeElement as Element, { key: "Escape" });
     expect(fruityPath()).toBe(restPath);
@@ -465,7 +445,7 @@ describe("FlavorWheel — segment labels", () => {
   it("labels a wide segment with its name and its count along its arc", () => {
     const nodes = [note("fruity", 0, 1), note("floral", 0, 1)];
     const { container } = renderWheel({ nodes, total: 5 });
-    const arc = layoutWheel(nodes, new Set()).segments[0];
+    const arc = layoutWheel(nodes).segments[0];
     const group = segment(container, "fruity")!;
     const texts = Array.from(group.querySelectorAll("text"));
     expect(texts).toHaveLength(2);
@@ -546,7 +526,7 @@ describe("FlavorWheel — name shown while active", () => {
     const path = document.getElementById(
       (textPath.getAttribute("href") ?? "").slice(1),
     );
-    const arc = layoutWheel(NARROW, new Set()).segments[1];
+    const arc = layoutWheel(NARROW).segments[1];
     const mid = (arc.start + arc.end) / 2;
     expect(path?.getAttribute("fill")).toBe("none");
     expect(path?.getAttribute("d")).toBe(
@@ -633,7 +613,7 @@ describe("FlavorWheel — keyboard on the note list", () => {
     row("Fruity").focus();
     press("ArrowRight");
     expect(row("Fruity").getAttribute("aria-expanded")).toBe("true");
-    expect(segmentIds(container)).toContain("berry");
+    expect(segmentIds(container)).toEqual(ALL_SEGMENTS);
     expect(focused()).toBe("Fruity, 4 of 5 evaluators");
     press("ArrowRight");
     expect(focused()).toBe("Berry, 4 of 5 evaluators");
@@ -650,7 +630,7 @@ describe("FlavorWheel — keyboard on the note list", () => {
     expect(focused()).toBe("Fruity, 4 of 5 evaluators");
     press("ArrowLeft");
     expect(row("Fruity").getAttribute("aria-expanded")).toBe("false");
-    expect(segmentIds(container)).toEqual(["fruity", "floral", "nutty"]);
+    expect(segmentIds(container)).toEqual(ALL_SEGMENTS);
     expect(focused()).toBe("Fruity, 4 of 5 evaluators");
   });
 
@@ -664,17 +644,17 @@ describe("FlavorWheel — keyboard on the note list", () => {
   });
 
   it.each(["Enter", " "])(
-    "toggles a parent's expansion with %j, its segments following",
+    "toggles a parent's expansion with %j, its children's rows following",
     (key) => {
       const { container } = renderWheel();
       row("Floral").focus();
       press(key);
       expect(row("Floral").getAttribute("aria-expanded")).toBe("true");
-      expect(segmentIds(container)).toContain("jasmine");
+      expect(segmentIds(container)).toEqual(ALL_SEGMENTS);
       expect(rows().map((r) => r.textContent)).toContain("Jasmine3/5");
       press(key);
       expect(row("Floral").getAttribute("aria-expanded")).toBe("false");
-      expect(segmentIds(container)).not.toContain("jasmine");
+      expect(segmentIds(container)).toEqual(ALL_SEGMENTS);
       expect(focused()).toBe("Floral, 3 of 5 evaluators");
     },
   );
@@ -709,10 +689,10 @@ describe("FlavorWheel — keyboard on the note list", () => {
     press("ArrowRight");
     expect(focused()).toBe("Strawberry, 2 of 5 evaluators");
     fireEvent.click(row("Floral"));
-    expect(segmentIds(container)).toContain("jasmine");
+    expect(segmentIds(container)).toEqual(ALL_SEGMENTS);
     row("Strawberry").focus();
     press("Escape");
-    expect(segmentIds(container)).toEqual(["fruity", "floral", "nutty"]);
+    expect(segmentIds(container)).toEqual(ALL_SEGMENTS);
     expect(rows()).toHaveLength(3);
     expect(focused()).toBe("Fruity, 4 of 5 evaluators");
     expect(tabStops()).toEqual(["Fruity4/5"]);
@@ -763,6 +743,29 @@ describe("FlavorWheel — groups (add-offering-catalog design.md D19)", () => {
     expect(rows().map((r) => r.getAttribute("aria-label")?.split(",")[0])).toEqual(
       ["Fruity", "Floral", "Body"],
     );
+  });
+
+  it("stacks wheel, group legend, panel and notes on every width", () => {
+    const { container } = renderWheel({
+      nodes: GROUPED,
+      groups: GROUPS,
+      texts: GROUP_TEXTS,
+    });
+    const figure = container.querySelector("figure")!;
+    expect(figure.getAttribute("class")).toBeNull();
+    const layout = figure.querySelector(":scope > div")!;
+    expect(layout.getAttribute("class")).toBe("flex flex-col gap-6");
+    const [wheel, legend, box, notes] = Array.from(layout.children);
+    expect(layout.children).toHaveLength(4);
+    expect(wheel.getAttribute("class")).toBe("mx-auto aspect-square w-full max-w-128");
+    expect(wheel.querySelector("svg")).not.toBeNull();
+    expect(legend).toBe(screen.getByRole("list", { name: "texts.groupsLabel" }));
+    expect(box).toBe(panel(container));
+    expect(notes.contains(notesToggle())).toBe(true);
+    const twoColumn = Array.from(figure.querySelectorAll("[class]")).filter((el) =>
+      (el.getAttribute("class") ?? "").includes("@2xl"),
+    );
+    expect(twoColumn).toEqual([]);
   });
 
   it("shows no group legend when the roots hold one group only", () => {

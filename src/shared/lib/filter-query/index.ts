@@ -18,7 +18,7 @@ export type QueryRecord = Record<string, string | string[] | undefined>;
  */
 export type FilterChanges = Record<string, string | readonly string[] | undefined>;
 
-export type FilterNavigation = {
+type FilterNavigation = {
   navigate: (changes: FilterChanges) => void;
   navigateTo: (href: string) => void;
 };

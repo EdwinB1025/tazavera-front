@@ -44,7 +44,7 @@ Each applied facet value SHALL be shown as a chip whose visible text is the valu
 - **THEN** it renders from the shared chip geometry, and its pill corners, minimum height, padding and icon gap are its own treatments on top of that geometry, never a second definition
 
 ### Requirement: Facet rows
-Options of a radio-list facet and of a cascade facet SHALL render as facet rows: the whole row is the click target, at least 2.5rem high, with the control and its label side by side. A row whose option is an applied value SHALL show the selected look: the selected fill, a 4px left indicator, the label underlined and the selected shadow, with the control checked; it SHALL take no hover change. A row that is not applied SHALL show, on hover, a soft inner shadow and a bold label without changing its fill or label colour. The indicator, underline and shadows SHALL be decorative: the checked control carries the state. The help text under a radio-list or cascade facet SHALL start 0.75rem in from the panel's content edge on both sides, aligned with the facet's legend. In the traditional theme the selected shadow SHALL equal a medium drop shadow and the hover shadow a small inner shadow; in the dark theme both SHALL be none.
+Options of a radio-list facet SHALL render as facet rows: the whole row is the click target, at least 2.5rem high, with the control and its label side by side. A row whose option is an applied value SHALL show the selected look: the selected fill, a 4px left indicator, the label underlined and the selected shadow, with the control checked; it SHALL take no hover change. A row that is not applied SHALL show, on hover, a soft inner shadow and a bold label without changing its fill or label colour. The indicator, underline and shadows SHALL be decorative: the checked control carries the state. The help text under a radio-list or cascade facet SHALL start 0.75rem in from the panel's content edge on both sides, aligned with the facet's legend. In the traditional theme the selected shadow SHALL equal a medium drop shadow and the hover shadow a small inner shadow; in the dark theme both SHALL be none.
 
 #### Scenario: Applied value row
 - **WHEN** a row's option is applied
@@ -111,33 +111,6 @@ A radio-list facet SHALL be a group named by its legend whose first option is "A
 #### Scenario: Applied option beyond the threshold
 - **WHEN** the seventh option is applied and the list is collapsed
 - **THEN** the first five options and the seventh are visible, and the action reads "See more (2)"
-
-### Requirement: Taxonomy cascade facet
-A cascade facet SHALL be a group named by its legend whose top-level options are checkbox rows and whose second-level options render below their parent, indented. Each parent row SHALL have its own expand/collapse control, separate from its checkbox, that exposes whether its children are shown and which group it controls. Checkboxes SHALL be independent: checking or unchecking a parent SHALL not change its children, a child SHALL be checkable without its parent, and checking every child SHALL not check the parent. Children SHALL be hidden only when the user collapses their parent; a parent with a checked child SHALL start expanded and the others collapsed. Each change SHALL report the set of checked options in option order. The "See more" rule of the radio-list facet SHALL apply to the top-level options, a parent with a checked child counting as applied.
-
-#### Scenario: Expanding a parent
-- **WHEN** the user activates the expand control of a collapsed parent
-- **THEN** its children render below it and the control is exposed as expanded
-
-#### Scenario: Checking a parent
-- **WHEN** the user checks a parent whose children are unchecked
-- **THEN** the facet reports the parent alone and the children stay unchecked
-
-#### Scenario: Checking a child without its parent
-- **WHEN** the user checks a child while its parent is unchecked
-- **THEN** the facet reports the child alone
-
-#### Scenario: Every child checked
-- **WHEN** the user checks the last unchecked child of a parent
-- **THEN** the parent stays unchecked
-
-#### Scenario: Initial expansion
-- **WHEN** the facet renders with a checked child
-- **THEN** that child's parent is expanded and every parent without a checked child is collapsed
-
-#### Scenario: Unchecking keeps children visible
-- **WHEN** the user unchecks an expanded parent
-- **THEN** its children stay visible with their checks unchanged
 
 ### Requirement: Score range facet
 A score range facet SHALL be a group named by its legend holding a two-thumb slider and two number inputs, "From" and "To", kept in sync with the thumbs both ways, over the bounds it is given in steps of 1. Each thumb SHALL have its own accessible name and announce its value. The slider SHALL report the range when a thumb is released or moved one keyboard step. An input SHALL report the range when the user presses Enter in it or leaves it with a changed value; a typed value SHALL be clamped to the bounds and to the other end of the range, with no error message, and an empty input SHALL take its bound. The minimum SHALL never exceed the maximum.
@@ -249,9 +222,9 @@ The public offerings list (`/{locale}/offerings`, any query) SHALL show, in its 
 
 | # | Facet | Control | Query key |
 |---|---|---|---|
-| 1 | Coffee | search field, at most 150 characters | `coffeeName` |
+| 1 | Coffee | combobox that searches while typing, at most 150 characters | `coffeeName` |
 | 2 | Verification | single choice: Any, Verified, Provisional | `verified` (`1` Verified, `0` Provisional) |
-| 3 | Average score | score range 0–100 | `cuppingAvgMin`, `cuppingAvgMax` |
+| 3 | Average score | score range 60–100 | `cuppingAvgMin`, `cuppingAvgMax` |
 | 4 | Taste notes | taxonomy cascade, levels 0 and 1 | `cataRef` (repeated, one value per selected note) |
 | 5 | Origin country | single choice with "see more" | `originCountry` |
 | 6 | Origin region | single choice with "see more" | `originRegion` |
@@ -261,11 +234,21 @@ The public offerings list (`/{locale}/offerings`, any query) SHALL show, in its 
 | 10 | Roastery | combobox that searches while typing | `roasteryName` |
 | 11 | City | text field, at most 90 characters, help "Exact city name" | `city` |
 
+The Coffee and Roastery comboboxes SHALL behave alike: choosing an option SHALL write the option's name to the facet's key, and clearing the combobox SHALL remove the key.
+
 The offering detail route and every other public route SHALL show no offering facets.
 
 #### Scenario: Anonymous visitor sees the facets
 - **WHEN** an anonymous visitor opens `/{locale}/offerings`
 - **THEN** the sidebar shows the "Filters" panel with the eleven facets in the order of the table
+
+#### Scenario: Choosing a coffee
+- **WHEN** the visitor chooses "Huila El Mirador" in the Coffee combobox
+- **THEN** the list navigates to the same path with `coffeeName=Huila El Mirador` and without `page`
+
+#### Scenario: Score scale
+- **WHEN** a visitor opens `/{locale}/offerings` with no score filter
+- **THEN** the Average score facet shows 60–100, its thumbs and its From and To inputs run from 60 to 100, and neither `cuppingAvgMin` nor `cuppingAvgMax` is sent
 
 #### Scenario: Detail route has no facets
 - **WHEN** a visitor opens `/{locale}/offerings/{ulid}`
@@ -273,7 +256,7 @@ The offering detail route and every other public route SHALL show no offering fa
 
 ### Requirement: Offering facet options
 
-Single-choice facets and the Producer combobox SHALL list the distinct non-empty values of the matching coffee field returned by the coffee catalog (`country`, `region`, `process`, `variety`, `producer`), sorted alphabetically, without duplicates or empty values; each single-choice facet SHALL list "Any" first. Origin region SHALL list every region, independent of the selected country. Taste notes SHALL list the level-0 taxonomy nodes with their level-1 children, named in the active locale. Roastery SHALL show the roasteries whose name matches the typed text, as returned by the API. Values SHALL be shown as the API returns them.
+Single-choice facets and the Producer combobox SHALL list the distinct non-empty values of the matching coffee field returned by the coffee catalog (`country`, `region`, `process`, `variety`, `producer`), sorted alphabetically, without duplicates or empty values; each single-choice facet SHALL list "Any" first. Origin region SHALL list every region, independent of the selected country. Taste notes SHALL list the level-0 taxonomy nodes with their level-1 children, named in the active locale. Roastery SHALL show the roasteries whose name matches the typed text, as returned by the API. Coffee SHALL show the coffees whose name matches the typed text, as returned by the API, one option per distinct name, each with a second line joining its `country`, `region`, `process` and `variety` with " · ", empty fields skipped and the line omitted when every one is empty. Values SHALL be shown as the API returns them.
 
 #### Scenario: Distinct sorted options
 - **WHEN** the coffee catalog returns the processes `washed`, `natural`, `washed` and an empty value
@@ -282,6 +265,10 @@ Single-choice facets and the Producer combobox SHALL list the distinct non-empty
 #### Scenario: Roastery search
 - **WHEN** the visitor types "nóm" in the Roastery combobox
 - **THEN** the combobox lists the roasteries the API returns for that name, each with its description
+
+#### Scenario: Coffee search
+- **WHEN** the visitor types "hui" in the Coffee combobox
+- **THEN** the combobox lists the coffees the API returns for that name, each with its non-empty country, region, process and variety joined by " · "
 
 ### Requirement: Offering facet options unavailable
 
@@ -298,7 +285,7 @@ When the coffee catalog cannot be loaded, the Origin country, Origin region, Pro
 
 ### Requirement: Offering filter state in the URL
 
-The URL query SHALL be the only state of the offering facets and sort, using the contract's key names. On load, each facet SHALL show the value of its key; an absent key SHALL show "Any", an empty field or the full 0–100 range. Each committed change SHALL navigate to the same path with the new query and without `page`, add one history entry, keep the focus on the control that changed and keep the scroll position. A value outside the contract limits (text longer than its limit, `verified` other than `0` or `1`, a score outside 0–100 or a minimum above the maximum, a sort pair that is not one of the sort options) SHALL be dropped before the list request, and its facet SHALL show its empty state. A `cataRef` value that is not a listed taste note SHALL be shown neither as checked nor as a chip; it is still sent, and a rejection by the API shows the catalog's error state. Pagination SHALL keep every other key.
+The URL query SHALL be the only state of the offering facets and sort, using the contract's key names. On load, each facet SHALL show the value of its key; an absent key SHALL show "Any", an empty field or the full 60–100 range. Each committed change SHALL navigate to the same path with the new query and without `page`, add one history entry, keep the focus on the control that changed and keep the scroll position. A value outside the facet limits (text longer than its limit, `verified` other than `0` or `1`, a score outside 60–100 or a minimum above the maximum, a sort pair that is not one of the sort options) SHALL be dropped before the list request, and its facet SHALL show its empty state. A `cataRef` value that is not a listed taste note SHALL be shown neither as checked nor as a chip; it is still sent, and a rejection by the API shows the catalog's error state. The list request SHALL send each chosen taste note as a `cataRef[]` pair, one per note in the URL's order, while the URL keeps the plain `cataRef` key. Pagination SHALL keep every other key.
 
 #### Scenario: Facets reflect the URL
 - **WHEN** a visitor opens `/{locale}/offerings?verified=1&process=washed&cuppingAvgMin=80`
@@ -313,12 +300,16 @@ The URL query SHALL be the only state of the offering facets and sort, using the
 - **THEN** the URL and the facets return to the state before that selection
 
 #### Scenario: Out-of-range values dropped
-- **WHEN** a visitor opens `?cuppingAvgMin=120&verified=yes`
-- **THEN** the list is requested without `cuppingAvgMin` and `verified`, Average score shows 0–100 and Verification shows "Any"
+- **WHEN** a visitor opens `?cuppingAvgMin=50&verified=yes`
+- **THEN** the list is requested without `cuppingAvgMin` and `verified`, Average score shows 60–100 and Verification shows "Any"
 
 #### Scenario: Full range removes the bounds
-- **WHEN** the visitor sets the score range back to 0–100
+- **WHEN** the visitor sets the score range back to 60–100
 - **THEN** neither `cuppingAvgMin` nor `cuppingAvgMax` is in the URL
+
+#### Scenario: Taste notes sent as an array
+- **WHEN** the visitor has chosen taste notes A and B, so the URL carries `?cataRef=A&cataRef=B`
+- **THEN** the offerings request carries `cataRef[]=A&cataRef[]=B` (brackets percent-encoded) and the URL keeps `cataRef=A&cataRef=B`
 
 ### Requirement: Applied offering filters
 
@@ -350,7 +341,7 @@ The page body SHALL show a "Sort by" select with the options Default order (no s
 
 ### Requirement: Offerings filter toolbar
 
-The page body SHALL show, above the results, a toolbar with a "Filters" trigger at the start and the sort select at the end. The trigger SHALL read "Filters" without applied values and "Filters ({count})" with them, expose whether the sidebar is expanded and which region it controls, and open the sidebar. Below the medium breakpoint the trigger SHALL always be shown and open the full-screen filter overlay, where every facet change applies while it stays open. From the medium breakpoint the trigger SHALL be shown only while the sidebar is collapsed.
+The page body SHALL show, above the results, a toolbar with a "Filters" trigger at the start and the sort select at the end. The trigger SHALL read "Filters" without applied values and "Filters ({count})" with them, expose whether the sidebar and its filters sub-section are expanded and which region it controls, and open the sidebar with the filters sub-section open. Below the medium breakpoint the trigger SHALL always be shown and open the full-screen filter overlay with the filters sub-section open, where every facet change applies while it stays open. From the medium breakpoint the trigger SHALL be shown only while the sidebar is collapsed or its filters sub-section is closed.
 
 #### Scenario: Count in the trigger
 - **WHEN** two filter values are applied
@@ -358,11 +349,11 @@ The page body SHALL show, above the results, a toolbar with a "Filters" trigger 
 
 #### Scenario: Collapsed sidebar on a wide screen
 - **WHEN** the sidebar is collapsed from the medium breakpoint and the visitor activates "Filters"
-- **THEN** the sidebar expands with the facets and the trigger is no longer shown
+- **THEN** the sidebar expands with the filters sub-section open and the trigger is no longer shown
 
 #### Scenario: Mobile overlay
 - **WHEN** a visitor below the medium breakpoint activates "Filters"
-- **THEN** the full-screen overlay opens with the facets, and a facet change updates the list behind it while the overlay stays open
+- **THEN** the full-screen overlay opens with the filters sub-section open, and a facet change updates the list behind it while the overlay stays open
 
 ### Requirement: Filtered offerings results
 
@@ -520,7 +511,7 @@ The page body SHALL show a "Sort by" select with the options Default order (no s
 
 ### Requirement: Evaluations filter toolbar
 
-The page body SHALL show, at the top of the list section above the results, a toolbar with a "Filters" trigger at the start and the sort select at the end. The trigger SHALL read "Filters" without applied values and "Filters ({count})" with them, expose whether the sidebar is expanded and which region it controls, and open the sidebar. Below the medium breakpoint the trigger SHALL always be shown and open the full-screen filter overlay, where every facet change applies while it stays open. From the medium breakpoint the trigger SHALL be shown only while the sidebar is collapsed.
+The page body SHALL show, at the top of the list section above the results, a toolbar with a "Filters" trigger at the start and the sort select at the end. The trigger SHALL read "Filters" without applied values and "Filters ({count})" with them, expose whether the sidebar and its filters sub-section are expanded and which region it controls, and open the sidebar with the filters sub-section open. Below the medium breakpoint the trigger SHALL always be shown and open the full-screen filter overlay with the filters sub-section open, where every facet change applies while it stays open. From the medium breakpoint the trigger SHALL be shown only while the sidebar is collapsed or its filters sub-section is closed.
 
 #### Scenario: Count in the trigger
 
@@ -530,12 +521,12 @@ The page body SHALL show, at the top of the list section above the results, a to
 #### Scenario: Collapsed sidebar on a wide screen
 
 - **WHEN** the sidebar is collapsed from the medium breakpoint and the specialist activates "Filters"
-- **THEN** the sidebar expands with the facets and the trigger is no longer shown
+- **THEN** the sidebar expands with the filters sub-section open and the trigger is no longer shown
 
 #### Scenario: Mobile overlay
 
 - **WHEN** a specialist below the medium breakpoint activates "Filters"
-- **THEN** the full-screen overlay opens with the facets, and a facet change updates the list behind it while the overlay stays open
+- **THEN** the full-screen overlay opens with the filters sub-section open, and a facet change updates the list behind it while the overlay stays open
 
 ### Requirement: Filtered evaluation results
 
@@ -623,7 +614,7 @@ The directory toolbar SHALL offer a "Sort by" select with "Name (A–Z)", the de
 - **THEN** the order keys are not sent and the select shows "Name (A–Z)"
 
 ### Requirement: Coffee shop filter toolbar
-The directory's body toolbar SHALL show the Filters trigger — "Filters" or "Filters ({count})" with the applied chips' count — at the start, followed by the view control, and the sort select at the end. The trigger SHALL open the sidebar; it SHALL render on a small viewport and, from the medium breakpoint, only while the sidebar is collapsed.
+The directory's body toolbar SHALL show the Filters trigger — "Filters" or "Filters ({count})" with the applied chips' count — at the start, followed by the view control, and the sort select at the end. The trigger SHALL open the sidebar with its filters sub-section open; it SHALL render on a small viewport and, from the medium breakpoint, only while the sidebar is collapsed or its filters sub-section is closed.
 
 #### Scenario: Trigger count
 - **WHEN** two coffee shop filters are applied
@@ -631,7 +622,7 @@ The directory's body toolbar SHALL show the Filters trigger — "Filters" or "Fi
 
 #### Scenario: Trigger opens the sidebar
 - **WHEN** the visitor activates the trigger
-- **THEN** the sidebar opens with the coffee shop facets
+- **THEN** the sidebar opens with the filters sub-section open on the coffee shop facets
 
 #### Scenario: Toolbar wraps on a small viewport
 - **WHEN** the toolbar renders at 375px
@@ -647,3 +638,57 @@ When at least one coffee shop filter is applied and the API returns no coffee sh
 #### Scenario: Result count announced
 - **WHEN** a filter changes and the new page loads with 12 coffee shops in total
 - **THEN** the status announces "Results: 12"
+
+### Requirement: Taxonomy chip cascade facet
+A cascade facet SHALL render its options as a descriptor chip group named by its legend, in the inverse variant. The top-level options SHALL be chips. While a top-level option is chosen, its second-level options SHALL render as a row titled with that option's label, directly after the line of chips that holds it. Unchosen chips SHALL show the taxonomy's data-colour dot before the label; chosen chips SHALL show the option's taxonomy badge with a check mark. The "See more" rule of the radio-list facet SHALL apply to the top-level chips, a chosen chip counting as applied. Choosing a top-level option SHALL show its second-level options unchosen; unchoosing it SHALL hide them and remove them from the chosen set, so no hidden second-level option stays chosen. There SHALL be no separate control to show or hide the second-level options. Each change SHALL report the set of chosen options in option order, a top-level option before its second-level options.
+
+#### Scenario: Children hidden while the parent is not chosen
+- **WHEN** the facet renders with a top-level option that is not chosen
+- **THEN** none of that option's second-level options render and no control to show them is offered
+
+#### Scenario: Choosing a parent
+- **WHEN** the user chooses a top-level option whose second-level options are hidden
+- **THEN** the facet reports that option alone and, once given that value, its second-level options render unchosen in a row titled with its label
+
+#### Scenario: Choosing a child
+- **WHEN** the user chooses a second-level option of a chosen top-level option
+- **THEN** the facet reports the top-level option and the second-level option, in option order
+
+#### Scenario: Unchoosing a parent
+- **WHEN** the user unchooses a top-level option while some of its second-level options are chosen
+- **THEN** the facet reports neither that option nor any of its second-level options and, once given that value, its row of second-level options no longer renders
+
+#### Scenario: Chosen parent at load
+- **WHEN** the facet renders with a chosen top-level option and one of its second-level options chosen
+- **THEN** that option's row shows the chosen second-level option as chosen and its siblings unchosen, and no other top-level option's second-level options render
+
+#### Scenario: Chip look
+- **WHEN** the facet renders a chosen and an unchosen option
+- **THEN** the unchosen chip shows the taxonomy's data-colour dot before its label, and the chosen chip shows the option's taxonomy badge with a check mark before its label
+
+#### Scenario: Chips on the sidebar
+- **WHEN** the facet renders in either theme
+- **THEN** every chip boundary reaches at least 3:1, and every label and check mark at least 4.5:1, against the sidebar surface
+
+### Requirement: Sidebar facets sub-section
+On every list whose facets live in the sidebar (the offerings list, the coffee shop directory, a coffee shop's Offerings tab, the public evaluations list and the specialist's evaluations list), the facet panel SHALL sit in the sidebar sub-section (app-shell "Sidebar entry sub-section") of the list's entry: "Explore offerings" on the offerings list, "Explore coffee shops" on the coffee shop directory and "My evaluations" on the specialist's evaluations list; on a list with no entry in the sidebar, the sub-section SHALL stand alone. The sub-section's toggle SHALL carry the facet panel's title ("Filters") as its accessible name and SHALL be closed on arrival. Inside the sub-section the toggle SHALL be the panel's only visible title: the panel SHALL show no heading of its own, its search region SHALL take its name from the toggle, and the focus that "Applied-filter chips" sends to the panel title SHALL land on the toggle. The list toolbar's "Filters" trigger SHALL open it, together with the sidebar. Collapsing it SHALL neither change nor clear the applied filters: the URL, the results, the chips and the trigger's count stay as they are.
+
+#### Scenario: Facets closed by default
+- **WHEN** a visitor arrives on a list whose facets live in the sidebar
+- **THEN** the sidebar shows the list's entry with a "Filters" toggle below it reporting collapsed, and the facet panel is not shown
+
+#### Scenario: Facets open on their toggle
+- **WHEN** the visitor activates the "Filters" toggle in the sidebar
+- **THEN** the toggle reports expanded and the facet panel is shown below it
+
+#### Scenario: Facets open from the toolbar
+- **WHEN** the visitor activates the toolbar's "Filters" trigger while the sub-section is closed, on any viewport
+- **THEN** the sidebar is open, the sub-section's toggle reports expanded and the facet panel is shown
+
+#### Scenario: Filters keep applying while collapsed
+- **WHEN** filter values are applied and the sub-section is collapsed
+- **THEN** the URL keeps the values, the facets keep showing them on the next opening and the trigger keeps their count
+
+#### Scenario: Title shown once in the sidebar
+- **WHEN** a visitor opens the facets in the sidebar
+- **THEN** "Filters" shows only as the sub-section's toggle, the panel shows no heading of its own, and the search region is still named "Filters"

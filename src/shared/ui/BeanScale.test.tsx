@@ -293,4 +293,27 @@ describe("BeanScale", () => {
       expect(cut[0]!.getAttribute("style")).toBe("clip-path: inset(0 60% 0 0);");
     });
   });
+
+  describe("mark background (spec: The mark's background stays inside the bean, refine-small-visuals-aut D2)", () => {
+    it("draws each bean's background as a circle inside the bean, behind the path, with the path's transform", () => {
+      render(
+        <BeanScale label="Aroma" value={6} valueText="6/9" onChange={vi.fn()} />,
+      );
+      for (const bean of beans()) {
+        const rect = bean.querySelector("svg rect")!;
+        expect([
+          rect.getAttribute("x"),
+          rect.getAttribute("y"),
+          rect.getAttribute("width"),
+          rect.getAttribute("height"),
+          rect.getAttribute("rx"),
+          rect.getAttribute("transform"),
+        ]).toEqual([
+          "4.05", "4.35", "15.6", "15.6", "7.8",
+          "translate(12 12) scale(1.33) translate(-12 -12)",
+        ]);
+        expect(rect.nextElementSibling!.tagName).toBe("path");
+      }
+    });
+  });
 });

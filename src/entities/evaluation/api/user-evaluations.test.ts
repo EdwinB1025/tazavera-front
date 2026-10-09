@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 /**
  * The six `/user/evaluations` calls (design.md's endpoint table, D1; tasks
  * 2.7), sent through the add-auth `request` client. Every call reports the
- * response status (`null` for a transport failure) so the screens pick the
+ * shared result (unify-api-result-shape design.md D2) so the screens pick the
  * message of design.md's error table.
  */
 
@@ -13,7 +13,7 @@ vi.mock("@/shared/api", () => ({
   request: (...args: unknown[]) => request(...args),
 }));
 
-import { listMyEvaluations } from "./user-evaluations";
+import { getMyEvaluation, listMyEvaluations } from "./user-evaluations";
 
 const ULID = "01JEVAL0000000000000000001";
 const ITEM = { ulid: ULID, offeringId: "01JOFFER000000000000000001", status: "open" };
@@ -34,6 +34,13 @@ describe("listMyEvaluations", () => {
     expect(request).toHaveBeenCalledWith(
       "/user/evaluations?orderBy=created_at&orderDirection=desc&page=2",
     );
-    expect(result).toEqual({ ok: true, status: 200, data: { data: [ITEM], meta: META } });
+    expect(result).toEqual({ ok: true, data: { data: [ITEM], meta: META } });
+  });
+});
+
+describe("getMyEvaluation", () => {
+  it("resolves a 404 as not-found (spec: An unknown offering or evaluation)", async () => {
+    request.mockResolvedValue(jsonResponse(404, { message: "Not found" }));
+    await expect(getMyEvaluation(ULID)).resolves.toEqual({ ok: false, kind: "not-found" });
   });
 });

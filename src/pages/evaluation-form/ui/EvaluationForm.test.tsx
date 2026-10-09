@@ -6,9 +6,14 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
  * 4.1 and the later form tasks).
  */
 
+// Back and Cancel are route buttons (render-navigation-actions-as-buttons);
+// the app router is mocked — test infrastructure only.
+const router = vi.hoisted(() => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }));
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
+  useRouter: () => router,
 }));
+// Saving returns to the list through the same router (return-to-list-after-save).
+const push = router.push;
 
 const createAnEvaluation = vi.fn();
 const updateAnEvaluation = vi.fn();
@@ -22,7 +27,13 @@ vi.mock("@/entities/evaluation", async (importOriginal) => ({
 
 import { buildCreateBody, emptyFormState } from "@/entities/evaluation";
 import { EvaluationForm } from "./EvaluationForm";
-import { FORM_TEXTS, OFFERING, OPEN_EVALUATION, TAXONOMIES } from "./form-fixtures";
+import {
+  COMPLETE_EVALUATION,
+  FORM_TEXTS,
+  OFFERING,
+  OPEN_EVALUATION,
+  TAXONOMIES,
+} from "./form-fixtures";
 
 // Inside a form the Radix radio group measures each bean for its hidden
 // native radio; jsdom has no ResizeObserver. Test infrastructure only.
@@ -39,9 +50,11 @@ beforeAll(() => {
 
 afterEach(() => {
   cleanup();
+  router.push.mockClear();
   createAnEvaluation.mockReset();
   updateAnEvaluation.mockReset();
   closeAnEvaluation.mockReset();
+  push.mockReset();
   vi.restoreAllMocks();
 });
 
@@ -123,6 +136,7 @@ describe("EvaluationForm: header and tree (tasks 4.1)", () => {
     expect(sliders.every((slider) => slider.value === "0")).toBe(true);
     expect(screen.getAllByRole("radiogroup")).toHaveLength(8);
     expect(screen.queryAllByRole("radio", { checked: true })).toHaveLength(0);
+    // The extrinsic fields start behind "Add note" too (refine-evaluation-flow D2).
     expect(screen.queryAllByRole("textbox")).toHaveLength(0);
     expect(screen.queryAllByRole("checkbox", { checked: true })).toHaveLength(0);
   });
@@ -163,37 +177,33 @@ function save() {
 }
 
 describe("EvaluationForm: saving a draft (design.md D4; tasks 6.1)", () => {
-  it("creates the evaluation on the first save, replaces the route and shows the saved message", async () => {
-    const replaceState = vi.spyOn(window.history, "replaceState");
-    createAnEvaluation.mockResolvedValue({ ok: true, status: 201, data: CREATED });
+  it("creates the evaluation on the first save and returns to My evaluations", async () => {
+    createAnEvaluation.mockResolvedValue({ ok: true, data: CREATED });
     renderForm();
     save();
-    await waitFor(() => expect(screen.getByRole("status").textContent).toBe("Draft saved."));
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/en/manage/evaluations"));
     const state = { ...emptyFormState("medium_light"), roastLevel: "medium_light" as const };
     expect(createAnEvaluation).toHaveBeenCalledWith(buildCreateBody(state, OFFERING.ulid!));
-    expect(replaceState).toHaveBeenCalledWith(null, "", `/en/manage/evaluations/${CREATED.ulid}`);
     expect(updateAnEvaluation).not.toHaveBeenCalled();
   });
 
-  it("updates the evaluation on a later save, without offeringId, and leaves the route", async () => {
-    createAnEvaluation.mockResolvedValue({ ok: true, status: 201, data: CREATED });
-    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: CREATED });
+  it("updates the evaluation on a later save, without offeringId, and returns to My evaluations", async () => {
+    createAnEvaluation.mockResolvedValue({ ok: true, data: CREATED });
+    updateAnEvaluation.mockResolvedValue({ ok: true, data: CREATED });
     renderForm();
     save();
-    await waitFor(() => expect(createAnEvaluation).toHaveBeenCalledTimes(1));
-    const replaceState = vi.spyOn(window.history, "replaceState");
+    await waitFor(() => expect(push).toHaveBeenCalledTimes(1));
     save();
-    await waitFor(() => expect(updateAnEvaluation).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(push).toHaveBeenCalledTimes(2));
     const [ulid, body] = updateAnEvaluation.mock.calls[0];
     expect(ulid).toBe(CREATED.ulid);
     expect(body).not.toHaveProperty("offeringId");
-    expect(replaceState).not.toHaveBeenCalled();
     expect(createAnEvaluation).toHaveBeenCalledTimes(1);
-    await waitFor(() => expect(screen.getByRole("status").textContent).toBe("Draft saved."));
+    expect(push).toHaveBeenLastCalledWith("/en/manage/evaluations");
   });
 
   it("updates a loaded evaluation and sends a stored extraction method back unchanged", async () => {
-    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
+    updateAnEvaluation.mockResolvedValue({ ok: true, data: OPEN_EVALUATION });
     renderForm({ evaluation: { ...OPEN_EVALUATION, extractionMethod: "clever dripper" } });
     save();
     await waitFor(() => expect(updateAnEvaluation).toHaveBeenCalledTimes(1));
@@ -216,24 +226,45 @@ describe("EvaluationForm: saving a draft (design.md D4; tasks 6.1)", () => {
   });
 
   it.each([
-    [403, "This evaluation is not yours."],
-    [409, "This evaluation is already closed."],
-    [422, "Something went wrong."],
-    [null, "Something went wrong."],
-  ])("shows the message of a %s beside the actions and sends nothing again", async (status, text) => {
-    updateAnEvaluation.mockResolvedValue({ ok: false, status });
+    [403, "forbidden", "This evaluation is not yours."],
+    [409, "conflict", "This evaluation is already closed."],
+    [422, "error", "Something went wrong."],
+    [null, "error", "Something went wrong."],
+  ])("shows the message of a %s beside the actions and sends nothing again", async (_, kind, text) => {
+    updateAnEvaluation.mockResolvedValue({ ok: false, kind });
     renderForm({ evaluation: OPEN_EVALUATION });
     save();
     await waitFor(() => expect(screen.getByRole("status").textContent).toBe(text));
     expect(updateAnEvaluation).toHaveBeenCalledTimes(1);
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it("The API names an invalid field: a 422 message shows under the roast level and clears on change", async () => {
+    updateAnEvaluation.mockResolvedValue({
+      ok: false,
+      kind: "validation",
+      errors: { "descriptive.roastLevel": ["fx-roast-invalid"] },
+    });
+    renderForm({ evaluation: OPEN_EVALUATION });
+    save();
+    const roast = screen.getByLabelText(/Roast level/);
+    await waitFor(() => expect(roast.getAttribute("aria-invalid")).toBe("true"));
+    const describedBy = roast.getAttribute("aria-describedby") ?? "";
+    expect(document.getElementById(describedBy)?.textContent).toBe("fx-roast-invalid");
+    expect(screen.getByRole("status").textContent).toBe("");
+    expect(push).not.toHaveBeenCalled();
+
+    fireEvent.change(roast, { target: { value: "dark" } });
+    expect(screen.queryByText("fx-roast-invalid")).toBeNull();
   });
 
   it("sends each descriptor block's selection to its request field (design.md D7)", async () => {
-    createAnEvaluation.mockResolvedValue({ ok: true, status: 201, data: CREATED });
+    createAnEvaluation.mockResolvedValue({ ok: true, data: CREATED });
     renderForm();
     const [fragranceFloral, flavorFloral] = screen.getAllByRole("button", { name: "Floral" });
     fireEvent.click(fragranceFloral);
     fireEvent.click(screen.getByRole("button", { name: "Sweet" }));
+    fireEvent.click(screen.getByRole("button", { name: "Texture" }));
     fireEvent.click(screen.getByRole("button", { name: "Silky" }));
     fireEvent.click(screen.getByRole("button", { name: "Mouldy" }));
     save();
@@ -243,11 +274,14 @@ describe("EvaluationForm: saving a draft (design.md D4; tasks 6.1)", () => {
     expect(body.descriptive.aroma.cata).toEqual(["01JTAXFLORAL0000000000000A"]);
     expect(body.descriptive.flavor.cata).toEqual([]);
     expect(body.descriptive.mainTastes).toEqual(["01JTAXSWEET00000000000000C"]);
-    expect(body.descriptive.mouthfeel.cata).toEqual(["01JTAXSILKY00000000000000D"]);
+    expect(body.descriptive.mouthfeel.cata).toEqual([
+      "01JTAXTEXTURE000000000000X",
+      "01JTAXSILKY00000000000000D",
+    ]);
     expect(body.affective.defects).toEqual(["01JTAXMOULD00000000000000E"]);
     fireEvent.click(flavorFloral);
     createAnEvaluation.mockClear();
-    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: CREATED });
+    updateAnEvaluation.mockResolvedValue({ ok: true, data: CREATED });
     save();
     await waitFor(() => expect(updateAnEvaluation).toHaveBeenCalledTimes(1));
     const update = updateAnEvaluation.mock.calls[0][1];
@@ -290,7 +324,7 @@ describe("EvaluationForm: Fragrance not evaluated (design.md D9; tasks 6.3)", ()
   });
 
   it("disables the fragrance controls of both parts and sends the aroma scores as fragrance", async () => {
-    createAnEvaluation.mockResolvedValue({ ok: true, status: 201, data: CREATED });
+    createAnEvaluation.mockResolvedValue({ ok: true, data: CREATED });
     const { container } = renderForm();
     const card = fragranceCard(container);
     fireEvent.change(slider(card, "Fragrance"), { target: { value: "4" } });
@@ -312,7 +346,7 @@ describe("EvaluationForm: Fragrance not evaluated (design.md D9; tasks 6.3)", ()
   });
 
   it("sends the fragrance controls' own values once unchecked again", async () => {
-    createAnEvaluation.mockResolvedValue({ ok: true, status: 201, data: CREATED });
+    createAnEvaluation.mockResolvedValue({ ok: true, data: CREATED });
     const { container } = renderForm();
     const card = fragranceCard(container);
     fireEvent.change(slider(card, "Fragrance"), { target: { value: "4" } });
@@ -328,37 +362,40 @@ describe("EvaluationForm: Fragrance not evaluated (design.md D9; tasks 6.3)", ()
   });
 });
 
+/** Sets the Acidity intensity to 0: unsaved edits that leave the form incomplete. */
+function clearAcidity() {
+  fireEvent.click(screen.getByRole("button", { name: "Acidity" }));
+  fireEvent.change(screen.getByRole("slider", { name: "Acidity" }), { target: { value: "0" } });
+}
+
 describe("EvaluationForm: closing (design.md D4, D10; tasks 7.1)", () => {
   function closeEvaluation() {
     fireEvent.click(screen.getByRole("button", { name: "Close evaluation" }));
   }
 
-  it("saves first, then closes, then shows the read-only view and the closed message", async () => {
+  it("saves first, then closes, then returns to My evaluations", async () => {
     const order: string[] = [];
     updateAnEvaluation.mockImplementation(async () => {
       order.push("update");
-      return { ok: true, status: 200, data: OPEN_EVALUATION };
+      return { ok: true, data: OPEN_EVALUATION };
     });
     closeAnEvaluation.mockImplementation(async () => {
       order.push("close");
-      return { ok: true, status: 200, data: null };
+      return { ok: true, data: null };
     });
-    renderForm({ evaluation: OPEN_EVALUATION });
+    renderForm({ evaluation: COMPLETE_EVALUATION });
     closeEvaluation();
-    await waitFor(() => expect(screen.getByRole("status").textContent).toBe("Evaluation closed."));
+    await waitFor(() => expect(router.push).toHaveBeenCalledWith("/en/manage/evaluations"));
     expect(order).toEqual(["update", "close"]);
-    expect(closeAnEvaluation).toHaveBeenCalledWith(OPEN_EVALUATION.ulid);
-    expect(screen.queryByRole("button", { name: "Save draft" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Close evaluation" })).toBeNull();
-    expect(screen.queryAllByRole("slider")).toHaveLength(0);
-    expect(screen.getAllByRole("meter").length).toBeGreaterThan(0);
+    expect(closeAnEvaluation).toHaveBeenCalledWith(COMPLETE_EVALUATION.ulid);
   });
 
   it("shows the incomplete message on a 409 and highlights exactly the incomplete groups", async () => {
-    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
-    closeAnEvaluation.mockResolvedValue({ ok: false, status: 409 });
-    const { container } = renderForm({ evaluation: OPEN_EVALUATION });
+    updateAnEvaluation.mockResolvedValue({ ok: true, data: OPEN_EVALUATION });
+    closeAnEvaluation.mockResolvedValue({ ok: false, kind: "conflict" });
+    const { container } = renderForm({ evaluation: COMPLETE_EVALUATION });
     expect(container.querySelectorAll('[data-highlighted="true"]')).toHaveLength(0);
+    clearAcidity();
     closeEvaluation();
     await waitFor(() =>
       expect(screen.getByRole("status").textContent).toBe("Complete every group before closing."),
@@ -366,26 +403,61 @@ describe("EvaluationForm: closing (design.md D4, D10; tasks 7.1)", () => {
     const highlighted = Array.from(container.querySelectorAll('[data-highlighted="true"]')).map(
       (card) => card.getAttribute("data-group"),
     );
-    // OPEN_EVALUATION scores only part of each group: every scored group is incomplete.
-    expect(highlighted).toEqual([
-      "fragranceAroma",
-      "flavorAftertaste",
-      "acidity",
-      "sweetness",
-      "mouthfeel",
-    ]);
+    // Only the cleared Acidity intensity is unset.
+    expect(highlighted).toEqual(["acidity"]);
     expect(screen.getByRole("button", { name: "Save draft" })).toBeDefined();
   });
 
   it("shows the not-yours message on a 403 with nothing resent", async () => {
-    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
-    closeAnEvaluation.mockResolvedValue({ ok: false, status: 403 });
-    renderForm({ evaluation: OPEN_EVALUATION });
+    updateAnEvaluation.mockResolvedValue({ ok: true, data: OPEN_EVALUATION });
+    closeAnEvaluation.mockResolvedValue({ ok: false, kind: "forbidden" });
+    renderForm({ evaluation: COMPLETE_EVALUATION });
     closeEvaluation();
     await waitFor(() =>
       expect(screen.getByRole("status").textContent).toBe("This evaluation is not yours."),
     );
     expect(closeAnEvaluation).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("EvaluationForm: Close only for a saved evaluation (close-evaluation-only-when-saved)", () => {
+  it("No close on a new evaluation", () => {
+    renderForm();
+    expect(screen.queryByRole("button", { name: "Close evaluation" })).toBeNull();
+  });
+
+  it("Close on a saved open evaluation", () => {
+    renderForm({ evaluation: COMPLETE_EVALUATION });
+    expect(screen.getByRole("button", { name: "Close evaluation" })).toBeDefined();
+  });
+
+  it("No close on an incomplete saved evaluation", () => {
+    renderForm({ evaluation: OPEN_EVALUATION });
+    expect(screen.getByRole("button", { name: "Save draft" })).toBeDefined();
+    expect(screen.queryByRole("button", { name: "Close evaluation" })).toBeNull();
+  });
+});
+
+describe("EvaluationForm: Cancel (add-form-cancel-actions design.md D1, D2)", () => {
+  it("Cancel leaves for My evaluations without saving", () => {
+    renderForm();
+    const cancel = screen.getByRole("button", { name: "Cancel" });
+    expect(cancel.className).toContain("bg-action-4-bg");
+    fireEvent.click(cancel);
+    expect(router.push).toHaveBeenCalledWith("/en/manage/evaluations");
+    expect(createAnEvaluation).not.toHaveBeenCalled();
+    expect(updateAnEvaluation).not.toHaveBeenCalled();
+    expect(closeAnEvaluation).not.toHaveBeenCalled();
+  });
+
+  // Scenario "The form's actions share one action group" (unify-action-button-widths).
+  it("Save draft, Close evaluation and Cancel share one end-aligned action group", () => {
+    renderForm({ evaluation: COMPLETE_EVALUATION });
+    const group = screen.getByRole("button", { name: "Cancel" }).parentElement!;
+    for (const name of ["Save draft", "Close evaluation"]) {
+      expect(screen.getByRole("button", { name }).parentElement).toBe(group);
+    }
+    expect([group.classList.contains("grid-cols-2"), group.classList.contains("md:justify-end")]).toEqual([true, true]);
   });
 });
 
@@ -417,6 +489,33 @@ describe("EvaluationForm: read-only presentation (design.md D4, D14; tasks 7.3)"
     for (const name of ["Add note", "Remove note", "Save draft", "Close evaluation"]) {
       expect(screen.queryAllByRole("button", { name: new RegExp(`^${name}`) })).toHaveLength(0);
     }
+  });
+  it("An open evaluation opened with View", () => {
+    renderForm({ evaluation: COMPLETE_EVALUATION, viewOnly: true });
+    expect(screen.queryAllByRole("slider")).toHaveLength(0);
+    expect(screen.queryAllByRole("textbox")).toHaveLength(0);
+    for (const name of ["Save draft", "Close evaluation", "Cancel"]) {
+      expect(screen.queryByRole("button", { name })).toBeNull();
+    }
+    expect(screen.getByRole("link", { name: "My evaluations" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "My evaluations" })).toBeDefined();
+  });
+  it("No Cancel on a closed evaluation", () => {
+    renderForm({ evaluation: CLOSED });
+    expect(screen.queryByRole("button", { name: "Cancel" })).toBeNull();
+  });
+  it("Back link at the end of a read-only evaluation", () => {
+    renderForm({ evaluation: CLOSED });
+    const top = screen.getByRole("link", { name: "My evaluations" });
+    const end = screen.getByRole("button", { name: "My evaluations" });
+    router.push.mockClear();
+    fireEvent.click(end);
+    expect([top.getAttribute("href"), ...router.push.mock.calls[0]]).toEqual([
+      "/en/manage/evaluations",
+      "/en/manage/evaluations",
+    ]);
+    const status = screen.getByRole("status");
+    expect(status.compareDocumentPosition(end) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
 
@@ -465,34 +564,28 @@ describe("EvaluationForm: section states (design.md D15; tasks 11.3)", () => {
   });
 
   it("expands exactly the incomplete groups on a 409 close", async () => {
-    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
-    closeAnEvaluation.mockResolvedValue({ ok: false, status: 409 });
-    const { container } = renderForm({ evaluation: OPEN_EVALUATION });
+    updateAnEvaluation.mockResolvedValue({ ok: true, data: OPEN_EVALUATION });
+    closeAnEvaluation.mockResolvedValue({ ok: false, kind: "conflict" });
+    const { container } = renderForm({ evaluation: COMPLETE_EVALUATION });
+    clearAcidity();
     closeEvaluation();
     await waitFor(() =>
       expect(screen.getByRole("status").textContent).toBe("Complete every group before closing."),
     );
-    // The groups the completeness rule reports incomplete for OPEN_EVALUATION.
-    expect(expandedByGroup(container)).toEqual({
-      ...allGroups("false"),
-      fragranceAroma: "true",
-      flavorAftertaste: "true",
-      acidity: "true",
-      sweetness: "true",
-      mouthfeel: "true",
-    });
+    // The group the completeness rule reports incomplete after the edit.
+    expect(expandedByGroup(container)).toEqual({ ...allGroups("false"), acidity: "true" });
     for (const card of Array.from(container.querySelectorAll('[data-highlighted="true"]'))) {
       expect(card.querySelector("h3 > button")!.getAttribute("aria-expanded")).toBe("true");
     }
   });
 
-  it("expands every group when a successful close turns the form read-only", async () => {
-    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
-    closeAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: null });
-    const { container } = renderForm({ evaluation: OPEN_EVALUATION });
+  it("keeps the groups' state when a successful close returns to My evaluations", async () => {
+    updateAnEvaluation.mockResolvedValue({ ok: true, data: COMPLETE_EVALUATION });
+    closeAnEvaluation.mockResolvedValue({ ok: true, data: null });
+    const { container } = renderForm({ evaluation: COMPLETE_EVALUATION });
     closeEvaluation();
-    await waitFor(() => expect(screen.getByRole("status").textContent).toBe("Evaluation closed."));
-    expect(expandedByGroup(container)).toEqual(allGroups("true"));
+    await waitFor(() => expect(router.push).toHaveBeenCalledWith("/en/manage/evaluations"));
+    expect(expandedByGroup(container)).toEqual(allGroups("false"));
   });
 });
 
@@ -504,13 +597,13 @@ describe("EvaluationForm: the 1–9 legend (design.md D16; tasks 12.2)", () => {
     return screen.getByRole("button", { name: TITLE });
   }
 
-  it("sits after Flavor / Aftertaste and before Acidity, as no group and with no indicator", () => {
-    const { container } = renderForm();
+  it("is the first section, after the header and before the context fields, as no group and with no indicator", () => {
+    renderForm();
     const header = legendHeader();
-    const flavor = container.querySelector('[data-group="flavorAftertaste"]')!;
-    const acidity = container.querySelector('[data-group="acidity"]')!;
-    expect(flavor.compareDocumentPosition(header) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(acidity.compareDocumentPosition(header) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    const back = screen.getByRole("link", { name: "My evaluations" });
+    const roast = screen.getByLabelText(/Roast level/);
+    expect(back.compareDocumentPosition(header) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(roast.compareDocumentPosition(header) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
     expect(header.closest("[data-group]")).toBeNull();
     expect(header.hasAttribute("aria-describedby")).toBe(false);
     expect(within(header).queryByText("Complete")).toBeNull();

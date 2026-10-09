@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
-import type { OfferingDetail } from "@/shared/api";
-import { fetchEvaluations } from "@/entities/evaluation";
+import { fetchEvaluations, loadEvaluationOfferings } from "@/entities/evaluation";
 import type { EvaluationsQuery } from "@/entities/evaluation";
 import { fetchOffering } from "@/entities/offering";
 import { EvaluationListPresentation } from "./EvaluationListPresentation";
@@ -40,30 +39,15 @@ export async function PublicEvaluationList({
   texts,
   renderRow,
 }: PublicEvaluationListProps): Promise<ReactNode> {
-  let result: EvaluationListResult;
+  let result: EvaluationListResult = { state: "error" };
   try {
-    const page = await fetchEvaluations(query);
-    const ids = [
-      ...new Set(page.data.flatMap((item) => (item.offeringId ? [item.offeringId] : []))),
-    ];
-    const offerings = new Map<string, OfferingDetail>();
-    await Promise.all(
-      ids.map(async (id) => {
-        const read = await fetchOffering(id);
-        if (read.status === "found") offerings.set(id, read.offering);
-      }),
-    );
-    result =
-      page.data.length === 0
-        ? { state: "empty" }
-        : {
-            state: "success",
-            rows: page.data.map((evaluation) => ({
-              evaluation,
-              offering: evaluation.offeringId ? (offerings.get(evaluation.offeringId) ?? null) : null,
-            })),
-            meta: page.meta,
-          };
+    const read = await fetchEvaluations(query);
+    if (read.ok) {
+      const page = read.data;
+      const rows = await loadEvaluationOfferings(page.data, fetchOffering);
+      result =
+        page.data.length === 0 ? { state: "empty" } : { state: "success", rows, meta: page.meta };
+    }
   } catch {
     result = { state: "error" };
   }

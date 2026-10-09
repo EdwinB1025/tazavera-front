@@ -63,6 +63,7 @@ afterEach(() => {
 function renderZone() {
   const signOut = vi.fn<() => void>();
   const requestProfileWrite = vi.fn<(returnRoute: string) => void>();
+  const endProfileWrite = vi.fn<() => void>();
   render(
     <DangerZone
       ulid="01ULID"
@@ -70,9 +71,10 @@ function renderZone() {
       texts={TEXTS}
       signOut={signOut}
       requestProfileWrite={requestProfileWrite}
+      endProfileWrite={endProfileWrite}
     />,
   );
-  return { signOut, requestProfileWrite };
+  return { signOut, requestProfileWrite, endProfileWrite };
 }
 
 function open(trigger: string): HTMLElement {
@@ -118,6 +120,15 @@ describe("DangerZone — blocks and triggers", () => {
       expect(fetchMock).not.toHaveBeenCalled();
     });
   }
+});
+
+describe("DangerZone — cancelling", () => {
+  it("cancelling an open dialog ends the write permission once (spec: The action ends)", () => {
+    const { endProfileWrite } = renderZone();
+    const dialog = open(TEXTS.confirmDeactivate);
+    fireEvent.click(within(dialog).getByRole("button", { name: TEXTS.cancel }));
+    expect(endProfileWrite).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("DangerZone — the confirmed request", () => {

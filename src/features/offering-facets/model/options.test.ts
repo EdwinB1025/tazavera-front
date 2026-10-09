@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { CoffeeSummary, TaxonomiesPayload, TaxonomyNode } from "@/shared/api";
+import type { ApiResult, CoffeeSummary, TaxonomiesPayload, TaxonomyNode } from "@/shared/api";
 import { offeringFacetOptions, tasteNoteOptions } from "./options";
 
 /**
@@ -34,10 +34,10 @@ const COFFEES = [
   { country: "Colombia", region: "Huila", process: "washed", variety: "Caturra", producer: null },
 ] as CoffeeSummary[];
 
-function fulfilled<T>(value: T): PromiseSettledResult<T> {
-  return { status: "fulfilled", value };
+function fulfilled<T>(value: T): ApiResult<T> {
+  return { ok: true, data: value };
 }
-const rejected: PromiseRejectedResult = { status: "rejected", reason: new Error("down") };
+const rejected = { ok: false, kind: "error" } as const;
 
 describe("offeringFacetOptions (design.md D1, D7)", () => {
   const taxonomies: TaxonomiesPayload = { data: TREE };

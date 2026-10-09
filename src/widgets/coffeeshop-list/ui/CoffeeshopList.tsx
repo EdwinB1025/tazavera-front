@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { CoffeeshopsPageMeta, CoffeeshopSummary } from "@/shared/api";
 import { CoffeeshopCard, hasLocatedLocation, type CoffeeshopCardTexts } from "@/entities/coffeeshop";
 import { COFFEESHOP_CLEAR_KEEP } from "@/features/coffeeshop-facets";
-import { ClearFiltersButton, Pagination, RetryButton, type PaginationTexts } from "@/shared/ui";
+import { ClearFiltersButton, Pagination, ResultStatus, RetryButton, type PaginationTexts } from "@/shared/ui";
 import { COFFEESHOP_COLUMN_CLASSES } from "../lib/column";
 import { CoffeeshopsMapView, type CoffeeshopsMapTexts } from "./CoffeeshopsMapView";
 import { ShowOnMapButton } from "./ShowOnMapButton";
@@ -76,9 +76,7 @@ export function CoffeeshopList({
   return (
     <div className={BLOCK_CLASSES}>
       {result.state !== "error" ? (
-        <div role="status" className="sr-only">
-          {texts.resultCount.replace("{count}", String(total))}
-        </div>
+        <ResultStatus text={texts.resultCount.replace("{count}", String(total))} />
       ) : null}
       <CoffeeshopListBody {...props} filtered={filtered} />
     </div>

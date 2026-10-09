@@ -3,7 +3,7 @@
 import * as React from "react";
 import { cn } from "@/shared/lib/utils";
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui";
-import { Check, ChevronRight } from "@/shared/ui/icons";
+import { Check } from "@/shared/ui/icons";
 
 /**
  * Dropdown menu, pulled from the shadcn registry (Radix base) and rewired to
@@ -105,14 +105,13 @@ const PART_CLASSES = {
       "[&_svg:not([class*='size-'])]:size-4",
     ].join(" "),
   },
-  // label, shortcut and separator keep their current treatment on both
-  // surfaces (design.md D2); the header menus do not use them
+  // label and separator keep their current treatment on both surfaces
+  // (design.md D2); the header menus do not use them
   label: { card: "type-meta px-3 py-1", nav: "type-meta px-3 py-1" },
   separator: {
     card: "-mx-1 my-1 h-px bg-border-subtle",
     nav: "-mx-1 my-1 h-px bg-border-subtle",
   },
-  shortcut: { card: "type-meta ml-auto", nav: "type-meta ml-auto" },
 } as const;
 
 /** The styled part's class set for the menu's surface (design.md D2). */
@@ -125,14 +124,6 @@ function DropdownMenu({
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
   return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
-}
-
-function DropdownMenuPortal({
-  ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.Portal>) {
-  return (
-    <DropdownMenuPrimitive.Portal data-slot="dropdown-menu-portal" {...props} />
-  );
 }
 
 function DropdownMenuTrigger({
@@ -171,14 +162,6 @@ function DropdownMenuContent({
   );
 }
 
-function DropdownMenuGroup({
-  ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.Group>) {
-  return (
-    <DropdownMenuPrimitive.Group data-slot="dropdown-menu-group" {...props} />
-  );
-}
-
 function DropdownMenuItem({
   className,
   inset,
@@ -197,37 +180,6 @@ function DropdownMenuItem({
       className={cn(classes, inset && "pl-8", className)}
       {...props}
     />
-  );
-}
-
-function DropdownMenuCheckboxItem({
-  className,
-  children,
-  checked,
-  inset,
-  ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.CheckboxItem> & {
-  inset?: boolean;
-}) {
-  const classes = useSurfaceClasses("item");
-  return (
-    <DropdownMenuPrimitive.CheckboxItem
-      data-slot="dropdown-menu-checkbox-item"
-      data-inset={inset}
-      className={cn(classes, "pr-8", inset && "pl-8", className)}
-      checked={checked}
-      {...props}
-    >
-      <span
-        className="pointer-events-none absolute right-2 flex items-center justify-center"
-        data-slot="dropdown-menu-checkbox-item-indicator"
-      >
-        <DropdownMenuPrimitive.ItemIndicator>
-          <Check />
-        </DropdownMenuPrimitive.ItemIndicator>
-      </span>
-      {children}
-    </DropdownMenuPrimitive.CheckboxItem>
   );
 }
 
@@ -303,76 +255,13 @@ function DropdownMenuSeparator({
   );
 }
 
-function DropdownMenuShortcut({
-  className,
-  ...props
-}: React.ComponentProps<"span">) {
-  const classes = useSurfaceClasses("shortcut");
-  return (
-    <span
-      data-slot="dropdown-menu-shortcut"
-      className={cn(classes, className)}
-      {...props}
-    />
-  );
-}
-
-function DropdownMenuSub({
-  ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.Sub>) {
-  return <DropdownMenuPrimitive.Sub data-slot="dropdown-menu-sub" {...props} />;
-}
-
-function DropdownMenuSubTrigger({
-  className,
-  inset,
-  children,
-  ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.SubTrigger> & {
-  inset?: boolean;
-}) {
-  const classes = useSurfaceClasses("item");
-  return (
-    <DropdownMenuPrimitive.SubTrigger
-      data-slot="dropdown-menu-sub-trigger"
-      data-inset={inset}
-      className={cn(classes, inset && "pl-8", className)}
-      {...props}
-    >
-      {children}
-      <ChevronRight className="ml-auto" />
-    </DropdownMenuPrimitive.SubTrigger>
-  );
-}
-
-function DropdownMenuSubContent({
-  className,
-  ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.SubContent>) {
-  const classes = useSurfaceClasses("content");
-  return (
-    <DropdownMenuPrimitive.SubContent
-      data-slot="dropdown-menu-sub-content"
-      className={cn(classes, className)}
-      {...props}
-    />
-  );
-}
-
 export {
   DropdownMenu,
-  DropdownMenuPortal,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuItem,
-  DropdownMenuCheckboxItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
 };

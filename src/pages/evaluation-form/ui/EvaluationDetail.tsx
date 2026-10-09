@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { notFound } from "next/navigation";
 import type { EvaluationItem, OfferingDetail, TaxonomyNode } from "@/shared/api";
 import { getMyEvaluation } from "@/entities/evaluation";
 import { fetchOffering } from "@/entities/offering";
@@ -11,12 +10,15 @@ import { Card, CardContent } from "@/shared/ui";
 import { EvaluationForm } from "./EvaluationForm";
 import type { EvaluationFormTexts } from "./EvaluationForm";
 import { LoadFailure } from "./LoadFailure";
+import { NotFoundNotice } from "./NotFoundNotice";
 
 // ─── UI-specific types (declared before the component) ───
 
 export type EvaluationDetailTexts = EvaluationFormTexts & {
   loadErrorMessage: string;
   retryLabel: string;
+  notFoundTitle: string;
+  notFoundLine: string;
 };
 
 export type EvaluationDetailProps = {
@@ -25,6 +27,8 @@ export type EvaluationDetailProps = {
   /** The `GET /taxonomies` tree, read on the server (design.md D1). */
   taxonomies: TaxonomyNode[];
   texts: EvaluationDetailTexts;
+  /** Shows the evaluation read-only whatever its status (refine-evaluation-flow D4). */
+  viewOnly?: boolean;
 };
 
 type DetailState =
@@ -39,15 +43,15 @@ const PLACEHOLDER_CLASSES = ["animate-pulse", "bg-surface-section", "rounded-fie
 async function loadDetail(ulid: string): Promise<DetailState> {
   const result = await getMyEvaluation(ulid);
   if (!result.ok) {
-    return result.status === 404 ? { state: "not-found" } : { state: "error" };
+    return result.kind === "not-found" ? { state: "not-found" } : { state: "error" };
   }
   // A `null` id is a deleted offering: nothing to request (design.md D17).
   if (result.data.offeringId === null) {
     return { state: "success", evaluation: result.data, offering: null };
   }
   const offering = await fetchOffering(result.data.offeringId ?? "");
-  return offering.status === "found"
-    ? { state: "success", evaluation: result.data, offering: offering.offering }
+  return offering.ok
+    ? { state: "success", evaluation: result.data, offering: offering.data }
     : { state: "error" };
 }
 
@@ -55,8 +59,9 @@ async function loadDetail(ulid: string): Promise<DetailState> {
  * The `/{ulid}` content (design.md D1, D11; spec "Evaluation form"): the
  * evaluation and its offering load on the client — the evaluation needs the
  * token and the offering's key comes from it. Loading shows a placeholder; an
- * unknown evaluation, or another user's, is the 404 page; any other failure
- * shows the failure message with a retry. A loaded open evaluation fills the
+ * unknown evaluation, or another user's, shows the not-found title and line
+ * with the back button (show-item-not-found-message design.md D4); any other
+ * failure shows the failure message with a retry. A loaded open evaluation fills the
  * form for editing, a closed one its read-only presentation.
  */
 export function EvaluationDetail({
@@ -64,6 +69,7 @@ export function EvaluationDetail({
   ulid,
   taxonomies,
   texts,
+  viewOnly = false,
 }: EvaluationDetailProps): ReactNode {
   const [attempt, setAttempt] = useState(0);
   const key = `${ulid}:${attempt}`;
@@ -81,7 +87,14 @@ export function EvaluationDetail({
   }, [ulid, key]);
 
   if (detail.state === "not-found") {
-    notFound();
+    return (
+      <NotFoundNotice
+        locale={locale}
+        title={texts.notFoundTitle}
+        line={texts.notFoundLine}
+        backLabel={texts.backLabel}
+      />
+    );
   }
   if (detail.state === "loading") {
     return (
@@ -109,6 +122,7 @@ export function EvaluationDetail({
       taxonomies={taxonomies}
       texts={texts}
       evaluation={detail.evaluation}
+      viewOnly={viewOnly}
     />
   );
 }

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { OfferingDetail, Session } from "@/shared/api";
-import { Badge, Link } from "@/shared/ui";
+import { ActionGroup, Badge, RouteButton } from "@/shared/ui";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -23,16 +23,17 @@ export type DetailHeaderProps = {
 // The badge, the heading, the captions and the actions row, 0.5rem apart.
 const HEADER_CLASSES = ["flex", "flex-col", "items-start", "gap-2"].join(" ");
 
-// The actions row: wrapping, 1rem apart both ways, start-aligned
-// (add-public-evaluations design.md D9).
-const ACTIONS_CLASSES = ["flex", "flex-wrap", "items-start", "gap-4"].join(" ");
+// The actions: one start-aligned action group, filling the header's width
+// below `md` (unify-action-button-widths D3).
+const ACTIONS_CLASSES = "max-md:w-full";
 
 /**
  * The detail header (add-offering-catalog design.md D9; spec "Offering detail
  * page" — "Header"): the status badge, the coffee name as the page heading,
  * the coffeeshop and roaster captions, and the actions row: "View
- * evaluations" always, then the Evaluate link for a signed-in specialist only
- * (add-public-evaluations design.md D9). No score renders here.
+ * evaluations" always, then Evaluate for a signed-in specialist only
+ * (add-public-evaluations design.md D9), both action buttons
+ * (render-navigation-actions-as-buttons). No score renders here.
  */
 export function DetailHeader({
   offering,
@@ -56,18 +57,24 @@ export function DetailHeader({
       <h1 className="type-heading">{offering.coffeeInventory?.coffee?.name}</h1>
       <p className="type-label">{coffeeshopCaption}</p>
       <p className="type-label">{roasterCaption}</p>
-      <div className={ACTIONS_CLASSES}>
-        <Link href={`/${locale}/evaluations?offeringId=${offering.ulid ?? ""}`}>
+      <ActionGroup className={ACTIONS_CLASSES}>
+        <RouteButton
+          href={`/${locale}/evaluations?offeringId=${offering.ulid ?? ""}`}
+          variant="action-3"
+          size="sm"
+        >
           {texts.viewEvaluationsLabel}
-        </Link>
+        </RouteButton>
         {isSpecialist ? (
-          <Link
+          <RouteButton
             href={`/${locale}/manage/evaluations/new?offering=${offering.ulid ?? ""}`}
+            variant="action-1"
+            size="sm"
           >
             {texts.evaluateLabel}
-          </Link>
+          </RouteButton>
         ) : null}
-      </div>
+      </ActionGroup>
     </div>
   );
 }

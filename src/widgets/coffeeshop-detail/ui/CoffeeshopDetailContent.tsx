@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { CoffeeshopDetail } from "@/shared/api";
-import { BackLink, PageSection, RetryButton } from "@/shared/ui";
+import { BackButton, BackLink, PageSection, RetryButton } from "@/shared/ui";
 import type { CoffeeshopTab } from "../lib/tab";
 import { CoffeeshopHeader } from "./CoffeeshopHeader";
 import { CoffeeshopTabs } from "./CoffeeshopTabs";
@@ -11,6 +11,7 @@ import type { CoffeeshopDetailTexts } from "./texts";
 
 export type CoffeeshopDetailResult =
   | { state: "success"; coffeeshop: CoffeeshopDetail }
+  | { state: "not-found" }
   | { state: "error" };
 
 export type CoffeeshopDetailContentProps = {
@@ -25,16 +26,22 @@ export type CoffeeshopDetailContentProps = {
 
 // The back link and the block below it, 1.5rem apart.
 const TOP_CONTAINER_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
-// The header block, then the tabs, 2rem apart, on the page background.
+// The header block, the tabs and the back link again, 2rem apart, on the page
+// background (add-bottom-back-links D2).
 const BLOCKS_CLASSES = ["flex", "flex-col", "gap-8"].join(" ");
 // The error message with its retry action, 1rem apart.
 const ERROR_CLASSES = ["flex", "flex-col", "items-start", "gap-4"].join(" ");
+// The not-found title and its line, 0.5rem apart (show-item-not-found-message
+// design.md D2).
+const NOT_FOUND_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
 
 /**
  * The coffee shop detail presentation (add-coffeeshop-directory design.md D8;
  * spec "Coffee shop detail page"): on success the back link, the header and
- * the two tabs on the page background; on a not-found or failed read the back
- * link, the error message and the retry action, and no tab.
+ * the two tabs on the page background; on a failed read the back link, the
+ * error message and the retry action, and no tab; for an unknown coffee shop
+ * the not-found title and line above the back button, with no retry
+ * (show-item-not-found-message D2).
  */
 export function CoffeeshopDetailContent({
   result,
@@ -49,6 +56,20 @@ export function CoffeeshopDetailContent({
       {texts.backToDirectory}
     </BackLink>
   );
+
+  if (result.state === "not-found") {
+    return (
+      <PageSection surface="page" containerClassName={TOP_CONTAINER_CLASSES}>
+        <div className={NOT_FOUND_CLASSES}>
+          <h1 className="type-heading">{texts.notFoundTitle}</h1>
+          <p className="type-body">{texts.notFoundLine}</p>
+        </div>
+        <div>
+          <BackButton fallback={`/${locale}/coffeeshops`}>{texts.backToDirectory}</BackButton>
+        </div>
+      </PageSection>
+    );
+  }
 
   if (result.state === "error") {
     return (
@@ -84,6 +105,9 @@ export function CoffeeshopDetailContent({
           />
         }
       />
+      <div>
+        <BackButton fallback={`/${locale}/coffeeshops`}>{texts.backToDirectory}</BackButton>
+      </div>
     </PageSection>
   );
 }

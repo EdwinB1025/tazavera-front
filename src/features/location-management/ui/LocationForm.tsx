@@ -2,6 +2,7 @@
 
 import { useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import {
+  ActionGroup,
   Button,
   Card,
   CardAside,
@@ -10,11 +11,13 @@ import {
   FormStatus,
   Input,
   LINK_CLASSES,
-  StepUpNotice,
   Textarea,
 } from "@/shared/ui";
+import type { FieldErrors } from "@/shared/lib/field-errors";
+import { useServerFieldErrors } from "@/shared/lib/hooks";
 import { ContactFields, type ContactFieldKey, type ContactTexts } from "@/entities/contact";
 import {
+  LOCATION_API_ALIASES,
   LOCATION_FIELD_ORDER,
   validateLocationForm,
   type LocationCheckTexts,
@@ -38,19 +41,17 @@ export type LocationFormTexts = ContactTexts &
     save: string;
     cancel: string;
     genericError: string;
-    stepUpText: string;
-    stepUpButton: string;
   };
 
 export type LocationFormProps = {
-  locale: string;
   texts: LocationFormTexts;
   submitState: SubmitState;
-  /** Called with the values once the client checks pass. */
-  onSubmit: (values: LocationFormValues) => void;
+  /**
+   * Called with the values once the client checks pass; resolves the
+   * messages of a `422`, else `null` (show-field-validation-errors D6).
+   */
+  onSubmit: (values: LocationFormValues) => Promise<FieldErrors | null>;
   onCancel: () => void;
-  /** Starts the write-scope sign in (user-account D6). */
-  requestProfileWrite: (returnRoute: string) => void;
 };
 
 const EMPTY_VALUES: LocationFormValues = {
@@ -69,8 +70,10 @@ const EMPTY_VALUES: LocationFormValues = {
 const OSM_COPYRIGHT_URL = "https://www.openstreetmap.org/copyright";
 
 // ─── Layout (summary §8) ───
-// The section card: full width, at most 40rem from `md`.
-const CARD_CLASSES = ["w-full", "md:max-w-160"].join(" ");
+// The section card fills the container (widen-location-and-offering-forms D1).
+const CARD_CLASSES = "w-full";
+// The form's wrapper: full width, at most 40rem from `md`, start-aligned.
+const CONTENT_CLASSES = ["w-full", "md:max-w-160"].join(" ");
 // The form's blocks (fieldsets, notes, alert, actions) 1.5rem apart.
 const FORM_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
 // The two fieldsets 2rem apart.
@@ -83,8 +86,6 @@ const LEGEND_CLASSES = ["type-label", "mb-4", "p-0"].join(" ");
 const FIELDS_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
 // Help and attribution 0.5rem apart.
 const NOTES_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
-// Save, then Cancel: a wrapping row 0.75rem apart, start-aligned.
-const ACTIONS_CLASSES = ["flex", "flex-wrap", "gap-3"].join(" ");
 
 /** design.md D7: the attribution line, its `{link}` placeholder replaced by the anchor. */
 function Attribution({ texts }: { texts: LocationFormTexts }): ReactNode {
@@ -104,30 +105,33 @@ function Attribution({ texts }: { texts: LocationFormTexts }): ReactNode {
  * The new-location form (design.md D7; specs "Location form", "Location form
  * checks", "Location creation failures"): a section card whose band names the
  * form, the location and the contact fieldsets, the geocoding note and
- * attribution, the single alert region and the actions. It owns the values
- * and the client checks; the panel owns the request and passes its state.
+ * attribution, the single alert region and the actions. It owns the values,
+ * the client checks and the `422` messages under the fields; the panel owns
+ * the request and passes its state.
  */
 export function LocationForm({
-  locale,
   texts,
   submitState,
   onSubmit,
   onCancel,
-  requestProfileWrite,
 }: LocationFormProps): ReactNode {
   const headingId = useId();
   const formRef = useRef<HTMLFormElement>(null);
   const [values, setValues] = useState<LocationFormValues>(EMPTY_VALUES);
-  const [errors, setErrors] = useState<LocationFormErrors>({});
+  const [localErrors, setErrors] = useState<LocationFormErrors>({});
+  const server = useServerFieldErrors(LOCATION_FIELD_ORDER, LOCATION_API_ALIASES);
+  const errors: LocationFormErrors = { ...server.errors, ...localErrors };
   const submitting = submitState === "submitting";
 
   function update(key: keyof LocationFormValues, value: string): void {
     setValues((current) => ({ ...current, [key]: value }));
+    server.clear(key);
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
     if (submitting) return;
+    server.reset();
     const failed = validateLocationForm(values, texts);
     setErrors(failed);
     const first = LOCATION_FIELD_ORDER.find((key) => failed[key] !== undefined);
@@ -136,7 +140,9 @@ export function LocationForm({
       if (control instanceof HTMLElement) control.focus();
       return;
     }
-    onSubmit(values);
+    void Promise.resolve(onSubmit(values)).then((found) => {
+      if (found) server.show(found);
+    });
   }
 
   return (
@@ -147,77 +153,72 @@ export function LocationForm({
         </h2>
       </CardAside>
       <CardContent>
-        <form
-          ref={formRef}
-          noValidate
-          aria-labelledby={headingId}
-          onSubmit={handleSubmit}
-          className={FORM_CLASSES}
-        >
-          <div className={GROUPS_CLASSES}>
-            <fieldset className={FIELDSET_CLASSES}>
-              <legend className={LEGEND_CLASSES}>{texts.locationGroupLegend}</legend>
-              <div className={FIELDS_CLASSES}>
-                <Field label={texts.locationNameLabel} error={errors.name} required>
-                  <Input
-                    name="name"
-                    autoComplete="organization"
-                    maxLength={150}
-                    value={values.name}
-                    onChange={(event) => update("name", event.target.value)}
+        <div className={CONTENT_CLASSES}>
+          <form
+            ref={formRef}
+            noValidate
+            aria-labelledby={headingId}
+            onSubmit={handleSubmit}
+            className={FORM_CLASSES}
+          >
+            <div className={GROUPS_CLASSES}>
+              <fieldset className={FIELDSET_CLASSES}>
+                <legend className={LEGEND_CLASSES}>{texts.locationGroupLegend}</legend>
+                <div className={FIELDS_CLASSES}>
+                  <Field label={texts.locationNameLabel} error={errors.name} required>
+                    <Input
+                      name="name"
+                      autoComplete="organization"
+                      maxLength={150}
+                      value={values.name}
+                      onChange={(event) => update("name", event.target.value)}
+                    />
+                  </Field>
+                  <Field label={texts.locationDescriptionLabel} error={errors.description}>
+                    <Textarea
+                      name="description"
+                      autoComplete="off"
+                      maxLength={255}
+                      value={values.description}
+                      onChange={(event) => update("description", event.target.value)}
+                    />
+                  </Field>
+                </div>
+              </fieldset>
+              <fieldset className={FIELDSET_CLASSES}>
+                <legend className={LEGEND_CLASSES}>{texts.contactGroupLegend}</legend>
+                <div className={FIELDS_CLASSES}>
+                  <ContactFields
+                    values={values}
+                    errors={errors}
+                    onChange={(key: ContactFieldKey, value) => update(key, value)}
+                    texts={texts}
+                    layout="paired"
                   />
-                </Field>
-                <Field label={texts.locationDescriptionLabel} error={errors.description}>
-                  <Textarea
-                    name="description"
-                    autoComplete="off"
-                    maxLength={255}
-                    value={values.description}
-                    onChange={(event) => update("description", event.target.value)}
-                  />
-                </Field>
-              </div>
-            </fieldset>
-            <fieldset className={FIELDSET_CLASSES}>
-              <legend className={LEGEND_CLASSES}>{texts.contactGroupLegend}</legend>
-              <div className={FIELDS_CLASSES}>
-                <ContactFields
-                  values={values}
-                  errors={errors}
-                  onChange={(key: ContactFieldKey, value) => update(key, value)}
-                  texts={texts}
-                  layout="paired"
-                />
-              </div>
-            </fieldset>
-          </div>
-          <div className={NOTES_CLASSES}>
-            <p className="type-meta">{texts.geocodingHelp}</p>
-            <Attribution texts={texts} />
-          </div>
-          {submitState === "error" && <FormStatus kind="error" text={texts.genericError} />}
-          {submitState === "step-up" && (
-            <StepUpNotice
-              text={texts.stepUpText}
-              actionLabel={texts.stepUpButton}
-              onConfirm={() => requestProfileWrite(`/${locale}/manage/locations`)}
-            />
-          )}
-          <div className={ACTIONS_CLASSES}>
-            <Button type="submit" variant="primary" size="base" loading={submitting}>
-              {texts.save}
-            </Button>
-            <Button
-              type="button"
-              variant="action-4"
-              size="base"
-              disabled={submitting}
-              onClick={onCancel}
-            >
-              {texts.cancel}
-            </Button>
-          </div>
-        </form>
+                </div>
+              </fieldset>
+            </div>
+            <div className={NOTES_CLASSES}>
+              <p className="type-meta">{texts.geocodingHelp}</p>
+              <Attribution texts={texts} />
+            </div>
+            {(submitState === "error" || server.unmatched) && <FormStatus kind="error" text={texts.genericError} />}
+            <ActionGroup>
+              <Button type="submit" variant="primary" size="base" loading={submitting}>
+                {texts.save}
+              </Button>
+              <Button
+                type="button"
+                variant="action-4"
+                size="base"
+                disabled={submitting}
+                onClick={onCancel}
+              >
+                {texts.cancel}
+              </Button>
+            </ActionGroup>
+          </form>
+        </div>
       </CardContent>
     </Card>
   );

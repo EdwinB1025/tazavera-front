@@ -43,7 +43,7 @@ A verification status badge SHALL report an offering's verification state — ve
 - **THEN** it renders a clock icon and the provisional label in the provisional status treatment
 
 ### Requirement: Taxonomy badge
-A taxonomy badge SHALL render its label on the taxonomy's data color as its background. In each theme, its label SHALL be white when the relative luminance of the rendered background (the data color at its depth opacity over that theme's card surface) is at most 0.179, and black above it. A badge at taxonomy level 1 SHALL render its background at 92% opacity and one at level 2 at 85% opacity.
+A taxonomy badge SHALL render its label on the taxonomy's data color as its background. In each theme, its label SHALL be white when the relative luminance of the rendered background (the data color at its depth opacity over the surface it renders on: the card surface, or the sidebar surface inside the inverse variant) is at most 0.179, and black above it. A badge at taxonomy level 1 SHALL render its background at 92% opacity and one at level 2 at 85% opacity.
 
 #### Scenario: Data color background
 - **WHEN** a taxonomy badge renders for a taxonomy
@@ -60,6 +60,10 @@ A taxonomy badge SHALL render its label on the taxonomy's data color as its back
 #### Scenario: Depth reduces the background
 - **WHEN** a taxonomy badge renders at level 1 or level 2
 - **THEN** its background renders at 92% or 85% opacity respectively, while its label stays fully opaque
+
+#### Scenario: Label over the sidebar surface
+- **WHEN** a level-1 taxonomy badge renders inside the inverse variant
+- **THEN** in each theme its label is white or black by the rendered background over that theme's sidebar surface, not over the card surface
 
 ### Requirement: Badge label contrast
 Every badge label SHALL keep a contrast ratio of at least 4.5:1 against its rendered background in both themes (WCAG 2.2, SC 1.4.3).
@@ -83,24 +87,155 @@ The badge's geometry — its text treatment, inner padding, icon gap, one-line l
 - **WHEN** verification finds the badge's geometry spelled out again outside its single definition
 - **THEN** verification fails and names the file holding the second definition
 
-### Requirement: Flavor wheel
-The system SHALL present an offering's aromatic consensus as an interactive flavor wheel: one segment per note of the offering's `cataConcordance` group of type `aromatics`, resolved against the olfactory taxonomies of `GET /taxonomies` for its name, description and colour. The rings SHALL expand from the centre outward one level at a time and SHALL be sized by the deepest level currently expanded, so the wheel rescales instantly as notes expand and collapse, each segment's span SHALL be proportional to its `count` within its siblings, the `evaluationCount` total SHALL sit at the centre, and each note's visible legend SHALL be its `count` over that total (for example `4/5`). Hovering or focusing a note SHALL make it the active note and show its name, its legend and its olfactory-taxonomy description in a fixed description panel. The notes SHALL keep the order of `GET /taxonomies` around the wheel and down the list.
+### Requirement: Flavor wheel note list
+The wheel SHALL carry a text alternative that is a note list structured as a tree: one row per visible note in wheel order, each carrying the note's name, a colour swatch and its `count` over the `evaluationCount` total, with its accessible name combining the note's name and its consensus legend. The list SHALL be operable by keyboard through a single tab stop, parents SHALL expose whether they are expanded, and colour SHALL never be the only carrier of meaning.
 
-#### Scenario: Ring 0 only at first
+#### Scenario: Every note is reachable
+- **WHEN** a segment is too narrow to show its name at rest
+- **THEN** its note's row in the list still carries the name, the swatch and the legend
+
+#### Scenario: Keyboard navigation
+- **WHEN** the viewer navigates the list with the keyboard
+- **THEN** Down and Up move to the next and previous visible rows, Right expands a collapsed parent or moves to the first child of an expanded one, Left collapses an expanded parent or moves to a child's parent, and Home and End move to the first and last visible rows
+
+#### Scenario: Expand and collapse with Enter or Space
+- **WHEN** the viewer presses Enter or Space on a parent row
+- **THEN** its expansion toggles and its children's rows show or hide
+
+#### Scenario: One tab stop
+- **WHEN** the viewer tabs into the expanded list
+- **THEN** focus lands on the last active note's row, or on the first row before any interaction, and the whole list is one tab stop
+
+#### Scenario: Escape returns to the centre
+- **WHEN** the viewer presses Escape
+- **THEN** every row collapses back to the level-0 rows and focus moves to the focused note's level-0 ancestor
+
+#### Scenario: Focus drives the wheel
+- **WHEN** a row receives keyboard focus
+- **THEN** its note becomes active, the panel shows its description and the wheel highlights its segment
+
+#### Scenario: Activation without moving focus
+- **WHEN** the viewer clicks or taps a segment or a row
+- **THEN** its note becomes active and the list's active row without moving focus
+
+### Requirement: Flavor wheel note list disclosure
+The note list SHALL be collapsed by default behind a visible expand control that exposes whether the list is expanded and which list it controls. The control SHALL span the full width of the wheel's figure, with the note list title at the start and a chevron at the end that points down while collapsed and up while expanded; its accessible name SHALL be the title and SHALL not change with the state. While collapsed, the note list SHALL be out of the tab order. Only the note list SHALL collapse: the description panel SHALL never collapse and stays shown between the wheel and the note list.
+
+#### Scenario: Note list collapsed at first
 - **WHEN** the wheel first renders with resolved notes
-- **THEN** only the innermost ring (level 0) shows, nothing is expanded, and that ring fills the wheel from the centre hole to the outer edge
+- **THEN** the note list is collapsed and out of the tab order, its expand control shows collapsed with its chevron pointing down, and the wheel and the description panel show
 
-#### Scenario: Rings follow the deepest expanded level
+#### Scenario: Expanding and collapsing the note list
+- **WHEN** the viewer activates the note list's expand control
+- **THEN** the note list toggles between expanded and collapsed, the control exposes the new state and turns its chevron, and the description panel stays shown
+
+#### Scenario: Full-width expand control
+- **WHEN** the expand control renders
+- **THEN** it spans the full width of the wheel's figure with the title at the start and the chevron at the end
+
+### Requirement: Confirmation dialog
+A confirmation dialog SHALL ask the user to confirm one destructive action before the consuming capability runs it, presenting the title, the description and two actions — the destructive action and a cancellation — whose texts the consuming capability supplies. While it is open it SHALL be exposed to assistive technology as an alert dialog named by its title and described by its description, with the content behind it inert.
+
+#### Scenario: Open
+- **WHEN** the confirmation dialog opens
+- **THEN** its panel renders centred over a dimmed page, it is exposed as an alert dialog named by its title and described by its description, and the content behind it cannot be interacted with
+
+#### Scenario: Initial focus on the cancellation
+- **WHEN** the confirmation dialog opens
+- **THEN** keyboard focus starts on the cancellation action, the least destructive one
+
+#### Scenario: Confirming
+- **WHEN** the user activates the destructive action
+- **THEN** the dialog hands the confirmation to the consuming capability, which runs the request and closes the dialog on success
+
+#### Scenario: Cancelling with Escape
+- **WHEN** the user presses Escape while no request is running
+- **THEN** the dialog cancels, closes and runs no request
+
+#### Scenario: The overlay does not close
+- **WHEN** the user activates the overlay or the content behind the dialog
+- **THEN** the dialog stays open
+
+#### Scenario: Focus returns to the trigger
+- **WHEN** the confirmation dialog closes
+- **THEN** keyboard focus returns to the control that opened it
+
+#### Scenario: Request running
+- **WHEN** the request is running
+- **THEN** the destructive action shows its busy treatment, the cancellation action is disabled and Escape does not close the dialog
+
+#### Scenario: Request failed
+- **WHEN** the request fails
+- **THEN** the error message supplied by the consuming capability renders in a live alert region below the description, the dialog stays open and the destructive action can be activated again
+
+#### Scenario: Actions on a narrow viewport
+- **WHEN** the confirmation dialog renders below the medium breakpoint (768px)
+- **THEN** its actions sit in one action group (base-controls "Action group"), the cancellation then the destructive action, in two equal columns, and the panel stays within the viewport width minus 2rem
+
+#### Scenario: Actions on a wider viewport
+- **WHEN** the confirmation dialog renders at or above the medium breakpoint
+- **THEN** its actions sit in one row aligned to the right with the cancellation before the destructive action, each at its action width, and the panel's width stops growing at 32rem
+
+### Requirement: Request status messages
+A view SHALL report the state of a request with the shared status presentations: a loading status for a request still running — a polite status region carrying its text beside a spinner that assistive technology ignores and that does not animate under reduced motion; a form status for a finished write — a success as a polite status region carrying its text beside a check icon that assistive technology ignores, and an error as an alert carrying its text, never colour alone; and a step-up notice for a write answered `403` — an alert carrying its text and a "Confirm identity" action that starts the write-scope sign in synchronously inside its click. Each presentation SHALL add no text of its own.
+
+#### Scenario: Loading status
+- **WHEN** a view reports a request that is still running
+- **THEN** a polite status region renders its text beside a spinner that is hidden from assistive technology and stays still under reduced motion
+
+#### Scenario: Form status success
+- **WHEN** a form's write succeeds and the view reports it
+- **THEN** a polite status region renders the success text beside a check icon that is hidden from assistive technology
+
+#### Scenario: Form status error
+- **WHEN** a form's write is rejected or fails and the view reports it
+- **THEN** an alert renders the error text, conveyed by its text and never by colour alone
+
+#### Scenario: Step-up notice
+- **WHEN** a write is answered `403` and the view reports it
+- **THEN** an alert renders the notice text with a "Confirm identity" action, and activating that action starts the write-scope sign in synchronously inside that click, keeping the page and its input
+
+#### Scenario: Consumer text only
+- **WHEN** any status presentation renders
+- **THEN** every visible text comes from the consuming capability's message catalog and no text comes from the presentation itself
+
+### Requirement: Flavor wheel kept as one view
+The flavor wheel SHALL render the wheel with its centre total, the group legend when groups are set apart, the description panel and the note list behind its expand control, in that order, with the same segments, labels, structure, texts, accessible names, tree attributes, tab stop, keyboard keys and pointer behaviour for the same notes, total, texts and groups, however the wheel is organised internally. This requirement adds no behaviour: every part keeps what the "Flavor wheel with every level", "Flavor wheel note list" and "Flavor wheel note list disclosure" requirements of this capability state.
+
+#### Scenario: Wheel renders as before
+- **WHEN** the wheel renders with resolved notes, a total and texts
+- **THEN** the wheel with its segments, arched labels and centre total, the description panel showing the hint and the collapsed note list render in that order, each with its texts and accessible names
+
+#### Scenario: Keyboard and pointer behave as before
+- **WHEN** the viewer hovers or clicks a segment or a row, or navigates the expanded note list with Down, Up, Right, Left, Home, End, Enter, Space or Escape
+- **THEN** the active note, the expanded notes, the focused row and the single tab stop change exactly as the "Flavor wheel with every level" and "Flavor wheel note list" requirements state
+
+#### Scenario: Empty wheel renders as before
+- **WHEN** the evaluation total is 0 or there are no notes
+- **THEN** only the empty message renders, in place of the wheel, the panel and the note list
+
+### Requirement: Flavor wheel with every level
+The system SHALL present an offering's aromatic consensus as an interactive flavor wheel: one segment per note of the offering's `cataConcordance` group of type `aromatics`, resolved against the olfactory taxonomies of `GET /taxonomies` for its name, description and colour. The wheel SHALL draw every level of the notes from its first render, level 0 in the innermost ring and each deeper level in the next ring outward, the rings sharing the width from the centre hole to the outer edge equally; expanding or collapsing notes SHALL change only the note list, never the wheel. Each segment's span SHALL be proportional to its `count` within its siblings, the `evaluationCount` total SHALL sit at the centre, and each note's visible legend SHALL be its `count` over that total (for example `4/5`). Hovering or focusing a note SHALL make it the active note and show its name, its legend and its olfactory-taxonomy description in a fixed description panel. The notes SHALL keep the order of `GET /taxonomies` around the wheel and down the list.
+
+#### Scenario: Every level from the start
+- **WHEN** the wheel first renders with resolved notes
+- **THEN** every note shows, level 0 in the innermost ring and each deeper level in the next ring outward, one ring per level down to the deepest level of the notes, the rings sharing the width from the centre hole to the outer edge equally, and nothing is expanded in the note list
+
+#### Scenario: Expansion leaves the wheel unchanged
 - **WHEN** the viewer expands or collapses notes, or presses Escape
-- **THEN** the rings are resized at once to the deepest level that is expanded: one ring filling the wheel with nothing expanded, two rings sharing it with a level-0 note expanded, three with a level-1 note expanded, and back to one ring after Escape
+- **THEN** the wheel keeps the same segments and rings, and only the note list changes
 
 #### Scenario: Activating a note expands it one level
 - **WHEN** the viewer activates a note that has children
-- **THEN** its children appear in the next ring inside the parent's span and its subtree appears in the note list, and several notes may be expanded at once
+- **THEN** it becomes active and is highlighted in the wheel, its subtree appears in the note list, and several notes may be expanded at once
 
 #### Scenario: Activating an expanded note collapses it
 - **WHEN** the viewer activates a note that is already expanded
-- **THEN** it and its descendants collapse back
+- **THEN** its rows and its descendants' rows collapse back in the note list
+
+#### Scenario: Stacked on every width
+- **WHEN** the wheel renders at any width
+- **THEN** the wheel, centred, comes first, then the group legend when groups are set apart, then the description panel, then the note list behind its expand control, one below the other, the panel and the note list at the full width of the wheel's figure
 
 #### Scenario: Segments sized by consensus
 - **WHEN** the notes render
@@ -154,114 +289,20 @@ The system SHALL present an offering's aromatic consensus as an interactive flav
 - **WHEN** the read of the offering or of the taxonomies fails
 - **THEN** the host's error state shows and the wheel never renders with unresolved data
 
-### Requirement: Flavor wheel note list
-The wheel SHALL carry a text alternative that is a note list structured as a tree: one row per visible note in wheel order, each carrying the note's name, a colour swatch and its `count` over the `evaluationCount` total, with its accessible name combining the note's name and its consensus legend. The list SHALL be operable by keyboard through a single tab stop, parents SHALL expose whether they are expanded, and colour SHALL never be the only carrier of meaning.
+### Requirement: Selected row of the flavor wheel note list
+Each row of the flavor wheel note list SHALL expose whether it is selected: the row of the active note as selected and every other row as not selected. The active note, its highlight and the keyboard and pointer behaviour SHALL stay as the "Flavor wheel note list" requirement states.
 
-#### Scenario: Every note is reachable
-- **WHEN** a segment is too narrow to show its name at rest
-- **THEN** its note's row in the list still carries the name, the swatch and the legend
+#### Scenario: Active row selected
+- **WHEN** a note becomes active and the note list is expanded
+- **THEN** its row is exposed as selected and every other row as not selected
 
-#### Scenario: Keyboard navigation
-- **WHEN** the viewer navigates the list with the keyboard
-- **THEN** Down and Up move to the next and previous visible rows, Right expands a collapsed parent or moves to the first child of an expanded one, Left collapses an expanded parent or moves to a child's parent, and Home and End move to the first and last visible rows
+### Requirement: Flavor wheel types shared without import cycles
+The flavor wheel's parts SHALL share the note and group types through one module that imports nothing from the wheel, so that no import cycle exists among the modules of the shared UI segment, while the wheel keeps its public exports and renders and behaves as the "Flavor wheel kept as one view" requirement states. This requirement adds no behaviour.
 
-#### Scenario: Expand and collapse with Enter or Space
-- **WHEN** the viewer presses Enter or Space on a parent row
-- **THEN** its expansion toggles and its note's segments follow in the wheel
+#### Scenario: No import cycle in the shared UI segment
+- **WHEN** the import graph of the shared UI segment is checked for circular dependencies, type-only imports included
+- **THEN** no cycle is reported, and every part of the flavor wheel takes the note and group types from the one types module
 
-#### Scenario: One tab stop
-- **WHEN** the viewer tabs into the expanded list
-- **THEN** focus lands on the last active note's row, or on the first row before any interaction, and the whole list is one tab stop
-
-#### Scenario: Escape returns to the centre
-- **WHEN** the viewer presses Escape
-- **THEN** every note collapses back to the innermost ring and focus moves to the focused note's level-0 ancestor
-
-#### Scenario: Focus drives the wheel
-- **WHEN** a row receives keyboard focus
-- **THEN** its note becomes active, the panel shows its description and the wheel highlights its segment
-
-#### Scenario: Activation without moving focus
-- **WHEN** the viewer clicks or taps a segment or a row
-- **THEN** its note becomes active and the list's active row without moving focus
-
-### Requirement: Flavor wheel note list disclosure
-The note list SHALL be collapsed by default behind a visible expand control that exposes whether the list is expanded and which list it controls. The control SHALL span the full width of its column, with the note list title at the start and a chevron at the end that points down while collapsed and up while expanded; its accessible name SHALL be the title and SHALL not change with the state. While collapsed, the note list SHALL be out of the tab order. Only the note list SHALL collapse: the description panel SHALL never collapse and stays beside the wheel.
-
-#### Scenario: Note list collapsed at first
-- **WHEN** the wheel first renders with resolved notes
-- **THEN** the note list is collapsed and out of the tab order, its expand control shows collapsed with its chevron pointing down, and the wheel and the description panel show
-
-#### Scenario: Expanding and collapsing the note list
-- **WHEN** the viewer activates the note list's expand control
-- **THEN** the note list toggles between expanded and collapsed, the control exposes the new state and turns its chevron, and the description panel stays shown
-
-#### Scenario: Full-width expand control
-- **WHEN** the expand control renders
-- **THEN** it spans the full width of its column with the title at the start and the chevron at the end
-
-### Requirement: Confirmation dialog
-A confirmation dialog SHALL ask the user to confirm one destructive action before the consuming capability runs it, presenting the title, the description and two actions — the destructive action and a cancellation — whose texts the consuming capability supplies. While it is open it SHALL be exposed to assistive technology as an alert dialog named by its title and described by its description, with the content behind it inert.
-
-#### Scenario: Open
-- **WHEN** the confirmation dialog opens
-- **THEN** its panel renders centred over a dimmed page, it is exposed as an alert dialog named by its title and described by its description, and the content behind it cannot be interacted with
-
-#### Scenario: Initial focus on the cancellation
-- **WHEN** the confirmation dialog opens
-- **THEN** keyboard focus starts on the cancellation action, the least destructive one
-
-#### Scenario: Confirming
-- **WHEN** the user activates the destructive action
-- **THEN** the dialog hands the confirmation to the consuming capability, which runs the request and closes the dialog on success
-
-#### Scenario: Cancelling with Escape
-- **WHEN** the user presses Escape while no request is running
-- **THEN** the dialog cancels, closes and runs no request
-
-#### Scenario: The overlay does not close
-- **WHEN** the user activates the overlay or the content behind the dialog
-- **THEN** the dialog stays open
-
-#### Scenario: Focus returns to the trigger
-- **WHEN** the confirmation dialog closes
-- **THEN** keyboard focus returns to the control that opened it
-
-#### Scenario: Request running
-- **WHEN** the request is running
-- **THEN** the destructive action shows its busy treatment, the cancellation action is disabled and Escape does not close the dialog
-
-#### Scenario: Request failed
-- **WHEN** the request fails
-- **THEN** the error message supplied by the consuming capability renders in a live alert region below the description, the dialog stays open and the destructive action can be activated again
-
-#### Scenario: Actions on a narrow viewport
-- **WHEN** the confirmation dialog renders below the small breakpoint
-- **THEN** its actions stack in one column with the destructive action above the cancellation, each filling the panel's width, and the panel stays within the viewport width minus 2rem
-
-#### Scenario: Actions on a wider viewport
-- **WHEN** the confirmation dialog renders at or above the small breakpoint
-- **THEN** its actions sit in one row aligned to the right with the cancellation before the destructive action, and the panel's width stops growing at 32rem
-
-### Requirement: Request status messages
-A view SHALL report the state of a request with the shared status presentations: a loading status for a request still running — a polite status region carrying its text beside a spinner that assistive technology ignores and that does not animate under reduced motion; a form status for a finished write — a success as a polite status region carrying its text beside a check icon that assistive technology ignores, and an error as an alert carrying its text, never colour alone; and a step-up notice for a write answered `403` — an alert carrying its text and a "Confirm identity" action that starts the write-scope sign in synchronously inside its click. Each presentation SHALL add no text of its own.
-
-#### Scenario: Loading status
-- **WHEN** a view reports a request that is still running
-- **THEN** a polite status region renders its text beside a spinner that is hidden from assistive technology and stays still under reduced motion
-
-#### Scenario: Form status success
-- **WHEN** a form's write succeeds and the view reports it
-- **THEN** a polite status region renders the success text beside a check icon that is hidden from assistive technology
-
-#### Scenario: Form status error
-- **WHEN** a form's write is rejected or fails and the view reports it
-- **THEN** an alert renders the error text, conveyed by its text and never by colour alone
-
-#### Scenario: Step-up notice
-- **WHEN** a write is answered `403` and the view reports it
-- **THEN** an alert renders the notice text with a "Confirm identity" action, and activating that action starts the write-scope sign in synchronously inside that click, keeping the page and its input
-
-#### Scenario: Consumer text only
-- **WHEN** any status presentation renders
-- **THEN** every visible text comes from the consuming capability's message catalog and no text comes from the presentation itself
+#### Scenario: Public exports unchanged
+- **WHEN** a consumer imports the flavor wheel, its props type or its note type from the shared UI public index
+- **THEN** the same names resolve as before the refactor, and the wheel renders as before for the same notes, total, texts and groups

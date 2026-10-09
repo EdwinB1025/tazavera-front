@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { OfferingDetail, Session, TaxonomyNode } from "@/shared/api";
-import { BackLink, PageSection, RetryButton } from "@/shared/ui";
+import { BackButton, BackLink, PageSection, RetryButton } from "@/shared/ui";
 import type { DetailTab } from "../lib/tab";
 import { DetailHeader } from "./DetailHeader";
 import type { DetailHeaderTexts } from "./DetailHeader";
@@ -19,6 +19,8 @@ export type OfferingDetailTexts = DetailHeaderTexts &
     backLabel: string;
     errorMessage: string;
     retryLabel: string;
+    notFoundTitle: string;
+    notFoundLine: string;
     tabInventory: string;
     tabConsensus: string;
     tabProvisional: string;
@@ -27,6 +29,7 @@ export type OfferingDetailTexts = DetailHeaderTexts &
 /** The fetch result, mapped before it reaches this view (design.md D8). */
 export type OfferingDetailResult =
   | { state: "success"; offering: OfferingDetail; taxonomies: TaxonomyNode[] }
+  | { state: "not-found" }
   | { state: "error" };
 
 export type OfferingDetailContentProps = {
@@ -44,12 +47,17 @@ export type OfferingDetailContentProps = {
 const TOP_CONTAINER_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
 
 // The view's top-level blocks on the page background, 2rem apart: the header
-// block, then the tabs (design.md D9; content-structure "Page sections").
+// block, the tabs, then the back link again (design.md D9;
+// add-bottom-back-links D1; content-structure "Page sections").
 const BLOCKS_CLASSES = ["flex", "flex-col", "gap-8"].join(" ");
 
 // The error message with its retry action, 1rem apart; the button keeps its
 // own width.
 const ERROR_CLASSES = ["flex", "flex-col", "items-start", "gap-4"].join(" ");
+
+// The not-found title and its line, 0.5rem apart (show-item-not-found-message
+// design.md D2).
+const NOT_FOUND_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
 
 /**
  * The offering detail's presentation (add-offering-catalog design.md D8, D9;
@@ -57,7 +65,9 @@ const ERROR_CLASSES = ["flex", "flex-col", "items-start", "gap-4"].join(" ");
  * background holds the header block (the back link and the header) and the
  * two tabs, whose panels' cards hang from that background; on an
  * error, the back link and, below it, the message with the retry action
- * instead of the tabs. Every text arrives as a prop.
+ * instead of the tabs; for an unknown offering, the not-found title and line
+ * above the back button, with no retry (show-item-not-found-message D2). Every
+ * text arrives as a prop.
  */
 export function OfferingDetailContent({
   result,
@@ -73,6 +83,20 @@ export function OfferingDetailContent({
       {texts.backLabel}
     </BackLink>
   );
+
+  if (result.state === "not-found") {
+    return (
+      <PageSection surface="page" containerClassName={TOP_CONTAINER_CLASSES}>
+        <div className={NOT_FOUND_CLASSES}>
+          <h1 className="type-heading">{texts.notFoundTitle}</h1>
+          <p className="type-body">{texts.notFoundLine}</p>
+        </div>
+        <div>
+          <BackButton fallback={`/${locale}/offerings`}>{texts.backLabel}</BackButton>
+        </div>
+      </PageSection>
+    );
+  }
 
   if (result.state === "error") {
     return (
@@ -118,6 +142,9 @@ export function OfferingDetailContent({
         }
         provisional={provisional}
       />
+      <div>
+        <BackButton fallback={`/${locale}/offerings`}>{texts.backLabel}</BackButton>
+      </div>
     </PageSection>
   );
 }

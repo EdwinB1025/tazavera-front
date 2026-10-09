@@ -3,38 +3,19 @@
  * Design): the coffeeshop's own list, its selection and delete flows and
  * the create flow.
  */
-export { fetchOwnOfferings } from "./api/management";
-export type { OwnOfferingsResult, WriteOutcome } from "./api/management";
 export { useOwnOfferings } from "./model/own-offerings";
-export type {
-  OfferingSelection,
-  OwnOfferings,
-  OwnOfferingsState,
-} from "./model/own-offerings";
+export type { OwnOfferings } from "./model/own-offerings";
 export { OfferingActions } from "./ui/OfferingActions";
-export type { OfferingActionsProps, OfferingActionsTexts } from "./ui/OfferingActions";
+export type { OfferingActionsTexts } from "./ui/OfferingActions";
 export { SelectionToolbar } from "./ui/SelectionToolbar";
-export type { SelectionToolbarProps, SelectionToolbarTexts } from "./ui/SelectionToolbar";
+export type { SelectionToolbarTexts } from "./ui/SelectionToolbar";
 export { previousPageAfterDelete, useDeleteFlow } from "./model/delete-flow";
-export type {
-  DeleteError,
-  DeleteFlow,
-  DeleteFlowOptions,
-  DeleteTarget,
-} from "./model/delete-flow";
+export type { DeleteTarget } from "./model/delete-flow";
 export { DeleteOfferingsDialog } from "./ui/DeleteOfferingsDialog";
-export type {
-  DeleteOfferingsDialogProps,
-  DeleteOfferingsDialogTexts,
-} from "./ui/DeleteOfferingsDialog";
-export type { CreateOutcome } from "./api/management";
+export type { DeleteOfferingsDialogTexts } from "./ui/DeleteOfferingsDialog";
 export { useCreateFlow } from "./model/create-flow";
-export type { CreateFlow, CreateStatus } from "./model/create-flow";
 export { InventoryField } from "./ui/InventoryField";
-export type { InventoryFieldProps, InventoryFieldTexts } from "./ui/InventoryField";
-export type { LocationsResult } from "./api/management";
-export type { CreateFlowOptions, LocationsState } from "./model/create-flow";
+export type { InventoryFieldTexts } from "./ui/InventoryField";
 export { LocationsFieldset } from "./ui/LocationsFieldset";
-export type { LocationsFieldsetProps, LocationsFieldsetTexts } from "./ui/LocationsFieldset";
+export type { LocationsFieldsetTexts } from "./ui/LocationsFieldset";
 export { ManagementSidebarEntries } from "./ui/ManagementSidebarEntries";
-export type { ManagementSidebarEntriesProps } from "./ui/ManagementSidebarEntries";

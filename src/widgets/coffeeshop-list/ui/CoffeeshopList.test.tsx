@@ -31,7 +31,7 @@ const TEXTS: CoffeeshopListTexts = {
   locationsCount: "{count} ubicaciones",
   offeringsCount: "Ofertas: {count}",
   verifiedCount: "Verificadas: {count}",
-  viewLabel: "Ver",
+  viewLabel: "Ver ofertas",
   previousLabel: "Anterior",
   nextLabel: "Siguiente",
   navigationLabel: "Paginación",
@@ -89,6 +89,12 @@ describe("CoffeeshopList", () => {
     expect(screen.getByRole("button", { name: "Reintentar" })).toBeTruthy();
     expect(screen.queryByRole("listitem")).toBeNull();
     expect(screen.queryByRole("button", { name: "Siguiente" })).toBeNull();
+  });
+
+  it("loads the list again when the retry action is activated (spec: Retry reloads)", () => {
+    render(<CoffeeshopList result={{ state: "error" }} locale="es" query={{}} texts={TEXTS} />);
+    fireEvent.click(screen.getByRole("button", { name: "Reintentar" }));
+    expect(router.refresh).toHaveBeenCalledTimes(1);
   });
 
   it("shows no matches with Clear all keeping the sort and the view when a filter matches nothing (spec: Filtered empty)", () => {

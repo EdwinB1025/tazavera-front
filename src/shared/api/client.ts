@@ -63,9 +63,32 @@ export async function request(
   return response;
 }
 
+/**
+ * The request option of the reference reads (`GET /taxonomies`, `GET /coffees`):
+ * a server cache refreshed at most every hour (backlog R30). The one place the
+ * one-hour value lives.
+ */
+export const REFERENCE_READ_INIT: RequestInit = { next: { revalidate: 3600 } };
+
+/**
+ * One request carrying the given access token instead of the grant in memory
+ * (secure-step-up design.md D3): the step-up's identity check and the sign out
+ * of another user's grant. Never recovered: a `401` ends at the caller.
+ */
+export function requestWithToken(
+  path: string,
+  accessToken: string,
+  init?: RequestInit,
+): Promise<Response> {
+  const headers = new Headers(init?.headers);
+  headers.set("Authorization", `Bearer ${accessToken}`);
+  return fetch(`${apiUrl()}${path}`, { ...init, headers });
+}
+
 /** A public request: sent without credentials (spec: "Public endpoints need no session"). */
 export function publicRequest(path: string, init?: RequestInit): Promise<Response> {
-  return fetch(`${apiUrl()}${path}`, init);
+  const url = `${apiUrl()}${path}`;
+  return init === undefined ? fetch(url) : fetch(url, init);
 }
 
 /** One request with the current grant attached (design.md D5). */

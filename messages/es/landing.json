@@ -14,6 +14,7 @@
   "cardDefectiveLabel": "Defectuosas:",
   "cardViewLabel": "Ver",
   "cardEvaluateLabel": "Evaluar",
+  "cardViewEvaluationsLabel": "Ver evaluaciones",
   "cardVerifiedLabel": "Verificado",
   "cardProvisionalLabel": "Provisional",
   "cardRatingExceptionalLabel": "Excepcional",
@@ -39,5 +40,7 @@
   "aboutCoffeeshopRegisterLabel": "Registra tu cafetería",
   "aboutSpecialistRegisterLabel": "Regístrate como especialista",
   "aboutClosingLabel": "Explorar cafés",
-  "metaDescription": "Tazavera, la guía del buen café: evaluaciones objetivas con el protocolo de cata de la SCA que descubren qué hay en cada taza."
+  "metaDescription": "Tazavera, la guía del buen café: evaluaciones objetivas con el protocolo de cata de la SCA que descubren qué hay en cada taza.",
+  "heroRegisterNavigation": "Registro",
+  "aboutRegisterNavigation": "Registro"
 }

@@ -55,7 +55,7 @@ describe("DeleteEvaluationAction (design.md D4)", () => {
     expect(
       screen.getByRole("button", { name: "Delete evaluation" }).getAttribute("aria-disabled"),
     ).toBe("true");
-    resolve({ ok: true, status: 200, data: null });
+    resolve({ ok: true, data: null });
     await waitFor(() => expect(onDeleted).toHaveBeenCalledWith(ULID));
     await waitFor(() => expect(screen.queryByRole("alertdialog")).toBeNull());
   });
@@ -69,7 +69,7 @@ describe("DeleteEvaluationAction (design.md D4)", () => {
   });
 
   it("shows the not-yours text on a 403, with nothing resent", async () => {
-    deleteAnEvaluation.mockResolvedValue({ ok: false, status: 403 });
+    deleteAnEvaluation.mockResolvedValue({ ok: false, kind: "forbidden" });
     open();
     fireEvent.click(screen.getByRole("button", { name: "Delete evaluation" }));
     expect(await screen.findByText(TEXTS.notYoursMessage)).toBeDefined();

@@ -30,12 +30,8 @@ export async function ManageOfferingsScreen({
   const requested = Number(page);
   const currentPage = Number.isInteger(requested) && requested > 0 ? requested : 1;
 
-  let taxonomies: TaxonomyNode[] | null;
-  try {
-    taxonomies = (await fetchTaxonomies()).data;
-  } catch {
-    taxonomies = null;
-  }
+  const read = await fetchTaxonomies();
+  const taxonomies: TaxonomyNode[] | null = read.ok ? read.data.data : null;
 
   const texts: ManageOfferingsTexts = {
     coffeeshopCaption: landing.cardCoffeeshopCaption,
@@ -57,7 +53,6 @@ export async function ManageOfferingsScreen({
     listHeading: catalog.listHeading,
     newOfferingLink: catalog.newOfferingLink,
     listEmptyMessage: catalog.listEmptyMessage,
-    listEmptyCreateLink: catalog.listEmptyCreateLink,
     listErrorMessage: catalog.listErrorMessage,
     retryLabel: catalog.retryLabel,
     signedOutMessage: catalog.signedOutMessage,
@@ -75,8 +70,6 @@ export async function ManageOfferingsScreen({
     cancelLabel: catalog.cancelLabel,
     deleteError: catalog.deleteError,
     deletedStatus: catalog.deletedStatus,
-    stepUpMessage: catalog.stepUpMessage,
-    stepUpLabel: catalog.stepUpLabel,
   };
 
   return (

@@ -1,4 +1,5 @@
-import type { EvaluationItem, EvaluationSortField, EvaluationType } from "@/shared/api";
+import { publicRequest } from "@/shared/api";
+import type { ApiResult, EvaluationItem, EvaluationSortField, EvaluationType } from "@/shared/api";
 import type { EvaluationPage } from "./user-evaluations";
 
 /**
@@ -37,30 +38,43 @@ const QUERY_KEYS = [
 ] as const satisfies readonly (keyof EvaluationsQuery)[];
 
 /**
- * One page of public evaluations: `GET /evaluations?{query}`, plain `fetch`
- * with no credential (the contract attaches no security scheme). Any non-2xx
- * status or transport failure throws; the API body is never read then.
+ * One page of public evaluations: `GET /evaluations?{query}`, through
+ * `publicRequest` with no credential (the contract attaches no security scheme). Any non-2xx
+ * status or transport failure is an error result; the API body is never read then.
  */
-export async function fetchEvaluations(query: EvaluationsQuery): Promise<EvaluationPage> {
+export async function fetchEvaluations(
+  query: EvaluationsQuery,
+): Promise<ApiResult<EvaluationPage>> {
   const params = new URLSearchParams();
   for (const key of QUERY_KEYS) {
     const value = query[key];
     if (value !== undefined) params.set(key, String(value));
   }
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/evaluations?${params}`);
-  if (!response.ok) {
-    throw new Error("evaluations request failed");
+  try {
+    const response = await publicRequest(`/evaluations?${params}`);
+    if (!response.ok) return { ok: false, kind: "error" };
+    const payload: EvaluationPage = await response.json();
+    return { ok: true, data: payload };
+  } catch {
+    return { ok: false, kind: "error" };
   }
-  const payload: EvaluationPage = await response.json();
-  return payload;
 }
 
-/** One public evaluation: the `data` of `GET /evaluations/{evaluation_ulid}`. */
-export async function fetchEvaluation(ulid: string): Promise<EvaluationItem> {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/evaluations/${ulid}`);
-  if (!response.ok) {
-    throw new Error("evaluation request failed");
+/**
+ * One public evaluation: the `data` of `GET /evaluations/{evaluation_ulid}`;
+ * its `404` (unknown or not closed) is not-found (show-item-not-found-message
+ * design.md D1).
+ */
+export async function fetchEvaluation(
+  ulid: string,
+): Promise<ApiResult<EvaluationItem, "not-found">> {
+  try {
+    const response = await publicRequest(`/evaluations/${ulid}`);
+    if (response.status === 404) return { ok: false, kind: "not-found" };
+    if (!response.ok) return { ok: false, kind: "error" };
+    const payload: { data: EvaluationItem } = await response.json();
+    return { ok: true, data: payload.data };
+  } catch {
+    return { ok: false, kind: "error" };
   }
-  const payload: { data: EvaluationItem } = await response.json();
-  return payload.data;
 }

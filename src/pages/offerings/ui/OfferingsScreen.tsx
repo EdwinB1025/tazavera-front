@@ -20,6 +20,10 @@ export type OfferingsScreenProps = {
   toolbar?: ReactNode;
 };
 
+// One section: the header column and the results, 1.5rem apart at every width
+// (tighten-list-toolbar-spacing, R64).
+const SECTION_CONTAINER_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
+
 // The heading block and the toolbar region, 2rem apart; an empty region
 // renders nothing and so adds no gap (design summary §6.2).
 const HEADER_CONTAINER_CLASSES = ["flex", "flex-col", "gap-8"].join(" ");
@@ -50,6 +54,7 @@ export function OfferingsScreen({
     defectiveLabel: landing.cardDefectiveLabel,
     viewLabel: landing.cardViewLabel,
     evaluateLabel: landing.cardEvaluateLabel,
+    viewEvaluationsLabel: landing.cardViewEvaluationsLabel,
     verifiedLabel: landing.cardVerifiedLabel,
     provisionalLabel: landing.cardProvisionalLabel,
     ratingExceptionalLabel: landing.cardRatingExceptionalLabel,
@@ -70,14 +75,14 @@ export function OfferingsScreen({
 
   return (
     <div className="flex-1">
-      <PageSection surface="page" containerClassName={HEADER_CONTAINER_CLASSES}>
-        <div className={HEADING_BLOCK_CLASSES}>
-          <p className="type-eyebrow">{catalog.listEyebrow}</p>
-          <h1 className="type-heading">{catalog.listHeading}</h1>
+      <PageSection surface="page" containerClassName={SECTION_CONTAINER_CLASSES}>
+        <div className={HEADER_CONTAINER_CLASSES}>
+          <div className={HEADING_BLOCK_CLASSES}>
+            <p className="type-eyebrow">{catalog.listEyebrow}</p>
+            <h1 className="type-heading">{catalog.listHeading}</h1>
+          </div>
+          {toolbar ? <div>{toolbar}</div> : null}
         </div>
-        {toolbar ? <div>{toolbar}</div> : null}
-      </PageSection>
-      <PageSection surface="page">
         <FilteredOfferingsResults
           locale={locale}
           searchParams={searchParams}

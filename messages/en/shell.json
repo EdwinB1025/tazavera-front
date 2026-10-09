@@ -6,14 +6,18 @@
   "languageSelector": "Language",
   "myAccount": "My account",
   "security": "Security",
-  "themeSelector": "Theme",
+  "themeToggleToDark": "Current theme: traditional. Switch to dark theme",
+  "themeToggleToTraditional": "Current theme: dark. Switch to traditional theme",
   "manageOfferings": "Manage offerings",
   "manageEvaluations": "Manage evaluations",
+  "exploreOfferings": "Explore offerings",
   "signOut": "Sign out",
   "brandLink": "Tazavera, go to the home page",
   "toggleSidebar": "Show or hide the navigation",
   "notFoundTitle": "Page not found",
   "notFoundText": "The page you are looking for does not exist or you do not have access to it.",
   "notFoundHomeLink": "Back to the home page",
-  "navigationMenu": "Navigation menu"
+  "navigationMenu": "Navigation menu",
+  "primaryNavigation": "Main",
+  "sidebarNavigation": "Management"
 }

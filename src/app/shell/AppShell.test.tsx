@@ -20,6 +20,22 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
+// The language selector switches locale through next-intl's navigation
+// (adopt-next-intl-routing design.md D6), which needs the same router
+// context. Test infrastructure only: no assertion below depends on it.
+vi.mock("@/shared/lib/locale-navigation", () => ({
+  useRouter: () => ({ push: () => {} }),
+  usePathname: () => shellPathname.replace(/^\/[^/]*/, "") || "/",
+}));
+
+// The session hook reads the route's locale with `useLocale()` under the
+// `[locale]` layout's provider (adopt-next-intl-routing design.md D7), which
+// these renders do not mount. Test infrastructure only.
+vi.mock("next-intl", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next-intl")>()),
+  useLocale: () => shellPathname.split("/")[1],
+}));
+
 // The header actions call the public entries of `@/features/auth` (design.md
 // D1) through `ShellChrome`'s handlers. Only those two entries are replaced
 // by spies: the session hook and `completeCallback` keep their real
@@ -225,14 +241,14 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
     ).toBeDefined();
     expect(screen.queryByRole("alert")).toBeNull();
     expect(screen.queryByRole("status")).toBeNull();
-    // exactly these two buttons besides the small-viewport navigation menu
+    // exactly these three buttons (with the theme switch, refine-header-aut) besides the small-viewport navigation menu
     // control (fix-production-aut-findings design.md D7): another one would be
     // a retry affordance
     expect(
       screen
         .getAllByRole("button")
         .filter((button) => button.getAttribute("aria-label") !== texts.navigationMenu),
-    ).toHaveLength(2);
+    ).toHaveLength(3);
   });
   it("shows the header's re-open control named from the catalog once the sidebar collapses (spec: Control named in every locale)", () => {
     for (const locale of ["es", "en", "ca"]) {

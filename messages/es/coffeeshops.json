@@ -6,7 +6,7 @@
   "locationsCount": "{count} ubicaciones",
   "offeringsCount": "Ofertas: {count}",
   "verifiedCount": "Verificadas: {count}",
-  "viewLabel": "Ver",
+  "viewLabel": "Ver ofertas",
   "listEmpty": "Todavía no hay cafeterías.",
   "listError": "No se pudieron cargar las cafeterías.",
   "filtersTitle": "Filtros",
@@ -39,5 +39,7 @@
   "osmAttribution": "© {link}",
   "osmContributors": "OpenStreetMap contributors",
   "backToList": "Volver a la lista",
-  "mapLoading": "Cargando el mapa…"
+  "mapLoading": "Cargando el mapa…",
+  "detailNotFoundTitle": "Cafetería no encontrada",
+  "detailNotFoundLine": "Puede que se haya retirado o que el enlace no sea correcto."
 }

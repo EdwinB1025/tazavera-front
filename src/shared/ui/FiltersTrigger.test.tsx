@@ -30,10 +30,11 @@ beforeEach(() => {
 
 /** Reads and sets the sidebar state next to the trigger. */
 function Probe(): ReactNode {
-  const { open, setOpen } = useSidebar();
+  const { open, setOpen, subsectionOpen } = useSidebar();
   return (
     <>
       <output data-testid="open">{String(open)}</output>
+      <output data-testid="subsection">{String(subsectionOpen)}</output>
       <button type="button" onClick={() => setOpen((value) => !value)}>
         toggle
       </button>
@@ -56,18 +57,26 @@ function trigger(): HTMLElement | null {
 
 /** The body "Filters" trigger (add-offering-facets design.md D8; spec "Offerings filter toolbar"). */
 describe("FiltersTrigger (design.md D8)", () => {
-  it("renders from md only while the sidebar is collapsed", () => {
+  it("renders from md while the sidebar is collapsed or its sub-section closed", () => {
     renderTrigger();
     expect(screen.getByTestId("open").textContent).toBe("true");
-    expect(trigger()).toBeNull();
+    expect(trigger()).not.toBeNull();
     act(() => fireEvent.click(screen.getByRole("button", { name: "toggle" })));
     expect(trigger()).not.toBeNull();
   });
 
-  it("opens the sidebar when activated", () => {
+  it("opens the sub-section from md and then hides (spec: Facets open from the toolbar)", () => {
+    renderTrigger();
+    fireEvent.click(trigger()!);
+    expect(screen.getByTestId("subsection").textContent).toBe("true");
+    expect(trigger()).toBeNull();
+  });
+
+  it("opens the sidebar with the sub-section below md (spec: Facets open from the toolbar)", () => {
     mobile = true;
     renderTrigger();
     fireEvent.click(trigger()!);
     expect(screen.getByTestId("open").textContent).toBe("true");
+    expect(screen.getByTestId("subsection").textContent).toBe("true");
   });
 });

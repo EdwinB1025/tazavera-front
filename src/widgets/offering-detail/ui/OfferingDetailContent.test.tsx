@@ -35,6 +35,8 @@ const TEXTS = {
   backLabel: "texts.backLabel",
   errorMessage: "texts.errorMessage",
   retryLabel: "texts.retryLabel",
+  notFoundTitle: "Offering not found",
+  notFoundLine: "It may have been removed, or the link may be wrong.",
   tabInventory: "texts.tabInventory",
   tabConsensus: "texts.tabConsensus",
   tabProvisional: "texts.tabProvisional",
@@ -84,9 +86,20 @@ const SUCCESS: OfferingDetailResult = {
 describe("OfferingDetailContent", () => {
   it("renders the back link to the offerings route of the locale (spec: Back link)", () => {
     renderContent(SUCCESS);
-    expect(
-      screen.getByRole("link", { name: TEXTS.backLabel }).getAttribute("href"),
-    ).toBe("/es/offerings");
+    expect(screen.getByRole("link", { name: TEXTS.backLabel }).getAttribute("href")).toBe(
+      "/es/offerings",
+    );
+  });
+
+  it("Back link at the end", () => {
+    renderContent(SUCCESS);
+    const top = screen.getByRole("link", { name: TEXTS.backLabel });
+    const end = screen.getByRole("button", { name: TEXTS.backLabel });
+    fireEvent.click(end);
+    expect([top.getAttribute("href"), ...router.push.mock.calls[0]]).toEqual(["/es/offerings", "/es/offerings"]);
+    const panel = screen.getByRole("tabpanel");
+    expect(panel.contains(end)).toBe(false);
+    expect(panel.compareDocumentPosition(end) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("renders the header block and the tabs in one section on the page background, 2rem apart (spec: Detail on the page background; design.md D9)", () => {
@@ -129,6 +142,16 @@ describe("OfferingDetailContent", () => {
     expect(message.className).toContain("type-body");
     expect(screen.queryByRole("tablist")).toBeNull();
     expect(container.querySelector("h1")).toBeNull();
+  });
+
+  it("renders the title and the line above the back button, with no retry action and no tabs (spec: Unknown offering)", () => {
+    renderContent({ state: "not-found" });
+    const title = screen.getByRole("heading", { level: 1, name: "Offering not found" });
+    const back = screen.getByRole("button", { name: TEXTS.backLabel });
+    expect(screen.getByText(TEXTS.notFoundLine).className).toContain("type-body");
+    expect(title.compareDocumentPosition(back) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByRole("button", { name: TEXTS.retryLabel })).toBeNull();
+    expect(screen.queryByRole("tablist")).toBeNull();
   });
 
   it("calls router.refresh() when the retry action is activated (spec: Retry reloads)", () => {

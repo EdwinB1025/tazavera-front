@@ -31,10 +31,9 @@ export async function FilteredOfferingsToolbar({
   searchParams,
   texts,
 }: FilteredOfferingsToolbarProps): Promise<ReactNode> {
-  const [taxonomies] = await Promise.allSettled([fetchTaxonomies()]);
+  const taxonomies = await fetchTaxonomies();
   const values = parseOfferingFilters(searchParams);
-  const tasteNotes =
-    taxonomies.status === "fulfilled" ? tasteNoteOptions(taxonomies.value.data, locale) : null;
+  const tasteNotes = taxonomies.ok ? tasteNoteOptions(taxonomies.data.data, locale) : null;
   const count = appliedOfferingFilters(values, { tasteNotes, texts }).length;
   return <OfferingsToolbar count={count} sort={values.sort} texts={texts} />;
 }

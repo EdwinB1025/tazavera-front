@@ -6,22 +6,15 @@
 export { EvaluationFacets, EVALUATION_SORT_KEYS } from "./ui/EvaluationFacets";
 export type {
   EvaluationFacetsOptions,
-  EvaluationFacetsProps,
   EvaluationFacetsTexts,
 } from "./ui/EvaluationFacets";
 export { EvaluationsToolbar } from "./ui/EvaluationsToolbar";
-export type { EvaluationsToolbarProps, EvaluationsToolbarTexts } from "./ui/EvaluationsToolbar";
+export type { EvaluationsToolbarTexts } from "./ui/EvaluationsToolbar";
 export {
-  EVALUATION_SORT_OPTIONS,
   evaluationListQuery,
   parseEvaluationFilters,
   publicEvaluationsQuery,
 } from "./model/query";
-export type {
-  EvaluationFacetSet,
-  EvaluationFilterValues,
-  EvaluationSortId,
-  PublicEvaluationFilters,
-} from "./model/query";
+export type { EvaluationFilterValues } from "./model/query";
 export { appliedEvaluationFilters } from "./model/applied";
-export type { AppliedEvaluationTexts, EvaluationAppliedFilter } from "./model/applied";
+export type { AppliedEvaluationTexts } from "./model/applied";

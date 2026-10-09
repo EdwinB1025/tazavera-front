@@ -9,6 +9,8 @@ import { BackLink } from "@/shared/ui";
  * scenarios are covered by `src/shared/lib/navigation-history.test.ts`.
  */
 
+// The header's back control is a link (apply-header-link-rule).
+
 afterEach(() => {
   cleanup();
   resetNavigationHistory();
@@ -17,8 +19,6 @@ afterEach(() => {
 describe("BackLink (design.md D5)", () => {
   it("addresses its fallback when the user has no previous page (spec: No previous page)", () => {
     render(<BackLink fallback="/es/offerings">Volver</BackLink>);
-    expect(screen.getByRole("link", { name: "Volver" }).getAttribute("href")).toBe(
-      "/es/offerings",
-    );
+    expect(screen.getByRole("link", { name: "Volver" }).getAttribute("href")).toBe("/es/offerings");
   });
 });

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { EvaluationItem, TaxonomyNode } from "@/shared/api";
 import { fetchEvaluations } from "@/entities/evaluation";
-import { fetchTaxonomies } from "@/entities/taxonomy";
+import { collectTaxonomyRefs, fetchTaxonomiesCovering } from "@/entities/taxonomy";
 import { Card, CardContent, RetryButton } from "@/shared/ui";
 import { cn } from "@/shared/lib/utils";
 import { EvaluationSheet } from "./EvaluationSheet";
@@ -52,8 +52,8 @@ export function EvaluationSheetSkeleton(): ReactNode {
 
 /**
  * The offering detail's provisional panel as a thin async Server Component
- * (design.md D4, D8, D9): the newest `baseline` evaluation of the offering
- * and the taxonomies, in parallel. The first item renders as the sheet; an
+ * (design.md D4, D8, D9): the newest `baseline` evaluation of the offering,
+ * then the taxonomies covering its references. The first item renders as the sheet; an
  * empty page shows the empty message and any failure the error with Retry,
  * all inside the panel.
  */
@@ -62,21 +62,24 @@ export async function EvaluationSheetBaseline({
   offeringUlid,
   texts,
 }: EvaluationSheetBaselineProps): Promise<ReactNode> {
-  let result: BaselineResult;
+  let result: BaselineResult = { state: "error" };
   try {
-    const [page, taxonomies] = await Promise.all([
-      fetchEvaluations({
-        offeringId: offeringUlid,
-        evaluationType: "baseline",
-        orderBy: "created_at",
-        orderDirection: "desc",
-      }),
-      fetchTaxonomies(),
-    ]);
-    const [evaluation] = page.data;
-    result = evaluation
-      ? { state: "success", evaluation, taxonomies: taxonomies.data }
-      : { state: "empty" };
+    const page = await fetchEvaluations({
+      offeringId: offeringUlid,
+      evaluationType: "baseline",
+      orderBy: "created_at",
+      orderDirection: "desc",
+    });
+    // The taxonomy read covers the shown evaluation's references, so it follows the page.
+    const [evaluation] = page.ok ? page.data.data : [];
+    const taxonomies = page.ok
+      ? await fetchTaxonomiesCovering(collectTaxonomyRefs(evaluation?.tastes ?? []))
+      : null;
+    if (page.ok && taxonomies?.ok) {
+      result = evaluation
+        ? { state: "success", evaluation, taxonomies: taxonomies.data.data }
+        : { state: "empty" };
+    }
   } catch {
     result = { state: "error" };
   }

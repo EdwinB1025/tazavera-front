@@ -50,6 +50,21 @@ describe("CoffeeshopsToolbar", () => {
     expect(screen.getByRole("button", { name: "Filtros (2)" })).toBeDefined();
   });
 
+  it("keeps the trigger and the view control in one group and gives the sort a full-width wrapping row below md (spec: Toolbar wraps on a small viewport)", () => {
+    render(
+      <SidebarProvider>
+        <CoffeeshopsToolbar count={0} sort="name-asc" texts={TEXTS} viewSlot={<div data-testid="view" />} />
+      </SidebarProvider>,
+    );
+    const start = screen.getByTestId("view").parentElement!;
+    expect(start.contains(screen.getByRole("button", { name: "Filtros" }))).toBe(true);
+    const toolbar = start.parentElement!;
+    const sort = toolbar.lastElementChild!;
+    expect(sort.contains(screen.getByRole("combobox", { name: "Ordenar por" }))).toBe(true);
+    expect(sort.classList.contains("w-full")).toBe(true);
+    expect(toolbar.classList.contains("flex-wrap")).toBe(true);
+  });
+
   it("writes the descending name order and drops the page (spec: Reverse order)", () => {
     renderToolbar(0);
     fireEvent.change(screen.getByRole("combobox", { name: "Ordenar por" }), {

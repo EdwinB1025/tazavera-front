@@ -21,16 +21,18 @@
  * and the flow's, so a completed flow settles this store.
  */
 import { useEffect, useSyncExternalStore } from "react";
-import type { Session, SessionUser } from "@/shared/api";
+import { useLocale } from "next-intl";
+import type { RegistrationToken, Session, SessionUser } from "@/shared/api";
 import {
   clearTokens,
   configureClient,
   getTokens,
+  keepRegistrationGrant,
   refreshTokens,
   request,
 } from "@/shared/api";
-import { DEFAULT_LOCALE, isSupportedLocale } from "@/shared/config/locales";
 import { configureSession, currentRoute, startSilent } from "../api/authorize";
+import { activeLocale, recordLocale } from "./active-locale";
 import { hasMarker, removeMarker } from "./flow";
 
 const LOADING: Session = { state: "loading" };
@@ -68,8 +70,13 @@ function settle(session: Session): void {
   for (const listener of [...listeners]) listener();
 }
 
-/** The current session: loading, anonymous, or authenticated with the user. */
+/**
+ * The current session: loading, anonymous, or authenticated with the user.
+ * It also records the page's locale for the auth flows
+ * (adopt-next-intl-routing design.md D7).
+ */
 export function useSession(): Session {
+  recordLocale(useLocale());
   useEffect(() => {
     start();
   }, []);
@@ -77,14 +84,22 @@ export function useSession(): Session {
 }
 
 /**
+ * The client-side navigation that opens the root of the active locale after
+ * sign out. The caller passes the App Router's `push`: a native
+ * `history.pushState` only updates the URL and would leave the previous page
+ * rendered (as `ReplaceRoute` of `../api/authorize` at `/callback`).
+ */
+export type OpenRoute = (href: string) => void;
+
+/**
  * Signs out; lands on the root of the active locale (design.md D1 and D5).
  * `POST /logout` carries the Bearer token and its answer is never consulted:
  * a `200`, a `401` when the token is already dead and any transport failure
  * all leave the local sign-out completed — tokens and marker cleared, the
- * session `anonymous`, the root of the active locale open — with no error
- * shown (spec: "Sign out").
+ * session `anonymous`, the root of the active locale open through
+ * `openRoute` — with no error shown (spec: "Sign out").
  */
-export function signOut(): void {
+export function signOut(openRoute: OpenRoute): void {
   void request("/logout", { method: "POST" })
     .catch(() => {
       // The server cannot be reached (spec: "The server cannot be reached").
@@ -93,14 +108,16 @@ export function signOut(): void {
       clearTokens();
       removeMarker();
       settle(ANONYMOUS);
-      window.history.pushState(null, "", localeRoot());
+      openRoute(localeRoot());
     });
 }
 
-/** The root of the active locale (design.md D5: where the user lands). */
+/**
+ * The root of the active locale (design.md D5: where the user lands), as
+ * `useSession()` records it (adopt-next-intl-routing design.md D7).
+ */
 function localeRoot(): string {
-  const segment = window.location.pathname.split("/")[1] ?? "";
-  return `/${isSupportedLocale(segment) ? segment : DEFAULT_LOCALE}`;
+  return `/${activeLocale()}`;
 }
 
 /** The session start of design.md D1, run at every consumer's mount. */
@@ -142,6 +159,30 @@ async function loadProfile(): Promise<void> {
     }
   })();
   return profileLoad;
+}
+
+/**
+ * Signs in with the `token` block of a registration's `201`
+ * (sign-in-after-registration design.md D3; spec "Sign-in from a registration
+ * grant"): the block is kept in memory and the session settles with
+ * `GET /user`, the post-exchange step of a completed popup sign-in. No flow
+ * record is touched and the marker is not set, so a reload ends the session.
+ * Resolves whether the session is authenticated; a refused block or a profile
+ * that cannot be loaded clears the tokens and ends `anonymous`. Never rejects.
+ */
+export async function signInWithRegistration(
+  token: RegistrationToken,
+): Promise<boolean> {
+  try {
+    keepRegistrationGrant(token);
+    await loadProfile();
+  } catch {
+    // The block is refused (design.md D1).
+  }
+  if (snapshot().state === "authenticated") return true;
+  clearTokens();
+  settle(ANONYMOUS);
+  return false;
 }
 
 /** The short pause before the one retry of a failed profile refresh (design.md D5). */
@@ -201,4 +242,8 @@ configureClient({
 configureSession({
   authenticated: loadProfile,
   anonymous: () => settle(ANONYMOUS),
+  currentUlid: () => {
+    const current = snapshot();
+    return current.state === "authenticated" ? current.user.ulid : undefined;
+  },
 });

@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
-import type { EvaluationItem } from "@/shared/api";
+import type { EvaluationItem, TaxonomyNode } from "@/shared/api";
 import { EvaluationSheet } from "./EvaluationSheet";
 import { EVALUATION, SHEET_TEXTS, TAXONOMIES } from "./sheet-fixtures";
 
@@ -9,9 +9,9 @@ import { EVALUATION, SHEET_TEXTS, TAXONOMIES } from "./sheet-fixtures";
  * spec "Read-only evaluation presentation"; tasks 3.1).
  */
 
-function renderSheet(evaluation: EvaluationItem = EVALUATION) {
+function renderSheet(evaluation: EvaluationItem = EVALUATION, taxonomies: TaxonomyNode[] = TAXONOMIES) {
   return render(
-    <EvaluationSheet evaluation={evaluation} taxonomies={TAXONOMIES} locale="en" texts={SHEET_TEXTS} />,
+    <EvaluationSheet evaluation={evaluation} taxonomies={taxonomies} locale="en" texts={SHEET_TEXTS} />,
   );
 }
 
@@ -60,7 +60,23 @@ describe("EvaluationSheet scales (spec: Intensity and preference values)", () =>
 
 describe("EvaluationSheet descriptors (spec: Descriptor blocks, An unresolved descriptor reference)", () => {
   it("groups the tastes into the five blocks by type with the empty text on empty blocks", () => {
-    renderSheet();
+    // Berry gains a level-2 child, chosen under fragrance (cascade-evaluation-descriptors D6).
+    const blackberry = {
+      ulid: "01JBLACKBERRY",
+      level: 2,
+      nameEn: "Blackberry",
+      nameEs: "Mora",
+      nameCa: "Móra",
+      color: "#7a1f35",
+      categories: ["aromatics"],
+      children: [],
+    };
+    const [fruity, ...rest] = TAXONOMIES;
+    const berry = { ...fruity!.children![0]!, children: [blackberry] };
+    renderSheet(
+      { ...EVALUATION, tastes: [...(EVALUATION.tastes ?? []), { ref: "01JBLACKBERRY", type: "fragrance" }] },
+      [{ ...fruity!, children: [berry] } as TaxonomyNode, ...rest],
+    );
     const descriptors = card("Descriptors");
     const groups = Array.from(descriptors.querySelectorAll("fieldset"));
     expect(groups.map((group) => group.querySelector("legend")?.textContent)).toEqual([
@@ -70,7 +86,8 @@ describe("EvaluationSheet descriptors (spec: Descriptor blocks, An unresolved de
       "Mouthfeel",
       "Defects",
     ]);
-    expect(within(groups[0]!).getByText("Berry")).toBeDefined();
+    expect(within(within(groups[0]!).getByRole("group", { name: "Fruity" })).getByText("Berry")).toBeDefined();
+    expect(within(within(groups[0]!).getByRole("group", { name: "Berry" })).getByText("Blackberry")).toBeDefined();
     expect(within(groups[2]!).getByText("Sweet")).toBeDefined();
     // The unresolved ref of Flavor / Aftertaste renders no badge.
     expect(within(groups[1]!).getByText("No descriptors.")).toBeDefined();

@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { DEFAULT_LOCALE, LOCALES } from "@/shared/config/locales";
+import { NextRequest, NextResponse } from "next/server";
+import createMiddleware from "next-intl/middleware";
+import { routing } from "@/shared/config/locales";
 import { NOMINATIM_ORIGIN } from "@/shared/lib/geocoding";
 
 /**
@@ -12,12 +12,40 @@ import { NOMINATIM_ORIGIN } from "@/shared/lib/geocoding";
 const COOP = "same-origin-allow-popups";
 
 /**
+ * Response security headers (app-shell "Response security headers"), set on
+ * every document response next to the CSP: no MIME sniffing, the referrer
+ * trimmed to the origin across origins, and only geolocation allowed — for
+ * the app's own origin, for the location features (the map tiles need no
+ * permission).
+ */
+const SECURITY_HEADERS: Record<string, string> = {
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Permissions-Policy":
+    "camera=(), microphone=(), payment=(), usb=(), geolocation=(self)",
+};
+
+/**
+ * next-intl's locale routing (adopt-next-intl-routing design.md D2): the
+ * routing definition's prefix, default locale and redirects, with no locale
+ * detection, cookie or alternate links.
+ */
+const handleLocale = createMiddleware(routing);
+
+function setSecurityHeaders(response: NextResponse) {
+  for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
+    response.headers.set(name, value);
+  }
+}
+
+/**
  * Front-wide proxy (Next 16 file convention; `middleware` is deprecated).
  *
- * Locale routing (design.md D2): a bare path is prefixed with the default
- * locale, the root URL redirects to it, and the matched locale is forwarded
- * upstream as `x-locale` so the root layout can set `<html lang>` (the proxy
- * passes information to the application through headers). `/callback` sits
+ * Locale routing (adopt-next-intl-routing design.md D2): the next-intl
+ * middleware prefixes a bare path with the default locale, redirects the root
+ * URL to it, and forwards the matched locale upstream, where `getLocale()`
+ * reads it. The proxy hands it a request that already carries the forwarded
+ * CSP headers and sets the response headers on whatever it answers. `/callback` sits
  * outside the locale redirect (`add-auth` design.md D11): it gets the
  * Content-Security-Policy below and nothing else, and framework and asset paths (`/_next/*`, any path with a file extension) are
  * excluded from the proxy itself so they are never prefixed with a locale.
@@ -35,7 +63,7 @@ const COOP = "same-origin-allow-popups";
  * `script-src` (React uses `eval` for debugging there).
  */
 export function proxy(request: NextRequest) {
-  const { pathname, search } = request.nextUrl;
+  const { pathname } = request.nextUrl;
 
   // Framework and asset paths are not application routes (design.md D2) and
   // are excluded from the proxy entirely — the same outcome as leaving them
@@ -79,40 +107,25 @@ export function proxy(request: NextRequest) {
       },
     });
     response.headers.set("Content-Security-Policy", cspHeader);
+    setSecurityHeaders(response);
     return response;
   }
 
-  const locale = LOCALES.find(
-    (candidate) =>
-      pathname === `/${candidate}` || pathname.startsWith(`/${candidate}/`),
-  );
-
-  // Locale routing (design.md D2): the root URL redirects to the default
-  // locale and a bare path is prefixed with it, so every application URL
-  // carries one of the supported locale prefixes (spec: "Route under a locale
-  // prefix", "Root URL").
-  if (locale === undefined) {
-    const target =
-      pathname === "/" ? `/${DEFAULT_LOCALE}` : `/${DEFAULT_LOCALE}${pathname}`;
-    const response = NextResponse.redirect(
-      new URL(`${target}${search}`, request.url),
-    );
-    response.headers.set("Content-Security-Policy", cspHeader);
-    response.headers.set("Cross-Origin-Opener-Policy", COOP);
-    return response;
-  }
-
+  // Locale routing (adopt-next-intl-routing design.md D2): the next-intl
+  // middleware receives a request carrying the forwarded nonce and policy,
+  // copies them into the request it forwards with the matched locale, and
+  // answers the redirect of the root URL and of a bare or unsupported-prefix
+  // path (spec: "Route under a locale prefix", "Root URL", "Unsupported
+  // locale"). Its response, redirect or not, gets the same headers.
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
-  requestHeaders.set("x-locale", locale);
   requestHeaders.set("Content-Security-Policy", cspHeader);
 
-  const response = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
+  const response = handleLocale(
+    new NextRequest(request, { headers: requestHeaders }),
+  );
   response.headers.set("Content-Security-Policy", cspHeader);
+  setSecurityHeaders(response);
   response.headers.set("Cross-Origin-Opener-Policy", COOP);
 
   return response;

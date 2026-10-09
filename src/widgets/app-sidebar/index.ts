@@ -6,11 +6,6 @@
  * `@/widgets/app-sidebar`.
  */
 export { AppSidebar } from "./ui/AppSidebar";
-export type { AppSidebarProps } from "./ui/AppSidebar";
 export { DefaultSidebar } from "./ui/DefaultSidebar";
 export { SidebarReopenControl } from "./ui/SidebarReopenControl";
 export { AppSidebarProvider } from "./ui/AppSidebarContext";
-export type {
-  AppSidebarContextValue,
-  AppSidebarProviderProps,
-} from "./ui/AppSidebarContext";

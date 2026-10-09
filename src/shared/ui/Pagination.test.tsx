@@ -234,6 +234,15 @@ describe("Pagination", () => {
     }
   });
 
+  it("wraps and shows only first, current and last with two ellipses below 768px (spec: Fits a narrow viewport)", () => {
+    const { container } = renderPagination({ currentPage: 50, lastPage: 99, path: "/es" });
+    const narrow = Array.from(container.querySelectorAll("li")).filter(
+      (item) => !item.classList.contains("max-md:hidden"),
+    );
+    expect(narrow.map((item) => item.textContent)).toEqual(["1", "…", "50", "…", "99"]);
+    expect(container.firstElementChild!.classList.contains("flex-wrap")).toBe(true);
+  });
+
   describe("Layout (design.md D6)", () => {
     it("is a nav that wraps and centres, 0.25rem apart and 0.5rem from md", () => {
       const { container } = renderPagination({

@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { Field, Textarea } from "@/shared/ui";
+import { Plus } from "@/shared/ui/icons";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -34,8 +35,9 @@ const OPEN_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
 
 /**
  * The optional note of an axis and part (design.md D14; spec "Notes"): closed
- * behind "Add note"; once open, a `Field` with a `Textarea` and the
- * remove-note control aligned to the end, which drops the note and its text.
+ * behind "Add note", with an `aria-hidden` `Plus` after its text (add-note-plus-icon
+ * design.md D1); once open, a `Field` with a `Textarea` and the remove-note
+ * control aligned to the end, which drops the note and its text.
  * Read-only, an existing note shows as `type-body` text under its label.
  */
 export function NoteField({
@@ -59,11 +61,12 @@ export function NoteField({
     return (
       <button
         type="button"
-        className={`${LINK_BUTTON_CLASSES} self-start`}
+        className={`${LINK_BUTTON_CLASSES} self-start inline-flex items-center gap-2`}
         disabled={disabled}
         onClick={() => onChange("")}
       >
         {addLabel}
+        <Plus className="size-4 shrink-0" aria-hidden="true" />
       </button>
     );
   }

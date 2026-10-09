@@ -43,9 +43,11 @@ const TEXTS = {
   brandLink: "texts.brandLink",
   myAccount: "texts.myAccount",
   security: "texts.security",
-  themeSelector: "texts.themeSelector",
+  themeToggleToDark: "texts.themeToggleToDark",
+  themeToggleToTraditional: "texts.themeToggleToTraditional",
   manageOfferings: "texts.manageOfferings",
   manageEvaluations: "texts.manageEvaluations",
+  exploreOfferings: "texts.exploreOfferings",
   signOut: "texts.signOut",
   navigationMenu: "texts.navigationMenu",
 };
@@ -67,6 +69,23 @@ function renderHeader(session: Session = ANONYMOUS, leading?: ReactNode) {
     />,
   );
   return { ...utils, onSignIn, onSignOut, onLocaleChange };
+}
+
+// Each header menu entry: a decorative icon before its text, the header menu
+// entry treatment and no inline-link look (add-user-menu-icons).
+function expectHeaderMenuEntries(entries: HTMLElement[]) {
+  expect(entries.length).toBeGreaterThan(0);
+  for (const entry of entries) {
+    const icon = entry.firstElementChild;
+    expect(icon?.tagName.toLowerCase(), entry.textContent ?? "").toBe("svg");
+    expect(icon?.getAttribute("aria-hidden")).toBe("true");
+    const tokens = entry.className.split(/\s+/);
+    expect(tokens).toEqual(
+      expect.arrayContaining(["type-navlist-item", "hover:text-nav-text-hover"]),
+    );
+    expect(tokens).not.toContain("underline");
+    expect(tokens).not.toContain("text-text-link");
+  }
 }
 
 describe("AppHeader, signed-out state", () => {
@@ -98,6 +117,10 @@ describe("AppHeader, signed-out state", () => {
     expect(screen.getByRole("button", { name: TEXTS.signIn }).className).not.toContain(
       "hidden",
     );
+    // the theme switch stays visible too (refine-header-aut)
+    expect(
+      screen.getByRole("button", { name: TEXTS.themeToggleToDark }).className,
+    ).not.toContain("hidden");
     // the navigation menu control shows below md and hides from md
     // (fix-production-aut-findings design.md D7)
     const menu = screen.getByRole("button", { name: TEXTS.navigationMenu });
@@ -123,20 +146,46 @@ describe("AppHeader, signed-out state", () => {
     // the group itself is never gated by a breakpoint (design.md D14: only
     // the navigation and the logotype form change at `md`)
     expect(left.className).not.toContain("hidden");
-    expect(left.className).not.toContain("md:");
   });
 
-  it("pushes the language selector and Sign in to the right edge as one group, after the left group", () => {
+  it("fits a small viewport (spec: Header fits a small viewport)", () => {
+    renderHeader(ANONYMOUS, <button type="button">sidebar</button>);
+    const header = screen.getByRole("banner");
+    const left = header.children[0] as HTMLElement;
+    // the selector keeps its name; its locale code is hidden visually below md
+    const language = screen.getByRole("button", { name: TEXTS.languageSelector });
+    expect(within(language).getByText("ES").className).toBe("sr-only md:not-sr-only");
+    // the left group tightens below md
+    expect(left.className.split(/\s+/)).toEqual(
+      expect.arrayContaining(["gap-2", "md:gap-4"]),
+    );
+    // the theme toggle keeps its full size
+    const theme = screen.getByRole("button", { name: TEXTS.themeToggleToDark });
+    expect(theme.className.split(/\s+/)).toEqual(
+      expect.arrayContaining(["shrink-0", "size-10"]),
+    );
+  });
+
+  it("pushes the language selector, the theme switch and Sign in to the right edge as one group, in that order, after the left group (spec: Header grouping on every viewport)", () => {
     renderHeader();
     const header = screen.getByRole("banner");
     expect(header.children).toHaveLength(2);
     const left = header.children[0] as HTMLElement;
     const right = header.children[1] as HTMLElement;
-    // one group holding both right-hand controls
+    // one group holding the right-hand controls, in order (refine-header-aut)
+    const language = within(right).getByRole("button", { name: TEXTS.languageSelector });
+    const theme = within(right).getByRole("button", { name: TEXTS.themeToggleToDark });
+    const signIn = within(right).getByRole("button", { name: TEXTS.signIn });
     expect(
-      within(right).getByRole("button", { name: TEXTS.languageSelector }),
-    ).toBeDefined();
-    expect(within(right).getByRole("button", { name: TEXTS.signIn })).toBeDefined();
+      language.compareDocumentPosition(theme) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      theme.compareDocumentPosition(signIn) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    // a tighter gap below md so the group fits at 375px
+    expect(right.className.split(/\s+/)).toEqual(
+      expect.arrayContaining(["gap-2", "md:gap-4"]),
+    );
     // in DOM order after the left group
     expect(
       left.compareDocumentPosition(right) & Node.DOCUMENT_POSITION_FOLLOWING,
@@ -145,7 +194,7 @@ describe("AppHeader, signed-out state", () => {
     expect(right.className).toContain("ml-auto");
     // ... on every viewport: the group itself is never gated by a breakpoint
     expect(right.className).not.toContain("hidden");
-    expect(right.className).not.toContain("md:");
+    expect(right.className).not.toMatch(/md:(hidden|flex|block)/);
   });
 
   it("carries focus-visible:focus-ring on every interactive control", () => {
@@ -312,6 +361,12 @@ describe("NavigationMenu (spec: Header brand and primary navigation; fix-product
       "page",
       null,
     ]);
+  });
+
+  it("shows a decorative icon and the header look on every entry (spec: Navigation menu entries carry icons and the header look)", () => {
+    renderAt();
+    fireEvent.pointerDown(screen.getByRole("button", { name: TEXTS.navigationMenu }));
+    expectHeaderMenuEntries(screen.getAllByRole("menuitem"));
   });
 });
 
@@ -640,12 +695,33 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
     expect(security.className).not.toContain("text-text-link");
   });
 
-  it("mounts the theme selector (spec: Theme selection)", () => {
+  it("opens the security entry in a popup window on a plain click and the tab does not navigate (open-security-pages-in-popup D4)", () => {
+    const open = vi.fn().mockReturnValue({ closed: false });
+    vi.stubGlobal("open", open);
+    try {
+      renderSignedIn("specialist");
+      openMenu();
+      const notPrevented = fireEvent.click(
+        screen.getByRole("menuitem", { name: TEXTS.security }),
+      );
+      expect(notPrevented).toBe(false);
+      expect(open).toHaveBeenCalledWith(
+        "https://api.tazavera.test/user/security",
+        "tazavera-security",
+        "popup",
+      );
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("shows the theme switch in the header and no theme selector in the menu (spec: Signed-in header and user menu)", () => {
     renderSignedIn("specialist");
-    openMenu();
     expect(
-      screen.getByRole("combobox", { name: TEXTS.themeSelector }),
+      screen.getByRole("button", { name: TEXTS.themeToggleToDark }),
     ).toBeDefined();
+    openMenu();
+    expect(screen.queryByRole("combobox")).toBeNull();
   });
 
   it("offers \"Manage offerings\" to /es/manage/offerings for a coffeeshop (spec: Management entry for a coffeeshop)", () => {
@@ -654,14 +730,19 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
     expect(
       screen.getByRole("menuitem", { name: TEXTS.manageOfferings }).getAttribute("href"),
     ).toBe("/es/manage/offerings");
+    // only a specialist gets the offerings entry (spec: Menu content)
+    expect(screen.queryByText(TEXTS.exploreOfferings)).toBeNull();
   });
 
-  it("offers \"Manage evaluations\" to /es/manage/evaluations for a specialist (spec: Management entry for a specialist)", () => {
+  it("offers \"Manage evaluations\" to /es/manage/evaluations followed by \"Explore offerings\" to /es/offerings for a specialist (spec: Management entry for a specialist)", () => {
     renderSignedIn("specialist");
     openMenu();
-    expect(
-      screen.getByRole("menuitem", { name: TEXTS.manageEvaluations }).getAttribute("href"),
-    ).toBe("/es/manage/evaluations");
+    const manage = screen.getByRole("menuitem", { name: TEXTS.manageEvaluations });
+    expect(manage.getAttribute("href")).toBe("/es/manage/evaluations");
+    const explore = screen.getByRole("menuitem", { name: TEXTS.exploreOfferings });
+    expect(explore.getAttribute("href")).toBe("/es/offerings");
+    const items = screen.getAllByRole("menuitem");
+    expect(items.indexOf(explore)).toBe(items.indexOf(manage) + 1);
   });
 
   it("offers the account entry and sign out with no management entry for any other role (spec: No management entry for the role)", () => {
@@ -673,5 +754,11 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
       screen.getByRole("menuitem", { name: TEXTS.myAccount }).getAttribute("href"),
     ).toBe("/es/account");
     expect(screen.getByRole("menuitem", { name: TEXTS.signOut })).toBeDefined();
+  });
+
+  it("shows a decorative icon and the header look on every entry (spec: Menu entries carry icons and the header look)", () => {
+    renderSignedIn("specialist");
+    openMenu();
+    expectHeaderMenuEntries(screen.getAllByRole("menuitem"));
   });
 });

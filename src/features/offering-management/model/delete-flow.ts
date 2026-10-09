@@ -8,10 +8,10 @@ import type { OwnOfferingsState } from "./own-offerings";
  * The single and bulk delete flows (design.md D5, D7; spec "Deleting
  * offerings"). A delete starts by opening its confirmation and sends nothing
  * until it is confirmed. While the request is pending the confirmation cannot
- * be cancelled. A success closes it and reports the number deleted; a failure
- * or a 422 keeps it open with its error so the confirm can be tried again; a
- * 403 keeps it open with the step-up (the identity check runs in a popup and
- * the user confirms again).
+ * be cancelled. A success closes it and reports the number deleted; a failure,
+ * a 422 or a 403 keeps it open with its error so the confirm can be tried
+ * again: the delete is a plain write with no identity check
+ * (drop-step-up-for-offerings).
  */
 
 // ─── State (declared before the hook) ───
@@ -20,7 +20,7 @@ export type DeleteTarget =
   | { kind: "one"; ulid: string }
   | { kind: "many"; ulids: string[] };
 
-export type DeleteError = "none" | "failed" | "step-up";
+export type DeleteError = "none" | "failed";
 
 export type DeleteFlow = {
   target: DeleteTarget | null;
@@ -60,14 +60,14 @@ export function useDeleteFlow({ onDeleted }: DeleteFlowOptions): DeleteFlow {
     setPending(true);
     const sent =
       target.kind === "one" ? deleteOffering(target.ulid) : deleteOfferings(target.ulids);
-    sent.then((outcome) => {
+    sent.then((result) => {
       setPending(false);
-      if (outcome === "ok") {
+      if (result.ok) {
         setTarget(null);
         setError("none");
         onDeleted(target.kind === "one" ? 1 : target.ulids.length);
       } else {
-        setError(outcome === "forbidden" ? "step-up" : "failed");
+        setError("failed");
       }
     });
   };

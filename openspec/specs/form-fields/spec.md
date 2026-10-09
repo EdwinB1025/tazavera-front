@@ -200,7 +200,7 @@ Every data-entry control SHALL take its colors and corner radii from semantic to
 - **THEN** verification fails and reports the missing token
 
 ### Requirement: Bean scale
-A bean scale SHALL let the user choose one affective score from 1 to 9 and show it as a row of nine bean marks whose filled marks run from the first up to the chosen score, the rest rendered empty. It SHALL present its group name above the row and the score as text beside the row, and SHALL accept an optional help text and an optional error message supplied by the consuming capability, marking a required score as required. A bean scale in read-only mode SHALL display a score without offering a choice.
+A bean scale SHALL let the user choose one affective score from 1 to 9 and show it as a row of nine bean marks whose filled marks run from the first up to the chosen score, the rest rendered empty. It SHALL present its group name above the row and the score as text beside the row, and SHALL accept an optional help text and an optional error message supplied by the consuming capability, marking a required score as required. A bean scale in read-only mode SHALL display a score without offering a choice. Each bean's lines SHALL keep one colour in every state; only the background behind the bean SHALL change between filled and empty.
 
 #### Scenario: Choosing a score
 - **WHEN** the user activates one of the nine beans
@@ -237,6 +237,14 @@ A bean scale SHALL let the user choose one affective score from 1 to 9 and show 
 #### Scenario: Read-only display
 - **WHEN** a bean scale displays a read-only score
 - **THEN** it renders as a meter over 0 to 9 that exposes its numeric value and announces the accessible value text the consuming capability supplied, offers no choice and no tab stop, fills the beans up to the whole part of the score, renders the next bean filled only up to the fraction of the score, and leaves the rest empty
+
+#### Scenario: The mark's background stays inside the bean
+- **WHEN** a bean renders
+- **THEN** its filled or empty colour shows only inside the bean's outline
+
+#### Scenario: The bean's lines keep one colour
+- **WHEN** a bean scale renders filled, empty and partly filled beans
+- **THEN** every bean's lines show the same colour, and only the background behind each bean differs between filled and empty
 
 ### Requirement: Intensity slider
 An intensity slider SHALL let the user choose one descriptive intensity from 0 to 15 in whole steps and show it as a slider track filled from the start up to the chosen value in the gradient from the low end to the high end of the scale. It SHALL present its label and the value text the consuming capability supplied in one header row, and the marks 0, 5, 10 and 15 with the three scale labels below the track. It SHALL accept an optional help text and an optional error message supplied by the consuming capability. With no value it SHALL show intensity 0, and in read-only mode it SHALL display an intensity without offering a choice.
@@ -342,3 +350,52 @@ A checkbox and the options of a radio group SHALL offer a facet-row presentation
 #### Scenario: Help and error aligned with the legend
 - **WHEN** a facet-row checkbox or radio group shows a help text or an error message
 - **THEN** each has 0.75rem of side padding, while in the default presentation they keep no side padding
+
+### Requirement: One field resolution for every field control
+Every data-entry control that binds to a field (text input, password input, select, textarea and checkbox) SHALL take its identifier, its description from the help text and error message, its invalid state and its required state through one shared resolution of the field it belongs to, so the controls cannot drift apart. A value set explicitly on the control SHALL always win over the value from the field. This requirement adds no behaviour: every control keeps the attributes, states and appearance the other requirements of this capability state.
+
+#### Scenario: Same binding across controls
+- **WHEN** a text input, a password input, a select and a textarea each render inside a field that is required and shows help text and an error message
+- **THEN** each control is identified by its field's label, is associated with the help text and the error message, and is exposed as invalid and required
+
+#### Scenario: Explicit value wins
+- **WHEN** a control inside a field is given its own description explicitly
+- **THEN** the control is associated with that description instead of the field's help text and error message
+
+#### Scenario: Checkbox keeps its own field
+- **WHEN** a checkbox renders with its own help text and error message
+- **THEN** it is associated with those messages and exposed as invalid through the same resolution, from its own texts
+
+### Requirement: Descriptor cascade
+A descriptor cascade SHALL be a descriptor chip group over a taxonomy tree of up to three levels (0, 1 and 2). Every level-0 node SHALL be a chip. A node's children SHALL render only while that node is chosen: the level-0 chips sit in untitled rows broken right after each chosen level-0 node that has children, followed by its children's row titled with its label; after that row, each chosen level-1 node with children is followed by a row of its level-2 children titled with its label, with no indent. Choosing a node SHALL add only that node; unchoosing a node SHALL remove it and every descendant from the chosen set, so a node stays chosen only while every ancestor is chosen, and each change SHALL report the chosen nodes in tree order. Revealed chips SHALL join the group's single tab stop and its arrow-key reading order. In read-only mode the cascade SHALL show each chosen node in the row it belongs to, a node's children's row showing whenever the node or one of its descendants is chosen, so a chosen child whose parent is not chosen sits under its parent's title.
+
+#### Scenario: Children hidden until the parent is chosen
+- **WHEN** a cascade renders with a node that has children and is not chosen
+- **THEN** none of that node's children render
+
+#### Scenario: Choosing reveals the children unchosen
+- **WHEN** the user chooses a node that has children
+- **THEN** the cascade reports that node added alone and, once given that value, its children render unchosen in a row titled with its label
+
+#### Scenario: Unchoosing removes the descendants
+- **WHEN** the user unchooses a node while some of its children and grandchildren are chosen
+- **THEN** the cascade reports none of them and, once given that value, their rows no longer render
+
+#### Scenario: Level-2 row after its parent's row
+- **WHEN** a chosen level-0 node has a chosen level-1 child that has children
+- **THEN** a row titled with the level-1 child's label, holding its level-2 children, renders right after the row that holds that child
+
+#### Scenario: Revealed chips join the keyboard order
+- **WHEN** a node's children render after it is chosen and the user moves with the arrow keys from that node's chip
+- **THEN** focus reaches the revealed chips in reading order within the same single tab stop
+
+#### Scenario: Read-only child without its chosen parent
+- **WHEN** a read-only cascade renders a chosen level-1 node whose level-0 parent is not chosen
+- **THEN** the child renders as a taxonomy badge in a row titled with its parent's label, and the parent renders no badge
+
+### Requirement: Server validation errors
+A documented `422` body — Laravel's `{"message", "errors": {key: [messages]}}` — SHALL be turned into per-field messages by one shared mapping: each key of `errors` whose first message is a non-empty text maps to the form field the consuming form names for that key, and keys the form names no field for are reported as unmatched. A form SHALL show each mapped field's first message as that field's error message (the "Field structure and association" error presentation: below the control, the control marked invalid and described by the message, never colour alone), as the API returns it, with no catalog text in its place. A form SHALL show its existing form-level error only when the body has a key that maps to no field or carries no usable message. A field's server message SHALL clear as soon as the user edits that field, and every server message SHALL clear when the form is submitted again.
+
+#### Scenario: A 422 maps to its fields
+- **WHEN** a `422` body carries messages for keys the form names fields for and for a key it names no field for
+- **THEN** each named field receives its first message, and the other key is reported as unmatched so the form-level error shows

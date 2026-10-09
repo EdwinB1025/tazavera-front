@@ -30,7 +30,7 @@ export const FORM_TEXTS: EvaluationFormTexts = {
   actions: {
     saveLabel: "Save draft",
     closeLabel: "Close evaluation",
-    savedMessage: "Draft saved.",
+    cancelLabel: "Cancel",
     closedMessage: "Evaluation closed.",
     incompleteMessage: "Complete every group before closing.",
     notYoursMessage: "This evaluation is not yours.",
@@ -93,6 +93,12 @@ export const FORM_TEXTS: EvaluationFormTexts = {
     removeNoteLabel: "Remove note",
     noteLabel: "Note",
     extrinsicNoteLabel: "General observation",
+    extrinsicLabels: {
+      farming: "Farming",
+      processing: "Processing",
+      trading: "Trading",
+      certifications: "Certifications",
+    },
   },
 };
 
@@ -125,6 +131,22 @@ export const OPEN_EVALUATION: EvaluationItem = {
   closedAt: null,
 };
 
+const AXES = ["fragrance", "aroma", "flavor", "aftertaste", "acidity", "sweetness", "mouthfeel"];
+const scores = (score: number, axes: string[]) =>
+  Object.fromEntries(axes.map((axis) => [axis, { score, note: null }]));
+
+/** An open evaluation the close rule accepts (refine-evaluation-flow D3). */
+export const COMPLETE_EVALUATION: EvaluationItem = {
+  ...OPEN_EVALUATION,
+  descriptive: scores(5, AXES),
+  affective: scores(6, [...AXES, "overall"]),
+  tastes: [
+    { ref: "01JTAXFLORAL0000000000000A", type: "aroma" },
+    { ref: "01JTAXSWEET00000000000000C", type: "main_tastes" },
+    { ref: "01JTAXSILKY00000000000000D", type: "mouthfeel" },
+  ],
+} as EvaluationItem;
+
 function taxon(ulid: string, level: number, name: string, categories: string[], children: TaxonomyNode[] = []): TaxonomyNode {
   return { ulid, level, nameEn: name, nameEs: name, nameCa: name, color: "#aa3355", categories, children: children as never };
 }
@@ -133,7 +155,7 @@ function taxon(ulid: string, level: number, name: string, categories: string[], 
 export const TAXONOMIES: TaxonomyNode[] = [
   taxon("01JTAXFLORAL0000000000000A", 0, "Floral", ["aromatics"]),
   taxon("01JTAXSWEET00000000000000C", 0, "Sweet", ["main_tastes"]),
-  taxon("01JTAXTEXTURE000000000000X", 0, "Texture", [], [
+  taxon("01JTAXTEXTURE000000000000X", 0, "Texture", ["mouthfeel"], [
     taxon("01JTAXSILKY00000000000000D", 1, "Silky", ["mouthfeel"]),
   ]),
   taxon("01JTAXMOULD00000000000000E", 0, "Mouldy", ["defects"]),

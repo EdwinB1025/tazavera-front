@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { renderHook, cleanup } from "@testing-library/react";
-import { DEFAULT_LOCALE } from "@/shared/config/locales";
+import { routing } from "@/shared/config/locales";
 
 /**
  * Starting a flow and completing it at the callback (design.md D3, D4, D5 and
@@ -24,6 +24,18 @@ import { DEFAULT_LOCALE } from "@/shared/config/locales";
  * the session tests of task 4.1; here the outcomes assert their flow data,
  * marker and opening.
  */
+
+/**
+ * The locale `useLocale()` answers under the provider: the cases start from
+ * routes under `/en` (adopt-next-intl-routing design.md D7: the sign-in flow
+ * takes the locale `useSession()` records). Test infrastructure only.
+ */
+const intl = vi.hoisted(() => ({ locale: "en" }));
+
+vi.mock("next-intl", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next-intl")>()),
+  useLocale: () => intl.locale,
+}));
 
 const API_URL = "https://api.tazavera.test";
 const APP_URL = "https://app.tazavera.test";
@@ -191,6 +203,10 @@ describe("signIn — the popup start of design.md D10 (spec: Sign in)", () => {
   it("opens {NEXT_PUBLIC_API_URL}/oauth/authorize with exactly the parameters of design.md D5, carrying the theme and the language of the route (spec: The authorization page carries the theme and language)", async () => {
     const { signIn, flow } = await load();
     locationMock.pathname = route;
+    // The route's locale reaches the flow through a mounted session
+    // consumer (adopt-next-intl-routing design.md D7).
+    const session = await import("../model/session");
+    const consumer = renderHook(() => session.useSession());
     document.cookie = "theme=dark";
 
     signIn(route);
@@ -222,6 +238,7 @@ describe("signIn — the popup start of design.md D10 (spec: Sign in)", () => {
     expect(params.code_challenge_method).toBe("S256");
     expect(params.theme).toBe("dark");
     expect(params.lang).toBe("en");
+    consumer.unmount();
   });
 
   it("navigates the current page to the authorization URL and stores the flow record with its return route when window.open returns null (spec: The popup cannot be opened)", async () => {
@@ -349,7 +366,7 @@ describe("completeCallback — the outcomes of design.md D4 (spec: Return throug
     expect(fetchMock).not.toHaveBeenCalled();
     expect(flow.readFlow()).toBeNull();
     expect(flow.hasMarker()).toBe(false);
-    expect(openedRoute()).toBe(`/${DEFAULT_LOCALE}`);
+    expect(openedRoute()).toBe(`/${routing.defaultLocale}`);
   });
 });
 
@@ -490,6 +507,7 @@ describe("requestProfileWrite — step-up in the popup of design.md D10 (spec: S
         "code_challenge_method",
         "theme",
         "lang",
+        "login_hint",
       ].sort(),
     );
     expect(params.scope).toBe("profile:write");
@@ -527,6 +545,7 @@ describe("requestProfileWrite — step-up in the popup of design.md D10 (spec: S
       expect(profileRequests()).toEqual([
         `Bearer ${GRANT.access_token}`,
         `Bearer ${WRITE_GRANT.access_token}`,
+        `Bearer ${WRITE_GRANT.access_token}`,
       ]);
     });
     await vi.waitFor(() => {
@@ -553,7 +572,7 @@ describe("requestProfileWrite — step-up in the popup of design.md D10 (spec: S
     await stepUp(loaded);
     const pending = loaded.flow.readHeldFlow()!;
 
-    answer({ error: "access_denied", state: pending.state });
+    answer({ error: "server_error", state: pending.state });
 
     await vi.waitFor(() => {
       expect(session.current).toEqual({ state: "anonymous" });
@@ -564,6 +583,138 @@ describe("requestProfileWrite — step-up in the popup of design.md D10 (spec: S
     expect(locationMock.assign).not.toHaveBeenCalled();
     expect(reloadMock).not.toHaveBeenCalled();
     expect(pushMock).not.toHaveBeenCalled();
+  });
+
+  /** The `POST /logout` requests so far, with the Bearer token each carried. */
+  function logoutRequests(): string[] {
+    return fetchMock.mock.calls
+      .filter(([input, init]) => String(input).endsWith("/logout") && init?.method === "POST")
+      .map(([, init]) => new Headers(init?.headers).get("authorization") ?? "");
+  }
+
+  /** `GET /user` answers `OTHER` for the write token, `PROFILE` otherwise. */
+  const OTHER = { ...PROFILE, ulid: "user-ulid-2", email: "other@example.test" };
+  function answerOtherUserForWriteToken(): void {
+    fetchMock.mockImplementation((input, init) => {
+      const url = String(input);
+      if (url.includes("/oauth/token")) return Promise.resolve(jsonResponse(tokenAnswer));
+      if (url.endsWith("/logout")) return Promise.resolve(jsonResponse({}));
+      const bearer = new Headers(init?.headers).get("authorization");
+      const user = bearer === `Bearer ${WRITE_GRANT.access_token}` ? OTHER : PROFILE;
+      return Promise.resolve(jsonResponse({ data: user }));
+    });
+  }
+
+  it("resolves granted once the same user completes the write sign in (spec: The step-up is granted)", async () => {
+    const loaded = await loadWithSession();
+    await signedIn(loaded);
+    const outcome = loaded.requestProfileWrite(route);
+    await vi.waitFor(() => {
+      expect(popup.location.assign).toHaveBeenCalledTimes(1);
+    });
+    tokenAnswer = WRITE_GRANT;
+
+    answer({ code: "code-2", state: loaded.flow.readHeldFlow()!.state });
+
+    expect(await outcome).toBe("granted");
+    expect(loaded.getTokens()?.access_token).toBe(WRITE_GRANT.access_token);
+  });
+
+  it("resolves cancelled and leaves tokens and session unchanged when the popup closes (spec: The popup is closed during the step-up)", async () => {
+    const loaded = await loadWithSession();
+    const session = await signedIn(loaded);
+    const outcome = loaded.requestProfileWrite(route);
+    await vi.waitFor(() => {
+      expect(popup.location.assign).toHaveBeenCalledTimes(1);
+    });
+
+    popup.closed = true;
+
+    expect(await outcome).toBe("cancelled");
+    expect(loaded.getTokens()?.access_token).toBe(GRANT.access_token);
+    expect(session.current).toEqual({ state: "authenticated", user: PROFILE });
+  });
+
+  it("keeps the previous tokens and session, ends the other user's web session and resolves other-account when another user signs in (spec: Another user completes the step-up)", async () => {
+    const loaded = await loadWithSession();
+    const session = await signedIn(loaded);
+    answerOtherUserForWriteToken();
+    const outcome = loaded.requestProfileWrite(route);
+    await vi.waitFor(() => {
+      expect(popup.location.assign).toHaveBeenCalledTimes(1);
+    });
+    tokenAnswer = WRITE_GRANT;
+
+    answer({ code: "code-2", state: loaded.flow.readHeldFlow()!.state });
+
+    expect(await outcome).toBe("other-account");
+    expect(logoutRequests()).toEqual([`Bearer ${WRITE_GRANT.access_token}`]);
+    expect(loaded.getTokens()?.access_token).toBe(GRANT.access_token);
+    expect(session.current).toEqual({ state: "authenticated", user: PROFILE });
+    expect(loaded.flow.hasMarker()).toBe(true);
+  });
+
+  it("carries login_hint with the session user's ulid (spec: The step-up names the expected user)", async () => {
+    const loaded = await loadWithSession();
+    await signedIn(loaded);
+
+    const url = await stepUp(loaded);
+
+    expect(url.searchParams.get("login_hint")).toBe(PROFILE.ulid);
+  });
+
+  it("keeps the previous tokens, marker and session and resolves other-account when the API answers access_denied (spec: The API refuses another user)", async () => {
+    const loaded = await loadWithSession();
+    const session = await signedIn(loaded);
+    const outcome = loaded.requestProfileWrite(route);
+    await vi.waitFor(() => {
+      expect(popup.location.assign).toHaveBeenCalledTimes(1);
+    });
+
+    answer({ error: "access_denied", state: loaded.flow.readHeldFlow()!.state });
+
+    expect(await outcome).toBe("other-account");
+    expect(loaded.getTokens()?.access_token).toBe(GRANT.access_token);
+    expect(loaded.flow.hasMarker()).toBe(true);
+    expect(session.current).toEqual({ state: "authenticated", user: PROFILE });
+  });
+
+  it("puts the read tokens back with no request when the action ends after a granted step-up (spec: The write tokens last only the action)", async () => {
+    const loaded = await loadWithSession();
+    await signedIn(loaded);
+    const outcome = loaded.requestProfileWrite(route);
+    await vi.waitFor(() => {
+      expect(popup.location.assign).toHaveBeenCalledTimes(1);
+    });
+    tokenAnswer = WRITE_GRANT;
+    answer({ code: "code-2", state: loaded.flow.readHeldFlow()!.state });
+    expect(await outcome).toBe("granted");
+    const requestsBefore = fetchMock.mock.calls.length;
+
+    loaded.endProfileWrite();
+
+    expect(loaded.getTokens()).toEqual(GRANT);
+    expect(fetchMock.mock.calls).toHaveLength(requestsBefore);
+  });
+
+  it("ends the other user's web session and the session anonymous at the callback when another user completes a full-page step-up (spec: Another user completes the step-up after a full-page redirect)", async () => {
+    const loaded = await loadWithSession();
+    answerOtherUserForWriteToken();
+    tokenAnswer = WRITE_GRANT;
+    loaded.flow.setMarker();
+    loaded.flow.saveFlow({
+      verifier: "verifier-2",
+      state: "state-2",
+      returnRoute: route,
+      expectedUlid: PROFILE.ulid,
+    });
+
+    await loaded.completeCallback({ code: "code-2", state: "state-2" }, replaceRouteMock);
+
+    expect(logoutRequests()).toEqual([`Bearer ${WRITE_GRANT.access_token}`]);
+    expect(loaded.getTokens()).toBeNull();
+    expect(loaded.flow.hasMarker()).toBe(false);
+    expect(openedRoute()).toBe(route);
   });
 });
 

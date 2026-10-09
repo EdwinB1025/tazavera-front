@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useSession } from "@/features/auth";
+import type { Session } from "@/shared/api";
 import { RouteButton } from "@/shared/ui";
 
 // ─── UI-specific types (declared before the component) ───
@@ -11,6 +11,8 @@ export type EvaluateLinkTexts = {
 };
 
 export type EvaluateLinkProps = {
+  /** The viewer's session, from the caller. */
+  session: Session;
   /** The offering's `ulid`, from the card's actions slot. */
   ulid: string;
   locale: string;
@@ -22,9 +24,9 @@ export type EvaluateLinkProps = {
  * action on the offering card"): an action button opening the new form of the
  * offering for a signed-in specialist (fix-production-aut-findings design.md
  * D4), and nothing for anyone else, so the card itself keeps no auth knowledge.
+ * The session comes from the caller.
  */
-export function EvaluateLink({ ulid, locale, texts }: EvaluateLinkProps): ReactNode {
-  const session = useSession();
+export function EvaluateLink({ session, ulid, locale, texts }: EvaluateLinkProps): ReactNode {
   if (session.state !== "authenticated" || session.user.role !== "specialist") {
     return null;
   }

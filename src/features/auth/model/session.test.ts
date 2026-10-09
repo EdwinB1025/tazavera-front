@@ -34,6 +34,16 @@ import type { Session } from "@/shared/api";
  * encode it.
  */
 
+/**
+ * The locale `useLocale()` answers under the provider: the cases start from
+ * routes under `/en` (adopt-next-intl-routing design.md D7: sign out lands on
+ * the locale `useSession()` records). Test infrastructure only.
+ */
+vi.mock("next-intl", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next-intl")>()),
+  useLocale: () => "en",
+}));
+
 const API_URL = "https://api.tazavera.test";
 const APP_URL = "https://app.tazavera.test";
 const CLIENT_ID = "client-ulid-1";
@@ -309,7 +319,7 @@ describe("silent re-authentication (spec: Silent re-authentication)", () => {
     const seen = consume(loaded);
     await completeSignIn(loaded);
     fetchMock.mockResolvedValue(jsonResponse({ message: "logout successfully." }));
-    loaded.signOut();
+    loaded.signOut(() => {});
     await vi.waitFor(() => {
       expect(seen.current()).toEqual({ state: "anonymous" });
     });
@@ -326,7 +336,7 @@ describe("silent re-authentication (spec: Silent re-authentication)", () => {
 });
 
 describe("sign out (spec: Sign out)", () => {
-  it("posts POST /logout with the Bearer token, clears the in-memory tokens and the marker, ends anonymous and opens the root of the active locale (spec: Signing out)", async () => {
+  it("posts POST /logout with the Bearer token, clears the in-memory tokens and the marker, ends anonymous and opens the root of the active locale through the App Router (spec: Signing out)", async () => {
     const loaded = await load();
     const seen = consume(loaded);
     await completeSignIn(loaded);
@@ -334,8 +344,9 @@ describe("sign out (spec: Sign out)", () => {
     fetchMock.mockReset();
     fetchMock.mockResolvedValue(jsonResponse({ message: "logout successfully." }));
     pushMock.mockClear();
+    const openRoute = vi.fn<(href: string) => void>();
 
-    loaded.signOut();
+    loaded.signOut(openRoute);
 
     await vi.waitFor(() => {
       expect(seen.current()).toEqual({ state: "anonymous" });
@@ -348,8 +359,8 @@ describe("sign out (spec: Sign out)", () => {
     );
     expect(loaded.getTokens()).toBeNull();
     expect(loaded.flow.hasMarker()).toBe(false);
-    expect(pushMock).toHaveBeenCalledTimes(1);
-    expect(pushMock).toHaveBeenCalledWith(null, "", "/en");
+    expect(openRoute).toHaveBeenCalledExactlyOnceWith("/en");
+    expect(pushMock).not.toHaveBeenCalled();
   });
 
   it("completes the local sign out with no error shown when the request fails (spec: The server cannot be reached)", async () => {
@@ -359,8 +370,9 @@ describe("sign out (spec: Sign out)", () => {
     fetchMock.mockReset();
     fetchMock.mockRejectedValue(new Error("the server cannot be reached"));
     pushMock.mockClear();
+    const openRoute = vi.fn<(href: string) => void>();
 
-    loaded.signOut();
+    loaded.signOut(openRoute);
 
     // All the local parts still complete and the state carries no error text.
     await vi.waitFor(() => {
@@ -370,8 +382,8 @@ describe("sign out (spec: Sign out)", () => {
     expect(String(fetchMock.mock.calls[0]![0])).toBe(`${API_URL}/logout`);
     expect(loaded.getTokens()).toBeNull();
     expect(loaded.flow.hasMarker()).toBe(false);
-    expect(pushMock).toHaveBeenCalledTimes(1);
-    expect(pushMock).toHaveBeenCalledWith(null, "", "/en");
+    expect(openRoute).toHaveBeenCalledExactlyOnceWith("/en");
+    expect(pushMock).not.toHaveBeenCalled();
   });
 });
 
@@ -449,5 +461,45 @@ describe("profile refresh (spec: Session states and profile; design.md D5)", () 
 
     expect(profileRequests()).toHaveLength(2);
     expect(seen.current()).toEqual({ state: "authenticated", user: PROFILE });
+  });
+});
+
+describe("sign-in from a registration grant (spec: Sign-in from a registration grant)", () => {
+  it("keeps the block in memory, settles the session with GET /user and sets no marker (spec: Signing in with a registration grant)", async () => {
+    const loaded = await load();
+    const { signInWithRegistration } = await import("@/features/auth");
+    const seen = consume(loaded);
+    fetchMock.mockResolvedValue(jsonResponse({ data: PROFILE }));
+
+    await expect(signInWithRegistration(GRANT)).resolves.toBe(true);
+
+    const [input, init] = fetchMock.mock.calls[0]!;
+    expect(String(input)).toBe(`${API_URL}/user`);
+    expect(new Headers(init?.headers).get("Authorization")).toBe("Bearer access-1");
+    expect(seen.current()).toEqual({ state: "authenticated", user: PROFILE });
+    expect(loaded.getTokens()).toEqual(GRANT);
+    expect(localStorage.length).toBe(0);
+    expect(sessionStorage.length).toBe(0);
+  });
+
+  it("ends anonymous with no tokens and no marker when the block is refused or the profile cannot be loaded (spec: A registration grant that cannot sign in)", async () => {
+    for (const [block, answer] of [
+      [{ ...GRANT, expires_in: "3600" }, () => Promise.resolve(jsonResponse({ data: PROFILE }))],
+      [GRANT, () => Promise.reject(new Error("the profile cannot be loaded"))],
+    ] as const) {
+      vi.resetModules();
+      const loaded = await load();
+      const { signInWithRegistration } = await import("@/features/auth");
+      const seen = consume(loaded);
+      fetchMock.mockReset();
+      fetchMock.mockImplementation(answer);
+
+      await expect(signInWithRegistration(block as typeof GRANT)).resolves.toBe(false);
+
+      expect(seen.current()).toEqual({ state: "anonymous" });
+      expect(loaded.getTokens()).toBeNull();
+      expect(localStorage.length).toBe(0);
+      cleanup();
+    }
   });
 });

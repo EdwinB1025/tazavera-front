@@ -1,5 +1,9 @@
-import type { ContactCreatePayload } from "@/shared/api";
-import type { ContactFieldErrors, ContactFieldValues } from "@/entities/contact";
+import type { Contact, ContactCreatePayload } from "@/shared/api";
+import type {
+  ContactFieldErrors,
+  ContactFieldKey,
+  ContactFieldValues,
+} from "@/entities/contact";
 import { isValidEmail } from "@/entities/contact";
 
 // ─── UI-specific types (declared before the functions) ───
@@ -9,6 +13,28 @@ export type ContactCheckTexts = {
   emailFormatError: string;
   urlFormatError: string;
 };
+
+/** The add form's values when it opens. */
+export const EMPTY_CONTACT_VALUES: ContactFieldValues = {
+  address: "",
+  postalCode: "",
+  city: "",
+  country: "",
+  phone: "",
+  email: "",
+  web: "",
+  social: "",
+};
+
+/** The contact fields in form order. */
+export const CONTACT_FIELD_ORDER = Object.keys(
+  EMPTY_CONTACT_VALUES,
+) as ContactFieldKey[];
+
+/** A contact with every field null or absent counts as none (design.md D3). */
+export function isEmptyContact(contact: Contact): boolean {
+  return CONTACT_FIELD_ORDER.every((key) => contact[key] == null);
+}
 
 /**
  * The contact form's client checks (spec "Contact details form"; design.md

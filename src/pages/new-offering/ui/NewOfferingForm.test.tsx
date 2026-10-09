@@ -12,6 +12,8 @@ const mocks = vi.hoisted(() => ({
   request: vi.fn(),
   publicRequest: vi.fn(),
   notFound: vi.fn(),
+  // Cancel is a route button (render-navigation-actions-as-buttons).
+  push: vi.fn(),
 }));
 vi.mock("@/features/auth", () => ({
   useSession: () => mocks.session,
@@ -22,7 +24,10 @@ vi.mock("@/shared/api", () => ({
   request: mocks.request,
   publicRequest: mocks.publicRequest,
 }));
-vi.mock("next/navigation", () => ({ notFound: mocks.notFound }));
+vi.mock("next/navigation", () => ({
+  notFound: mocks.notFound,
+  useRouter: () => ({ push: mocks.push }),
+}));
 
 import { NewOfferingForm } from "./NewOfferingForm";
 
@@ -77,8 +82,6 @@ const TEXTS = {
   createError: "The offerings could not be created. Check the data and try again.",
   createdStatus: "Offerings created:",
   viewMyOfferings: "View my offerings",
-  stepUpMessage: "To continue, confirm your identity.",
-  stepUpLabel: "Confirm your identity",
 };
 
 const ROUTE = "/en/manage/offerings/new";
@@ -244,23 +247,35 @@ describe("NewOfferingForm — create (design.md D5, D10)", () => {
     expect(screen.queryByText("Rejected")).toBeNull();
   });
 
-  it("on 403 the single alert region holds the step-up text and action, values kept", async () => {
+  it("The create names the inventory field: a 422 message shows under it and clears on a new choice", async () => {
+    createAnswer = async () =>
+      jsonResponse(422, { message: "m", errors: { coffeeInventoryId: ["fx-inventory-invalid"] } });
+    renderForm();
+    await chooseMirador();
+    await submit();
+    expect(input().getAttribute("aria-invalid")).toBe("true");
+    const describedBy = (input().getAttribute("aria-describedby") ?? "").split(" ");
+    expect(describedBy.map((id) => document.getElementById(id)?.textContent)).toContain(
+      "fx-inventory-invalid",
+    );
+    expect(screen.queryByRole("alert")).toBeNull();
+
+    await chooseMirador();
+    expect(screen.queryByText("fx-inventory-invalid")).toBeNull();
+  });
+
+  it("on a 403 the form error shows and the chosen values are kept, with no step-up", async () => {
     createAnswer = async () => jsonResponse(403, { message: "Forbidden" });
     renderForm();
     await chooseMirador();
     await submit();
     const alerts = screen.getAllByRole("alert");
     expect(alerts).toHaveLength(1);
-    const region = alerts[0]!;
-    expect(region.textContent).toContain(TEXTS.stepUpMessage);
-    const action = within(region).getByRole("button", { name: TEXTS.stepUpLabel });
-    // Neither the text nor the action carries a role of its own.
-    expect(region.querySelectorAll("[role]")).toHaveLength(0);
+    expect(createCalls()).toHaveLength(1);
+    expect(alerts[0]!.textContent).toBe(TEXTS.createError);
     expect(input().value).toBe("Huila El Mirador");
-    fireEvent.click(action);
-    expect(mocks.requestProfileWrite).toHaveBeenCalledTimes(1);
-    expect(mocks.requestProfileWrite).toHaveBeenCalledWith(ROUTE);
-    expect(input().value).toBe("Huila El Mirador");
+    expect(screen.queryByRole("button", { name: "Confirm your identity" })).toBeNull();
+    expect(mocks.requestProfileWrite).not.toHaveBeenCalled();
   });
 });
 
@@ -371,10 +386,15 @@ describe("NewOfferingForm — section card panel (design.md D15)", () => {
       "rounded-container",
       "shadow-lg",
       "w-full",
-      "md:max-w-160",
     ]) {
       expect(card!.classList.contains(cls), cls).toBe(true);
     }
+    // The card fills the container; its content is capped from `md`.
+    expect(card!.classList.contains("md:max-w-160")).toBe(false);
+    const content = form!.parentElement!;
+    expect(content.classList.contains("md:max-w-160")).toBe(true);
+    expect(content.classList.contains("w-full")).toBe(true);
+    expect(content.classList.contains("mx-auto")).toBe(false);
     expect(card!.classList.contains("border-l-4")).toBe(false);
     // No header band.
     expect(card!.querySelector(".bg-surface-section")).toBeNull();
@@ -396,5 +416,16 @@ describe("NewOfferingForm — section card panel (design.md D15)", () => {
     mocks.session = { state: "loading" };
     const { container } = renderForm();
     expectSectionCardPanel(container);
+  });
+});
+
+describe("NewOfferingForm — cancelling (add-form-cancel-actions design.md D4)", () => {
+  it("Cancel leaves for the list", async () => {
+    await renderLoaded();
+    const cancel = screen.getByRole("button", { name: TEXTS.cancelLabel });
+    expect(submitButton().nextElementSibling).toBe(cancel);
+    fireEvent.click(cancel);
+    expect(mocks.push).toHaveBeenCalledWith("/en/manage/offerings");
+    expect(createCalls()).toHaveLength(0);
   });
 });

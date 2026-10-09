@@ -12,4 +12,4 @@ export type ListState =
   | { status: "ready"; locations: UserLocation[] };
 
 /** The form's write state (design.md D4). */
-export type SubmitState = "idle" | "submitting" | "error" | "step-up";
+export type SubmitState = "idle" | "submitting" | "error";

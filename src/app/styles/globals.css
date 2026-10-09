@@ -206,7 +206,6 @@
     --color-evaluation-rating-commercial: color-mix(in srgb, var(--color-score-gold) 45%, transparent);
     --color-evaluation-bean-on: color-mix(in srgb, var(--color-oxblood-900) 80%, transparent);
     --color-evaluation-bean-off: var(--color-moss-400);
-    --color-evaluation-bean-mark-on: var(--color-cream-100);
     --color-evaluation-bean-mark-off: var(--color-brown-900);
     --color-evaluation-slider-track: var(--color-oxblood-300);
     --color-evaluation-slider-start: var(--color-moss-400);
@@ -250,6 +249,18 @@
     --radius-container: 16px;
     --radius-field: 8px;
     --radius-check: 4px;
+}
+
+/* =========================================================
+   TAZAVERA — ACTION WIDTH TOKENS (unify-action-button-widths D1)
+   The minimum width of a labelled action button per size, the same in
+   both themes. Tailwind reads --container-* for min-w-*, generating
+   min-w-action-sm and min-w-action-base.
+   ========================================================= */
+
+@theme {
+    --container-action-sm: 7.5rem;
+    --container-action-base: 10rem;
 }
 
 /* =========================================================
@@ -454,7 +465,6 @@
         --color-evaluation-rating-commercial: color-mix(in srgb, var(--color-score-gold) 30%, transparent);
         --color-evaluation-bean-on: var(--color-night-oxblood-600);
         --color-evaluation-bean-off: var(--color-night-moss-800);
-        --color-evaluation-bean-mark-on: var(--color-night-petrol-950);
         --color-evaluation-bean-mark-off: var(--color-night-sage-100);
         --color-evaluation-slider-track: var(--color-night-oxblood-950);
         --color-evaluation-slider-start: var(--color-night-moss-600);
@@ -787,6 +797,7 @@
     --color-text-strong: var(--color-nav-text-dark);
     --color-text-placeholder: var(--color-text-placeholder-inverse);
     --color-border-strong: var(--color-border-inverse);
+    --color-border-muted: var(--color-border-inverse);
     --color-feedback-error: var(--color-feedback-error-inverse);
     --color-focus-ring: var(--color-focus-ring-inverse);
     --color-focus-offset: var(--color-focus-offset-inverse);
@@ -801,4 +812,16 @@
 
 [data-theme="dark"] [data-taxonomy] {
     color: var(--taxonomy-label-dark);
+}
+
+/* ─── Taxonomy badge label on the sidebar (refine-offering-facets-aut D2) ───
+   Inside the inverse variant the badge sits on the sidebar surface, so the
+   label chosen over that surface applies. The first rule wins over the dark
+   rule above by source order; the second is more specific than both. */
+.variant-inverse [data-taxonomy] {
+    color: var(--taxonomy-label-inverse);
+}
+
+[data-theme="dark"] .variant-inverse [data-taxonomy] {
+    color: var(--taxonomy-label-inverse-dark);
 }

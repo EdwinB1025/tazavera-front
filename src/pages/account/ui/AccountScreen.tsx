@@ -24,28 +24,27 @@ export function AccountScreen({ locale }: AccountScreenProps): ReactNode {
     signedOutText: catalog.signedOutText,
     signIn: catalog.signIn,
     profileHeading: catalog.profileHeading,
+    editProfileHeading: catalog.editProfileHeading,
     profileDescription: catalog.profileDescription,
     roleLabel: catalog.roleLabel,
     nameLabel: catalog.nameLabel,
     surnameLabel: catalog.surnameLabel,
     emailLabel: catalog.emailLabel,
+    emailVerificationLabel: catalog.emailVerificationLabel,
+    emailVerified: catalog.emailVerified,
+    emailNotVerified: catalog.emailNotVerified,
     emailFormatError: catalog.emailFormatError,
     save: catalog.save,
     profileUpdated: catalog.profileUpdated,
-    passwordHeading: catalog.passwordHeading,
-    currentPasswordLabel: catalog.currentPasswordLabel,
-    newPasswordLabel: catalog.newPasswordLabel,
-    passwordConfirmationLabel: catalog.passwordConfirmationLabel,
-    passwordHelp: catalog.passwordHelp,
-    showPassword: catalog.showPassword,
-    hidePassword: catalog.hidePassword,
     requiredError: catalog.requiredError,
-    passwordMismatchError: catalog.passwordMismatchError,
-    forgotPasswordLink: catalog.forgotPasswordLink,
-    passwordUpdated: catalog.passwordUpdated,
     securityHeading: catalog.securityHeading,
     securityDescription: catalog.securityDescription,
-    securityLink: catalog.securityLink,
+    changePassword: catalog.changePassword,
+    twoFactor: catalog.twoFactor,
+    passkeys: catalog.passkeys,
+    verifyEmail: catalog.verifyEmail,
+    emailVerifiedStatus: catalog.emailVerifiedStatus,
+    done: catalog.done,
     dangerZoneHeading: catalog.dangerZoneHeading,
     deactivateHeading: catalog.deactivateHeading,
     deactivateText: catalog.deactivateText,
@@ -59,6 +58,7 @@ export function AccountScreen({ locale }: AccountScreenProps): ReactNode {
     genericError: catalog.genericError,
     stepUpText: catalog.stepUpText,
     stepUpButton: catalog.stepUpButton,
+    stepUpOtherAccount: catalog.stepUpOtherAccount,
     contactHeading: catalog.contactHeading,
     contactDescription: catalog.contactDescription,
     contactEmptyText: catalog.contactEmptyText,
@@ -81,7 +81,7 @@ export function AccountScreen({ locale }: AccountScreenProps): ReactNode {
   return (
     <div className="flex-1">
       <PageSection surface="page" containerClassName="flex flex-col">
-        <div className="flex w-full max-w-lg flex-col gap-8">
+        <div className="flex w-full flex-col gap-8">
           <div className="flex flex-col gap-2">
             <h1 className="type-heading">{catalog.accountTitle}</h1>
             <p className="type-body">{catalog.accountIntro}</p>

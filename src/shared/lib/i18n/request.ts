@@ -1,23 +1,22 @@
+import { hasLocale } from "next-intl";
 import { getRequestConfig } from "next-intl/server";
-import { DEFAULT_LOCALE, isSupportedLocale } from "@/shared/config/locales";
-import { getCatalogs } from "./messages";
+import { routing } from "@/shared/config/locales";
 
 /**
- * next-intl v4 request configuration (design.md D10).
+ * next-intl v4 request configuration (design.md D10; adopt-next-intl-routing
+ * design.md D4).
  *
- * Resolves the locale of the request against the supported locales and loads
- * its catalogs; a locale the application does not support resolves to the
- * default. Components never call the translation API: screens read an area's
- * catalog through `./messages` and pass the texts down as props.
+ * Resolves the locale the middleware of `proxy.ts` forwards against the
+ * supported locales; a missing or unsupported locale (`/callback`, which no
+ * middleware routes) resolves to the default. It loads no catalogs: screens
+ * read an area's catalog through `./messages` and pass the texts down as
+ * props, and components never call the translation API.
  */
 export default getRequestConfig(async ({ requestLocale }) => {
   const requested = await requestLocale;
-  const locale =
-    requested != null && isSupportedLocale(requested)
-      ? requested
-      : DEFAULT_LOCALE;
   return {
-    locale,
-    messages: getCatalogs(locale),
+    locale: hasLocale(routing.locales, requested)
+      ? requested
+      : routing.defaultLocale,
   };
 });

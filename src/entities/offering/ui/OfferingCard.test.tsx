@@ -16,7 +16,8 @@ afterEach(() => {
  * OfferingCard tests (design.md D4's card field mapping and D8; the landing
  * spec "Offering card content" — "Score and rating tier", "No score", "Origin
  * line skips null values", "Footer counts" — and
- * "Taxonomy badges on the offering card" — "Rows by level"). The actions slot
+ * "Taxonomy badge trees on the offering card" — "Nested trees", "Trees side
+ * by side"; nest-card-taste-notes design.md D2, D3). The actions slot
  * cases cover replace-offering-card-session's design.md D1 and the spec
  * "Offering card actions" — "Consumer actions after View", "No consumer
  * actions"; since fix-production-aut-findings (design.md D3) the card renders
@@ -65,15 +66,48 @@ const TWO_ACTIONS = (
   </>
 );
 
-// ─── Resolved taxonomy badge data (design.md D5 and D8: the labels, colors
-// and levels arrive resolved) ───────────────────────────────────────────────
+// ─── Resolved taxonomy badge tree (nest-card-taste-notes design.md D1: the
+// labels, colors and levels arrive resolved, nested as the concordance) ─────
 
-type ResolvedTaxonomyBadge = { label: string; color: string; level: 0 | 1 | 2 };
+type ResolvedTaxonomyBadge = {
+  ref: string;
+  label: string;
+  color: string;
+  level: 0 | 1 | 2;
+  children: ResolvedTaxonomyBadge[];
+};
 
 const TAXONOMIES: ResolvedTaxonomyBadge[] = [
-  { label: "Floral", color: "#336699", level: 0 },
-  { label: "Jazmin", color: "#000000", level: 1 },
-  { label: "Bergamota", color: "#FFFFFF", level: 2 },
+  {
+    ref: "01JTAXN0DE0000000000000001",
+    label: "Floral",
+    color: "#336699",
+    level: 0,
+    children: [
+      {
+        ref: "01JTAXN0DE0000000000000002",
+        label: "Jazmin",
+        color: "#000000",
+        level: 1,
+        children: [
+          {
+            ref: "01JTAXN0DE0000000000000003",
+            label: "Bergamota",
+            color: "#FFFFFF",
+            level: 2,
+            children: [],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    ref: "01JTAXN0DE0000000000000004",
+    label: "Frutal",
+    color: "#D9345A",
+    level: 0,
+    children: [],
+  },
 ];
 
 // ─── Offering fixture (design.md D4's mapping table) ────────────────────────
@@ -260,20 +294,35 @@ describe("OfferingCard", () => {
     });
   });
 
-  describe("Taxonomy badge rows (spec: 'Rows by level'; design.md D8)", () => {
-    it("renders the resolved badges in three rows by level, each row carrying flex-wrap", () => {
-      const { container } = renderCard();
-      // The rows are found by their `flex-wrap` token inside the content
-      // region: a row without it does not show up here and the count below
-      // fails (design.md D8: each row carries `flex-wrap` so no row overflows
-      // the card below `md`). The score row and the footer wrap too (D14), so
-      // the search is scoped to the region that holds the rows.
-      const content = container.querySelector("h3")!.parentElement!;
-      const rows = elementsWith(content, "flex-wrap");
-      expect(rows).toHaveLength(3);
-      expect((rows[0].textContent ?? "").includes("Floral")).toBe(true);
-      expect((rows[1].textContent ?? "").includes("Jazmin")).toBe(true);
-      expect((rows[2].textContent ?? "").includes("Bergamota")).toBe(true);
+  describe("Taxonomy badge trees (nest-card-taste-notes design.md D2, D3)", () => {
+    it("nests each child list in its parent's item, indented, the level-1 column behind a connector (spec: 'Nested trees')", () => {
+      renderCard();
+      const floral = screen.getByText("Floral").closest("li")!;
+      const jazmin = screen.getByText("Jazmin").closest("li")!;
+      const bergamota = screen.getByText("Bergamota").closest("li")!;
+      const column = jazmin.parentElement!;
+      expect(column.parentElement).toBe(floral);
+      expect(column.getAttribute("role")).toBe("list");
+      expect(classTokens(column)).toEqual(
+        expect.arrayContaining(["ml-5", "border-l", "border-border-subtle"]),
+      );
+      const row = bergamota.parentElement!;
+      expect(row.parentElement).toBe(jazmin);
+      expect(row.getAttribute("role")).toBe("list");
+      expect(classTokens(row)).toEqual(
+        expect.arrayContaining(["ml-5", "flex-wrap"]),
+      );
+    });
+
+    it("renders one tree per top-level note in one wrapping list (spec: 'Trees side by side')", () => {
+      renderCard();
+      const floral = screen.getByText("Floral").closest("li")!;
+      const frutal = screen.getByText("Frutal").closest("li")!;
+      const trees = floral.parentElement!;
+      expect(frutal.parentElement).toBe(trees);
+      expect(trees.children).toHaveLength(2);
+      expect(trees.getAttribute("role")).toBe("list");
+      expect(classTokens(trees)).toContain("flex-wrap");
     });
   });
 
@@ -308,7 +357,7 @@ describe("OfferingCard", () => {
       const action = screen.getByRole("link", { name: ACTION_LABEL });
       const group = action.parentElement!;
       expect(classTokens(group)).toEqual(
-        expect.arrayContaining(["ml-auto", "flex", "gap-4"]),
+        expect.arrayContaining(["grid-cols-2", "md:justify-end"]),
       );
     });
 
@@ -356,7 +405,7 @@ describe("OfferingCard", () => {
         expect.arrayContaining(["flex", "flex-wrap", "gap-4"]),
       );
       expect(classTokens(links)).toEqual(
-        expect.arrayContaining(["ml-auto", "flex", "gap-4"]),
+        expect.arrayContaining(["grid-cols-2", "md:justify-end", "md:ml-auto"]),
       );
     });
   });

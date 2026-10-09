@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { Session } from "@/shared/api";
 import { fetchOffering } from "@/entities/offering";
-import { fetchTaxonomies } from "@/entities/taxonomy";
+import { collectTaxonomyRefs, fetchTaxonomiesCovering } from "@/entities/taxonomy";
 import type { DetailTab } from "../lib/tab";
 import { OfferingDetailContent } from "./OfferingDetailContent";
 import type {
@@ -24,8 +24,9 @@ export type OfferingDetailProps = {
 /**
  * The offering detail block as a thin async Server Component
  * (add-offering-catalog design.md D8). It holds only the two public reads and
- * the result mapping — one `error` result for a not-found or failed offering
- * or a taxonomy failure — and delegates every branch to the sync presentation.
+ * the result mapping — `not-found` for the offering's `404`, one `error`
+ * result for a failed offering or a taxonomy failure — and delegates every
+ * branch to the sync presentation.
  */
 export async function OfferingDetail({
   locale,
@@ -37,16 +38,19 @@ export async function OfferingDetail({
 }: OfferingDetailProps): Promise<ReactNode> {
   let result: OfferingDetailResult;
   const offering = await fetchOffering(ulid);
-  if (offering.status !== "found") {
-    result = { state: "error" };
+  if (!offering.ok) {
+    result = { state: offering.kind === "not-found" ? "not-found" : "error" };
   } else {
     try {
-      const taxonomies = await fetchTaxonomies();
-      result = {
-        state: "success",
-        offering: offering.offering,
-        taxonomies: taxonomies.data,
-      };
+      const taxonomies = await fetchTaxonomiesCovering(
+        collectTaxonomyRefs([
+          ...(offering.data.cataConcordance ?? []),
+          ...(offering.data.sensoryTaxonomy ?? []),
+        ]),
+      );
+      result = taxonomies.ok
+        ? { state: "success", offering: offering.data, taxonomies: taxonomies.data.data }
+        : { state: "error" };
     } catch {
       result = { state: "error" };
     }

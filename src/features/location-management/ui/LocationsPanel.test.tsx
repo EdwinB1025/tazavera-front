@@ -37,8 +37,6 @@ const TEXTS: LocationsPanelTexts = {
   save: "fx-save",
   cancel: "fx-cancel",
   genericError: "fx-generic-error",
-  stepUpText: "fx-step-up",
-  stepUpButton: "fx-confirm",
   requiredError: "fx-required",
   emailFormatError: "fx-email-format",
   contactAddressLabel: "fx-address",
@@ -121,22 +119,18 @@ afterEach(() => {
 });
 
 function renderPanel() {
-  const requestProfileWrite = vi.fn<(returnRoute: string) => void>();
-  const utils = render(
+  return render(
     <>
       <h1 id={HEADING_ID} tabIndex={-1}>
         fx-page-title
       </h1>
       <LocationsPanel
         userUlid="u1"
-        locale="es"
         headingId={HEADING_ID}
         texts={TEXTS}
-        requestProfileWrite={requestProfileWrite}
       />
     </>,
   );
-  return { ...utils, requestProfileWrite };
 }
 
 async function settle(): Promise<void> {
@@ -235,6 +229,26 @@ describe("LocationsPanel — reading (spec: Own locations list)", () => {
     const item = screen.getByRole("listitem");
     expect(item.textContent).toContain(primary.address);
     expect(item.textContent).not.toContain(other.address);
+  });
+});
+
+describe("LocationsPanel — texts (spec: Localized location texts)", () => {
+  it("renders no message string of a failed or successful response (spec: Response messages not shown)", async () => {
+    request
+      .mockResolvedValueOnce(json(500, { message: "fx-api-read-failed" }))
+      .mockResolvedValueOnce(json(200, { data: [], message: "fx-api-read-ok" }))
+      .mockResolvedValueOnce(json(500, { message: "fx-api-create-failed" }));
+    geocodeAddress.mockResolvedValue({ status: "not-found" });
+    renderPanel();
+    await settle();
+    expect(document.body.textContent).not.toContain("fx-api-");
+    fireEvent.click(screen.getByRole("button", { name: TEXTS.retry }));
+    await settle();
+    expect(document.body.textContent).not.toContain("fx-api-");
+    fireEvent.click(addButton());
+    await submitValidForm();
+    expect(screen.getByText(TEXTS.genericError)).toBeDefined();
+    expect(document.body.textContent).not.toContain("fx-api-");
   });
 });
 

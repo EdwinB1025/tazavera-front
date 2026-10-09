@@ -5,6 +5,8 @@ import type { ContactTexts } from "@/entities/contact";
 export type CoffeeshopDetailTexts = ContactTexts & {
   backToDirectory: string;
   detailError: string;
+  notFoundTitle: string;
+  notFoundLine: string;
   retryLabel: string;
   verifiedBadge: string;
   locationsCount: string;
@@ -42,6 +44,8 @@ export function coffeeshopDetailTexts(
     contactSocialLabel: contact.contactSocialLabel,
     backToDirectory: coffeeshops.backToDirectory,
     detailError: coffeeshops.detailError,
+    notFoundTitle: coffeeshops.detailNotFoundTitle,
+    notFoundLine: coffeeshops.detailNotFoundLine,
     retryLabel: landing.listRetryLabel,
     verifiedBadge: coffeeshops.verifiedBadge,
     locationsCount: coffeeshops.locationsCount,

@@ -1,11 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import type { EvaluationItem, OfferingDetail } from "@/shared/api";
-import { EvaluationRowCard } from "@/widgets/evaluation-row";
-import type { EvaluationRowCardTexts } from "@/widgets/evaluation-row";
-import { Button } from "@/shared/ui";
+import { isReadyForClosing } from "@/entities/evaluation";
+import { SpecialistEvaluationRowCard, ViewOfferingButton } from "@/widgets/evaluation-row";
+import type { SpecialistEvaluationRowCardTexts } from "@/widgets/evaluation-row";
+import { ActionGroup, Button } from "@/shared/ui";
+import { CloseEvaluationAction } from "./CloseEvaluationAction";
+import type { CloseEvaluationTexts } from "./CloseEvaluationAction";
 import { DeleteEvaluationAction } from "./DeleteEvaluationAction";
 import type { DeleteEvaluationTexts } from "./DeleteEvaluationAction";
 
@@ -13,8 +17,11 @@ import type { DeleteEvaluationTexts } from "./DeleteEvaluationAction";
 
 /** Every label and caption of a row, from the `evaluations` catalog (design.md D14). */
 export type EvaluationRowTexts = DeleteEvaluationTexts &
-  EvaluationRowCardTexts & {
+  CloseEvaluationTexts &
+  SpecialistEvaluationRowCardTexts & {
     editLabel: string;
+    viewLabel: string;
+    viewOfferingLabel: string;
   };
 
 export type SpecialistEvaluationRowProps = {
@@ -25,14 +32,23 @@ export type SpecialistEvaluationRowProps = {
   texts: EvaluationRowTexts;
   /** Called once the row's evaluation is deleted. */
   onDeleted: (ulid: string) => void;
+  /** Called once the row's evaluation is closed. */
+  onClosed: (ulid: string) => void;
 };
+
+// The row's action group fills the footer below `md`; the status line stays
+// outside it (unify-action-button-widths D3).
+const GROUP_CLASSES = "max-md:w-full";
 
 /**
  * One row of "My evaluations" (spec "My evaluations list" and "Row
  * actions"): the shared row card with the specialist's actions in its slot
- * (add-public-evaluations design.md D6) — Edit for an open evaluation, View
- * for a closed one or one whose offering was deleted, both opening its form
- * route, and Delete with its confirmation.
+ * (add-public-evaluations design.md D6), in the order of refine-evaluation-flow
+ * D5 — View on every row, opening its form route read-only (`?mode=view` for
+ * an open one), View offering while the offering exists, Close for a complete
+ * open one with its offering (D3) with the outcome's message in a status
+ * line, Edit for an open one with its offering, and Delete with its
+ * confirmation.
  */
 export function SpecialistEvaluationRow({
   evaluation,
@@ -40,28 +56,60 @@ export function SpecialistEvaluationRow({
   locale,
   texts,
   onDeleted,
+  onClosed,
 }: SpecialistEvaluationRowProps): ReactNode {
   const router = useRouter();
-  const viewOnly = evaluation.status === "closed" || evaluation.offeringId === null;
+  // Mounted only while it holds a message: one status region per row would
+  // sit beside the list's result count otherwise.
+  const [message, setMessage] = useState<string | null>(null);
+  const open = evaluation.status !== "closed";
+  const editable = open && evaluation.offeringId !== null;
   const formRoute = `/${locale}/manage/evaluations/${evaluation.ulid ?? ""}`;
+  const viewRoute = open ? `${formRoute}?mode=view` : formRoute;
 
   return (
-    <EvaluationRowCard
-      variant="specialist"
+    <SpecialistEvaluationRowCard
       evaluation={evaluation}
       offering={offering}
-      locale={locale}
       texts={texts}
       actions={
         <>
-          <Button variant="action-3" onClick={() => router.push(formRoute)}>
-            {viewOnly ? texts.viewLabel : texts.editLabel}
-          </Button>
-          <DeleteEvaluationAction
-            ulid={evaluation.ulid ?? ""}
-            texts={texts}
-            onDeleted={onDeleted}
-          />
+          {message ? (
+            <p role="status" className="type-body">
+              {message}
+            </p>
+          ) : null}
+          <ActionGroup align="end" className={GROUP_CLASSES}>
+            <Button variant="action-3" onClick={() => router.push(viewRoute)}>
+              {texts.viewLabel}
+            </Button>
+            {evaluation.offeringId ? (
+              <ViewOfferingButton
+                locale={locale}
+                offeringId={evaluation.offeringId}
+                label={texts.viewOfferingLabel}
+                suffix={offering?.coffeeInventory?.coffee?.name ?? ""}
+              />
+            ) : null}
+            {editable && isReadyForClosing(evaluation) ? (
+              <CloseEvaluationAction
+                ulid={evaluation.ulid ?? ""}
+                texts={texts}
+                onMessage={setMessage}
+                onClosed={onClosed}
+              />
+            ) : null}
+            {editable ? (
+              <Button variant="action-4" onClick={() => router.push(formRoute)}>
+                {texts.editLabel}
+              </Button>
+            ) : null}
+            <DeleteEvaluationAction
+              ulid={evaluation.ulid ?? ""}
+              texts={texts}
+              onDeleted={onDeleted}
+            />
+          </ActionGroup>
         </>
       }
     />

@@ -48,13 +48,15 @@ const SLOT_LIST_CLASSES = "inline-flex items-center gap-1 md:gap-2";
 // Below md Previous and Next are a 2.5rem square showing only the chevron;
 // from md they keep `Button`'s base geometry with the label and no chevron
 // (design.md D6). `max-md:` utilities follow `Button`'s own in the CSS.
-const ARROW_CLASSES = "max-md:w-10 max-md:px-0";
+// Pagination controls are navigation, not actions: `min-w-0!` and `min-w-10!`
+// win over `Button`'s action width (unify-action-button-widths D2).
+const ARROW_CLASSES = "min-w-0! max-md:w-10 max-md:px-0";
 const ARROW_ICON_CLASSES = "size-4 shrink-0 md:hidden";
 const ARROW_LABEL_CLASSES = "max-md:sr-only";
 
 // A page number: 2.5rem tall, at least 2.5rem wide, 0.75rem padding; `px-3!`
 // wins over `Button`'s `px-4` (design.md D6, Risks).
-const NUMBER_CLASSES = "min-w-10 px-3!";
+const NUMBER_CLASSES = "min-w-10! px-3!";
 
 // The current number shows the hover fill at rest (design.md D5); these
 // utilities follow `bg-action-3-bg` / `text-action-3-text` in the CSS.
@@ -177,7 +179,7 @@ export function Pagination({
   return (
     <nav aria-label={texts.navigationLabel} className={PAGINATION_CLASSES}>
       <Button
-        variant="primary"
+        variant="action-3"
         size="base"
         className={ARROW_CLASSES}
         disabled={currentPage === 1}
@@ -220,7 +222,7 @@ export function Pagination({
         ))}
       </ul>
       <Button
-        variant="primary"
+        variant="action-3"
         size="base"
         className={ARROW_CLASSES}
         disabled={currentPage === lastPage}

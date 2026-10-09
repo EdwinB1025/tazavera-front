@@ -1,8 +1,8 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { EvaluationItem, OfferingDetail } from "@/shared/api";
-import { EvaluationRowCard } from "./EvaluationRowCard";
-import type { EvaluationRowCardTexts } from "./EvaluationRowCard";
+import { PublicEvaluationRowCard } from "./PublicEvaluationRowCard";
+import type { PublicEvaluationRowCardTexts } from "./PublicEvaluationRowCard";
 
 /**
  * The row card of the `evaluation-row` widget (design.md D6; spec "Public
@@ -11,10 +11,7 @@ import type { EvaluationRowCardTexts } from "./EvaluationRowCard";
  * without a coffee name.
  */
 
-const TEXTS: EvaluationRowCardTexts = {
-  openLabel: "Open",
-  closedLabel: "Closed",
-  createdOnLabel: "Created on",
+const TEXTS: PublicEvaluationRowCardTexts = {
   closedOnLabel: "Closed on",
   coffeeshopCaption: "Coffeeshop:",
   roasterCaption: "Roaster:",
@@ -62,7 +59,7 @@ afterEach(() => {
 
 describe("EvaluationRowCard, public variant (design.md D6)", () => {
   it("maps the score row, the h2, the date line and the captions, with no status badge", () => {
-    render(<EvaluationRowCard variant="public" evaluation={CLOSED} offering={OFFERING} locale="en" texts={TEXTS} />);
+    render(<PublicEvaluationRowCard evaluation={CLOSED} offering={OFFERING} locale="en" texts={TEXTS} />);
     expect(screen.getByText("84.25").className).toContain("type-score");
     expect(screen.getByText("/100").className).toContain("type-meta");
     expect(screen.getByText("Good").className).toContain("bg-evaluation-rating-good");
@@ -76,7 +73,7 @@ describe("EvaluationRowCard, public variant (design.md D6)", () => {
   });
 
   it("offers View and View offering as buttons with the coffee name as hidden suffix (spec: Unique row link names)", () => {
-    render(<EvaluationRowCard variant="public" evaluation={CLOSED} offering={OFFERING} locale="en" texts={TEXTS} />);
+    render(<PublicEvaluationRowCard evaluation={CLOSED} offering={OFFERING} locale="en" texts={TEXTS} />);
     expect(screen.queryAllByRole("link")).toHaveLength(0);
     screen.getByRole("button", { name: "View Finca La Esperanza" });
     const offering = screen.getByRole("button", { name: "View offering Finca La Esperanza" });
@@ -84,7 +81,7 @@ describe("EvaluationRowCard, public variant (design.md D6)", () => {
   });
 
   it("opens the evaluation and the offering from the row's actions (spec: Row actions open their routes)", () => {
-    render(<EvaluationRowCard variant="public" evaluation={CLOSED} offering={OFFERING} locale="en" texts={TEXTS} />);
+    render(<PublicEvaluationRowCard evaluation={CLOSED} offering={OFFERING} locale="en" texts={TEXTS} />);
     fireEvent.click(screen.getByRole("button", { name: "View Finca La Esperanza" }));
     expect(router.push).toHaveBeenLastCalledWith(`/en/evaluations/${CLOSED.ulid}`);
     fireEvent.click(screen.getByRole("button", { name: "View offering Finca La Esperanza" }));
@@ -93,8 +90,7 @@ describe("EvaluationRowCard, public variant (design.md D6)", () => {
 
   it("shows the offering-missing heading for a null offeringId, keeping score, date and View", () => {
     render(
-      <EvaluationRowCard
-        variant="public"
+      <PublicEvaluationRowCard
         evaluation={{ ...CLOSED, offeringId: null }}
         offering={null}
         locale="en"

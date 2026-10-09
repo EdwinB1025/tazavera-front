@@ -31,6 +31,14 @@ export type TokenGrantError = {
 /** The grant held in module memory (design.md D3). Never written to any storage. */
 let tokens: TokenGrant | null = null;
 
+/**
+ * The grant that was in use before a step-up's write grant was installed
+ * (scope-write-token-to-action design.md D1 and D2): `null` when no write
+ * grant is in place, `{ read: null }` when the write grant came with no grant
+ * to restore (a full-page step-up). Never written to any storage.
+ */
+let setAside: { read: TokenGrant | null } | null = null;
+
 /** The grant held in memory, or `null` before the first successful sign in. */
 export function getTokens(): TokenGrant | null {
   return tokens;
@@ -39,6 +47,32 @@ export function getTokens(): TokenGrant | null {
 /** Clears the token memory (spec: "After sign out": no trace of the session). */
 export function clearTokens(): void {
   tokens = null;
+  setAside = null;
+}
+
+/**
+ * Keeps the `token` block of a registration's `201` as the grant
+ * (sign-in-after-registration design.md D1): memory only, no request. A block
+ * without the four fields of RFC 6749 §5.1 with their types is refused: it
+ * throws and the memory stays as it was.
+ */
+export function keepRegistrationGrant(block: unknown): void {
+  if (!isTokenGrant(block)) {
+    throw new Error("invalid registration grant");
+  }
+  const { access_token, token_type, refresh_token, expires_in } = block;
+  tokens = { access_token, token_type, refresh_token, expires_in };
+}
+
+function isTokenGrant(block: unknown): block is TokenGrant {
+  if (typeof block !== "object" || block === null) return false;
+  const grant = block as Record<string, unknown>;
+  return (
+    typeof grant.access_token === "string" &&
+    typeof grant.token_type === "string" &&
+    typeof grant.refresh_token === "string" &&
+    typeof grant.expires_in === "number"
+  );
 }
 
 /**
@@ -50,6 +84,18 @@ export async function exchangeCode(
   code: string,
   codeVerifier: string,
 ): Promise<void> {
+  tokens = await exchangeCodeForGrant(code, codeVerifier);
+}
+
+/**
+ * The exchange of `exchangeCode` without keeping the grant (secure-step-up
+ * design.md D3): a step-up checks whose grant it is before `keepTokens`
+ * installs it.
+ */
+export async function exchangeCodeForGrant(
+  code: string,
+  codeVerifier: string,
+): Promise<TokenGrant> {
   const as = authorizationServer();
   const client = oauthClient();
   const callbackParameters = oauth.validateAuthResponse(
@@ -67,9 +113,31 @@ export async function exchangeCode(
     codeVerifier,
     requestOptions(),
   );
-  tokens = await keepGrant(response, (sent) =>
+  return keepGrant(response, (sent) =>
     oauth.processAuthorizationCodeResponse(as, client, sent),
   );
+}
+
+/**
+ * Installs a step-up's write grant obtained by `exchangeCodeForGrant`
+ * (secure-step-up design.md D3), setting the grant in use aside first
+ * (scope-write-token-to-action design.md D1). A second step-up in the same
+ * action keeps the grant set aside by the first.
+ */
+export function keepTokens(grant: TokenGrant): void {
+  if (setAside === null) setAside = { read: tokens };
+  tokens = grant;
+}
+
+/**
+ * Ends the write grant (scope-write-token-to-action design.md D1 and D2): the
+ * grant set aside is in use again, with no request. Nothing set aside changes
+ * nothing.
+ */
+export function restoreReadTokens(): void {
+  if (setAside === null) return;
+  tokens = setAside.read;
+  setAside = null;
 }
 
 /**

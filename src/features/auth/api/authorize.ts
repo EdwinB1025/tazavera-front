@@ -13,12 +13,8 @@
  * forwards the result at `/callback` (design.md D4) through `@/shared/api`.
  */
 import * as oauth from "oauth4webapi";
-import { exchangeCode } from "@/shared/api";
-import {
-  DEFAULT_LOCALE,
-  isSupportedLocale,
-  type Locale,
-} from "@/shared/config/locales";
+import type { Locale } from "next-intl";
+import { routing } from "@/shared/config/locales";
 import { readTheme } from "@/shared/lib/theme";
 import {
   clearFlow,
@@ -30,7 +26,9 @@ import {
   setMarker,
   type PendingFlow,
 } from "../model/flow";
+import { activeLocale } from "../model/active-locale";
 import { toAppRoute } from "../model/return-route";
+import { settleTokens } from "./identity";
 
 /** The scopes the authorization page is asked for (design.md D5). */
 type Scope = "profile:read" | "profile:write";
@@ -56,7 +54,12 @@ type SessionSeam = {
   authenticated: () => Promise<void>;
   /** Nothing restores the session: it becomes `anonymous` (design.md D4). */
   anonymous: () => void;
+  /** The session user's `ulid`, a step-up's expected user (secure-step-up design.md D2). */
+  currentUlid: () => string | undefined;
 };
+
+/** What a step-up ends with (secure-step-up design.md D1). */
+export type StepUpOutcome = "granted" | "cancelled" | "failed" | "other-account";
 
 let seam: SessionSeam | null = null;
 
@@ -78,12 +81,16 @@ export function currentRoute(): string {
 
 /** Starts sign in; the return route defaults to the route the user is on. */
 export function signIn(returnRoute?: string): void {
-  startInteractive("profile:read", returnRoute ?? currentRoute());
+  void startInteractive("profile:read", returnRoute ?? currentRoute());
 }
 
-/** Step-up: forces a fresh sign in requesting `profile:write`. */
-export function requestProfileWrite(returnRoute: string): void {
-  startInteractive("profile:write", returnRoute);
+/**
+ * Step-up: forces a fresh sign in requesting `profile:write` by the session
+ * user, and resolves its outcome (secure-step-up design.md D1 and D2). In the
+ * full-page fallback the page leaves and the promise never resolves.
+ */
+export function requestProfileWrite(returnRoute: string): Promise<StepUpOutcome> {
+  return startInteractive("profile:write", returnRoute, seam?.currentUlid() ?? "");
 }
 
 /**
@@ -120,27 +127,27 @@ export async function completeCallback(
   const pending = readFlow();
   // Only an application route opens; any other destination takes the root of
   // the default locale (fix-auth-return-query design.md D3).
-  const returnRoute = toAppRoute(pending?.returnRoute) ?? `/${DEFAULT_LOCALE}`;
-  if (code !== undefined && error === undefined && pending !== null && state === pending.state) {
-    try {
-      await exchangeCode(code, pending.verifier);
-      clearFlow();
-      setMarker();
-      // The session resolves where the user ends up (design.md D4 and D5):
-      // here when the completion leaves them on this route, and at the return
-      // route's session start when it hands over through client-side
-      // navigation and the tokens must survive it.
-      if (returnRoute === currentRoute()) {
-        await seam?.authenticated();
-      }
-    } catch {
-      // A failed exchange takes the error path (design.md D5).
-      clearFlow();
-      removeMarker();
-      seam?.anonymous();
+  const returnRoute = toAppRoute(pending?.returnRoute) ?? `/${routing.defaultLocale}`;
+  // A failed exchange takes the error path (design.md D5), and so does a
+  // step-up by another user: the previous tokens did not survive the full
+  // page load (secure-step-up design.md D3).
+  const settled =
+    code !== undefined &&
+    error === undefined &&
+    pending !== null &&
+    state === pending.state &&
+    (await settleTokens(code, pending).catch(() => false));
+  clearFlow();
+  if (settled) {
+    setMarker();
+    // The session resolves where the user ends up (design.md D4 and D5):
+    // here when the completion leaves them on this route, and at the return
+    // route's session start when it hands over through client-side
+    // navigation and the tokens must survive it.
+    if (returnRoute === currentRoute()) {
+      await seam?.authenticated();
     }
   } else {
-    clearFlow();
     removeMarker();
     seam?.anonymous();
   }
@@ -154,25 +161,33 @@ export async function completeCallback(
  * blocked), and the authorization request starts once the PKCE challenge
  * resolves (design.md D8).
  */
-function startInteractive(scope: Scope, returnRoute: string): void {
+function startInteractive(
+  scope: Scope,
+  returnRoute: string,
+  expectedUlid?: string,
+): Promise<StepUpOutcome> {
   const verifier = oauth.generateRandomCodeVerifier();
   const state = oauth.generateRandomState();
-  const pending = { verifier, state, returnRoute };
+  const pending: PendingFlow = { verifier, state, returnRoute };
+  if (expectedUlid !== undefined) pending.expectedUlid = expectedUlid;
   const popup = window.open("", "tazavera-auth", "popup");
+  let outcome: Promise<StepUpOutcome>;
   if (popup) {
     holdFlow(pending);
-    listenToPopup(popup, pending);
+    outcome = new Promise((resolve) => listenToPopup(popup, pending, resolve));
   } else {
     saveFlow(pending);
+    outcome = new Promise(() => {});
   }
   void oauth.calculatePKCECodeChallenge(verifier).then((challenge) => {
-    const url = authorizeUrl(scope, state, challenge);
+    const url = authorizeUrl(scope, state, challenge, undefined, expectedUlid);
     if (popup) {
       popup.location.assign(url);
     } else {
       window.location.assign(url);
     }
   });
+  return outcome;
 }
 
 /**
@@ -188,16 +203,21 @@ function startInteractive(scope: Scope, returnRoute: string): void {
  * (still `anonymous` after a sign in, unchanged after a step-up) and no
  * message is shown. Retrying is a new click.
  */
-function listenToPopup(popup: Window, pending: PendingFlow): void {
+function listenToPopup(
+  popup: Window,
+  pending: PendingFlow,
+  resolve: (outcome: StepUpOutcome) => void,
+): void {
   const onMessage = (event: MessageEvent) => {
     if (event.origin !== appUrl() || event.source !== popup) return;
     stop();
-    void completePopup(event.data, pending);
+    void completePopup(event.data, pending).then(resolve);
   };
   const timer = window.setInterval(() => {
     if (!popup.closed) return;
     stop();
     releaseFlow();
+    resolve("cancelled");
   }, 250);
   const stop = (): void => {
     window.removeEventListener("message", onMessage);
@@ -206,7 +226,10 @@ function listenToPopup(popup: Window, pending: PendingFlow): void {
   window.addEventListener("message", onMessage);
 }
 
-async function completePopup(data: unknown, pending: PendingFlow): Promise<void> {
+async function completePopup(
+  data: unknown,
+  pending: PendingFlow,
+): Promise<StepUpOutcome> {
   releaseFlow();
   const { code, state, error } = (data ?? {}) as {
     code?: unknown;
@@ -214,17 +237,29 @@ async function completePopup(data: unknown, pending: PendingFlow): Promise<void>
     error?: unknown;
   };
   if (typeof code === "string" && error === undefined && state === pending.state) {
-    try {
-      await exchangeCode(code, pending.verifier);
+    // A failed exchange takes the error path (design.md D5).
+    const settled = await settleTokens(code, pending).catch(() => null);
+    if (settled === true) {
       setMarker();
       await seam?.authenticated();
-      return;
-    } catch {
-      // A failed exchange takes the error path (design.md D5).
+      return "granted";
     }
+    // Another user's step-up leaves the previous session as it was
+    // (secure-step-up design.md D3).
+    if (settled === false) return "other-account";
+  }
+  // The API refuses a step-up by another user before issuing a code: the
+  // previous session stays as it was (scope-write-token-to-action design.md D3).
+  if (
+    error === "access_denied" &&
+    state === pending.state &&
+    pending.expectedUlid !== undefined
+  ) {
+    return "other-account";
   }
   removeMarker();
   seam?.anonymous();
+  return "failed";
 }
 
 /**
@@ -251,12 +286,16 @@ export function startSilent(returnRoute: string): void {
     });
 }
 
-/** The authorization request of design.md D5. */
+/**
+ * The authorization request of design.md D5; a step-up names its expected
+ * user in `login_hint` (scope-write-token-to-action design.md D3).
+ */
 function authorizeUrl(
   scope: Scope,
   state: string,
   challenge: string,
   prompt?: "none",
+  loginHint?: string,
 ): string {
   const url = new URL(`${apiUrl()}/oauth/authorize`);
   url.searchParams.set("response_type", "code");
@@ -270,6 +309,9 @@ function authorizeUrl(
   url.searchParams.set("lang", activeLang());
   if (prompt !== undefined) {
     url.searchParams.set("prompt", prompt);
+  }
+  if (loginHint) {
+    url.searchParams.set("login_hint", loginHint);
   }
   return url.toString();
 }
@@ -285,10 +327,12 @@ function frontOpener(): Window | null {
   }
 }
 
-/** `lang` is the locale of the route that starts the flow (design.md D5). */
+/**
+ * `lang` is the locale of the route that starts the flow (design.md D5), as
+ * `useSession()` records it (adopt-next-intl-routing design.md D7).
+ */
 function activeLang(): Locale {
-  const segment = window.location.pathname.split("/")[1] ?? "";
-  return isSupportedLocale(segment) ? segment : DEFAULT_LOCALE;
+  return activeLocale();
 }
 
 /** The first value of a query parameter that may repeat. */

@@ -5,4 +5,3 @@
  * page and the coffee shop directory.
  */
 export { LocationCard } from "./ui/LocationCard";
-export type { LocationCardProps } from "./ui/LocationCard";

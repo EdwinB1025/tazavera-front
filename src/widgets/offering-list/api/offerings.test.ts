@@ -58,10 +58,17 @@ describe("fetchOfferings (add-offering-catalog design.md D1, D2)", () => {
       page: "3",
     });
     expect(fetchSpy).toHaveBeenCalledWith(
-      `${API_URL}/offerings?verified=1&cataRef=01JREFA&cataRef=01JREFB&orderBy=cupping_avg&page=3`,
+      `${API_URL}/offerings?verified=1&cataRef%5B%5D=01JREFA&cataRef%5B%5D=01JREFB&orderBy=cupping_avg&page=3`,
     );
-    expect(result.data).toEqual(OFFERINGS_PAYLOAD.data);
-    expect(result.meta).toEqual(OFFERINGS_PAYLOAD.meta);
+    expect(result).toEqual({ ok: true, data: OFFERINGS_PAYLOAD });
+  });
+
+  it("sends the chosen taste notes as cataRef[] pairs (filtering spec: Taste notes sent as an array)", async () => {
+    fetchSpy.mockResolvedValue(okResponse(OFFERINGS_PAYLOAD));
+    await fetchOfferings({ cataRef: ["01JREFA", "01JREFB"] });
+    expect(fetchSpy).toHaveBeenCalledWith(
+      `${API_URL}/offerings?cataRef%5B%5D=01JREFA&cataRef%5B%5D=01JREFB`,
+    );
   });
 
   it("requests /offerings with no query and no verification filter for an empty query", async () => {
@@ -70,13 +77,13 @@ describe("fetchOfferings (add-offering-catalog design.md D1, D2)", () => {
     expect(fetchSpy).toHaveBeenCalledWith(`${API_URL}/offerings`);
   });
 
-  it("rejects when the API answers with a non-2xx status (spec: Error and retry)", async () => {
+  it("fails when the API answers with a non-2xx status (spec: Error and retry)", async () => {
     fetchSpy.mockResolvedValue({
       ok: false,
       status: 422,
       json: async () => ({ message: "invalid" }),
     });
-    await expect(fetchOfferings({ verified: "x" })).rejects.toBeDefined();
+    await expect(fetchOfferings({ verified: "x" })).resolves.toEqual({ ok: false, kind: "error" });
   });
 
 });

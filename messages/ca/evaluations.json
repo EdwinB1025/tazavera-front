@@ -85,13 +85,18 @@
   "removeNoteLabel": "Eliminar nota",
   "noteLabel": "Nota",
   "extrinsicNoteLabel": "Observació general",
+  "extrinsicFarming": "Cultiu",
+  "extrinsicProcessing": "Processament",
+  "extrinsicTrading": "Comerç",
+  "extrinsicCertifications": "Certificacions",
   "saveLabel": "Desar esborrany",
   "closeLabel": "Tancar l'avaluació",
-  "savedMessage": "Esborrany desat.",
   "alreadyClosedMessage": "Aquesta avaluació ja està tancada i no es pot modificar.",
   "roastLevelRequired": "Tria el nivell de torrat per desar.",
   "fragranceNotEvaluatedLabel": "Fragància no avaluada — fer servir els valors d'aroma",
   "closedMessage": "Avaluació tancada.",
   "incompleteMessage": "Encara no es pot tancar l'avaluació: completa els grups ressaltats.",
-  "resultCount": "Resultats: {count}"
+  "resultCount": "Resultats: {count}",
+  "formNotFoundTitle": "Avaluació no trobada",
+  "formNotFoundLine": "Pot ser que s'hagi retirat o que l'enllaç no sigui correcte."
 }

@@ -1,24 +1,26 @@
 import type { ReactNode } from "react";
 import type { OfferingSummary } from "@/shared/api";
 import {
+  ActionGroup,
   Badge,
   Card,
   CardAside,
   CardContent,
   CardFooter,
+  TaxonomyTree,
 } from "@/shared/ui";
+import type { TaxonomyTreeNode } from "@/shared/ui";
 import { ratingTierFor } from "../lib/rating";
 
 // ─── UI-specific types (declared before the component) ───
-// The taxonomy badges arrive already resolved — label, data color and level —
-// from the block that resolved each `ref` against `GET /taxonomies`
-// (design.md D5, D8). No generated API type is edited or redefined here.
+// The taxonomy badges arrive already resolved — reference, label, data color,
+// level and children, nested as the consensus tree — from the taxonomy
+// entity's tree resolver, whose type matches this one structurally
+// (nest-card-taste-notes design.md D1), and render as the shared taxonomy
+// tree (nest-consensus-notes D1). No generated API type is edited or
+// redefined here.
 
-export type ResolvedTaxonomyBadge = {
-  label: string;
-  color: string;
-  level: 0 | 1 | 2;
-};
+export type ResolvedTaxonomyBadge = TaxonomyTreeNode;
 
 /** Every label and caption of the card, as props (design.md D11). */
 export type OfferingCardTexts = {
@@ -44,13 +46,6 @@ export type OfferingCardProps = {
 // ─── Fixed pieces (no interface text; design.md D11) ───
 const SCORE_SCALE = "/100";
 const ORIGIN_SEPARATOR = " · ";
-const TAXONOMY_LEVELS = [0, 1, 2] as const;
-
-// Each row wraps its badges so no row overflows the card below `md`
-// (design.md D8; spec "Rows by level").
-const ROW_CLASSES = ["flex", "flex-wrap", "gap-2"].join(" ");
-// The three rows 0.5rem apart, so they do not touch (design.md D14).
-const ROWS_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
 
 // ─── Card layout (design.md D14) ───
 // Score, `/100` and rating badge on one row above the content.
@@ -60,13 +55,15 @@ const SCORE_ROW_CLASSES = ["flex", "flex-wrap", "items-baseline", "gap-2"].join(
 // The counts 1rem apart, the actions grouped at the end; the footer wraps.
 const FOOTER_CLASSES = ["flex", "flex-wrap", "items-center", "gap-4"].join(" ");
 const FOOTER_COUNTS_CLASSES = ["flex", "flex-wrap", "gap-4"].join(" ");
-const FOOTER_LINKS_CLASSES = ["ml-auto", "flex", "gap-4"].join(" ");
+// The actions' group fills the footer's row below `md` and sits at its end
+// from `md` (unify-action-button-widths D3).
+const FOOTER_LINKS_CLASSES = ["max-md:w-full", "md:ml-auto"].join(" ");
 
 /**
  * One offering filled into the shared card (design.md D4's field mapping and
- * D8; the landing spec "Offering card content" and "Taxonomy badges on the
- * offering card"). Every label and caption arrives as a prop (design.md D11)
- * and the consumer's actions arrive as the `actions` node, rendered in the
+ * D8; the landing spec "Offering card content" and "Taxonomy badge trees on
+ * the offering card"). Every label and caption arrives as a prop (design.md
+ * D11) and the consumer's actions arrive as the `actions` node, rendered in the
  * footer's group with no wrapper; the card has no action of its own, the View
  * action included (fix-production-aut-findings design.md D3).
  */
@@ -119,35 +116,20 @@ export function OfferingCard({
         <Badge variant={isVerified ? "verified" : "provisional"}>
           {statusLabel}
         </Badge>
-        <h3 className="type-card-heading">{coffee?.name}</h3>
+        <h2 className="type-card-heading">{coffee?.name}</h2>
         <p className="type-label">{coffeeshopCaption}</p>
         <p className="type-label">{roasterCaption}</p>
         <p className="type-meta">{origin}</p>
-        <div className={ROWS_CLASSES}>
-          {TAXONOMY_LEVELS.map((level) => (
-            <div key={level} className={ROW_CLASSES}>
-              {taxonomies
-                .filter((badge) => badge.level === level)
-                .map((badge) => (
-                  <Badge
-                    key={badge.label}
-                    variant="taxonomy"
-                    color={badge.color}
-                    level={badge.level}
-                  >
-                    {badge.label}
-                  </Badge>
-                ))}
-            </div>
-          ))}
-        </div>
+        <TaxonomyTree notes={taxonomies} />
       </CardContent>
       <CardFooter className={FOOTER_CLASSES}>
         <div className={FOOTER_COUNTS_CLASSES}>
           <span className="type-meta">{evaluations}</span>
           <span className="type-meta">{defective}</span>
         </div>
-        <div className={FOOTER_LINKS_CLASSES}>{actions}</div>
+        <ActionGroup align="end" className={FOOTER_LINKS_CLASSES}>
+          {actions}
+        </ActionGroup>
       </CardFooter>
     </Card>
   );

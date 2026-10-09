@@ -1,15 +1,19 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup, within } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent, within } from "@testing-library/react";
 import type { CoffeeshopDetail } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
 import { CoffeeshopDetailContent, coffeeshopDetailTexts, toCoffeeshopTab } from "@/widgets/coffeeshop-detail";
 
+// The back control is a route button (render-navigation-actions-as-buttons).
+const router = vi.hoisted(() => ({ push: vi.fn(), refresh: () => {} }));
+
 afterEach(() => {
   cleanup();
+  router.push.mockReset();
 });
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: () => {}, refresh: () => {} }),
+  useRouter: () => router,
 }));
 
 // The client-only map is replaced by a stub that records its props.
@@ -108,6 +112,17 @@ describe("CoffeeshopDetailContent", () => {
     );
   });
 
+  it("Back link at the end", () => {
+    renderDetail("offerings");
+    const top = screen.getByRole("link", { name: "Volver a cafeterías" });
+    const end = screen.getByRole("button", { name: "Volver a cafeterías" });
+    fireEvent.click(end);
+    expect([top.getAttribute("href"), ...router.push.mock.calls[0]]).toEqual(["/es/coffeeshops", "/es/coffeeshops"]);
+    const panel = screen.getByRole("tabpanel");
+    expect(panel.contains(end)).toBe(false);
+    expect(panel.compareDocumentPosition(end) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it("selects Ofertas with no tab or an unknown one (spec: Default tab)", () => {
     for (const raw of [undefined, "banana"]) {
       renderDetail(toCoffeeshopTab(raw));
@@ -160,6 +175,18 @@ describe("CoffeeshopDetailContent", () => {
     expect((map.props?.points as unknown[]).length).toBe(1);
     expect(within(card("Nomad Raval")).getByText("Sin posición en el mapa").className).toContain("type-meta");
     expect(within(card("Nomad Born")).queryByText("Sin posición en el mapa")).toBeNull();
+  });
+
+  it("renders the title and the line above the back button, with no retry action and no tab (spec: Unknown coffee shop)", () => {
+    render(
+      <CoffeeshopDetailContent result={{ state: "not-found" }} locale="es" ulid="01SHOP" tab="offerings" texts={TEXTS} />,
+    );
+    const title = screen.getByRole("heading", { level: 1, name: "Cafetería no encontrada" });
+    const back = screen.getByRole("button", { name: "Volver a cafeterías" });
+    expect(screen.getByText("Puede que se haya retirado o que el enlace no sea correcto.")).toBeDefined();
+    expect(title.compareDocumentPosition(back) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Reintentar" })).toBeNull();
+    expect(screen.queryByRole("tab")).toBeNull();
   });
 
   it("renders the back link, the error and the retry action, and no tab (spec: Unknown coffee shop or failure)", () => {

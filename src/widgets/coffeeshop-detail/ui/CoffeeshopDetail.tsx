@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { fetchCoffeeshop } from "@/entities/coffeeshop";
 import type { CoffeeshopTab } from "../lib/tab";
 import { CoffeeshopDetailContent } from "./CoffeeshopDetailContent";
+import type { CoffeeshopDetailResult } from "./CoffeeshopDetailContent";
 import type { CoffeeshopDetailTexts } from "./texts";
 
 export type CoffeeshopDetailProps = {
@@ -16,7 +17,8 @@ export type CoffeeshopDetailProps = {
 /**
  * The coffee shop detail block as a thin async Server Component
  * (add-coffeeshop-directory design.md D8): the one public read, mapped into
- * success or the one error result, and the sync presentation.
+ * success, `not-found` for its `404` (show-item-not-found-message D1) or the
+ * one error result, and the sync presentation.
  */
 export async function CoffeeshopDetail({
   locale,
@@ -26,9 +28,12 @@ export async function CoffeeshopDetail({
   texts,
 }: CoffeeshopDetailProps): Promise<ReactNode> {
   const read = await fetchCoffeeshop(ulid);
+  const result: CoffeeshopDetailResult = read.ok
+    ? { state: "success", coffeeshop: read.data }
+    : { state: read.kind === "not-found" ? "not-found" : "error" };
   return (
     <CoffeeshopDetailContent
-      result={read.status === "found" ? { state: "success", coffeeshop: read.coffeeshop } : { state: "error" }}
+      result={result}
       locale={locale}
       ulid={ulid}
       tab={tab}

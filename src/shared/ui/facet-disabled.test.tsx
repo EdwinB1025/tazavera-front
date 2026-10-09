@@ -14,7 +14,7 @@ afterEach(() => {
 
 const HELP = "Options unavailable";
 const SEE_MORE = { seeMore: "See more ({count})", seeLess: "See less" };
-const CASCADE_TEXTS = { ...SEE_MORE, toggleChildren: "Options under {label}" };
+const CASCADE_TEXTS = SEE_MORE;
 
 const PROCESSES: FacetOption[] = [
   { value: "Washed", label: "Washed" },
@@ -22,8 +22,13 @@ const PROCESSES: FacetOption[] = [
 ];
 
 const FLAVOURS: CascadeOption[] = [
-  { value: "fruity", label: "Fruity", children: [{ value: "berry", label: "Berry" }] },
-  { value: "floral", label: "Floral" },
+  {
+    value: "fruity",
+    label: "Fruity",
+    color: "#af5e70",
+    children: [{ value: "berry", label: "Berry", color: "#c0392b" }],
+  },
+  { value: "floral", label: "Floral", color: "#336699" },
 ];
 
 function classesOf(element: Element): string[] {

@@ -72,7 +72,6 @@ const TEXTS = {
   listHeading: "My offerings",
   newOfferingLink: "New offering",
   listEmptyMessage: "You have no offerings yet.",
-  listEmptyCreateLink: "Create an offering",
   listErrorMessage: "Your offerings could not be loaded.",
   retryLabel: "Retry",
   signedOutMessage: "Sign in to manage your offerings.",
@@ -90,8 +89,6 @@ const TEXTS = {
   cancelLabel: "Cancel",
   deleteError: "It could not be deleted. Try again.",
   deletedStatus: "Offerings deleted:",
-  stepUpMessage: "To continue, confirm your identity.",
-  stepUpLabel: "Confirm your identity",
 };
 
 const COFFEESHOP: Session = {
@@ -170,9 +167,9 @@ describe("ManageOfferingsPanel — header (design.md D6)", () => {
     const heading = screen.getByRole("heading", { level: 1, name: TEXTS.listHeading });
     expect(heading.className).toBe("type-heading");
     expect(heading.getAttribute("tabindex")).toBe("-1");
-    const link = screen.getByRole("link", { name: TEXTS.newOfferingLink });
-    expect(link.getAttribute("href")).toBe("/en/manage/offerings/new");
-    await screen.findAllByRole("heading", { level: 3 });
+    fireEvent.click(screen.getByRole("button", { name: TEXTS.newOfferingLink }));
+    expect(mocks.push).toHaveBeenCalledWith("/en/manage/offerings/new");
+    await screen.findAllByRole("heading", { level: 2 });
   });
 
   it("renders the heading but no New offering link for an anonymous visitor, with the gate in place of the list", () => {
@@ -180,7 +177,7 @@ describe("ManageOfferingsPanel — header (design.md D6)", () => {
     renderPanel();
 
     expect(screen.getByRole("heading", { level: 1, name: TEXTS.listHeading })).toBeTruthy();
-    expect(screen.queryByRole("link", { name: TEXTS.newOfferingLink })).toBeNull();
+    expect(screen.queryByRole("button", { name: TEXTS.newOfferingLink })).toBeNull();
     expect(screen.getByText(TEXTS.signedOutMessage)).toBeTruthy();
     expect(mocks.publicRequest).not.toHaveBeenCalled();
   });
@@ -221,7 +218,7 @@ describe("ManageOfferingsPanel — list states (spec 'My offerings list')", () =
     const { container } = renderPanel();
 
     expect(skeletonCount(container)).toBe(3);
-    expect(screen.queryByRole("heading", { level: 3 })).toBeNull();
+    expect(screen.queryByRole("heading", { level: 2 })).toBeNull();
     expect(screen.queryByText(TEXTS.listEmptyMessage)).toBeNull();
     expect(screen.queryByText(TEXTS.listErrorMessage)).toBeNull();
     expect(screen.queryByRole("button", { name: TEXTS.previousLabel })).toBeNull();
@@ -231,7 +228,7 @@ describe("ManageOfferingsPanel — list states (spec 'My offerings list')", () =
     mocks.publicRequest.mockResolvedValue(pageOf(ITEMS, 2, 3));
     renderPanel(2);
 
-    await screen.findAllByRole("heading", { level: 3 });
+    await screen.findAllByRole("heading", { level: 2 });
     expect(mocks.publicRequest).toHaveBeenCalledWith(
       "/offerings?coffeeshopUlid=01USER&page=2",
     );
@@ -241,7 +238,7 @@ describe("ManageOfferingsPanel — list states (spec 'My offerings list')", () =
     mocks.publicRequest.mockResolvedValue(pageOf(ITEMS, 1, 2));
     renderPanel();
 
-    const titles = await screen.findAllByRole("heading", { level: 3 });
+    const titles = await screen.findAllByRole("heading", { level: 2 });
     expect(titles.map((title) => title.textContent)).toEqual([
       "Huila El Mirador",
       "Sidama Bensa",
@@ -257,7 +254,7 @@ describe("ManageOfferingsPanel — list states (spec 'My offerings list')", () =
     mocks.publicRequest.mockResolvedValue(pageOf(ITEMS));
     renderPanel();
 
-    const [title] = await screen.findAllByRole("heading", { level: 3 });
+    const [title] = await screen.findAllByRole("heading", { level: 2 });
     const grid = title.closest(".grid")!;
     expect(grid.className).toBe("grid grid-cols-1 gap-6 lg:grid-cols-2 2xl:grid-cols-3");
     expect(grid.className).not.toMatch(/\bmd:grid-cols|\bxl:grid-cols/);
@@ -268,9 +265,12 @@ describe("ManageOfferingsPanel — list states (spec 'My offerings list')", () =
     renderPanel();
 
     const message = await screen.findByText(TEXTS.listEmptyMessage);
-    const link = screen.getByRole("link", { name: TEXTS.listEmptyCreateLink });
-    expect(link.getAttribute("href")).toBe("/en/manage/offerings/new");
-    expect(screen.queryByRole("heading", { level: 3 })).toBeNull();
+    const buttons = screen.getAllByRole("button", { name: TEXTS.newOfferingLink });
+    expect(buttons).toHaveLength(2);
+    mocks.push.mockClear();
+    fireEvent.click(buttons[1]);
+    expect(mocks.push).toHaveBeenCalledWith("/en/manage/offerings/new");
+    expect(screen.queryByRole("heading", { level: 2 })).toBeNull();
     expect(message.parentElement!.className).toBe(
       "flex flex-col items-center gap-4 text-center",
     );
@@ -284,7 +284,7 @@ describe("ManageOfferingsPanel — list states (spec 'My offerings list')", () =
     expect(message.parentElement!.className).toBe(
       "flex flex-col items-center gap-4 text-center",
     );
-    expect(screen.queryByRole("heading", { level: 3 })).toBeNull();
+    expect(screen.queryByRole("heading", { level: 2 })).toBeNull();
 
     let resolve: (value: Response) => void = () => {};
     mocks.publicRequest.mockReturnValueOnce(
@@ -300,7 +300,7 @@ describe("ManageOfferingsPanel — list states (spec 'My offerings list')", () =
       resolve(pageOf(ITEMS));
     });
     await waitFor(() =>
-      expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(2),
+      expect(screen.getAllByRole("heading", { level: 2 })).toHaveLength(2),
     );
     expect(mocks.publicRequest).toHaveBeenCalledTimes(2);
   });
@@ -317,7 +317,7 @@ describe("ManageOfferingsPanel — selection (spec 'Offering selection')", () =>
   async function loaded(page = 1) {
     mocks.publicRequest.mockResolvedValue(pageOf(ITEMS, page, 2));
     const view = renderPanel(page);
-    await screen.findAllByRole("heading", { level: 3 });
+    await screen.findAllByRole("heading", { level: 2 });
     return view;
   }
 
@@ -429,7 +429,7 @@ describe("ManageOfferingsPanel — deleting (spec 'Deleting offerings')", () => 
   async function loaded(page = 1, items = ITEMS) {
     mocks.publicRequest.mockResolvedValueOnce(pageOf(items, page, page));
     const view = renderPanel(page);
-    await screen.findAllByRole("heading", { level: 3 });
+    await screen.findAllByRole("heading", { level: 2 });
     return view;
   }
 
@@ -457,7 +457,7 @@ describe("ManageOfferingsPanel — deleting (spec 'Deleting offerings')", () => 
     expect(status.className).toBe("type-body");
     expect(status.parentElement!.className).toBe("flex flex-col gap-4");
     await waitFor(() =>
-      expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(1),
+      expect(screen.getAllByRole("heading", { level: 2 })).toHaveLength(1),
     );
     expect(mocks.publicRequest).toHaveBeenCalledTimes(2);
     const heading = screen.getByRole("heading", { level: 1 });
@@ -500,7 +500,7 @@ describe("ManageOfferingsPanel — deleting (spec 'Deleting offerings')", () => 
     expect(screen.queryByRole("status")).toBeNull();
   });
 
-  it("offers the step-up on a 403, calling requestProfileWrite with the route within the click", async () => {
+  it("keeps the confirmation open with its error on a 403, with no step-up", async () => {
     await loaded();
     fireEvent.click(screen.getByRole("button", { name: DELETE_A }));
     mocks.request.mockResolvedValue(jsonResponse(403, {}));
@@ -508,9 +508,11 @@ describe("ManageOfferingsPanel — deleting (spec 'Deleting offerings')", () => 
       fireEvent.click(confirmButton());
     });
 
-    fireEvent.click(screen.getByRole("button", { name: TEXTS.stepUpLabel }));
-    expect(mocks.requestProfileWrite).toHaveBeenCalledWith("/en/manage/offerings");
-    expect(screen.getByRole("alertdialog")).toBeTruthy();
+    expect(mocks.request).toHaveBeenCalledTimes(1);
+    const dialog = screen.getByRole("alertdialog");
+    expect(within(dialog).getByRole("alert").textContent).toBe(TEXTS.deleteError);
+    expect(screen.queryByRole("button", { name: "Confirm your identity" })).toBeNull();
+    expect(mocks.requestProfileWrite).not.toHaveBeenCalled();
   });
 
   it("moves to the previous page when a delete empties a page beyond the first", async () => {

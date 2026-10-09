@@ -105,15 +105,43 @@ Sign out SHALL end the session in the application, revoke the user's access and 
 - **THEN** the session still becomes `anonymous`, the user still returns to the root of the active locale, and no error is shown
 
 ### Requirement: Step-up to the write scope
-When a flow needs the `profile:write` scope, the application SHALL force a fresh sign in on the API's authorization page requesting `profile:write`, and SHALL return to the route that asked for it.
+When a flow needs the `profile:write` scope, the application SHALL force a fresh sign in on the API's authorization page requesting `profile:write`, and SHALL return to the route that asked for it. Every step-up authorization request SHALL carry `login_hint` with the `ulid` of the user signed in when the step-up started; sign in SHALL carry none. The caller SHALL learn the step-up's outcome: `granted`, `cancelled` when the popup closes before completing, `failed` on the error path, or `other-account`. The new tokens SHALL be installed only after `GET /user`, sent with the new access token, returns the `ulid` of the user who was signed in when the step-up started; when it returns another user, the application SHALL keep the previous tokens and session unchanged, send `POST /logout` with the new token, discard the new tokens and report `other-account`. When a step-up popup comes back with `error=access_denied` and the request's `state`, the application SHALL keep the previous tokens, session and sign-in marker unchanged and report `other-account`. The write tokens SHALL last only the action that asked for them: the tokens in use before a granted step-up SHALL be kept in memory, and when the caller ends the action the write tokens SHALL be discarded and the kept tokens used again, with no request; a later write needs a new step-up.
 
 #### Scenario: Requesting the write scope
 - **WHEN** a flow requests the write scope from a route
 - **THEN** the API's authorization page asks the user to sign in again in a popup even when the API session is live, and the route that asked — with any input typed on it — stays as it is
 
+#### Scenario: The step-up names the expected user
+- **WHEN** a step-up starts for a signed-in user
+- **THEN** its authorization request carries `login_hint` with that user's `ulid`
+
 #### Scenario: The write sign in is declined or fails
-- **WHEN** the user declines the write sign in or the authorization comes back with an error
+- **WHEN** the step-up authorization comes back with an error other than `access_denied`, or the code exchange fails
 - **THEN** the application returns to the route that asked with no error text and the session becomes `anonymous`
+
+#### Scenario: The step-up is granted
+- **WHEN** the same user completes the write sign in in the popup
+- **THEN** the new tokens replace the previous ones only after `GET /user` with the new access token returns that user's `ulid`, the session stays authenticated and the caller learns `granted`
+
+#### Scenario: The write tokens last only the action
+- **WHEN** the caller ends the action after a granted step-up
+- **THEN** the write tokens are discarded, the tokens in use before the step-up are used again with no request, and the next write needs a new step-up
+
+#### Scenario: The popup is closed during the step-up
+- **WHEN** the user closes the step-up popup before completing it
+- **THEN** the session stays as it was, no message is shown and the caller learns `cancelled`
+
+#### Scenario: Another user completes the step-up
+- **WHEN** the user signs in as another user in the step-up popup
+- **THEN** the previous tokens and session stay as they were, `POST /logout` is sent with the new access token, the new tokens are not installed and the caller learns `other-account`
+
+#### Scenario: The API refuses another user
+- **WHEN** the step-up popup comes back with `error=access_denied` and the request's `state`
+- **THEN** the previous tokens, session and sign-in marker stay as they were and the caller learns `other-account`
+
+#### Scenario: Another user completes the step-up after a full-page redirect
+- **WHEN** the popup cannot open, the step-up continues as a full-page redirect and another user signs in
+- **THEN** at the callback `POST /logout` is sent with the new access token, the new tokens are not installed, the session ends `anonymous` with the sign-in marker removed and the return route opens
 
 ### Requirement: Return through the callback
 The route the API returns to SHALL render no text and no status region, and SHALL NOT show the API's error text or any error page, whatever the outcome. With an opener of the application's origin it SHALL forward the result to the application and close itself; without one it SHALL complete the flow and open the return destination through client-side navigation. The return destination SHALL be the route where the flow started, with its path and its query string and without its hash, and SHALL be opened only when it is a route of the application; any other return destination SHALL be replaced by the root of the default locale.
@@ -167,3 +195,28 @@ Every document response of the callback route SHALL carry a Content-Security-Pol
 #### Scenario: Policy present on the callback
 - **WHEN** the callback route answers a request
 - **THEN** its response carries a Content-Security-Policy whose `connect-src` names the API origin, and carries no `Cross-Origin-Opener-Policy`
+
+### Requirement: One active-locale derivation for the auth flows
+
+Sign in, sign out and the return route SHALL take the active locale from the locale segment of the route through one shared derivation: the first segment of the route's path when it is a supported locale. Where no supported locale is found, sign in and sign out SHALL use the default locale and the return route SHALL be refused, as the requirements "Sign in", "Sign out" and "Return through the callback" state. This requirement adds no behaviour.
+
+#### Scenario: The same locale for every auth flow
+
+- **WHEN** a user on a route under a supported locale prefix, such as `/en/offerings`, signs in or signs out, or a flow returns to such a route
+- **THEN** the authorization request carries that locale, sign out opens the root of that locale, and the return route is accepted
+
+#### Scenario: A route without a supported locale
+
+- **WHEN** the first segment of the route is not a supported locale, such as `/callback` or `/xx/offerings`
+- **THEN** the authorization request carries the default locale, sign out opens the root of the default locale, and that return route is refused
+
+### Requirement: Sign-in from a registration grant
+When a registration hands over the token block of its `201`, the application SHALL keep that block as the session's tokens in memory only, never writing it to browser storage, and SHALL settle the session with the profile of `GET /user`, without opening the API's authorization page, without passing through the callback and without setting the marker that records that the user had signed in. A block that does not carry `access_token`, `token_type` and `refresh_token` as text and `expires_in` as a number SHALL be refused and nothing kept; a refused block or a profile that cannot be loaded SHALL leave the session `anonymous` with no tokens kept and no error shown.
+
+#### Scenario: Signing in with a registration grant
+- **WHEN** a registration hands over a token block with the four fields
+- **THEN** the tokens are held in memory, browser storage holds no token, the session becomes `authenticated` with the profile of `GET /user`, and the marker is not set
+
+#### Scenario: A registration grant that cannot sign in
+- **WHEN** the handed-over block lacks one of the four fields or has one of the wrong type, or the profile cannot be loaded
+- **THEN** the session is `anonymous`, no tokens are kept, the marker is not set and no error is shown

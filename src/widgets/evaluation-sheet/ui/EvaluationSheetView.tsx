@@ -1,10 +1,9 @@
 import type { ReactNode } from "react";
-import { notFound } from "next/navigation";
 import type { EvaluationItem, OfferingDetail, TaxonomyNode } from "@/shared/api";
 import { fetchEvaluation } from "@/entities/evaluation";
 import { fetchOffering } from "@/entities/offering";
-import { fetchTaxonomies } from "@/entities/taxonomy";
-import { Link, PageSection, RetryButton } from "@/shared/ui";
+import { collectTaxonomyRefs, fetchTaxonomiesCovering } from "@/entities/taxonomy";
+import { PageSection, RetryButton, RouteButton } from "@/shared/ui";
 import { cn } from "@/shared/lib/utils";
 import { EvaluationSheet } from "./EvaluationSheet";
 import { EvaluationSheetSkeleton } from "./EvaluationSheetBaseline";
@@ -22,6 +21,8 @@ export type EvaluationViewTexts = EvaluationSheetTexts & {
   offeringMissingLabel: string;
   errorMessage: string;
   retryLabel: string;
+  notFoundTitle: string;
+  notFoundLine: string;
 };
 
 export type EvaluationSheetViewProps = {
@@ -29,6 +30,8 @@ export type EvaluationSheetViewProps = {
   ulid: string;
   /** The route's back link, kept in section 1 in every state. */
   back: ReactNode;
+  /** The route's back button, at the end of section 2 of a closed evaluation (apply-header-link-rule). */
+  bottomBack: ReactNode;
   texts: EvaluationViewTexts;
 };
 
@@ -41,7 +44,13 @@ type ViewData = {
 
 // Section 1: the back link and the header block, 1.5rem apart (summary §5.3).
 const HEADER_CONTAINER_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
+// Section 2: the sheet, then the back button, 2rem apart
+// (add-bottom-back-links D3; apply-header-link-rule).
+const SHEET_CONTAINER_CLASSES = ["flex", "flex-col", "gap-8"].join(" ");
 const HEADER_BLOCK_CLASSES = ["flex", "flex-col", "items-start", "gap-2"].join(" ");
+// The not-found title and its line, 0.5rem apart (show-item-not-found-message
+// design.md D2).
+const NOT_FOUND_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
 const STATE_CLASSES = ["flex", "flex-col", "items-center", "gap-4", "text-center"].join(" ");
 const BARS_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
 const BAR_CLASSES = ["bg-surface-section", "rounded-field"].join(" ");
@@ -71,38 +80,62 @@ export function EvaluationSheetViewSkeleton({ back }: { back: ReactNode }): Reac
   );
 }
 
-async function load(ulid: string): Promise<ViewData | null> {
+/** The view's data, `"not-found"` for a `404` or an evaluation that is not closed, `null` on a failure. */
+async function load(ulid: string): Promise<ViewData | "not-found" | null> {
   try {
-    const evaluation = await fetchEvaluation(ulid);
+    const read = await fetchEvaluation(ulid);
+    if (!read.ok) return read.kind === "not-found" ? "not-found" : null;
+    const evaluation = read.data;
+    if (evaluation.status !== "closed") return "not-found";
     const offeringId = evaluation.offeringId;
     // A null `offeringId` is a deleted offering: nothing to request (design.md D4).
     const [offering, taxonomies] = await Promise.all([
       offeringId
-        ? fetchOffering(offeringId).then((read) => (read.status === "found" ? read.offering : null))
+        ? fetchOffering(offeringId).then((offeringRead) => (offeringRead.ok ? offeringRead.data : null))
         : Promise.resolve(undefined),
-      fetchTaxonomies(),
+      fetchTaxonomiesCovering(collectTaxonomyRefs(evaluation.tastes ?? [])),
     ]);
-    return { evaluation, offering, taxonomies: taxonomies.data };
+    if (!taxonomies.ok) return null;
+    return { evaluation, offering, taxonomies: taxonomies.data.data };
   } catch {
     return null;
   }
 }
 
 /**
+ * The not-found state (show-item-not-found-message design.md D2): the title and
+ * line above the back button, which follows the title and so is a button
+ * (base-controls "Navigation controls by position"); no Retry.
+ */
+function EvaluationNotFound({ back, texts }: { back: ReactNode; texts: EvaluationViewTexts }): ReactNode {
+  return (
+    <PageSection surface="page" containerClassName={HEADER_CONTAINER_CLASSES}>
+      <div className={NOT_FOUND_CLASSES}>
+        <h1 className="type-heading">{texts.notFoundTitle}</h1>
+        <p className="type-body">{texts.notFoundLine}</p>
+      </div>
+      <div>{back}</div>
+    </PageSection>
+  );
+}
+
+/**
  * The read-only evaluation view as a thin async Server Component (design.md
  * D1, D4; spec "Read-only evaluation view"): the evaluation read, then its
  * offering and the taxonomies in parallel. A closed evaluation renders the
- * header block and the sheet; any other status renders the 404 page; a
- * failed evaluation or taxonomy read keeps the back link and shows the error
- * with Retry.
+ * header block and the sheet; a `404` or any other status renders the
+ * not-found title and line; a failed evaluation or taxonomy read keeps the
+ * back link and shows the error with Retry.
  */
 export async function EvaluationSheetView({
   locale,
   ulid,
   back,
+  bottomBack,
   texts,
 }: EvaluationSheetViewProps): Promise<ReactNode> {
   const data = await load(ulid);
+  if (data === "not-found") return <EvaluationNotFound back={bottomBack} texts={texts} />;
   if (data === null) {
     return (
       <>
@@ -119,7 +152,6 @@ export async function EvaluationSheetView({
     );
   }
   const { evaluation, offering, taxonomies } = data;
-  if (evaluation.status !== "closed") notFound();
 
   const heading =
     offering === undefined
@@ -149,19 +181,24 @@ export async function EvaluationSheetView({
           ) : null}
           {metaLine ? <p className="type-meta">{metaLine}</p> : null}
           {offering ? (
-            <Link href={`/${locale}/offerings/${evaluation.offeringId ?? ""}`}>
+            <RouteButton
+              href={`/${locale}/offerings/${evaluation.offeringId ?? ""}`}
+              variant="action-3"
+              size="sm"
+            >
               {texts.viewOfferingLabel}
-            </Link>
+            </RouteButton>
           ) : null}
         </div>
       </PageSection>
-      <PageSection surface="section">
+      <PageSection surface="section" containerClassName={SHEET_CONTAINER_CLASSES}>
         <EvaluationSheet
           evaluation={evaluation}
           taxonomies={taxonomies}
           locale={locale}
           texts={texts}
         />
+        <div>{bottomBack}</div>
       </PageSection>
     </>
   );

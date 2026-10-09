@@ -16,20 +16,31 @@ export type OfferingsSidebarScreenProps = {
 /**
  * The offerings slot screen (add-sidebar-slot design.md D9;
  * extract-filtered-offerings design.md D5): the sidebar frame for every
- * session state, with no navigation entries, holding the filtered offerings
- * facets with the `filters` texts of the route's locale.
+ * session state, with the list's entry ("Explore offerings") holding the
+ * filtered offerings facets in its collapsible sub-section
+ * (collapse-sidebar-filters), with the `filters` texts of the route's locale.
  */
 export function OfferingsSidebarScreen({
   locale,
   searchParams,
 }: OfferingsSidebarScreenProps): ReactNode {
+  const filters = getMessages("filters", locale);
   return (
-    <AppSidebar>
-      <FilteredOfferingsFacets
-        locale={locale}
-        searchParams={searchParams}
-        texts={offeringFacetsTexts(getMessages("filters", locale))}
-      />
-    </AppSidebar>
+    <AppSidebar
+      listEntry={{
+        label: getMessages("shell", locale).exploreOfferings ?? "",
+        href: `/${locale}/offerings`,
+      }}
+      subsection={{
+        title: filters.title ?? "",
+        content: (
+          <FilteredOfferingsFacets
+            locale={locale}
+            searchParams={searchParams}
+            texts={offeringFacetsTexts(filters)}
+          />
+        ),
+      }}
+    />
   );
 }

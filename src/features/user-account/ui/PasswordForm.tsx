@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
-import { request } from "@/shared/api";
 import type { PasswordUpdatePayload } from "@/shared/api";
 import {
   Button,
@@ -10,7 +9,10 @@ import {
   FormStatus,
   StepUpNotice,
 } from "@/shared/ui";
+import { useServerFieldErrors } from "@/shared/lib/hooks";
+import { updatePassword } from "../api/account";
 import { ExternalLink } from "./ExternalLink";
+import { NewPasswordFields } from "./NewPasswordFields";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -40,6 +42,8 @@ export type PasswordFormProps = {
   texts: PasswordFormTexts;
   /** Starts the write-scope sign in (design.md D6). */
   requestProfileWrite: (returnRoute: string) => void;
+  /** Ends the write permission of a granted step-up (scope-write-token-to-action design.md D4). */
+  endProfileWrite?: () => void;
 };
 
 type PasswordField = keyof PasswordUpdatePayload;
@@ -82,8 +86,10 @@ function check(
  * the step-up"; design.md D2, D6, D9 and D10): the current password with the
  * API's password-reset link, the new password with its help and the
  * confirmation. It sends `PUT /users/{ulid}/password`; a `200` clears the
- * fields and shows the success status, a `403` shows the step-up notice and
- * anything else the generic error, clearing the fields.
+ * fields and shows the success status, a `403` shows the step-up notice, a
+ * `422` its messages under their fields (show-field-validation-errors D3)
+ * and the generic error only for a key that names no field, and anything
+ * else the generic error; every failure but a `403` clears the fields.
  */
 export function PasswordForm({
   ulid,
@@ -91,6 +97,7 @@ export function PasswordForm({
   labelledBy,
   texts,
   requestProfileWrite,
+  endProfileWrite,
 }: PasswordFormProps): ReactNode {
   const formRef = useRef<HTMLFormElement>(null);
   const [values, setValues] = useState<PasswordUpdatePayload>(EMPTY_VALUES);
@@ -99,14 +106,17 @@ export function PasswordForm({
   );
   const [pending, setPending] = useState(false);
   const [outcome, setOutcome] = useState<Outcome>(null);
+  const server = useServerFieldErrors(FIELD_ORDER);
 
   function update(field: PasswordField, value: string): void {
     setValues((current) => ({ ...current, [field]: value }));
+    server.clear(field);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     if (pending) return;
+    server.reset();
     const found = check(values, texts);
     setErrors(found);
     const firstInvalid = FIELD_ORDER.find((field) => found[field]);
@@ -118,26 +128,15 @@ export function PasswordForm({
 
     setPending(true);
     setOutcome(null);
-    let status: number | null = null;
-    try {
-      const response = await request(`/users/${ulid}/password`, {
-        method: "PUT",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
-      status = response.status;
-    } catch {
-      // A network failure shows the generic error (spec "Password change").
-    }
+    const result = await updatePassword(ulid, values);
     setPending(false);
-    if (status === 403) {
-      setOutcome("stepUp");
-      return;
+    if (result.ok) endProfileWrite?.();
+    if (!result.ok && result.kind === "validation") {
+      setOutcome(server.show(result.errors) ? "error" : null);
+    } else {
+      setOutcome(result.ok ? "success" : result.kind === "forbidden" ? "stepUp" : "error");
     }
-    setOutcome(status === 200 ? "success" : "error");
+    if (!result.ok && result.kind === "forbidden") return;
     setValues(EMPTY_VALUES);
   }
 
@@ -152,7 +151,7 @@ export function PasswordForm({
       <div className="flex flex-col gap-2">
         <Field
           label={texts.currentPasswordLabel}
-          error={errors.currentPassword}
+          error={errors.currentPassword ?? server.errors.currentPassword}
           required
         >
           <PasswordInput
@@ -170,37 +169,16 @@ export function PasswordForm({
           </ExternalLink>
         </p>
       </div>
-      <Field
-        label={texts.newPasswordLabel}
-        help={texts.passwordHelp}
-        error={errors.password}
-        required
-      >
-        <PasswordInput
-          name="password"
-          autoComplete="new-password"
-          showPasswordLabel={texts.showPassword}
-          hidePasswordLabel={texts.hidePassword}
-          value={values.password}
-          onChange={(event) => update("password", event.target.value)}
-        />
-      </Field>
-      <Field
-        label={texts.passwordConfirmationLabel}
-        error={errors.passwordConfirmation}
-        required
-      >
-        <PasswordInput
-          name="passwordConfirmation"
-          autoComplete="new-password"
-          showPasswordLabel={texts.showPassword}
-          hidePasswordLabel={texts.hidePassword}
-          value={values.passwordConfirmation}
-          onChange={(event) =>
-            update("passwordConfirmation", event.target.value)
-          }
-        />
-      </Field>
+      <NewPasswordFields
+        texts={{ ...texts, passwordLabel: texts.newPasswordLabel }}
+        password={values.password}
+        passwordConfirmation={values.passwordConfirmation}
+        passwordError={errors.password ?? server.errors.password}
+        passwordConfirmationError={
+          errors.passwordConfirmation ?? server.errors.passwordConfirmation
+        }
+        onChange={update}
+      />
       {outcome === "success" && (
         <FormStatus kind="success" text={texts.passwordUpdated} />
       )}

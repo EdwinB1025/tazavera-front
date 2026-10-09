@@ -85,13 +85,18 @@
   "removeNoteLabel": "Remove note",
   "noteLabel": "Note",
   "extrinsicNoteLabel": "General observation",
+  "extrinsicFarming": "Farming",
+  "extrinsicProcessing": "Processing",
+  "extrinsicTrading": "Trading",
+  "extrinsicCertifications": "Certifications",
   "saveLabel": "Save draft",
   "closeLabel": "Close evaluation",
-  "savedMessage": "Draft saved.",
   "alreadyClosedMessage": "This evaluation is already closed and can no longer be changed.",
   "roastLevelRequired": "Choose the roast level to save.",
   "fragranceNotEvaluatedLabel": "Fragrance not evaluated — use aroma values",
   "closedMessage": "Evaluation closed.",
   "incompleteMessage": "The evaluation cannot be closed yet: complete the highlighted groups.",
-  "resultCount": "Results: {count}"
+  "resultCount": "Results: {count}",
+  "formNotFoundTitle": "Evaluation not found",
+  "formNotFoundLine": "It may have been removed, or the link may be wrong."
 }

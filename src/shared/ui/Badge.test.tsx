@@ -2,7 +2,11 @@ import { describe, it, expect, afterEach } from "vitest";
 import { render, cleanup } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { resolve as pathResolve } from "node:path";
-import { Badge, TAXONOMY_CARD_SURFACES } from "@/shared/ui/Badge";
+import {
+  Badge,
+  TAXONOMY_CARD_SURFACES,
+  TAXONOMY_SIDEBAR_SURFACES,
+} from "@/shared/ui/Badge";
 
 // This project has no global test setup, so RTL's auto-cleanup (which relies
 // on a framework-provided afterEach) does not run. Clean up manually between
@@ -210,6 +214,33 @@ describe("Badge", () => {
         traditional: cards[0],
         dark: cards[1],
       });
+      // The sidebar surfaces of the inverse variant (refine-offering-facets-aut D2).
+      const sidebars = [
+        ...css.matchAll(/--color-nav-surface-dark:\s*var\(--color-([a-z0-9-]+)\)/g),
+      ].map((match) => primitive(match[1]).toLowerCase());
+      expect(sidebars).toHaveLength(2);
+      expect(TAXONOMY_SIDEBAR_SURFACES).toEqual({
+        traditional: sidebars[0],
+        dark: sidebars[1],
+      });
+    });
+
+    it("picks the label over the sidebar surface inside the inverse variant (#af5e70 at level 1: black over the card, white over the sidebar)", () => {
+      const badge = renderTaxonomy("#af5e70", 1);
+      expect({
+        traditional: badge.style.getPropertyValue("--taxonomy-label-inverse"),
+        dark: badge.style.getPropertyValue("--taxonomy-label-inverse-dark"),
+      }).toEqual({ traditional: "white", dark: "white" });
+      const css = readFileSync(
+        pathResolve(process.cwd(), "src/app/styles/globals.css"),
+        "utf8",
+      );
+      expect(css).toMatch(
+        /\n\.variant-inverse \[data-taxonomy\] \{\s*color: var\(--taxonomy-label-inverse\);\s*\}/,
+      );
+      expect(css).toMatch(
+        /\n\[data-theme="dark"\] \.variant-inverse \[data-taxonomy\] \{\s*color: var\(--taxonomy-label-inverse-dark\);\s*\}/,
+      );
     });
   });
 

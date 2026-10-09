@@ -9,13 +9,13 @@ import type {
 } from "@/entities/evaluation";
 import { ratingTierFor } from "@/entities/offering";
 import type { RatingTier } from "@/entities/offering";
-import { buildDescriptorRows } from "@/entities/taxonomy";
+import { buildDescriptorTree } from "@/entities/taxonomy";
 import {
   Badge,
   BeanScale,
   Card,
   CardContent,
-  DescriptorChipGroup,
+  DescriptorCascade,
   IntensitySlider,
   LabelValueRow,
 } from "@/shared/ui";
@@ -254,10 +254,10 @@ export function EvaluationSheet({
       <SheetCard heading={texts.descriptorsHeading} wide>
         <div className={BLOCKS_CLASSES}>
           {BLOCKS.map((block) => (
-            <DescriptorChipGroup
+            <DescriptorCascade
               key={block.selection}
               legend={texts.blockLabels[block.selection]}
-              rows={buildDescriptorRows(taxonomies, CATEGORY_BY_BLOCK[block.key], locale)}
+              nodes={buildDescriptorTree(taxonomies, CATEGORY_BY_BLOCK[block.key], locale)}
               value={descriptors[block.selection]}
               emptyText={texts.noDescriptors}
               readOnly

@@ -66,7 +66,10 @@ export function InventoryField({
 }: InventoryFieldProps): ReactNode {
   const items = useRef(new Map<string, CoffeeInventoryItem>());
   const search = useCallback<ComboboxSearch>(async (term, signal) => {
-    const found = await searchCoffeeInventory(term, signal);
+    const read = await searchCoffeeInventory(term, signal);
+    // A failure rejects the search: the combobox shows its failure row (design.md D3).
+    if (!read.ok) throw new Error("coffeeInventory request failed");
+    const found = read.data;
     for (const item of found) items.current.set(item.ulid ?? "", item);
     return found.map(toOption);
   }, []);

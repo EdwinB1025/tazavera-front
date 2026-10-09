@@ -7,16 +7,23 @@ import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
+  SidebarMenuSub,
+  SidebarSubsectionProvider,
   SidebarTrigger,
   useSidebar,
 } from "@/shared/ui";
 import { useAppSidebar, useFocusIntent } from "./AppSidebarContext";
+import { ListEntry, type ListEntryLink } from "./ListEntry";
 
 // ─── UI-specific types (declared before the component) ───
 
 export type AppSidebarProps = {
   /** Navigation entries contributed by the management area in view. */
   entries?: ReactNode;
+  /** The list's own entry, holding the sub-section (collapse-sidebar-filters). */
+  listEntry?: ListEntryLink;
+  /** A list's controls, as the collapsible sub-section of the list's entry. */
+  subsection?: { title: string; content: ReactNode };
   /** The route's own sidebar content (a list's controls), after the entries. */
   children?: ReactNode;
 };
@@ -34,8 +41,13 @@ export const MANAGE_ROUTE = /^\/[^/]+\/manage(\/|$)/;
  * route with none it is empty (spec: "No entries contributed"), and without
  * entries outside the management area there is no navigation at all.
  */
-export function AppSidebar({ entries, children }: AppSidebarProps): ReactNode {
-  const { session, entries: roleEntries, toggleLabel } = useAppSidebar();
+export function AppSidebar({
+  entries,
+  listEntry,
+  subsection,
+  children,
+}: AppSidebarProps): ReactNode {
+  const { session, entries: roleEntries, toggleLabel, navigationLabel } = useAppSidebar();
   const { isMobile, open, toggleSidebar } = useSidebar();
   const focusIntentRef = useFocusIntent();
   const headerRef = useRef<HTMLDivElement>(null);
@@ -56,6 +68,12 @@ export function AppSidebar({ entries, children }: AppSidebarProps): ReactNode {
   };
   const managing =
     session.state === "authenticated" && MANAGE_ROUTE.test(pathname ?? "");
+  // collapse-sidebar-filters: the sub-section nests under the list's entry,
+  // else under the current role entry, else it stands alone.
+  const sub = subsection && (
+    <SidebarMenuSub title={subsection.title}>{subsection.content}</SidebarMenuSub>
+  );
+  const nested = Boolean(listEntry) || (managing && Boolean(roleEntries));
 
   return (
     <Sidebar label={toggleLabel}>
@@ -63,12 +81,16 @@ export function AppSidebar({ entries, children }: AppSidebarProps): ReactNode {
         <SidebarTrigger aria-label={toggleLabel} onClick={handleToggle} />
       </SidebarHeader>
       <SidebarContent>
-        {(managing || entries) && (
-          <nav>
-            {managing && roleEntries}
-            {entries}
-          </nav>
-        )}
+        <SidebarSubsectionProvider subsection={nested ? sub : null}>
+          {(managing || entries || listEntry) && (
+            <nav aria-label={navigationLabel}>
+              {managing && roleEntries}
+              {entries}
+              {listEntry && <ListEntry {...listEntry} />}
+            </nav>
+          )}
+        </SidebarSubsectionProvider>
+        {!nested && sub}
         {children}
       </SidebarContent>
     </Sidebar>

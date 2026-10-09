@@ -32,14 +32,14 @@ Both public pages SHALL be built from full-width sections. Each section's conten
 - **THEN** a visible gap separates them, and they wrap onto separate lines when the row has no room
 
 ### Requirement: Entry page hero
-The entry page SHALL render, in the main content area, an eyebrow label, the entry heading with exactly one emphasized word in the accent text color (in Spanish the settled copy `Tu café, el que merece cada sorbo`), an introduction paragraph, a primary action that scrolls the verified offerings list into view on the same page, and two navigation links: one registering a coffeeshop and one registering as a specialist. The coffee-beans photograph SHALL accompany the hero from the medium breakpoint (768px) up and be hidden below it.
+The entry page SHALL render, in the main content area, an eyebrow label, the entry heading with exactly one emphasized word in the accent text color (in Spanish the settled copy `Tu café, el que merece cada sorbo`), an introduction paragraph, an action that scrolls the verified offerings list into view on the same page, and two navigation links: one registering a coffeeshop and one registering as a specialist. The coffee-beans photograph SHALL accompany the hero from the medium breakpoint (768px) up and be hidden below it.
 
 #### Scenario: Hero presentation
 - **WHEN** a visitor opens the entry route in a supported locale
-- **THEN** the eyebrow, the heading with one emphasized word, the paragraph, the primary explore action and both registration links render with the texts of that locale
+- **THEN** the eyebrow, the heading with one emphasized word, the paragraph, the explore action and both registration links render with the texts of that locale
 
 #### Scenario: Explore scrolls to the offerings
-- **WHEN** the visitor activates the primary explore action
+- **WHEN** the visitor activates the explore action
 - **THEN** the verified offerings list scrolls into view on the same page and the route does not change
 
 #### Scenario: Registration destinations
@@ -94,7 +94,7 @@ The entry page SHALL list the verified offerings of the API, 6 per page at every
 - **THEN** Previous is unavailable, and when it shows the last page Next is unavailable
 
 ### Requirement: Offering card content
-Each offering card SHALL show the offering's data as mapped from the API: the cupping score out of 100 with a rating badge classifying it — exceptional at 90 or above, excellent at 85 or above and below 90, good at 80 or above and below 85, commercial below 80; the verification state badge (verified or provisional); the coffee name; the coffeeshop name and the roaster name as labeled captions; one origin line joining country, region, process and variety and omitting any null value; the taxonomy badges of the offering; and a footer with the evaluation count, the defective evaluation count, a View action for a signed-in user only and an Evaluate action for a signed-in specialist only, both supplied by the entry-page list as the card's actions and both rendered as action buttons.
+Each offering card SHALL show the offering's data as mapped from the API: the cupping score out of 100 with a rating badge classifying it — exceptional at 90 or above, excellent at 85 or above and below 90, good at 80 or above and below 85, commercial below 80; the verification state badge (verified or provisional); the coffee name; the coffeeshop name and the roaster name as labeled captions; one origin line joining country, region, process and variety and omitting any null value; the taxonomy badges of the offering; and a footer with the evaluation count, the defective evaluation count, in this order a View action for a signed-in user only, a "View evaluations" action for every viewer and an Evaluate action for a signed-in specialist only, all supplied by the entry-page list as the card's actions and all rendered as action buttons.
 
 #### Scenario: Score and rating tier
 - **WHEN** an offering carries a cupping average
@@ -132,35 +132,12 @@ Each offering card SHALL show the offering's data as mapped from the API: the cu
 - **WHEN** the viewer is anonymous or signed in with another role
 - **THEN** no Evaluate action renders on the card
 
-### Requirement: Taxonomy badges on the offering card
-The taxonomy badges of an offering card SHALL come from the offering's consensus — every taxonomy reference of its CATA concordance, including nested children, where the notes marked on several aromatic attributes are already condensed into the single `aromatics` group — and never from its per-attribute sensory taxonomy. Each taxonomy value SHALL render once, however many times its reference appears. Each badge SHALL carry the taxonomy's name in the active locale and the taxonomy's data color, arranged in three rows by level (0, 1, 2), each row wrapping its badges so that no row overflows the card below the medium breakpoint (768px). A reference that resolves to no taxonomy SHALL render no badge, and an offering without a consensus SHALL render no taxonomy badge.
-
-#### Scenario: Names by locale
-- **WHEN** an offering card renders in the active locale
-- **THEN** each taxonomy badge shows the taxonomy's name in that locale
-
-#### Scenario: Rows by level
-- **WHEN** an offering carries taxonomy references at levels 0, 1 and 2
-- **THEN** the badges render in three rows, one per level, each row wrapping its badges rather than overflowing the card
-
-#### Scenario: Unresolved reference
-- **WHEN** a taxonomy reference matches no taxonomy
-- **THEN** no badge renders for that reference and the remaining badges render normally
-
-#### Scenario: Values from the consensus
-- **WHEN** an offering carries both a per-attribute sensory taxonomy and a CATA concordance
-- **THEN** the card's badges are exactly the resolved references of the CATA concordance and no reference found only in the sensory taxonomy renders
-
-#### Scenario: Each value once
-- **WHEN** the same taxonomy reference appears more than once in the offering's CATA concordance
-- **THEN** its badge renders once
-
-#### Scenario: No consensus
-- **WHEN** an offering's CATA concordance is empty, whatever its sensory taxonomy holds
-- **THEN** the card renders no taxonomy badge and the rest of its content renders normally
+#### Scenario: View evaluations action for everyone
+- **WHEN** any viewer, anonymous or signed in, sees an offering card
+- **THEN** a "View evaluations" action button renders after the View action and before the Evaluate action, with the same text as the offering detail's "View evaluations" link, and activating it opens `/{locale}/evaluations?offeringId={ulid}` in the active locale with the offering's identifier
 
 ### Requirement: About us page
-The about route SHALL render five sections with alternating page and section backgrounds, in this order: a brief hero with an eyebrow label and a heading with one emphasized word in the accent text color; the story of the gap between a coffee label and what is in the cup and why the guide is built on objective evaluations; how we evaluate as three cards — the coffeeshop registers its offering as provisional, specialists cup it with the SCA method, and the consensus verifies it; who it is for, naming coffeeshops and specialists with their registration links; and a closing primary action that opens the entry page of the active locale.
+The about route SHALL render five sections with alternating page and section backgrounds, in this order: a brief hero with an eyebrow label and a heading with one emphasized word in the accent text color; the story of the gap between a coffee label and what is in the cup and why the guide is built on objective evaluations; how we evaluate as three cards — the coffeeshop registers its offering as provisional, specialists cup it with the SCA method, and the consensus verifies it; who it is for, naming coffeeshops and specialists with their registration links; and a closing action that opens the entry page of the active locale.
 
 #### Scenario: Sections and order
 - **WHEN** a visitor opens the about route in a supported locale
@@ -175,7 +152,7 @@ The about route SHALL render five sections with alternating page and section bac
 - **THEN** the application opens that registration route of the active locale, owned by a later change
 
 #### Scenario: Closing action
-- **WHEN** the visitor activates the closing primary action
+- **WHEN** the visitor activates the closing action
 - **THEN** the entry page of the active locale opens
 
 ### Requirement: Localized page texts
@@ -206,3 +183,38 @@ The offering card's footer SHALL render, in its group of actions, the actions it
 #### Scenario: No consumer actions
 - **WHEN** a consumer supplies no actions for a card
 - **THEN** no action renders in the footer and the footer shows only the counts
+
+### Requirement: Taxonomy badge trees on the offering card
+The taxonomy badges of an offering card SHALL come from the offering's consensus — every taxonomy reference of its CATA concordance, including nested children, where the notes marked on several aromatic attributes are already condensed into the single `aromatics` group — and never from its per-attribute sensory taxonomy. Each taxonomy value SHALL render once, however many times its reference appears, with the children of every occurrence nested under that single badge. Each badge SHALL carry the taxonomy's name in the active locale and the taxonomy's data color with the treatment of its own level. The badges SHALL render as nested trees following the concordance tree as the API delivers it: each top-level note starts a tree; its children render below it, indented, in one column behind a left connector line; and each child's own children render below that child, further indented, wrapping. The trees SHALL sit side by side and wrap onto further lines, so that no tree overflows the card at any viewport width. A reference that resolves to no taxonomy SHALL render no badge, and an offering without a consensus SHALL render no taxonomy badge. The hierarchy SHALL be exposed to assistive technologies as nested lists.
+
+#### Scenario: Names by locale
+- **WHEN** an offering card renders in the active locale
+- **THEN** each taxonomy badge shows the taxonomy's name in that locale
+
+#### Scenario: Nested trees
+- **WHEN** an offering's concordance carries a top-level note with a child that has a child of its own
+- **THEN** the child renders below the top-level note, indented, in one column behind a left connector line, and the grandchild renders below its parent child, further indented, each level as a list nested in the item of its parent
+
+#### Scenario: Trees side by side
+- **WHEN** an offering's concordance carries several top-level notes
+- **THEN** each top-level note renders as its own tree, the trees side by side in one list that wraps onto further lines
+
+#### Scenario: Unresolved reference
+- **WHEN** a taxonomy reference matches no taxonomy
+- **THEN** no badge renders for that reference and the remaining badges render normally
+
+#### Scenario: Values from the consensus
+- **WHEN** an offering carries both a per-attribute sensory taxonomy and a CATA concordance
+- **THEN** the card's badges are exactly the resolved references of the CATA concordance and no reference found only in the sensory taxonomy renders
+
+#### Scenario: Each value once
+- **WHEN** the same taxonomy reference appears more than once in the offering's CATA concordance
+- **THEN** its badge renders once
+
+#### Scenario: Repeated reference keeps its children
+- **WHEN** a taxonomy reference appears in several places of the concordance, each occurrence with its own children
+- **THEN** its single badge renders at its first occurrence and the children of every occurrence render nested under it, each once
+
+#### Scenario: No consensus
+- **WHEN** an offering's CATA concordance is empty, whatever its sensory taxonomy holds
+- **THEN** the card renders no taxonomy badge and the rest of its content renders normally

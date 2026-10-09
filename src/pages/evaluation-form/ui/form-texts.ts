@@ -29,7 +29,7 @@ export function formTextsFrom(catalog: MessageCatalog): EvaluationFormTexts {
     actions: {
       saveLabel: catalog.saveLabel,
       closeLabel: catalog.closeLabel,
-      savedMessage: catalog.savedMessage,
+      cancelLabel: catalog.deleteCancelLabel,
       closedMessage: catalog.closedMessage,
       incompleteMessage: catalog.incompleteMessage,
       notYoursMessage: catalog.notYoursMessage,
@@ -92,6 +92,12 @@ export function formTextsFrom(catalog: MessageCatalog): EvaluationFormTexts {
       removeNoteLabel: catalog.removeNoteLabel,
       noteLabel: catalog.noteLabel,
       extrinsicNoteLabel: catalog.extrinsicNoteLabel,
+      extrinsicLabels: {
+        farming: catalog.extrinsicFarming,
+        processing: catalog.extrinsicProcessing,
+        trading: catalog.extrinsicTrading,
+        certifications: catalog.extrinsicCertifications,
+      },
     },
   };
 }

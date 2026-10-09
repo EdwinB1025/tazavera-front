@@ -46,7 +46,7 @@ The route `/{locale}/manage/evaluations` SHALL show the evaluations of the signe
 
 ### Requirement: Row actions
 
-Each row SHALL offer Edit for an open evaluation, View for a closed one or for any evaluation whose `offeringId` is `null`, and Delete with an explicit confirmation for all of them.
+Each row SHALL offer, in this order: View, on every row, which opens the form read-only (`/{locale}/manage/evaluations/{ulid}?mode=view`); View offering, only when the evaluation's `offeringId` is not `null`, which opens `/{locale}/offerings/{offeringId}` and is the public row's control (the "View offering" text with the row's hidden suffix); Close evaluation; Edit, only for an open evaluation whose `offeringId` is not `null`, which opens the form route `/{locale}/manage/evaluations/{ulid}` for editing; and Delete with an explicit confirmation, on every row. Close evaluation SHALL appear only on an open row whose `offeringId` is not `null` and whose evaluation is complete by the contract's close rule: the 7 `descriptive` and 8 `affective` scores greater than 0, and among `tastes` at least one of `type` `main_tastes`, one of `type` `mouthfeel` and one aromatic one (any `type` other than `main_tastes`, `mouthfeel` and `defects`). It calls `closeAnEvaluation` and reports its outcome in the row with the form's messages; on success the row SHALL show the closed state without a full page reload.
 
 #### Scenario: Editing an open evaluation
 
@@ -56,12 +56,52 @@ Each row SHALL offer Edit for an open evaluation, View for a closed one or for a
 #### Scenario: Viewing a closed evaluation
 
 - **WHEN** the specialist activates View on a closed row
-- **THEN** the same form route opens read-only
+- **THEN** the form route opens read-only
+
+#### Scenario: Viewing an open evaluation
+
+- **WHEN** the specialist activates View on an open row
+- **THEN** the form route opens with `?mode=view`, read-only
+
+#### Scenario: Actions of a complete open row
+
+- **WHEN** an open row whose offering exists and whose evaluation is complete renders
+- **THEN** it offers View, View offering, Close evaluation, Edit and Delete, in this order
+
+#### Scenario: No close on an incomplete open row
+
+- **WHEN** an open row whose evaluation is not complete renders
+- **THEN** it offers View, View offering, Edit and Delete, and no Close evaluation
+
+#### Scenario: Viewing the offering of a row
+
+- **WHEN** the specialist activates View offering on a row
+- **THEN** `/{locale}/offerings/{offeringId}` opens
 
 #### Scenario: A row whose offering was deleted
 
 - **WHEN** a row's evaluation has `offeringId` `null`, open or closed
-- **THEN** the row offers View, which opens the form route read-only, and Delete
+- **THEN** the row offers View, which opens the form route read-only, and Delete, and no View offering, no Edit and no Close evaluation
+
+#### Scenario: Closing an open evaluation from its row
+
+- **WHEN** the specialist activates Close evaluation on a complete open row
+- **THEN** `closeAnEvaluation` is sent for the row's evaluation
+
+#### Scenario: The row's close succeeds
+
+- **WHEN** the close sent from a row succeeds
+- **THEN** the row shows the closed confirmation, keeps View, and no longer offers Edit or Close evaluation
+
+#### Scenario: The row's close finds the evaluation incomplete
+
+- **WHEN** the close sent from a row answers `409`
+- **THEN** the row shows the form's incomplete message and stays open
+
+#### Scenario: No close on a closed row
+
+- **WHEN** a closed row renders
+- **THEN** it offers no Close evaluation
 
 #### Scenario: Deleting after confirmation
 
@@ -80,7 +120,7 @@ Each row SHALL offer Edit for an open evaluation, View for a closed one or for a
 
 ### Requirement: Evaluation form
 
-The route `/{locale}/manage/evaluations/new?offering={ulid}` SHALL present the CVA combined form for a new evaluation of that offering and the route `/{locale}/manage/evaluations/{ulid}` the same form loaded from the evaluation. The form SHALL carry the header fields roast level (prefilled from the offering's `coffeeInventory.coffee.roastLevel`) and extraction method, and the eight groups in CVA order: Fragrance / Aroma, Flavor / Aftertaste, Acidity, Sweetness, Mouthfeel, Overall, Defects and Extrinsic. Every group with a descriptive part SHALL offer one intensity control per axis on the 0–15 scale and every group with an affective part one preference control per axis on the 1–9 scale, Overall having only the affective one. Defects SHALL offer only its descriptor block and Extrinsic only its optional notes field, sent as `extrinsics.generalObservation`. The header fields SHALL sit in a section card (content-structure "Section card") with no header band. At every viewport each group SHALL be a section card whose header band holds a collapsible section header (content-structure "Collapsible section") carrying the group name and, in the band's aside, its completeness indicator; groups SHALL sit 1rem apart and the form's top-level blocks 2rem apart; every group SHALL start collapsed in an editable form and expanded in a closed one, and while a group is collapsed its card SHALL show only its header band, with no separator under it. Right after the Flavor / Aftertaste group, which holds Main tastes, the form SHALL show the informative collapsible section "Affective quality impression", the 1–9 legend, as a section card with its collapsible header in the band: the nine values in order, each with a bean mark with its number inside it and its label (1 Extremely low, 2 Very low, 3 Moderately low, 4 Slightly low, 5 Neither high nor low, 6 Slightly high, 7 Moderately high, 8 Very high, 9 Extremely high); it follows the groups' initial-state rule and has no completeness indicator. An evaluation whose `offeringId` is `null` SHALL open read-only, with the "Offering no longer exists" message in place of the offering header and the roast level, and keeps its extraction method.
+The route `/{locale}/manage/evaluations/new?offering={ulid}` SHALL present the CVA combined form for a new evaluation of that offering and the route `/{locale}/manage/evaluations/{ulid}` the same form loaded from the evaluation; with the query `?mode=view` that route SHALL render the evaluation read-only whatever its status. The form SHALL carry the header fields roast level (prefilled from the offering's `coffeeInventory.coffee.roastLevel`) and extraction method, and the eight groups in CVA order: Fragrance / Aroma, Flavor / Aftertaste, Acidity, Sweetness, Mouthfeel, Overall, Defects and Extrinsic. Every group with a descriptive part SHALL offer one intensity control per axis on the 0–15 scale and every group with an affective part one preference control per axis on the 1–9 scale, Overall having only the affective one. Defects SHALL offer only its descriptor block and Extrinsic only its five optional text fields, in this order: Farming, Processing, Trading, Certifications and General observation, sent as `extrinsics.farming`, `extrinsics.processing`, `extrinsics.trading`, `extrinsics.certifications` and `extrinsics.generalObservation`; General observation keeps its "Add note" control; each of the other four, like Overall's note, always shows its label and shows its text area only once "Add note" is activated, or on load when it holds a saved value; an unopened field is sent as `null`, and none of the five counts towards completeness. The header fields SHALL sit in a section card (content-structure "Section card") with no header band. At every viewport each group SHALL be a section card whose header band holds a collapsible section header (content-structure "Collapsible section") carrying the group name and, in the band's aside, its completeness indicator; groups SHALL sit 1rem apart and the form's top-level blocks 2rem apart; every group SHALL start collapsed in an editable form and expanded in a closed one, and while a group is collapsed its card SHALL show only its header band, with no separator under it. As the form's first section, after the header and before the context fields, the form SHALL show the informative collapsible section "Affective quality impression", the 1–9 legend, as a section card with its collapsible header in the band: the nine values in order, each with a bean mark with its number inside it and its label (1 Extremely low, 2 Very low, 3 Moderately low, 4 Slightly low, 5 Neither high nor low, 6 Slightly high, 7 Moderately high, 8 Very high, 9 Extremely high); it follows the groups' initial-state rule and has no completeness indicator. An evaluation whose `offeringId` is `null` SHALL open read-only, with the "Offering no longer exists" message in place of the offering header and the roast level, and keeps its extraction method. A form shown read-only (a closed evaluation, an evaluation whose `offeringId` is `null`, or any evaluation opened with `?mode=view`), which has no actions, SHALL repeat the header's back control as a back button, with the same text and destination, after the read-only status at the end of the form; an editable form SHALL show no second back control. The header's back control SHALL be a back link to the previous page, whose fallback destination is `/{locale}/manage/evaluations`. For a signed-in specialist, when the evaluation route's evaluation request, or the new form's offering request, answers `404`, the route SHALL show, in place of the form, the item's title as the page heading ("Evaluation not found" or "Offering not found"), the line "It may have been removed, or the link may be wrong." below it and then a back button with the header's back text to `/{locale}/manage/evaluations`, with no retry action, in the route's locale; a new form opened without an `offering` query value SHALL show the 404 page.
 
 #### Scenario: The form header
 
@@ -110,12 +150,12 @@ The route `/{locale}/manage/evaluations/new?offering={ulid}` SHALL present the C
 #### Scenario: Form sections
 
 - **WHEN** the form renders in either theme, at any viewport
-- **THEN** the roast level and extraction method sit in a section card with no header band, each group and the 1–9 legend are section cards with their collapsible header in the header band and no accent edge, the cards of the groups and the legend are 1rem apart, and the header, the context card, the groups and the actions are 2rem apart
+- **THEN** the roast level and extraction method sit in a section card with no header band, each group and the 1–9 legend are section cards with their collapsible header in the header band and no accent edge, the cards of the groups are 1rem apart, and the header, the legend, the context card, the groups and the actions are 2rem apart
 
 #### Scenario: The 1–9 legend
 
 - **WHEN** the form opens
-- **THEN** the "Affective quality impression" section sits between the Flavor / Aftertaste and Acidity groups, collapsed in an editable form and expanded in a closed one, and once expanded it lists the nine values from 1 to 9, each with its number inside its bean mark and its label, the number remaining part of the item's text for assistive technology
+- **THEN** the "Affective quality impression" section is the form's first section, after the header and before the context fields card, collapsed in an editable form and expanded in a closed one, and once expanded it lists the nine values from 1 to 9, each with its number inside its bean mark and its label, the number remaining part of the item's text for assistive technology
 
 #### Scenario: An evaluation of a deleted offering
 
@@ -132,24 +172,63 @@ The route `/{locale}/manage/evaluations/new?offering={ulid}` SHALL present the C
 - **WHEN** the form opens for a closed evaluation
 - **THEN** the same content is shown with every control read-only and with no save, close, note or remove-note action
 
+#### Scenario: An open evaluation opened with View
+
+- **WHEN** the evaluation route opens an open evaluation with `?mode=view`
+- **THEN** the form is shown read-only, with no editable control, no save, close or cancel action, and the read-only back button to `/{locale}/manage/evaluations` at its end
+
+#### Scenario: No offering on the new form
+
+- **WHEN** the new form is opened without an `offering` query value
+- **THEN** the 404 page is shown
+
 #### Scenario: An unknown offering or evaluation
 
-- **WHEN** the new form is opened without an `offering` query value or with an unknown one, or the evaluation route names an evaluation that does not exist or belongs to another user
-- **THEN** the 404 page is shown
+- **WHEN** a signed-in specialist opens the new form and the offering request answers `404`, or opens the evaluation route and the evaluation request answers `404` (an evaluation that does not exist or belongs to another user)
+- **THEN** in place of the form, the item's heading ("Offering not found" or "Evaluation not found"), the line "It may have been removed, or the link may be wrong." and, below them, the back button to `/{locale}/manage/evaluations` are shown, with no retry action
 
 #### Scenario: The form cannot be loaded
 
-- **WHEN** the evaluation or its offering cannot be loaded for any reason other than an authentication failure
+- **WHEN** the evaluation or its offering cannot be loaded for any reason other than an authentication failure or the `404` of the evaluation, or of the new form's offering
 - **THEN** a failure message with a retry action is shown
+
+#### Scenario: Back link at the end of a read-only evaluation
+
+- **WHEN** the form opens for a closed evaluation
+- **THEN** a second back button with the same text and destination as the header's renders after the last group and the read-only status, and an editable form renders only the header's back link
+
+#### Scenario: Back buttons on the evaluation form
+- **WHEN** the evaluation form renders for a user with no previous page of the application
+- **THEN** the header's back control is a link and the second one of a read-only form is a button, both addressing `/{locale}/manage/evaluations`
+
+#### Scenario: Extrinsic notes start behind Add note
+
+- **WHEN** the Extrinsic group of a new evaluation is expanded
+- **THEN** Farming, Processing, Trading and Certifications each show their label and an "Add note" control, and no text area
+
+#### Scenario: Editing and sending the extrinsic fields
+
+- **WHEN** the specialist opens and fills some of the Extrinsic group's five fields, leaves the rest unopened or empty and saves
+- **THEN** the write body's `extrinsics` carries `farming`, `processing`, `trading`, `certifications` and `generalObservation`, each with its entered text, and an unopened or empty field as `null`
+
+#### Scenario: Loading the extrinsic fields
+
+- **WHEN** the form opens for an existing evaluation whose `extrinsics` holds values
+- **THEN** each of the five Extrinsic fields that holds a value shows its text area with that value, and a closed evaluation shows each non-empty value as text under its label
 
 ### Requirement: Descriptor blocks
 
-Each descriptor block SHALL offer the level-0 and level-1 nodes of `GET /taxonomies` whose `categories` contain the block's value (`aromatics`, `main_tastes`, `mouthfeel`, `defects`), as rows of the level-0 nodes with their matching level-1 children, plus one row of the matching level-0 nodes that have no matching child, with level 2 never shown and the node name of the route's locale as the label. A node matching several blocks SHALL appear in each of them. Selection SHALL be multiple with no limit on main tastes.
+Each descriptor block SHALL offer, as a descriptor cascade, the level-0, level-1 and level-2 nodes of `GET /taxonomies` whose `categories` contain the block's value (`aromatics`, `main_tastes`, `mouthfeel`, `defects`), with the node name of the route's locale as the label; a node whose parent is not offered SHALL NOT be offered. Loading a saved draft in which a node is chosen without its parent SHALL also choose every ancestor of that node. A node matching several blocks SHALL appear in each of them. Selection SHALL be multiple with no limit on main tastes.
 
 #### Scenario: A block's options
 
 - **WHEN** the taxonomy tree arrives and a block is rendered
-- **THEN** it shows one row per level-0 node with matching children, those children as its options, and one shared row with the matching level-0 nodes that have no matching child
+- **THEN** it shows every matching level-0 node as a chip and, while a matching node is chosen, its matching children, down to level 2, and no node whose parent is not offered
+
+#### Scenario: Draft load chooses ancestors
+
+- **WHEN** a saved draft is loaded whose descriptors hold a level-1 or level-2 node without its parent
+- **THEN** the block shows that node chosen together with every ancestor of it
 
 #### Scenario: Selecting descriptors
 
@@ -158,7 +237,12 @@ Each descriptor block SHALL offer the level-0 and level-1 nodes of `GET /taxonom
 
 ### Requirement: Notes
 
-Every axis and part SHALL hide its optional note behind an "Add note" control; once open, the note can be removed with a remove-note control and the note is sent as that axis's `note`.
+Every axis and part SHALL hide its optional note behind an "Add note" control, which shows a decorative plus icon after its text; once open, the note can be removed with a remove-note control and the note is sent as that axis's `note`.
+
+#### Scenario: The Add note control shows a plus icon
+
+- **WHEN** an axis's note is closed
+- **THEN** the "Add note" control shows a plus icon after its text, hidden from assistive technology, and its accessible name is exactly its text
 
 #### Scenario: Adding a note
 
@@ -205,17 +289,17 @@ Every group except Defects and Extrinsic SHALL show a completeness indicator bes
 
 ### Requirement: Saving a draft
 
-Save draft SHALL create the evaluation with `createAnEvaluation` the first time and update it with `updateAnEvaluation` afterwards, sending `offeringId` only on creation, `descriptive.roastLevel` and the entered parts. On the first success the route SHALL become `/{locale}/manage/evaluations/{ulid}` and a saved confirmation SHALL appear in a status region beside the actions.
+Save draft SHALL create the evaluation with `createAnEvaluation` the first time and update it with `updateAnEvaluation` afterwards, sending `offeringId` only on creation, `descriptive.roastLevel` and the entered parts. On success the form SHALL navigate client-side, without a full page load, to the My evaluations route `/{locale}/manage/evaluations`. On failure the form SHALL stay with its message in a status region beside the actions. A `422` SHALL show the messages for `descriptive.roastLevel` and `extractionMethod` under the roast level and extraction method fields as form-fields "Server validation errors" states, and the generic failure message only when one of its keys names neither field.
 
 #### Scenario: The first save
 
 - **WHEN** the specialist saves a new form and the creation succeeds
-- **THEN** the route becomes the evaluation's own route, later saves update it, and the saved confirmation appears
+- **THEN** the app router navigates to `/{locale}/manage/evaluations`
 
 #### Scenario: A later save
 
 - **WHEN** the specialist saves an already created evaluation and the update succeeds
-- **THEN** the saved confirmation appears and the route stays
+- **THEN** the app router navigates to `/{locale}/manage/evaluations`
 
 #### Scenario: The form is not valid
 
@@ -225,21 +309,41 @@ Save draft SHALL create the evaluation with `createAnEvaluation` the first time 
 #### Scenario: The API refuses the write
 
 - **WHEN** a save answers `403`
-- **THEN** the "not yours" message appears; when it answers `409` the "already closed" message appears; when it answers `422` or fails for any other reason the generic failure message appears; no retry is offered and nothing is sent again automatically
+- **THEN** the "not yours" message appears; when it answers `409` the "already closed" message appears; when it answers any other non-2xx status except `422` or fails for any other reason the generic failure message appears; in every case the form stays without navigating, no retry is offered and nothing is sent again automatically
+
+#### Scenario: The API names an invalid field
+
+- **WHEN** a save answers `422` with a message for `descriptive.roastLevel`
+- **THEN** that message renders under the roast level field, which is marked invalid, no failure message appears, the form stays without navigating, and the message clears when the specialist changes the roast level
 
 ### Requirement: Closing an evaluation
 
-Close evaluation SHALL save the form and then call `closeAnEvaluation`. On success the form SHALL become the read-only view and a closed confirmation SHALL appear.
+Close evaluation SHALL appear in the form only when the evaluation exists and its saved state (the evaluation as loaded, not unsaved edits) is complete by the contract's close rule of "Row actions". A new form, or a saved evaluation that is not complete, SHALL NOT offer it. Close evaluation SHALL save the form and then call `closeAnEvaluation`. On success the specialist SHALL return to `/{locale}/manage/evaluations`, as after a successful save; a failed close SHALL keep the form with its message.
+
+#### Scenario: No close on a new evaluation
+
+- **WHEN** the form renders for a new evaluation with nothing saved
+- **THEN** no Close evaluation action renders
+
+#### Scenario: Close on a saved open evaluation
+
+- **WHEN** the form renders a saved open evaluation that is complete
+- **THEN** the Close evaluation action renders
+
+#### Scenario: No close on an incomplete saved evaluation
+
+- **WHEN** the form renders a saved open evaluation that is not complete
+- **THEN** no Close evaluation action renders
 
 #### Scenario: Closing a complete evaluation
 
 - **WHEN** the specialist closes the evaluation and the close succeeds
-- **THEN** the read-only view replaces the form with every group expanded and the closed confirmation appears
+- **THEN** `/{locale}/manage/evaluations` opens
 
 #### Scenario: Closing an incomplete evaluation
 
-- **WHEN** the close answers `409`
-- **THEN** the incomplete message appears and the groups that are incomplete are highlighted and expanded, collapsed ones included
+- **WHEN** the close answers `409`, the form's unsaved edits having left it incomplete
+- **THEN** the form stays, the incomplete message appears and the groups that are incomplete are highlighted and expanded, collapsed ones included
 
 #### Scenario: Closing is refused
 
@@ -276,7 +380,7 @@ The Evaluate action of an offering card SHALL be an action button that renders o
 
 ### Requirement: Management sidebar entry
 
-On the evaluation routes the management sidebar SHALL show the specialist area's one entry, "My evaluations", pointing at `/{locale}/manage/evaluations` and marked as the current page when the list is in view.
+On the evaluation routes the management sidebar SHALL show the specialist area's entries: "My evaluations" pointing at `/{locale}/manage/evaluations` (marked as the current page when the list is in view) followed by "Explore offerings" pointing at `/{locale}/offerings` with no query, never marked as the current page.
 
 #### Scenario: The entry on the list route
 
@@ -287,6 +391,11 @@ On the evaluation routes the management sidebar SHALL show the specialist area's
 
 - **WHEN** the specialist opens a form route with the sidebar visible
 - **THEN** the sidebar shows the "My evaluations" entry without the current-page marking
+
+#### Scenario: The explore entry
+
+- **WHEN** the specialist opens an evaluation route with the sidebar visible
+- **THEN** the sidebar shows "Explore offerings" right after "My evaluations", in the same list, pointing at `/{locale}/offerings` with no query and without the current-page marking
 
 ### Requirement: Public evaluations list
 The system SHALL show, at `/{locale}/evaluations`, a list of the closed specialist evaluations open to any visitor with or without a session, ordered newest first by default. Each row SHALL show the evaluation's `cuppingScore` with its rating word (absent when the score is null), its `closedAt` as a date in the route's locale under a "Closed on" label (absent when null), and, from the offering, the coffee name as the row heading with the coffeeshop and the roaster as captions. Every listing request SHALL carry `evaluationType=specialist` and `status=closed` regardless of the URL, and any `status` or `evaluationType` value in the URL SHALL be ignored. Each row SHALL offer an action button to its evaluation ("View") and one to its offering ("View offering"), never links, each action's accessible name being its visible text plus a visually hidden coffee name so that the names are unique and start with the visible text. A row without a coffee name (its `offeringId` is null or its offering request failed) SHALL use as hidden suffix its heading text plus its closed date. A row whose `offeringId` is null SHALL show the offering-missing message as its heading with no captions and no "View offering" action, and no offering request SHALL be made for it. The list SHALL paginate with Previous/Next controls that keep every current query key and replace only the page.
@@ -394,7 +503,7 @@ The list body SHALL offer a sort choice labelled for assistive technology, whose
 - **THEN** the list falls back to the default order
 
 ### Requirement: Read-only evaluation view
-The system SHALL show, at `/{locale}/evaluations/{ulid}` to any visitor, one closed specialist evaluation: a header with the offering's identity (coffee name as the page heading, the coffeeshop and roaster captions, the "Closed on" line and a "View offering" link) and the read-only evaluation presentation below. The route SHALL offer a back link to the previous page, whose fallback destination is the plain list with no query. When the offering cannot be loaded, the header SHALL show the offering-unavailable message as the heading with no captions and no "View offering" link while the presentation still renders. When the evaluation's `offeringId` is null, no offering request SHALL be made and the header SHALL show the offering-missing message as the heading with no captions and no "View offering" link while the back link and the presentation still render.
+The system SHALL show, at `/{locale}/evaluations/{ulid}` to any visitor, one closed specialist evaluation: a header with the offering's identity (coffee name as the page heading, the coffeeshop and roaster captions, the "Closed on" line and a "View offering" button) and the read-only evaluation presentation below. The route SHALL offer a back link to the previous page, whose fallback destination is the plain list with no query. When the offering cannot be loaded, the header SHALL show the offering-unavailable message as the heading with no captions and no "View offering" button while the presentation still renders. When the evaluation's `offeringId` is null, no offering request SHALL be made and the header SHALL show the offering-missing message as the heading with no captions and no "View offering" button while the back link and the presentation still render. When the evaluation renders, the back control SHALL be repeated as a back button, with the same text and destination, at the end of the second section, after the presentation; the loading and error states SHALL keep only the first section's back link. When the evaluation request answers `404` (an unknown identifier, or an evaluation that is not closed) or answers an evaluation whose `status` is not closed, the view SHALL show, in its first section, the title "Evaluation not found" as the page heading and the line "It may not be published yet, or the link may be wrong." below it (in the route's locale), followed by the back button, with no retry action and no presentation, and no back link.
 
 #### Scenario: Loading the view
 - **WHEN** the view is being loaded
@@ -404,28 +513,40 @@ The system SHALL show, at `/{locale}/evaluations/{ulid}` to any visitor, one clo
 - **WHEN** the request returns 200 with `status` closed
 - **THEN** the header shows the offering's identity and the presentation shows the evaluation's results
 
+#### Scenario: Opening an unknown evaluation
+- **WHEN** the evaluation request answers `404` (an unknown identifier, or an evaluation that is not closed)
+- **THEN** the heading "Evaluation not found" and the line "It may not be published yet, or the link may be wrong." render, the back button renders below them, and no Retry control and no presentation render
+
 #### Scenario: Opening an evaluation that is not closed
 - **WHEN** the request returns 200 with `status` other than closed
-- **THEN** the route renders the 404 page
+- **THEN** the same heading, line and back button render as for an unknown evaluation, with no Retry control and no presentation
 
 #### Scenario: The offering cannot be loaded
 - **WHEN** the evaluation loads but its offering request fails
-- **THEN** the heading shows the offering-unavailable message with no captions and no "View offering" link, and the presentation renders the evaluation's results
+- **THEN** the heading shows the offering-unavailable message with no captions and no "View offering" button, and the presentation renders the evaluation's results
 
 #### Scenario: Viewing an evaluation whose offering was deleted
 - **WHEN** the evaluation loads with `status` closed and `offeringId` null
-- **THEN** no offering request is made, the heading shows the offering-missing message with no captions and no "View offering" link, and the back link and the presentation render as usual
+- **THEN** no offering request is made, the heading shows the offering-missing message with no captions and no "View offering" button, and the back link and the presentation render as usual
 
 #### Scenario: The evaluation cannot be loaded
-- **WHEN** the evaluation request or the taxonomy request fails with any non-2xx status (an unknown ULID included, whose 404 is undocumented) or a transport failure
+- **WHEN** the evaluation request or the taxonomy request fails with a transport failure or a non-2xx status other than the evaluation's `404`
 - **THEN** the first section keeps the back link and the second section shows the error message with a Retry control
 
 #### Scenario: Retrying after a failure
 - **WHEN** the visitor activates Retry
 - **THEN** the view is requested again and moves through loading to either the evaluation or the same error message
 
+#### Scenario: Back link at the end
+- **WHEN** the view renders a closed evaluation
+- **THEN** a second back button with the same text and destination renders after the presentation's last section
+
+#### Scenario: Back buttons on the read-only evaluation view
+- **WHEN** the read-only evaluation view renders a closed evaluation with its offering
+- **THEN** the first section's back control is a link, "View offering" is a button that opens the offering's detail route, and the back control at the end is a button with the same text and destination as the link
+
 ### Requirement: Read-only evaluation presentation
-One read-only presentation SHALL render an evaluation's results for the evaluation view and for the provisional evaluation tab. It SHALL show: a summary card with the score and its rating word and a definition list of "Closed on" (`closedAt`, omitted when null), "Extraction method" (`extractionMethod`, labelled from the catalog of the nine values and shown raw otherwise) and "Defective cup" (`isDefective`, Yes/No text); an intensity card with the seven `descriptive.*.score` values as read-only meters over 0 to 15 whose value text reads "{v}/15" and whose accessible value reads "{v} de 15" over the labels LOW, MEDIUM and HIGH, a null score rendering as 0; a preference card with the eight `affective.*.score` values as read-only bean scales over 1 to 9 whose value text reads "{v}/9" and whose accessible value reads "{v} de 9", a null or 0 score omitting its scale; a descriptors card with five blocks (Fragrance / Aroma, Flavor / Aftertaste, Main tastes, Mouthfeel, Defects) built from `tastes[]` by `type` (`fragrance`/`aroma`, `flavor`/`aftertaste`, `main_tastes`, `mouthfeel`, `defects`) with the taxonomy names resolved from `GET /taxonomies` at levels 0 and 1 in the route's locale and an empty text when a block has nothing; a notes list of the non-null `descriptive.*.note` and `affective.*.note` values headed "{Intensity or Preference} · {axis}"; and an extrinsic-attributes list of the non-null `extrinsics.*` fields with their labels. Scores, notes and descriptors SHALL never be conveyed by color alone: every meter also carries its value as text and every descriptor carries its name.
+One read-only presentation SHALL render an evaluation's results for the evaluation view and for the provisional evaluation tab. It SHALL show: a summary card with the score and its rating word and a definition list of "Closed on" (`closedAt`, omitted when null), "Extraction method" (`extractionMethod`, labelled from the catalog of the nine values and shown raw otherwise) and "Defective cup" (`isDefective`, Yes/No text); an intensity card with the seven `descriptive.*.score` values as read-only meters over 0 to 15 whose value text reads "{v}/15" and whose accessible value reads "{v} de 15" over the labels LOW, MEDIUM and HIGH, a null score rendering as 0; a preference card with the eight `affective.*.score` values as read-only bean scales over 1 to 9 whose value text reads "{v}/9" and whose accessible value reads "{v} de 9", a null or 0 score omitting its scale; a descriptors card with five blocks (Fragrance / Aroma, Flavor / Aftertaste, Main tastes, Mouthfeel, Defects) built from `tastes[]` by `type` (`fragrance`/`aroma`, `flavor`/`aftertaste`, `main_tastes`, `mouthfeel`, `defects`) with the taxonomy names resolved from `GET /taxonomies` at levels 0, 1 and 2 in the route's locale, shown as a read-only descriptor cascade, and an empty text when a block has nothing; a notes list of the non-null `descriptive.*.note` and `affective.*.note` values headed "{Intensity or Preference} · {axis}"; and an extrinsic-attributes list of the non-null `extrinsics.*` fields with their labels. Scores, notes and descriptors SHALL never be conveyed by color alone: every meter also carries its value as text and every descriptor carries its name.
 
 #### Scenario: Summary values
 - **WHEN** a presentation renders an evaluation with `cuppingScore`, `closedAt`, `extractionMethod` and `isDefective`
@@ -437,7 +558,7 @@ One read-only presentation SHALL render an evaluation's results for the evaluati
 
 #### Scenario: Descriptor blocks
 - **WHEN** a presentation renders `tastes[]` with resolvable references
-- **THEN** the five blocks group the references by their `type`, each chip shows the taxonomy name in the route's locale and each empty block shows the empty text
+- **THEN** the five blocks group the references by their `type`, each chip shows the taxonomy name in the route's locale under its parent's title, a level-2 reference included, and each empty block shows the empty text
 
 #### Scenario: An unresolved descriptor reference
 - **WHEN** a `tastes[]` reference does not resolve in the taxonomy catalog
@@ -446,3 +567,95 @@ One read-only presentation SHALL render an evaluation's results for the evaluati
 #### Scenario: Conditional blocks
 - **WHEN** every note is null and every extrinsic field is null
 - **THEN** the notes and extrinsic-attributes blocks render nothing at all, and each renders only the entries whose value is not null when some are
+
+### Requirement: Offerings of an evaluations page
+
+"My evaluations" and the public evaluations list SHALL read the offerings of a page of evaluations the same way: one offering request per distinct non-null `offeringId` of the page, made in parallel after the page arrives. An evaluation without an `offeringId` SHALL request nothing and show its offering-missing row; an evaluation whose offering read is not found or fails SHALL show its offering-unavailable row. The rows keep the order of the page.
+
+#### Scenario: Shared offering on one page
+
+- **WHEN** a page of either list holds several evaluations of the same offering
+- **THEN** that offering is requested once and every one of those rows shows it
+
+#### Scenario: Evaluation without an offering
+
+- **WHEN** an evaluation of the page has a `null` `offeringId`
+- **THEN** no offering request is sent for it and its row is the offering-missing row
+
+#### Scenario: Offering read not found or failed
+
+- **WHEN** the offering read of an evaluation of the page is not found or fails
+- **THEN** its row is the offering-unavailable row and the other rows still show their offerings
+
+### Requirement: Evaluation routes as protected views
+
+Every `/manage/evaluations` route SHALL be a protected view of the application's protected content gate: its loading presentation SHALL be empty, its signed-out message SHALL be the evaluations access message with the "Sign in" action, and the specialist role SHALL be the only role it allows. The signed-out block of these routes SHALL look and behave the same as the signed-out block of every other protected view.
+
+#### Scenario: Session resolving on an evaluation route
+
+- **WHEN** an evaluation route opens while the session is still resolving
+- **THEN** nothing renders in place of the content and no signed-out message shows
+
+#### Scenario: Signed-out block of an evaluation route
+
+- **WHEN** an anonymous visitor opens an evaluation route
+- **THEN** the evaluations access message and a primary "Sign in" button render in a column 1rem apart, with the button at its own width, and activating it starts sign in for that route inside the click
+
+### Requirement: One row per evaluation-row variant
+
+The "My evaluations" row and the public evaluations row SHALL each be rendered as their own row, with only the elements of their variant: the "My evaluations" row shows the status badge, the level-2 heading, the ISO date and the specialist's actions, and never the public row's View offering action; the public row shows the level-2 heading, the localized closed date and the View and View offering actions, and never a status badge. Both rows show the score row, the coffee name and the coffeeshop and roaster captions the same way, as stated in "My evaluations list" and "Public evaluations list".
+
+#### Scenario: My evaluations row
+
+- **WHEN** a row of "My evaluations" is shown
+- **THEN** it has the status badge, a level-2 heading and the specialist's actions, and no View offering action
+
+#### Scenario: Public evaluations row
+
+- **WHEN** a row of the public evaluations list is shown
+- **THEN** it has a level-2 heading and the View and View offering actions, and no status badge
+
+### Requirement: Evaluation form kept as one form
+The evaluation form SHALL present, for the same offering, evaluation, taxonomy tree and locale, the same header, context fields, groups with their controls, notes, descriptor blocks and completeness indicators, the same 1–9 legend and the same actions or read-only status, with the same texts, accessible names, initial open states and validation messages, and SHALL send the same draft-save and close requests with the same bodies and in the same order, however the form keeps its state internally. This requirement adds no behaviour: every part of the form keeps what the other requirements of this capability state.
+
+#### Scenario: Editable form renders and saves as before
+- **WHEN** the form opens for a new evaluation of an existing offering, the user changes a score and saves the draft
+- **THEN** the header, the context fields, the eight collapsed groups and the 1–9 legend render as the "Evaluation form" requirement states, the create request carries the changed score and the saved message shows
+
+#### Scenario: Refused close renders as before
+- **WHEN** the user closes a draft and the API answers `409`
+- **THEN** the incomplete groups expand and are highlighted and the incomplete message shows, as the "Closing an evaluation" requirement states
+
+#### Scenario: Closed evaluation renders as before
+- **WHEN** the form opens for a closed evaluation
+- **THEN** every group and the 1–9 legend start expanded, every control is read-only and no action renders
+
+### Requirement: Cancelling the evaluation form
+An editable evaluation form, new or existing, SHALL show a "Cancel" button after the Save draft and Close evaluation actions that opens the My evaluations route `/{locale}/manage/evaluations` without saving and without sending any request, and that stays usable while an action runs. The sticky actions bar SHALL show the status region and then the actions in one action group (base-controls "Action group") aligned to the end, with Cancel last: below 768px Save draft and Close evaluation side by side with equal widths and Cancel on the next line at the same cell width; from 768px one right-aligned row. A closed evaluation, shown read-only, SHALL have no Cancel button. No warning about unsaved input SHALL be shown.
+
+#### Scenario: Cancel leaves for My evaluations without saving
+- **WHEN** the editable evaluation form renders and the user activates "Cancel"
+- **THEN** the button after Close evaluation navigates to `/{locale}/manage/evaluations` and no save or close request is sent
+
+#### Scenario: No Cancel on a closed evaluation
+- **WHEN** a closed evaluation renders read-only
+- **THEN** no "Cancel" button renders
+
+#### Scenario: Cancel is a button
+- **WHEN** the editable evaluation form renders
+- **THEN** "Cancel" is a button, not a link, and activating it navigates to `/{locale}/manage/evaluations`
+
+#### Scenario: The form's actions share one action group
+- **WHEN** the editable evaluation form renders
+- **THEN** Save draft, Close evaluation and Cancel are in one action group aligned to the end, after the status region
+
+### Requirement: Evaluation route headings
+The "My evaluations" list heading SHALL be the page's level-1 heading, and on every evaluation route the signed-out view SHALL expose the evaluations access message as the page's level-1 heading, both keeping their present type style.
+
+#### Scenario: My evaluations heading
+- **WHEN** a signed-in specialist opens "My evaluations"
+- **THEN** "My evaluations" is the page's level-1 heading
+
+#### Scenario: Signed-out evaluation route
+- **WHEN** an anonymous visitor opens an evaluation route
+- **THEN** the evaluations access message is the page's level-1 heading, in the body type style, followed by the "Sign in" button

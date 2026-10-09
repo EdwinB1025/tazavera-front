@@ -2,8 +2,8 @@
 // One definition shared by the taxonomy badge, the flavor wheel's segments and
 // its swatches. The data colour is reduced by depth, and the label is white or
 // black by the WCAG 2.2 relative luminance `L` of that colour at its depth
-// opacity over the theme's card surface (white when `L` ≤ 0.179, black above),
-// which always picks the better pair (spec: "Badge label contrast").
+// opacity over the surface it renders on (white when `L` ≤ 0.179, black
+// above), which always picks the better pair (spec: "Badge label contrast").
 
 const LUMINANCE_THRESHOLD = 0.179;
 
@@ -18,6 +18,16 @@ export const TAXONOMY_CARD_SURFACES = {
   dark: "#0d1b1e",
 } as const;
 
+/**
+ * The sidebar surface of each theme (`--color-nav-surface-dark`), where the
+ * inverse variant renders taxonomy badges (refine-offering-facets-aut D2).
+ * `Badge.test.tsx` fails if these drift from `globals.css`.
+ */
+export const TAXONOMY_SIDEBAR_SURFACES = {
+  traditional: "#2e5a52",
+  dark: "#112320",
+} as const;
+
 export type TaxonomyLabel = "white" | "black";
 
 export type TaxonomyColorRule = {
@@ -27,6 +37,10 @@ export type TaxonomyColorRule = {
   label: TaxonomyLabel;
   /** Label over the dark theme's card surface. */
   labelDark: TaxonomyLabel;
+  /** Label over the traditional theme's sidebar surface. */
+  labelInverse: TaxonomyLabel;
+  /** Label over the dark theme's sidebar surface. */
+  labelInverseDark: TaxonomyLabel;
 };
 
 /** WCAG 2.2 relative luminance of a `#RRGGBB` color. */
@@ -49,8 +63,7 @@ function channels(hex: string): [number, number, number] {
 
 /**
  * The label for one theme: white or black by the luminance of the rendered
- * background, the data color at its depth opacity over that theme's card
- * surface.
+ * background, the data color at its depth opacity over that theme's surface.
  */
 function labelOver(
   color: string,
@@ -70,7 +83,8 @@ function labelOver(
 
 /**
  * The taxonomy colour rule for a `#RRGGBB` data colour at a taxonomy level:
- * its depth fill opacity and the label of each theme.
+ * its depth fill opacity and the label of each theme, over the card and the
+ * sidebar surface.
  */
 export function taxonomyColorRule(
   color: string,
@@ -81,5 +95,7 @@ export function taxonomyColorRule(
     opacity,
     label: labelOver(color, opacity, TAXONOMY_CARD_SURFACES.traditional),
     labelDark: labelOver(color, opacity, TAXONOMY_CARD_SURFACES.dark),
+    labelInverse: labelOver(color, opacity, TAXONOMY_SIDEBAR_SURFACES.traditional),
+    labelInverseDark: labelOver(color, opacity, TAXONOMY_SIDEBAR_SURFACES.dark),
   };
 }

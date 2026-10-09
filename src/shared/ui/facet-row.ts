@@ -6,20 +6,20 @@
 
 export type ControlPresentation = "field" | "row";
 
-export const FACET_ROW_CLASSES =
+const FACET_ROW_CLASSES =
   "group flex w-full min-h-10 cursor-pointer items-center gap-2 rounded-field border-l-4 px-3 py-2";
 
-export const FACET_ROW_REST_CLASSES = "border-transparent hover:shadow-nav-hover";
+const FACET_ROW_REST_CLASSES = "border-transparent hover:shadow-nav-hover";
 
-export const FACET_ROW_SELECTED_CLASSES =
+const FACET_ROW_SELECTED_CLASSES =
   "border-nav-indicator bg-nav-current-dark shadow-nav-current";
 
-export const FACET_ROW_LABEL_REST_CLASSES = "type-sidebar-item group-hover:font-bold";
+const FACET_ROW_LABEL_REST_CLASSES = "type-sidebar-item group-hover:font-bold";
 
-export const FACET_ROW_LABEL_SELECTED_CLASSES =
+const FACET_ROW_LABEL_SELECTED_CLASSES =
   "type-sidebar-item underline decoration-nav-underline underline-offset-3";
 
-export const FACET_ROW_DISABLED_CLASSES = "cursor-not-allowed opacity-50";
+const FACET_ROW_DISABLED_CLASSES = "cursor-not-allowed opacity-50";
 
 /**
  * Removes the control's own disabled fade (`disabled:opacity-50`,

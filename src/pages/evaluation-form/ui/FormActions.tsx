@@ -1,26 +1,31 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Button } from "@/shared/ui";
+import { ActionGroup, Button, RouteButton } from "@/shared/ui";
+import type { FormBusy } from "../model/form-model";
 
 // ─── UI-specific types (declared before the component) ───
-
-/** Which action is in flight, if any. */
-export type FormBusy = "save" | "close" | null;
 
 export type FormActionsProps = {
   saveLabel: string;
   closeLabel: string;
+  /** Leaves the form without saving (add-form-cancel-actions D1). */
+  cancelLabel: string;
+  cancelHref: `/${string}`;
   onSave: () => void;
-  onClose: () => void;
+  /** Absent while the evaluation is not saved yet: no Close then (close-evaluation-only-when-saved). */
+  onClose?: () => void;
   busy: FormBusy;
   /** The confirmation or failure message of the last action. */
   message: string | null;
 };
 
 // ─── Layout end states (design.md D14; the summary §9) ───
-// Below `md` a sticky bar fixed to the bottom of the viewport; from `md` an
-// actions row with a top border and 1.5rem above the buttons.
+// Below `md` a sticky bar fixed to the bottom of the viewport, stacking the
+// status and the action group (Save draft and Close side by side, Cancel on
+// the next line at the same width); from `md` an actions row with a top
+// border and 1.5rem above the buttons, Cancel last (add-form-cancel-actions
+// D2, unify-action-button-widths D3).
 const BAR_CLASSES = [
   "fixed",
   "inset-x-0",
@@ -45,17 +50,17 @@ const BAR_CLASSES = [
   "md:pb-0",
   "md:pt-6",
 ].join(" ");
-const BUTTONS_CLASSES = ["flex", "gap-4", "md:justify-end"].join(" ");
-const BUTTON_WIDTH_CLASSES = "flex-1 md:flex-none";
 
 /**
- * Save draft and Close evaluation (design.md D4, D14; spec "Saving a draft",
- * "Closing an evaluation"), with the `role="status"` region beside them that
+ * Save draft, Close evaluation and Cancel (design.md D4, D14; spec "Saving a
+ * draft", "Closing an evaluation", "Cancelling the evaluation form"), with the `role="status"` region beside them that
  * carries the confirmation or failure message of the last action.
  */
 export function FormActions({
   saveLabel,
   closeLabel,
+  cancelLabel,
+  cancelHref,
   onSave,
   onClose,
   busy,
@@ -69,24 +74,27 @@ export function FormActions({
       <p role="status" className="type-body">
         {message}
       </p>
-      <div className={BUTTONS_CLASSES}>
+      <ActionGroup align="end">
         <Button
-          variant="action-3"
-          className={BUTTON_WIDTH_CLASSES}
+          variant="primary"
           loading={busy === "save"}
           onClick={idle ? onSave : undefined}
         >
           {saveLabel}
         </Button>
-        <Button
-          variant="primary"
-          className={BUTTON_WIDTH_CLASSES}
-          loading={busy === "close"}
-          onClick={idle ? onClose : undefined}
-        >
-          {closeLabel}
-        </Button>
-      </div>
+        {onClose ? (
+          <Button
+            variant="action-2"
+            loading={busy === "close"}
+            onClick={idle ? onClose : undefined}
+          >
+            {closeLabel}
+          </Button>
+        ) : null}
+        <RouteButton href={cancelHref} variant="action-4" size="base">
+          {cancelLabel}
+        </RouteButton>
+      </ActionGroup>
     </div>
   );
 }

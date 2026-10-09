@@ -28,25 +28,29 @@ export async function EvaluationsSidebar({
 }: EvaluationsSidebarProps): Promise<ReactNode> {
   const values = parseEvaluationFilters(searchParams, "public");
   const [processes, offering] = await Promise.all([
-    fetchCoffees().then(
-      (coffees) => distinctCoffeeValues(coffees, "process"),
-      () => null,
+    fetchCoffees().then((coffees) =>
+      coffees.ok ? distinctCoffeeValues(coffees.data, "process") : null,
     ),
     values.offeringId === undefined
       ? Promise.resolve(undefined)
       : fetchOffering(values.offeringId).then((read) =>
-          read.status === "found"
+          read.ok
             ? {
-                name: read.offering.coffeeInventory?.coffee?.name ?? "",
-                coffeeshop: read.offering.location?.name ?? "",
+                name: read.data.coffeeInventory?.coffee?.name ?? "",
+                coffeeshop: read.data.location?.name ?? "",
               }
             : null,
         ),
   ]);
   const options: EvaluationFacetsOptions = { processes, offering };
+  const texts = facetsTexts(locale);
+  // No entry for this list: the sub-section stands alone (collapse-sidebar-filters).
   return (
-    <AppSidebar>
-      <EvaluationFacets set="public" values={values} options={options} texts={facetsTexts(locale)} />
-    </AppSidebar>
+    <AppSidebar
+      subsection={{
+        title: texts.title,
+        content: <EvaluationFacets set="public" values={values} options={options} texts={texts} />,
+      }}
+    />
   );
 }

@@ -6,7 +6,7 @@ Lets a visitor create a Tazavera account as a specialist or as a coffeeshop, and
 ## Requirements
 
 ### Requirement: Registration routes
-The application SHALL offer registration as a specialist at `/{locale}/register` and as a coffeeshop at `/{locale}/register/coffeeshop`, reachable from the entry page and the About us page, and each route SHALL send its own role with the registration. While the session is resolving a registration route SHALL wait with no form shown, and when the session is authenticated the application SHALL open the root of the active locale through client-side navigation. Each registration route SHALL present the loading status, the form and the success panel in one section card with no header band.
+The application SHALL offer registration as a specialist at `/{locale}/register` and as a coffeeshop at `/{locale}/register/coffeeshop`, reachable from the entry page and the About us page, and each route SHALL send its own role with the registration. While the session is resolving a registration route SHALL wait with no form shown, and when the session is authenticated the application SHALL open the root of the active locale through client-side navigation. Each registration route SHALL present the loading status, the form and the success panel in one section card with no header band. The registration card SHALL fill the page container's width, its content at most 40rem wide and centred horizontally in the card from the medium breakpoint.
 
 #### Scenario: The specialist route registers a specialist
 - **WHEN** a visitor submits the registration form on `/{locale}/register`
@@ -26,7 +26,7 @@ The application SHALL offer registration as a specialist at `/{locale}/register`
 
 #### Scenario: The registration card
 - **WHEN** a registration route renders while the session resolves, while it shows the form, or after a `201` has replaced the form with the success panel
-- **THEN** that content sits in one section card with no header band
+- **THEN** that content sits in one section card with no header band that spans the page container's width, and from the medium breakpoint that content is at most 40rem wide and centred horizontally in the card
 
 ### Requirement: Registration form
 The registration form SHALL collect name, surname, email, password and password confirmation, and SHALL send `POST /register` without credentials with `name`, `surname`, `email`, `password`, `passwordConfirmation` and the route's `role`. Before sending, the form SHALL check only the rules its request documents: the five fields are required, the email is a valid address and the confirmation equals the password. A failing check SHALL show its message under the field, mark the field as invalid, move focus to the first failing field and send nothing. While the request is pending the submit action SHALL show its busy state and the fields SHALL stay editable.
@@ -48,10 +48,14 @@ The registration form SHALL collect name, surname, email, password and password 
 - **THEN** `POST /register` is sent without credentials with the five field values and the route's role, and the submit action shows its busy state while the fields stay editable
 
 ### Requirement: Registration result
-A registration answered with `201` SHALL replace the form with a success panel carrying a heading, a text and a "Sign in" action, and focus SHALL move to the panel's heading. Activating "Sign in" SHALL start sign in synchronously inside that click. Every other outcome — a `422`, a server error, a network failure or any other status — SHALL show the generic form-level error above the actions, keep every entered value except the password and its confirmation, which are cleared, and render no message from the API.
+A registration answered with `201` whose body carries a `token` block SHALL sign the user in with that block and, once the session is authenticated, SHALL open `/{locale}/account` through client-side navigation, never a full page load, with no confirmation text, for both registration roles. A `201` without a `token` block, or whose block does not sign the user in, SHALL replace the form with a success panel carrying a heading, a text and a "Sign in" action, and focus SHALL move to the panel's heading. Activating "Sign in" SHALL start sign in synchronously inside that click. A `422` SHALL show each field's first message under that field as form-fields "Server validation errors" states, and the generic form-level error only when one of its keys names no field of the form, and SHALL keep every entered value except the password and its confirmation, which are cleared. Every other outcome — a server error, a network failure or any other status — SHALL show the generic form-level error above the actions, keep every entered value except the password and its confirmation, which are cleared, and render no message from the API.
+
+#### Scenario: Signed in by the registration
+- **WHEN** `POST /register` answers `201` with a `token` block that signs the user in
+- **THEN** the session is authenticated and `/{locale}/account` opens through client-side navigation, with no success panel and no full page load
 
 #### Scenario: The account is created
-- **WHEN** `POST /register` answers `201`
+- **WHEN** `POST /register` answers `201` without a `token` block, or with one that does not sign the user in
 - **THEN** the success panel replaces the form and focus moves to its heading
 
 #### Scenario: Signing in from the success panel
@@ -59,53 +63,46 @@ A registration answered with `201` SHALL replace the form with a success panel c
 - **THEN** sign in starts synchronously inside that click and the user stays on the route
 
 #### Scenario: The registration is rejected or fails
-- **WHEN** `POST /register` answers `422`, a server error or any other status, or the request fails
+- **WHEN** `POST /register` answers a server error or any other status except `201` and `422`, or the request fails
 - **THEN** the generic form-level error renders above the actions, every entered value is kept except the password and its confirmation, which are cleared, and the API's message is never rendered
 
-### Requirement: Account page and its session gate
-The account page at `/{locale}/account` SHALL show one heading block and, for an authenticated session, five sections in order — Profile, Contact details, Password, Security and Danger zone — each named by its heading; the Profile section is filled from the session user's `data.name`, `data.surname`, `data.email` and `data.role`. Each of the five sections SHALL be a section card whose header band holds its heading and, where it has one, its description, and the five section cards SHALL be 1rem apart with the page background showing between them. While the session is resolving, the page SHALL show the heading block and one section card with no header band, holding the loading status, in place of the sections. While the session is anonymous — including after a declined step-up or a write whose `401` no recovery resolves — the page SHALL show the heading block and one section card with no header band, holding the signed-out text and a "Sign in" action, with no automatic redirect.
-
-#### Scenario: The session is resolving
-- **WHEN** the account page opens while the session is still resolving
-- **THEN** the heading block and one section card with no header band, holding the loading status, render in place of the sections
-
-#### Scenario: Signed out
-- **WHEN** the account page is open and the session is anonymous
-- **THEN** one section card with no header band shows the signed-out text and a "Sign in" action, no section renders, and the page does not redirect
-
-#### Scenario: Signing in from the account page
-- **WHEN** the user activates "Sign in" on the account page
-- **THEN** sign in starts synchronously inside that click for the route the user is on, and the user stays on the page
-
-#### Scenario: The session ends while the page is open
-- **WHEN** the session becomes `anonymous` while the account page is open
-- **THEN** the page shows the signed-out state, whatever ended the session
-
-#### Scenario: The four sections
-- **WHEN** the session is authenticated
-- **THEN** the page shows Profile, Password, Security and Danger zone in that order, each named by its heading
-
-#### Scenario: Sections hang from the page background
-- **WHEN** the session is authenticated
-- **THEN** the five sections render as section cards 1rem apart with the page background showing between them, each card's header band holds its heading and, where it has one, its description, and the heading block sits 2rem above the sections
-
-#### Scenario: The gate card has no header band
-- **WHEN** the account page shows its loading card or its signed-out card
-- **THEN** the card is a section card with no header band and its content sits in the card body
-
-#### Scenario: Contact details is the second section
-- **WHEN** the session is authenticated
-- **THEN** the page shows Profile, Contact details, Password, Security and Danger zone in that order, each named by its heading
+#### Scenario: The registration names invalid fields
+- **WHEN** `POST /register` answers `422` with a message for `email`
+- **THEN** that message renders under the Email field, which is marked invalid, no generic form-level error renders, and the message clears when the user edits the Email field
 
 ### Requirement: Profile settings
-The Profile section SHALL show the user's `data.role` as the API returns it, as a read-only value, and a form for name, surname and email prefilled with `data.name`, `data.surname` and `data.email`, which SHALL send `PUT /users/{data.ulid}` with `name`, `surname` and `email`. Before sending, the form SHALL check only the email's format; no field is required. A failing check SHALL show its message under the field, mark the field as invalid, move focus to it and send nothing. A `200` SHALL keep the submitted values in the form, show the success status above the actions, and refresh the profile in the session from `GET /user`, so the rest of the interface follows. A `422`, a server error, a network failure or any other status except `403` SHALL show the generic form-level error above the actions and keep the values.
+The Profile section SHALL show the session user's name (`data.name`), surname (`data.surname`), email (`data.email`) and role (`data.role`) read-only, each as the API returns it, one labelled row per non-null value in that order, with no field to edit; right after the email row it SHALL show an "Email verification" row whose value is the text "Verified" when `data.emailVerifiedAt` is set and "Not verified" when it is null, and no such row when the field is absent, the state never shown by colour alone; followed by an "Edit profile" action. Activating "Edit profile" SHALL start the identity check synchronously inside that click for the return route `/{locale}/account?edit=1` and SHALL open that route, where the page is in edit mode. In edit mode the Edit profile section SHALL hold a form for name, surname and email prefilled with `data.name`, `data.surname` and `data.email`, followed by a "Done" action that returns the page to read mode on the same route without sending anything. The form SHALL send `PUT /users/{data.ulid}` with `name`, `surname` and `email`. Before sending, the form SHALL check only the email's format; no field is required. A failing check SHALL show its message under the field, mark the field as invalid, move focus to it and send nothing. A `200` SHALL keep the submitted values in the form, show the success status above the actions, and refresh the profile in the session from `GET /user`, so the rest of the interface follows. A `422` SHALL show each field's first message under that field as form-fields "Server validation errors" states, and the generic form-level error only when one of its keys names no field of the form, and SHALL keep the values. A server error, a network failure or any other status except `403` SHALL show the generic form-level error above the actions and keep the values.
+
+#### Scenario: The profile is shown read-only
+- **WHEN** the Profile section renders for an authenticated session
+- **THEN** it shows one labelled row each for Name, Surname, Email and Role, in that order, with the session user's values as the API returns them, no row for a null value, and no field to edit
 
 #### Scenario: The role is shown as returned
 - **WHEN** the Profile section renders for an authenticated session
-- **THEN** it shows `data.role` of the session user exactly as the API returns it
+- **THEN** its Role row shows `data.role` of the session user exactly as the API returns it
+
+#### Scenario: A verified email
+- **WHEN** the Profile section renders for a session user whose `data.emailVerifiedAt` is set
+- **THEN** right after the Email row it shows an "Email verification" row with the text "Verified"
+
+#### Scenario: An unverified email
+- **WHEN** the Profile section renders for a session user whose `data.emailVerifiedAt` is null
+- **THEN** right after the Email row it shows an "Email verification" row with the text "Not verified"
+
+#### Scenario: No verification state
+- **WHEN** the Profile section renders for a session user without `data.emailVerifiedAt`
+- **THEN** it shows no "Email verification" row
+
+#### Scenario: Opening edit mode
+- **WHEN** the user activates "Edit profile"
+- **THEN** the identity check starts synchronously inside that click for `/{locale}/account?edit=1` and that route opens
+
+#### Scenario: Closing edit mode
+- **WHEN** the user activates "Done" in edit mode
+- **THEN** `/{locale}/account` opens in read mode and nothing is sent
 
 #### Scenario: The form is prefilled from the session
-- **WHEN** the Profile section renders for an authenticated session
+- **WHEN** the Edit profile section renders for an authenticated session
 - **THEN** its three fields hold `data.name`, `data.surname` and `data.email` of the session user
 
 #### Scenario: Only the email format is checked
@@ -114,18 +111,22 @@ The Profile section SHALL show the user's `data.role` as the API returns it, as 
 
 #### Scenario: An emptied field reaches the API
 - **WHEN** the user empties any field of the profile form and submits
-- **THEN** no client check blocks the submission and the API's `422` shows the generic form-level error
+- **THEN** no client check blocks the submission and the API's `422` shows its messages under the fields they name
 
 #### Scenario: The profile is updated
 - **WHEN** the update answers `200`
 - **THEN** the fields keep the submitted values, the success status renders above the actions, and the session profile is refreshed from `GET /user`
 
 #### Scenario: The update is rejected or fails
-- **WHEN** the update answers `422`, a server error or any other status except `403`, or the request fails
+- **WHEN** the update answers a server error or any other status except `200`, `403` and `422`, or the request fails
 - **THEN** the generic form-level error renders above the actions and the field values are kept
 
+#### Scenario: The update names invalid fields
+- **WHEN** the update answers `422` with a message for `email`
+- **THEN** that message renders under the Email field, which is marked invalid, the values are kept, and the message clears when the user edits the Email field
+
 ### Requirement: Password change
-The Password section SHALL collect the current password, a new password and its confirmation, and SHALL send `PUT /users/{data.ulid}/password` with `currentPassword`, `password` and `passwordConfirmation`, with an external link to the API's password reset under the current-password field. Before sending, the form SHALL check only the rules its request documents: the three fields are required and the confirmation equals the new password. A `200` SHALL clear the three fields and show the success status above the actions. A `422`, a server error, a network failure or any other status except `403` SHALL show the generic form-level error and clear the three fields.
+The Password section SHALL collect the current password, a new password and its confirmation, and SHALL send `PUT /users/{data.ulid}/password` with `currentPassword`, `password` and `passwordConfirmation`, with an external link to the API's password reset under the current-password field. Before sending, the form SHALL check only the rules its request documents: the three fields are required and the confirmation equals the new password. A `200` SHALL clear the three fields and show the success status above the actions. A `422` SHALL show each field's first message under that field as form-fields "Server validation errors" states, and the generic form-level error only when one of its keys names no field of the form, and SHALL clear the three fields. A server error, a network failure or any other status except `403` SHALL show the generic form-level error and clear the three fields.
 
 #### Scenario: An empty required field
 - **WHEN** the user submits the password form with an empty field
@@ -140,19 +141,16 @@ The Password section SHALL collect the current password, a new password and its 
 - **THEN** the three fields are cleared and the success status renders above the actions
 
 #### Scenario: The change is rejected or fails
-- **WHEN** the change answers `422`, a server error or any other status except `403`, or the request fails
+- **WHEN** the change answers a server error or any other status except `200`, `403` and `422`, or the request fails
 - **THEN** the generic form-level error renders and the three fields are cleared
+
+#### Scenario: The change names invalid fields
+- **WHEN** the change answers `422` with a message for `currentPassword`
+- **THEN** that message renders under the current-password field, which is marked invalid, the three fields are cleared, and the message clears when the user edits that field
 
 #### Scenario: The password-reset link
 - **WHEN** the Password section renders
 - **THEN** its "Forgot your password?" link opens the API's password reset page as an external navigation in the same tab, and the front sends no request for it
-
-### Requirement: Security section
-The Security section SHALL carry a short text and a "Manage security" action that opens the API's security page as an external navigation in the same tab. The front SHALL send no request for it.
-
-#### Scenario: The security link
-- **WHEN** the Security section renders
-- **THEN** its "Manage security" action opens the API's security page as an external navigation in the same tab and no request is sent by the front
 
 ### Requirement: Account deactivation and deletion
 The Danger zone SHALL offer deactivation and permanent deletion, each with its heading, its explanation and one action. Activating the action SHALL open its confirmation dialog and send nothing before the user confirms. While a confirmed request is pending, the dialog's confirm action SHALL show its busy state, its cancel action SHALL be disabled and Escape SHALL not close the dialog. A `200` SHALL sign the user out — the session becomes `anonymous` and the user lands on the root of the active locale — with no message shown there. A server error or a network failure SHALL show the generic error inside the dialog and allow retry.
@@ -178,10 +176,10 @@ The Danger zone SHALL offer deactivation and permanent deletion, each with its h
 - **THEN** the dialog stays open with the generic error and the user may retry
 
 ### Requirement: Writes and the step-up
-Every account write SHALL be sent with the current token. When a write answers `403`, the step-up notice — its text and a "Confirm identity" action — SHALL render inside the section that sent the write, above its actions row, or inside the open dialog's error area for the destructive actions. Activating "Confirm identity" SHALL start the write-scope sign in synchronously inside that click for the account route, keeping the page and any input typed on it; after signing in again the user activates the action again and the write carries the new token.
+The profile update, the password change and the account deactivation and deletion SHALL be sent with the current token. The identity check — the write-scope sign in — SHALL also start before edit mode opens and before the Change password view opens; the front SHALL not track which scope the token holds, so it starts on every "Edit profile" and "Change password" activation. When one of the writes answers `403`, the step-up notice — its text and a "Confirm identity" action — SHALL render inside the section that sent the write, above its actions row, or inside the open dialog's error area for the destructive actions. Activating "Confirm identity" SHALL start the write-scope sign in synchronously inside that click for the account route, keeping the page and any input typed on it; after signing in again the user activates the action again and the write carries the new token. No other account write SHALL show the step-up notice. The write permission of a granted step-up SHALL last only its action: the action SHALL end, and the write tokens be discarded, when the profile form saves, when edit mode is closed, when the password form saves, when the user leaves edit mode or the Change password view by any navigation, and when a Danger zone dialog is cancelled; the next write then needs a new step-up.
 
 #### Scenario: A write is rejected for its scope
-- **WHEN** an account write answers `403`
+- **WHEN** the profile update, the password change, or a confirmed deactivation or deletion answers `403`
 - **THEN** the step-up notice renders inside the section that sent the write, above its actions row, or inside the open dialog's error area, and the dialog stays open
 
 #### Scenario: Confirming identity
@@ -191,6 +189,10 @@ Every account write SHALL be sent with the current token. When a write answers `
 #### Scenario: The write is activated again
 - **WHEN** the write-scope sign in has completed and the user activates the action again
 - **THEN** the write is sent with the new token
+
+#### Scenario: The action ends
+- **WHEN** after a granted step-up the profile form saves, edit mode is closed, the password form saves, the user leaves edit mode or the Change password view, or a Danger zone dialog is cancelled
+- **THEN** the write tokens are discarded and the next write needs a new step-up
 
 ### Requirement: Contact details
 The Contact details section SHALL read `GET /users/{data.ulid}/contacts` with the current token when it renders for an authenticated session and SHALL show the item of `data` whose `isPrimary` is `true`. While the read is pending the section SHALL show the loading status. A read answered with a primary contact SHALL show its non-null values read-only, one labelled row each, in the order Address (`address`), Postal code (`postalCode`), City (`city`), Country (`country`), Phone (`phone`), Email (`email`), Web (`web`) and Social media (`social`), each as the API returns it; the web value SHALL be a same-tab link only when it starts with `http://` or `https://`, and text otherwise. A read with no primary contact, or with one whose eight values are all null, SHALL show the empty text and an "Add contact details" action. A read that fails — a network failure, a server error, a `403` or any other status — SHALL show the section's error text and a "Try again" action that repeats the read, while the rest of the page keeps working. A `401` SHALL never be shown: the client's recovery chain runs and an `anonymous` end shows the page's signed-out state. The section SHALL render no message from the API.
@@ -224,7 +226,7 @@ The Contact details section SHALL read `GET /users/{data.ulid}/contacts` with th
 - **THEN** the section shows the loading status and repeats the read
 
 ### Requirement: Contact details form
-Activating "Add contact details" SHALL replace the empty text and the action with a form in the same section and move focus to its first field. The form SHALL collect Address, Postal code, City, Country, Phone, Email, Web and Social media, and SHALL send `POST /users/{data.ulid}/contacts` with `address`, `postal_code`, `city`, `country`, `phone`, `email`, `web` and `social`, an empty optional field being sent as `null`. Before sending, the form SHALL check only what the operation's request documents: Address and City are required, a non-empty email is a valid address, a non-empty web value is an absolute URL, and no field accepts more characters than its documented maximum (address 255, postal code 12, city 90, country 60, phone 25, email 255, web 255, social 255). A failing check SHALL show its message under the field, mark the field as invalid, move focus to the first failing field and send nothing. While the request is pending, the submit action SHALL show its busy state and "Cancel" SHALL be disabled. "Cancel" SHALL close the form, discard the typed values, show the empty state again and move focus to "Add contact details". A `201` SHALL close the form, show the success status above the created contact shown read-only and move focus to the section heading. A `409` SHALL close the form, show the text that a contact already exists, read the contact again and move focus to the section heading. A `403` follows "Writes and the step-up". A `422`, a server error, a network failure or any other status SHALL show the generic form-level error above the actions and keep the values.
+Activating "Add contact details" SHALL replace the empty text and the action with a form in the same section and move focus to its first field. The form SHALL collect Address, Postal code, City, Country, Phone, Email, Web and Social media, and SHALL send `POST /users/{data.ulid}/contacts` with `address`, `postal_code`, `city`, `country`, `phone`, `email`, `web` and `social`, an empty optional field being sent as `null`. Before sending, the form SHALL check only what the operation's request documents: Address and City are required, a non-empty email is a valid address, a non-empty web value is an absolute URL, and no field accepts more characters than its documented maximum (address 255, postal code 12, city 90, country 60, phone 25, email 255, web 255, social 255). A failing check SHALL show its message under the field, mark the field as invalid, move focus to the first failing field and send nothing. While the request is pending, the submit action SHALL show its busy state and "Cancel" SHALL be disabled. "Cancel" SHALL close the form, discard the typed values, show the empty state again and move focus to "Add contact details". A `201` SHALL close the form, show the success status above the created contact shown read-only and move focus to the section heading. A `409` SHALL close the form, show the text that a contact already exists, read the contact again and move focus to the section heading. A `422` SHALL show each field's first message under that field as form-fields "Server validation errors" states, and the generic form-level error only when one of its keys names no field of the form (the API's `postal_code` names the Postal code field), and SHALL keep the values. A `403`, a server error, a network failure or any other status SHALL show the generic form-level error above the actions and keep the values.
 
 #### Scenario: Opening the form
 - **WHEN** the user activates "Add contact details"
@@ -260,8 +262,158 @@ Activating "Add contact details" SHALL replace the empty text and the action wit
 
 #### Scenario: The creation is rejected for its scope
 - **WHEN** the request answers `403`
-- **THEN** the step-up notice renders above the form's actions and every typed value is kept
+- **THEN** the generic form-level error renders above the actions, every typed value is kept, and no step-up notice renders
 
 #### Scenario: The creation is rejected or fails
-- **WHEN** the request answers `422`, a server error or any other status except `201`, `403` and `409`, or the request fails
-- **THEN** the generic form-level error renders above the actions, every typed value is kept, and the API's message is never rendered
+- **WHEN** the request answers any status except `201`, `409` and `422`, or the request fails
+- **THEN** the generic form-level error renders above the actions, every typed value is kept, no step-up notice renders, and the API's message is never rendered
+
+#### Scenario: The creation names invalid fields
+- **WHEN** the request answers `422` with a message for `city`
+- **THEN** that message renders under the City field, which is marked invalid, every typed value is kept, no generic form-level error renders, and the message clears when the user edits the City field
+
+### Requirement: Account requests through the slice's request layer
+The registration form, the profile form, the password form and the account deactivation and deletion SHALL send their requests and map the response statuses to outcomes in the account feature's request layer, never in the screens that show them, and the registration and password forms SHALL share one new-password and confirmation fields part. What users see (markup, accessible names, texts and the message shown per status) and the requests sent to the API (method, path, body and headers) SHALL stay the same.
+
+#### Scenario: Account write sent through the request layer
+- **WHEN** a user submits the registration, profile or password form, or confirms the account deactivation or deletion
+- **THEN** the request is sent and its status mapped to an outcome by the account feature's request layer, and the screen only shows the outcome
+
+#### Scenario: Requests and outcomes unchanged
+- **WHEN** any of those writes receives a given status, or fails on the network
+- **THEN** the API receives the same method, path, body and headers as before the refactor, and the user sees the same outcome
+
+#### Scenario: Shared new-password fields
+- **WHEN** the registration form or the password form is shown
+- **THEN** both render the new password with its help and the confirmation from one shared part, with the same labels, attributes and errors as before the refactor
+
+### Requirement: Contact section kept as one view
+The Contact details section SHALL render its states — reading, read error with "Try again", empty with "Add contact details", the add form with its errors and generic error, and the read-only contact with its saved or exists status — with the same markup, texts, accessible names and focus moves, and SHALL send the contact read and creation and map their response statuses to outcomes in the account feature's request layer, never in the screen that shows them, however the section is organised internally. This requirement adds no behaviour: every state keeps what the "Contact details" and "Contact details form" requirements state.
+
+#### Scenario: Contact states render as before
+- **WHEN** the Contact details section renders for a given read response, form input and creation response
+- **THEN** it shows the same state, texts, accessible names and focused element as before the refactor
+
+#### Scenario: Contact requests unchanged
+- **WHEN** the section reads the contacts or creates the primary contact
+- **THEN** the API receives the same method, path, headers and body as before the refactor, and the status is mapped to an outcome by the account feature's request layer
+
+### Requirement: Cancelling registration
+Both registration forms, specialist and coffee shop, SHALL show a "Cancel" button after the submit action, the two in one action group (base-controls "Action group"), that opens the root of the active locale `/{locale}` without sending anything. Neither button SHALL span the form's full width. The success panel and the loading state SHALL have no Cancel button. No warning about unsaved input SHALL be shown.
+
+#### Scenario: Cancel opens the locale root without sending anything
+- **WHEN** the registration form renders and the user activates "Cancel"
+- **THEN** the button after the submit action navigates to `/{locale}` and no `POST /register` is sent
+
+#### Scenario: Cancel is a button
+- **WHEN** the registration form renders
+- **THEN** "Cancel" is a button, not a link, and activating it navigates to `/{locale}`
+
+#### Scenario: Register and Cancel share one action group
+- **WHEN** the registration form renders
+- **THEN** the submit action and "Cancel" are in one action group and neither is full width
+
+### Requirement: Account page modes and their session gate
+The account page at `/{locale}/account` SHALL show one heading block and, for an authenticated session, the sections of its mode, each named by its heading. In read mode, the default, the sections SHALL be Profile, Contact details and Security, in that order; the Profile section is read-only and filled from the session user's `data.name`, `data.surname`, `data.email` and `data.role`. In edit mode, `/{locale}/account?edit=1`, the profile form SHALL take the place of the read-only profile and the Danger zone SHALL follow Security. "Edit profile" and "Change password" SHALL start the identity check synchronously inside the click and SHALL open edit mode or `/{locale}/account/password` only after the identity check is granted; when it is cancelled or fails, the page SHALL stay in its mode with no message, and when it is completed by another account, the page SHALL stay in its mode and show one status message asking the user to confirm their identity with the account they signed in with. Each of the sections SHALL be a section card whose header band holds its heading and, where it has one, its description, and the section cards SHALL be 1rem apart with the page background showing between them. The heading block and the section cards SHALL fill the page container's width; from the medium breakpoint the content of each section card SHALL be at most 40rem wide, aligned to the card's start. While the session is resolving, the page SHALL show the heading block and one section card with no header band, holding the loading status, in place of the sections. While the session is anonymous — including after a declined step-up or a write whose `401` no recovery resolves — the page SHALL show the heading block and one section card with no header band, holding the signed-out text and a "Sign in" action, with no automatic redirect.
+
+#### Scenario: The session is resolving
+- **WHEN** the account page opens while the session is still resolving
+- **THEN** the heading block and one section card with no header band, holding the loading status, render in place of the sections
+
+#### Scenario: Signed out
+- **WHEN** the account page is open and the session is anonymous
+- **THEN** one section card with no header band shows the signed-out text and a "Sign in" action, no section renders, and the page does not redirect
+
+#### Scenario: Signing in from the account page
+- **WHEN** the user activates "Sign in" on the account page
+- **THEN** sign in starts synchronously inside that click for the route the user is on, and the user stays on the page
+
+#### Scenario: The session ends while the page is open
+- **WHEN** the session becomes `anonymous` while the account page is open
+- **THEN** the page shows the signed-out state, whatever ended the session
+
+#### Scenario: The read-mode sections
+- **WHEN** the session is authenticated and the page is in read mode
+- **THEN** the page shows Profile, Contact details and Security in that order, each named by its heading, with no profile form, no Password section and no Danger zone
+
+#### Scenario: The edit-mode sections
+- **WHEN** the session is authenticated and the page is in edit mode
+- **THEN** the page shows Edit profile, Contact details, Security and Danger zone in that order, each named by its heading
+
+#### Scenario: Sections hang from the page background
+- **WHEN** the session is authenticated
+- **THEN** the sections render as section cards 1rem apart with the page background showing between them, each card's header band holds its heading and, where it has one, its description, and the heading block sits 2rem above the sections
+
+#### Scenario: The gate card has no header band
+- **WHEN** the account page shows its loading card or its signed-out card
+- **THEN** the card is a section card with no header band and its content sits in the card body
+
+#### Scenario: Sections fill the container
+- **WHEN** the session is authenticated on a medium or larger viewport
+- **THEN** the section cards span the page container's width and each card's content is at most 40rem wide, start-aligned
+
+#### Scenario: Edit mode waits for the identity check
+- **WHEN** the user activates "Edit profile" in read mode
+- **THEN** the page stays in read mode while the identity check is pending and opens `/{locale}/account?edit=1` once it is granted
+
+#### Scenario: The password route waits for the identity check
+- **WHEN** the user activates "Change password"
+- **THEN** `/{locale}/account/password` opens only once the identity check is granted
+
+#### Scenario: The identity check popup is closed
+- **WHEN** the user closes the identity check popup after activating "Edit profile"
+- **THEN** the page stays in read mode with no message
+
+#### Scenario: The identity check is completed by another account
+- **WHEN** the identity check started from the account page is completed by another account
+- **THEN** the page stays in its mode and shows one status message (role `status`) asking the user to confirm their identity with the account they signed in with
+
+### Requirement: Grouped security section
+The Security section SHALL carry a short text covering the password, email verification, two-factor authentication and passkeys, and its entries in order: "Change password", which starts the identity check synchronously inside the click for `/{locale}/account/password` and opens that route; then a list whose first item is the email verification entry, followed by "Two-factor authentication" and "Passkeys", each a link to the API's security page. While the session user's `data.emailVerifiedAt` is null, the email verification entry SHALL be a "Verify email" link to the API's email verification page (`{API}/email/verify`); when it is set, the entry SHALL be the plain text "Email verified" with no link; when the field is absent, there SHALL be no email verification entry. A plain primary click on any of these API links SHALL open its destination in a popup window synchronously inside the click, and the account tab SHALL NOT navigate, so it keeps the session; when the browser blocks the popup, the destination SHALL open in a new tab instead, the account tab still not navigating. The front SHALL send no request when an API link opens. When the popup window closes, the account page SHALL reload the session's profile from `GET /user`.
+
+#### Scenario: Changing the password
+- **WHEN** the user activates "Change password"
+- **THEN** the identity check starts synchronously inside that click for `/{locale}/account/password` and that route opens
+
+#### Scenario: Two-factor authentication and passkeys
+- **WHEN** the Security section renders
+- **THEN** its "Two-factor authentication" and "Passkeys" entries are links to the API's security page and no request is sent by the front
+
+#### Scenario: Verifying the email
+- **WHEN** the Security section renders for a session user whose `data.emailVerifiedAt` is null
+- **THEN** the first item of its list, before "Two-factor authentication", is a "Verify email" link to `{API}/email/verify`
+
+#### Scenario: The email is verified
+- **WHEN** the Security section renders for a session user whose `data.emailVerifiedAt` is set
+- **THEN** the first item of its list is the text "Email verified" and there is no "Verify email" link
+
+#### Scenario: An API entry opens in a popup window
+- **WHEN** the user clicks "Verify email", "Two-factor authentication" or "Passkeys" with the primary button and no modifier key
+- **THEN** its destination opens in a popup window inside that click, the account tab does not navigate and no request is sent
+
+#### Scenario: The popup window is blocked
+- **WHEN** the user clicks one of those entries and the browser blocks the popup window
+- **THEN** its destination opens in a new tab and the account tab does not navigate
+
+#### Scenario: The popup window closes
+- **WHEN** the popup window opened from one of those entries closes
+- **THEN** the account page reloads the session's profile from `GET /user`
+
+### Requirement: Change password view
+The application SHALL offer the Change password view at `/{locale}/account/password`, with the account page's session gate and page shell: a back link to the previous page, whose fallback destination is `/{locale}/account`, a heading block, and, for an authenticated session, one section card named "Change password" holding the password form of "Password change", its states and its reactive step-up unchanged.
+
+#### Scenario: The password form
+- **WHEN** the Change password view opens for an authenticated session
+- **THEN** one section named "Change password" shows the current-password, new-password and confirmation fields of the password form
+
+#### Scenario: Back to the account
+- **WHEN** the Change password view renders and the user has no previous page of the application
+- **THEN** its back link addresses `/{locale}/account`
+
+#### Scenario: The view's session gate
+- **WHEN** the Change password view opens and the session is anonymous
+- **THEN** one section card with no header band shows the signed-out text and a "Sign in" action, no section renders, and the page does not redirect
+
+#### Scenario: Back is a button
+- **WHEN** the Change password view renders
+- **THEN** its back control, on the first line of its header, is a link with the back arrow, not a button

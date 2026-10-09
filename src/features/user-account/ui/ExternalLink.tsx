@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { MouseEvent, ReactNode } from "react";
 import { LINK_CLASSES } from "@/shared/ui";
 
 // ─── UI-specific types (declared before the component) ───
@@ -6,17 +6,20 @@ import { LINK_CLASSES } from "@/shared/ui";
 export type ExternalLinkProps = {
   /** An absolute URL of one of the API's own pages. */
   href: string;
+  /** The anchor's click handler (open-security-pages-in-popup design.md D2). */
+  onClick?: (event: MouseEvent<HTMLAnchorElement>) => void;
   children: ReactNode;
 };
 
 /**
  * A link to one of the API's pages (design.md D4): a native anchor, since
  * `Link` refuses external destinations, carrying the link treatment `Link`
- * exports. It opens in the same tab and is named by its visible text.
+ * exports. It opens in the same tab unless `onClick` handles the click, and is
+ * named by its visible text.
  */
-export function ExternalLink({ href, children }: ExternalLinkProps): ReactNode {
+export function ExternalLink({ href, onClick, children }: ExternalLinkProps): ReactNode {
   return (
-    <a href={href} className={LINK_CLASSES}>
+    <a href={href} className={LINK_CLASSES} onClick={onClick}>
       {children}
     </a>
   );

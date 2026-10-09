@@ -1,8 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import type { Session } from "@/shared/api";
-import { LOCALES } from "@/shared/config/locales";
+import type { Theme } from "@/shared/lib/theme";
+import { routing } from "@/shared/config/locales";
 import { useSession } from "@/features/auth";
 import { EvaluationsSidebarEntry } from "@/features/manage-evaluations";
 import { SidebarProvider } from "@/shared/ui";
@@ -23,7 +25,9 @@ export type SessionShellProps = {
   /** The route's sidebar (the `@sidebar` slot); absent, the default one. */
   sidebar?: ReactNode;
   /** The catalog texts `AppShell` resolves on the server (design.md D1). */
-  texts: AppHeaderTexts & { toggleSidebar: string };
+  texts: AppHeaderTexts & { toggleSidebar: string; sidebarNavigation?: string };
+  /** The server-resolved theme (refine-header-aut D3). */
+  theme?: Theme;
   children?: ReactNode;
 };
 
@@ -50,33 +54,40 @@ export function SessionShell({
   session,
   sidebar,
   texts,
+  theme,
   children,
 }: SessionShellProps): ReactNode {
   const hookValue = useSession();
+  // A new route is a new arrival for the sidebar state (spec "Closed on
+  // arrival on a small viewport").
+  const pathname = usePathname();
   const supplied = session ?? hookValue;
   // The management area's entries for the session's role, by the user menu's
   // role rule (add-specialist-evaluations design.md D5): a specialist gets
-  // "My evaluations"; no other role contributes entries here.
+  // "My evaluations" and "Explore offerings" (refine-header-aut D5); no other
+  // role contributes entries here.
   const entries =
     supplied.state === "authenticated" && supplied.user.role === "specialist" ? (
-      <EvaluationsSidebarEntry locale={locale} texts={{ label: texts.manageEvaluations }} />
+      <EvaluationsSidebarEntry locale={locale} texts={{ label: texts.manageEvaluations, explore: texts.exploreOfferings }} />
     ) : undefined;
 
   // design.md D5: one sidebar state for the header, the sidebar and the page
   // body; the region is the route's slot or the default sidebar.
   return (
     // The provider's own element is the shell root (refine-app-header D15).
-    <SidebarProvider className="flex flex-1 flex-col">
+    <SidebarProvider route={pathname} className="flex flex-1 flex-col">
       <AppSidebarProvider
         session={supplied}
         entries={entries}
         toggleLabel={texts.toggleSidebar}
+        navigationLabel={texts.sidebarNavigation}
       >
         <ShellChrome
           session={supplied}
           locale={locale}
-          locales={[...LOCALES]}
+          locales={[...routing.locales]}
           texts={texts}
+          theme={theme}
           leading={<SidebarReopenControl />}
         />
         <main className={MAIN_CLASSES}>

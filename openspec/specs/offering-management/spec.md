@@ -6,7 +6,7 @@ The coffeeshop's management area: its own offerings as a list with selection and
 ## Requirements
 
 ### Requirement: Access to the management area
-Both management routes — `/{locale}/manage/offerings` and `/{locale}/manage/offerings/new` — SHALL present their content only to a signed-in coffeeshop. While the session is being resolved the route shows its loading presentation and no gate message. An anonymous visitor SHALL see a signed-out message and a "Sign in" action in place of the form on the create route and in place of the list on the list route, and SHALL see no "New offering" link. A signed-in user whose role is not `coffeeshop` SHALL get the 404 page.
+Both management routes — `/{locale}/manage/offerings` and `/{locale}/manage/offerings/new` — SHALL present their content only to a signed-in coffeeshop. While the session is being resolved the route shows its loading presentation and no gate message. An anonymous visitor SHALL see a signed-out message and a "Sign in" action in place of the form on the create route and in place of the list on the list route, and SHALL see no "New offering" button. A signed-in user whose role is not `coffeeshop` SHALL get the 404 page.
 
 #### Scenario: Session loading
 - **WHEN** a visitor opens either management route while the session is being resolved
@@ -14,7 +14,7 @@ Both management routes — `/{locale}/manage/offerings` and `/{locale}/manage/of
 
 #### Scenario: Anonymous visitor on the list route
 - **WHEN** an anonymous visitor opens the list route
-- **THEN** the page heading renders, the signed-out message and its "Sign in" action render in place of the list, and no "New offering" link renders
+- **THEN** the page heading renders, the signed-out message and its "Sign in" action render in place of the list, and no "New offering" button renders
 
 #### Scenario: Anonymous visitor on the create route
 - **WHEN** an anonymous visitor opens the create route
@@ -45,7 +45,7 @@ The list route SHALL show the offerings of the signed-in coffeeshop — the API'
 
 #### Scenario: Empty
 - **WHEN** the coffeeshop has no offerings
-- **THEN** a message and a "create an offering" link to the create route render and no offering card renders
+- **THEN** a message and the "New offering" button render and no offering card renders
 
 #### Scenario: Error and retry
 - **WHEN** the offerings cannot be loaded, whether the request fails or returns a non-success status
@@ -62,6 +62,10 @@ The list route SHALL show the offerings of the signed-in coffeeshop — the API'
 #### Scenario: Paging at the boundaries
 - **WHEN** the list shows the first page
 - **THEN** Previous is unavailable, and when it shows the last page Next is unavailable
+
+#### Scenario: New offering action
+- **WHEN** the list route renders for a signed-in coffeeshop, in its header or in the empty state
+- **THEN** "New offering" is a button in positional treatment 1, not a link, and activating it opens the create route
 
 ### Requirement: Offering selection
 In the success state of the list, each offering card SHALL offer a Select control whose accessible name identifies that offering by its coffee name and its location name, and the selection toolbar SHALL offer a select-all checkbox labelled for the page and show the number of selected offerings. The select-all checkbox SHALL be unchecked when nothing is selected and checked when every card on the page is selected, and activating it on a partial selection SHALL select all offerings of the page. The bulk delete action SHALL be unavailable at zero selected. The selection SHALL cover the current page only and SHALL clear on a page change and after a successful delete.
@@ -95,7 +99,7 @@ In the success state of the list, each offering card SHALL offer a Select contro
 - **THEN** the selection empties
 
 ### Requirement: Deleting offerings
-Deleting one offering or the selected offerings SHALL ask for confirmation first and send nothing to the API before it: the single delete confirms one named offering and the bulk delete confirms the selected offerings, each with a text stating the deletion cannot be undone. While the request is pending the confirm action shows its busy state and the cancel action is unavailable. On success the confirmation closes, a status line announces the number of deleted offerings, the current page loads again, a bulk delete empties the selection, and keyboard focus moves to the page heading. When the reloaded page comes back empty and is not the first page, the list SHALL move to the previous page. On failure the confirmation stays open with an error text and the confirm action can be tried again. On a 403 the confirmation's error area SHALL show the step-up text and its "Confirm your identity" action inside the dialog's single alert region, carrying no alert role of their own, and after confirming identity the coffeeshop repeats the delete with the same confirmation still open.
+Deleting one offering or the selected offerings SHALL ask for confirmation first and send nothing to the API before it: the single delete confirms one named offering and the bulk delete confirms the selected offerings, each with a text stating the deletion cannot be undone. While the request is pending the confirm action shows its busy state and the cancel action is unavailable. On success the confirmation closes, a status line announces the number of deleted offerings, the current page loads again, a bulk delete empties the selection, and keyboard focus moves to the page heading. When the reloaded page comes back empty and is not the first page, the list SHALL move to the previous page. On failure, a 403 included, the confirmation stays open with an error text and the confirm action can be tried again. A delete SHALL be a plain write: no identity check runs before or after it.
 
 #### Scenario: Confirmation required
 - **WHEN** the coffeeshop activates a single delete or the bulk delete
@@ -110,23 +114,23 @@ Deleting one offering or the selected offerings SHALL ask for confirmation first
 - **THEN** the confirmation closes, the status line announces the number of deleted offerings, the selection empties, and the current page loads again
 
 #### Scenario: Delete failure keeps the confirmation open
-- **WHEN** the delete request fails or returns a non-success status other than 403
+- **WHEN** the delete request fails or returns a non-success status
 - **THEN** the confirmation stays open with its error text, the entered state is kept and the confirm action can be tried again
 
 #### Scenario: Step-up after 403
-- **WHEN** the delete request returns 403
-- **THEN** the confirmation's error area shows the step-up text and its "Confirm your identity" action inside the single alert region of the dialog, the confirmation stays open, and activating the action starts the identity check
+- **WHEN** the coffeeshop confirms a single or a bulk delete and the request returns 403
+- **THEN** the delete request was sent directly with no identity check before it, the confirmation stays open with the same error text as any other failure, and no step-up text or "Confirm your identity" action renders
 
 #### Scenario: Last page emptied
 - **WHEN** a successful delete empties a page that is not the first one
 - **THEN** the list moves to the previous page
 
 ### Requirement: Creating offerings
-The create route's form SHALL create one offering per chosen location for one chosen coffee-inventory item. The form SHALL render inside a section card (content-structure "Section card") with no header band, filling the column below 768px and at most 40rem wide from 768px. The inventory item is chosen in a search-as-you-type list over the API's coffee inventory filtered by the typed coffee name: while searching the list shows a searching row, the results replace the previous ones, an empty result shows a no-matches row and a failed search shows a failure row. Each result row SHALL show the coffee name and, on a second line, the roastery name, the coffee's country and its process joined in that order with empty parts skipped. Choosing a row sets the item, shows the coffee name in the input, and the field's help then shows that item's `roastLot` and `productionDate` joined in that order; clearing the input clears the choice and the typing hint returns. The locations group SHALL offer one checkbox per location of the coffeeshop by its name, covering loading, empty and error states, preselect the location when the coffeeshop has exactly one, and disable the submit action when the coffeeshop has none. On submit, an unchosen inventory item SHALL show an error under the field, mark the field invalid, move focus to it and send nothing; an empty location set is not checked in the browser and the request is sent. On success the status line announces the number of created offerings with a link to the list route, and the form resets. On failure or a 422 the form error shows and every chosen value is kept. On a 403 the form's error area shows the step-up text and its "Confirm your identity" action inside the form's single alert region, carrying no alert role of their own, and every chosen value is kept.
+The create route's form SHALL create one offering per chosen location for one chosen coffee-inventory item. The form SHALL render inside a section card (content-structure "Section card") with no header band, that fills the page container's width, its content at most 40rem wide and start-aligned from 768px. The inventory item is chosen in a search-as-you-type list over the API's coffee inventory filtered by the typed coffee name: while searching the list shows a searching row, the results replace the previous ones, an empty result shows a no-matches row and a failed search shows a failure row. Each result row SHALL show the coffee name and, on a second line, the roastery name, the coffee's country and its process joined in that order with empty parts skipped. Choosing a row sets the item, shows the coffee name in the input, and the field's help then shows that item's `roastLot` and `productionDate` joined in that order; clearing the input clears the choice and the typing hint returns. The locations group SHALL offer one checkbox per location of the coffeeshop by its name, covering loading, empty and error states, preselect the location when the coffeeshop has exactly one, and disable the submit action when the coffeeshop has none. On submit, an unchosen inventory item SHALL show an error under the field, mark the field invalid, move focus to it and send nothing; an empty location set is not checked in the browser and the request is sent. On success the status line announces the number of created offerings with a link to the list route, and the form resets. On failure or a 403 the form error shows and every chosen value is kept. A 422 SHALL show the message for `coffeeInventoryId` under the inventory field as form-fields "Server validation errors" states, and the form error only when one of its keys names no field (the locations group carries no field error, so a message for `locations` shows the form error); every chosen value is kept. A create SHALL be a plain write: no identity check runs before or after it. A "Cancel" button after the submit action SHALL open the list route without sending any request.
 
 #### Scenario: The form panel is a section card
 - **WHEN** the create form renders, including while the session resolves
-- **THEN** it sits in a section card with no header band — the card surface, a uniform 1px subtle border, no accent edge — filling the column below 768px and at most 40rem wide from 768px
+- **THEN** it sits in a section card with no header band — the card surface, a uniform 1px subtle border, no accent edge — that spans the page container's width at every breakpoint, and from 768px the form inside it is at most 40rem wide, aligned to the card's start
 
 #### Scenario: One label names the inventory field
 - **WHEN** the create form renders the inventory item field
@@ -181,12 +185,24 @@ The create route's form SHALL create one offering per chosen location for one ch
 - **THEN** the status line announces the number of created offerings with a link to the list route, and the inventory choice and the location checkboxes reset
 
 #### Scenario: Create failure keeps values
-- **WHEN** the create request fails, returns a non-success status other than 403, or returns a 422
+- **WHEN** the create request fails, or returns a non-success status other than 422
 - **THEN** the generic form error shows and every chosen value is kept
 
+#### Scenario: The create names the inventory field
+- **WHEN** the create request returns a 422 with a message for `coffeeInventoryId`
+- **THEN** that message renders under the inventory field, which is marked invalid, no form error shows, every chosen value is kept, and the message clears when the user changes the inventory choice
+
 #### Scenario: Step-up after 403
-- **WHEN** the create request returns 403
-- **THEN** the form's error area shows the step-up text and its "Confirm your identity" action inside the form's single alert region, every chosen value is kept, and activating the action starts the identity check
+- **WHEN** the coffeeshop submits the create form and the request returns 403
+- **THEN** the create request was sent directly with no identity check before it, the generic form error shows in the form's single alert region, every chosen value is kept, and no step-up text or "Confirm your identity" action renders
+
+#### Scenario: Cancel leaves for the list
+- **WHEN** the create form renders and the user activates "Cancel"
+- **THEN** the button after the submit action navigates to the list route `/{locale}/manage/offerings` and no create request is sent
+
+#### Scenario: Cancel is a button
+- **WHEN** the create form renders
+- **THEN** "Cancel" is a button, not a link, after the submit action, and activating it navigates to the list route
 
 ### Requirement: Management sidebar entry
 The offerings list, offering creation and locations routes SHALL show two sidebar entries in this order, each with an icon and a visible label: "Manage offerings", addressing the list route, and "Manage locations", addressing `/{locale}/manage/locations`. "Manage offerings" SHALL be the current entry on the list and create routes, "Manage locations" on the locations route. The create route has no entry; it stays reachable from the list's "New offering" link and its empty-state link.
@@ -280,7 +296,7 @@ When the read answers `200` with no location, the page SHALL show one card with 
 - **THEN** one card shows the empty text and the "Add location" action, and no list renders
 
 ### Requirement: Location form
-Activating "Add location" SHALL reveal the location form: in the empty state in place of the empty card's content, otherwise in place of the action above the list. The form SHALL hold two labelled groups — Location (name, description) and Address and contact (address, postal code, city, country, phone, email, web, social) — the "Save" and "Cancel" actions, the geocoding help text and the OpenStreetMap attribution with its link to the OpenStreetMap copyright page.
+Activating "Add location" SHALL reveal the location form: in the empty state in place of the empty card's content, otherwise in place of the action above the list. The form SHALL hold two labelled groups — Location (name, description) and Address and contact (address, postal code, city, country, phone, email, web, social) — the "Save" and "Cancel" actions, the geocoding help text and the OpenStreetMap attribution with its link to the OpenStreetMap copyright page. The form's card and the empty card SHALL fill the page container's width at every breakpoint; from 768px their content SHALL be at most 40rem wide, aligned to the card's start.
 
 #### Scenario: Revealing the form
 - **WHEN** the user activates "Add location"
@@ -293,6 +309,10 @@ Activating "Add location" SHALL reveal the location form: in the empty state in 
 #### Scenario: Cancelling
 - **WHEN** the user activates "Cancel"
 - **THEN** the form closes, the typed values are discarded, nothing is sent, and focus returns to "Add location"
+
+#### Scenario: Location cards fill the container
+- **WHEN** the locations page shows the empty card or the location form on a viewport of 768px or wider
+- **THEN** the card spans the page container's width and its content (texts, fields and actions) is at most 40rem wide, aligned to the card's start
 
 ### Requirement: Location form checks
 Before sending anything, the form SHALL check only what the create request documents: name, address and city are required, and a non-empty email must be a valid address; each field accepts no more characters than the request's documented maximum. A failing check SHALL show its message under the field, mark the field as invalid, move focus to the first failing field and send no request, neither to the geocoding service nor to the API.
@@ -352,19 +372,23 @@ The form SHALL send `POST /locations` with `name`, the non-empty optional `descr
 - **THEN** the status no longer renders
 
 ### Requirement: Location creation failures
-A `403` answer to the create request SHALL show the step-up notice above the form's actions. A `422`, a server error, a network failure or any other status SHALL show the generic form error above the actions. In both cases the form SHALL stay open with every value kept.
+A `422` answer to the create request SHALL show each field's first message under that field as form-fields "Server validation errors" states — `name` and `description` name the location fields, `contact.<key>` the contact fields, `contact.postal_code` the Postal code field — and the generic form error above the actions only when one of its keys names no field (`latitud` and `longitud` name none); the form SHALL stay open with every value kept. A `403`, a server error, a network failure or any other status answer SHALL show the generic form error above the actions, and the form SHALL stay open with every value kept. No step-up notice SHALL render on the locations page.
 
 #### Scenario: The creation is rejected or fails
-- **WHEN** the create request answers `422`, a server error or any other status except `201` and `403`, or the request fails
-- **THEN** the generic form error renders above the actions, every value is kept, and the API's message is never rendered
+- **WHEN** the create request answers any status except `201` and `422`, or the request fails
+- **THEN** the generic form error renders above the actions, every value is kept, no step-up notice renders, and the API's message is never rendered
+
+#### Scenario: The creation names invalid fields
+- **WHEN** the create request answers `422` with a message for `contact.city`
+- **THEN** that message renders under the City field, which is marked invalid, every value is kept, no generic form error renders, and the message clears when the user edits the City field
 
 #### Scenario: Step-up after 403
 - **WHEN** the create request answers `403`
-- **THEN** the step-up notice and its "Confirm identity" action render above the actions and every value is kept
+- **THEN** the generic form error renders above the actions, every value is kept, and no step-up notice or "Confirm identity" action renders
 
 #### Scenario: Confirming identity
-- **WHEN** the user activates "Confirm identity"
-- **THEN** the write-scope sign in starts synchronously inside that click for the locations route, keeping the page and the typed values, and activating "Save" again sends the request with the new token
+- **WHEN** the user activates "Save" again after a rejected creation
+- **THEN** the create request is sent again with the current token and no write-scope sign in starts
 
 ### Requirement: Localized location texts
 Every text of the locations page — heading, intro, list and form states, group legends, field labels, actions, help, attribution, statuses and the sidebar entry — SHALL render in the active locale (Spanish, English or Catalan) from the message catalog. Location and contact values SHALL render exactly as the API returns them, and no `message` string of an API or geocoding response SHALL render.
@@ -380,3 +404,14 @@ Every text of the locations page — heading, intro, list and form states, group
 #### Scenario: Response messages not shown
 - **WHEN** any request succeeds or fails
 - **THEN** no `message` string of a response renders as interface text
+
+### Requirement: Management panels kept as one view
+The My offerings panel and the locations panel SHALL render their states — for My offerings: the header, the deleted status, the skeleton cards, the signed-out prompt, the list error with retry, the empty message, and the selection toolbar, cards and pagination with the delete confirmation; for locations: loading, the read error with "Try again", the empty card, the toolbar with "Add location", the form, the creation status and the location cards — with the same markup, texts, accessible names and focus moves, and the locations panel SHALL map the locations read status in the location management feature's request layer, never in the screen that shows it, however the panels are organised internally. This requirement adds no behaviour: every state keeps what the other requirements of this capability state.
+
+#### Scenario: My offerings states render as before
+- **WHEN** the My offerings panel renders for a given session, list response and delete outcome
+- **THEN** it shows the same state, texts, accessible names and focused element as before the refactor, and sends the same requests
+
+#### Scenario: Locations states render as before
+- **WHEN** the locations panel renders for a given read response, form input and creation outcome
+- **THEN** it shows the same state, texts, accessible names and focused element as before the refactor, and the API receives the same method, path, headers and body

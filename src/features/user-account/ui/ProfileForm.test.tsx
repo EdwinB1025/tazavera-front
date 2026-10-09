@@ -13,7 +13,6 @@ import { ProfileForm, type ProfileFormTexts } from "@/features/user-account";
 const API = "https://api.tazavera.test";
 
 const TEXTS: ProfileFormTexts = {
-  roleLabel: "fx-role",
   nameLabel: "fx-name",
   surnameLabel: "fx-surname",
   emailLabel: "fx-email",
@@ -61,6 +60,7 @@ afterEach(() => {
 function renderForm() {
   const refreshProfile = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
   const requestProfileWrite = vi.fn<(returnRoute: string) => void>();
+  const endProfileWrite = vi.fn<() => void>();
   render(
     <>
       <h2 id="profile-heading">heading</h2>
@@ -71,10 +71,11 @@ function renderForm() {
         texts={TEXTS}
         refreshProfile={refreshProfile}
         requestProfileWrite={requestProfileWrite}
+        endProfileWrite={endProfileWrite}
       />
     </>,
   );
-  return { refreshProfile, requestProfileWrite };
+  return { refreshProfile, requestProfileWrite, endProfileWrite };
 }
 
 function field(label: string): HTMLInputElement {
@@ -103,13 +104,6 @@ function sentBody(): unknown {
 }
 
 describe("ProfileForm — view", () => {
-  it("shows the role row with data.role exactly as returned", () => {
-    renderForm();
-    const list = document.querySelector("dl")!;
-    expect(list.querySelector("dt")?.textContent).toBe(TEXTS.roleLabel);
-    expect(list.querySelector("dd")?.textContent).toBe("specialist");
-  });
-
   it("prefills the three fields from the session, with no required marker and their autofill names", () => {
     renderForm();
     expect(field(TEXTS.nameLabel).value).toBe("Ana");
@@ -182,6 +176,13 @@ describe("ProfileForm — the write", () => {
     expect(refreshProfile).toHaveBeenCalledWith();
     expect(screen.queryByText("From-PUT")).toBeNull();
     expect(screen.queryByText("api-message")).toBeNull();
+  });
+
+  it("a 200 ends the write permission once (spec: The action ends)", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(200, { data: USER }));
+    const { endProfileWrite } = renderForm();
+    await save();
+    expect(endProfileWrite).toHaveBeenCalledTimes(1);
   });
 
   for (const [label, outcome] of [

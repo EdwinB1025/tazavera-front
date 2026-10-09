@@ -112,11 +112,19 @@ Links SHALL show rest, hover and keyboard focus states, and SHALL offer a back v
 - **THEN** it stays an inline text run so its text wraps with the surrounding text
 
 ### Requirement: Theme-driven corner radii
-Corner radii SHALL come from the radius token family — `radius-pill` for action buttons and pill shapes, `radius-container` for containers, `radius-field` for fields and menus, `radius-check` for checkboxes — and every radius token SHALL have a value in both themes.
+Corner radii SHALL come from the radius token family — `radius-pill` for action buttons and pill shapes, `radius-container` for containers and for menus opened from a card, `radius-field` for fields and for menus opened from a field or the navigation, `radius-check` for checkboxes — and every radius token SHALL have a value in both themes.
 
 #### Scenario: Traditional shapes
 - **WHEN** the traditional theme is active
-- **THEN** action buttons render fully rounded, containers at 16px corner radius, fields and menus at 8px, and checkboxes at 4px
+- **THEN** action buttons render fully rounded, containers and menus opened from a card at 16px corner radius, fields and menus opened from a field or the navigation at 8px, and checkboxes at 4px
+
+#### Scenario: Menu opened from a field or the navigation
+- **WHEN** a menu panel opens from a field (Select, Combobox) or from the navigation (the header nav menu)
+- **THEN** its panel uses the field radius (`radius-field`)
+
+#### Scenario: Menu opened from a card
+- **WHEN** a menu panel opens from a card
+- **THEN** its panel uses the container radius (`radius-container`)
 
 #### Scenario: Dark theme shapes
 - **WHEN** the dark theme is active
@@ -142,20 +150,68 @@ Icon artwork SHALL render from one shared source, and an icon inside a control S
 - **THEN** verification fails and reports the duplicated source
 
 ### Requirement: Back link to the previous page
-A back link SHALL open the previous page of the application — the page the user came from, with its query — and SHALL open its fallback destination, a fixed route of the active locale, when the user has no previous page of the application, such as a page opened in a new tab or from outside the application. Changing only the query of the page in view, such as a tab, a filter or a page number, SHALL NOT make that page its own previous page, and changing the language SHALL keep the previous page, in the new language.
+A back control SHALL open the previous page of the application — the page the user came from, with its query — and SHALL open its fallback destination, a fixed route of the active locale, when the user has no previous page of the application, such as a page opened in a new tab or from outside the application. The back control on the first line of a page header SHALL be a link with the back treatment, its leading back arrow; the back control repeated at the end of a view SHALL be an action button in positional treatment 3 with the same text, arrow and destination. Changing only the query of the page in view, such as a tab, a filter or a page number, SHALL NOT make that page its own previous page, and changing the language SHALL keep the previous page, in the new language.
 
 #### Scenario: Back to the previous page
-- **WHEN** the user moved from one page of the application, such as a filtered list on its second page, to a page with a back link
-- **THEN** the back link addresses that previous page with its query
+- **WHEN** the user moved from one page of the application, such as a filtered list on its second page, to a page with a back control
+- **THEN** the back control addresses that previous page with its query
 
 #### Scenario: No previous page
-- **WHEN** the page with the back link is the first page the user opened in the application
-- **THEN** the back link addresses its fallback destination
+- **WHEN** the page with the back control is the first page the user opened in the application
+- **THEN** the back control addresses its fallback destination
 
 #### Scenario: Query changes on the page in view
-- **WHEN** the user, on a page with a back link, changes only its query, such as switching a tab
-- **THEN** the back link still addresses the page the user came from before that page
+- **WHEN** the user, on a page with a back control, changes only its query, such as switching a tab
+- **THEN** the back control still addresses the page the user came from before that page
 
 #### Scenario: Language change
-- **WHEN** the user changes the language on a page with a back link
-- **THEN** the back link addresses the same previous page in the new language
+- **WHEN** the user changes the language on a page with a back control
+- **THEN** the back control addresses the same previous page in the new language
+
+#### Scenario: Back control is a button
+- **WHEN** a page renders a back control on the first line of its header and the same back control at the end of the view
+- **THEN** the header's back control is a link with the back arrow and the one at the end is a button, both with the back text and addressing the same destination
+
+### Requirement: Action variants by kind
+Every action button of the application SHALL take the treatment of its kind of action: the primary treatment for the main action of a form or dialog (Save, Confirm, Sign in, Create offering, Register); positional treatment 1 for an action that creates or starts something (Evaluate, New offering, Add location, Add contact details); positional treatment 2 for a destructive or irreversible action (Delete, Deactivate, Delete account, Close evaluation); positional treatment 3 for an action that navigates or consults (View, View evaluations, View offerings, Show on map, Back, pagination); and positional treatment 4 for a secondary or in-page edit action (Cancel, Edit, Edit profile, Change password, Done). An action that fits more than one kind SHALL take the most specific, in this order: destructive, main action of a form or dialog, create, edit or cancel, navigate.
+
+#### Scenario: Main action of a form or dialog
+- **WHEN** a step-up notice renders its "Confirm identity" action
+- **THEN** the action renders in the primary treatment
+
+#### Scenario: Create or start
+- **WHEN** the account's Contact details section renders its "Add contact details" action
+- **THEN** the action renders in positional treatment 1
+
+#### Scenario: Destructive or irreversible
+- **WHEN** an open row of My evaluations renders its "Close evaluation" action
+- **THEN** the action renders in positional treatment 2, as Delete does
+
+#### Scenario: Navigate or consult
+- **WHEN** a closed row of My evaluations renders its "View" action
+- **THEN** the action renders in positional treatment 3
+
+#### Scenario: Secondary or in-page edit
+- **WHEN** an open row of My evaluations renders its "Edit" action
+- **THEN** the action renders in positional treatment 4
+
+### Requirement: Navigation controls by position
+A navigation control on the first line of a page header, the back control above the eyebrow and the title, SHALL be a link. Every other navigation control — in a page header but not on its first line, or among the actions at the end of a view, a list or a card — SHALL be an action button that opens its in-application route, with the treatment of its kind ("Action variants by kind"). Links inside running text are not navigation controls and stay links.
+
+#### Scenario: Header link, other navigation as buttons
+- **WHEN** a page header shows a back control on its first line and a navigation action after its title, and its view ends with a back control
+- **THEN** the first-line back control is a link, and the navigation action after the title and the back control at the end are buttons
+
+### Requirement: Action button widths
+An action button with a label in the primary or a positional treatment SHALL be at least its size's action width — 10rem for the standard size, 7.5rem for the compact size — at every viewport width, and a longer label SHALL grow the button without wrapping or truncating. Action buttons without a label, the navigation treatment and the pagination controls keep their own geometry.
+
+#### Scenario: Minimum width per size
+- **WHEN** an action button with a label renders in the standard or the compact size, directly or as a route button
+- **THEN** it is at least 10rem or 7.5rem wide and its label stays on one line
+
+### Requirement: Action group
+Two or more action buttons shown together SHALL render in one shared action group. Below the medium breakpoint (768px) the group SHALL be a grid of two equal columns in which each button fills its cell, so the buttons of a group have the same width; three or more buttons wrap two per row and an odd last one keeps the cell width. From 768px the group SHALL be a wrapping row 0.75rem apart, aligned to the start or the end as its consumer chooses, in which each button keeps its size's action width and does not stretch. A status line of the actions SHALL stay outside the group's cells.
+
+#### Scenario: Equal columns on mobile, predefined widths from 768px
+- **WHEN** two or more action buttons render in an action group
+- **THEN** below 768px they fill two equal columns, and from 768px they form a wrapping row in which each keeps its action width

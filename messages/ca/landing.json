@@ -14,6 +14,7 @@
   "cardDefectiveLabel": "Defectuoses:",
   "cardViewLabel": "Veure",
   "cardEvaluateLabel": "Avaluar",
+  "cardViewEvaluationsLabel": "Mostra les avaluacions",
   "cardVerifiedLabel": "Verificat",
   "cardProvisionalLabel": "Provisional",
   "cardRatingExceptionalLabel": "Excepcional",
@@ -39,5 +40,7 @@
   "aboutCoffeeshopRegisterLabel": "Registra la teva cafeteria",
   "aboutSpecialistRegisterLabel": "Registra't com a especialista",
   "aboutClosingLabel": "Explorar cafès",
-  "metaDescription": "Tazavera, la guia del bon cafè: avaluacions objectives amb el protocol de tast de l'SCA que descobreixen què hi ha a cada tassa."
+  "metaDescription": "Tazavera, la guia del bon cafè: avaluacions objectives amb el protocol de tast de l'SCA que descobreixen què hi ha a cada tassa.",
+  "heroRegisterNavigation": "Registre",
+  "aboutRegisterNavigation": "Registre"
 }

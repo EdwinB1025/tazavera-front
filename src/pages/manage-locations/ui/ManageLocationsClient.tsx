@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { requestProfileWrite, signIn, useSession } from "@/features/auth";
+import { signIn, useSession } from "@/features/auth";
 import { LocationsPanel, type LocationsPanelTexts } from "@/features/location-management";
 import { LoadingStatus, SessionGate, SignedOutPrompt } from "@/shared/ui";
 
@@ -22,9 +22,9 @@ export type ManageLocationsClientProps = {
 /**
  * The locations page's client region (design.md D2; spec "Access to the
  * locations page"). It is the injection seam: the session comes from
- * `useSession()` and the auth actions from `@/features/auth`, passed to the
- * panel as props. The shared gate shows the loading status, the signed-out
- * prompt, the 404 for a role other than `coffeeshop`, or the panel.
+ * `useSession()` and sign in from `@/features/auth`. The shared gate shows the
+ * loading status, the signed-out prompt, the 404 for a role other than
+ * `coffeeshop`, or the panel.
  */
 export function ManageLocationsClient({
   locale,
@@ -50,10 +50,8 @@ export function ManageLocationsClient({
       {(user) => (
         <LocationsPanel
           userUlid={user.ulid ?? ""}
-          locale={locale}
           headingId={headingId}
           texts={texts}
-          requestProfileWrite={requestProfileWrite}
         />
       )}
     </SessionGate>

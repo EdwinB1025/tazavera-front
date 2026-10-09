@@ -1,0 +1,173 @@
+import { describe, it, expect, vi, afterEach, beforeAll } from "vitest";
+import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import {
+  FacetCascade,
+  FacetRadioList,
+  FacetTextField,
+  ScoreRangeFacet,
+  type CascadeOption,
+  type FacetOption,
+} from "@/shared/ui";
+
+afterEach(() => {
+  cleanup();
+});
+
+// jsdom has no ResizeObserver; Radix Slider measures its thumbs with one.
+beforeAll(() => {
+  if (!("ResizeObserver" in globalThis)) {
+    globalThis.ResizeObserver = class {
+      observe(): void {}
+      unobserve(): void {}
+      disconnect(): void {}
+    } as unknown as typeof ResizeObserver;
+  }
+});
+
+/**
+ * Disabled facets (spec filtering "Facet option data unavailable", scenario
+ * "Disabled facet"): a disabled facet rejects input, renders at 50% opacity
+ * and shows its help text, while the other facets stay enabled.
+ */
+
+const HELP = "Options unavailable";
+const SEE_MORE = { seeMore: "See more ({count})", seeLess: "See less" };
+const CASCADE_TEXTS = SEE_MORE;
+const RANGE_TEXTS = { minThumb: "Minimum score", maxThumb: "Maximum score", from: "From", to: "To" };
+
+const PROCESSES: FacetOption[] = [
+  { value: "Washed", label: "Washed" },
+  { value: "Natural", label: "Natural" },
+];
+
+const FLAVOURS: CascadeOption[] = [
+  { value: "fruity", label: "Fruity", children: [{ value: "berry", label: "Berry" }] },
+  { value: "floral", label: "Floral" },
+];
+
+function classesOf(element: Element): string[] {
+  return (element.getAttribute("class") ?? "").split(/\s+/);
+}
+
+const OPACITY_50 = ["opacity-50", "disabled:opacity-50", "peer-disabled:opacity-50"];
+
+/** Number of 50% opacity classes from `element` up to its row `label`, inclusive. */
+function opacityChain(element: Element): number {
+  let count = 0;
+  let current: Element | null = element;
+  while (current) {
+    count += classesOf(current).filter((c) => OPACITY_50.includes(c)).length;
+    if (current.tagName === "LABEL") break;
+    current = current.parentElement;
+  }
+  return count;
+}
+
+describe("Disabled facet row — exactly one 50% opacity along the chain", () => {
+  it("a disabled radio row fades once: the row, not the circle or the dot", () => {
+    render(
+      <FacetRadioList
+        legend="Process"
+        options={PROCESSES}
+        onChange={() => {}}
+        anyLabel="Any"
+        texts={SEE_MORE}
+        disabled
+      />,
+    );
+    const radio = screen.getByRole("radio", { name: "Washed" });
+    expect(opacityChain(radio)).toBe(1);
+    expect(opacityChain(radio.nextElementSibling!)).toBe(1);
+  });
+
+  // refine-offering-facets-aut D3, D4: the cascade's rows are descriptor chips.
+  it("a disabled chip fades once: the chip, not its content or the facet around it", () => {
+    const { container } = render(
+      <FacetCascade
+        legend="Flavour"
+        options={FLAVOURS}
+        value={["floral"]}
+        onChange={() => {}}
+        texts={CASCADE_TEXTS}
+        disabled
+      />,
+    );
+    const chip = screen.getByRole("button", { name: "Floral" });
+    let deepest: Element = chip;
+    while (deepest.lastElementChild) deepest = deepest.lastElementChild;
+    let count = 0;
+    for (let current: Element | null = deepest; current && current !== container; current = current.parentElement) {
+      count += classesOf(current).filter((c) => OPACITY_50.includes(c)).length;
+    }
+    expect(count).toBe(1);
+  });
+});
+
+describe("Disabled facet — 50% opacity", () => {
+  it("a disabled text facet's input carries disabled:opacity-50", () => {
+    render(
+      <FacetTextField label="Region" value="" onCommit={() => {}} maxLength={90} disabled help={HELP} />,
+    );
+    const input = screen.getByRole("textbox", { name: "Region" });
+    expect(classesOf(input)).toContain("disabled:opacity-50");
+  });
+});
+
+describe("Disabled FacetCascade", () => {
+  it("rejects input, fades its chips and shows the help text", () => {
+    const onChange = vi.fn();
+    render(
+      <FacetCascade
+        legend="Flavour"
+        options={FLAVOURS}
+        value={[]}
+        onChange={onChange}
+        texts={CASCADE_TEXTS}
+        disabled
+        help={HELP}
+      />,
+    );
+    for (const name of ["Fruity", "Floral"]) {
+      const chip = screen.getByRole("button", { name }) as HTMLButtonElement;
+      expect(chip.disabled).toBe(true);
+      expect(classesOf(chip)).toEqual(
+        expect.arrayContaining(["disabled:cursor-not-allowed", "disabled:opacity-50"]),
+      );
+    }
+    fireEvent.click(screen.getByRole("button", { name: "Fruity" }));
+    expect(onChange).not.toHaveBeenCalled();
+    const help = screen.getByText(HELP);
+    expect(screen.getByRole("group", { name: "Flavour" }).getAttribute("aria-describedby")).toBe(
+      help.id,
+    );
+  });
+});
+
+describe("Disabled ScoreRangeFacet", () => {
+  it("rejects slider and input changes and renders at 50% opacity", () => {
+    const onCommit = vi.fn();
+    render(
+      <ScoreRangeFacet
+        legend="Score"
+        min={0}
+        max={100}
+        value={[0, 100]}
+        onCommit={onCommit}
+        texts={RANGE_TEXTS}
+        disabled
+      />,
+    );
+    const min = screen.getByRole("slider", { name: "Minimum score" });
+    fireEvent.keyDown(min, { key: "ArrowRight" });
+    expect(min.getAttribute("aria-valuenow")).toBe("0");
+    const root = min.closest(".touch-none")!;
+    expect(root.hasAttribute("data-disabled")).toBe(true);
+    expect(classesOf(root)).toContain("data-disabled:opacity-50");
+    for (const name of ["From", "To"]) {
+      const input = screen.getByRole("spinbutton", { name }) as HTMLInputElement;
+      expect(input.disabled).toBe(true);
+      expect(classesOf(input)).toContain("disabled:opacity-50");
+    }
+    expect(onCommit).not.toHaveBeenCalled();
+  });
+});

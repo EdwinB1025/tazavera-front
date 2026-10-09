@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Button, ConfirmDialog } from "@/shared/ui";
+import { ConfirmDialog } from "@/shared/ui";
 import type { DeleteError, DeleteTarget } from "../model/delete-flow";
 
 // ─── UI-specific types (declared before the component) ───
@@ -14,8 +14,6 @@ export type DeleteOfferingsDialogTexts = {
   deleteConfirmLabel: string;
   cancelLabel: string;
   deleteError: string;
-  stepUpMessage: string;
-  stepUpLabel: string;
 };
 
 export type DeleteOfferingsDialogProps = {
@@ -24,20 +22,13 @@ export type DeleteOfferingsDialogProps = {
   error: DeleteError;
   onCancel: () => void;
   onConfirm: () => void;
-  /** Starts the identity check (`requestProfileWrite`, injected by the page). */
-  onStepUp: () => void;
   texts: DeleteOfferingsDialogTexts;
 };
-
-// The step-up text and its action: a column 0.75rem apart, no box (summary
-// §6.3), inside the dialog's error slot.
-const STEP_UP_CLASSES = ["flex", "flex-col", "items-start", "gap-3"].join(" ");
 
 /**
  * The confirmation of both delete flows (design.md D5, D7): `ConfirmDialog`
  * with the single or the bulk texts. Its `error` slot is the dialog's single
- * `role="alert"` region: it carries the delete error, or the step-up text and
- * its action, which carry no role of their own.
+ * `role="alert"` region: it carries the delete error.
  */
 export function DeleteOfferingsDialog({
   target,
@@ -45,23 +36,10 @@ export function DeleteOfferingsDialog({
   error,
   onCancel,
   onConfirm,
-  onStepUp,
   texts,
 }: DeleteOfferingsDialogProps): ReactNode {
   const many = target?.kind === "many";
-  let errorContent: ReactNode = null;
-  if (error === "failed") {
-    errorContent = texts.deleteError;
-  } else if (error === "step-up") {
-    errorContent = (
-      <span className={STEP_UP_CLASSES}>
-        <span>{texts.stepUpMessage}</span>
-        <Button variant="primary" size="sm" onClick={onStepUp}>
-          {texts.stepUpLabel}
-        </Button>
-      </span>
-    );
-  }
+  const errorContent = error === "failed" ? texts.deleteError : null;
 
   return (
     <ConfirmDialog

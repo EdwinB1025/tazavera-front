@@ -6,7 +6,7 @@
   "locationsCount": "{count} locations",
   "offeringsCount": "Offerings: {count}",
   "verifiedCount": "Verified: {count}",
-  "viewLabel": "View",
+  "viewLabel": "View offerings",
   "listEmpty": "No coffee shops yet.",
   "listError": "The coffee shops could not be loaded.",
   "filtersTitle": "Filters",
@@ -39,5 +39,7 @@
   "osmAttribution": "© {link}",
   "osmContributors": "OpenStreetMap contributors",
   "backToList": "Back to the list",
-  "mapLoading": "Loading the map…"
+  "mapLoading": "Loading the map…",
+  "detailNotFoundTitle": "Coffee shop not found",
+  "detailNotFoundLine": "It may have been removed, or the link may be wrong."
 }

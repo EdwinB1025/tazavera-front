@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { formStateFromEvaluation } from "./load";
-import type { EvaluationItem } from "@/shared/api";
+import type { EvaluationItem, TaxonomyNode } from "@/shared/api";
 
 /**
  * The read-to-state mapping (design.md D3, D7, D11; spec "Loading an
@@ -60,5 +60,40 @@ describe("formStateFromEvaluation (design.md D3)", () => {
       fragranceAroma: ["01JTAXAROMA00000000000000D", "01JTAXFRAG000000000000000E"],
       flavorAftertaste: ["01JTAXFLAV000000000000000F", "01JTAXAFTER00000000000000G"],
     });
+  });
+
+  it("chooses every ancestor of a chosen node (cascade-evaluation-descriptors D7)", () => {
+    const tree = [
+      { ulid: "ROOT", level: 0, children: [{ ulid: "CHILD", level: 1, children: [{ ulid: "LEAF", level: 2 }] }] },
+    ] as TaxonomyNode[];
+    const state = formStateFromEvaluation(
+      { ...ITEM, tastes: [{ ref: "LEAF", type: "main_tastes" }] },
+      null,
+      tree,
+    );
+    expect(state.descriptors.mainTastes).toEqual(["ROOT", "CHILD", "LEAF"]);
+  });
+
+  it("fills the five extrinsic fields (spec \"Loading the extrinsic fields\")", () => {
+    const state = formStateFromEvaluation(
+      {
+        ...ITEM,
+        extrinsics: {
+          farming: "Smallholder",
+          processing: "Washed",
+          trading: "Direct",
+          certifications: "Organic",
+          generalObservation: "Washed station",
+        },
+      },
+      "medium",
+    );
+    expect(state.extrinsics).toEqual({
+      farming: "Smallholder",
+      processing: "Washed",
+      trading: "Direct",
+      certifications: "Organic",
+    });
+    expect(state.generalObservation).toBe("Washed station");
   });
 });

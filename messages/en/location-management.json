@@ -22,8 +22,6 @@
   "cancel": "Cancel",
   "loading": "Loading…",
   "genericError": "The action could not be completed. Please try again.",
-  "stepUpText": "To continue, confirm your identity by signing in again.",
-  "stepUpButton": "Confirm identity",
   "signIn": "Sign in",
   "requiredError": "This field is required.",
   "emailFormatError": "Enter a valid email address."

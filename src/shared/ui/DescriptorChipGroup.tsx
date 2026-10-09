@@ -14,7 +14,7 @@ import { ToggleGroup, ToggleGroupItem } from "./ToggleGroup";
 // `onValueChange` is required unless `readOnly`. Tests pin this with
 // `@ts-expect-error` cases and `npx tsc --noEmit`, the `Textarea` precedent.
 
-export type ChipOption = { value: string; label: string; color: string; level: 0 | 1 };
+export type ChipOption = { value: string; label: string; color: string; level: 0 | 1 | 2 };
 export type ChipRow = { id: string; title?: ReactNode; options: ChipOption[] };
 
 export type DescriptorChipGroupProps = {

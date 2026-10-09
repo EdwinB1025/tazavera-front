@@ -14,12 +14,23 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(nav.search),
 }));
 
+vi.mock("../api/search-coffees", () => ({
+  searchCoffees: async () => [
+    {
+      value: "Huila El Mirador",
+      label: "Huila El Mirador",
+      detail: "Colombia · Huila · washed · Caturra",
+    },
+  ],
+}));
+
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
   cleanup();
 });
 
 // jsdom has no ResizeObserver; Radix Slider and Popover measure with one.
+// cmdk scrolls the active option into view, which jsdom lacks too.
 beforeAll(() => {
   if (!("ResizeObserver" in globalThis)) {
     globalThis.ResizeObserver = class {
@@ -27,6 +38,9 @@ beforeAll(() => {
       unobserve(): void {}
       disconnect(): void {}
     } as unknown as typeof ResizeObserver;
+  }
+  if (!Element.prototype.scrollIntoView) {
+    Element.prototype.scrollIntoView = () => {};
   }
 });
 
@@ -49,7 +63,14 @@ const OPTIONS: OfferingFacetOptions = {
   processes: ["natural", "washed"],
   varieties: ["Caturra"],
   producers: ["Bensa"],
-  tasteNotes: [{ value: "F", label: "Fruity", children: [{ value: "B", label: "Berry" }] }],
+  tasteNotes: [
+    {
+      value: "F",
+      label: "Fruity",
+      color: "#af5e70",
+      children: [{ value: "B", label: "Berry", color: "#c0392b" }],
+    },
+  ],
 };
 
 function renderPanel(search: string, options: OfferingFacetOptions = OPTIONS) {
@@ -69,7 +90,7 @@ describe("OfferingFacets (design.md D7)", () => {
   it("shows the eleven facets in the spec order", () => {
     renderPanel("");
     const facets = [
-      screen.getByRole("searchbox", { name: "Coffee" }),
+      screen.getByRole("combobox", { name: "Coffee" }),
       screen.getByRole("radiogroup", { name: "Verification" }),
       screen.getByRole("group", { name: "Average score" }),
       screen.getByRole("group", { name: "Taste notes" }),
@@ -89,6 +110,17 @@ describe("OfferingFacets (design.md D7)", () => {
     }
   });
 
+  it("writes the chosen coffee's name to coffeeName without page", async () => {
+    renderPanel("page=2");
+    fireEvent.change(screen.getByRole("combobox", { name: "Coffee" }), {
+      target: { value: "hui" },
+    });
+    fireEvent.click(await screen.findByRole("option", { name: /Huila El Mirador/ }));
+    expect(nav.push).toHaveBeenCalledWith("/en/offerings?coffeeName=Huila+El+Mirador", {
+      scroll: false,
+    });
+  });
+
   it("shows the values of its props as selected", () => {
     renderPanel("verified=1&process=washed&cuppingAvgMin=80");
     expect(radio("Verified", "Verification").checked).toBe(true);
@@ -96,6 +128,15 @@ describe("OfferingFacets (design.md D7)", () => {
     expect(radio("Any", "Origin country").checked).toBe(true);
     expect((screen.getByRole("spinbutton", { name: "From" }) as HTMLInputElement).value).toBe("80");
     expect((screen.getByRole("spinbutton", { name: "To" }) as HTMLInputElement).value).toBe("100");
+  });
+
+  it("shows the Average score facet on 60–100 with no score filter", () => {
+    renderPanel("");
+    expect((screen.getByRole("spinbutton", { name: "From" }) as HTMLInputElement).value).toBe("60");
+    expect((screen.getByRole("spinbutton", { name: "To" }) as HTMLInputElement).value).toBe("100");
+    expect(screen.getByRole("slider", { name: "Minimum score" }).getAttribute("aria-valuemin")).toBe(
+      "60",
+    );
   });
 
   it("navigates to the new query without page when a process is chosen", () => {
@@ -123,7 +164,7 @@ describe("OfferingFacets (design.md D7)", () => {
       true,
     );
     expect(screen.getAllByText("Options unavailable")).toHaveLength(5);
-    expect((screen.getByRole("searchbox", { name: "Coffee" }) as HTMLInputElement).disabled).toBe(
+    expect((screen.getByRole("combobox", { name: "Coffee" }) as HTMLInputElement).disabled).toBe(
       false,
     );
   });

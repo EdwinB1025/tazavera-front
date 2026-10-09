@@ -2,6 +2,10 @@ import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent, act } from "@testing-library/react";
 import { RegisterForm, type RegisterFormTexts } from "@/features/user-account";
 
+// Cancel is a route button (render-navigation-actions-as-buttons); the app
+// router is mocked — test infrastructure only.
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+
 /**
  * Registration form (specs "Registration routes", "Registration form" and
  * "Registration result"; design.md D2, D3 and D9). The request goes through
@@ -31,6 +35,7 @@ const TEXTS: RegisterFormTexts = {
   emailFormatError: "fx-email-format",
   passwordMismatchError: "fx-mismatch",
   registerSubmit: "fx-submit",
+  cancelLabel: "fx-cancel",
   genericError: "fx-generic",
   registerSuccessTitle: "fx-success-title",
   registerSuccessText: "fx-success-text",
@@ -48,6 +53,7 @@ beforeEach(() => {
 
 function renderForm(role: "specialist" | "coffeeshop" = "specialist") {
   const signIn = vi.fn<() => void>();
+  const signInWithToken = vi.fn<() => Promise<boolean>>();
   render(
     <>
       <h1 id="register-title">title</h1>
@@ -56,6 +62,8 @@ function renderForm(role: "specialist" | "coffeeshop" = "specialist") {
         labelledBy="register-title"
         texts={TEXTS}
         signIn={signIn}
+        signInWithToken={signInWithToken}
+        cancelHref="/es"
       />
     </>,
   );
@@ -217,4 +225,35 @@ describe("RegisterForm — pending and result", () => {
       expect(screen.queryByText("api-message")).toBeNull();
     });
   }
+
+  it("The registration names invalid fields: a 422 message shows under its field and clears on edit", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse(422, { message: "api-message", errors: { email: ["fx-email-taken"] } }),
+    );
+    renderForm();
+    fillValid();
+    await submit();
+
+    const email = field(TEXTS.emailLabel);
+    expect(email.getAttribute("aria-invalid")).toBe("true");
+    const describedBy = email.getAttribute("aria-describedby") ?? "";
+    expect(document.getElementById(describedBy)?.textContent).toBe("fx-email-taken");
+    expect(screen.queryByRole("alert")).toBeNull();
+
+    type(TEXTS.emailLabel, "ana@example.org");
+    expect(screen.queryByText("fx-email-taken")).toBeNull();
+  });
+});
+
+// user-account "Cancelling registration" — scenario "Register and Cancel share
+// one action group" (unify-action-button-widths).
+describe("RegisterForm — actions", () => {
+  it("puts Register and Cancel in one action group, neither full width", () => {
+    renderForm();
+    const submitButton = screen.getByRole("button", { name: TEXTS.registerSubmit });
+    const cancel = screen.getByRole("button", { name: TEXTS.cancelLabel });
+    expect(submitButton.parentElement).toBe(cancel.parentElement);
+    expect(cancel.parentElement!.classList.contains("grid-cols-2")).toBe(true);
+    expect([submitButton, cancel].some((button) => button.classList.contains("w-full"))).toBe(false);
+  });
 });

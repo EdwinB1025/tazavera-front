@@ -9,16 +9,18 @@ import type { Session } from "@/shared/api";
  */
 
 const useSession = vi.fn<() => Session>();
-vi.mock("@/features/auth", () => ({
-  useSession: () => useSession(),
-}));
 
 // The Evaluate action is a route button (fix-production-aut-findings
 // design.md D4); the app router is mocked — test infrastructure only.
 const router = vi.hoisted(() => ({ push: vi.fn() }));
 vi.mock("next/navigation", () => ({ useRouter: () => router }));
 
-import { EvaluateLink } from "./EvaluateLink";
+import { EvaluateLink, type EvaluateLinkProps } from "./EvaluateLink";
+
+// The link's caller: supplies the mocked session as a prop.
+function SessionEvaluateLink(props: Omit<EvaluateLinkProps, "session">) {
+  return <EvaluateLink session={useSession()} {...props} />;
+}
 
 const ULID = "01JOFFER000000000000000001";
 
@@ -32,7 +34,7 @@ afterEach(cleanup);
 describe("EvaluateLink (design.md D6)", () => {
   it("opens the new form of the offering for a signed-in specialist from an action button", () => {
     useSession.mockReturnValue(user("specialist"));
-    render(<EvaluateLink ulid={ULID} locale="es" texts={{ evaluateLabel: "Evaluar" }} />);
+    render(<SessionEvaluateLink ulid={ULID} locale="es" texts={{ evaluateLabel: "Evaluar" }} />);
     expect(screen.queryByRole("link", { name: "Evaluar" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Evaluar" }));
     expect(router.push).toHaveBeenCalledWith(`/es/manage/evaluations/new?offering=${ULID}`);
@@ -44,7 +46,7 @@ describe("EvaluateLink (design.md D6)", () => {
   ])("renders nothing while %s", (_case, session) => {
     useSession.mockReturnValue(session);
     const { container } = render(
-      <EvaluateLink ulid={ULID} locale="es" texts={{ evaluateLabel: "Evaluar" }} />,
+      <SessionEvaluateLink ulid={ULID} locale="es" texts={{ evaluateLabel: "Evaluar" }} />,
     );
     expect(container.innerHTML).toBe("");
   });

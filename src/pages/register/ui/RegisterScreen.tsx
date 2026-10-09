@@ -36,6 +36,7 @@ export function RegisterScreen({ locale, role }: RegisterScreenProps): ReactNode
     emailFormatError: catalog.emailFormatError,
     passwordMismatchError: catalog.passwordMismatchError,
     registerSubmit: catalog.registerSubmit,
+    cancelLabel: catalog.cancel,
     genericError: catalog.genericError,
     registerSuccessTitle: catalog.registerSuccessTitle,
     registerSuccessText: catalog.registerSuccessText,
@@ -51,7 +52,7 @@ export function RegisterScreen({ locale, role }: RegisterScreenProps): ReactNode
   return (
     <div className="flex-1">
       <PageSection surface="page" containerClassName="flex flex-col">
-        <div className="mx-auto flex w-full max-w-lg flex-col gap-8">
+        <div className="flex w-full flex-col gap-8">
           <div className="flex flex-col gap-2">
             <h1 id={TITLE_ID} className="type-heading">
               {title}

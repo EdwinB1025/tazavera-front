@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { getMessages } from "@/shared/lib/i18n";
 import { EvaluationSheetView, EvaluationSheetViewSkeleton } from "@/widgets/evaluation-sheet";
-import { BackLink } from "@/shared/ui";
+import { BackButton, BackLink } from "@/shared/ui";
 import { viewTexts } from "./texts";
 
 // ─── UI-specific types (declared before the component) ───
@@ -29,10 +29,13 @@ export function ViewScreen({ locale, ulid }: ViewScreenProps): ReactNode {
   const back = (
     <BackLink fallback={`/${locale}/evaluations`}>{own.backLabel}</BackLink>
   );
+  const bottomBack = (
+    <BackButton fallback={`/${locale}/evaluations`}>{own.backLabel}</BackButton>
+  );
   return (
     <div className="flex-1">
       <Suspense fallback={<EvaluationSheetViewSkeleton back={back} />}>
-        <EvaluationSheetView locale={locale} ulid={ulid} back={back} texts={viewTexts(locale)} />
+        <EvaluationSheetView locale={locale} ulid={ulid} back={back} bottomBack={bottomBack} texts={viewTexts(locale)} />
       </Suspense>
     </div>
   );

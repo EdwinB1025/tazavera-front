@@ -5,7 +5,7 @@ info:
   version: 1.0.0
 servers:
   -
-    url: 'http://localhost:8000'
+    url: 'https://localhost:8443'
 tags:
   -
     name: 'Coffee Inventory'
@@ -15,6 +15,9 @@ tags:
     description: ''
   -
     name: 'Coffee shops'
+    description: ''
+  -
+    name: Endpoints
     description: ''
   -
     name: Evaluations
@@ -53,67 +56,67 @@ paths:
         -
           in: query
           name: coffeeName
-          description: 'Filter by coffee name (max 150 chars). Must not be greater than 150 characters.'
+          description: 'Filter by coffee name (max 150 chars). El campo value no debe ser mayor que 150 caracteres.'
           example: Geisha
           required: false
           schema:
             type: string
-            description: 'Filter by coffee name (max 150 chars). Must not be greater than 150 characters.'
+            description: 'Filter by coffee name (max 150 chars). El campo value no debe ser mayor que 150 caracteres.'
             example: Geisha
             nullable: true
         -
           in: query
           name: originCountry
-          description: 'Filter by country of origin (max 60 chars). Must not be greater than 60 characters.'
+          description: 'Filter by country of origin (max 60 chars). El campo value no debe ser mayor que 60 caracteres.'
           example: Colombia
           required: false
           schema:
             type: string
-            description: 'Filter by country of origin (max 60 chars). Must not be greater than 60 characters.'
+            description: 'Filter by country of origin (max 60 chars). El campo value no debe ser mayor que 60 caracteres.'
             example: Colombia
             nullable: true
         -
           in: query
           name: originRegion
-          description: 'Filter by region of origin (max 90 chars). Must not be greater than 90 characters.'
+          description: 'Filter by region of origin (max 90 chars). El campo value no debe ser mayor que 90 caracteres.'
           example: Huila
           required: false
           schema:
             type: string
-            description: 'Filter by region of origin (max 90 chars). Must not be greater than 90 characters.'
+            description: 'Filter by region of origin (max 90 chars). El campo value no debe ser mayor que 90 caracteres.'
             example: Huila
             nullable: true
         -
           in: query
           name: process
-          description: 'Filter by processing method (max 60 chars). Must not be greater than 60 characters.'
+          description: 'Filter by processing method (max 60 chars). El campo value no debe ser mayor que 60 caracteres.'
           example: Washed
           required: false
           schema:
             type: string
-            description: 'Filter by processing method (max 60 chars). Must not be greater than 60 characters.'
+            description: 'Filter by processing method (max 60 chars). El campo value no debe ser mayor que 60 caracteres.'
             example: Washed
             nullable: true
         -
           in: query
           name: producer
-          description: 'Filter by producer name (max 150 chars). Must not be greater than 150 characters.'
+          description: 'Filter by producer name (max 150 chars). El campo value no debe ser mayor que 150 caracteres.'
           example: 'Finca La Esperanza'
           required: false
           schema:
             type: string
-            description: 'Filter by producer name (max 150 chars). Must not be greater than 150 characters.'
+            description: 'Filter by producer name (max 150 chars). El campo value no debe ser mayor que 150 caracteres.'
             example: 'Finca La Esperanza'
             nullable: true
         -
           in: query
           name: city
-          description: 'Filter by city (max 90 chars). Must not be greater than 90 characters.'
+          description: 'Filter by city (max 90 chars). El campo value no debe ser mayor que 90 caracteres.'
           example: Barcelona
           required: false
           schema:
             type: string
-            description: 'Filter by city (max 90 chars). Must not be greater than 90 characters.'
+            description: 'Filter by city (max 90 chars). El campo value no debe ser mayor que 90 caracteres.'
             example: Barcelona
             nullable: true
       responses:
@@ -299,12 +302,12 @@ paths:
         -
           in: query
           name: name
-          description: 'Filter by coffee name (partial match, max 150 chars). Must not be greater than 150 characters.'
+          description: 'Filter by coffee name (partial match, max 150 chars). El campo value no debe ser mayor que 150 caracteres.'
           example: Huila
           required: false
           schema:
             type: string
-            description: 'Filter by coffee name (partial match, max 150 chars). Must not be greater than 150 characters.'
+            description: 'Filter by coffee name (partial match, max 150 chars). El campo value no debe ser mayor que 150 caracteres.'
             example: Huila
             nullable: true
       responses:
@@ -435,32 +438,32 @@ paths:
         -
           in: query
           name: name
-          description: 'Filter by the coffee shop (business) name. Partial, case-insensitive match. Must not be greater than 150 characters.'
+          description: 'Filter by the coffee shop (business) name. Partial, case-insensitive match. El campo value no debe ser mayor que 150 caracteres.'
           example: nomad
           required: false
           schema:
             type: string
-            description: 'Filter by the coffee shop (business) name. Partial, case-insensitive match. Must not be greater than 150 characters.'
+            description: 'Filter by the coffee shop (business) name. Partial, case-insensitive match. El campo value no debe ser mayor que 150 caracteres.'
             example: nomad
         -
           in: query
           name: city
-          description: 'Filter coffee shops with at least one location whose primary contact is in this city. Must not be greater than 90 characters.'
+          description: 'Filter coffee shops with at least one location whose primary contact is in this city. El campo value no debe ser mayor que 90 caracteres.'
           example: Barcelona
           required: false
           schema:
             type: string
-            description: 'Filter coffee shops with at least one location whose primary contact is in this city. Must not be greater than 90 characters.'
+            description: 'Filter coffee shops with at least one location whose primary contact is in this city. El campo value no debe ser mayor que 90 caracteres.'
             example: Barcelona
         -
           in: query
           name: postalCode
-          description: 'Filter coffee shops with at least one location whose primary contact has this postal code. Must not be greater than 12 characters.'
+          description: 'Filter coffee shops with at least one location whose primary contact has this postal code. El campo value no debe ser mayor que 12 caracteres.'
           example: '08001'
           required: false
           schema:
             type: string
-            description: 'Filter coffee shops with at least one location whose primary contact has this postal code. Must not be greater than 12 characters.'
+            description: 'Filter coffee shops with at least one location whose primary contact has this postal code. El campo value no debe ser mayor que 12 caracteres.'
             example: '08001'
         -
           in: query
@@ -500,12 +503,22 @@ paths:
         -
           in: query
           name: page
-          description: 'Page number. Default: 1. Must be at least 1.'
+          description: 'Page number. Default: 1. El tamaño de value debe ser de al menos 1.'
           example: 1
           required: false
           schema:
             type: integer
-            description: 'Page number. Default: 1. Must be at least 1.'
+            description: 'Page number. Default: 1. El tamaño de value debe ser de al menos 1.'
+            example: 1
+        -
+          in: query
+          name: perPage
+          description: 'El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 50.'
+          example: 1
+          required: false
+          schema:
+            type: integer
+            description: 'El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 50.'
             example: 1
       responses:
         200:
@@ -992,6 +1005,77 @@ paths:
         required: true
         schema:
           type: string
+  /email/verify:
+    get:
+      summary: 'Display the email verification prompt.'
+      operationId: displayTheEmailVerificationPrompt
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+  '/email/verify/{id}/{hash}':
+    get:
+      summary: "Mark the authenticated user's email address as verified."
+      operationId: markTheAuthenticatedUsersEmailAddressAsVerified
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the verify.'
+        example: architecto
+        required: true
+        schema:
+          type: string
+      -
+        in: path
+        name: hash
+        description: ''
+        example: architecto
+        required: true
+        schema:
+          type: string
+  /email/verification-notification:
+    post:
+      summary: 'Send a new email verification notification.'
+      operationId: sendANewEmailVerificationNotification
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      security: []
   '/evaluations/{evaluation_ulid}':
     get:
       summary: 'Get an evaluation'
@@ -1310,6 +1394,18 @@ paths:
                         nullable: true
                     required:
                       - offeringId
+        404:
+          description: 'Not found or not closed'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The requested resource was not found.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The requested resource was not found.'
       tags:
         - Evaluations
       security: []
@@ -1384,22 +1480,22 @@ paths:
         -
           in: query
           name: city
-          description: 'Filter by the city of the evaluation location. Must not be greater than 90 characters.'
+          description: 'Filter by the city of the evaluation location. El campo value no debe ser mayor que 90 caracteres.'
           example: Barcelona
           required: false
           schema:
             type: string
-            description: 'Filter by the city of the evaluation location. Must not be greater than 90 characters.'
+            description: 'Filter by the city of the evaluation location. El campo value no debe ser mayor que 90 caracteres.'
             example: Barcelona
         -
           in: query
           name: process
-          description: 'Filter by coffee processing method. Must not be greater than 90 characters.'
+          description: 'Filter by coffee processing method. El campo value no debe ser mayor que 90 caracteres.'
           example: Washed
           required: false
           schema:
             type: string
-            description: 'Filter by coffee processing method. Must not be greater than 90 characters.'
+            description: 'Filter by coffee processing method. El campo value no debe ser mayor que 90 caracteres.'
             example: Washed
         -
           in: query
@@ -1417,22 +1513,22 @@ paths:
         -
           in: query
           name: scoreMin
-          description: 'Minimum cupping score (0–100). Must be at least 0. Must not be greater than 100.'
+          description: 'Minimum cupping score (0–100). El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.'
           example: 80.0
           required: false
           schema:
             type: number
-            description: 'Minimum cupping score (0–100). Must be at least 0. Must not be greater than 100.'
+            description: 'Minimum cupping score (0–100). El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.'
             example: 80.0
         -
           in: query
           name: scoreMax
-          description: 'Maximum cupping score (0–100). Must be ≥ scoreMin. Must be at least 0. Must not be greater than 100.'
+          description: 'Maximum cupping score (0–100). Must be ≥ scoreMin. El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.'
           example: 95.0
           required: false
           schema:
             type: number
-            description: 'Maximum cupping score (0–100). Must be ≥ scoreMin. Must be at least 0. Must not be greater than 100.'
+            description: 'Maximum cupping score (0–100). Must be ≥ scoreMin. El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.'
             example: 95.0
         -
           in: query
@@ -1461,6 +1557,26 @@ paths:
             enum:
               - asc
               - desc
+        -
+          in: query
+          name: page
+          description: 'El tamaño de value debe ser de al menos 1.'
+          example: 16
+          required: false
+          schema:
+            type: integer
+            description: 'El tamaño de value debe ser de al menos 1.'
+            example: 16
+        -
+          in: query
+          name: perPage
+          description: 'El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 50.'
+          example: 22
+          required: false
+          schema:
+            type: integer
+            description: 'El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 50.'
+            example: 22
       responses:
         200:
           description: ''
@@ -2094,6 +2210,38 @@ paths:
                       total:
                         type: integer
                         example: 2
+        422:
+          description: 'Invalid filters'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The selected status is invalid. (and 1 more error)'
+                  errors:
+                    status:
+                      - 'The selected status is invalid.'
+                    scoreMax:
+                      - 'The score max field must be greater than or equal to 90.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The selected status is invalid. (and 1 more error)'
+                  errors:
+                    type: object
+                    properties:
+                      status:
+                        type: array
+                        example:
+                          - 'The selected status is invalid.'
+                        items:
+                          type: string
+                      scoreMax:
+                        type: array
+                        example:
+                          - 'The score max field must be greater than or equal to 90.'
+                        items:
+                          type: string
       tags:
         - Evaluations
       security: []
@@ -2149,22 +2297,22 @@ paths:
         -
           in: query
           name: city
-          description: 'Filter by the city of the evaluation location. Must not be greater than 90 characters.'
+          description: 'Filter by the city of the evaluation location. El campo value no debe ser mayor que 90 caracteres.'
           example: Barcelona
           required: false
           schema:
             type: string
-            description: 'Filter by the city of the evaluation location. Must not be greater than 90 characters.'
+            description: 'Filter by the city of the evaluation location. El campo value no debe ser mayor que 90 caracteres.'
             example: Barcelona
         -
           in: query
           name: process
-          description: 'Filter by coffee processing method. Must not be greater than 90 characters.'
+          description: 'Filter by coffee processing method. El campo value no debe ser mayor que 90 caracteres.'
           example: Washed
           required: false
           schema:
             type: string
-            description: 'Filter by coffee processing method. Must not be greater than 90 characters.'
+            description: 'Filter by coffee processing method. El campo value no debe ser mayor que 90 caracteres.'
             example: Washed
         -
           in: query
@@ -2182,22 +2330,22 @@ paths:
         -
           in: query
           name: scoreMin
-          description: 'Minimum cupping score (0–100). Must be at least 0. Must not be greater than 100.'
+          description: 'Minimum cupping score (0–100). El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.'
           example: 80.0
           required: false
           schema:
             type: number
-            description: 'Minimum cupping score (0–100). Must be at least 0. Must not be greater than 100.'
+            description: 'Minimum cupping score (0–100). El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.'
             example: 80.0
         -
           in: query
           name: scoreMax
-          description: 'Maximum cupping score (0–100). Must be ≥ scoreMin. Must be at least 0. Must not be greater than 100.'
+          description: 'Maximum cupping score (0–100). Must be ≥ scoreMin. El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.'
           example: 95.0
           required: false
           schema:
             type: number
-            description: 'Maximum cupping score (0–100). Must be ≥ scoreMin. Must be at least 0. Must not be greater than 100.'
+            description: 'Maximum cupping score (0–100). Must be ≥ scoreMin. El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.'
             example: 95.0
         -
           in: query
@@ -2226,6 +2374,26 @@ paths:
             enum:
               - asc
               - desc
+        -
+          in: query
+          name: page
+          description: 'El tamaño de value debe ser de al menos 1.'
+          example: 16
+          required: false
+          schema:
+            type: integer
+            description: 'El tamaño de value debe ser de al menos 1.'
+            example: 16
+        -
+          in: query
+          name: perPage
+          description: 'El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 50.'
+          example: 22
+          required: false
+          schema:
+            type: integer
+            description: 'El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 50.'
+            example: 22
       responses:
         200:
           description: ''
@@ -2859,6 +3027,50 @@ paths:
                       total:
                         type: integer
                         example: 2
+        404:
+          description: 'Unknown user'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The requested resource was not found.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The requested resource was not found.'
+        422:
+          description: 'Invalid filters'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The selected status is invalid. (and 1 more error)'
+                  errors:
+                    status:
+                      - 'The selected status is invalid.'
+                    scoreMin:
+                      - 'The score min field must not be greater than 100.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The selected status is invalid. (and 1 more error)'
+                  errors:
+                    type: object
+                    properties:
+                      status:
+                        type: array
+                        example:
+                          - 'The selected status is invalid.'
+                        items:
+                          type: string
+                      scoreMin:
+                        type: array
+                        example:
+                          - 'The score min field must not be greater than 100.'
+                        items:
+                          type: string
       tags:
         - Evaluations
       security: []
@@ -2923,22 +3135,22 @@ paths:
         -
           in: query
           name: city
-          description: 'Filter by the city of the evaluation location. Must not be greater than 90 characters.'
+          description: 'Filter by the city of the evaluation location. El campo value no debe ser mayor que 90 caracteres.'
           example: Barcelona
           required: false
           schema:
             type: string
-            description: 'Filter by the city of the evaluation location. Must not be greater than 90 characters.'
+            description: 'Filter by the city of the evaluation location. El campo value no debe ser mayor que 90 caracteres.'
             example: Barcelona
         -
           in: query
           name: process
-          description: 'Filter by coffee processing method. Must not be greater than 90 characters.'
+          description: 'Filter by coffee processing method. El campo value no debe ser mayor que 90 caracteres.'
           example: Washed
           required: false
           schema:
             type: string
-            description: 'Filter by coffee processing method. Must not be greater than 90 characters.'
+            description: 'Filter by coffee processing method. El campo value no debe ser mayor que 90 caracteres.'
             example: Washed
         -
           in: query
@@ -2956,22 +3168,22 @@ paths:
         -
           in: query
           name: scoreMin
-          description: 'Minimum cupping score (0–100). Must be at least 0. Must not be greater than 100.'
+          description: 'Minimum cupping score (0–100). El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.'
           example: 80.0
           required: false
           schema:
             type: number
-            description: 'Minimum cupping score (0–100). Must be at least 0. Must not be greater than 100.'
+            description: 'Minimum cupping score (0–100). El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.'
             example: 80.0
         -
           in: query
           name: scoreMax
-          description: 'Maximum cupping score (0–100). Must be ≥ scoreMin. Must be at least 0. Must not be greater than 100.'
+          description: 'Maximum cupping score (0–100). Must be ≥ scoreMin. El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.'
           example: 95.0
           required: false
           schema:
             type: number
-            description: 'Maximum cupping score (0–100). Must be ≥ scoreMin. Must be at least 0. Must not be greater than 100.'
+            description: 'Maximum cupping score (0–100). Must be ≥ scoreMin. El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.'
             example: 95.0
         -
           in: query
@@ -3000,6 +3212,26 @@ paths:
             enum:
               - asc
               - desc
+        -
+          in: query
+          name: page
+          description: 'El tamaño de value debe ser de al menos 1.'
+          example: 16
+          required: false
+          schema:
+            type: integer
+            description: 'El tamaño de value debe ser de al menos 1.'
+            example: 16
+        -
+          in: query
+          name: perPage
+          description: 'El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 50.'
+          example: 22
+          required: false
+          schema:
+            type: integer
+            description: 'El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 50.'
+            example: 22
       responses:
         200:
           description: ''
@@ -3633,6 +3865,38 @@ paths:
                       total:
                         type: integer
                         example: 2
+        422:
+          description: 'Invalid filters'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The selected status is invalid. (and 1 more error)'
+                  errors:
+                    status:
+                      - 'The selected status is invalid.'
+                    scoreMin:
+                      - 'The score min field must not be greater than 100.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The selected status is invalid. (and 1 more error)'
+                  errors:
+                    type: object
+                    properties:
+                      status:
+                        type: array
+                        example:
+                          - 'The selected status is invalid.'
+                        items:
+                          type: string
+                      scoreMin:
+                        type: array
+                        example:
+                          - 'The score min field must not be greater than 100.'
+                        items:
+                          type: string
       tags:
         - Evaluations
     post:
@@ -3956,6 +4220,54 @@ paths:
                   message:
                     type: string
                     example: 'Evaluation created.'
+        422:
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The selected offering id is invalid. (and 3 more errors)'
+                  errors:
+                    offeringId:
+                      - 'The selected offering id is invalid.'
+                    descriptive.roastLevel:
+                      - 'The descriptive.roast level field is required.'
+                    descriptive.fragrance.score:
+                      - 'The descriptive.fragrance.score field must be between 0 and 15.'
+                    affective.overall.score:
+                      - 'The affective.overall.score field must be between 1 and 9.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The selected offering id is invalid. (and 3 more errors)'
+                  errors:
+                    type: object
+                    properties:
+                      offeringId:
+                        type: array
+                        example:
+                          - 'The selected offering id is invalid.'
+                        items:
+                          type: string
+                      descriptive.roastLevel:
+                        type: array
+                        example:
+                          - 'The descriptive.roast level field is required.'
+                        items:
+                          type: string
+                      descriptive.fragrance.score:
+                        type: array
+                        example:
+                          - 'The descriptive.fragrance.score field must be between 0 and 15.'
+                        items:
+                          type: string
+                      affective.overall.score:
+                        type: array
+                        example:
+                          - 'The affective.overall.score field must be between 1 and 9.'
+                        items:
+                          type: string
       tags:
         - Evaluations
       requestBody:
@@ -3969,14 +4281,9 @@ paths:
                   type: string
                   description: 'ULID of the offering being evaluated. Must match an existing stored value.'
                   example: 01M35F5RX4ADGC3CSDXXYB08DA
-                status:
-                  type: string
-                  description: ''
-                  example: architecto
-                  nullable: true
                 extractionMethod:
                   type: string
-                  description: 'Brewing/extraction method used (max 60 chars). Must not be greater than 60 characters.'
+                  description: 'Brewing/extraction method used (max 60 chars). El campo value no debe ser mayor que 60 caracteres.'
                   example: v60
                   nullable: true
                 descriptive:
@@ -4001,7 +4308,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Fragrance intensity (0–15). Must be between 0 and 15.'
+                          description: 'Fragrance intensity (0–15). El campo value tiene que estar entre 0 - 15.'
                           example: 11
                           nullable: true
                         note:
@@ -4024,7 +4331,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Aroma intensity (0–15). Must be between 0 and 15.'
+                          description: 'Aroma intensity (0–15). El campo value tiene que estar entre 0 - 15.'
                           example: 5
                           nullable: true
                         note:
@@ -4047,7 +4354,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Flavor intensity (0–15). Must be between 0 and 15.'
+                          description: 'Flavor intensity (0–15). El campo value tiene que estar entre 0 - 15.'
                           example: 12
                           nullable: true
                         note:
@@ -4070,7 +4377,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Acidity intensity (0–15). Must be between 0 and 15.'
+                          description: 'Acidity intensity (0–15). El campo value tiene que estar entre 0 - 15.'
                           example: 12
                           nullable: true
                         note:
@@ -4086,7 +4393,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Sweetness intensity (0–15). Must be between 0 and 15.'
+                          description: 'Sweetness intensity (0–15). El campo value tiene que estar entre 0 - 15.'
                           example: 6
                           nullable: true
                         note:
@@ -4102,7 +4409,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Mouthfeel intensity (0–15). Must be between 0 and 15.'
+                          description: 'Mouthfeel intensity (0–15). El campo value tiene que estar entre 0 - 15.'
                           example: 11
                           nullable: true
                         note:
@@ -4125,7 +4432,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Aftertaste intensity (0–15). Must be between 0 and 15.'
+                          description: 'Aftertaste intensity (0–15). El campo value tiene que estar entre 0 - 15.'
                           example: 5
                           nullable: true
                         note:
@@ -4162,7 +4469,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Overall preference (1–9). Must be between 1 and 9.'
+                          description: 'Overall preference (1–9). El campo value tiene que estar entre 1 - 9.'
                           example: 8
                           nullable: true
                         note:
@@ -4177,7 +4484,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Fragrance preference (1–9). Must be between 1 and 9.'
+                          description: 'Fragrance preference (1–9). El campo value tiene que estar entre 1 - 9.'
                           example: 7
                           nullable: true
                         note:
@@ -4192,7 +4499,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Aroma preference (1–9). Must be between 1 and 9.'
+                          description: 'Aroma preference (1–9). El campo value tiene que estar entre 1 - 9.'
                           example: 7
                           nullable: true
                         note:
@@ -4207,7 +4514,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Flavor preference (1–9). Must be between 1 and 9.'
+                          description: 'Flavor preference (1–9). El campo value tiene que estar entre 1 - 9.'
                           example: 9
                           nullable: true
                         note:
@@ -4222,7 +4529,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Aftertaste preference (1–9). Must be between 1 and 9.'
+                          description: 'Aftertaste preference (1–9). El campo value tiene que estar entre 1 - 9.'
                           example: 9
                           nullable: true
                         note:
@@ -4237,7 +4544,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Acidity preference (1–9). Must be between 1 and 9.'
+                          description: 'Acidity preference (1–9). El campo value tiene que estar entre 1 - 9.'
                           example: 9
                           nullable: true
                         note:
@@ -4252,7 +4559,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Sweetness preference (1–9). Must be between 1 and 9.'
+                          description: 'Sweetness preference (1–9). El campo value tiene que estar entre 1 - 9.'
                           example: 9
                           nullable: true
                         note:
@@ -4267,7 +4574,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Mouthfeel preference (1–9). Must be between 1 and 9.'
+                          description: 'Mouthfeel preference (1–9). El campo value tiene que estar entre 1 - 9.'
                           example: 8
                           nullable: true
                         note:
@@ -4642,11 +4949,11 @@ paths:
               schema:
                 type: object
                 example:
-                  message: 'No query results for model [App\Models\Evaluation].'
+                  message: 'The requested resource was not found.'
                 properties:
                   message:
                     type: string
-                    example: 'No query results for model [App\Models\Evaluation].'
+                    example: 'The requested resource was not found.'
       tags:
         - Evaluations
     parameters:
@@ -4654,7 +4961,7 @@ paths:
         in: path
         name: evaluation
         description: 'The evaluation.'
-        example: architecto
+        example: 01M4GDD84946WPV8JQ87V6419V
         required: true
         schema:
           type: string
@@ -5000,6 +5307,18 @@ paths:
                   message:
                     type: string
                     example: 'One or more evaluations do not belong to the user.'
+        404:
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The requested resource was not found.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The requested resource was not found.'
         409:
           description: 'Evaluation already closed'
           content:
@@ -5012,6 +5331,46 @@ paths:
                   message:
                     type: string
                     example: 'Evaluation cannot be updated.'
+        422:
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The selected descriptive.roast level is invalid. (and 2 more errors)'
+                  errors:
+                    descriptive.roastLevel:
+                      - 'The selected descriptive.roast level is invalid.'
+                    descriptive.aroma.score:
+                      - 'The descriptive.aroma.score field must be between 0 and 15.'
+                    affective.flavor.score:
+                      - 'The affective.flavor.score field must be between 1 and 9.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The selected descriptive.roast level is invalid. (and 2 more errors)'
+                  errors:
+                    type: object
+                    properties:
+                      descriptive.roastLevel:
+                        type: array
+                        example:
+                          - 'The selected descriptive.roast level is invalid.'
+                        items:
+                          type: string
+                      descriptive.aroma.score:
+                        type: array
+                        example:
+                          - 'The descriptive.aroma.score field must be between 0 and 15.'
+                        items:
+                          type: string
+                      affective.flavor.score:
+                        type: array
+                        example:
+                          - 'The affective.flavor.score field must be between 1 and 9.'
+                        items:
+                          type: string
       tags:
         - Evaluations
       requestBody:
@@ -5025,14 +5384,9 @@ paths:
                   type: string
                   description: 'Prohibited on update — an evaluation cannot be reassigned to another offering. Sending this field returns 422.'
                   example: null
-                status:
-                  type: string
-                  description: ''
-                  example: architecto
-                  nullable: true
                 extractionMethod:
                   type: string
-                  description: 'Brewing/extraction method used (max 60 chars). Must not be greater than 60 characters.'
+                  description: 'Brewing/extraction method used (max 60 chars). El campo value no debe ser mayor que 60 caracteres.'
                   example: v60
                   nullable: true
                 descriptive:
@@ -5057,7 +5411,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Must be between 0 and 15.'
+                          description: 'El campo value tiene que estar entre 0 - 15.'
                           example: 1
                           nullable: true
                         note:
@@ -5080,7 +5434,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Must be between 0 and 15.'
+                          description: 'El campo value tiene que estar entre 0 - 15.'
                           example: 1
                           nullable: true
                         note:
@@ -5103,7 +5457,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Must be between 0 and 15.'
+                          description: 'El campo value tiene que estar entre 0 - 15.'
                           example: 1
                           nullable: true
                         note:
@@ -5126,7 +5480,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Must be between 0 and 15.'
+                          description: 'El campo value tiene que estar entre 0 - 15.'
                           example: 1
                           nullable: true
                         note:
@@ -5142,7 +5496,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Must be between 0 and 15.'
+                          description: 'El campo value tiene que estar entre 0 - 15.'
                           example: 1
                           nullable: true
                         note:
@@ -5158,7 +5512,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Must be between 0 and 15.'
+                          description: 'El campo value tiene que estar entre 0 - 15.'
                           example: 1
                           nullable: true
                         note:
@@ -5181,7 +5535,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Must be between 0 and 15.'
+                          description: 'El campo value tiene que estar entre 0 - 15.'
                           example: 1
                           nullable: true
                         note:
@@ -5218,7 +5572,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Must be between 1 and 9.'
+                          description: 'El campo value tiene que estar entre 1 - 9.'
                           example: 2
                           nullable: true
                         note:
@@ -5233,7 +5587,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Must be between 1 and 9.'
+                          description: 'El campo value tiene que estar entre 1 - 9.'
                           example: 2
                           nullable: true
                         note:
@@ -5248,7 +5602,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Must be between 1 and 9.'
+                          description: 'El campo value tiene que estar entre 1 - 9.'
                           example: 2
                           nullable: true
                         note:
@@ -5263,7 +5617,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Must be between 1 and 9.'
+                          description: 'El campo value tiene que estar entre 1 - 9.'
                           example: 2
                           nullable: true
                         note:
@@ -5278,7 +5632,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Must be between 1 and 9.'
+                          description: 'El campo value tiene que estar entre 1 - 9.'
                           example: 2
                           nullable: true
                         note:
@@ -5293,7 +5647,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Must be between 1 and 9.'
+                          description: 'El campo value tiene que estar entre 1 - 9.'
                           example: 2
                           nullable: true
                         note:
@@ -5308,7 +5662,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Must be between 1 and 9.'
+                          description: 'El campo value tiene que estar entre 1 - 9.'
                           example: 2
                           nullable: true
                         note:
@@ -5323,7 +5677,7 @@ paths:
                       properties:
                         score:
                           type: integer
-                          description: 'Must be between 1 and 9.'
+                          description: 'El campo value tiene que estar entre 1 - 9.'
                           example: 2
                           nullable: true
                         note:
@@ -5402,6 +5756,18 @@ paths:
                   message:
                     type: string
                     example: 'One or more evaluations do not belong to the user.'
+        404:
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The requested resource was not found.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The requested resource was not found.'
       tags:
         - Evaluations
     parameters:
@@ -5456,6 +5822,18 @@ paths:
                   message:
                     type: string
                     example: 'One or more evaluations do not belong to the user.'
+        404:
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The requested resource was not found.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The requested resource was not found.'
         409:
           description: 'Evaluation incomplete'
           content:
@@ -5463,11 +5841,11 @@ paths:
               schema:
                 type: object
                 example:
-                  message: 'Evaluation is incomplete, all scores need to be provided, and at least one cata attribute for each MainTastes, mouthfeel and the set of sensorial axis.'
+                  message: 'The evaluation is incomplete: every score must be provided, with at least one CATA attribute for each axis: MainTastes, mouthfeel and the set of sensory axes.'
                 properties:
                   message:
                     type: string
-                    example: 'Evaluation is incomplete, all scores need to be provided, and at least one cata attribute for each MainTastes, mouthfeel and the set of sensorial axis.'
+                    example: 'The evaluation is incomplete: every score must be provided, with at least one CATA attribute for each axis: MainTastes, mouthfeel and the set of sensory axes.'
       tags:
         - Evaluations
     parameters:
@@ -5659,6 +6037,18 @@ paths:
                   message:
                     type: string
                     example: 'This action is unauthorized.'
+        404:
+          description: 'Unknown user'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The requested resource was not found.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The requested resource was not found.'
       tags:
         - Locations
     parameters:
@@ -5872,7 +6262,7 @@ paths:
     post:
       summary: 'Create a location'
       operationId: createALocation
-      description: "Creates a location of the authenticated coffeeshop together with its\nprimary contact, in a single database transaction (all-or-nothing). The\nowner is always the authenticated user, never a value from the body.\nThe coordinates are optional and computed by the client; when one is\nsent, the other is required.\n\n**Authorization:** requires the `coffeeshop` role and the `profile:write`\nscope."
+      description: "Creates a location of the authenticated coffeeshop together with its\nprimary contact, in a single database transaction (all-or-nothing). The\nowner is always the authenticated user, never a value from the body.\nThe coordinates are optional and computed by the client; when one is\nsent, the other is required.\n\n**Authorization:** requires the `coffeeshop` role and the `profile:read`\nor `profile:write` scope (no step-up re-authentication)."
       parameters: []
       responses:
         201:
@@ -6045,21 +6435,21 @@ paths:
               properties:
                 name:
                   type: string
-                  description: 'Location name (max 150 characters). Must not be greater than 150 characters.'
+                  description: 'Location name (max 150 characters). El campo value no debe ser mayor que 150 caracteres.'
                   example: 'Cafeteria Gràcia'
                 description:
                   type: string
-                  description: 'Optional. Short description (max 255 characters). Must not be greater than 255 characters.'
+                  description: 'Optional. Short description (max 255 characters). El campo value no debe ser mayor que 255 caracteres.'
                   example: 'Barra de especialidad en Gràcia.'
                   nullable: true
                 latitud:
                   type: number
-                  description: 'Optional. Latitude (-90 to 90), computed by the client. Required when longitud is sent. This field is required when <code>longitud</code> is present. Must be between -90 and 90.'
+                  description: 'Optional. Latitude (-90 to 90), computed by the client. Required when longitud is sent. This field is required when <code>longitud</code> is present. El campo value tiene que estar entre -90 - 90.'
                   example: 41.4029
                   nullable: true
                 longitud:
                   type: number
-                  description: 'Optional. Longitude (-180 to 180), computed by the client. Required when latitud is sent. This field is required when <code>latitud</code> is present. Must be between -180 and 180.'
+                  description: 'Optional. Longitude (-180 to 180), computed by the client. Required when latitud is sent. This field is required when <code>latitud</code> is present. El campo value tiene que estar entre -180 - 180.'
                   example: 2.1565
                   nullable: true
                 contact:
@@ -6069,40 +6459,40 @@ paths:
                   properties:
                     phone:
                       type: string
-                      description: 'Optional. Phone number (max 25 characters). Must not be greater than 25 characters.'
+                      description: 'Optional. Phone number (max 25 characters). El campo value no debe ser mayor que 25 caracteres.'
                       example: '+34 932 123 456'
                       nullable: true
                     email:
                       type: string
-                      description: 'Optional. Contact email address (max 255 characters). Must be a valid email address. Must not be greater than 255 characters.'
+                      description: 'Optional. Contact email address (max 255 characters). El campo value no es un correo válido. El campo value no debe ser mayor que 255 caracteres.'
                       example: hola@cafeteria.example
                       nullable: true
                     web:
                       type: string
-                      description: 'Optional. Website URL (max 255 characters). Must be a valid URL. Must not be greater than 255 characters.'
+                      description: 'Optional. Website URL (max 255 characters). Must be a valid URL. El campo value no debe ser mayor que 255 caracteres.'
                       example: 'https://cafeteria.example'
                       nullable: true
                     social:
                       type: string
-                      description: 'Optional. Social media handle or URL (max 255 characters). Must not be greater than 255 characters.'
+                      description: 'Optional. Social media handle or URL (max 255 characters). El campo value no debe ser mayor que 255 caracteres.'
                       example: '@cafeteria.bcn'
                       nullable: true
                     address:
                       type: string
-                      description: 'Street address (max 255 characters). Must not be greater than 255 characters.'
+                      description: 'Street address (max 255 characters). El campo value no debe ser mayor que 255 caracteres.'
                       example: 'Carrer de Verdi 12'
                     country:
                       type: string
-                      description: 'Optional. Country (max 60 characters). Must not be greater than 60 characters.'
+                      description: 'Optional. Country (max 60 characters). El campo value no debe ser mayor que 60 caracteres.'
                       example: España
                       nullable: true
                     city:
                       type: string
-                      description: 'City (max 90 characters). Must not be greater than 90 characters.'
+                      description: 'City (max 90 characters). El campo value no debe ser mayor que 90 caracteres.'
                       example: Barcelona
                     postal_code:
                       type: string
-                      description: 'Optional. Postal code (max 12 characters). Must not be greater than 12 characters.'
+                      description: 'Optional. Postal code (max 12 characters). El campo value no debe ser mayor que 12 caracteres.'
                       example: '08012'
                       nullable: true
                   required:
@@ -6675,6 +7065,18 @@ paths:
                                     items:
                                       type: object
                                       properties: { ref: { type: string, example: 01JTAXN0DE0000000000000003 }, type: { type: string, example: aromatics }, level: { type: integer, example: 2 }, count: { type: integer, example: 4 } }
+        404:
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The requested resource was not found.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The requested resource was not found.'
       tags:
         - Offerings
       security: []
@@ -6696,6 +7098,18 @@ paths:
                   message:
                     type: string
                     example: 'Offering(s) deleted.'
+        404:
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The requested resource was not found.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The requested resource was not found.'
       tags:
         - Offerings
     parameters:
@@ -6716,82 +7130,82 @@ paths:
         -
           in: query
           name: coffeeName
-          description: 'Filter by coffee name (partial match). Must not be greater than 150 characters.'
+          description: 'Filter by coffee name (partial match). El campo value no debe ser mayor que 150 caracteres.'
           example: Geisha
           required: false
           schema:
             type: string
-            description: 'Filter by coffee name (partial match). Must not be greater than 150 characters.'
+            description: 'Filter by coffee name (partial match). El campo value no debe ser mayor que 150 caracteres.'
             example: Geisha
         -
           in: query
           name: roasteryName
-          description: 'Filter by roastery name (partial match). Must not be greater than 150 characters.'
+          description: 'Filter by roastery name (partial match). El campo value no debe ser mayor que 150 caracteres.'
           example: Nómada
           required: false
           schema:
             type: string
-            description: 'Filter by roastery name (partial match). Must not be greater than 150 characters.'
+            description: 'Filter by roastery name (partial match). El campo value no debe ser mayor que 150 caracteres.'
             example: Nómada
         -
           in: query
           name: originCountry
-          description: 'Filter by country of origin. Must not be greater than 90 characters.'
+          description: 'Filter by country of origin. El campo value no debe ser mayor que 90 caracteres.'
           example: Colombia
           required: false
           schema:
             type: string
-            description: 'Filter by country of origin. Must not be greater than 90 characters.'
+            description: 'Filter by country of origin. El campo value no debe ser mayor que 90 caracteres.'
             example: Colombia
         -
           in: query
           name: originRegion
-          description: 'Filter by region of origin. Must not be greater than 90 characters.'
+          description: 'Filter by region of origin. El campo value no debe ser mayor que 90 caracteres.'
           example: Huila
           required: false
           schema:
             type: string
-            description: 'Filter by region of origin. Must not be greater than 90 characters.'
+            description: 'Filter by region of origin. El campo value no debe ser mayor que 90 caracteres.'
             example: Huila
         -
           in: query
           name: process
-          description: 'Filter by processing method. Must not be greater than 90 characters.'
+          description: 'Filter by processing method. El campo value no debe ser mayor que 90 caracteres.'
           example: Washed
           required: false
           schema:
             type: string
-            description: 'Filter by processing method. Must not be greater than 90 characters.'
+            description: 'Filter by processing method. El campo value no debe ser mayor que 90 caracteres.'
             example: Washed
         -
           in: query
           name: producer
-          description: 'Filter by producer name. Must not be greater than 150 characters.'
+          description: 'Filter by producer name. El campo value no debe ser mayor que 150 caracteres.'
           example: 'Finca La Esperanza'
           required: false
           schema:
             type: string
-            description: 'Filter by producer name. Must not be greater than 150 characters.'
+            description: 'Filter by producer name. El campo value no debe ser mayor que 150 caracteres.'
             example: 'Finca La Esperanza'
         -
           in: query
           name: variety
-          description: 'Filter by coffee variety. Must not be greater than 90 characters.'
+          description: 'Filter by coffee variety. El campo value no debe ser mayor que 90 caracteres.'
           example: Caturra
           required: false
           schema:
             type: string
-            description: 'Filter by coffee variety. Must not be greater than 90 characters.'
+            description: 'Filter by coffee variety. El campo value no debe ser mayor que 90 caracteres.'
             example: Caturra
         -
           in: query
           name: city
-          description: 'Filter by the city of the offering location. Must not be greater than 90 characters.'
+          description: 'Filter by the city of the offering location. El campo value no debe ser mayor que 90 caracteres.'
           example: Barcelona
           required: false
           schema:
             type: string
-            description: 'Filter by the city of the offering location. Must not be greater than 90 characters.'
+            description: 'Filter by the city of the offering location. El campo value no debe ser mayor que 90 caracteres.'
             example: Barcelona
         -
           in: query
@@ -6826,226 +7240,226 @@ paths:
         -
           in: query
           name: cuppingAvgMin
-          description: 'Minimum average cupping score (0–100). Must be at least 0. Must not be greater than 100.'
+          description: 'Minimum average cupping score (0–100). El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.'
           example: 80.0
           required: false
           schema:
             type: number
-            description: 'Minimum average cupping score (0–100). Must be at least 0. Must not be greater than 100.'
+            description: 'Minimum average cupping score (0–100). El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.'
             example: 80.0
         -
           in: query
           name: cuppingAvgMax
-          description: 'Maximum average cupping score (0–100). Must be ≥ cuppingAvgMin. Must be at least 0. Must not be greater than 100.'
+          description: 'Maximum average cupping score (0–100). Must be ≥ cuppingAvgMin. El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.'
           example: 95.0
           required: false
           schema:
             type: number
-            description: 'Maximum average cupping score (0–100). Must be ≥ cuppingAvgMin. Must be at least 0. Must not be greater than 100.'
+            description: 'Maximum average cupping score (0–100). Must be ≥ cuppingAvgMin. El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.'
             example: 95.0
         -
           in: query
           name: evaluationCountMin
-          description: 'Minimum number of evaluations. Must be at least 0.'
+          description: 'Minimum number of evaluations. El tamaño de value debe ser de al menos 0.'
           example: 1
           required: false
           schema:
             type: integer
-            description: 'Minimum number of evaluations. Must be at least 0.'
+            description: 'Minimum number of evaluations. El tamaño de value debe ser de al menos 0.'
             example: 1
         -
           in: query
           name: evaluationCountMax
-          description: 'Maximum number of evaluations. Must be ≥ evaluationCountMin. Must be at least 0.'
+          description: 'Maximum number of evaluations. Must be ≥ evaluationCountMin. El tamaño de value debe ser de al menos 0.'
           example: 50
           required: false
           schema:
             type: integer
-            description: 'Maximum number of evaluations. Must be ≥ evaluationCountMin. Must be at least 0.'
+            description: 'Maximum number of evaluations. Must be ≥ evaluationCountMin. El tamaño de value debe ser de al menos 0.'
             example: 50
         -
           in: query
           name: defectiveCountMin
-          description: 'Minimum number of defective evaluations. Must be at least 0.'
+          description: 'Minimum number of defective evaluations. El tamaño de value debe ser de al menos 0.'
           example: 0
           required: false
           schema:
             type: integer
-            description: 'Minimum number of defective evaluations. Must be at least 0.'
+            description: 'Minimum number of defective evaluations. El tamaño de value debe ser de al menos 0.'
             example: 0
         -
           in: query
           name: defectiveCountMax
-          description: 'Maximum number of defective evaluations. Must be ≥ defectiveCountMin. Must be at least 0.'
+          description: 'Maximum number of defective evaluations. Must be ≥ defectiveCountMin. El tamaño de value debe ser de al menos 0.'
           example: 5
           required: false
           schema:
             type: integer
-            description: 'Maximum number of defective evaluations. Must be ≥ defectiveCountMin. Must be at least 0.'
+            description: 'Maximum number of defective evaluations. Must be ≥ defectiveCountMin. El tamaño de value debe ser de al menos 0.'
             example: 5
         -
           in: query
           name: fragranceMin
-          description: 'Minimum fragrance score (1–9). Must be at least 1. Must not be greater than 9.'
+          description: 'Minimum fragrance score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
           example: 6.0
           required: false
           schema:
             type: number
-            description: 'Minimum fragrance score (1–9). Must be at least 1. Must not be greater than 9.'
+            description: 'Minimum fragrance score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
             example: 6.0
         -
           in: query
           name: fragranceMax
-          description: 'Maximum fragrance score (1–9). Must be at least 1. Must not be greater than 9.'
+          description: 'Maximum fragrance score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
           example: 8.0
           required: false
           schema:
             type: number
-            description: 'Maximum fragrance score (1–9). Must be at least 1. Must not be greater than 9.'
+            description: 'Maximum fragrance score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
             example: 8.0
         -
           in: query
           name: aromaMin
-          description: 'Minimum aroma score (1–9). Must be at least 1. Must not be greater than 9.'
+          description: 'Minimum aroma score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
           example: 6.0
           required: false
           schema:
             type: number
-            description: 'Minimum aroma score (1–9). Must be at least 1. Must not be greater than 9.'
+            description: 'Minimum aroma score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
             example: 6.0
         -
           in: query
           name: aromaMax
-          description: 'Maximum aroma score (1–9). Must be at least 1. Must not be greater than 9.'
+          description: 'Maximum aroma score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
           example: 8.0
           required: false
           schema:
             type: number
-            description: 'Maximum aroma score (1–9). Must be at least 1. Must not be greater than 9.'
+            description: 'Maximum aroma score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
             example: 8.0
         -
           in: query
           name: flavorMin
-          description: 'Minimum flavor score (1–9). Must be at least 1. Must not be greater than 9.'
+          description: 'Minimum flavor score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
           example: 6.0
           required: false
           schema:
             type: number
-            description: 'Minimum flavor score (1–9). Must be at least 1. Must not be greater than 9.'
+            description: 'Minimum flavor score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
             example: 6.0
         -
           in: query
           name: flavorMax
-          description: 'Maximum flavor score (1–9). Must be at least 1. Must not be greater than 9.'
+          description: 'Maximum flavor score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
           example: 8.0
           required: false
           schema:
             type: number
-            description: 'Maximum flavor score (1–9). Must be at least 1. Must not be greater than 9.'
+            description: 'Maximum flavor score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
             example: 8.0
         -
           in: query
           name: aftertasteMin
-          description: 'Minimum aftertaste score (1–9). Must be at least 1. Must not be greater than 9.'
+          description: 'Minimum aftertaste score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
           example: 6.0
           required: false
           schema:
             type: number
-            description: 'Minimum aftertaste score (1–9). Must be at least 1. Must not be greater than 9.'
+            description: 'Minimum aftertaste score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
             example: 6.0
         -
           in: query
           name: aftertasteMax
-          description: 'Maximum aftertaste score (1–9). Must be at least 1. Must not be greater than 9.'
+          description: 'Maximum aftertaste score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
           example: 8.0
           required: false
           schema:
             type: number
-            description: 'Maximum aftertaste score (1–9). Must be at least 1. Must not be greater than 9.'
+            description: 'Maximum aftertaste score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
             example: 8.0
         -
           in: query
           name: acidityMin
-          description: 'Minimum acidity score (1–9). Must be at least 1. Must not be greater than 9.'
+          description: 'Minimum acidity score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
           example: 6.0
           required: false
           schema:
             type: number
-            description: 'Minimum acidity score (1–9). Must be at least 1. Must not be greater than 9.'
+            description: 'Minimum acidity score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
             example: 6.0
         -
           in: query
           name: acidityMax
-          description: 'Maximum acidity score (1–9). Must be at least 1. Must not be greater than 9.'
+          description: 'Maximum acidity score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
           example: 8.0
           required: false
           schema:
             type: number
-            description: 'Maximum acidity score (1–9). Must be at least 1. Must not be greater than 9.'
+            description: 'Maximum acidity score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
             example: 8.0
         -
           in: query
           name: sweetnessMin
-          description: 'Minimum sweetness score (1–9). Must be at least 1. Must not be greater than 9.'
+          description: 'Minimum sweetness score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
           example: 6.0
           required: false
           schema:
             type: number
-            description: 'Minimum sweetness score (1–9). Must be at least 1. Must not be greater than 9.'
+            description: 'Minimum sweetness score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
             example: 6.0
         -
           in: query
           name: sweetnessMax
-          description: 'Maximum sweetness score (1–9). Must be at least 1. Must not be greater than 9.'
+          description: 'Maximum sweetness score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
           example: 8.0
           required: false
           schema:
             type: number
-            description: 'Maximum sweetness score (1–9). Must be at least 1. Must not be greater than 9.'
+            description: 'Maximum sweetness score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
             example: 8.0
         -
           in: query
           name: mouthfeelMin
-          description: 'Minimum mouthfeel score (1–9). Must be at least 1. Must not be greater than 9.'
+          description: 'Minimum mouthfeel score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
           example: 6.0
           required: false
           schema:
             type: number
-            description: 'Minimum mouthfeel score (1–9). Must be at least 1. Must not be greater than 9.'
+            description: 'Minimum mouthfeel score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
             example: 6.0
         -
           in: query
           name: mouthfeelMax
-          description: 'Maximum mouthfeel score (1–9). Must be at least 1. Must not be greater than 9.'
+          description: 'Maximum mouthfeel score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
           example: 8.0
           required: false
           schema:
             type: number
-            description: 'Maximum mouthfeel score (1–9). Must be at least 1. Must not be greater than 9.'
+            description: 'Maximum mouthfeel score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
             example: 8.0
         -
           in: query
           name: overallMin
-          description: 'Minimum overall score (1–9). Must be at least 1. Must not be greater than 9.'
+          description: 'Minimum overall score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
           example: 6.0
           required: false
           schema:
             type: number
-            description: 'Minimum overall score (1–9). Must be at least 1. Must not be greater than 9.'
+            description: 'Minimum overall score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
             example: 6.0
         -
           in: query
           name: overallMax
-          description: 'Maximum overall score (1–9). Must be at least 1. Must not be greater than 9.'
+          description: 'Maximum overall score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
           example: 8.0
           required: false
           schema:
             type: number
-            description: 'Maximum overall score (1–9). Must be at least 1. Must not be greater than 9.'
+            description: 'Maximum overall score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.'
             example: 8.0
         -
           in: query
-          name: cataRef
+          name: 'cataRef[]'
           description: 'Must match an existing stored value.'
           example:
             - architecto
@@ -7059,7 +7473,7 @@ paths:
               type: string
         -
           in: query
-          name: fragranceCata
+          name: 'fragranceCata[]'
           description: 'Must match an existing stored value.'
           example:
             - architecto
@@ -7073,7 +7487,7 @@ paths:
               type: string
         -
           in: query
-          name: aromaCata
+          name: 'aromaCata[]'
           description: 'Must match an existing stored value.'
           example:
             - architecto
@@ -7087,7 +7501,7 @@ paths:
               type: string
         -
           in: query
-          name: flavorCata
+          name: 'flavorCata[]'
           description: 'Must match an existing stored value.'
           example:
             - architecto
@@ -7101,7 +7515,7 @@ paths:
               type: string
         -
           in: query
-          name: aftertasteCata
+          name: 'aftertasteCata[]'
           description: 'Must match an existing stored value.'
           example:
             - architecto
@@ -7115,7 +7529,7 @@ paths:
               type: string
         -
           in: query
-          name: mouthfeelCata
+          name: 'mouthfeelCata[]'
           description: 'Must match an existing stored value.'
           example:
             - architecto
@@ -7154,6 +7568,26 @@ paths:
             enum:
               - asc
               - desc
+        -
+          in: query
+          name: page
+          description: 'El tamaño de value debe ser de al menos 1.'
+          example: 22
+          required: false
+          schema:
+            type: integer
+            description: 'El tamaño de value debe ser de al menos 1.'
+            example: 22
+        -
+          in: query
+          name: perPage
+          description: 'El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 50.'
+          example: 7
+          required: false
+          schema:
+            type: integer
+            description: 'El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 50.'
+            example: 7
       responses:
         200:
           description: ''
@@ -8022,6 +8456,38 @@ paths:
                       total:
                         type: integer
                         example: 2
+        422:
+          description: 'Invalid filters'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The city field must not be greater than 90 characters. (and 1 more error)'
+                  errors:
+                    city:
+                      - 'The city field must not be greater than 90 characters.'
+                    verified:
+                      - 'The verified field must be true or false.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The city field must not be greater than 90 characters. (and 1 more error)'
+                  errors:
+                    type: object
+                    properties:
+                      city:
+                        type: array
+                        example:
+                          - 'The city field must not be greater than 90 characters.'
+                        items:
+                          type: string
+                      verified:
+                        type: array
+                        example:
+                          - 'The verified field must be true or false.'
+                        items:
+                          type: string
       tags:
         - Offerings
       security: []
@@ -8258,6 +8724,38 @@ paths:
                   message:
                     type: string
                     example: 'Offering(s) created.'
+        422:
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The selected coffee inventory id is invalid. (and 1 more error)'
+                  errors:
+                    coffeeInventoryId:
+                      - 'The selected coffee inventory id is invalid.'
+                    locations:
+                      - 'The locations field is required.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The selected coffee inventory id is invalid. (and 1 more error)'
+                  errors:
+                    type: object
+                    properties:
+                      coffeeInventoryId:
+                        type: array
+                        example:
+                          - 'The selected coffee inventory id is invalid.'
+                        items:
+                          type: string
+                      locations:
+                        type: array
+                        example:
+                          - 'The locations field is required.'
+                        items:
+                          type: string
       tags:
         - Offerings
       requestBody:
@@ -8298,6 +8796,30 @@ paths:
                   message:
                     type: string
                     example: 'Offering(s) deleted.'
+        422:
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The selected offerings.0 is invalid.'
+                  errors:
+                    offerings.0:
+                      - 'The selected offerings.0 is invalid.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The selected offerings.0 is invalid.'
+                  errors:
+                    type: object
+                    properties:
+                      offerings.0:
+                        type: array
+                        example:
+                          - 'The selected offerings.0 is invalid.'
+                        items:
+                          type: string
       tags:
         - Offerings
       requestBody:
@@ -8325,12 +8847,12 @@ paths:
         -
           in: query
           name: name
-          description: 'Filter by roastery name (partial match, max 150 chars). Must not be greater than 150 characters.'
+          description: 'Filter by roastery name (partial match, max 150 chars). El campo value no debe ser mayor que 150 caracteres.'
           example: Nómada
           required: false
           schema:
             type: string
-            description: 'Filter by roastery name (partial match, max 150 chars). Must not be greater than 150 characters.'
+            description: 'Filter by roastery name (partial match, max 150 chars). El campo value no debe ser mayor que 150 caracteres.'
             example: Nómada
             nullable: true
       responses:
@@ -8669,18 +9191,18 @@ paths:
               schema:
                 type: object
                 example:
-                  message: 'logout successfully.'
+                  message: 'Logged out successfully.'
                 properties:
                   message:
                     type: string
-                    example: 'logout successfully.'
+                    example: 'Logged out successfully.'
       tags:
         - Users
   /register:
     post:
       summary: 'Register a user'
       operationId: registerAUser
-      description: "Creates a new user account and assigns the requested role. Public\nregistration endpoint. User creation and role assignment happen in a\nsingle transaction; if role assignment fails, the whole operation is\nrolled back."
+      description: "Creates a new user account and assigns the requested role. Public\nregistration endpoint. User creation and role assignment happen in a\nsingle transaction; if role assignment fails, the whole operation is\nrolled back.\n\nThe new user is also signed in: the response carries a `token` block\nwith the same fields as `POST /oauth/token` (`token_type`,\n`expires_in`, `access_token`, `refresh_token`), issued on the front\nclient with the default scope (`profile:read`) by an internal grant\nthat `POST /oauth/token` does not offer. The refresh token is refreshed\nwith the front client's usual `refresh_token` request. If the tokens\ncannot be issued, the user is still created and the response has no\n`token` block."
       parameters: []
       responses:
         201:
@@ -8695,8 +9217,14 @@ paths:
                     name: Laura
                     surname: Gómez
                     email: laura@tazavera.test
+                    emailVerifiedAt: null
                     role: coffeeshop
                   message: 'Profile created.'
+                  token:
+                    token_type: Bearer
+                    expires_in: 1800
+                    access_token: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...
+                    refresh_token: def50200a1b2c3...
                 properties:
                   data:
                     type: object
@@ -8713,12 +9241,93 @@ paths:
                       email:
                         type: string
                         example: laura@tazavera.test
+                      emailVerifiedAt:
+                        type: string
+                        example: null
+                        nullable: true
                       role:
                         type: string
                         example: coffeeshop
                   message:
                     type: string
                     example: 'Profile created.'
+                  token:
+                    type: object
+                    properties:
+                      token_type:
+                        type: string
+                        example: Bearer
+                      expires_in:
+                        type: integer
+                        example: 1800
+                      access_token:
+                        type: string
+                        example: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...
+                      refresh_token:
+                        type: string
+                        example: def50200a1b2c3...
+        422:
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The name field is required. (and 7 more errors)'
+                  errors:
+                    name:
+                      - 'The name field is required.'
+                    surname:
+                      - 'The surname field is required.'
+                    email:
+                      - 'The email field must be a valid email address.'
+                    password:
+                      - 'The password field must match password confirmation.'
+                      - 'The password field must be at least 8 characters.'
+                      - 'The password field must contain at least one uppercase and one lowercase letter.'
+                      - 'The password field must contain at least one number.'
+                    role:
+                      - 'The selected role is invalid.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The name field is required. (and 7 more errors)'
+                  errors:
+                    type: object
+                    properties:
+                      name:
+                        type: array
+                        example:
+                          - 'The name field is required.'
+                        items:
+                          type: string
+                      surname:
+                        type: array
+                        example:
+                          - 'The surname field is required.'
+                        items:
+                          type: string
+                      email:
+                        type: array
+                        example:
+                          - 'The email field must be a valid email address.'
+                        items:
+                          type: string
+                      password:
+                        type: array
+                        example:
+                          - 'The password field must match password confirmation.'
+                          - 'The password field must be at least 8 characters.'
+                          - 'The password field must contain at least one uppercase and one lowercase letter.'
+                          - 'The password field must contain at least one number.'
+                        items:
+                          type: string
+                      role:
+                        type: array
+                        example:
+                          - 'The selected role is invalid.'
+                        items:
+                          type: string
       tags:
         - Users
       requestBody:
@@ -8738,7 +9347,7 @@ paths:
                   example: Restrepo
                 email:
                   type: string
-                  description: 'Email address. Must be unique. Must be a valid email address.'
+                  description: 'Email address. Must be unique. El campo value no es un correo válido.'
                   example: augusto@example.com
                 password:
                   type: string
@@ -8782,6 +9391,7 @@ paths:
                     name: Andrés
                     surname: Gómez
                     email: andres@tazavera.test
+                    emailVerifiedAt: null
                     role: specialist
                 properties:
                   data:
@@ -8799,6 +9409,10 @@ paths:
                       email:
                         type: string
                         example: andres@tazavera.test
+                      emailVerifiedAt:
+                        type: string
+                        example: null
+                        nullable: true
                       role:
                         type: string
                         example: specialist
@@ -8903,12 +9517,24 @@ paths:
                   message:
                     type: string
                     example: 'This action is unauthorized.'
+        404:
+          description: 'Unknown user'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The requested resource was not found.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The requested resource was not found.'
       tags:
         - Users
     post:
       summary: 'Create my primary contact'
       operationId: createMyPrimaryContact
-      description: "Creates the primary contact of the authenticated user. A user has a\nsingle primary contact: if it already exists the request fails with\n`409 Conflict`. `isPrimary` is always set by the API, never taken from\nthe body.\n\n**Authorization:** requires the `profile:write` scope and permission to\nupdate this user (policy). Another user receives `403 Forbidden`."
+      description: "Creates the primary contact of the authenticated user. A user has a\nsingle primary contact: if it already exists the request fails with\n`409 Conflict`. `isPrimary` is always set by the API, never taken from\nthe body.\n\n**Authorization:** requires the `profile:read` or `profile:write` scope\n(no step-up re-authentication) and permission to update this user\n(policy). Another user receives `403 Forbidden`."
       parameters: []
       responses:
         201:
@@ -9046,40 +9672,40 @@ paths:
               properties:
                 phone:
                   type: string
-                  description: 'Optional. Phone number (max 25 characters). Must not be greater than 25 characters.'
+                  description: 'Optional. Phone number (max 25 characters). El campo value no debe ser mayor que 25 caracteres.'
                   example: '+34 932 123 456'
                   nullable: true
                 email:
                   type: string
-                  description: 'Optional. Contact email address (max 255 characters). Must be a valid email address. Must not be greater than 255 characters.'
+                  description: 'Optional. Contact email address (max 255 characters). El campo value no es un correo válido. El campo value no debe ser mayor que 255 caracteres.'
                   example: hola@cafeteria.example
                   nullable: true
                 web:
                   type: string
-                  description: 'Optional. Website URL (max 255 characters). Must be a valid URL. Must not be greater than 255 characters.'
+                  description: 'Optional. Website URL (max 255 characters). Must be a valid URL. El campo value no debe ser mayor que 255 caracteres.'
                   example: 'https://cafeteria.example'
                   nullable: true
                 social:
                   type: string
-                  description: 'Optional. Social media handle or URL (max 255 characters). Must not be greater than 255 characters.'
+                  description: 'Optional. Social media handle or URL (max 255 characters). El campo value no debe ser mayor que 255 caracteres.'
                   example: '@cafeteria.bcn'
                   nullable: true
                 address:
                   type: string
-                  description: 'Street address (max 255 characters). Must not be greater than 255 characters.'
+                  description: 'Street address (max 255 characters). El campo value no debe ser mayor que 255 caracteres.'
                   example: 'Carrer de Verdi 12'
                 country:
                   type: string
-                  description: 'Optional. Country (max 60 characters). Must not be greater than 60 characters.'
+                  description: 'Optional. Country (max 60 characters). El campo value no debe ser mayor que 60 caracteres.'
                   example: España
                   nullable: true
                 city:
                   type: string
-                  description: 'City (max 90 characters). Must not be greater than 90 characters.'
+                  description: 'City (max 90 characters). El campo value no debe ser mayor que 90 caracteres.'
                   example: Barcelona
                 postal_code:
                   type: string
-                  description: 'Optional. Postal code (max 12 characters). Must not be greater than 12 characters.'
+                  description: 'Optional. Postal code (max 12 characters). El campo value no debe ser mayor que 12 caracteres.'
                   example: '08012'
                   nullable: true
               required:
@@ -9113,6 +9739,7 @@ paths:
                     name: Laura
                     surname: 'Gómez Ruiz'
                     email: laura@tazavera.test
+                    emailVerifiedAt: null
                     role: coffeeshop
                   message: 'Profile updated.'
                 properties:
@@ -9131,6 +9758,10 @@ paths:
                       email:
                         type: string
                         example: laura@tazavera.test
+                      emailVerifiedAt:
+                        type: string
+                        example: null
+                        nullable: true
                       role:
                         type: string
                         example: coffeeshop
@@ -9149,6 +9780,30 @@ paths:
                   message:
                     type: string
                     example: 'This action is unauthorized.'
+        422:
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The email field must be a valid email address.'
+                  errors:
+                    email:
+                      - 'The email field must be a valid email address.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The email field must be a valid email address.'
+                  errors:
+                    type: object
+                    properties:
+                      email:
+                        type: array
+                        example:
+                          - 'The email field must be a valid email address.'
+                        items:
+                          type: string
       tags:
         - Users
       requestBody:
@@ -9168,7 +9823,7 @@ paths:
                   example: Restrepo
                 email:
                   type: string
-                  description: 'Email address. Must be unique (excluding the current user). Must be a valid email address.'
+                  description: 'Email address. Must be unique (excluding the current user). El campo value no es un correo válido.'
                   example: augusto@example.com
     delete:
       summary: 'Deactivate a user'
@@ -9242,6 +9897,44 @@ paths:
                   message:
                     type: string
                     example: 'This action is unauthorized.'
+        422:
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The current password field is required. (and 4 more errors)'
+                  errors:
+                    currentPassword:
+                      - 'The current password field is required.'
+                    password:
+                      - 'The password field must match password confirmation.'
+                      - 'The password field must be at least 8 characters.'
+                      - 'The password field must contain at least one uppercase and one lowercase letter.'
+                      - 'The password field must contain at least one number.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The current password field is required. (and 4 more errors)'
+                  errors:
+                    type: object
+                    properties:
+                      currentPassword:
+                        type: array
+                        example:
+                          - 'The current password field is required.'
+                        items:
+                          type: string
+                      password:
+                        type: array
+                        example:
+                          - 'The password field must match password confirmation.'
+                          - 'The password field must be at least 8 characters.'
+                          - 'The password field must contain at least one uppercase and one lowercase letter.'
+                          - 'The password field must contain at least one number.'
+                        items:
+                          type: string
       tags:
         - Users
       requestBody:

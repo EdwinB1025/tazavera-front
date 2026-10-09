@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, type ReactNode } from "react";
-import { requestProfileWrite, signIn, useSession } from "@/features/auth";
+import { signIn, useSession } from "@/features/auth";
 import {
   InventoryField,
   LocationsFieldset,
@@ -10,10 +10,12 @@ import {
   type LocationsFieldsetTexts,
 } from "@/features/offering-management";
 import {
+  ActionGroup,
   Button,
   Card,
   CardContent,
   Link,
+  RouteButton,
   SessionGate,
   SignedOutPrompt,
 } from "@/shared/ui";
@@ -30,8 +32,6 @@ export type NewOfferingFormTexts = InventoryFieldTexts &
     createError: string;
     createdStatus: string;
     viewMyOfferings: string;
-    stepUpMessage: string;
-    stepUpLabel: string;
   };
 
 export type NewOfferingFormProps = {
@@ -41,35 +41,26 @@ export type NewOfferingFormProps = {
 
 // ─── Layout (summary §6.3; design.md D15) ───
 // The form panel is the shared section card with no header band, whose body
-// supplies the padding: full width below `md`, at most 40rem from `md`.
-const PANEL_CLASSES = ["w-full", "md:max-w-160"].join(" ");
+// supplies the padding; it fills the container (widen-location-and-offering-forms D1).
+const PANEL_CLASSES = "w-full";
+// The form's wrapper: full width, at most 40rem from `md`, start-aligned.
+const CONTENT_CLASSES = ["w-full", "md:max-w-160"].join(" ");
 // The form's children: a column 1.5rem apart.
 const FORM_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
-// The error or the step-up: a column of the text and its button 0.75rem
-// apart, no box.
+// The generic error: a column, no box.
 const ALERT_CLASSES = ["type-error", "flex", "flex-col", "items-start", "gap-3"].join(" ");
 // The success status: the message, then the link, 0.5rem apart, no box.
 const STATUS_CLASSES = ["type-body", "flex", "flex-col", "items-start", "gap-2"].join(" ");
-// Submit, then Cancel: a wrapping row 0.75rem apart, aligned to the end from
-// `sm`.
-const ACTIONS_CLASSES = [
-  "flex",
-  "flex-wrap",
-  "items-center",
-  "gap-3",
-  "sm:justify-end",
-].join(" ");
 
 type CreateFormProps = {
   locale: string;
-  route: string;
   /** While the session resolves, every control is unavailable. */
   disabled?: boolean;
   texts: NewOfferingFormTexts;
 };
 
 /** The form panel of a signed-in coffeeshop, or its unavailable copy while loading. */
-function CreateForm({ locale, route, disabled = false, texts }: CreateFormProps): ReactNode {
+function CreateForm({ locale, disabled = false, texts }: CreateFormProps): ReactNode {
   const flow = useCreateFlow({ enabled: !disabled });
   const fieldRef = useRef<HTMLDivElement>(null);
   const listRoute = `/${locale}/manage/offerings` as const;
@@ -77,71 +68,64 @@ function CreateForm({ locale, route, disabled = false, texts }: CreateFormProps)
   const created =
     status.state === "created" ? `${texts.createdStatus} ${status.count}` : null;
 
-  let alert: ReactNode = null;
-  if (status.state === "failed") {
-    alert = texts.createError;
-  } else if (status.state === "step-up") {
-    alert = (
-      <>
-        <span>{texts.stepUpMessage}</span>
-        <Button variant="primary" size="sm" onClick={() => requestProfileWrite(route)}>
-          {texts.stepUpLabel}
-        </Button>
-      </>
-    );
-  }
+  const alert = status.state === "failed" || flow.serverUnmatched ? texts.createError : null;
 
   return (
     <Card variant="section" className={PANEL_CLASSES}>
       <CardContent>
-        <form
-          noValidate
-          className={FORM_CLASSES}
-          onSubmit={(event) => {
-            event.preventDefault();
-            if (disabled) return;
-            if (!flow.submit()) fieldRef.current?.querySelector("input")?.focus();
-          }}
-        >
-          <InventoryField
-            ref={fieldRef}
-            value={flow.item}
-            onChange={flow.choose}
-            error={flow.itemMissing ? texts.inventoryRequired : undefined}
-            disabled={disabled}
-            texts={texts}
-          />
-          <LocationsFieldset
-            locations={flow.locations}
-            selected={flow.selectedLocations}
-            onToggle={flow.toggleLocation}
-            onRetry={flow.reloadLocations}
-            disabled={disabled}
-            texts={texts}
-          />
-          {alert !== null ? (
-            <div role="alert" className={ALERT_CLASSES}>
-              {alert}
-            </div>
-          ) : null}
-          {created !== null ? (
-            <div role="status" className={STATUS_CLASSES}>
-              <span>{created}</span>
-              <Link href={listRoute}>{texts.viewMyOfferings}</Link>
-            </div>
-          ) : null}
-          <div className={ACTIONS_CLASSES}>
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={disabled || flow.submitBlocked}
-              loading={status.state === "pending"}
-            >
-              {texts.submitLabel}
-            </Button>
-            <Link href={listRoute}>{texts.cancelLabel}</Link>
-          </div>
-        </form>
+        <div className={CONTENT_CLASSES}>
+          <form
+            noValidate
+            className={FORM_CLASSES}
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (disabled) return;
+              if (!flow.submit()) fieldRef.current?.querySelector("input")?.focus();
+            }}
+          >
+            <InventoryField
+              ref={fieldRef}
+              value={flow.item}
+              onChange={flow.choose}
+              error={flow.itemMissing ? texts.inventoryRequired : flow.fieldErrors.coffeeInventoryId}
+              disabled={disabled}
+              texts={texts}
+            />
+            <LocationsFieldset
+              locations={flow.locations}
+              selected={flow.selectedLocations}
+              onToggle={flow.toggleLocation}
+              onRetry={flow.reloadLocations}
+              disabled={disabled}
+              texts={texts}
+            />
+            {alert !== null ? (
+              <div role="alert" className={ALERT_CLASSES}>
+                {alert}
+              </div>
+            ) : null}
+            {created !== null ? (
+              <div role="status" className={STATUS_CLASSES}>
+                <span>{created}</span>
+                <Link href={listRoute}>{texts.viewMyOfferings}</Link>
+              </div>
+            ) : null}
+            {/* Submit, then Cancel: one end-aligned action group (unify-action-button-widths D3). */}
+            <ActionGroup align="end">
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={disabled || flow.submitBlocked}
+                loading={status.state === "pending"}
+              >
+                {texts.submitLabel}
+              </Button>
+              <RouteButton href={listRoute} variant="action-4" size="base">
+                {texts.cancelLabel}
+              </RouteButton>
+            </ActionGroup>
+          </form>
+        </div>
       </CardContent>
     </Card>
   );
@@ -153,8 +137,7 @@ function CreateForm({ locale, route, disabled = false, texts }: CreateFormProps)
  * renders the form panel for a signed-in coffeeshop, its unavailable copy
  * while the session resolves, the signed-out branch in its place for an
  * anonymous visitor and the 404 for another role. The form's error area is
- * its single `role="alert"` region: the generic error or the step-up, whose
- * text and action carry no role of their own.
+ * its single `role="alert"` region, which holds the generic error.
  */
 export function NewOfferingForm({ locale, texts }: NewOfferingFormProps): ReactNode {
   const session = useSession();
@@ -162,7 +145,7 @@ export function NewOfferingForm({ locale, texts }: NewOfferingFormProps): ReactN
   return (
     <SessionGate
       session={session}
-      loading={<CreateForm locale={locale} route={route} disabled texts={texts} />}
+      loading={<CreateForm locale={locale} disabled texts={texts} />}
       signedOut={
         <SignedOutPrompt
           text={texts.signedOutMessage}
@@ -172,7 +155,7 @@ export function NewOfferingForm({ locale, texts }: NewOfferingFormProps): ReactN
       }
       allows={(user) => user.role === "coffeeshop"}
     >
-      {() => <CreateForm locale={locale} route={route} texts={texts} />}
+      {() => <CreateForm locale={locale} texts={texts} />}
     </SessionGate>
   );
 }

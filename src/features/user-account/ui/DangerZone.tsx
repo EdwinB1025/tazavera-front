@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { request } from "@/shared/api";
 import { Button, ConfirmDialog, StepUpNotice } from "@/shared/ui";
+import { deactivateAccount, deleteAccount } from "../api/account";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -30,6 +30,8 @@ export type DangerZoneProps = {
   signOut: () => void;
   /** Starts the write-scope sign in (design.md D6). */
   requestProfileWrite: (returnRoute: string) => void;
+  /** Ends the write permission of a granted step-up when a dialog is cancelled (scope-write-token-to-action design.md D4). */
+  endProfileWrite?: () => void;
 };
 
 type DangerAction = "deactivate" | "delete";
@@ -49,6 +51,7 @@ export function DangerZone({
   texts,
   signOut,
   requestProfileWrite,
+  endProfileWrite,
 }: DangerZoneProps): ReactNode {
   const [openAction, setOpenAction] = useState<DangerAction | null>(null);
   const [pending, setPending] = useState(false);
@@ -63,6 +66,7 @@ export function DangerZone({
     if (!open) {
       setOpenAction(null);
       setError(null);
+      endProfileWrite?.();
     }
   }
 
@@ -70,23 +74,14 @@ export function DangerZone({
     if (pending) return;
     setPending(true);
     setError(null);
-    const path = action === "delete" ? `/users/${ulid}/force` : `/users/${ulid}`;
-    let status: number | null = null;
-    try {
-      const response = await request(path, {
-        method: "DELETE",
-        headers: { Accept: "application/json" },
-      });
-      status = response.status;
-    } catch {
-      // A network failure shows the generic error (design.md D7).
-    }
+    const send = action === "delete" ? deleteAccount : deactivateAccount;
+    const result = await send(ulid);
     setPending(false);
-    if (status === 200) {
+    if (result.ok) {
       signOut();
       return;
     }
-    setError(status === 403 ? "stepUp" : "generic");
+    setError(result.kind === "forbidden" ? "stepUp" : "generic");
   }
 
   const errorContent =

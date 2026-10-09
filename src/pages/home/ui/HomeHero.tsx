@@ -15,6 +15,8 @@ export type HomeHeroTexts = {
   exploreLabel: string;
   coffeeshopRegisterLabel: string;
   specialistRegisterLabel: string;
+  /** The registration links' navigation name (label-landmarks-and-headings D1). */
+  registerNavigation?: string;
   photoAlt: string;
 };
 
@@ -75,7 +77,7 @@ export function HomeHero({ locale, texts }: HomeHeroProps): ReactNode {
         <p className="type-body">{texts.paragraph}</p>
         <div className={ACTIONS_CLASSES}>
           <ExploreButton label={texts.exploreLabel} />
-          <nav className={LINK_GROUP_CLASSES}>
+          <nav aria-label={texts.registerNavigation} className={LINK_GROUP_CLASSES}>
             <Link href={`/${locale}/register/coffeeshop`}>
               {texts.coffeeshopRegisterLabel}
             </Link>

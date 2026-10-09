@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { render, cleanup } from "@testing-library/react";
+import { render, cleanup, fireEvent, screen, act } from "@testing-library/react";
 import type { Session } from "@/shared/api";
 import { RegisterClient, type RegisterClientTexts } from "./RegisterClient";
 
@@ -15,16 +15,20 @@ import { RegisterClient, type RegisterClientTexts } from "./RegisterClient";
 const auth = vi.hoisted(() => ({
   session: { state: "loading" } as Session,
   signIn: vi.fn<(returnRoute?: string) => void>(),
+  signInWithRegistration: vi.fn<(token: unknown) => Promise<boolean>>(),
 }));
 
 vi.mock("@/features/auth", () => ({
   useSession: () => auth.session,
   signIn: auth.signIn,
+  signInWithRegistration: auth.signInWithRegistration,
 }));
 
 const routerReplace = vi.hoisted(() => vi.fn<(href: string) => void>());
+// Cancel is a route button (render-navigation-actions-as-buttons).
+const routerPush = vi.hoisted(() => vi.fn<(href: string) => void>());
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace: routerReplace, push: vi.fn() }),
+  useRouter: () => ({ replace: routerReplace, push: routerPush }),
 }));
 
 const fetchMock =
@@ -39,6 +43,7 @@ const locationMock = {
 beforeEach(() => {
   auth.session = { state: "loading" };
   auth.signIn.mockReset();
+  auth.signInWithRegistration.mockReset();
   routerReplace.mockReset();
   fetchMock.mockReset();
   vi.stubGlobal("fetch", fetchMock);
@@ -66,6 +71,7 @@ const TEXTS: RegisterClientTexts = {
   emailFormatError: "fx-email-format",
   passwordMismatchError: "fx-mismatch",
   registerSubmit: "fx-submit",
+  cancelLabel: "fx-cancel",
   genericError: "fx-generic",
   registerSuccessTitle: "fx-success-title",
   registerSuccessText: "fx-success-text",
@@ -114,5 +120,82 @@ describe("RegisterClient — the card", () => {
       expect(container.querySelector(".bg-surface-section")).toBeNull();
       cleanup();
     }
+  });
+});
+
+describe("RegisterClient — cancelling (add-form-cancel-actions design.md D3)", () => {
+  it("Cancel opens the locale root without sending anything", () => {
+    auth.session = { state: "anonymous" };
+    renderClient();
+    const cancel = screen.getByRole("button", { name: TEXTS.cancelLabel });
+    expect(cancel.parentElement!.className).toContain("grid-cols-2");
+    fireEvent.click(cancel);
+    expect(routerPush).toHaveBeenCalledWith("/es");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("RegisterClient — the registration result (sign-in-after-registration design.md D4)", () => {
+  const TOKEN = {
+    token_type: "Bearer",
+    expires_in: 1800,
+    access_token: "access-1",
+    refresh_token: "refresh-1",
+  };
+
+  async function register(body: unknown): Promise<void> {
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify(body), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    for (const [label, value] of [
+      [TEXTS.nameLabel, "Ana"],
+      [TEXTS.surnameLabel, "López"],
+      [TEXTS.emailLabel, "ana@example.com"],
+      [TEXTS.passwordLabel, "Secret123"],
+      [TEXTS.passwordConfirmationLabel, "Secret123"],
+    ]) {
+      fireEvent.change(screen.getByLabelText(new RegExp(`^${label}`)), {
+        target: { value },
+      });
+    }
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: TEXTS.registerSubmit }));
+    });
+  }
+
+  it("signs in with the token block and opens /{locale}/account through the router (spec: Signed in by the registration)", async () => {
+    auth.session = { state: "anonymous" };
+    const view = renderClient("coffeeshop");
+    auth.signInWithRegistration.mockImplementation(async () => {
+      auth.session = {
+        state: "authenticated",
+        user: { ulid: "u1", name: "Ana", surname: "López", email: "a@b.c", role: "coffeeshop" },
+      };
+      view.rerender(
+        <RegisterClient locale="es" role="coffeeshop" labelledBy="register-title" texts={TEXTS} />,
+      );
+      return true;
+    });
+
+    await register({ data: {}, message: "m", token: TOKEN });
+
+    expect(auth.signInWithRegistration).toHaveBeenCalledWith(TOKEN);
+    expect(routerReplace).toHaveBeenCalledWith("/es/account");
+    expect(routerReplace).not.toHaveBeenCalledWith("/es");
+    expect(screen.queryByRole("heading", { name: TEXTS.registerSuccessTitle })).toBeNull();
+    expect(locationMock.assign).not.toHaveBeenCalled();
+  });
+
+  it("shows the success panel when the 201 carries no token block (spec: The account is created)", async () => {
+    auth.session = { state: "anonymous" };
+    renderClient();
+
+    await register({ data: {}, message: "m" });
+
+    expect(screen.getByRole("heading", { name: TEXTS.registerSuccessTitle })).toBeTruthy();
+    expect(auth.signInWithRegistration).not.toHaveBeenCalled();
   });
 });

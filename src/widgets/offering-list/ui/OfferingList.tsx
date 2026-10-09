@@ -5,11 +5,10 @@ import type {
   ResolvedTaxonomyBadge,
 } from "@/entities/offering";
 import { OfferingCard } from "@/entities/offering";
-import { Pagination } from "@/shared/ui";
+import { Pagination, ResultStatus, RetryButton } from "@/shared/ui";
 import type { PaginationTexts } from "@/shared/ui";
-import { OfferingCardActions } from "./OfferingCardActions";
-import { RetryButton } from "./RetryButton";
 import { OFFERING_GRID_CLASSES } from "../lib/grid";
+import { OfferingCardActions } from "./OfferingCardActions";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -25,6 +24,7 @@ export type OfferingListTexts = OfferingCardTexts &
     retryLabel: string;
     viewLabel: string;
     evaluateLabel: string;
+    viewEvaluationsLabel: string;
   };
 
 export type OfferingListItem = {
@@ -108,9 +108,7 @@ export function OfferingList({
   return (
     <div id="offerings" className={BLOCK_CLASSES}>
       {texts.resultCount !== undefined && result.state !== "error" ? (
-        <div role="status" className="sr-only">
-          {texts.resultCount.replace("{count}", String(total))}
-        </div>
+        <ResultStatus text={texts.resultCount.replace("{count}", String(total))} />
       ) : null}
       {result.state === "success" ? (
         <>

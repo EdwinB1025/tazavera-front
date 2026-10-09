@@ -5,5 +5,5 @@
  * point: `@/shared/lib/i18n`. The next-intl v4 request configuration lives in
  * `./request` and is loaded by next-intl itself, not re-exported here.
  */
-export { getMessages, getCatalogs } from "./messages";
-export type { MessageCatalog, MessageCatalogs } from "./messages";
+export { getMessages } from "./messages";
+export type { MessageCatalog } from "./messages";

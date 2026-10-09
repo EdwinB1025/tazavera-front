@@ -7,7 +7,7 @@ export const VIEWBOX = "-204 -204 408 408";
 
 const HOLE = 80;
 
-/** Ring bounds by the visible depth `V`: the deepest expanded level. */
+/** Ring bounds by the depth of the notes: their deepest level, capped at 2. */
 const RINGS_BY_DEPTH: Record<0 | 1 | 2, number[]> = {
   0: [80, 200],
   1: [80, 140, 200],
@@ -17,7 +17,7 @@ const RINGS_BY_DEPTH: Record<0 | 1 | 2, number[]> = {
 const LABEL_FONT_SIZE = [13, 12, 12];
 
 /** The gap at each group boundary, in degrees (add-offering-catalog D19). */
-export const GROUP_GAP = 6;
+const GROUP_GAP = 6;
 const LINE_HEIGHT = 1.2;
 const CHARACTER_WIDTH = 0.6;
 
@@ -59,19 +59,11 @@ export function ringRadii(depth: 0 | 1 | 2): RingRadii {
   };
 }
 
-/** The deepest expanded level, counting only notes under expanded parents. */
-function visibleDepth(
-  nodes: WheelGeometryNode[],
-  expanded: ReadonlySet<string>,
-): number {
+/** The deepest level of the notes: 0 for roots alone (stack-flavor-wheel-layout D2). */
+function treeDepth(nodes: WheelGeometryNode[]): number {
   return nodes.reduce(
     (deepest, n) =>
-      Math.max(
-        deepest,
-        expanded.has(n.id) && n.children.length
-          ? 1 + visibleDepth(n.children, expanded)
-          : 0,
-      ),
+      Math.max(deepest, n.children.length ? 1 + treeDepth(n.children) : 0),
     0,
   );
 }
@@ -103,21 +95,19 @@ export function groupRuns<T extends WheelGeometryNode>(
 }
 
 /**
- * The visible segments, depth-first in wheel order: each root spans
- * `360° × count / Σ root counts`, each child of an expanded parent spans the
- * parent's span `× count / Σ sibling counts`, filling it. With a `groupOrder`
+ * Every note's segment, depth-first in wheel order, whatever the note list
+ * shows (stack-flavor-wheel-layout D2): each root spans
+ * `360° × count / Σ root counts`, each child spans the parent's span
+ * `× count / Σ sibling counts`, filling it. With a `groupOrder`
  * and roots of two groups or more, the roots are grouped in that order and a
  * `GROUP_GAP` sits at each group boundary, one centred at 12 o'clock; the
  * roots share the rest by count (add-offering-catalog design.md D19).
  */
 export function layoutWheel<T extends WheelGeometryNode>(
   nodes: T[],
-  expanded: ReadonlySet<string>,
   groupOrder?: readonly string[],
 ): { radii: RingRadii; segments: WheelSegment<T>[]; groupArcs: GroupArc[] } {
-  const radii = ringRadii(
-    Math.min(visibleDepth(nodes, expanded), 2) as 0 | 1 | 2,
-  );
+  const radii = ringRadii(Math.min(treeDepth(nodes), 2) as 0 | 1 | 2);
   const segments: WheelSegment<T>[] = [];
 
   const place = (siblings: T[], ring: number, start: number, end: number) => {
@@ -135,7 +125,7 @@ export function layoutWheel<T extends WheelGeometryNode>(
         start: cursor,
         end: next,
       });
-      if (expanded.has(n.id) && n.children.length && radii.rings[ring + 1]) {
+      if (n.children.length && radii.rings[ring + 1]) {
         place(n.children as T[], ring + 1, cursor, next);
       }
       cursor = next;
