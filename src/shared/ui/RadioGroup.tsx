@@ -1,14 +1,14 @@
 "use client";
 
 import { useId, type ReactNode } from "react";
+import { ControlMessages, useControlMessages } from "./ControlMessages";
 import {
   FACET_LEGEND_CLASSES,
   FACET_MESSAGE_CLASSES,
   FACET_ROWS_CLASSES,
-  facetRowClasses,
-  withoutDisabledFade,
   type ControlPresentation,
 } from "./facet-row";
+import { RadioOptionRow } from "./RadioOptionRow";
 
 // ─── UI-specific types (declared before the component) ───
 // No generated API type is used here: the options and every text are supplied
@@ -44,16 +44,8 @@ export type RadioGroupProps = {
 };
 
 // ─── Treatment classes ───
-// The native control is replaced by a custom circle (`appearance-none`, size,
-// fill and the intrinsic rounded-full circle of design.md D6); the dot carries
-// the selected state so it never rests on the fill color alone (D9). The dot
-// is always rendered and follows the input's REAL state through CSS (`peer`
-// on the input): hidden by default, shown with `peer-checked:`, faded with
-// `peer-disabled:opacity-50`. The hidden base is `invisible` (not opacity) so
-// the disabled fade never fights the checked show.
-// The border swaps to the error treatment when the error message is shown
-// (D9). The clickable option label keeps the hit area at least 24 by 24
-// pixels (D9: flex min-h-6 min-w-6 items-center gap-2).
+// The circle keeps its classes here; the option row, its dot and its label
+// classes live in RadioOptionRow.
 
 const CIRCLE_CLASSES = [
   "peer",
@@ -65,29 +57,6 @@ const CIRCLE_CLASSES = [
   "focus-visible:focus-ring",
   "disabled:opacity-50",
   "disabled:cursor-not-allowed",
-].join(" ");
-
-const OPTION_LABEL_CLASSES = [
-  "flex",
-  "min-h-6",
-  "min-w-6",
-  "items-center",
-  "gap-2",
-].join(" ");
-
-const DOT_CLASSES = [
-  "pointer-events-none",
-  "absolute",
-  "top-1/2",
-  "left-1/2",
-  "size-2",
-  "rounded-full",
-  "-translate-x-1/2",
-  "-translate-y-1/2",
-  "bg-checked-mark",
-  "invisible",
-  "peer-checked:visible",
-  "peer-disabled:opacity-50",
 ].join(" ");
 
 /**
@@ -119,8 +88,7 @@ export function RadioGroup({
   const groupId = id ?? generatedGroupId;
   const isRow = presentation === "row";
   const legendId = useId();
-  const helpId = useId();
-  const errorId = useId();
+  const messages = useControlMessages(help, error);
   const generatedName = useId();
   const name = nameProp ?? generatedName;
 
@@ -132,67 +100,29 @@ export function RadioGroup({
   // group itself for assistive technology (`role="radiogroup"` with
   // `aria-labelledby` on the legend) and keeps `aria-describedby` and
   // `aria-invalid`, which a plain group does not expose.
-  const hasHelp = help != null && help !== "";
-  const hasError = error != null && error !== "";
-  const describedBy = [
-    hasHelp ? helpId : undefined,
-    hasError ? errorId : undefined,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  function renderOption(option: RadioOption): ReactNode {
-    const row = isRow
-      ? facetRowClasses({
-          selected: !option.neutral && value === option.value,
-          disabled,
-        })
-      : undefined;
-    return (
-      <label
-        key={option.value}
-        className={row ? row.row : OPTION_LABEL_CLASSES}
-        hidden={option.hidden || undefined}
-      >
-        <span className="relative inline-flex">
-          <input
-            type="radio"
-            name={name}
-            value={option.value}
-            checked={
-              value !== undefined ? option.value === value : undefined
-            }
-            defaultChecked={
-              value === undefined ? option.value === defaultValue : undefined
-            }
-            onChange={() => onChange?.(option.value)}
-            required={required}
-            disabled={disabled}
-            className={[
-              isRow ? withoutDisabledFade(CIRCLE_CLASSES) : CIRCLE_CLASSES,
-              hasError
-                ? "border-feedback-error"
-                : isRow
-                  ? "border-nav-button-border"
-                  : "border-border-strong",
-            ].join(" ")}
-          />
-          <span className={isRow ? withoutDisabledFade(DOT_CLASSES) : DOT_CLASSES} />
-        </span>
-        <span className={row ? row.label : "type-label"}>
-          {option.label}
-        </span>
-      </label>
-    );
-  }
+  const optionRows = options.map((option) => (
+    <RadioOptionRow
+      key={option.value}
+      option={option}
+      name={name}
+      value={value}
+      defaultValue={defaultValue}
+      onChange={onChange}
+      required={required}
+      disabled={disabled}
+      hasError={messages.hasError}
+      presentation={presentation}
+      circleClasses={CIRCLE_CLASSES}
+    />
+  ));
 
   return (
     <fieldset
       id={groupId}
       role="radiogroup"
       aria-labelledby={legendId}
-      aria-describedby={describedBy || undefined}
-      aria-invalid={hasError ? "true" : undefined}
+      aria-describedby={messages.describedBy}
+      aria-invalid={messages.hasError ? "true" : undefined}
       className={variant === "inverse" ? "variant-inverse" : undefined}
     >
       <legend
@@ -201,21 +131,13 @@ export function RadioGroup({
       >
         {legend}
       </legend>
-      {isRow ? (
-        <div className={FACET_ROWS_CLASSES}>{options.map(renderOption)}</div>
-      ) : (
-        options.map(renderOption)
-      )}
-      {hasHelp && (
-        <p id={helpId} className={isRow ? `type-meta mt-1 ${FACET_MESSAGE_CLASSES}` : "type-meta mt-1"}>
-          {help}
-        </p>
-      )}
-      {hasError && (
-        <p id={errorId} className={isRow ? `type-error mt-1 ${FACET_MESSAGE_CLASSES}` : "type-error mt-1"}>
-          {error}
-        </p>
-      )}
+      {isRow ? <div className={FACET_ROWS_CLASSES}>{optionRows}</div> : optionRows}
+      <ControlMessages
+        ids={messages}
+        help={help}
+        error={error}
+        className={isRow ? FACET_MESSAGE_CLASSES : undefined}
+      />
     </fieldset>
   );
 }

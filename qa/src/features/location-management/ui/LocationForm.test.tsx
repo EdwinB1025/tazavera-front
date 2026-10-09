@@ -66,16 +66,6 @@ function input(name: string): HTMLInputElement | HTMLTextAreaElement {
   return document.querySelector(`[name="${name}"]`) as HTMLInputElement;
 }
 
-function type(name: string, value: string): void {
-  fireEvent.change(input(name), { target: { value } });
-}
-
-function fillRequired(): void {
-  type("name", "Tazavera Gràcia");
-  type("address", "Carrer de Verdi 12");
-  type("city", "Barcelona");
-}
-
 describe("LocationForm structure (design.md D7)", () => {
   it("is a noValidate form in a section card, named by the band h2", () => {
     const { container } = renderForm();

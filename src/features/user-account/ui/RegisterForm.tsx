@@ -1,11 +1,9 @@
 "use client";
 
-import { useRef, useState, type FormEvent, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import type { RegisterPayload, RegistrationToken } from "@/shared/api";
 import { ActionGroup, Button, Field, Input, FormStatus, RouteButton } from "@/shared/ui";
-import { useServerFieldErrors } from "@/shared/lib/hooks";
-import { isValidEmail } from "@/entities/contact";
-import { registerUser } from "../api/register";
+import { useRegisterForm } from "../model/use-register-form";
 import { NewPasswordFields } from "./NewPasswordFields";
 import {
   RegisterSuccessPanel,
@@ -53,53 +51,6 @@ export type RegisterFormProps = {
   cancelHref: `/${string}`;
 };
 
-type RegisterField =
-  | "name"
-  | "surname"
-  | "email"
-  | "password"
-  | "passwordConfirmation";
-
-type RegisterValues = Record<RegisterField, string>;
-
-/** The fields in form order: focus goes to the first failing one (design.md D9). */
-const FIELD_ORDER: RegisterField[] = [
-  "name",
-  "surname",
-  "email",
-  "password",
-  "passwordConfirmation",
-];
-
-const EMPTY_VALUES: RegisterValues = {
-  name: "",
-  surname: "",
-  email: "",
-  password: "",
-  passwordConfirmation: "",
-};
-
-/** The checks `registerAUser` documents (design.md D2). */
-function check(
-  values: RegisterValues,
-  texts: RegisterFormTexts,
-): Partial<Record<RegisterField, string>> {
-  const errors: Partial<Record<RegisterField, string>> = {};
-  for (const field of FIELD_ORDER) {
-    if (values[field].trim() === "") errors[field] = texts.requiredError;
-  }
-  if (!errors.email && !isValidEmail(values.email)) {
-    errors.email = texts.emailFormatError;
-  }
-  if (
-    !errors.passwordConfirmation &&
-    values.passwordConfirmation !== values.password
-  ) {
-    errors.passwordConfirmation = texts.passwordMismatchError;
-  }
-  return errors;
-}
-
 /**
  * The registration form (specs "Registration form" and "Registration
  * result"; design.md D2, D9 and D10). It checks only what `registerAUser`
@@ -119,56 +70,11 @@ export function RegisterForm({
   signInWithToken,
   cancelHref,
 }: RegisterFormProps): ReactNode {
-  const formRef = useRef<HTMLFormElement>(null);
-  const [values, setValues] = useState<RegisterValues>(EMPTY_VALUES);
-  const [errors, setErrors] = useState<Partial<Record<RegisterField, string>>>(
-    {},
-  );
-  const [pending, setPending] = useState(false);
-  const [failed, setFailed] = useState(false);
-  const [created, setCreated] = useState(false);
-  const server = useServerFieldErrors(FIELD_ORDER);
+  const { formRef, values, errors, serverErrors, pending, failed, created, update, handleSubmit } =
+    useRegisterForm({ role, texts, signInWithToken });
 
   if (created) {
     return <RegisterSuccessPanel texts={texts} signIn={signIn} />;
-  }
-
-  function update(field: RegisterField, value: string): void {
-    setValues((current) => ({ ...current, [field]: value }));
-    server.clear(field);
-  }
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
-    event.preventDefault();
-    if (pending) return;
-    server.reset();
-    const found = check(values, texts);
-    setErrors(found);
-    const firstInvalid = FIELD_ORDER.find((field) => found[field]);
-    if (firstInvalid) {
-      const control = formRef.current?.elements.namedItem(firstInvalid);
-      if (control instanceof HTMLElement) control.focus();
-      return;
-    }
-
-    setPending(true);
-    setFailed(false);
-    const payload: RegisterPayload = { ...values, role };
-    const result = await registerUser(payload);
-    if (result.ok) {
-      // Signed in: the submit stays loading while the page navigates.
-      if (result.data !== null && (await signInWithToken(result.data))) return;
-      setPending(false);
-      setCreated(true);
-      return;
-    }
-    setPending(false);
-    setFailed(result.kind === "validation" ? server.show(result.errors) : true);
-    setValues((current) => ({
-      ...current,
-      password: "",
-      passwordConfirmation: "",
-    }));
   }
 
   return (
@@ -179,7 +85,7 @@ export function RegisterForm({
       onSubmit={handleSubmit}
       className="flex flex-col gap-6"
     >
-      <Field label={texts.nameLabel} error={errors.name ?? server.errors.name} required>
+      <Field label={texts.nameLabel} error={errors.name ?? serverErrors.name} required>
         <Input
           name="name"
           type="text"
@@ -188,7 +94,7 @@ export function RegisterForm({
           onChange={(event) => update("name", event.target.value)}
         />
       </Field>
-      <Field label={texts.surnameLabel} error={errors.surname ?? server.errors.surname} required>
+      <Field label={texts.surnameLabel} error={errors.surname ?? serverErrors.surname} required>
         <Input
           name="surname"
           type="text"
@@ -197,7 +103,7 @@ export function RegisterForm({
           onChange={(event) => update("surname", event.target.value)}
         />
       </Field>
-      <Field label={texts.emailLabel} error={errors.email ?? server.errors.email} required>
+      <Field label={texts.emailLabel} error={errors.email ?? serverErrors.email} required>
         <Input
           name="email"
           type="email"
@@ -210,9 +116,9 @@ export function RegisterForm({
         texts={texts}
         password={values.password}
         passwordConfirmation={values.passwordConfirmation}
-        passwordError={errors.password ?? server.errors.password}
+        passwordError={errors.password ?? serverErrors.password}
         passwordConfirmationError={
-          errors.passwordConfirmation ?? server.errors.passwordConfirmation
+          errors.passwordConfirmation ?? serverErrors.passwordConfirmation
         }
         onChange={update}
       />

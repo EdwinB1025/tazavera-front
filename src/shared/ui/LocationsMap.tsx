@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { createRoot, type Root } from "react-dom/client";
-import { L, type LatLngTuple, type LeafletMap } from "@/shared/lib/leaflet";
+import { type LeafletMap } from "@/shared/lib/leaflet";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "./Button";
-import { Card, CardContent } from "./Card";
 import { LINK_CLASSES } from "./Link";
-import { MapPin, Minus, Plus, X } from "./icons";
+import { Minus, Plus } from "./icons";
+import { createLocationsMapView } from "./locations-map-view";
+import { LocationsMapPanel } from "./LocationsMapPanel";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -46,39 +46,7 @@ export type LocationsMapProps = {
   className?: string;
 };
 
-const TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 const COPYRIGHT_URL = "https://www.openstreetmap.org/copyright";
-const MAX_ZOOM = 19;
-const SINGLE_POINT_ZOOM = 16;
-// The fit keeps 2rem from every edge and also clears the zoom controls in the
-// top-right corner (ZOOM_CLASSES: 0.75rem inset, one 2rem column across, two
-// 2rem buttons with a 0.5rem gap down).
-const FIT_PADDING = 32;
-const ZOOM_CONTROLS_WIDTH = 12 + 32;
-const ZOOM_CONTROLS_HEIGHT = 12 + 32 + 8 + 32;
-const FIT_OPTIONS: L.FitBoundsOptions = {
-  paddingTopLeft: [FIT_PADDING, FIT_PADDING + ZOOM_CONTROLS_HEIGHT],
-  paddingBottomRight: [FIT_PADDING + ZOOM_CONTROLS_WIDTH, FIT_PADDING],
-};
-
-// The marker: a 2rem pill in the primary action fill with a card-coloured
-// border; hover, focus and the selected look take the hover fill.
-const MARKER_CLASSES = [
-  "size-8",
-  "rounded-pill",
-  "border-2",
-  "border-surface-card",
-  "bg-action-primary",
-  "text-action-primary-text",
-  "flex",
-  "items-center",
-  "justify-center",
-  "hover:bg-action-primary-hover",
-  "focus-visible:focus-ring",
-  "data-[selected=true]:bg-action-primary-hover",
-].join(" ");
-
-const ICON_CLASSES = "flex size-full items-center justify-center";
 
 // Leaflet's panes stack up to z-index 700; the overlays sit above them.
 const OVERLAY_CLASSES = "absolute z-[1000]";
@@ -89,8 +57,18 @@ const ATTRIBUTION_CLASSES = cn(
   "bottom-0 right-0 bg-surface-card px-2 py-1 rounded-field type-meta text-text-primary",
 );
 
-function latLng(point: LocationsMapPoint): LatLngTuple {
-  return [point.lat, point.lng];
+/** The OpenStreetMap attribution, its link placed at `{link}`. */
+function Attribution({ texts }: { texts: LocationsMapTexts }): ReactNode {
+  const [beforeLink, afterLink] = texts.osmAttribution.split("{link}");
+  return (
+    <p className={ATTRIBUTION_CLASSES}>
+      {beforeLink}
+      <a href={COPYRIGHT_URL} className={LINK_CLASSES}>
+        {texts.osmContributors}
+      </a>
+      {afterLink}
+    </p>
+  );
 }
 
 /**
@@ -126,71 +104,18 @@ export function LocationsMap({
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-    const map = L.map(container, {
-      zoomControl: false,
-      attributionControl: false,
-      keyboard: true,
-      maxZoom: MAX_ZOOM,
-      ...(reduceMotion
-        ? { zoomAnimation: false, fadeAnimation: false, markerZoomAnimation: false, inertia: false }
-        : {}),
-    });
-    if (reduceMotion) {
-      // Leaflet has no option for pan animation; its keyboard pans and its
-      // panTo / setView pans all go through panBy, so panBy never animates.
-      const panBy = map.panBy.bind(map);
-      map.panBy = (offset, options) => panBy(offset, { ...options, animate: false });
-    }
-    mapRef.current = map;
-    L.tileLayer(TILE_URL, { maxZoom: MAX_ZOOM }).addTo(map);
-
-    // The view comes first: Leaflet builds a marker's element only once the
-    // map has a view, and the loop below names and wires those elements.
-    const target = points.some((point) => point.groupId === focusGroupId)
-      ? points.filter((point) => point.groupId === focusGroupId)
-      : points;
-    if (target.length === 1) {
-      map.setView(latLng(target[0]!), SINGLE_POINT_ZOOM);
-    } else if (target.length > 1) {
-      map.fitBounds(L.latLngBounds(target.map(latLng)), FIT_OPTIONS);
-    }
-
     const markers = markersRef.current;
-    const roots: Root[] = [];
-    for (const point of points) {
-      const icon = document.createElement("span");
-      // Leaflet's stylesheet makes the marker element a block, so the icon
-      // element centres the pin itself.
-      icon.className = ICON_CLASSES;
-      const root = createRoot(icon);
-      root.render(<MapPin className="size-4" aria-hidden="true" />);
-      roots.push(root);
-      const marker = L.marker(latLng(point), {
-        keyboard: true,
-        icon: L.divIcon({ className: MARKER_CLASSES, html: icon, iconSize: [32, 32] }),
-      }).addTo(map);
-      const element = marker.getElement();
-      if (!element) continue;
-      element.setAttribute("aria-label", point.label);
-      markers.set(point.id, element);
-      const open = () => {
-        setSelected([point.id]);
-        setPanelId(point.id);
-      };
-      marker.on("click", open);
-      element.addEventListener("keydown", (event) => {
-        // Leaflet maps Enter only to a bound popup, so both keys are ours.
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          open();
-        } else if (event.key === "Escape") {
-          setPanelId(null);
-          setSelected([]);
-          element.focus();
-        }
-      });
-    }
+    const { map, roots } = createLocationsMapView(container, points, focusGroupId, markers, {
+      open: (id) => {
+        setSelected([id]);
+        setPanelId(id);
+      },
+      close: () => {
+        setPanelId(null);
+        setSelected([]);
+      },
+    });
+    mapRef.current = map;
 
     return () => {
       markers.clear();
@@ -208,8 +133,6 @@ export function LocationsMap({
   }, [selected, points, focusGroupId]);
 
   const panelPoint = points.find((point) => point.id === panelId);
-  const [beforeLink, afterLink] = texts.osmAttribution.split("{link}");
-  const panelHeadingId = `${helpId}-panel`;
 
   return (
     <div className={cn("relative", className)}>
@@ -226,42 +149,16 @@ export function LocationsMap({
         <Button variant="action-3" size="sm" icon={Minus} aria-label={texts.zoomOut} onClick={() => mapRef.current?.zoomOut()} />
       </div>
       {panelPoint ? (
-        <div
-          role="region"
-          aria-labelledby={panelHeadingId}
+        <LocationsMapPanel
+          point={panelPoint}
+          headingId={`${helpId}-panel`}
+          renderPanelLink={renderPanelLink}
+          closeLabel={texts.closePanel}
+          onClose={() => closePanel(panelPoint.id)}
           className={PANEL_CLASSES}
-          onKeyDown={(event) => {
-            if (event.key === "Escape") closePanel(panelPoint.id);
-          }}
-        >
-          <Card>
-            <CardContent className="relative flex flex-col gap-1 p-4">
-              <h2 id={panelHeadingId} className="type-card-heading pr-10">
-                {panelPoint.title}
-              </h2>
-              <p className="type-label">{panelPoint.subtitle}</p>
-              <p className="type-meta">{panelPoint.addressLine}</p>
-              {renderPanelLink ? <div className="mt-2">{renderPanelLink(panelPoint)}</div> : null}
-              <div className="absolute top-2 right-2">
-                <Button
-                  variant="action-4"
-                  size="sm"
-                  icon={X}
-                  aria-label={texts.closePanel}
-                  onClick={() => closePanel(panelPoint.id)}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        />
       ) : null}
-      <p className={ATTRIBUTION_CLASSES}>
-        {beforeLink}
-        <a href={COPYRIGHT_URL} className={LINK_CLASSES}>
-          {texts.osmContributors}
-        </a>
-        {afterLink}
-      </p>
+      <Attribution texts={texts} />
     </div>
   );
 }

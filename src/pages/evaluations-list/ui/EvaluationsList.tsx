@@ -1,15 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { QueryRecord } from "@/shared/lib/filter-query";
-import type { EvaluationItem, EvaluationPageMeta, OfferingDetail } from "@/shared/api";
-import { listMyEvaluations, loadEvaluationOfferings } from "@/entities/evaluation";
+import type { EvaluationPageMeta } from "@/shared/api";
 import { evaluationListQuery, type EvaluationFilterValues } from "@/features/evaluation-facets";
-import { fetchOffering } from "@/entities/offering";
 import { Button, Card, CardContent, Pagination, ResultStatus } from "@/shared/ui";
 import type { PaginationTexts } from "@/shared/ui";
 import { cn } from "@/shared/lib/utils";
+import { useEvaluationsPage, type ListRow } from "../model/use-evaluations-page";
 import { SpecialistEvaluationRow } from "./SpecialistEvaluationRow";
 import type { EvaluationRowTexts } from "./SpecialistEvaluationRow";
 
@@ -40,30 +38,90 @@ export type EvaluationsListProps = {
   resultCountText?: string;
 };
 
-type ListRow = { evaluation: EvaluationItem; offering: OfferingDetail | null };
-
-type ListState =
-  | { state: "loading" }
-  | { state: "error" }
-  | { state: "success"; rows: ListRow[]; meta: EvaluationPageMeta };
-
 const BLOCK_CLASSES = ["flex", "flex-col", "gap-8"].join(" ");
 const ROWS_CLASSES = ["flex", "flex-col", "gap-4"].join(" ");
 const ERROR_CLASSES = ["flex", "flex-col", "items-start", "gap-4"].join(" ");
 const PLACEHOLDER_CLASSES = ["animate-pulse", "bg-surface-section", "rounded-field"].join(" ");
 const SKELETON_KEYS = [0, 1, 2] as const;
 
-/** One page of evaluations with the offering of each distinct `offeringId`. */
-async function loadPage(requestQuery: string): Promise<ListState> {
-  const result = await listMyEvaluations(requestQuery);
-  if (!result.ok) {
-    return { state: "error" };
-  }
-  return {
-    state: "success",
-    rows: await loadEvaluationOfferings(result.data.data, fetchOffering),
-    meta: result.data.meta,
-  };
+/** The loading placeholder in the list's place. */
+function ListPlaceholder(): ReactNode {
+  return (
+    <div aria-busy="true" className={ROWS_CLASSES}>
+      {SKELETON_KEYS.map((key) => (
+        <Card key={key}>
+          <CardContent>
+            <div className={cn(PLACEHOLDER_CLASSES, "h-4 w-1/4")} />
+            <div className={cn(PLACEHOLDER_CLASSES, "h-6 w-2/3")} />
+            <div className={cn(PLACEHOLDER_CLASSES, "h-4 w-1/2")} />
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+/** The empty message, or `noMatches` with the empty action while a filter is applied. */
+function EmptyList({
+  texts,
+  emptyAction,
+}: {
+  texts: EvaluationsListTexts;
+  emptyAction?: ReactNode;
+}): ReactNode {
+  return emptyAction ? (
+    <div className={ERROR_CLASSES}>
+      <p className="type-body">{texts.noMatches}</p>
+      {emptyAction}
+    </div>
+  ) : (
+    <p className="type-body">{texts.emptyMessage}</p>
+  );
+}
+
+/** One row per evaluation in the API's order, then the pagination. */
+function ListRows({
+  rows,
+  meta,
+  locale,
+  texts,
+  page,
+  query,
+  onDeleted,
+  onClosed,
+}: Pick<EvaluationsListProps, "locale" | "texts" | "page" | "query"> & {
+  rows: ListRow[];
+  meta: EvaluationPageMeta;
+  onDeleted: (ulid: string) => void;
+  onClosed: (ulid: string) => void;
+}): ReactNode {
+  return (
+    <>
+      <ul className={ROWS_CLASSES}>
+        {rows.map((row, index) => (
+          <li key={row.evaluation.ulid ?? index}>
+            <SpecialistEvaluationRow
+              evaluation={row.evaluation}
+              offering={row.offering}
+              locale={locale}
+              texts={texts}
+              onDeleted={onDeleted}
+              onClosed={onClosed}
+            />
+          </li>
+        ))}
+      </ul>
+      {(meta.last_page ?? 1) > 1 ? (
+        <Pagination
+          currentPage={meta.current_page ?? page}
+          lastPage={meta.last_page ?? 1}
+          path={`/${locale}/manage/evaluations`}
+          query={query}
+          texts={texts}
+        />
+      ) : null}
+    </>
+  );
 }
 
 /**
@@ -84,69 +142,9 @@ export function EvaluationsList({
   emptyAction,
   resultCountText,
 }: EvaluationsListProps): ReactNode {
-  const requestQuery = evaluationListQuery(values, page);
-  // Each load is keyed by the request query and the retry count; a result of
-  // another key reads as loading, so a new query or a retry shows the
-  // placeholder.
-  const [attempt, setAttempt] = useState(0);
-  const key = `${requestQuery}:${attempt}`;
-  const [loaded, setLoaded] = useState<{ key: string; list: ListState } | null>(null);
-  // After a deletion the list reloads behind the rows already shown, with the
-  // deleted row removed, instead of the loading placeholder.
-  const [quietKey, setQuietKey] = useState<string | null>(null);
-  const list: ListState =
-    loaded && (loaded.key === key || quietKey === key) ? loaded.list : { state: "loading" };
-
-  useEffect(() => {
-    let current = true;
-    loadPage(requestQuery).then((next) => {
-      if (current) setLoaded({ key, list: next });
-    });
-    return () => {
-      current = false;
-    };
-  }, [requestQuery, key]);
-
-  // While a new query loads, the block keeps the height of the list it
-  // replaces, so the document does not shrink to the placeholder and the
-  // browser does not clamp the scroll position (spec "Evaluation filter state
-  // in the URL", keep the scroll position; design.md D4).
-  const blockRef = useRef<HTMLDivElement>(null);
-  const lastHeight = useRef(0);
-  useLayoutEffect(() => {
-    const block = blockRef.current;
-    if (!block) return;
-    if (list.state === "loading") {
-      if (lastHeight.current > 0) block.style.minHeight = `${lastHeight.current}px`;
-    } else {
-      block.style.minHeight = "";
-      lastHeight.current = block.offsetHeight;
-    }
-  });
-
-  const retry = useCallback(() => setAttempt((count) => count + 1), []);
-
-  // A deleted row leaves and a closed row shows its closed state in place
-  // while the page reloads behind them (close-evaluation-only-when-saved).
-  const updateRows = (change: (rows: ListRow[]) => ListRow[]) => {
-    setLoaded((current) =>
-      current && current.list.state === "success"
-        ? { ...current, list: { ...current.list, rows: change(current.list.rows) } }
-        : current,
-    );
-    setQuietKey(`${requestQuery}:${attempt + 1}`);
-    setAttempt(attempt + 1);
-  };
-  const removeRow = (ulid: string) =>
-    updateRows((rows) => rows.filter((row) => row.evaluation.ulid !== ulid));
-  const markClosed = (ulid: string) =>
-    updateRows((rows) =>
-      rows.map((row) =>
-        row.evaluation.ulid === ulid
-          ? { ...row, evaluation: { ...row.evaluation, status: "closed" } }
-          : row,
-      ),
-    );
+  const { list, blockRef, retry, removeRow, markClosed } = useEvaluationsPage(
+    evaluationListQuery(values, page),
+  );
 
   return (
     <div ref={blockRef} className={BLOCK_CLASSES}>
@@ -161,19 +159,7 @@ export function EvaluationsList({
           }
         />
       ) : null}
-      {list.state === "loading" ? (
-        <div aria-busy="true" className={ROWS_CLASSES}>
-          {SKELETON_KEYS.map((key) => (
-            <Card key={key}>
-              <CardContent>
-                <div className={cn(PLACEHOLDER_CLASSES, "h-4 w-1/4")} />
-                <div className={cn(PLACEHOLDER_CLASSES, "h-6 w-2/3")} />
-                <div className={cn(PLACEHOLDER_CLASSES, "h-4 w-1/2")} />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : null}
+      {list.state === "loading" ? <ListPlaceholder /> : null}
       {list.state === "error" ? (
         <div className={ERROR_CLASSES}>
           <p className="type-body">{texts.loadErrorMessage}</p>
@@ -181,41 +167,19 @@ export function EvaluationsList({
         </div>
       ) : null}
       {list.state === "success" && list.rows.length === 0 ? (
-        emptyAction ? (
-          <div className={ERROR_CLASSES}>
-            <p className="type-body">{texts.noMatches}</p>
-            {emptyAction}
-          </div>
-        ) : (
-          <p className="type-body">{texts.emptyMessage}</p>
-        )
+        <EmptyList texts={texts} emptyAction={emptyAction} />
       ) : null}
       {list.state === "success" && list.rows.length > 0 ? (
-        <>
-          <ul className={ROWS_CLASSES}>
-            {list.rows.map((row, index) => (
-              <li key={row.evaluation.ulid ?? index}>
-                <SpecialistEvaluationRow
-                  evaluation={row.evaluation}
-                  offering={row.offering}
-                  locale={locale}
-                  texts={texts}
-                  onDeleted={removeRow}
-                  onClosed={markClosed}
-                />
-              </li>
-            ))}
-          </ul>
-          {(list.meta.last_page ?? 1) > 1 ? (
-            <Pagination
-              currentPage={list.meta.current_page ?? page}
-              lastPage={list.meta.last_page ?? 1}
-              path={`/${locale}/manage/evaluations`}
-              query={query}
-              texts={texts}
-            />
-          ) : null}
-        </>
+        <ListRows
+          rows={list.rows}
+          meta={list.meta}
+          locale={locale}
+          texts={texts}
+          page={page}
+          query={query}
+          onDeleted={removeRow}
+          onClosed={markClosed}
+        />
       ) : null}
     </div>
   );

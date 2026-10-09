@@ -152,7 +152,6 @@ describe("EvaluationForm: one action at a time (design.md D4)", () => {
 });
 
 describe("EvaluationForm: section states (design.md D15; tasks 11.3)", () => {
-  const CLOSED = { ...OPEN_EVALUATION, status: "closed" };
 
   function expandedByGroup(container: HTMLElement): Record<string, string | null> {
     return Object.fromEntries(
@@ -205,7 +204,6 @@ describe("EvaluationForm: section states (design.md D15; tasks 11.3)", () => {
 });
 
 describe("EvaluationForm: the 1–9 legend (design.md D16; tasks 12.2)", () => {
-  const CLOSED = { ...OPEN_EVALUATION, status: "closed" };
   const TITLE = "Affective quality impression";
 
   function legendHeader() {

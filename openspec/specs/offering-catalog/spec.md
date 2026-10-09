@@ -685,3 +685,25 @@ Every request function of the front's request layers (the public reads, the spec
 #### Scenario: Requests and states unchanged
 - **WHEN** any request is sent and receives a given status, fails on the network or returns a body that cannot be read
 - **THEN** the API receives the same method, URL, query string, headers, body and request options as before the refactor, and the user sees the same state and message as before the refactor
+
+### Requirement: Locations map kept within the size limits
+The shared locations map SHALL be built from components and functions of at most 80 lines and a cyclomatic complexity of at most 15, in files of at most 300 lines, and SHALL render the same map region, markers, zoom buttons, selected-location panel and attribution, with the same names and keyboard behaviour, for the same points, as the other map requirements of this capability state. This requirement adds no behaviour.
+
+#### Scenario: Lint reports no size warning for the map
+- **WHEN** `npm run lint` runs
+- **THEN** it reports no `max-lines-per-function`, `complexity` or `max-lines` warning for the locations map or the units it renders
+
+#### Scenario: Selecting a marker renders as before
+- **WHEN** a marker of the map is activated
+- **THEN** the marker takes the selected look and the selected-location panel opens with the point's title, subtitle, address line and link, and Escape or Close closes it and returns the focus to the marker
+
+### Requirement: Catalog screens kept within the size limits
+The screens, widgets and entity components of the `offering-catalog` capability in the pages, widgets, features and entities layers SHALL each keep every function at no more than 80 lines and a cyclomatic complexity of no more than 15, and every file at no more than 300 lines, while their props, public exports, requests, rendered markup, class names, texts and accessible names stay as the other requirements of this capability state. This requirement adds no behaviour.
+
+#### Scenario: No size or complexity warning
+- **WHEN** `npm run lint` runs
+- **THEN** it reports no `max-lines-per-function`, `complexity` or `max-lines` warning for a file of this capability in the pages, widgets, features or entities layers
+
+#### Scenario: Behaviour unchanged
+- **WHEN** the validation suite and the QA suite run with no test added and no assertion changed
+- **THEN** every test of this capability's units passes as before the split

@@ -60,6 +60,22 @@ export type EvaluationFormModel = {
   onClose: () => Promise<void>;
 };
 
+/** The failure message of a write (design.md's error table). */
+function failureFor(
+  messages: FormMessages,
+  kind: Extract<EvaluationWriteResult<unknown>, { ok: false }>["kind"],
+  conflict: string,
+): string {
+  return kind === "forbidden" ? messages.notYoursMessage : kind === "conflict" ? conflict : messages.failureMessage;
+}
+
+/** The groups the completeness rule reports as incomplete (design.md D10). */
+function incompleteGroups(completeness: ReturnType<typeof completenessOf>): GroupKey[] {
+  return EVALUATION_GROUPS.filter((group) => completeness[group.key] === false).map(
+    (group) => group.key,
+  );
+}
+
 /**
  * The state and actions of the CVA combined form (design.md D1–D3): one
  * reducer for the whole form, and the draft-save and close flows.
@@ -80,10 +96,6 @@ export function useEvaluationForm({
   const completeness = completenessOf(values);
   const server = useServerFieldErrors(SERVER_FIELDS);
 
-  /** The failure message of a write (design.md's error table). */
-  const failureFor = (kind: Extract<EvaluationWriteResult<unknown>, { ok: false }>["kind"], conflict: string) =>
-    kind === "forbidden" ? messages.notYoursMessage : kind === "conflict" ? conflict : messages.failureMessage;
-
   /**
    * Save draft (design.md D4): creates the evaluation the first time and
    * updates it afterwards. The contract's required roast level is the only
@@ -102,7 +114,7 @@ export function useEvaluationForm({
       ? await updateAnEvaluation(ulid, buildUpdateBody(sendable))
       : await createAnEvaluation(buildCreateBody(sendable, offering?.ulid ?? ""));
     if (!result.ok) {
-      const message = failureFor(result.kind, messages.alreadyClosedMessage);
+      const message = failureFor(messages, result.kind, messages.alreadyClosedMessage);
       if (result.kind !== "validation" || server.show(result.errors)) dispatch({ type: "fail", message });
       return null;
     }
@@ -138,16 +150,10 @@ export function useEvaluationForm({
       return;
     }
     // The incomplete groups expand so their highlight is in view (D15).
-    const incomplete =
-      result.kind === "conflict"
-        ? EVALUATION_GROUPS.filter((group) => completeness[group.key] === false).map(
-            (group) => group.key,
-          )
-        : null;
     dispatch({
       type: "refuse",
-      message: failureFor(result.kind, messages.incompleteMessage),
-      incomplete,
+      message: failureFor(messages, result.kind, messages.incompleteMessage),
+      incomplete: result.kind === "conflict" ? incompleteGroups(completeness) : null,
     });
   };
 

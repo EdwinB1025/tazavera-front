@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { getMessages } from "@/shared/lib/i18n";
+import { getMessages, type MessageCatalog } from "@/shared/lib/i18n";
 import type { QueryRecord } from "@/shared/lib/filter-query";
 import { EvaluationsGate } from "@/widgets/evaluations-gate";
 import {
@@ -29,33 +29,14 @@ function pageFrom(value: string | string[] | undefined): number {
   return Number.isInteger(page) && page > 0 ? page : 1;
 }
 
-/**
- * "My evaluations" screen (design.md D1, D13, D14). Thin: it resolves the
- * `evaluations` catalog for the route's locale — and the rating tier words the
- * offering card already shows, from `landing` — and renders the client list
- * inside the access gate. Every evaluation read runs on the client.
- */
-export function EvaluationsListScreen({
-  locale,
-  searchParams,
-}: EvaluationsListScreenProps): ReactNode {
-  const catalog = getMessages("evaluations", locale);
-  const landing = getMessages("landing", locale);
-  const filters = getMessages("filters", locale);
-  const publicEvaluations = getMessages("public-evaluations", locale);
-  // The facet values and the applied list (add-evaluation-facets D4, D5, D9).
-  const values = parseEvaluationFilters(searchParams);
-  const applied = appliedEvaluationFilters(values, {
-    status: filters.status,
-    statusOpen: filters.statusOpen,
-    statusClosed: filters.statusClosed,
-    score: filters.score,
-    scoreRange: filters.scoreRange,
-    process: filters.process,
-    city: filters.city,
-  });
-
-  const texts: EvaluationsListTexts = {
+/** The list texts from the catalogs of the route's locale (design.md D14). */
+function listTexts(
+  catalog: MessageCatalog,
+  landing: MessageCatalog,
+  filters: MessageCatalog,
+  publicEvaluations: MessageCatalog,
+): EvaluationsListTexts {
+  return {
     heading: catalog.listHeading,
     openLabel: catalog.statusOpen,
     closedLabel: catalog.statusClosed,
@@ -90,6 +71,35 @@ export function EvaluationsListScreen({
     offeringMissingLabel: catalog.offeringMissingLabel,
     noMatches: filters.noMatches,
   };
+}
+
+/**
+ * "My evaluations" screen (design.md D1, D13, D14). Thin: it resolves the
+ * `evaluations` catalog for the route's locale — and the rating tier words the
+ * offering card already shows, from `landing` — and renders the client list
+ * inside the access gate. Every evaluation read runs on the client.
+ */
+export function EvaluationsListScreen({
+  locale,
+  searchParams,
+}: EvaluationsListScreenProps): ReactNode {
+  const catalog = getMessages("evaluations", locale);
+  const landing = getMessages("landing", locale);
+  const filters = getMessages("filters", locale);
+  const publicEvaluations = getMessages("public-evaluations", locale);
+  // The facet values and the applied list (add-evaluation-facets D4, D5, D9).
+  const values = parseEvaluationFilters(searchParams);
+  const applied = appliedEvaluationFilters(values, {
+    status: filters.status,
+    statusOpen: filters.statusOpen,
+    statusClosed: filters.statusClosed,
+    score: filters.score,
+    scoreRange: filters.scoreRange,
+    process: filters.process,
+    city: filters.city,
+  });
+
+  const texts = listTexts(catalog, landing, filters, publicEvaluations);
 
   return (
     <div className="flex-1">

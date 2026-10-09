@@ -1,11 +1,9 @@
 "use client";
 
-import { useRef, useState, type FormEvent, type ReactNode } from "react";
-import type { ProfileUpdatePayload, SessionUser } from "@/shared/api";
+import type { ReactNode } from "react";
+import type { SessionUser } from "@/shared/api";
 import { Button, Field, Input, FormStatus, StepUpNotice } from "@/shared/ui";
-import { useServerFieldErrors } from "@/shared/lib/hooks";
-import { isValidEmail } from "@/entities/contact";
-import { updateProfile } from "../api/account";
+import { useProfileForm } from "../model/use-profile-form";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -35,12 +33,6 @@ export type ProfileFormProps = {
   endProfileWrite?: () => void;
 };
 
-type ProfileValues = Required<ProfileUpdatePayload>;
-
-type Outcome = "success" | "error" | "stepUp" | null;
-
-const PROFILE_FIELDS: (keyof ProfileValues)[] = ["name", "surname", "email"];
-
 /**
  * The Edit profile section's content (specs "Profile settings" and "Writes
  * and the step-up"; design.md D2, D6, D9 and D10): the form for name,
@@ -60,52 +52,8 @@ export function ProfileForm({
   requestProfileWrite,
   endProfileWrite,
 }: ProfileFormProps): ReactNode {
-  const formRef = useRef<HTMLFormElement>(null);
-  const [values, setValues] = useState<ProfileValues>({
-    name: user.name ?? "",
-    surname: user.surname ?? "",
-    email: user.email ?? "",
-  });
-  const [emailError, setEmailError] = useState<string | undefined>();
-  const [pending, setPending] = useState(false);
-  const [outcome, setOutcome] = useState<Outcome>(null);
-  const server = useServerFieldErrors(PROFILE_FIELDS);
-
-  function update(field: keyof ProfileValues, value: string): void {
-    setValues((current) => ({ ...current, [field]: value }));
-    server.clear(field);
-  }
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
-    event.preventDefault();
-    if (pending) return;
-    server.reset();
-    // An empty email is not a format failure: it is sent like any emptied
-    // field (design.md D2).
-    if (values.email !== "" && !isValidEmail(values.email)) {
-      setEmailError(texts.emailFormatError);
-      const control = formRef.current?.elements.namedItem("email");
-      if (control instanceof HTMLElement) control.focus();
-      return;
-    }
-    setEmailError(undefined);
-
-    setPending(true);
-    setOutcome(null);
-    const result = await updateProfile(String(user.ulid), values);
-    setPending(false);
-    if (result.ok) {
-      endProfileWrite?.();
-      setOutcome("success");
-      void refreshProfile();
-      return;
-    }
-    if (result.kind === "validation") {
-      setOutcome(server.show(result.errors) ? "error" : null);
-      return;
-    }
-    setOutcome(result.kind === "forbidden" ? "stepUp" : "error");
-  }
+  const { formRef, values, emailError, serverErrors, pending, outcome, update, handleSubmit } =
+    useProfileForm({ user, texts, refreshProfile, endProfileWrite });
 
   return (
     <form
@@ -115,7 +63,7 @@ export function ProfileForm({
       onSubmit={handleSubmit}
       className="flex flex-col gap-6"
     >
-      <Field label={texts.nameLabel} error={server.errors.name}>
+      <Field label={texts.nameLabel} error={serverErrors.name}>
         <Input
           name="name"
           type="text"
@@ -124,7 +72,7 @@ export function ProfileForm({
           onChange={(event) => update("name", event.target.value)}
         />
       </Field>
-      <Field label={texts.surnameLabel} error={server.errors.surname}>
+      <Field label={texts.surnameLabel} error={serverErrors.surname}>
         <Input
           name="surname"
           type="text"
@@ -133,7 +81,7 @@ export function ProfileForm({
           onChange={(event) => update("surname", event.target.value)}
         />
       </Field>
-      <Field label={texts.emailLabel} error={emailError ?? server.errors.email}>
+      <Field label={texts.emailLabel} error={emailError ?? serverErrors.email}>
         <Input
           name="email"
           type="email"

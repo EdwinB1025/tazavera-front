@@ -692,3 +692,25 @@ On every list whose facets live in the sidebar (the offerings list, the coffee s
 #### Scenario: Title shown once in the sidebar
 - **WHEN** a visitor opens the facets in the sidebar
 - **THEN** "Filters" shows only as the sub-section's toggle, the panel shows no heading of its own, and the search region is still named "Filters"
+
+### Requirement: Facet comboboxes loaded on first opening
+On a list whose facets live in the sidebar sub-section ("Sidebar facets sub-section"), the client code of the facet comboboxes, and of the libraries only they use (the command-menu library and the popover behind it), SHALL load the first time the sub-section opens on that route, by its toggle or by the toolbar's "Filters" trigger, and not with the route. While that first load is pending, the place of each combobox in the panel SHALL show the loading status (feedback "Request status messages") with the text "Loading…" (es "Cargando…", ca "Carregant…"), and every other facet SHALL be shown in its place. Once loaded, the facets, their order and their behaviour SHALL be those of the list's facet requirements, on every viewport.
+
+#### Scenario: First opening while the comboboxes load
+- **WHEN** a visitor opens the facets sub-section of the offerings list for the first time and the combobox code has not finished loading
+- **THEN** the combobox code starts loading only at that opening, and the places of Coffee, Producer and Roastery each show the loading status "Loading…" while the other facets are shown
+
+#### Scenario: Facets after loading
+- **WHEN** the combobox code has loaded after the first opening
+- **THEN** the loading statuses are gone and the Coffee, Producer and Roastery comboboxes are shown in their places of the facet order
+
+### Requirement: Facet units kept within the size limits
+The combobox, the score range facet, the evaluation facet panel, the offering facet panel and the parsing of the evaluation filters SHALL each be built from components and functions of at most 80 lines and a cyclomatic complexity of at most 15, in files of at most 300 lines, and SHALL render the same structure, class names, texts and accessible names, load the combobox code at the same moment, and write the same query keys for the same input, as the other requirements of this capability state. This requirement adds no behaviour.
+
+#### Scenario: Lint reports no size warning for the facet units
+- **WHEN** `npm run lint` runs
+- **THEN** it reports no `max-lines-per-function`, `complexity` or `max-lines` warning for the combobox, the score range facet, the evaluation or offering facet panel, the evaluation filter parsing, or the units they use
+
+#### Scenario: A facet commits as before
+- **WHEN** a visitor chooses a combobox option, commits a score range, or picks a radio option in the evaluation or offering facet panel
+- **THEN** the URL receives the same query keys and values, and the panel renders the same facets in the same order with the same names, as before

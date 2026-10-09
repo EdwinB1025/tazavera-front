@@ -29,11 +29,6 @@ const VALUES: LocationFormValues = {
   social: "",
 };
 
-function postedBody(): Record<string, unknown> {
-  const [, init] = request.mock.calls.at(-1) as [string, RequestInit];
-  return JSON.parse(init.body as string);
-}
-
 beforeEach(() => {
   request.mockReset();
   geocodeAddress.mockReset();

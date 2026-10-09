@@ -59,6 +59,26 @@ const FOOTER_COUNTS_CLASSES = ["flex", "flex-wrap", "gap-4"].join(" ");
 // from `md` (unify-action-button-widths D3).
 const FOOTER_LINKS_CLASSES = ["max-md:w-full", "md:ml-auto"].join(" ");
 
+/** The card's origin line, captions and counts. */
+function cardLines(offering: OfferingSummary, texts: OfferingCardTexts) {
+  const coffee = offering.coffeeInventory?.coffee;
+  const origin = [
+    coffee?.country,
+    coffee?.region,
+    coffee?.process,
+    coffee?.variety,
+  ]
+    .filter((part): part is string => part != null)
+    .join(ORIGIN_SEPARATOR);
+  const coffeeshopCaption =
+    `${texts.coffeeshopCaption} ${offering.location?.name ?? ""}`.trim();
+  const roasterCaption =
+    `${texts.roasterCaption} ${offering.coffeeInventory?.roastery?.name ?? ""}`.trim();
+  const evaluations = `${texts.evaluationsLabel} ${offering.evaluationCount ?? 0}`;
+  const defective = `${texts.defectiveLabel} ${offering.defectiveEvaluationCount ?? 0}`;
+  return { origin, coffeeshopCaption, roasterCaption, evaluations, defective };
+}
+
 /**
  * One offering filled into the shared card (design.md D4's field mapping and
  * D8; the landing spec "Offering card content" and "Taxonomy badge trees on
@@ -84,22 +104,10 @@ export function OfferingCard({
     "rating-commercial": texts.ratingCommercialLabel,
   };
   const coffee = offering.coffeeInventory?.coffee;
-  const origin = [
-    coffee?.country,
-    coffee?.region,
-    coffee?.process,
-    coffee?.variety,
-  ]
-    .filter((part): part is string => part != null)
-    .join(ORIGIN_SEPARATOR);
   const isVerified = offering.verificationStatus === "verified";
   const statusLabel = isVerified ? texts.verifiedLabel : texts.provisionalLabel;
-  const coffeeshopCaption =
-    `${texts.coffeeshopCaption} ${offering.location?.name ?? ""}`.trim();
-  const roasterCaption =
-    `${texts.roasterCaption} ${offering.coffeeInventory?.roastery?.name ?? ""}`.trim();
-  const evaluations = `${texts.evaluationsLabel} ${offering.evaluationCount ?? 0}`;
-  const defective = `${texts.defectiveLabel} ${offering.defectiveEvaluationCount ?? 0}`;
+  const { origin, coffeeshopCaption, roasterCaption, evaluations, defective } =
+    cardLines(offering, texts);
 
   return (
     <Card layout="stacked">

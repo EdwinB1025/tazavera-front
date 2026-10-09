@@ -119,6 +119,93 @@ function EvaluationNotFound({ back, texts }: { back: ReactNode; texts: Evaluatio
   );
 }
 
+/** The failed-read state: the back link, then the error with Retry. */
+function EvaluationLoadError({ back, texts }: { back: ReactNode; texts: EvaluationViewTexts }): ReactNode {
+  return (
+    <>
+      <PageSection surface="page" containerClassName={HEADER_CONTAINER_CLASSES}>
+        {back}
+      </PageSection>
+      <PageSection surface="section">
+        <div className={STATE_CLASSES}>
+          <p className="type-body">{texts.errorMessage}</p>
+          <RetryButton label={texts.retryLabel} />
+        </div>
+      </PageSection>
+    </>
+  );
+}
+
+/** The header block's heading, captions and close date line. */
+function headerLines(
+  locale: string,
+  evaluation: EvaluationItem,
+  offering: ViewData["offering"],
+  texts: EvaluationViewTexts,
+) {
+  const heading =
+    offering === undefined
+      ? texts.offeringMissingLabel
+      : offering === null
+        ? texts.offeringUnavailableLabel
+        : offering.coffeeInventory?.coffee?.name;
+  const metaLine = evaluation.closedAt
+    ? `${texts.closedOnLabel} ${formatDate(evaluation.closedAt, locale)}`
+    : null;
+  const coffeeshopCaption = `${texts.coffeeshopCaption} ${offering?.location?.name ?? ""}`.trim();
+  const roasterCaption =
+    `${texts.roasterCaption} ${offering?.coffeeInventory?.roastery?.name ?? ""}`.trim();
+  return { heading, metaLine, coffeeshopCaption, roasterCaption };
+}
+
+/** Section 1 of a closed evaluation: the back link and the header block. */
+function EvaluationHeader({
+  locale,
+  back,
+  evaluation,
+  offering,
+  texts,
+}: {
+  locale: string;
+  back: ReactNode;
+  evaluation: EvaluationItem;
+  offering: ViewData["offering"];
+  texts: EvaluationViewTexts;
+}): ReactNode {
+  const { heading, metaLine, coffeeshopCaption, roasterCaption } = headerLines(
+    locale,
+    evaluation,
+    offering,
+    texts,
+  );
+
+  return (
+    <PageSection surface="page" containerClassName={HEADER_CONTAINER_CLASSES}>
+      {back}
+      <div className={HEADER_BLOCK_CLASSES}>
+        <p className="type-eyebrow-strong">{texts.eyebrow}</p>
+        <h1 className="type-heading">{heading}</h1>
+        {offering ? (
+          <>
+            <p className="type-label">{coffeeshopCaption}</p>
+            <p className="type-label">{roasterCaption}</p>
+          </>
+        ) : null}
+        {metaLine ? <p className="type-meta">{metaLine}</p> : null}
+        {offering ? (
+          <RouteButton
+            href={`/${locale}/offerings/${evaluation.offeringId ?? ""}`}
+            variant="action-3"
+            size="sm"
+          >
+            {texts.viewOfferingLabel}
+          </RouteButton>
+        ) : null}
+      </div>
+    </PageSection>
+  );
+}
+
 /**
  * The read-only evaluation view as a thin async Server Component (design.md
  * D1, D4; spec "Read-only evaluation view"): the evaluation read, then its
@@ -136,61 +223,18 @@ export async function EvaluationSheetView({
 }: EvaluationSheetViewProps): Promise<ReactNode> {
   const data = await load(ulid);
   if (data === "not-found") return <EvaluationNotFound back={bottomBack} texts={texts} />;
-  if (data === null) {
-    return (
-      <>
-        <PageSection surface="page" containerClassName={HEADER_CONTAINER_CLASSES}>
-          {back}
-        </PageSection>
-        <PageSection surface="section">
-          <div className={STATE_CLASSES}>
-            <p className="type-body">{texts.errorMessage}</p>
-            <RetryButton label={texts.retryLabel} />
-          </div>
-        </PageSection>
-      </>
-    );
-  }
+  if (data === null) return <EvaluationLoadError back={back} texts={texts} />;
   const { evaluation, offering, taxonomies } = data;
-
-  const heading =
-    offering === undefined
-      ? texts.offeringMissingLabel
-      : offering === null
-        ? texts.offeringUnavailableLabel
-        : offering.coffeeInventory?.coffee?.name;
-  const metaLine = evaluation.closedAt
-    ? `${texts.closedOnLabel} ${formatDate(evaluation.closedAt, locale)}`
-    : null;
-  const coffeeshopCaption = `${texts.coffeeshopCaption} ${offering?.location?.name ?? ""}`.trim();
-  const roasterCaption =
-    `${texts.roasterCaption} ${offering?.coffeeInventory?.roastery?.name ?? ""}`.trim();
 
   return (
     <>
-      <PageSection surface="page" containerClassName={HEADER_CONTAINER_CLASSES}>
-        {back}
-        <div className={HEADER_BLOCK_CLASSES}>
-          <p className="type-eyebrow-strong">{texts.eyebrow}</p>
-          <h1 className="type-heading">{heading}</h1>
-          {offering ? (
-            <>
-              <p className="type-label">{coffeeshopCaption}</p>
-              <p className="type-label">{roasterCaption}</p>
-            </>
-          ) : null}
-          {metaLine ? <p className="type-meta">{metaLine}</p> : null}
-          {offering ? (
-            <RouteButton
-              href={`/${locale}/offerings/${evaluation.offeringId ?? ""}`}
-              variant="action-3"
-              size="sm"
-            >
-              {texts.viewOfferingLabel}
-            </RouteButton>
-          ) : null}
-        </div>
-      </PageSection>
+      <EvaluationHeader
+        locale={locale}
+        back={back}
+        evaluation={evaluation}
+        offering={offering}
+        texts={texts}
+      />
       <PageSection surface="section" containerClassName={SHEET_CONTAINER_CLASSES}>
         <EvaluationSheet
           evaluation={evaluation}

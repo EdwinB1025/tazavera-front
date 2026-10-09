@@ -1,7 +1,6 @@
 "use client";
 
-import { useRef, useState, type FormEvent, type ReactNode } from "react";
-import type { PasswordUpdatePayload } from "@/shared/api";
+import type { ReactNode } from "react";
 import {
   Button,
   Field,
@@ -9,8 +8,7 @@ import {
   FormStatus,
   StepUpNotice,
 } from "@/shared/ui";
-import { useServerFieldErrors } from "@/shared/lib/hooks";
-import { updatePassword } from "../api/account";
+import { usePasswordForm } from "../model/use-password-form";
 import { ExternalLink } from "./ExternalLink";
 import { NewPasswordFields } from "./NewPasswordFields";
 
@@ -46,41 +44,6 @@ export type PasswordFormProps = {
   endProfileWrite?: () => void;
 };
 
-type PasswordField = keyof PasswordUpdatePayload;
-
-/** The fields in form order: focus goes to the first failing one (design.md D9). */
-const FIELD_ORDER: PasswordField[] = [
-  "currentPassword",
-  "password",
-  "passwordConfirmation",
-];
-
-const EMPTY_VALUES: PasswordUpdatePayload = {
-  currentPassword: "",
-  password: "",
-  passwordConfirmation: "",
-};
-
-type Outcome = "success" | "error" | "stepUp" | null;
-
-/** The checks `updateUserPassword` documents (design.md D2). */
-function check(
-  values: PasswordUpdatePayload,
-  texts: PasswordFormTexts,
-): Partial<Record<PasswordField, string>> {
-  const errors: Partial<Record<PasswordField, string>> = {};
-  for (const field of FIELD_ORDER) {
-    if (values[field].trim() === "") errors[field] = texts.requiredError;
-  }
-  if (
-    !errors.passwordConfirmation &&
-    values.passwordConfirmation !== values.password
-  ) {
-    errors.passwordConfirmation = texts.passwordMismatchError;
-  }
-  return errors;
-}
-
 /**
  * The Password section's content (specs "Password change" and "Writes and
  * the step-up"; design.md D2, D6, D9 and D10): the current password with the
@@ -99,46 +62,8 @@ export function PasswordForm({
   requestProfileWrite,
   endProfileWrite,
 }: PasswordFormProps): ReactNode {
-  const formRef = useRef<HTMLFormElement>(null);
-  const [values, setValues] = useState<PasswordUpdatePayload>(EMPTY_VALUES);
-  const [errors, setErrors] = useState<Partial<Record<PasswordField, string>>>(
-    {},
-  );
-  const [pending, setPending] = useState(false);
-  const [outcome, setOutcome] = useState<Outcome>(null);
-  const server = useServerFieldErrors(FIELD_ORDER);
-
-  function update(field: PasswordField, value: string): void {
-    setValues((current) => ({ ...current, [field]: value }));
-    server.clear(field);
-  }
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
-    event.preventDefault();
-    if (pending) return;
-    server.reset();
-    const found = check(values, texts);
-    setErrors(found);
-    const firstInvalid = FIELD_ORDER.find((field) => found[field]);
-    if (firstInvalid) {
-      const control = formRef.current?.elements.namedItem(firstInvalid);
-      if (control instanceof HTMLElement) control.focus();
-      return;
-    }
-
-    setPending(true);
-    setOutcome(null);
-    const result = await updatePassword(ulid, values);
-    setPending(false);
-    if (result.ok) endProfileWrite?.();
-    if (!result.ok && result.kind === "validation") {
-      setOutcome(server.show(result.errors) ? "error" : null);
-    } else {
-      setOutcome(result.ok ? "success" : result.kind === "forbidden" ? "stepUp" : "error");
-    }
-    if (!result.ok && result.kind === "forbidden") return;
-    setValues(EMPTY_VALUES);
-  }
+  const { formRef, values, errors, serverErrors, pending, outcome, update, handleSubmit } =
+    usePasswordForm({ ulid, texts, endProfileWrite });
 
   return (
     <form
@@ -151,7 +76,7 @@ export function PasswordForm({
       <div className="flex flex-col gap-2">
         <Field
           label={texts.currentPasswordLabel}
-          error={errors.currentPassword ?? server.errors.currentPassword}
+          error={errors.currentPassword ?? serverErrors.currentPassword}
           required
         >
           <PasswordInput
@@ -173,9 +98,9 @@ export function PasswordForm({
         texts={{ ...texts, passwordLabel: texts.newPasswordLabel }}
         password={values.password}
         passwordConfirmation={values.passwordConfirmation}
-        passwordError={errors.password ?? server.errors.password}
+        passwordError={errors.password ?? serverErrors.password}
         passwordConfirmationError={
-          errors.passwordConfirmation ?? server.errors.passwordConfirmation
+          errors.passwordConfirmation ?? serverErrors.passwordConfirmation
         }
         onChange={update}
       />
