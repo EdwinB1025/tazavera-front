@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { splitFieldErrors, toFieldErrors } from "./validation";
+import { splitFieldErrors, toFieldErrors } from "./field-errors";
 
 describe("Server validation errors", () => {
   it("A 422 maps to its fields", () => {

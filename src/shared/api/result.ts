@@ -2,7 +2,7 @@
  * The one result shape of the request functions (unify-api-result-shape
  * design.md D1). Type-only: each `api` module keeps its own status checks.
  */
-import type { FieldErrors } from "./validation";
+import type { FieldErrors } from "@/shared/lib/field-errors";
 
 /** The failures a consumer tells apart besides the generic error. */
 export type ApiFailureKind = "not-found" | "forbidden" | "conflict" | "validation";

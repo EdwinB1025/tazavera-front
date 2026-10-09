@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useSyncExternalStore } from "react";
-import { splitFieldErrors, type FieldErrors } from "@/shared/api";
+import { splitFieldErrors, type FieldErrors } from "@/shared/lib/field-errors";
 
 /**
  * Hooks the pulled shadcn components need (design.md D6).

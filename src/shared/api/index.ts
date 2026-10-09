@@ -22,8 +22,6 @@ export {
 export { distinctCoffeeValues, fetchCoffees } from "./coffees";
 export type { CoffeeSummary } from "./coffees";
 export type { ApiResult } from "./result";
-export { readFieldErrors, splitFieldErrors } from "./validation";
-export type { FieldErrors } from "./validation";
 
 type UserResponse =
   operations["getTheAuthenticatedUser"]["responses"][200]["content"]["application/json"];
