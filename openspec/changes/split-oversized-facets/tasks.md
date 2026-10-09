@@ -20,7 +20,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 5. Offering facets
 
-- [ ] 5.1 Create `src/features/offering-facets/ui/OfferingFacetParts.tsx` and split `OfferingFacets` as design.md D6. Commit `refactor(filtering): split the offering facet panel`.
+- [x] 5.1 Create `src/features/offering-facets/ui/OfferingFacetParts.tsx` and split `OfferingFacets` as design.md D6. Commit `refactor(filtering): split the offering facet panel`.
 
 ## 6. Full checks
 
