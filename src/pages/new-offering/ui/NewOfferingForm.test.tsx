@@ -82,8 +82,6 @@ const TEXTS = {
   createError: "The offerings could not be created. Check the data and try again.",
   createdStatus: "Offerings created:",
   viewMyOfferings: "View my offerings",
-  stepUpMessage: "To continue, confirm your identity.",
-  stepUpLabel: "Confirm your identity",
 };
 
 const ROUTE = "/en/manage/offerings/new";
@@ -249,23 +247,18 @@ describe("NewOfferingForm — create (design.md D5, D10)", () => {
     expect(screen.queryByText("Rejected")).toBeNull();
   });
 
-  it("on 403 the single alert region holds the step-up text and action, values kept", async () => {
+  it("on a 403 the form error shows and the chosen values are kept, with no step-up", async () => {
     createAnswer = async () => jsonResponse(403, { message: "Forbidden" });
     renderForm();
     await chooseMirador();
     await submit();
     const alerts = screen.getAllByRole("alert");
     expect(alerts).toHaveLength(1);
-    const region = alerts[0]!;
-    expect(region.textContent).toContain(TEXTS.stepUpMessage);
-    const action = within(region).getByRole("button", { name: TEXTS.stepUpLabel });
-    // Neither the text nor the action carries a role of its own.
-    expect(region.querySelectorAll("[role]")).toHaveLength(0);
+    expect(createCalls()).toHaveLength(1);
+    expect(alerts[0]!.textContent).toBe(TEXTS.createError);
     expect(input().value).toBe("Huila El Mirador");
-    fireEvent.click(action);
-    expect(mocks.requestProfileWrite).toHaveBeenCalledTimes(1);
-    expect(mocks.requestProfileWrite).toHaveBeenCalledWith(ROUTE);
-    expect(input().value).toBe("Huila El Mirador");
+    expect(screen.queryByRole("button", { name: "Confirm your identity" })).toBeNull();
+    expect(mocks.requestProfileWrite).not.toHaveBeenCalled();
   });
 });
 
