@@ -46,7 +46,7 @@ The route `/{locale}/manage/evaluations` SHALL show the evaluations of the signe
 
 ### Requirement: Row actions
 
-Each row SHALL offer Edit for an open evaluation, View for a closed one or for any evaluation whose `offeringId` is `null`, and Delete with an explicit confirmation for all of them.
+Each row SHALL offer Edit for an open evaluation, View for a closed one or for any evaluation whose `offeringId` is `null`, and Delete with an explicit confirmation for all of them. An open row whose `offeringId` is not `null` SHALL also offer Close evaluation between Edit and Delete, which calls `closeAnEvaluation` and reports its outcome in the row with the form's messages; on success the row SHALL show the closed state without a full page reload.
 
 #### Scenario: Editing an open evaluation
 
@@ -61,7 +61,27 @@ Each row SHALL offer Edit for an open evaluation, View for a closed one or for a
 #### Scenario: A row whose offering was deleted
 
 - **WHEN** a row's evaluation has `offeringId` `null`, open or closed
-- **THEN** the row offers View, which opens the form route read-only, and Delete
+- **THEN** the row offers View, which opens the form route read-only, and Delete, and no Close evaluation
+
+#### Scenario: Closing an open evaluation from its row
+
+- **WHEN** the specialist activates Close evaluation on an open row
+- **THEN** `closeAnEvaluation` is sent for the row's evaluation
+
+#### Scenario: The row's close succeeds
+
+- **WHEN** the close sent from a row succeeds
+- **THEN** the row shows the closed confirmation, offers View instead of Edit and no longer offers Close evaluation
+
+#### Scenario: The row's close finds the evaluation incomplete
+
+- **WHEN** the close sent from a row answers `409`
+- **THEN** the row shows the form's incomplete message and stays open
+
+#### Scenario: No close on a closed row
+
+- **WHEN** a closed row renders
+- **THEN** it offers no Close evaluation
 
 #### Scenario: Deleting after confirmation
 
@@ -244,7 +264,17 @@ Save draft SHALL create the evaluation with `createAnEvaluation` the first time 
 
 ### Requirement: Closing an evaluation
 
-Close evaluation SHALL save the form and then call `closeAnEvaluation`. On success the form SHALL become the read-only view and a closed confirmation SHALL appear.
+Close evaluation SHALL appear in the form only when the evaluation exists: a form that edits a saved evaluation, including a new form once its first save created it. A new form with nothing saved SHALL NOT offer it. Close evaluation SHALL save the form and then call `closeAnEvaluation`. On success the form SHALL become the read-only view and a closed confirmation SHALL appear.
+
+#### Scenario: No close on a new evaluation
+
+- **WHEN** the form renders for a new evaluation with nothing saved
+- **THEN** no Close evaluation action renders
+
+#### Scenario: Close on a saved open evaluation
+
+- **WHEN** the form renders a saved open evaluation
+- **THEN** the Close evaluation action renders
 
 #### Scenario: Closing a complete evaluation
 

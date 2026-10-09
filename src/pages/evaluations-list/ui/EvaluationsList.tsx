@@ -126,21 +126,27 @@ export function EvaluationsList({
 
   const retry = useCallback(() => setAttempt((count) => count + 1), []);
 
-  const removeRow = (ulid: string) => {
+  // A deleted row leaves and a closed row shows its closed state in place
+  // while the page reloads behind them (close-evaluation-only-when-saved).
+  const updateRows = (change: (rows: ListRow[]) => ListRow[]) => {
     setLoaded((current) =>
       current && current.list.state === "success"
-        ? {
-            ...current,
-            list: {
-              ...current.list,
-              rows: current.list.rows.filter((row) => row.evaluation.ulid !== ulid),
-            },
-          }
+        ? { ...current, list: { ...current.list, rows: change(current.list.rows) } }
         : current,
     );
     setQuietKey(`${requestQuery}:${attempt + 1}`);
     setAttempt(attempt + 1);
   };
+  const removeRow = (ulid: string) =>
+    updateRows((rows) => rows.filter((row) => row.evaluation.ulid !== ulid));
+  const markClosed = (ulid: string) =>
+    updateRows((rows) =>
+      rows.map((row) =>
+        row.evaluation.ulid === ulid
+          ? { ...row, evaluation: { ...row.evaluation, status: "closed" } }
+          : row,
+      ),
+    );
 
   return (
     <div ref={blockRef} className={BLOCK_CLASSES}>
@@ -195,6 +201,7 @@ export function EvaluationsList({
                   locale={locale}
                   texts={texts}
                   onDeleted={removeRow}
+                  onClosed={markClosed}
                 />
               </li>
             ))}

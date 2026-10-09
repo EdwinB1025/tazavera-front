@@ -393,6 +393,18 @@ describe("EvaluationForm: closing (design.md D4, D10; tasks 7.1)", () => {
   });
 });
 
+describe("EvaluationForm: Close only for a saved evaluation (close-evaluation-only-when-saved)", () => {
+  it("No close on a new evaluation", () => {
+    renderForm();
+    expect(screen.queryByRole("button", { name: "Close evaluation" })).toBeNull();
+  });
+
+  it("Close on a saved open evaluation", () => {
+    renderForm({ evaluation: OPEN_EVALUATION });
+    expect(screen.getByRole("button", { name: "Close evaluation" })).toBeDefined();
+  });
+});
+
 describe("EvaluationForm: Cancel (add-form-cancel-actions design.md D1, D2)", () => {
   it("Cancel leaves for My evaluations without saving", () => {
     renderForm();

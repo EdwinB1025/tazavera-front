@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { EvaluationItem, OfferingDetail } from "@/shared/api";
 
 /**
@@ -10,6 +10,12 @@ import type { EvaluationItem, OfferingDetail } from "@/shared/api";
 const push = vi.fn();
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push, refresh: vi.fn(), replace: vi.fn() }),
+}));
+
+const closeAnEvaluation = vi.fn();
+vi.mock("@/entities/evaluation", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/entities/evaluation")>()),
+  closeAnEvaluation: (...args: unknown[]) => closeAnEvaluation(...args),
 }));
 
 import { SpecialistEvaluationRow as EvaluationRowCard } from "./SpecialistEvaluationRow";
@@ -24,6 +30,9 @@ const TEXTS: EvaluationRowTexts = {
   roasterCaption: "Roaster:",
   editLabel: "Edit",
   viewLabel: "View",
+  closeLabel: "Close evaluation",
+  closedMessage: "Evaluation closed.",
+  incompleteMessage: "Complete every group before closing.",
   ratingExceptionalLabel: "Exceptional",
   ratingExcellentLabel: "Excellent",
   ratingGoodLabel: "Good",
@@ -73,6 +82,7 @@ function renderRow(evaluation: EvaluationItem) {
       locale="en"
       texts={TEXTS}
       onDeleted={vi.fn()}
+      onClosed={vi.fn()}
     />,
   );
 }
@@ -80,6 +90,7 @@ function renderRow(evaluation: EvaluationItem) {
 afterEach(() => {
   cleanup();
   push.mockReset();
+  closeAnEvaluation.mockReset();
 });
 
 describe("EvaluationRowCard (design.md card field mapping)", () => {
@@ -131,6 +142,34 @@ describe("EvaluationRowCard (design.md card field mapping)", () => {
   });
 });
 
+describe("EvaluationRowCard: Close on open rows (close-evaluation-only-when-saved)", () => {
+  it("Closing an open evaluation from its row", () => {
+    closeAnEvaluation.mockReturnValue(new Promise(() => {}));
+    renderRow(OPEN);
+    const names = screen.getAllByRole("button").map((button) => button.textContent);
+    expect(names).toEqual(["Edit", "Close evaluation", "Delete"]);
+    const close = screen.getByRole("button", { name: "Close evaluation" });
+    expect(close.className).toContain("bg-action-3-bg");
+    fireEvent.click(close);
+    expect(closeAnEvaluation).toHaveBeenCalledWith(OPEN.ulid);
+  });
+
+  it("The row's close finds the evaluation incomplete", async () => {
+    closeAnEvaluation.mockResolvedValue({ ok: false, kind: "conflict" });
+    renderRow(OPEN);
+    fireEvent.click(screen.getByRole("button", { name: "Close evaluation" }));
+    await waitFor(() =>
+      expect(screen.getByRole("status").textContent).toBe("Complete every group before closing."),
+    );
+    expect(screen.getByRole("button", { name: "Edit" })).toBeDefined();
+  });
+
+  it("No close on a closed row", () => {
+    renderRow(CLOSED);
+    expect(screen.queryByRole("button", { name: "Close evaluation" })).toBeNull();
+  });
+});
+
 describe("EvaluationRowCard: an evaluation of a deleted offering (design.md D17; tasks 12.4)", () => {
   function renderOrphan(evaluation: EvaluationItem) {
     return render(
@@ -140,6 +179,7 @@ describe("EvaluationRowCard: an evaluation of a deleted offering (design.md D17;
         locale="en"
         texts={TEXTS}
         onDeleted={vi.fn()}
+        onClosed={vi.fn()}
       />,
     );
   }
@@ -158,6 +198,7 @@ describe("EvaluationRowCard: an evaluation of a deleted offering (design.md D17;
   it("offers View and Delete and no Edit on an open row, View opening the form route", () => {
     renderOrphan(OPEN);
     expect(screen.queryByRole("button", { name: "Edit" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Close evaluation" })).toBeNull();
     expect(screen.getByRole("button", { name: "Delete" })).toBeDefined();
     fireEvent.click(screen.getByRole("button", { name: "View" }));
     expect(push).toHaveBeenCalledWith(`/en/manage/evaluations/${OPEN.ulid}`);
