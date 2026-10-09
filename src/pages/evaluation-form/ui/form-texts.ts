@@ -1,5 +1,6 @@
 import type { MessageCatalog } from "@/shared/lib/i18n";
 import type { EvaluationFormTexts } from "./EvaluationForm";
+import type { EvaluationGroupTexts } from "./group-texts";
 
 /**
  * The form texts from the `evaluations` catalog (design.md D14), shared by the
@@ -59,45 +60,50 @@ export function formTextsFrom(catalog: MessageCatalog): EvaluationFormTexts {
       mouthfeel: catalog.blockMouthfeel,
       defects: catalog.blockDefects,
     },
-    group: {
-      groupNames: {
-        fragranceAroma: catalog.groupFragranceAroma,
-        flavorAftertaste: catalog.groupFlavorAftertaste,
-        acidity: catalog.groupAcidity,
-        sweetness: catalog.groupSweetness,
-        mouthfeel: catalog.groupMouthfeel,
-        overall: catalog.groupOverall,
-        defects: catalog.groupDefects,
-        extrinsic: catalog.groupExtrinsic,
-      },
-      descriptiveHeading: catalog.descriptiveHeading,
-      affectiveHeading: catalog.affectiveHeading,
-      axisLabels: {
-        fragrance: catalog.axisFragrance,
-        aroma: catalog.axisAroma,
-        flavor: catalog.axisFlavor,
-        aftertaste: catalog.axisAftertaste,
-        acidity: catalog.axisAcidity,
-        sweetness: catalog.axisSweetness,
-        mouthfeel: catalog.axisMouthfeel,
-        overall: catalog.axisOverall,
-      },
-      scaleLabels: [catalog.scaleLow, catalog.scaleMedium, catalog.scaleHigh],
-      intensityScale: catalog.intensityScale,
-      preferenceScale: catalog.preferenceScale,
-      unsetScore: catalog.unsetScore,
-      completeLabel: catalog.completeLabel,
-      incompleteLabel: catalog.incompleteLabel,
-      addNoteLabel: catalog.addNoteLabel,
-      removeNoteLabel: catalog.removeNoteLabel,
-      noteLabel: catalog.noteLabel,
-      extrinsicNoteLabel: catalog.extrinsicNoteLabel,
-      extrinsicLabels: {
-        farming: catalog.extrinsicFarming,
-        processing: catalog.extrinsicProcessing,
-        trading: catalog.extrinsicTrading,
-        certifications: catalog.extrinsicCertifications,
-      },
+    group: groupTextsFrom(catalog),
+  };
+}
+
+/** The group card's texts from the `evaluations` catalog (design.md D14). */
+function groupTextsFrom(catalog: MessageCatalog): EvaluationGroupTexts {
+  return {
+    groupNames: {
+      fragranceAroma: catalog.groupFragranceAroma,
+      flavorAftertaste: catalog.groupFlavorAftertaste,
+      acidity: catalog.groupAcidity,
+      sweetness: catalog.groupSweetness,
+      mouthfeel: catalog.groupMouthfeel,
+      overall: catalog.groupOverall,
+      defects: catalog.groupDefects,
+      extrinsic: catalog.groupExtrinsic,
+    },
+    descriptiveHeading: catalog.descriptiveHeading,
+    affectiveHeading: catalog.affectiveHeading,
+    axisLabels: {
+      fragrance: catalog.axisFragrance,
+      aroma: catalog.axisAroma,
+      flavor: catalog.axisFlavor,
+      aftertaste: catalog.axisAftertaste,
+      acidity: catalog.axisAcidity,
+      sweetness: catalog.axisSweetness,
+      mouthfeel: catalog.axisMouthfeel,
+      overall: catalog.axisOverall,
+    },
+    scaleLabels: [catalog.scaleLow, catalog.scaleMedium, catalog.scaleHigh],
+    intensityScale: catalog.intensityScale,
+    preferenceScale: catalog.preferenceScale,
+    unsetScore: catalog.unsetScore,
+    completeLabel: catalog.completeLabel,
+    incompleteLabel: catalog.incompleteLabel,
+    addNoteLabel: catalog.addNoteLabel,
+    removeNoteLabel: catalog.removeNoteLabel,
+    noteLabel: catalog.noteLabel,
+    extrinsicNoteLabel: catalog.extrinsicNoteLabel,
+    extrinsicLabels: {
+      farming: catalog.extrinsicFarming,
+      processing: catalog.extrinsicProcessing,
+      trading: catalog.extrinsicTrading,
+      certifications: catalog.extrinsicCertifications,
     },
   };
 }
