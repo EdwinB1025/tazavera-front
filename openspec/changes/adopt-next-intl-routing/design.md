@@ -2,7 +2,7 @@
 
 ## Context
 
-Backlog R43. Sources, all settled: `docs/design/adopt-next-intl-routing/design-summary.md` (the design lead's summary: §0 settled inputs, §1–§11) and the decisions log entry "2026-10-09 — R43 `adopt-next-intl-routing`: respuestas a los Open" in `docs/general-context.md`, which accepts every recommendation: Open 1 A, Open 2 A, Open 3 B, Open 4 A, Open 5 C, Open 6 B with a budget of +3 KB gz per locale route, Open 7 B. Installed versions: `next` 16.4.0, `next-intl` 4.14.9, `react` 19.2.8; nothing is added, removed or upgraded.
+Backlog R43. Sources, all settled: `docs/design/adopt-next-intl-routing/design-summary.md` (the design lead's summary: §0 settled inputs, §1–§11) and the decisions log entry "2026-10-09 — R43 `adopt-next-intl-routing`: respuestas a los Open" in `docs/general-context.md`, which accepts every recommendation: Open 1 A, Open 2 A, Open 3 B, Open 4 A, Open 5 C, Open 6 B with a budget of +3 KB gz per locale route, raised by Product owner to +14 KB gz (decisions log "2026-10-09 — R43: margen de JS por ruta a +14 KB gz", option A), Open 7 B. Installed versions: `next` 16.4.0, `next-intl` 4.14.9, `react` 19.2.8; nothing is added, removed or upgraded.
 
 Capabilities: `app-shell` (routing, proxy, CSP and headers, layouts, shell, selector) and `auth` (how the sign-in flow receives the locale). One commit per capability.
 
@@ -60,7 +60,7 @@ Screens keep reading `getMessages(area, locale)` on the server and passing texts
 
 Method of R28 (`reduce-shared-client-bundle` design.md "Measurement"): after `npm run build`, for each route the union of `.next/build-manifest.json` `rootMainFiles` and the `entryJSFiles` of its page's client reference manifest, plus those of its `@sidebar` slot page (the `[...rest]` slot when the route has none of its own), each file gzipped with Node `zlib.gzipSync` (default level); cmdk is detected by its `cmdk-` attribute strings. Both builds run with the same environment (`NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_APP_URL`).
 
-Pass criterion (Open 6 B, Product owner 2026-10-09): every locale route (`/[locale]…`) grows by at most +3.0 KB gz against "Before"; routes that load no cmdk before load none after (spec "Route without a combobox"). If any route exceeds the budget, the build stops and reports the table; no task works around it.
+Pass criterion (Open 6 B, Product owner 2026-10-09; budget raised to +14 KB gz, option A, after task 7.1 measured +13.4/+13.5 KB gz from use-intl's core): every locale route (`/[locale]…`) grows by at most +14.0 KB gz against "Before"; routes that load no cmdk before load none after (spec "Route without a combobox"). If any route exceeds the budget, the build stops and reports the table; no task works around it.
 
 Before, measured by the architect at propose on `origin/develop` `6fbe210`:
 
@@ -124,7 +124,7 @@ The "After" column is measured by the build after the last code task (task 7.1) 
 - **R31 headers.** The middleware's response replaces the hand-built one; a header forgotten on one branch is a regression. `localeCookie: false` and `alternateLinks: false` keep `Set-Cookie` and the alternates `Link` out. Covered by `proxy.test.ts` and the header comparison.
 - **CSP nonce.** If the forwarded request lacks `x-nonce` or the CSP request header, Next.js stamps no nonce and `'strict-dynamic'` blocks every framework script. Covered by the nonce test of `proxy.test.ts` and the browser check.
 - **Malformed paths.** On a path `decodeURI` rejects, the middleware returns a bare `NextResponse.next()` without the forwarded headers; Next.js answers 400 with the proxy's response headers and renders no page. Noted, no action (summary §11).
-- **JS per route.** The provider, `use-intl/react` and `createNavigation` enter every locale route; budget +3 KB gz (Open 6 B).
+- **JS per route.** The provider, `use-intl/react` and `createNavigation` enter every locale route; budget +14 KB gz (Open 6 B, raised by Product owner 2026-10-09, option A).
 - **Redirect differences.** next-intl normalizes trailing slashes, decodes the pathname and matches the prefix case-insensitively before redirecting; today's proxy does none of that (for example `/ES/x` went to `/es/ES/x` and now goes to `/es/x`). No spec scenario changes; the header comparison checks the §8 paths.
 - **Render-time recording.** `useSession()` writes the recorded locale during render; the value is the same for every consumer of a page and is idempotent, so concurrent renders cannot disagree.
 
