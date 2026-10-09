@@ -1,5 +1,5 @@
 // src/shared/config/locale-names.ts
-import type { Locale } from "./locales";
+import type { Locale } from "next-intl";
 
 export type LocaleName = { name: string; lang: string };
 

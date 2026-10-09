@@ -13,11 +13,8 @@
  * forwards the result at `/callback` (design.md D4) through `@/shared/api`.
  */
 import * as oauth from "oauth4webapi";
-import {
-  DEFAULT_LOCALE,
-  localeFromPath,
-  type Locale,
-} from "@/shared/config/locales";
+import type { Locale } from "next-intl";
+import { routing } from "@/shared/config/locales";
 import { readTheme } from "@/shared/lib/theme";
 import {
   clearFlow,
@@ -29,6 +26,7 @@ import {
   setMarker,
   type PendingFlow,
 } from "../model/flow";
+import { activeLocale } from "../model/active-locale";
 import { toAppRoute } from "../model/return-route";
 import { settleTokens } from "./identity";
 
@@ -129,7 +127,7 @@ export async function completeCallback(
   const pending = readFlow();
   // Only an application route opens; any other destination takes the root of
   // the default locale (fix-auth-return-query design.md D3).
-  const returnRoute = toAppRoute(pending?.returnRoute) ?? `/${DEFAULT_LOCALE}`;
+  const returnRoute = toAppRoute(pending?.returnRoute) ?? `/${routing.defaultLocale}`;
   // A failed exchange takes the error path (design.md D5), and so does a
   // step-up by another user: the previous tokens did not survive the full
   // page load (secure-step-up design.md D3).
@@ -329,9 +327,12 @@ function frontOpener(): Window | null {
   }
 }
 
-/** `lang` is the locale of the route that starts the flow (design.md D5). */
+/**
+ * `lang` is the locale of the route that starts the flow (design.md D5), as
+ * `useSession()` records it (adopt-next-intl-routing design.md D7).
+ */
 function activeLang(): Locale {
-  return localeFromPath(window.location.pathname) ?? DEFAULT_LOCALE;
+  return activeLocale();
 }
 
 /** The first value of a query parameter that may repeat. */
