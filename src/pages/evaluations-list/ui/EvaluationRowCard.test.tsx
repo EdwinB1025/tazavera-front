@@ -131,13 +131,15 @@ describe("EvaluationRowCard (design.md card field mapping)", () => {
     renderRow(OPEN);
     expect(screen.queryByRole("button", { name: "View" })).toBeNull();
     const edit = screen.getByRole("button", { name: "Edit" });
-    expect(edit.className).toContain("bg-action-3-bg");
+    expect(edit.className).toContain("bg-action-4-bg");
     fireEvent.click(edit);
     expect(push).toHaveBeenCalledWith(`/en/manage/evaluations/${OPEN.ulid}`);
     cleanup();
     renderRow(CLOSED);
     expect(screen.queryByRole("button", { name: "Edit" })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "View" }));
+    const view = screen.getByRole("button", { name: "View" });
+    expect(view.className).toContain("bg-action-3-bg");
+    fireEvent.click(view);
     expect(push).toHaveBeenLastCalledWith(`/en/manage/evaluations/${CLOSED.ulid}`);
   });
 });
@@ -149,7 +151,7 @@ describe("EvaluationRowCard: Close on open rows (close-evaluation-only-when-save
     const names = screen.getAllByRole("button").map((button) => button.textContent);
     expect(names).toEqual(["Edit", "Close evaluation", "Delete"]);
     const close = screen.getByRole("button", { name: "Close evaluation" });
-    expect(close.className).toContain("bg-action-3-bg");
+    expect(close.className).toContain("bg-action-2-bg");
     fireEvent.click(close);
     expect(closeAnEvaluation).toHaveBeenCalledWith(OPEN.ulid);
   });
