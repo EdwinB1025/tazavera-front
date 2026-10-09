@@ -47,7 +47,6 @@ The entries below follow this order. The order runs security first, then the sha
 | 24 | R8 | none yet | Change (behaviour) | M | R40; after R25 and R35 |
 | 25 | R1 | none (Playwright suite) | Change (tests) | — | the pre-deployment E2E suite |
 | 26 | R43 | `adopt-next-intl-routing` | Change | L | last priority (Product owner, 2026-10-08); after R28 and R31 |
-| 27 | R44 | none yet | Change (auth, API) | M | Product owner: API change on the web side and contract update |
 | 28 | R45 | none yet | Change (behaviour, API) | M | Product owner: API change and contract update; not to be designed yet |
 
 Every entry of the technical review (R20–R39) takes the fast lane by Product owner's decision of 2026-10-08, including R30, R31 and R32, which change a design decision, security headers and texts; R17 and R19 ride with R32 and R30. R3 (tests, rides with R31) and R4 (spec wording) are typed `Change`.
@@ -99,27 +98,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Type:** Change
 - **Status:** accepted (last priority, Product owner 2026-10-08)
 - **Affects:** R5 (its function is removed here), R28, R31 (both go first)
-
-## R44 — Automatic sign-in after registration
-
-- **Duplicated:** none. After a registration the user has to type the same credentials again to sign in.
-- **Where today:** `POST /register` (API group, stateless) returns 201 with the user only; the front shows the success panel, and "Sign in" starts the PKCE flow (`src/features/auth`). `/oauth/authorize` finds no API web session, so it asks for the credentials again. The first-party client already skips consent (`App\Models\Passport\Client::skipsAuthorization`)
-- **Why it pays off now:** it removes the second credential entry right after registering
-- **Owning capability:** auth, user-account
-- **Proposed change:** none yet
-- **Open decision (Augusto):** answered 2026-10-08: keep the current behaviour for now and register it. Options analysed (testing/deployment assistant, on Product owner's behalf):
-  - (A) the front calls `signIn()` after the 201: it still asks for the credentials, and the browser blocks the popup outside a click;
-  - (B) recommended: registration on the API's web side, which signs the user in with a web session and redirects to `/oauth/authorize`; the user ends up signed in through PKCE, tokens stay in memory and silent re-authentication (`prompt=none`) keeps working;
-  - (C) the register controller returns tokens (personal access token or an internal password grant): the user stays signed in only until the first reload, because tokens live in memory and silent re-authentication needs a web session that does not exist; it also needs a new token entry point in `src/shared/api/tokens.ts` (security).
-- **Decided 2026-10-08 (Product owner): option C with the password grant**, accepting that the session ends on the first reload. A personal access token was ruled out because it carries no refresh token.
-  - API: `UserController::store` issues the tokens with an internal `POST /oauth/token` (`grant_type=password`) through the front's existing public PKCE client (from `FrontClientSeeder`), with `password` added to that client's grant types. No new client, so the front's `refreshTokens()` keeps working (a refresh token is bound to its client). Rate limiting on `oauth/token`, since the public client now accepts the password grant. Scopes as a normal sign-in (no `profile:write`; step-up unchanged).
-  - Contract: the 201 of `POST /register` keeps the user and `message` and adds the token block in the RFC 6749 §5.1 shape (`access_token`, `token_type`, `expires_in`, `refresh_token`); Scribe `@responseFile` updated and regenerated. To settle in the API design: if the token call fails after the user is created, the 201 is returned without the block (no rollback) and the front falls back to today's success panel.
-  - Front (normal flow, design summary first): a new grant entry point in `tokens.ts` (memory only) and what the register screen shows when the block arrives (where it navigates; whether a confirmation text is shown). `/callback` is not involved (no code to exchange): one new `features/auth` function reuses the callback's post-exchange steps (`authorize.ts` `seam.authenticated()`, route change) with the new entry point instead of `exchangeCode`. Decided 2026-10-08 (Product owner): it does NOT set the "had a session" marker, because the silent sign-in on the next load would always fail (no API web session); after a reload the user simply appears signed out (no message), and the first normal sign-in sets the marker as today. While the page stays open, the refresh token keeps the session.
-- **Superseded 2026-10-08 (Product owner): no password grant on the public PKCE client** (security). A personal access token was also set aside (no refresh token). **Final decision: an internal grant.**
-- **API done 2026-10-08 (orchestrator, Product owner's request):** `tazavera-api` `feature/registration-grant` (`bd19c68` feature, `1c21e02` docs), replacing the first attempt `feature/sign-in-after-registration` (`283d7b9`, its password-grant seeder change reverted; it was never seeded). `RegistrationGrant` (`app/Passport`, built like Passport's `PersonalAccessGrant`) is enabled only on a private authorization server of `RegistrationTokenService` (contract + service bound in `AppServiceProvider`, as `EvaluationService`); `UserController::store` calls it after creating the user. It issues an access and a refresh token on the front client (found with the `Client::front()` model scope), whose grant types stay `authorization_code` + `refresh_token`; the front refreshes with its usual request. `POST /oauth/token` answers `unsupported_grant_type` to `grant_type=registration`. No deploy step. Tests: `user_registers_and_is_signed_in` (token works on `GET /user`, refresh with the front client works, the front client has no `password` grant), `user_registers_without_token_when_there_is_no_front_client`, `registration_grant_is_not_offered_by_the_token_endpoint`; suite 148/152 (the 4 `WebThemeAndLocaleTest` need a Vite build in the worktree). `dev` and `PROD` aligned at `5b639ea`, locally and on GitHub (also brings R59's `71bc91b` into `PROD`). The regenerated `public/docs/openapi.yaml` goes to the front's `contracts/` together with R59's.
-- **Type:** Change (touches the auth flow and the API contract)
-- **Status:** accepted (API done; front design summary next)
-- **Affects:** the front starts once `contracts/openapi.yaml` holds the new register response
 
 ## R45 — Ask for the first location in coffee-shop registration
 

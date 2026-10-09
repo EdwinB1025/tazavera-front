@@ -48,10 +48,14 @@ The registration form SHALL collect name, surname, email, password and password 
 - **THEN** `POST /register` is sent without credentials with the five field values and the route's role, and the submit action shows its busy state while the fields stay editable
 
 ### Requirement: Registration result
-A registration answered with `201` SHALL replace the form with a success panel carrying a heading, a text and a "Sign in" action, and focus SHALL move to the panel's heading. Activating "Sign in" SHALL start sign in synchronously inside that click. Every other outcome — a `422`, a server error, a network failure or any other status — SHALL show the generic form-level error above the actions, keep every entered value except the password and its confirmation, which are cleared, and render no message from the API.
+A registration answered with `201` whose body carries a `token` block SHALL sign the user in with that block and, once the session is authenticated, SHALL open `/{locale}/account` through client-side navigation, never a full page load, with no confirmation text, for both registration roles. A `201` without a `token` block, or whose block does not sign the user in, SHALL replace the form with a success panel carrying a heading, a text and a "Sign in" action, and focus SHALL move to the panel's heading. Activating "Sign in" SHALL start sign in synchronously inside that click. Every other outcome — a `422`, a server error, a network failure or any other status — SHALL show the generic form-level error above the actions, keep every entered value except the password and its confirmation, which are cleared, and render no message from the API.
+
+#### Scenario: Signed in by the registration
+- **WHEN** `POST /register` answers `201` with a `token` block that signs the user in
+- **THEN** the session is authenticated and `/{locale}/account` opens through client-side navigation, with no success panel and no full page load
 
 #### Scenario: The account is created
-- **WHEN** `POST /register` answers `201`
+- **WHEN** `POST /register` answers `201` without a `token` block, or with one that does not sign the user in
 - **THEN** the success panel replaces the form and focus moves to its heading
 
 #### Scenario: Signing in from the success panel
