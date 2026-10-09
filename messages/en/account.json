@@ -25,7 +25,7 @@
   "editProfileHeading": "Edit profile",
   "passwordHeading": "Password",
   "securityHeading": "Security",
-  "securityDescription": "Password, two-factor authentication and passkeys.",
+  "securityDescription": "Password, email verification, two-factor authentication and passkeys.",
   "dangerZoneHeading": "Danger zone",
   "signedOutText": "Sign in to manage your account.",
   "deactivateHeading": "Deactivate account",
@@ -63,5 +63,7 @@
   "backToAccount": "Back to my account",
   "emailVerificationLabel": "Email verification",
   "emailVerified": "Verified",
-  "emailNotVerified": "Not verified"
+  "emailNotVerified": "Not verified",
+  "verifyEmail": "Verify email",
+  "emailVerifiedStatus": "Email verified"
 }

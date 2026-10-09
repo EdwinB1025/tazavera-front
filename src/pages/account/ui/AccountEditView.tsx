@@ -72,7 +72,11 @@ export function AccountEditView({
         </div>
       </AccountSection>
       <ContactSection ulid={user.ulid ?? ""} texts={texts} />
-      <SecuritySection texts={texts} onChangePassword={onChangePassword} />
+      <SecuritySection
+        texts={texts}
+        emailVerifiedAt={user.emailVerifiedAt}
+        onChangePassword={onChangePassword}
+      />
       <AccountSection heading={texts.dangerZoneHeading}>
         <DangerZone
           ulid={user.ulid ?? ""}

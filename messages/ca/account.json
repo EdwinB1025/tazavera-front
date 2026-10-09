@@ -25,7 +25,7 @@
   "editProfileHeading": "Editar el perfil",
   "passwordHeading": "Contrasenya",
   "securityHeading": "Seguretat",
-  "securityDescription": "Contrasenya, verificació en dos passos i claus d'accés.",
+  "securityDescription": "Contrasenya, verificació del correu, verificació en dos passos i claus d'accés.",
   "dangerZoneHeading": "Zona perillosa",
   "signedOutText": "Inicia sessió per gestionar el teu compte.",
   "deactivateHeading": "Desactivar el compte",
@@ -63,5 +63,7 @@
   "backToAccount": "Tornar al meu compte",
   "emailVerificationLabel": "Verificació del correu",
   "emailVerified": "Verificat",
-  "emailNotVerified": "Sense verificar"
+  "emailNotVerified": "Sense verificar",
+  "verifyEmail": "Verificar el correu",
+  "emailVerifiedStatus": "Correu verificat"
 }

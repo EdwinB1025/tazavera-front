@@ -42,6 +42,8 @@ export function AccountScreen({ locale }: AccountScreenProps): ReactNode {
     changePassword: catalog.changePassword,
     twoFactor: catalog.twoFactor,
     passkeys: catalog.passkeys,
+    verifyEmail: catalog.verifyEmail,
+    emailVerifiedStatus: catalog.emailVerifiedStatus,
     done: catalog.done,
     dangerZoneHeading: catalog.dangerZoneHeading,
     deactivateHeading: catalog.deactivateHeading,
