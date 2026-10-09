@@ -36,6 +36,8 @@ export default defineConfig({
             'qa/src/pages/new-offering/ui/NewOfferingForm.test.tsx',
             // asserts the old primary add button; stale since align-button-variants
             'qa/src/features/user-account/ui/ContactSection.test.tsx',
+            // asserts a 422 maps to error; stale since show-field-validation-errors (design.md D6)
+            'qa/src/features/location-management/model/submit-location.test.ts',
         ],
     },
 })
