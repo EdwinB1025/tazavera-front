@@ -30,6 +30,7 @@ const TEXTS: EvaluationRowTexts = {
   roasterCaption: "Roaster:",
   editLabel: "Edit",
   viewLabel: "View",
+  viewOfferingLabel: "View offering",
   closeLabel: "Close evaluation",
   closedMessage: "Evaluation closed.",
   incompleteMessage: "Complete every group before closing.",
@@ -73,6 +74,25 @@ const OPEN: EvaluationItem = {
   createdAt: "2026-10-06T09:12:45.000000Z",
   closedAt: null,
 };
+
+const AXES = ["fragrance", "aroma", "flavor", "aftertaste", "acidity", "sweetness", "mouthfeel"];
+const scores = (score: number, axes: string[]) =>
+  Object.fromEntries(axes.map((axis) => [axis, { score, note: null }]));
+
+/** An open evaluation the close rule accepts (refine-evaluation-flow D3). */
+const COMPLETE = {
+  ...OPEN,
+  descriptive: scores(5, AXES),
+  affective: scores(6, [...AXES, "overall"]),
+  tastes: [
+    { ref: "01JTAXSWEET00000000000000C", type: "main_tastes" },
+    { ref: "01JTAXSILKY00000000000000D", type: "mouthfeel" },
+    { ref: "01JTAXFLORAL0000000000000A", type: "aroma" },
+  ],
+} as EvaluationItem;
+
+const buttonNames = () =>
+  screen.getAllByRole("button").map((button) => button.textContent?.trim());
 
 function renderRow(evaluation: EvaluationItem) {
   return render(
@@ -127,9 +147,9 @@ describe("EvaluationRowCard (design.md card field mapping)", () => {
     expect((name.nextElementSibling as HTMLElement).textContent).toBe("Created on 2026-10-06");
   });
 
-  it("offers Edit for an open row and View for a closed one, both opening the form route", () => {
+  it("offers Edit and View for an open row and View for a closed one, both opening the form route", () => {
     renderRow(OPEN);
-    expect(screen.queryByRole("button", { name: "View" })).toBeNull();
+    expect(screen.getByRole("button", { name: "View" }).className).toContain("bg-action-3-bg");
     const edit = screen.getByRole("button", { name: "Edit" });
     expect(edit.className).toContain("bg-action-4-bg");
     fireEvent.click(edit);
@@ -147,9 +167,7 @@ describe("EvaluationRowCard (design.md card field mapping)", () => {
 describe("EvaluationRowCard: Close on open rows (close-evaluation-only-when-saved)", () => {
   it("Closing an open evaluation from its row", () => {
     closeAnEvaluation.mockReturnValue(new Promise(() => {}));
-    renderRow(OPEN);
-    const names = screen.getAllByRole("button").map((button) => button.textContent);
-    expect(names).toEqual(["Edit", "Close evaluation", "Delete"]);
+    renderRow(COMPLETE);
     const close = screen.getByRole("button", { name: "Close evaluation" });
     expect(close.className).toContain("bg-action-2-bg");
     fireEvent.click(close);
@@ -158,7 +176,7 @@ describe("EvaluationRowCard: Close on open rows (close-evaluation-only-when-save
 
   it("The row's close finds the evaluation incomplete", async () => {
     closeAnEvaluation.mockResolvedValue({ ok: false, kind: "conflict" });
-    renderRow(OPEN);
+    renderRow(COMPLETE);
     fireEvent.click(screen.getByRole("button", { name: "Close evaluation" }));
     await waitFor(() =>
       expect(screen.getByRole("status").textContent).toBe("Complete every group before closing."),
@@ -166,9 +184,39 @@ describe("EvaluationRowCard: Close on open rows (close-evaluation-only-when-save
     expect(screen.getByRole("button", { name: "Edit" })).toBeDefined();
   });
 
+  it("Actions of a complete open row", () => {
+    renderRow(COMPLETE);
+    expect(buttonNames()).toEqual([
+      "View",
+      "View offering Finca La Esperanza",
+      "Close evaluation",
+      "Edit",
+      "Delete",
+    ]);
+  });
+
+  it("No close on an incomplete open row", () => {
+    renderRow(OPEN);
+    expect(buttonNames()).toEqual(["View", "View offering Finca La Esperanza", "Edit", "Delete"]);
+  });
+
   it("No close on a closed row", () => {
     renderRow(CLOSED);
     expect(screen.queryByRole("button", { name: "Close evaluation" })).toBeNull();
+  });
+});
+
+describe("EvaluationRowCard: View and View offering (refine-evaluation-flow D5)", () => {
+  it("Viewing an open evaluation", () => {
+    renderRow(OPEN);
+    fireEvent.click(screen.getByRole("button", { name: "View" }));
+    expect(push).toHaveBeenCalledWith(`/en/manage/evaluations/${OPEN.ulid}?mode=view`);
+  });
+
+  it("Viewing the offering of a row", () => {
+    renderRow(CLOSED);
+    fireEvent.click(screen.getByRole("button", { name: "View offering Finca La Esperanza" }));
+    expect(push).toHaveBeenCalledWith(`/en/offerings/${OFFERING.ulid}`);
   });
 });
 
@@ -201,9 +249,10 @@ describe("EvaluationRowCard: an evaluation of a deleted offering (design.md D17;
     renderOrphan(OPEN);
     expect(screen.queryByRole("button", { name: "Edit" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Close evaluation" })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^View offering/ })).toBeNull();
     expect(screen.getByRole("button", { name: "Delete" })).toBeDefined();
     fireEvent.click(screen.getByRole("button", { name: "View" }));
-    expect(push).toHaveBeenCalledWith(`/en/manage/evaluations/${OPEN.ulid}`);
+    expect(push).toHaveBeenCalledWith(`/en/manage/evaluations/${OPEN.ulid}?mode=view`);
   });
 
   it("keeps the score row of a closed row", () => {

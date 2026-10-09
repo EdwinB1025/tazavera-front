@@ -7,7 +7,7 @@
 
 ## 2. Card actions (D3, D5)
 
-- [ ] 2.1 Tests first in `src/pages/evaluations-list/ui/EvaluationRowCard.test.tsx`: add `viewOfferingLabel` to TEXTS and a `COMPLETE` open fixture (15 scores > 0, `main_tastes`, `mouthfeel` and `aroma` tastes). New tests: "Viewing an open evaluation" (View pushes `/en/manage/evaluations/{ulid}?mode=view`), "Actions of a complete open row" (button names in order View, View offering, Close evaluation, Edit, Delete), "No close on an incomplete open row" (`OPEN` has View, View offering, Edit, Delete and no Close), "Viewing the offering of a row" (pushes `/en/offerings/{offeringId}`). Update the assertions that break:
+- [x] 2.1 Tests first in `src/pages/evaluations-list/ui/EvaluationRowCard.test.tsx`: add `viewOfferingLabel` to TEXTS and a `COMPLETE` open fixture (15 scores > 0, `main_tastes`, `mouthfeel` and `aroma` tastes). New tests: "Viewing an open evaluation" (View pushes `/en/manage/evaluations/{ulid}?mode=view`), "Actions of a complete open row" (button names in order View, View offering, Close evaluation, Edit, Delete), "No close on an incomplete open row" (`OPEN` has View, View offering, Edit, Delete and no Close), "Viewing the offering of a row" (pushes `/en/offerings/{offeringId}`). Update the assertions that break:
   - "offers Edit for an open row and View for a closed one…" → the open row also has View; Edit keeps `bg-action-4-bg` and its route; the closed row has no Edit and its View opens the route without the query;
   - "Closing an open evaluation from its row" and "The row's close finds the evaluation incomplete" → render `COMPLETE`; the order becomes the one above;
   - the orphan "offers View and Delete…" → also no View offering; its View opens `?mode=view`.
