@@ -19,7 +19,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 
-const fetchEvaluation = vi.fn<(ulid: string) => Promise<ApiResult<EvaluationItem>>>();
+const fetchEvaluation = vi.fn<(ulid: string) => Promise<ApiResult<EvaluationItem, "not-found">>>();
 vi.mock("@/entities/evaluation", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/entities/evaluation")>()),
   fetchEvaluation: (ulid: string) => fetchEvaluation(ulid),

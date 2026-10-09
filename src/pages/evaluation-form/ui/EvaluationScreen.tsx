@@ -40,6 +40,8 @@ export async function EvaluationScreen({ locale, ulid }: EvaluationScreenProps):
                 ...formTextsFrom(catalog),
                 loadErrorMessage: catalog.formLoadErrorMessage,
                 retryLabel: catalog.retryLabel,
+                notFoundTitle: catalog.formNotFoundTitle,
+                notFoundLine: catalog.formNotFoundLine,
               }}
             />
           ) : (

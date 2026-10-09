@@ -60,10 +60,17 @@ export async function fetchEvaluations(
   }
 }
 
-/** One public evaluation: the `data` of `GET /evaluations/{evaluation_ulid}`. */
-export async function fetchEvaluation(ulid: string): Promise<ApiResult<EvaluationItem>> {
+/**
+ * One public evaluation: the `data` of `GET /evaluations/{evaluation_ulid}`;
+ * its `404` (unknown or not closed) is not-found (show-item-not-found-message
+ * design.md D1).
+ */
+export async function fetchEvaluation(
+  ulid: string,
+): Promise<ApiResult<EvaluationItem, "not-found">> {
   try {
     const response = await publicRequest(`/evaluations/${ulid}`);
+    if (response.status === 404) return { ok: false, kind: "not-found" };
     if (!response.ok) return { ok: false, kind: "error" };
     const payload: { data: EvaluationItem } = await response.json();
     return { ok: true, data: payload.data };

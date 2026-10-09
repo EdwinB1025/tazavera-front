@@ -23,5 +23,7 @@ export function viewTexts(locale: string): EvaluationViewTexts {
     offeringMissingLabel: evaluations.offeringMissingLabel,
     errorMessage: own.viewErrorMessage,
     retryLabel: landing.listRetryLabel,
+    notFoundTitle: own.viewNotFoundTitle,
+    notFoundLine: own.viewNotFoundLine,
   };
 }

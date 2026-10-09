@@ -96,5 +96,7 @@
   "fragranceNotEvaluatedLabel": "Fragància no avaluada — fer servir els valors d'aroma",
   "closedMessage": "Avaluació tancada.",
   "incompleteMessage": "Encara no es pot tancar l'avaluació: completa els grups ressaltats.",
-  "resultCount": "Resultats: {count}"
+  "resultCount": "Resultats: {count}",
+  "formNotFoundTitle": "Avaluació no trobada",
+  "formNotFoundLine": "Pot ser que s'hagi retirat o que l'enllaç no sigui correcte."
 }

@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { notFound } from "next/navigation";
 import type { EvaluationItem, OfferingDetail, TaxonomyNode } from "@/shared/api";
 import { fetchEvaluation } from "@/entities/evaluation";
 import { fetchOffering } from "@/entities/offering";
@@ -22,6 +21,8 @@ export type EvaluationViewTexts = EvaluationSheetTexts & {
   offeringMissingLabel: string;
   errorMessage: string;
   retryLabel: string;
+  notFoundTitle: string;
+  notFoundLine: string;
 };
 
 export type EvaluationSheetViewProps = {
@@ -45,6 +46,9 @@ const HEADER_CONTAINER_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
 // (add-bottom-back-links D3).
 const SHEET_CONTAINER_CLASSES = ["flex", "flex-col", "gap-8"].join(" ");
 const HEADER_BLOCK_CLASSES = ["flex", "flex-col", "items-start", "gap-2"].join(" ");
+// The not-found title and its line, 0.5rem apart (show-item-not-found-message
+// design.md D2).
+const NOT_FOUND_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
 const STATE_CLASSES = ["flex", "flex-col", "items-center", "gap-4", "text-center"].join(" ");
 const BARS_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
 const BAR_CLASSES = ["bg-surface-section", "rounded-field"].join(" ");
@@ -74,11 +78,13 @@ export function EvaluationSheetViewSkeleton({ back }: { back: ReactNode }): Reac
   );
 }
 
-async function load(ulid: string): Promise<ViewData | null> {
+/** The view's data, `"not-found"` for a `404` or an evaluation that is not closed, `null` on a failure. */
+async function load(ulid: string): Promise<ViewData | "not-found" | null> {
   try {
     const read = await fetchEvaluation(ulid);
-    if (!read.ok) return null;
+    if (!read.ok) return read.kind === "not-found" ? "not-found" : null;
     const evaluation = read.data;
+    if (evaluation.status !== "closed") return "not-found";
     const offeringId = evaluation.offeringId;
     // A null `offeringId` is a deleted offering: nothing to request (design.md D4).
     const [offering, taxonomies] = await Promise.all([
@@ -94,13 +100,26 @@ async function load(ulid: string): Promise<ViewData | null> {
   }
 }
 
+/** The not-found state (show-item-not-found-message design.md D2): the title and line above the back link, no Retry. */
+function EvaluationNotFound({ back, texts }: { back: ReactNode; texts: EvaluationViewTexts }): ReactNode {
+  return (
+    <PageSection surface="page" containerClassName={HEADER_CONTAINER_CLASSES}>
+      <div className={NOT_FOUND_CLASSES}>
+        <h1 className="type-heading">{texts.notFoundTitle}</h1>
+        <p className="type-body">{texts.notFoundLine}</p>
+      </div>
+      <div>{back}</div>
+    </PageSection>
+  );
+}
+
 /**
  * The read-only evaluation view as a thin async Server Component (design.md
  * D1, D4; spec "Read-only evaluation view"): the evaluation read, then its
  * offering and the taxonomies in parallel. A closed evaluation renders the
- * header block and the sheet; any other status renders the 404 page; a
- * failed evaluation or taxonomy read keeps the back link and shows the error
- * with Retry.
+ * header block and the sheet; a `404` or any other status renders the
+ * not-found title and line; a failed evaluation or taxonomy read keeps the
+ * back link and shows the error with Retry.
  */
 export async function EvaluationSheetView({
   locale,
@@ -109,6 +128,7 @@ export async function EvaluationSheetView({
   texts,
 }: EvaluationSheetViewProps): Promise<ReactNode> {
   const data = await load(ulid);
+  if (data === "not-found") return <EvaluationNotFound back={back} texts={texts} />;
   if (data === null) {
     return (
       <>
@@ -125,7 +145,6 @@ export async function EvaluationSheetView({
     );
   }
   const { evaluation, offering, taxonomies } = data;
-  if (evaluation.status !== "closed") notFound();
 
   const heading =
     offering === undefined

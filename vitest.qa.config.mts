@@ -36,6 +36,8 @@ export default defineConfig({
             'qa/src/pages/new-offering/ui/NewOfferingForm.test.tsx',
             // asserts the old primary add button; stale since align-button-variants
             'qa/src/features/user-account/ui/ContactSection.test.tsx',
+            // asserts the 404 page of an unknown evaluation; stale since show-item-not-found-message
+            'qa/src/pages/evaluation-form/ui/EvaluationDetail.test.tsx',
         ],
     },
 })
