@@ -39,6 +39,7 @@
   "cancel": "Cancel·la",
   "stepUpText": "Per continuar, confirma la teva identitat iniciant sessió de nou.",
   "stepUpButton": "Confirma la identitat",
+  "stepUpOtherAccount": "Confirma la teva identitat amb el mateix compte amb què has iniciat la sessió.",
   "profileDescription": "Actualitza la teva informació personal",
   "roleLabel": "Rol",
   "save": "Desa",

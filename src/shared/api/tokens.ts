@@ -75,6 +75,18 @@ export async function exchangeCode(
   code: string,
   codeVerifier: string,
 ): Promise<void> {
+  tokens = await exchangeCodeForGrant(code, codeVerifier);
+}
+
+/**
+ * The exchange of `exchangeCode` without keeping the grant (secure-step-up
+ * design.md D3): a step-up checks whose grant it is before `keepTokens`
+ * installs it.
+ */
+export async function exchangeCodeForGrant(
+  code: string,
+  codeVerifier: string,
+): Promise<TokenGrant> {
   const as = authorizationServer();
   const client = oauthClient();
   const callbackParameters = oauth.validateAuthResponse(
@@ -92,9 +104,14 @@ export async function exchangeCode(
     codeVerifier,
     requestOptions(),
   );
-  tokens = await keepGrant(response, (sent) =>
+  return keepGrant(response, (sent) =>
     oauth.processAuthorizationCodeResponse(as, client, sent),
   );
+}
+
+/** Installs a grant obtained by `exchangeCodeForGrant` (secure-step-up design.md D3). */
+export function keepTokens(grant: TokenGrant): void {
+  tokens = grant;
 }
 
 /**
