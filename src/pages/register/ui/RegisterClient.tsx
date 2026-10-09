@@ -51,7 +51,7 @@ export function RegisterClient({
   return (
     <Card variant="section">
       <CardContent>
-        <div className="w-full md:max-w-160">
+        <div className="w-full md:mx-auto md:max-w-160">
           {session.state === "loading" ? (
             <LoadingStatus text={texts.loading} />
           ) : (
