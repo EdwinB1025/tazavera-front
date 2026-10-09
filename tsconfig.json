@@ -32,7 +32,6 @@
   ],
   "exclude": [
     "node_modules",
-    "qa/src/entities/offering/ui/OfferingCard.test.tsx",
     "qa/src/entities/taxonomy/model/descriptor-rows.test.ts",
     "qa/src/widgets/app-header/ui/AppHeader.test.tsx",
     "qa/src/widgets/app-header/ui/ThemeSelect.test.tsx",
@@ -49,7 +48,6 @@
     "qa/src/features/user-account/ui/ContactSection.test.tsx",
     "qa/src/features/user-account/ui/ProfileForm.test.tsx",
     "qa/src/features/location-management/ui/LocationForm.test.tsx",
-    "qa/src/widgets/offering-list/ui/OfferingList.test.tsx",
     "qa/src/widgets/offering-list/ui/FilteredOfferingsResults.test.tsx",
     "qa/src/entities/evaluation/model/body.test.ts",
     "qa/src/pages/evaluations-list/ui/EvaluationRowCard.test.tsx",

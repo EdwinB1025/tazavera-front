@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
-import type { OfferingsPageMeta, OfferingSummary } from "@/shared/api";
+import type { OfferingsPageMeta, OfferingSummary, Session } from "@/shared/api";
 import type { ResolvedTaxonomyBadge } from "@/entities/offering";
 import { OfferingList } from "@/widgets/offering-list/ui/OfferingList";
 import { CATALOG_GRID_CLASSES, OFFERING_GRID_CLASSES } from "@/widgets/offering-list/lib/grid";
@@ -35,9 +35,24 @@ vi.mock("next/navigation", () => ({
   useRouter: () => router,
 }));
 
+// The View action shows to a signed-in user only (fix-production-aut-findings
+// design.md D3): the widget reads the session, mocked here at its public API.
+const auth = vi.hoisted(() => ({
+  session: { state: "anonymous" } as Session,
+}));
+vi.mock("@/features/auth", () => ({
+  useSession: () => auth.session,
+}));
+
+const SIGNED_IN: Session = {
+  state: "authenticated",
+  user: { ulid: "01JUSER", role: "coffeeshop" } as never,
+};
+
 beforeEach(() => {
   router.push.mockReset();
   router.refresh.mockReset();
+  auth.session = SIGNED_IN;
 });
 
 // `EvaluateLink` decides on the session itself (its own tests cover the
@@ -62,6 +77,7 @@ const TEXTS = {
   defectiveLabel: "texts.defectiveLabel",
   viewLabel: "texts.viewLabel",
   evaluateLabel: "texts.evaluateLabel",
+  viewEvaluationsLabel: "texts.viewEvaluationsLabel",
   verifiedLabel: "texts.verifiedLabel",
   provisionalLabel: "texts.provisionalLabel",
   ratingExceptionalLabel: "texts.ratingExceptionalLabel",

@@ -98,6 +98,7 @@ describe("HomeScreen", () => {
       defectiveLabel: es.cardDefectiveLabel,
       viewLabel: es.cardViewLabel,
       evaluateLabel: es.cardEvaluateLabel,
+      viewEvaluationsLabel: es.cardViewEvaluationsLabel,
       verifiedLabel: es.cardVerifiedLabel,
       provisionalLabel: es.cardProvisionalLabel,
       ratingExceptionalLabel: es.cardRatingExceptionalLabel,

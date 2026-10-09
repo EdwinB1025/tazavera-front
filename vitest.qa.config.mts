@@ -11,8 +11,6 @@ export default defineConfig({
             // fails since it was moved; see the setup report
             'qa/src/app/shell/AppShell.test.tsx',
             // stale since fix-production-aut-findings (R42); see the merge report
-            'qa/src/entities/offering/ui/OfferingCard.test.tsx',
-            // stale since fix-production-aut-findings (R42); see the merge report
             'qa/src/widgets/app-header/ui/AppHeader.test.tsx',
             // stale since fix-production-aut-findings (R42); see the merge report
             'qa/src/widgets/evaluation-row/ui/EvaluationRowCard.test.tsx',
