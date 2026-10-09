@@ -76,6 +76,7 @@ export function AccountEditView({
         texts={texts}
         emailVerifiedAt={user.emailVerifiedAt}
         onChangePassword={onChangePassword}
+        refreshProfile={refreshProfile}
       />
       <AccountSection heading={texts.dangerZoneHeading}>
         <DangerZone

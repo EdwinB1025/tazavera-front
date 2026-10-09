@@ -26,6 +26,7 @@ export type AccountReadViewProps = {
   texts: AccountReadViewTexts;
   onEditProfile: () => void;
   onChangePassword: () => void;
+  refreshProfile: () => Promise<void>;
 };
 
 /**
@@ -38,6 +39,7 @@ export function AccountReadView({
   texts,
   onEditProfile,
   onChangePassword,
+  refreshProfile,
 }: AccountReadViewProps): ReactNode {
   return (
     <div className="flex flex-col gap-4">
@@ -54,6 +56,7 @@ export function AccountReadView({
         texts={texts}
         emailVerifiedAt={user.emailVerifiedAt}
         onChangePassword={onChangePassword}
+        refreshProfile={refreshProfile}
       />
     </div>
   );
