@@ -22,7 +22,7 @@ No derived API types are needed: the change only moves layout classes and adds t
 
 ## 5. Evaluation screens (evaluations)
 
-- [ ] 5.1 Update `src/pages/evaluation-form/ui/EvaluationForm.test.tsx` (the Cancel test asserting the `self-center` parent, line 419) for "The form's actions share one action group": Save draft, Close evaluation and Cancel share one parent with `grid-cols-2` and `md:justify-end`. Verify: it fails on the current bar.
+- [x] 5.1 Update `src/pages/evaluation-form/ui/EvaluationForm.test.tsx` (the Cancel test asserting the `self-center` parent, line 419) for "The form's actions share one action group": Save draft, Close evaluation and Cancel share one parent with `grid-cols-2` and `md:justify-end`. Verify: it fails on the current bar.
 - [ ] 5.2 Implement design.md D4 in `FormActions.tsx` (status line, then one group of three; `flex-1 md:flex-none` removed), `SpecialistEvaluationRow.tsx` (status line, then a group) and `PublicEvaluationRowCard.tsx` (group). Verify: `npx vitest related` passes, 5.1 included; typecheck and lint clean.
 
 ## 6. Offering management screens (offering-management)

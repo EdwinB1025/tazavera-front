@@ -416,12 +416,21 @@ describe("EvaluationForm: Cancel (add-form-cancel-actions design.md D1, D2)", ()
     renderForm();
     const cancel = screen.getByRole("button", { name: "Cancel" });
     expect(cancel.className).toContain("bg-action-4-bg");
-    expect(cancel.parentElement!.className).toContain("self-center");
     fireEvent.click(cancel);
     expect(router.push).toHaveBeenCalledWith("/en/manage/evaluations");
     expect(createAnEvaluation).not.toHaveBeenCalled();
     expect(updateAnEvaluation).not.toHaveBeenCalled();
     expect(closeAnEvaluation).not.toHaveBeenCalled();
+  });
+
+  // Scenario "The form's actions share one action group" (unify-action-button-widths).
+  it("Save draft, Close evaluation and Cancel share one end-aligned action group", () => {
+    renderForm({ evaluation: OPEN_EVALUATION });
+    const group = screen.getByRole("button", { name: "Cancel" }).parentElement!;
+    for (const name of ["Save draft", "Close evaluation"]) {
+      expect(screen.getByRole("button", { name }).parentElement).toBe(group);
+    }
+    expect([group.classList.contains("grid-cols-2"), group.classList.contains("md:justify-end")]).toEqual([true, true]);
   });
 });
 
