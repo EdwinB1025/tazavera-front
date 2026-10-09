@@ -55,25 +55,13 @@ const SKELETON_GRID_CLASSES = [
 ].join(" ");
 const SKELETON_CARD_KEYS = [0, 1] as const;
 
-/**
- * Offering detail screen (add-offering-catalog design.md D7–D9; spec
- * "Offering detail page"). A thin composition: it loads the `catalog` and
- * `landing` texts of the route's locale, maps the raw `tab` value to a tab and
- * renders the detail block inside a `Suspense` boundary whose fallback is the
- * back link, the placeholder bars and two skeleton cards; it composes the
- * provisional tab's baseline panel and passes it down as a slot, only when
- * that tab is the one shown (cache-reference-reads design.md D3).
- */
-export function OfferingDetailScreen({
-  locale,
-  ulid,
-  tab,
-}: OfferingDetailScreenProps): ReactNode {
-  const catalog = getMessages("catalog", locale);
-  const landing = getMessages("landing", locale);
-  const scales = getMessages("scales", locale);
-
-  const texts: OfferingDetailTexts = {
+/** The detail block's texts from the catalogs of the route's locale. */
+function detailTexts(
+  catalog: MessageCatalog,
+  landing: MessageCatalog,
+  scales: MessageCatalog,
+): OfferingDetailTexts {
+  return {
     backLabel: catalog.detailBackLabel,
     errorMessage: catalog.detailErrorMessage,
     retryLabel: landing.listRetryLabel,
@@ -138,6 +126,50 @@ export function OfferingDetailScreen({
     wheelGroupAromatics: catalog.wheelGroupAromatics,
     detailAxesHeading: catalog.detailAxesHeading,
   };
+}
+
+/** The detail block's fallback: the back link, the placeholder bars and two skeleton cards. */
+function DetailFallback({ locale, backLabel }: { locale: string; backLabel: string }): ReactNode {
+  return (
+    <PageSection surface="page" containerClassName={BLOCKS_CLASSES}>
+      <div className={TOP_CONTAINER_CLASSES}>
+        <BackLink fallback={`/${locale}/offerings`}>
+          {backLabel}
+        </BackLink>
+        <div className={BARS_CLASSES}>
+          {BAR_SIZES.map((size) => (
+            <div key={size} className={cn(PLACEHOLDER_CLASSES, size)} />
+          ))}
+        </div>
+      </div>
+      <div className={SKELETON_GRID_CLASSES}>
+        {SKELETON_CARD_KEYS.map((key) => (
+          <OfferingSkeletonCard key={key} />
+        ))}
+      </div>
+    </PageSection>
+  );
+}
+
+/**
+ * Offering detail screen (add-offering-catalog design.md D7–D9; spec
+ * "Offering detail page"). A thin composition: it loads the `catalog` and
+ * `landing` texts of the route's locale, maps the raw `tab` value to a tab and
+ * renders the detail block inside a `Suspense` boundary whose fallback is the
+ * back link, the placeholder bars and two skeleton cards; it composes the
+ * provisional tab's baseline panel and passes it down as a slot, only when
+ * that tab is the one shown (cache-reference-reads design.md D3).
+ */
+export function OfferingDetailScreen({
+  locale,
+  ulid,
+  tab,
+}: OfferingDetailScreenProps): ReactNode {
+  const catalog = getMessages("catalog", locale);
+  const landing = getMessages("landing", locale);
+  const scales = getMessages("scales", locale);
+
+  const texts = detailTexts(catalog, landing, scales);
 
   const detailTab = toDetailTab(tab);
   // The provisional tab's panel (add-public-evaluations design.md D9): the
@@ -161,25 +193,7 @@ export function OfferingDetailScreen({
   return (
     <div className="flex-1">
       <Suspense
-        fallback={
-          <PageSection surface="page" containerClassName={BLOCKS_CLASSES}>
-            <div className={TOP_CONTAINER_CLASSES}>
-              <BackLink fallback={`/${locale}/offerings`}>
-                {texts.backLabel}
-              </BackLink>
-              <div className={BARS_CLASSES}>
-                {BAR_SIZES.map((size) => (
-                  <div key={size} className={cn(PLACEHOLDER_CLASSES, size)} />
-                ))}
-              </div>
-            </div>
-            <div className={SKELETON_GRID_CLASSES}>
-              {SKELETON_CARD_KEYS.map((key) => (
-                <OfferingSkeletonCard key={key} />
-              ))}
-            </div>
-          </PageSection>
-        }
+        fallback={<DetailFallback locale={locale} backLabel={texts.backLabel} />}
       >
         <OfferingDetail
           locale={locale}

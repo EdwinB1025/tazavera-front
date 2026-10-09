@@ -101,6 +101,59 @@ function Attribution({ texts }: { texts: LocationFormTexts }): ReactNode {
   );
 }
 
+/** The location fieldset and the contact fieldset, 2rem apart. */
+function LocationFieldsets({
+  values,
+  errors,
+  update,
+  texts,
+}: {
+  values: LocationFormValues;
+  errors: LocationFormErrors;
+  update: (key: keyof LocationFormValues, value: string) => void;
+  texts: LocationFormTexts;
+}): ReactNode {
+  return (
+    <div className={GROUPS_CLASSES}>
+      <fieldset className={FIELDSET_CLASSES}>
+        <legend className={LEGEND_CLASSES}>{texts.locationGroupLegend}</legend>
+        <div className={FIELDS_CLASSES}>
+          <Field label={texts.locationNameLabel} error={errors.name} required>
+            <Input
+              name="name"
+              autoComplete="organization"
+              maxLength={150}
+              value={values.name}
+              onChange={(event) => update("name", event.target.value)}
+            />
+          </Field>
+          <Field label={texts.locationDescriptionLabel} error={errors.description}>
+            <Textarea
+              name="description"
+              autoComplete="off"
+              maxLength={255}
+              value={values.description}
+              onChange={(event) => update("description", event.target.value)}
+            />
+          </Field>
+        </div>
+      </fieldset>
+      <fieldset className={FIELDSET_CLASSES}>
+        <legend className={LEGEND_CLASSES}>{texts.contactGroupLegend}</legend>
+        <div className={FIELDS_CLASSES}>
+          <ContactFields
+            values={values}
+            errors={errors}
+            onChange={(key: ContactFieldKey, value) => update(key, value)}
+            texts={texts}
+            layout="paired"
+          />
+        </div>
+      </fieldset>
+    </div>
+  );
+}
+
 /**
  * The new-location form (design.md D7; specs "Location form", "Location form
  * checks", "Location creation failures"): a section card whose band names the
@@ -161,43 +214,7 @@ export function LocationForm({
             onSubmit={handleSubmit}
             className={FORM_CLASSES}
           >
-            <div className={GROUPS_CLASSES}>
-              <fieldset className={FIELDSET_CLASSES}>
-                <legend className={LEGEND_CLASSES}>{texts.locationGroupLegend}</legend>
-                <div className={FIELDS_CLASSES}>
-                  <Field label={texts.locationNameLabel} error={errors.name} required>
-                    <Input
-                      name="name"
-                      autoComplete="organization"
-                      maxLength={150}
-                      value={values.name}
-                      onChange={(event) => update("name", event.target.value)}
-                    />
-                  </Field>
-                  <Field label={texts.locationDescriptionLabel} error={errors.description}>
-                    <Textarea
-                      name="description"
-                      autoComplete="off"
-                      maxLength={255}
-                      value={values.description}
-                      onChange={(event) => update("description", event.target.value)}
-                    />
-                  </Field>
-                </div>
-              </fieldset>
-              <fieldset className={FIELDSET_CLASSES}>
-                <legend className={LEGEND_CLASSES}>{texts.contactGroupLegend}</legend>
-                <div className={FIELDS_CLASSES}>
-                  <ContactFields
-                    values={values}
-                    errors={errors}
-                    onChange={(key: ContactFieldKey, value) => update(key, value)}
-                    texts={texts}
-                    layout="paired"
-                  />
-                </div>
-              </fieldset>
-            </div>
+            <LocationFieldsets values={values} errors={errors} update={update} texts={texts} />
             <div className={NOTES_CLASSES}>
               <p className="type-meta">{texts.geocodingHelp}</p>
               <Attribution texts={texts} />

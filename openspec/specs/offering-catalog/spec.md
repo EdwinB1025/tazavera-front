@@ -696,3 +696,14 @@ The shared locations map SHALL be built from components and functions of at most
 #### Scenario: Selecting a marker renders as before
 - **WHEN** a marker of the map is activated
 - **THEN** the marker takes the selected look and the selected-location panel opens with the point's title, subtitle, address line and link, and Escape or Close closes it and returns the focus to the marker
+
+### Requirement: Catalog screens kept within the size limits
+The screens, widgets and entity components of the `offering-catalog` capability in the pages, widgets, features and entities layers SHALL each keep every function at no more than 80 lines and a cyclomatic complexity of no more than 15, and every file at no more than 300 lines, while their props, public exports, requests, rendered markup, class names, texts and accessible names stay as the other requirements of this capability state. This requirement adds no behaviour.
+
+#### Scenario: No size or complexity warning
+- **WHEN** `npm run lint` runs
+- **THEN** it reports no `max-lines-per-function`, `complexity` or `max-lines` warning for a file of this capability in the pages, widgets, features or entities layers
+
+#### Scenario: Behaviour unchanged
+- **WHEN** the validation suite and the QA suite run with no test added and no assertion changed
+- **THEN** every test of this capability's units passes as before the split
