@@ -177,7 +177,7 @@ export function Pagination({
   return (
     <nav aria-label={texts.navigationLabel} className={PAGINATION_CLASSES}>
       <Button
-        variant="primary"
+        variant="action-3"
         size="base"
         className={ARROW_CLASSES}
         disabled={currentPage === 1}
@@ -220,7 +220,7 @@ export function Pagination({
         ))}
       </ul>
       <Button
-        variant="primary"
+        variant="action-3"
         size="base"
         className={ARROW_CLASSES}
         disabled={currentPage === lastPage}

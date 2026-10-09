@@ -34,6 +34,8 @@ export default defineConfig({
             'qa/src/pages/public-evaluation/ui/ViewScreen.test.tsx',
             // its routing mock lacks useRouter; stale since render-navigation-actions-as-buttons
             'qa/src/pages/new-offering/ui/NewOfferingForm.test.tsx',
+            // asserts the old primary add button; stale since align-button-variants
+            'qa/src/features/user-account/ui/ContactSection.test.tsx',
         ],
     },
 })

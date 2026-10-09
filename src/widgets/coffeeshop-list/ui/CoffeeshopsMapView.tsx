@@ -132,7 +132,7 @@ export function CoffeeshopsMapView({
         >
           <div className={SHEET_HEADER_CLASSES}>
             <SheetTitle className="type-subheading">{texts.mapLabel}</SheetTitle>
-            <Button type="button" variant="primary" size="sm" icon={List} onClick={close}>
+            <Button type="button" variant="action-3" size="sm" icon={List} onClick={close}>
               {texts.backToList}
             </Button>
           </div>

@@ -66,7 +66,7 @@ export function LocationsEmptyCard({ text, children }: LocationsEmptyCardProps):
 export function AddLocationButton({ label, onAdd }: AddLocationButtonProps): ReactNode {
   return (
     <div data-add-location className={TOOLBAR_CLASSES}>
-      <Button variant="primary" size="base" icon={Plus} onClick={onAdd}>
+      <Button variant="action-1" size="base" icon={Plus} onClick={onAdd}>
         {label}
       </Button>
     </div>

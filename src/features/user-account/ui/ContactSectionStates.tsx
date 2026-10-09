@@ -56,7 +56,7 @@ export function ContactEmpty({
     <div className="flex flex-col gap-4">
       <p className="type-body">{text}</p>
       <div ref={actionsRef} className="flex flex-wrap gap-3">
-        <Button variant="primary" size="base" icon={Plus} onClick={onAdd}>
+        <Button variant="action-1" size="base" icon={Plus} onClick={onAdd}>
           {addLabel}
         </Button>
       </div>

@@ -24,5 +24,5 @@ export function ExploreButton({ label }: ExploreButtonProps): ReactNode {
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  return <Button onClick={handleClick}>{label}</Button>;
+  return <Button variant="action-3" onClick={handleClick}>{label}</Button>;
 }

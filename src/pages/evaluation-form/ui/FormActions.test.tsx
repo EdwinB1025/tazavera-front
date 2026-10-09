@@ -4,7 +4,7 @@ import { FormActions } from "./FormActions";
 
 /**
  * The form's actions (design.md D4, D14; the summary §9; tasks 6.1): Save
- * draft (`action-3`) and Close evaluation (`primary`), the `role="status"`
+ * draft (`primary`) and Close evaluation (`action-2`), the `role="status"`
  * region beside them, a sticky bar below `md` and an actions row from `md`.
  */
 

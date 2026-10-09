@@ -68,7 +68,7 @@ export function DetailHeader({
         {isSpecialist ? (
           <RouteButton
             href={`/${locale}/manage/evaluations/new?offering=${offering.ulid ?? ""}`}
-            variant="action-3"
+            variant="action-1"
             size="sm"
           >
             {texts.evaluateLabel}

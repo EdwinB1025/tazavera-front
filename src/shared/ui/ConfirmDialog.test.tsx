@@ -110,7 +110,7 @@ describe("ConfirmDialog", () => {
       const onConfirm = vi.fn();
       render(<Host initiallyOpen onConfirm={onConfirm} />);
       const confirm = screen.getByRole("button", { name: "Delete" });
-      expect(tokensOf(confirm)).toContain("bg-action-primary");
+      expect(tokensOf(confirm)).toContain("bg-action-2-bg");
       fireEvent.click(confirm);
       expect(onConfirm).toHaveBeenCalledTimes(1);
     });

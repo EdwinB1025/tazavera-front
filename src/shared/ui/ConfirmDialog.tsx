@@ -96,7 +96,7 @@ export function ConfirmDialog({
             </Button>
           </AlertDialogCancel>
           <Button
-            variant="primary"
+            variant="action-2"
             loading={pending}
             onClick={onConfirm}
             className={ACTION_WIDTH_CLASSES}
