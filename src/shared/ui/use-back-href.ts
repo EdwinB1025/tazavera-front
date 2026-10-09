@@ -1,3 +1,5 @@
+"use client";
+
 import { usePreviousUrl } from "@/shared/lib/navigation-history";
 import type { LinkProps } from "./Link";
 
