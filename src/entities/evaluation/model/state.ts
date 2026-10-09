@@ -17,6 +17,16 @@ export const ROAST_LEVELS: readonly RoastLevel[] = [
   "dark",
 ];
 
+/** The extrinsics edited beside `generalObservation`, in the contract's order. */
+export type ExtrinsicFieldKey = "farming" | "processing" | "trading" | "certifications";
+
+export const EXTRINSIC_FIELDS: readonly ExtrinsicFieldKey[] = [
+  "farming",
+  "processing",
+  "trading",
+  "certifications",
+];
+
 export type DescriptiveValue = { score: number; note: string | null };
 export type AffectiveValue = { score: number | null; note: string | null };
 
@@ -26,6 +36,7 @@ export type EvaluationFormState = {
   descriptive: Record<DescriptiveAxisKey, DescriptiveValue>;
   affective: Record<AxisKey, AffectiveValue>;
   descriptors: Record<DescriptorSelectionKey, string[]>;
+  extrinsics: Record<ExtrinsicFieldKey, string | null>;
   generalObservation: string | null;
   fragranceNotEvaluated: boolean;
 };
@@ -81,6 +92,7 @@ export function emptyFormState(roastLevel: RoastLevel | null): EvaluationFormSta
       mouthfeel: [],
       defects: [],
     },
+    extrinsics: { farming: null, processing: null, trading: null, certifications: null },
     generalObservation: null,
     fragranceNotEvaluated: false,
   };

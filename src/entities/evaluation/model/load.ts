@@ -1,6 +1,6 @@
 import type { EvaluationItem, TaxonomyNode } from "@/shared/api";
 import type { DescriptorSelectionKey } from "./groups";
-import { emptyFormState, mapAffectiveAxes, mapDescriptiveAxes } from "./state";
+import { EXTRINSIC_FIELDS, emptyFormState, mapAffectiveAxes, mapDescriptiveAxes } from "./state";
 import type { EvaluationFormState, RoastLevel } from "./state";
 
 /**
@@ -67,6 +67,9 @@ export function formStateFromEvaluation(
       note: openNote(item.affective?.[axis]?.note),
     })),
     descriptors,
+    extrinsics: Object.fromEntries(
+      EXTRINSIC_FIELDS.map((field) => [field, openNote(item.extrinsics?.[field])]),
+    ) as EvaluationFormState["extrinsics"],
     generalObservation: openNote(item.extrinsics?.generalObservation),
   };
 }
