@@ -21,6 +21,7 @@ None.
 
 - `theming`: ADDED "Action width tokens".
 - `base-controls`: ADDED "Action button widths" and "Action group".
+- `feedback`: MODIFIED "Confirmation dialog" (its actions in one action group; the narrow and wider scenarios updated).
 - `user-account`: MODIFIED "Cancelling registration" (Register and Cancel in one action group; the submit is no longer full width).
 - `evaluations`: MODIFIED "Cancelling the evaluation form" (Save draft, Close evaluation and Cancel in one action group).
 
