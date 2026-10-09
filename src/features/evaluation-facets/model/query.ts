@@ -82,31 +82,46 @@ function inScoreRange(value: number | undefined): number | undefined {
   return value !== undefined && value >= SCORE_MIN && value <= SCORE_MAX ? value : undefined;
 }
 
-/** The facet values and sort of a query (design.md D4). */
-export function parseEvaluationFilters(
-  params: URLSearchParams | QueryRecord,
-  set: EvaluationFacetSet = "mine",
-): EvaluationFilterValues {
-  const status = firstValue(params, "status");
-  let scoreMin = parseNumber(firstValue(params, "scoreMin"));
-  let scoreMax = parseNumber(firstValue(params, "scoreMax"));
+/** The score bounds: both dropped when inverted, then each kept only inside the range. */
+function parseScoreBounds(params: URLSearchParams | QueryRecord): {
+  scoreMin: number | undefined;
+  scoreMax: number | undefined;
+} {
+  const scoreMin = parseNumber(firstValue(params, "scoreMin"));
+  const scoreMax = parseNumber(firstValue(params, "scoreMax"));
   if (scoreMin !== undefined && scoreMax !== undefined && scoreMin > scoreMax) {
-    scoreMin = undefined;
-    scoreMax = undefined;
+    return { scoreMin: undefined, scoreMax: undefined };
   }
-  scoreMin = inScoreRange(scoreMin);
-  scoreMax = inScoreRange(scoreMax);
+  return { scoreMin: inScoreRange(scoreMin), scoreMax: inScoreRange(scoreMax) };
+}
+
+/** The sort option whose order the query holds, `default` otherwise. */
+function parseSort(params: URLSearchParams | QueryRecord): EvaluationSortId {
   const orderBy = firstValue(params, "orderBy");
   const orderDirection = firstValue(params, "orderDirection");
-  const sort =
+  return (
     EVALUATION_SORT_OPTIONS.find(
       (option) =>
         option.orderBy !== undefined &&
         option.orderBy === orderBy &&
         option.orderDirection === orderDirection,
-    )?.id ?? "default";
+    )?.id ?? "default"
+  );
+}
 
-  const values: EvaluationFilterValues = { sort };
+/**
+ * The facet values and sort of a query (design.md D4); the score bounds and
+ * the sort come from `parseScoreBounds` and `parseSort`
+ * (split-oversized-facets design.md D5).
+ */
+export function parseEvaluationFilters(
+  params: URLSearchParams | QueryRecord,
+  set: EvaluationFacetSet = "mine",
+): EvaluationFilterValues {
+  const status = firstValue(params, "status");
+  const { scoreMin, scoreMax } = parseScoreBounds(params);
+
+  const values: EvaluationFilterValues = { sort: parseSort(params) };
   if (set === "public") {
     // The public list has no Status facet; `offeringId` is never validated
     // here (add-public-evaluations design.md D4, D7).

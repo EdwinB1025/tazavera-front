@@ -16,7 +16,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 4. Evaluation filter parsing
 
-- [ ] 4.1 Split `parseEvaluationFilters` in `src/features/evaluation-facets/model/query.ts` as design.md D5. Commit `refactor(filtering): split the evaluation filter parsing`.
+- [x] 4.1 Split `parseEvaluationFilters` in `src/features/evaluation-facets/model/query.ts` as design.md D5. Commit `refactor(filtering): split the evaluation filter parsing`.
 
 ## 5. Offering facets
 
