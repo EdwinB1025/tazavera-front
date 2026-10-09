@@ -73,4 +73,27 @@ describe("formStateFromEvaluation (design.md D3)", () => {
     );
     expect(state.descriptors.mainTastes).toEqual(["ROOT", "CHILD", "LEAF"]);
   });
+
+  it("fills the five extrinsic fields (spec \"Loading the extrinsic fields\")", () => {
+    const state = formStateFromEvaluation(
+      {
+        ...ITEM,
+        extrinsics: {
+          farming: "Smallholder",
+          processing: "Washed",
+          trading: "Direct",
+          certifications: "Organic",
+          generalObservation: "Washed station",
+        },
+      },
+      "medium",
+    );
+    expect(state.extrinsics).toEqual({
+      farming: "Smallholder",
+      processing: "Washed",
+      trading: "Direct",
+      certifications: "Organic",
+    });
+    expect(state.generalObservation).toBe("Washed station");
+  });
 });

@@ -81,4 +81,15 @@ describe("EvaluationGroupCard (design.md D14, D15)", () => {
     expect(screen.queryByText("Complete")).toBeNull();
     expect(screen.queryByText("Incomplete")).toBeNull();
   });
+
+  it("shows the Extrinsic group's five fields in the contract's order", () => {
+    const { container } = renderGroup("extrinsic");
+    fireEvent.click(screen.getByRole("button", { name: "Extrinsic" }));
+    const labels = ["Farming", "Processing", "Trading", "Certifications"];
+    const areas = labels.map((label) => screen.getByLabelText(label));
+    for (const area of areas) expect(area.tagName).toBe("TEXTAREA");
+    const fields = [...areas, screen.getByRole("button", { name: "Add note" })];
+    const order = [...container.querySelectorAll("textarea, button:not([aria-expanded])")];
+    expect(order).toEqual(fields);
+  });
 });
