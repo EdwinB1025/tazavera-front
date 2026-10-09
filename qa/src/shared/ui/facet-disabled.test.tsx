@@ -32,7 +32,7 @@ beforeAll(() => {
 
 const HELP = "Options unavailable";
 const SEE_MORE = { seeMore: "See more ({count})", seeLess: "See less" };
-const CASCADE_TEXTS = { ...SEE_MORE, toggleChildren: "Options under {label}" };
+const CASCADE_TEXTS = SEE_MORE;
 const RANGE_TEXTS = { minThumb: "Minimum score", maxThumb: "Maximum score", from: "From", to: "To" };
 
 const PROCESSES: FacetOption[] = [
@@ -47,10 +47,6 @@ const FLAVOURS: CascadeOption[] = [
 
 function classesOf(element: Element): string[] {
   return (element.getAttribute("class") ?? "").split(/\s+/);
-}
-
-function checkbox(name: string): HTMLInputElement {
-  return screen.getByRole("checkbox", { name, hidden: true }) as HTMLInputElement;
 }
 
 const OPACITY_50 = ["opacity-50", "disabled:opacity-50", "peer-disabled:opacity-50"];
@@ -84,8 +80,9 @@ describe("Disabled facet row — exactly one 50% opacity along the chain", () =>
     expect(opacityChain(radio.nextElementSibling!)).toBe(1);
   });
 
-  it("a disabled checkbox row fades once: the row, not the box or the mark", () => {
-    render(
+  // refine-offering-facets-aut D3, D4: the cascade's rows are descriptor chips.
+  it("a disabled chip fades once: the chip, not its content or the facet around it", () => {
+    const { container } = render(
       <FacetCascade
         legend="Flavour"
         options={FLAVOURS}
@@ -95,9 +92,14 @@ describe("Disabled facet row — exactly one 50% opacity along the chain", () =>
         disabled
       />,
     );
-    const box = checkbox("Floral");
-    expect(opacityChain(box)).toBe(1);
-    expect(opacityChain(box.nextElementSibling!)).toBe(1);
+    const chip = screen.getByRole("button", { name: "Floral" });
+    let deepest: Element = chip;
+    while (deepest.lastElementChild) deepest = deepest.lastElementChild;
+    let count = 0;
+    for (let current: Element | null = deepest; current && current !== container; current = current.parentElement) {
+      count += classesOf(current).filter((c) => OPACITY_50.includes(c)).length;
+    }
+    expect(count).toBe(1);
   });
 });
 
@@ -112,7 +114,7 @@ describe("Disabled facet — 50% opacity", () => {
 });
 
 describe("Disabled FacetCascade", () => {
-  it("rejects input, fades its rows and shows the help text", () => {
+  it("rejects input, fades its chips and shows the help text", () => {
     const onChange = vi.fn();
     render(
       <FacetCascade
@@ -125,16 +127,15 @@ describe("Disabled FacetCascade", () => {
         help={HELP}
       />,
     );
-    for (const name of ["Fruity", "Berry", "Floral"]) {
-      expect(checkbox(name).disabled).toBe(true);
+    for (const name of ["Fruity", "Floral"]) {
+      const chip = screen.getByRole("button", { name }) as HTMLButtonElement;
+      expect(chip.disabled).toBe(true);
+      expect(classesOf(chip)).toEqual(
+        expect.arrayContaining(["disabled:cursor-not-allowed", "disabled:opacity-50"]),
+      );
     }
-    fireEvent.click(screen.getByText("Floral"));
+    fireEvent.click(screen.getByRole("button", { name: "Fruity" }));
     expect(onChange).not.toHaveBeenCalled();
-    const toggle = screen.getByRole("button", { name: "Options under Fruity" }) as HTMLButtonElement;
-    expect(toggle.disabled).toBe(true);
-    expect(classesOf(toggle)).toContain("disabled:opacity-50");
-    const row = screen.getByText("Floral").closest("label")!;
-    expect(classesOf(row)).toEqual(expect.arrayContaining(["cursor-not-allowed", "opacity-50"]));
     const help = screen.getByText(HELP);
     expect(screen.getByRole("group", { name: "Flavour" }).getAttribute("aria-describedby")).toBe(
       help.id,

@@ -43,7 +43,6 @@
     "qa/src/pages/register/ui/RegisterClient.test.tsx",
     "qa/src/entities/taxonomy/api/taxonomies.test.ts",
     "qa/src/features/location-management/api/locations.test.ts",
-    "qa/src/features/offering-facets/model/options.test.ts",
     "qa/src/features/user-account/api/contacts.test.ts",
     "qa/src/pages/public-evaluations/ui/EvaluationsSidebar.test.tsx",
     "qa/src/widgets/offering-list/api/offerings.test.ts",
