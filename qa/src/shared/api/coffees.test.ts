@@ -3,8 +3,8 @@ import { distinctCoffeeValues, fetchCoffees, type CoffeeSummary } from "@/shared
 
 /**
  * Coffee catalog read (add-offering-facets design.md D1): plain `fetch` with
- * no options, so no credential header, returning `data`; any non-2xx status
- * or transport failure rejects.
+ * no credential header, returning `{ ok: true, data }`; any non-2xx status
+ * or transport failure is an error result `{ ok: false, kind: "error" }`.
  */
 
 const API_URL = "https://api.tazavera.test";
@@ -25,18 +25,18 @@ describe("fetchCoffees (design.md D1)", () => {
   it("requests {NEXT_PUBLIC_API_URL}/coffees with plain fetch and returns data", async () => {
     const data = [{ ulid: "01A", process: "washed" }];
     fetchSpy.mockResolvedValue({ ok: true, status: 200, json: async () => ({ data }) });
-    await expect(fetchCoffees()).resolves.toEqual(data);
+    await expect(fetchCoffees()).resolves.toEqual({ ok: true, data });
     expect(fetchSpy).toHaveBeenCalledWith(`${API_URL}/coffees`, { next: { revalidate: 3600 } });
   });
 
-  it("rejects on a non-2xx status", async () => {
+  it("returns an error result on a non-2xx status", async () => {
     fetchSpy.mockResolvedValue({ ok: false, status: 500, json: async () => ({}) });
-    await expect(fetchCoffees()).rejects.toThrow();
+    await expect(fetchCoffees()).resolves.toEqual({ ok: false, kind: "error" });
   });
 
-  it("rejects on a transport failure", async () => {
+  it("returns an error result on a transport failure", async () => {
     fetchSpy.mockRejectedValue(new TypeError("network"));
-    await expect(fetchCoffees()).rejects.toThrow();
+    await expect(fetchCoffees()).resolves.toEqual({ ok: false, kind: "error" });
   });
 });
 

@@ -50,6 +50,7 @@ describe("OfferingsScreen", () => {
       evaluationsLabel: landing.cardEvaluationsLabel,
       defectiveLabel: landing.cardDefectiveLabel,
       viewLabel: landing.cardViewLabel,
+      viewEvaluationsLabel: landing.cardViewEvaluationsLabel,
       evaluateLabel: landing.cardEvaluateLabel,
       verifiedLabel: landing.cardVerifiedLabel,
       provisionalLabel: landing.cardProvisionalLabel,

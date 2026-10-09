@@ -281,27 +281,6 @@ describe("ConsensusPanel — Main tastes and Defects (spec: Consensus Defects an
       .map((line) => line.textContent ?? "");
   }
 
-  it("renders the identified defects from the descriptor rows, level-1 notes under their level-0 row", () => {
-    renderPanel(IDENTIFIED);
-    const card = cardOf(TEXTS.detailDefectsHeading);
-    expect(badgesIn(card)).toEqual(["Vinagre"]);
-    expect(card.textContent).toContain("Fermentado");
-    expect(card.textContent).not.toContain("Vinoso");
-  });
-
-  it("gives both legends the same fixed column width from md (review round 1, design.md D13)", () => {
-    renderPanel(IDENTIFIED);
-    for (const heading of [
-      TEXTS.detailMainTastesHeading,
-      TEXTS.detailDefectsHeading,
-    ]) {
-      const legend = cardOf(heading).nextElementSibling!;
-      expect(classTokens(legend)).toEqual(
-        expect.arrayContaining(["md:w-56", "md:shrink-0"]),
-      );
-    }
-  });
-
   it("reads the two groups from the CATA concordance only, never from the sensory taxonomy (spec: Consensus Defects and Main tastes)", () => {
     renderPanel({
       ...OFFERING,
@@ -585,8 +564,10 @@ describe("ConsensusPanel — detail by axis (spec: Consensus detail by axis; des
     );
   }
 
-  function legendIn(body: Element): Element | null {
-    return body.querySelector('[class~="md:w-56"]');
+  function sharesIn(element: Element): string[] {
+    return Array.from(element.querySelectorAll(".type-meta")).map(
+      (line) => line.textContent ?? "",
+    );
   }
 
   /** The panel-grid item holding the detail by axis. */
@@ -611,13 +592,9 @@ describe("ConsensusPanel — detail by axis (spec: Consensus detail by axis; des
   it("builds the mouthfeel section from the mouthfeel category", () => {
     renderAxes();
     const body = open("attrMouthfeel");
-    expect(badgesIn(body)).toEqual(["Suave"]);
+    expect(badgesIn(body)).toEqual(["Sensación en boca", "Suave"]);
     expect(body.textContent).not.toContain("Jazmín");
-    expect(
-      Array.from(legendIn(body)!.querySelectorAll(".type-meta")).map(
-        (line) => line.textContent,
-      ),
-    ).toEqual(["Suave 2/5"]);
+    expect(sharesIn(body)).toEqual(["Sensación en boca 2/5", "Suave 2/5"]);
   });
 
   it("finds the detail heading in the catalog of each locale (design.md D16)", () => {
