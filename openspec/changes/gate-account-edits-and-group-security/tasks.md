@@ -7,7 +7,7 @@ No derived API types are needed: the change consumes no new endpoint.
 
 ## 2. Change password view (user-account)
 
-- [ ] 2.1 Add `src/pages/account/ui/PasswordScreen.test.tsx` with one test per scenario of "Change password view": "The password form" (authenticated: the region named `changePassword` holds the current-password, new-password and confirmation fields), "Back to the account" (the back link's `href` is `/es/account`), "The view's session gate" (anonymous: the signed-out text and "Sign in", no region). Verify: the tests fail for the missing `PasswordScreen` module; `npx tsc --noEmit` reports only that missing module; `npm run lint` reports no errors.
+- [x] 2.1 Add `src/pages/account/ui/PasswordScreen.test.tsx` with one test per scenario of "Change password view": "The password form" (authenticated: the region named `changePassword` holds the current-password, new-password and confirmation fields), "Back to the account" (the back link's `href` is `/es/account`), "The view's session gate" (anonymous: the signed-out text and "Sign in", no region). Verify: the tests fail for the missing `PasswordScreen` module; `npx tsc --noEmit` reports only that missing module; `npm run lint` reports no errors.
 - [ ] 2.2 Implement design.md D4: `PasswordScreen` and `PasswordClient` in `src/pages/account/ui/`, `AccountPasswordScreen` exported from `src/pages/account/index.ts`, and `app/[locale]/account/password/page.tsx`. Protecting tests: `src/pages/account/ui/PasswordScreen.test.tsx`, `src/pages/account/ui/AccountClient.test.tsx`. Verify: `npx vitest related` on the changed files passes; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 3. Full checks
