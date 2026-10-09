@@ -4,8 +4,8 @@
 
 ## 1. The legend first
 
-- [ ] 1.1 In `src/pages/evaluation-form/ui/EvaluationForm.test.tsx`, test "sits after Flavor / Aftertaste and before Acidity, as no group and with no indicator": rename it to state that the legend is the first section, and replace its two position assertions with: the legend header follows the header's back link and precedes the roast level field (the context fields card); the assertions that it is no group and has no indicator stay. Verify: that test fails only on the new position assertion; every other related test, `npx tsc --noEmit` and `npm run lint` pass. Commit `test(evaluations): assert the scale legend is the first section`.
-- [ ] 1.2 Per design.md D1, render `ScaleLegend` in `EvaluationForm.tsx` between `EvaluationFormHeader` and `ContextFieldsCard` and remove it from `EvaluationGroupList.tsx`; nothing else changes. Verify: the related tests pass; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors. Commit `fix(evaluations): move the scale legend to the top of the form`.
+- [x] 1.1 In `src/pages/evaluation-form/ui/EvaluationForm.test.tsx`, test "sits after Flavor / Aftertaste and before Acidity, as no group and with no indicator": rename it to state that the legend is the first section, and replace its two position assertions with: the legend header follows the header's back link and precedes the roast level field (the context fields card); the assertions that it is no group and has no indicator stay. Verify: that test fails only on the new position assertion; every other related test, `npx tsc --noEmit` and `npm run lint` pass. Commit `test(evaluations): assert the scale legend is the first section`.
+- [x] 1.2 Per design.md D1, render `ScaleLegend` in `EvaluationForm.tsx` between `EvaluationFormHeader` and `ContextFieldsCard` and remove it from `EvaluationGroupList.tsx`; nothing else changes. Verify: the related tests pass; `npx tsc --noEmit` 0 errors; `npm run lint` 0 errors. Commit `fix(evaluations): move the scale legend to the top of the form`.
 
 ## 2. Full checks
 
