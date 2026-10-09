@@ -81,8 +81,8 @@ describe("Page backdrop token (refine-page-surfaces D6)", () => {
 // One scope utility reassigns the tokens the inverse variant swaps, so every
 // control keeps one class set across both variants and the inverse surface
 // resolves through the same semantic names. The block is normative: exactly
-// the eight reassignments of design.md D2, nothing else. Until the utility
-// exists (task 1.5), these checks fail.
+// the eight reassignments of design.md D2 plus --color-border-muted
+// (refine-offering-facets-aut design.md), nothing else.
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /** Extract every @utility variant-inverse block from globals.css. */
@@ -96,13 +96,14 @@ function extractVariantInverseUtilities(css: string): string[] {
   return blocks;
 }
 
-/** The exact reassignment block of form-fields design.md D2. */
+/** The exact reassignment block of form-fields design.md D2, plus border-muted (refine-offering-facets-aut). */
 const VARIANT_INVERSE_REASSIGNMENTS: Record<string, string> = {
   "--color-text-label": "var(--color-nav-text-dark)",
   "--color-text-secondary": "var(--color-nav-text-dark)",
   "--color-text-strong": "var(--color-nav-text-dark)",
   "--color-text-placeholder": "var(--color-text-placeholder-inverse)",
   "--color-border-strong": "var(--color-border-inverse)",
+  "--color-border-muted": "var(--color-border-inverse)",
   "--color-feedback-error": "var(--color-feedback-error-inverse)",
   "--color-focus-ring": "var(--color-focus-ring-inverse)",
   "--color-focus-offset": "var(--color-focus-offset-inverse)",
@@ -117,7 +118,7 @@ describe("Inverse variant scope utility: @utility variant-inverse (form-fields d
     expect(blocks).toHaveLength(1);
   });
 
-  it("reassigns exactly the eight tokens of design.md D2", () => {
+  it("reassigns exactly the nine tokens of design.md D2 and refine-offering-facets-aut", () => {
     expect(Object.fromEntries(extractProperties(block))).toEqual(
       VARIANT_INVERSE_REASSIGNMENTS,
     );
