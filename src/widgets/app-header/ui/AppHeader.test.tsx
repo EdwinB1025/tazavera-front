@@ -695,6 +695,26 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
     expect(security.className).not.toContain("text-text-link");
   });
 
+  it("opens the security entry in a popup window on a plain click and the tab does not navigate (open-security-pages-in-popup D4)", () => {
+    const open = vi.fn().mockReturnValue({ closed: false });
+    vi.stubGlobal("open", open);
+    try {
+      renderSignedIn("specialist");
+      openMenu();
+      const notPrevented = fireEvent.click(
+        screen.getByRole("menuitem", { name: TEXTS.security }),
+      );
+      expect(notPrevented).toBe(false);
+      expect(open).toHaveBeenCalledWith(
+        "https://api.tazavera.test/user/security",
+        "tazavera-security",
+        "popup",
+      );
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("shows the theme switch in the header and no theme selector in the menu (spec: Signed-in header and user menu)", () => {
     renderSignedIn("specialist");
     expect(
