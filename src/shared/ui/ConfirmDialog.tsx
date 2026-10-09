@@ -8,6 +8,7 @@ import {
   AlertDialogDescription,
   AlertDialogTitle,
 } from "./AlertDialog";
+import { ActionGroup } from "./ActionGroup";
 import { Button } from "./Button";
 
 // ─── UI-specific types (declared before the component) ───
@@ -30,13 +31,10 @@ export type ConfirmDialogProps = {
 };
 
 // ─── Layout classes (design.md D8) ───
-// Below `sm` the actions stack full width with the confirm above the cancel
-// (reversed column); from `sm` they sit in one right-aligned row, cancel then
-// confirm, the DOM order.
+// Cancel then confirm in one end-aligned action group
+// (unify-action-button-widths D3).
 
-const ACTIONS_CLASSES =
-  "mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end";
-const ACTION_WIDTH_CLASSES = "w-full sm:w-auto";
+const ACTIONS_CLASSES = "mt-6";
 
 /**
  * Tazavera confirmation dialog.
@@ -85,13 +83,9 @@ export function ConfirmDialog({
         <div role="alert" className={hasError ? "mt-3" : undefined}>
           {hasError && <p className="type-error">{error}</p>}
         </div>
-        <div className={ACTIONS_CLASSES}>
+        <ActionGroup align="end" className={ACTIONS_CLASSES}>
           <AlertDialogCancel asChild>
-            <Button
-              variant="action-4"
-              disabled={pending}
-              className={ACTION_WIDTH_CLASSES}
-            >
+            <Button variant="action-4" disabled={pending}>
               {cancelLabel}
             </Button>
           </AlertDialogCancel>
@@ -99,11 +93,10 @@ export function ConfirmDialog({
             variant="action-2"
             loading={pending}
             onClick={onConfirm}
-            className={ACTION_WIDTH_CLASSES}
           >
             {confirmLabel}
           </Button>
-        </div>
+        </ActionGroup>
       </AlertDialogContent>
     </AlertDialog>
   );
