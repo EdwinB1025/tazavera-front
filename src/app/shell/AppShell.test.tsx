@@ -20,6 +20,14 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
+// The language selector switches locale through next-intl's navigation
+// (adopt-next-intl-routing design.md D6), which needs the same router
+// context. Test infrastructure only: no assertion below depends on it.
+vi.mock("@/shared/lib/locale-navigation", () => ({
+  useRouter: () => ({ push: () => {} }),
+  usePathname: () => shellPathname.replace(/^\/[^/]*/, "") || "/",
+}));
+
 // The session hook reads the route's locale with `useLocale()` under the
 // `[locale]` layout's provider (adopt-next-intl-routing design.md D7), which
 // these renders do not mount. Test infrastructure only.

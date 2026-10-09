@@ -23,7 +23,7 @@
 
 ## 6. Language selector through next-intl navigation (app-shell)
 
-- [ ] 6.1 Add `src/shared/lib/locale-navigation.ts` and make `ShellChrome` switch locale with its `useRouter().push(pathname, { locale })` and `usePathname()`, keeping `next/navigation` for `currentPath` and `signOut` (design.md D6). Tests that render `ShellChrome` (the shell tests in `src/` and `qa/`) mock `@/shared/lib/locale-navigation` next to their `next/navigation` mock; no assertion changes (list the files in the commit body). Expected: `npx vitest related` on the changed files passes; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 6.1 Add `src/shared/lib/locale-navigation.ts` and make `ShellChrome` switch locale with its `useRouter().push(pathname, { locale })` and `usePathname()`, keeping `next/navigation` for `currentPath` and `signOut` (design.md D6). Tests that render `ShellChrome` (the shell tests in `src/` and `qa/`) mock `@/shared/lib/locale-navigation` next to their `next/navigation` mock; no assertion changes (list the files in the commit body). Expected: `npx vitest related` on the changed files passes; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 7. Verification (summary §8)
 

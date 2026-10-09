@@ -2,11 +2,17 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
+import { hasLocale } from "next-intl";
 import { AppHeader } from "@/widgets/app-header";
 import type { AppHeaderTexts } from "@/widgets/app-header";
 import type { Session } from "@/shared/api";
 import type { Theme } from "@/shared/lib/theme";
 import { signIn, signOut } from "@/features/auth";
+import { routing } from "@/shared/config/locales";
+import {
+  usePathname as useLocalePathname,
+  useRouter as useLocaleRouter,
+} from "@/shared/lib/locale-navigation";
 
 /**
  * Client chrome of the shell wiring (design.md D1, D3).
@@ -39,11 +45,16 @@ export function ShellChrome({
 }: ShellChromeProps): ReactNode {
   const router = useRouter();
   const pathname = usePathname();
+  const localeRouter = useLocaleRouter();
+  const localePathname = useLocalePathname();
 
   const handleLocaleChange = (next: string) => {
-    // The same route in the chosen locale (spec: "Choosing a locale").
-    const current = pathname ?? `/${locale}`;
-    router.push(current.replace(/^\/[^/]*/, `/${next}`));
+    // The same route in the chosen locale (spec: "Choosing a locale"), through
+    // next-intl's navigation (adopt-next-intl-routing design.md D6); the
+    // selector offers only supported locales.
+    if (hasLocale(routing.locales, next)) {
+      localeRouter.push(localePathname, { locale: next });
+    }
   };
 
   const handleSignIn = () => {
