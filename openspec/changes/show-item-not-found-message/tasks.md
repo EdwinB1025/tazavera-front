@@ -12,4 +12,4 @@ No derived API types are needed: every read already uses the shared `ApiResult` 
 
 ## 3. Full checks
 
-- [ ] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: every validation test passes; the QA suite fails only in tests that also fail on `origin/develop`; no typecheck or lint errors; the build succeeds. QA tests made stale by this change are listed in the final report, not edited.
+- [x] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: every validation test passes; the QA suite fails only in tests that also fail on `origin/develop`; no typecheck or lint errors; the build succeeds. QA tests made stale by this change are listed in the final report, not edited.
