@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { Session } from "@/shared/api";
 import { fetchOffering } from "@/entities/offering";
-import { fetchTaxonomies } from "@/entities/taxonomy";
+import { collectTaxonomyRefs, fetchTaxonomiesCovering } from "@/entities/taxonomy";
 import type { DetailTab } from "../lib/tab";
 import { OfferingDetailContent } from "./OfferingDetailContent";
 import type {
@@ -41,7 +41,12 @@ export async function OfferingDetail({
     result = { state: "error" };
   } else {
     try {
-      const taxonomies = await fetchTaxonomies();
+      const taxonomies = await fetchTaxonomiesCovering(
+        collectTaxonomyRefs([
+          ...(offering.data.cataConcordance ?? []),
+          ...(offering.data.sensoryTaxonomy ?? []),
+        ]),
+      );
       result = taxonomies.ok
         ? { state: "success", offering: offering.data, taxonomies: taxonomies.data.data }
         : { state: "error" };

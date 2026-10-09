@@ -2,7 +2,8 @@ import type { ReactNode } from "react";
 import {
   buildTasteNoteTree,
   buildTaxonomyLookup,
-  fetchTaxonomies,
+  collectTaxonomyRefs,
+  fetchTaxonomiesCovering,
 } from "@/entities/taxonomy";
 import { fetchOfferings } from "../api/offerings";
 import type { OfferingsQuery } from "../lib/query";
@@ -53,7 +54,13 @@ export async function Offerings({
   try {
     const offerings = await fetchOfferings(query);
     // A failed offerings read sends no taxonomy read, as before.
-    const taxonomies = offerings.ok ? await fetchTaxonomies() : null;
+    const taxonomies = offerings.ok
+      ? await fetchTaxonomiesCovering(
+          offerings.data.data.flatMap((offering) =>
+            collectTaxonomyRefs(offering.cataConcordance ?? []),
+          ),
+        )
+      : null;
     if (offerings.ok && taxonomies?.ok) {
       const lookup = buildTaxonomyLookup(taxonomies.data.data, locale);
       const items: OfferingListItem[] = offerings.data.data.map((offering) => ({

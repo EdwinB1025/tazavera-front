@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import type { EvaluationItem, OfferingDetail, TaxonomyNode } from "@/shared/api";
 import { fetchEvaluation } from "@/entities/evaluation";
 import { fetchOffering } from "@/entities/offering";
-import { fetchTaxonomies } from "@/entities/taxonomy";
+import { collectTaxonomyRefs, fetchTaxonomiesCovering } from "@/entities/taxonomy";
 import { Link, PageSection, RetryButton } from "@/shared/ui";
 import { cn } from "@/shared/lib/utils";
 import { EvaluationSheet } from "./EvaluationSheet";
@@ -85,7 +85,7 @@ async function load(ulid: string): Promise<ViewData | null> {
       offeringId
         ? fetchOffering(offeringId).then((offeringRead) => (offeringRead.ok ? offeringRead.data : null))
         : Promise.resolve(undefined),
-      fetchTaxonomies(),
+      fetchTaxonomiesCovering(collectTaxonomyRefs(evaluation.tastes ?? [])),
     ]);
     if (!taxonomies.ok) return null;
     return { evaluation, offering, taxonomies: taxonomies.data.data };
