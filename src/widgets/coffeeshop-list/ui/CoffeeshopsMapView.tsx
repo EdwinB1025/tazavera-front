@@ -58,6 +58,95 @@ const SHEET_HEADER_CLASSES = "flex items-center justify-between gap-3 px-4 py-3 
 const SHEET_MAP_CLASSES = "flex-1 min-h-0";
 const EMPTY_CLASSES = "text-center text-text-primary";
 
+/** The map, or the empty line when no location of the page is located. */
+function MapArea({
+  points,
+  focusGroupId,
+  locale,
+  helpId,
+  className,
+  texts,
+}: {
+  points: LocationsMapPoint[];
+  focusGroupId?: string;
+  locale: string;
+  helpId: string;
+  className: string;
+  texts: CoffeeshopsMapTexts;
+}): ReactNode {
+  return points.length === 0 ? (
+    <p className={EMPTY_CLASSES}>{texts.mapEmpty}</p>
+  ) : (
+    <LocationsMapLoader
+      points={points}
+      focusGroupId={focusGroupId}
+      renderPanelLink={(point: LocationsMapPoint) => (
+        <NextLink href={`/${locale}/coffeeshops/${point.groupId}`} className={LINK_CLASSES}>
+          {texts.viewCoffeeshop}
+        </NextLink>
+      )}
+      helpId={helpId}
+      className={className}
+      texts={{
+        mapLabel: texts.mapLabel,
+        zoomIn: texts.zoomIn,
+        zoomOut: texts.zoomOut,
+        closePanel: texts.closePanel,
+        osmAttribution: texts.osmAttribution,
+        osmContributors: texts.osmContributors,
+        mapLoading: texts.mapLoading,
+      }}
+    />
+  );
+}
+
+/** Below `md`: the map full screen in the shared sheet; closing it returns to the list. */
+function MapSheet({
+  focus,
+  helpId,
+  map,
+  unlocatedLine,
+  texts,
+}: {
+  focus?: string;
+  helpId: string;
+  map: ReactNode;
+  unlocatedLine: ReactNode;
+  texts: CoffeeshopsMapTexts;
+}): ReactNode {
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const close = () => {
+    requestFocus(focus ? `card:${focus}` : "toggle");
+    router.push(
+      viewHref(pathname, new URLSearchParams(searchParams?.toString()), { view: undefined, focus: undefined }),
+      { scroll: false },
+    );
+  };
+  return (
+    <Sheet open onOpenChange={(open) => (open ? undefined : close())}>
+      <SheetContent
+        className={SHEET_CLASSES}
+        aria-describedby={helpId}
+        onCloseAutoFocus={(event) => event.preventDefault()}
+      >
+        <div className={SHEET_HEADER_CLASSES}>
+          <SheetTitle className="type-subheading">{texts.mapLabel}</SheetTitle>
+          <Button type="button" variant="action-3" size="sm" icon={List} onClick={close}>
+            {texts.backToList}
+          </Button>
+        </div>
+        <p id={helpId} className="sr-only">
+          {texts.mapHelp}
+        </p>
+        {map}
+        {unlocatedLine ? <div className="px-4 py-2">{unlocatedLine}</div> : null}
+      </SheetContent>
+    </Sheet>
+  );
+}
+
 /**
  * The directory's map view (add-coffeeshop-directory design.md D13; specs
  * "Directory map view", "Show a coffee shop on the map" and "Full-screen map
@@ -76,73 +165,36 @@ export function CoffeeshopsMapView({
   texts,
 }: CoffeeshopsMapViewProps): ReactNode {
   const isMobile = useIsMobile();
-  const router = useRouter();
-  const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
   const helpId = useId();
   const points = toMapPoints(items);
   const unlocated = countUnlocated(items);
   const focusGroupId = items.some((item) => item.ulid === focus) ? focus : undefined;
   const pagingQuery = Object.fromEntries(Object.entries(query).filter(([key]) => key !== "page"));
 
-  const map =
-    points.length === 0 ? (
-      <p className={EMPTY_CLASSES}>{texts.mapEmpty}</p>
-    ) : (
-      <LocationsMapLoader
-        points={points}
-        focusGroupId={focusGroupId}
-        renderPanelLink={(point: LocationsMapPoint) => (
-          <NextLink href={`/${locale}/coffeeshops/${point.groupId}`} className={LINK_CLASSES}>
-            {texts.viewCoffeeshop}
-          </NextLink>
-        )}
-        helpId={helpId}
-        className={isMobile ? SHEET_MAP_CLASSES : INLINE_MAP_CLASSES}
-        texts={{
-          mapLabel: texts.mapLabel,
-          zoomIn: texts.zoomIn,
-          zoomOut: texts.zoomOut,
-          closePanel: texts.closePanel,
-          osmAttribution: texts.osmAttribution,
-          osmContributors: texts.osmContributors,
-          mapLoading: texts.mapLoading,
-        }}
-      />
-    );
+  const map = (
+    <MapArea
+      points={points}
+      focusGroupId={focusGroupId}
+      locale={locale}
+      helpId={helpId}
+      className={isMobile ? SHEET_MAP_CLASSES : INLINE_MAP_CLASSES}
+      texts={texts}
+    />
+  );
   const unlocatedLine =
     unlocated > 0 ? (
       <p className="type-meta">{texts.unlocatedCount.replace("{count}", String(unlocated))}</p>
     ) : null;
 
   if (isMobile) {
-    const close = () => {
-      requestFocus(focus ? `card:${focus}` : "toggle");
-      router.push(
-        viewHref(pathname, new URLSearchParams(searchParams?.toString()), { view: undefined, focus: undefined }),
-        { scroll: false },
-      );
-    };
     return (
-      <Sheet open onOpenChange={(open) => (open ? undefined : close())}>
-        <SheetContent
-          className={SHEET_CLASSES}
-          aria-describedby={helpId}
-          onCloseAutoFocus={(event) => event.preventDefault()}
-        >
-          <div className={SHEET_HEADER_CLASSES}>
-            <SheetTitle className="type-subheading">{texts.mapLabel}</SheetTitle>
-            <Button type="button" variant="action-3" size="sm" icon={List} onClick={close}>
-              {texts.backToList}
-            </Button>
-          </div>
-          <p id={helpId} className="sr-only">
-            {texts.mapHelp}
-          </p>
-          {map}
-          {unlocatedLine ? <div className="px-4 py-2">{unlocatedLine}</div> : null}
-        </SheetContent>
-      </Sheet>
+      <MapSheet
+        focus={focus}
+        helpId={helpId}
+        map={map}
+        unlocatedLine={unlocatedLine}
+        texts={texts}
+      />
     );
   }
 
