@@ -2,7 +2,7 @@
 
 import { useId, useRef, useState } from "react";
 import { descendantIds } from "./flavor-wheel-tree";
-import type { FlavorWheelNode } from "./FlavorWheel";
+import type { FlavorWheelNode } from "./flavor-wheel-types";
 
 export type FlavorWheelState = {
   expanded: ReadonlySet<string>;

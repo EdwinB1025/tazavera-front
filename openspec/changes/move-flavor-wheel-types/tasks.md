@@ -4,7 +4,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 1. Types module
 
-- [ ] 1.1 Create `src/shared/ui/flavor-wheel-types.ts` with `FlavorWheelNode` and `FlavorWheelGroup` moved unchanged from `FlavorWheel.tsx` (design.md D1); point the type imports of `FlavorWheelChart.tsx`, `FlavorWheelLabels.tsx`, `FlavorWheelNoteList.tsx`, `FlavorWheelPanel.tsx`, `flavor-wheel-keys.ts`, `flavor-wheel-tree.ts` and `use-flavor-wheel-state.ts` at it; `FlavorWheel.tsx` imports both types from it and re-exports only `FlavorWheelNode` (design.md D2). Verify: the related tests pass with no test file changed; `npx tsc --noEmit` reports 0 errors; `npm run lint` reports 0 errors; `npx -y madge@8 --circular --extensions ts,tsx src/shared/ui` reports no circular dependency. Commit `refactor(feedback): move the flavor wheel types to their own module`.
+- [x] 1.1 Create `src/shared/ui/flavor-wheel-types.ts` with `FlavorWheelNode` and `FlavorWheelGroup` moved unchanged from `FlavorWheel.tsx` (design.md D1); point the type imports of `FlavorWheelChart.tsx`, `FlavorWheelLabels.tsx`, `FlavorWheelNoteList.tsx`, `FlavorWheelPanel.tsx`, `flavor-wheel-keys.ts`, `flavor-wheel-tree.ts` and `use-flavor-wheel-state.ts` at it; `FlavorWheel.tsx` imports both types from it and re-exports only `FlavorWheelNode` (design.md D2). Verify: the related tests pass with no test file changed; `npx tsc --noEmit` reports 0 errors; `npm run lint` reports 0 errors; `npx -y madge@8 --circular --extensions ts,tsx src/shared/ui` reports no circular dependency. Commit `refactor(feedback): move the flavor wheel types to their own module`.
 
 ## 2. Full checks
 

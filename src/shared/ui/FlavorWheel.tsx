@@ -7,26 +7,14 @@ import { handleTreeKey } from "./flavor-wheel-keys";
 import { FlavorWheelNoteList } from "./FlavorWheelNoteList";
 import { FlavorWheelPanel } from "./FlavorWheelPanel";
 import { arrangeRoots, findNode, visibleRows } from "./flavor-wheel-tree";
+import type { FlavorWheelGroup, FlavorWheelNode } from "./flavor-wheel-types";
 import { useFlavorWheelState } from "./use-flavor-wheel-state";
+
+export type { FlavorWheelNode } from "./flavor-wheel-types";
 
 // ─── UI-specific types (declared before the component) ───
 // The wheel takes resolved, localized notes as props: no generated API type is
 // involved and there is no `locale` (design.md D1).
-
-export type FlavorWheelNode = {
-  id: string; // taxonomy ulid
-  name: string; // localized name
-  description: string | null; // localized description
-  color: string; // #RRGGBB data color
-  level: 0 | 1 | 2; // from the offering node's own level
-  count: number; // evaluators who identified the note
-  countLabel: string; // host-composed accessible text
-  group?: string; // the root's group id (add-offering-catalog D19); roots only
-  children: FlavorWheelNode[];
-};
-
-/** A group of roots set apart on the wheel, in wheel order (D19). */
-export type FlavorWheelGroup = { id: string; name: string };
 
 export type FlavorWheelTexts = {
   label: string;
