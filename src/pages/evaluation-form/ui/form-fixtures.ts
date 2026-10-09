@@ -94,6 +94,12 @@ export const FORM_TEXTS: EvaluationFormTexts = {
     removeNoteLabel: "Remove note",
     noteLabel: "Note",
     extrinsicNoteLabel: "General observation",
+    extrinsicLabels: {
+      farming: "Farming",
+      processing: "Processing",
+      trading: "Trading",
+      certifications: "Certifications",
+    },
   },
 };
 
