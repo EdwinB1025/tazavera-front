@@ -2,6 +2,7 @@
 
 import { useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import {
+  ActionGroup,
   Button,
   Card,
   CardAside,
@@ -79,8 +80,6 @@ const LEGEND_CLASSES = ["type-label", "mb-4", "p-0"].join(" ");
 const FIELDS_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
 // Help and attribution 0.5rem apart.
 const NOTES_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
-// Save, then Cancel: a wrapping row 0.75rem apart, start-aligned.
-const ACTIONS_CLASSES = ["flex", "flex-wrap", "gap-3"].join(" ");
 
 /** design.md D7: the attribution line, its `{link}` placeholder replaced by the anchor. */
 function Attribution({ texts }: { texts: LocationFormTexts }): ReactNode {
@@ -191,7 +190,7 @@ export function LocationForm({
               <Attribution texts={texts} />
             </div>
             {submitState === "error" && <FormStatus kind="error" text={texts.genericError} />}
-            <div className={ACTIONS_CLASSES}>
+            <ActionGroup>
               <Button type="submit" variant="primary" size="base" loading={submitting}>
                 {texts.save}
               </Button>
@@ -204,7 +203,7 @@ export function LocationForm({
               >
                 {texts.cancel}
               </Button>
-            </div>
+            </ActionGroup>
           </form>
         </div>
       </CardContent>

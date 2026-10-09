@@ -27,7 +27,7 @@ No derived API types are needed: the change only moves layout classes and adds t
 
 ## 6. Offering management screens (offering-management)
 
-- [ ] 6.1 Implement design.md D4 in `LocationForm.tsx` (group), `NewOfferingForm.tsx` (group, end-aligned as today) and the manage-offerings card actions (through the offering card footer, task 7). No test is added. Verify: `npx vitest related` passes; typecheck and lint clean.
+- [x] 6.1 Implement design.md D4 in `LocationForm.tsx` (group), `NewOfferingForm.tsx` (group, end-aligned as today) and the manage-offerings card actions (through the offering card footer, task 7). No test is added. Verify: `npx vitest related` passes; typecheck and lint clean.
 
 ## 7. Catalog screens (offering-catalog)
 
