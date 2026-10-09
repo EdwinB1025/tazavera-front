@@ -452,6 +452,15 @@ You own the progress board (`docs/change-progress.md` on `develop`) and assign t
 
 - At the start of every session, after reading the records above, start a recurring task every 10 minutes with this prompt: "Check the activities in progress (board, cloud routines and their branches, OpenCode runs, handoffs); for each, decide the actions that move it to its next phase under these rules, and assign the next work to every idle executor."
 - Each tick: read the board and the state of every executor; integrate what finished (section 7, steps 4–8; section 8 for refactors); assign the next step of each change and fill idle executors; update the board when a phase or assignee changes. A tick with nothing to do changes nothing and reports nothing.
+- **Tick checklist.** Every tick goes through these checks, in order, and acts on each one before it ends:
+  1. The assignment loop is running (if not, start it).
+  2. Every cloud branch whose session ended: archived and not yet integrated? Simulate the merge and integrate it now; a conflict goes to a cloud integration session.
+  3. Every session that stopped or asked a question: answer it from the rules and launch its follow-up, or record the exact question for Product owner on the board.
+  4. Every session with no new commit for 45 minutes, or no branch 45 minutes after launch: check its run log and act.
+  5. Every item Product owner approved (decisions log, backlog, his messages) that has no executor: launch it.
+  6. Every API change that ended: merged into `dev` and `PROD` aligned, locally and on GitHub; the contract copied to the front when it changed.
+  7. Anything you are about to do locally: if it develops code, tests or artifacts, or resolves a conflict, it goes to the cloud instead.
+  8. The board reflects every change above, including what waits for Product owner and the exact question.
 - Stop the loop only when no change has a next step that you may take (everything left waits for Product owner), and say so in your report. Start it again when Product owner answers or new work arrives.
 - The loop ends with the session: before ending a session, record the running scheduled runs and watches on the board so the next session resumes them.
 
