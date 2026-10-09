@@ -47,6 +47,8 @@ describe("CoffeeshopsSidebarScreen", () => {
     const entry = within(screen.getByRole("navigation")).getByRole("link", { name: "Explora coffees" });
     expect(entry.getAttribute("aria-current")).toBe("page");
     expect(within(sidebar).getByRole("search", { name: "Filtros" })).toBeDefined();
+    // spec filtering "Title shown once in the sidebar": the toggle is the only title.
+    expect(within(sidebar).queryByRole("heading", { name: "Filtros" })).toBeNull();
   });
 
   it("keeps the applied value while the facets are collapsed (spec: Filters keep applying while collapsed)", () => {
