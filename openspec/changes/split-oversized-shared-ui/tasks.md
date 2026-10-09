@@ -12,7 +12,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 3. Bean scale
 
-- [ ] 3.1 Create `src/shared/ui/BeanScaleBeans.tsx` and split `BeanScale` as design.md D5. Commit `refactor(form-fields): split the bean scale`.
+- [x] 3.1 Create `src/shared/ui/BeanScaleBeans.tsx` and split `BeanScale` as design.md D5. Commit `refactor(form-fields): split the bean scale`.
 
 ## 4. Intensity slider
 
