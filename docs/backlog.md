@@ -76,6 +76,7 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Decided (Product owner, 2026-10-09):** enable email verification (`MustVerifyEmail`); Product owner makes the API change himself.
 - **Action for Product owner:** in `tazavera-api`, enable `Features::emailVerification()`, make `User` implement `MustVerifyEmail`, configure mail sending, and tell the orchestrator whether the user resource (`GET /user`) exposes the verification state; if it does, copy the regenerated contract into `contracts/openapi.yaml`.
 - **Then:** the front adds "Verify email" (a button to the API's verification page, or a verified status) to the account page's Security section.
+- **Decided (Product owner, 2026-10-09, front part):** the API exposes `emailVerifiedAt` (null or an ISO date) on the user resource, and after verifying, Fortify redirects to the front's account page (`{FRONT_URL}/es/account?verified=1`). The account page confirms the state in two places: the read-only Profile shows the email's verification state, and the Security section's "Verify email" entry shows the user as verified when `emailVerifiedAt` is set; otherwise it offers the action to verify (the API's verification page).
 - **Type:** Change (API) · **Status:** accepted · **Affects:** none
 
 ## R64 — Empty band above the offerings and coffee-shops lists (design lead's final AUT pass, 2026-10-09)
