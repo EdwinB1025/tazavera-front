@@ -1,7 +1,7 @@
 # testing Specification
 
 ## Purpose
-TBD - created by archiving change speed-up-test-environment. Update Purpose after archive.
+Defines the repository's two test suites, the validation suite and the QA suite, and requires that any change to how the test environment is set up leaves each suite running the same test files and tests with the same results, with every test file isolated from the others.
 
 ## Requirements
 
