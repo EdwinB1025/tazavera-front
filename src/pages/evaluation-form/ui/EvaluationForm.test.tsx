@@ -6,8 +6,11 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
  * 4.1 and the later form tasks).
  */
 
+// Back and Cancel are route buttons (render-navigation-actions-as-buttons);
+// the app router is mocked — test infrastructure only.
+const router = vi.hoisted(() => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }));
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
+  useRouter: () => router,
 }));
 
 const createAnEvaluation = vi.fn();
@@ -39,6 +42,7 @@ beforeAll(() => {
 
 afterEach(() => {
   cleanup();
+  router.push.mockClear();
   createAnEvaluation.mockReset();
   updateAnEvaluation.mockReset();
   closeAnEvaluation.mockReset();
@@ -54,8 +58,9 @@ function renderNew() {
 describe("EvaluationForm: header and tree (tasks 4.1)", () => {
   it("renders the page header block", () => {
     renderNew();
-    const back = screen.getByRole("link", { name: "My evaluations" });
-    expect(back.getAttribute("href")).toBe("/en/manage/evaluations");
+    const back = screen.getByRole("button", { name: "My evaluations" });
+    fireEvent.click(back);
+    expect(router.push).toHaveBeenCalledWith("/en/manage/evaluations");
     expect(back.className).toContain("inline-flex");
     expect(screen.getByText("Evaluation")).toBeDefined();
     const heading = screen.getByRole("heading", { level: 1, name: "Finca La Esperanza" });
@@ -408,11 +413,11 @@ describe("EvaluationForm: Close only for a saved evaluation (close-evaluation-on
 describe("EvaluationForm: Cancel (add-form-cancel-actions design.md D1, D2)", () => {
   it("Cancel leaves for My evaluations without saving", () => {
     renderForm();
-    const cancel = screen.getByRole("link", { name: "Cancel" });
-    expect(cancel.getAttribute("href")).toBe("/en/manage/evaluations");
-    expect(cancel.className).toContain("text-text-link");
-    expect(cancel.className).toContain("self-center");
+    const cancel = screen.getByRole("button", { name: "Cancel" });
+    expect(cancel.className).toContain("bg-action-4-bg");
+    expect(cancel.parentElement!.className).toContain("self-center");
     fireEvent.click(cancel);
+    expect(router.push).toHaveBeenCalledWith("/en/manage/evaluations");
     expect(createAnEvaluation).not.toHaveBeenCalled();
     expect(updateAnEvaluation).not.toHaveBeenCalled();
     expect(closeAnEvaluation).not.toHaveBeenCalled();
@@ -450,14 +455,16 @@ describe("EvaluationForm: read-only presentation (design.md D4, D14; tasks 7.3)"
   });
   it("No Cancel on a closed evaluation", () => {
     renderForm({ evaluation: CLOSED });
-    expect(screen.queryByRole("link", { name: "Cancel" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Cancel" })).toBeNull();
   });
   it("Back link at the end of a read-only evaluation", () => {
     renderForm({ evaluation: CLOSED });
-    const links = screen.getAllByRole("link", { name: "My evaluations" });
-    expect(links.map((link) => link.getAttribute("href"))).toEqual([
-      "/en/manage/evaluations",
-      "/en/manage/evaluations",
+    const links = screen.getAllByRole("button", { name: "My evaluations" });
+    router.push.mockClear();
+    links.forEach((link) => fireEvent.click(link));
+    expect(router.push.mock.calls).toEqual([
+      ["/en/manage/evaluations"],
+      ["/en/manage/evaluations"],
     ]);
     const status = screen.getByRole("status");
     expect(status.compareDocumentPosition(links[1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -584,7 +591,7 @@ describe("EvaluationForm: an evaluation of a deleted offering (design.md D17; ta
 
   it("keeps the back link and the eyebrow and shows the message as the heading, with no captions", () => {
     renderOrphan();
-    expect(screen.getAllByRole("link", { name: "My evaluations" })[0]).toBeDefined();
+    expect(screen.getAllByRole("button", { name: "My evaluations" })[0]).toBeDefined();
     expect(screen.getByText("Evaluation")).toBeDefined();
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Offering no longer exists");
     expect(screen.queryByText(/^Coffeeshop:/)).toBeNull();

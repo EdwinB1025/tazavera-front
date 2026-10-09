@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "./Button";
 import type { ButtonSize, ButtonVariant } from "./Button";
+import type { LucideIcon } from "@/shared/ui/icons";
 import type { LinkProps } from "./Link";
 
 // ─── UI-specific types (declared before the component) ───
@@ -13,6 +14,8 @@ export type RouteButtonProps = {
   href: LinkProps["href"];
   variant?: ButtonVariant;
   size?: ButtonSize;
+  /** A leading icon, passed to `Button`. */
+  icon?: LucideIcon;
   children: ReactNode;
 };
 
@@ -26,11 +29,12 @@ export function RouteButton({
   href,
   variant,
   size,
+  icon,
   children,
 }: RouteButtonProps): ReactNode {
   const router = useRouter();
   return (
-    <Button variant={variant} size={size} onClick={() => router.push(href)}>
+    <Button variant={variant} size={size} icon={icon} onClick={() => router.push(href)}>
       {children}
     </Button>
   );

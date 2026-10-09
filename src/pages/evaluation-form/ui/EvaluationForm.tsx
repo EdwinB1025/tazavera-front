@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import type { EvaluationItem, OfferingDetail, TaxonomyNode } from "@/shared/api";
 import type { DescriptorBlockKey } from "@/entities/evaluation";
-import { Link } from "@/shared/ui";
+import { ArrowLeft, RouteButton } from "@/shared/ui";
 import { useEvaluationForm } from "../model/use-evaluation-form";
 import { ContextFieldsCard } from "./ContextFieldsCard";
 import type { ExtractionMethod } from "./ContextFieldsCard";
@@ -107,9 +107,14 @@ export function EvaluationForm({
           </p>
           {/* No action bar: the header's back link again (add-bottom-back-links D4). */}
           <div>
-            <Link href={`/${locale}/manage/evaluations`} variant="back">
+            <RouteButton
+              href={`/${locale}/manage/evaluations`}
+              variant="action-3"
+              size="sm"
+              icon={ArrowLeft}
+            >
               {texts.backLabel}
-            </Link>
+            </RouteButton>
           </div>
         </>
       ) : (

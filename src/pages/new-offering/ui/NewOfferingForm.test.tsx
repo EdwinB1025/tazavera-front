@@ -12,6 +12,8 @@ const mocks = vi.hoisted(() => ({
   request: vi.fn(),
   publicRequest: vi.fn(),
   notFound: vi.fn(),
+  // Cancel is a route button (render-navigation-actions-as-buttons).
+  push: vi.fn(),
 }));
 vi.mock("@/features/auth", () => ({
   useSession: () => mocks.session,
@@ -22,7 +24,10 @@ vi.mock("@/shared/api", () => ({
   request: mocks.request,
   publicRequest: mocks.publicRequest,
 }));
-vi.mock("next/navigation", () => ({ notFound: mocks.notFound }));
+vi.mock("next/navigation", () => ({
+  notFound: mocks.notFound,
+  useRouter: () => ({ push: mocks.push }),
+}));
 
 import { NewOfferingForm } from "./NewOfferingForm";
 
@@ -407,10 +412,10 @@ describe("NewOfferingForm — section card panel (design.md D15)", () => {
 describe("NewOfferingForm — cancelling (add-form-cancel-actions design.md D4)", () => {
   it("Cancel leaves for the list", async () => {
     await renderLoaded();
-    const cancel = screen.getByRole("link", { name: TEXTS.cancelLabel });
-    expect(cancel.getAttribute("href")).toBe("/en/manage/offerings");
+    const cancel = screen.getByRole("button", { name: TEXTS.cancelLabel });
     expect(submitButton().nextElementSibling).toBe(cancel);
     fireEvent.click(cancel);
+    expect(mocks.push).toHaveBeenCalledWith("/en/manage/offerings");
     expect(createCalls()).toHaveLength(0);
   });
 });
