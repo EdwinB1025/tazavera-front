@@ -453,3 +453,43 @@ describe("profile refresh (spec: Session states and profile; design.md D5)", () 
     expect(seen.current()).toEqual({ state: "authenticated", user: PROFILE });
   });
 });
+
+describe("sign-in from a registration grant (spec: Sign-in from a registration grant)", () => {
+  it("keeps the block in memory, settles the session with GET /user and sets no marker (spec: Signing in with a registration grant)", async () => {
+    const loaded = await load();
+    const { signInWithRegistration } = await import("@/features/auth");
+    const seen = consume(loaded);
+    fetchMock.mockResolvedValue(jsonResponse({ data: PROFILE }));
+
+    await expect(signInWithRegistration(GRANT)).resolves.toBe(true);
+
+    const [input, init] = fetchMock.mock.calls[0]!;
+    expect(String(input)).toBe(`${API_URL}/user`);
+    expect(new Headers(init?.headers).get("Authorization")).toBe("Bearer access-1");
+    expect(seen.current()).toEqual({ state: "authenticated", user: PROFILE });
+    expect(loaded.getTokens()).toEqual(GRANT);
+    expect(localStorage.length).toBe(0);
+    expect(sessionStorage.length).toBe(0);
+  });
+
+  it("ends anonymous with no tokens and no marker when the block is refused or the profile cannot be loaded (spec: A registration grant that cannot sign in)", async () => {
+    for (const [block, answer] of [
+      [{ ...GRANT, expires_in: "3600" }, () => Promise.resolve(jsonResponse({ data: PROFILE }))],
+      [GRANT, () => Promise.reject(new Error("the profile cannot be loaded"))],
+    ] as const) {
+      vi.resetModules();
+      const loaded = await load();
+      const { signInWithRegistration } = await import("@/features/auth");
+      const seen = consume(loaded);
+      fetchMock.mockReset();
+      fetchMock.mockImplementation(answer);
+
+      await expect(signInWithRegistration(block as typeof GRANT)).resolves.toBe(false);
+
+      expect(seen.current()).toEqual({ state: "anonymous" });
+      expect(loaded.getTokens()).toBeNull();
+      expect(localStorage.length).toBe(0);
+      cleanup();
+    }
+  });
+});

@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { exchangeCode, refreshTokens, getTokens } from "./tokens";
+import {
+  clearTokens,
+  exchangeCode,
+  getTokens,
+  keepRegistrationGrant,
+  refreshTokens,
+} from "./tokens";
 
 /**
  * Token grants and the token memory (design.md D2, D3 and D5; spec
@@ -114,5 +120,30 @@ describe("the refresh (design.md D2, D3 and D5)", () => {
     fetchMock.mockResolvedValueOnce(jsonResponse(REFRESH_ERROR, 400));
 
     await expect(refreshTokens()).rejects.toMatchObject(REFRESH_ERROR);
+  });
+});
+
+describe("the registration grant (sign-in-after-registration design.md D1)", () => {
+  it("keeps a valid registration block as the grant in memory and writes no storage (spec: Signing in with a registration grant)", () => {
+    clearTokens();
+    localStorage.clear();
+    sessionStorage.clear();
+
+    keepRegistrationGrant(GRANT);
+
+    expect(getTokens()).toEqual(GRANT);
+    expect(storedValues()).toBe("");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("refuses a block without one of the four fields or with a wrong type and keeps nothing (spec: A registration grant that cannot sign in)", () => {
+    clearTokens();
+    const withoutRefresh: Record<string, unknown> = { ...GRANT };
+    delete withoutRefresh.refresh_token;
+
+    for (const block of [withoutRefresh, { ...GRANT, expires_in: "3600" }, null]) {
+      expect(() => keepRegistrationGrant(block)).toThrow("registration grant");
+      expect(getTokens()).toBeNull();
+    }
   });
 });
