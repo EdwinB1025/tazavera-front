@@ -153,18 +153,6 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Status:** accepted
 - **Affects:** R40 (the 404 responses must be documented first)
 
-## R4 — Align the shared menu panel radius with `base-controls` (refine-app-header, Q4)
-
-- **Duplicated:** two radius choices for the same menu panel: the shared `DropdownMenu` card panel uses `rounded-container` (16px); the nav variant added by `refine-app-header` uses `radius-field` (8px), which is what `base-controls` states for menus
-- **Where today:** `src/shared/ui/DropdownMenu.tsx` (card class set, `rounded-container`; nav class set, field radius)
-- **Why it pays off now:** every new menu built on the card variant inherits the mismatch with `base-controls`
-- **Owning capability:** base-controls
-- **Proposed change:** none yet
-- **Open decision (Augusto):** answered 2026-10-08: 16px. The card panel keeps `rounded-container`; `base-controls` is amended to allow it for card menus. The nav menu stays at 8px (orchestrator's recommendation, delegated by Product owner): a panel takes the radius of what opens it, so lists opened from a field or the navigation (Select, Combobox, nav menu) keep `radius-field` and a menu opened from a card keeps `radius-container`. Unifying would change the Select and Combobox lists too, for no gain. Spec wording only; no code change.
-- **Type:** Change
-- **Status:** accepted
-- **Affects:** none
-
 ## R10 — Error boundary of the row facets in the traditional theme (refine-facet-controls Q2)
 
 - **Duplicated:** none; the row facets' radio and checkbox boxes take the error boundary colour in the dark theme only — in the traditional theme they keep the cream boundary under an error
