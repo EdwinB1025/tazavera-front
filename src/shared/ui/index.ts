@@ -69,6 +69,7 @@ export type { CascadeOption } from "./FacetCascade";
 export { ScoreRangeFacet } from "./ScoreRangeFacet";
 export type { ScoreRange } from "./ScoreRangeFacet";
 export { Combobox } from "./Combobox";
+export { ComboboxLoader } from "./ComboboxLoader";
 export type { ComboboxOption, ComboboxSearch, ComboboxTexts } from "./Combobox";
 export { LabelValueRow } from "./LabelValueRow";
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./Tabs";
