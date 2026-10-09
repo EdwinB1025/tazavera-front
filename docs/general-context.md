@@ -576,3 +576,8 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Decisión:** el margen de Open 6 pasa de +3 KB a **+14 KB gz por ruta de locale** respecto a la medición "antes" (opción A). Medido en la tarea 7.1: +13,4/+13,5 KB gz en cada ruta, por el núcleo de `use-intl` que el provider lleva al cliente. Sustituye solo el número de Open 6 de la entrada "R43: respuestas a los Open".
 - **Por qué:** Product owner, 9 oct ("A").
 - **Afecta:** `adopt-next-intl-routing` (design.md Open 6, tarea 7.1).
+
+### 2026-10-09 — autonomía del orquestador (Product owner)
+- **Decisión:** el orquestador decide por su cuenta todo lo que no cambia el comportamiento pedido (archives, integraciones, compuertas, límites, orden del trabajo, redacción de artefactos), lo registra aquí o en el tablero y actúa sin preguntar. Solo pregunta cuando la decisión cambia lo que el usuario ve o lo que se pidió. Primera aplicación: `open-security-pages-in-popup` deja de esperar la prueba en navegador y se archiva como fast lane (comprobaciones completas y verify sin CRITICAL).
+- **Por qué:** Product owner, 9 oct ("you are autonomous to make decision if it does not change the expected behavior requested").
+- **Afecta:** todas las decisiones del orquestador; `open-security-pages-in-popup`.
