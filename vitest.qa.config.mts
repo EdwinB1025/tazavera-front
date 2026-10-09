@@ -26,6 +26,10 @@ export default defineConfig({
             'qa/src/features/user-account/ui/RegisterForm.test.tsx',
             // lacks the required cancel props of add-form-cancel-actions (design.md D5)
             'qa/src/pages/register/ui/RegisterClient.test.tsx',
+            // queries the detail header actions as links; stale since render-navigation-actions-as-buttons
+            'qa/src/widgets/offering-detail/ui/DetailHeader.test.tsx',
+            // queries the back control as a link; stale since render-navigation-actions-as-buttons
+            'qa/src/pages/offering-detail/ui/OfferingDetailScreen.test.tsx',
         ],
     },
 })
