@@ -2,7 +2,7 @@
 
 ## 1. One colour for the bean's lines (form-fields)
 
-- [ ] 1.1 In `src/shared/ui/icons.ts`, `BeanMark` paints the bean path with `fill-evaluation-bean-mark-off stroke-evaluation-bean-mark-off` for both variants (`on` and `off`; the read-only half bean renders through the same variants). The disc classes (`fill-evaluation-bean-on` / `fill-evaluation-bean-off`) are unchanged. No validation test asserts the path's `-mark-on` class, so no test changes; no `qa/` test changes.
+- [x] 1.1 In `src/shared/ui/icons.ts`, `BeanMark` paints the bean path with `fill-evaluation-bean-mark-off stroke-evaluation-bean-mark-off` for both variants (`on` and `off`; the read-only half bean renders through the same variants). The disc classes (`fill-evaluation-bean-on` / `fill-evaluation-bean-off`) are unchanged. No validation test asserts the path's `-mark-on` class, so no test changes; no `qa/` test changes.
 
   Verify: `npx vitest related src/shared/ui/icons.ts --run`, `npx tsc --noEmit`, `npm run lint`. Expected: all pass.
 

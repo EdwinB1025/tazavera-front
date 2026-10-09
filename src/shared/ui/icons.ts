@@ -46,10 +46,9 @@ const BEAN_DISC_CLASSES: Record<BeanMarkVariant, string> = {
   off: "fill-evaluation-bean-off",
 };
 
-const BEAN_PATH_CLASSES: Record<BeanMarkVariant, string> = {
-  on: "fill-evaluation-bean-mark-on stroke-evaluation-bean-mark-on",
-  off: "fill-evaluation-bean-mark-off stroke-evaluation-bean-mark-off",
-};
+// The bean's lines keep one colour in every state, as the MVC's bean; only
+// the disc changes with the variant (unify-bean-outline).
+const BEAN_PATH_CLASSES = "fill-evaluation-bean-mark-off stroke-evaluation-bean-mark-off";
 
 /**
  * Coffee-bean mark of the evaluation scales (design.md D4). Decorative
@@ -79,7 +78,7 @@ export function BeanMark({ variant }: BeanMarkProps): ReactNode {
       d: BEAN_PATH_D,
       transform: BEAN_PATH_TRANSFORM,
       strokeWidth: "1.4",
-      className: BEAN_PATH_CLASSES[variant],
+      className: BEAN_PATH_CLASSES,
     }),
   );
 }
