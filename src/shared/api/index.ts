@@ -12,7 +12,13 @@
 import type { operations } from "./schema";
 
 export { configureClient, publicRequest, REFERENCE_READ_INIT, request } from "./client";
-export { clearTokens, exchangeCode, getTokens, refreshTokens } from "./tokens";
+export {
+  clearTokens,
+  exchangeCode,
+  getTokens,
+  keepRegistrationGrant,
+  refreshTokens,
+} from "./tokens";
 export { distinctCoffeeValues, fetchCoffees } from "./coffees";
 export type { CoffeeSummary } from "./coffees";
 export type { ApiResult } from "./result";
@@ -72,6 +78,12 @@ export type RoasterySummary = NonNullable<ListRoasteriesResponse["data"]>[number
 /** Body of `POST /register` (`registerAUser`). */
 export type RegisterPayload =
   operations["registerAUser"]["requestBody"]["content"]["application/json"];
+
+type RegisterResponse =
+  operations["registerAUser"]["responses"][201]["content"]["application/json"];
+
+/** `token` of the `201` of `POST /register` (`registerAUser`); every field is optional in the contract. */
+export type RegistrationToken = NonNullable<RegisterResponse["token"]>;
 
 /** Body of `PUT /users/{user_ulid}` (`updateAUser`); every field is optional in the contract. */
 export type ProfileUpdatePayload =
