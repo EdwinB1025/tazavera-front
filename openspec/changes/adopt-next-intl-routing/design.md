@@ -89,7 +89,32 @@ Before, measured by the architect at propose on `origin/develop` `6fbe210`:
 | `/[locale]/register/coffeeshop` | 196.2 | no |
 | `/callback` | 140.6 | no |
 
-The "After" column is measured by the build after the last code task (task 7.1) and recorded here once apply ends.
+After, measured at task 7.1 on the change's last code commit `81b86d0` with the same method and environment (the method re-run on `6fbe210` reproduces the "Before" column exactly). Every locale route is within the +14 KB gz budget and cmdk loads on the same three routes; `/callback`, outside the budget, grows by the `next-intl` helpers the auth code now imports (`routing`, `hasLocale`):
+
+| Route | Before (KB gz) | After (KB gz) | Δ | cmdk |
+|---|---:|---:|---:|---|
+| `/_global-error` | 132.6 | 132.6 | +0.0 | no |
+| `/_not-found` | 132.6 | 132.6 | +0.0 | no |
+| `/[locale]` | 199.8 | 213.2 | +13.4 | no |
+| `/[locale]/[...rest]` | 192.4 | 205.9 | +13.5 | no |
+| `/[locale]/about` | 193.2 | 206.6 | +13.4 | no |
+| `/[locale]/account` | 199.8 | 213.2 | +13.4 | no |
+| `/[locale]/account/password` | 196.4 | 209.8 | +13.4 | no |
+| `/[locale]/coffeeshops` | 205.4 | 218.8 | +13.4 | no |
+| `/[locale]/coffeeshops/[ulid]` | 216.7 | 230.1 | +13.4 | yes |
+| `/[locale]/evaluations` | 205.4 | 218.9 | +13.5 | no |
+| `/[locale]/evaluations/[ulid]` | 200.1 | 213.5 | +13.4 | no |
+| `/[locale]/manage/evaluations` | 208.2 | 221.6 | +13.4 | no |
+| `/[locale]/manage/evaluations/[ulid]` | 208.0 | 221.4 | +13.4 | no |
+| `/[locale]/manage/evaluations/new` | 207.1 | 220.6 | +13.5 | no |
+| `/[locale]/manage/locations` | 198.9 | 212.3 | +13.4 | no |
+| `/[locale]/manage/offerings` | 201.6 | 215.1 | +13.5 | no |
+| `/[locale]/manage/offerings/new` | 204.2 | 217.6 | +13.4 | yes |
+| `/[locale]/offerings` | 213.6 | 227.0 | +13.4 | yes |
+| `/[locale]/offerings/[ulid]` | 204.5 | 217.9 | +13.4 | no |
+| `/[locale]/register` | 196.2 | 209.6 | +13.4 | no |
+| `/[locale]/register/coffeeshop` | 196.2 | 209.6 | +13.4 | no |
+| `/callback` | 140.6 | 151.7 | +11.1 | no |
 
 ## Header and browser checks (summary §8)
 
