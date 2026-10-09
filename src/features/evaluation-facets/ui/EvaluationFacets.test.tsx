@@ -109,6 +109,18 @@ describe("EvaluationFacets (design.md D7)", () => {
     }
   });
 
+  it("lists Any, Open and Closed in the Status facet (spec: Status options)", () => {
+    renderPanel("");
+    const options = within(screen.getByRole("radiogroup", { name: "Status" })).getAllByRole("radio", {
+      hidden: true,
+    });
+    expect(options.map((option) => option.getAttribute("aria-label") ?? option.closest("label")?.textContent)).toEqual([
+      "Any",
+      "Open",
+      "Closed",
+    ]);
+  });
+
   it("shows the values of its props as selected", () => {
     renderPanel("status=open&process=washed&scoreMin=80");
     expect(radio("Open", "Status").checked).toBe(true);

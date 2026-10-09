@@ -170,4 +170,11 @@ describe("EvaluationSheetView (design.md D1, D4)", () => {
     expect(second!.textContent).toContain("The evaluation could not be loaded.");
     expect(screen.getByRole("button", { name: "Retry" })).toBeDefined();
   });
+
+  it("requests the view again when Retry is activated (spec: Retrying after a failure)", async () => {
+    fetchEvaluation.mockResolvedValue({ ok: false, kind: "error" });
+    await renderView();
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    expect(router.refresh).toHaveBeenCalledTimes(1);
+  });
 });
