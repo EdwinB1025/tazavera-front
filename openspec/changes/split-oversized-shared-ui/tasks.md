@@ -28,4 +28,4 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 7. Full checks
 
-- [ ] 7.1 Run, each on its own: `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint`, `npm run build`. Expected: every one exits 0 with no test added, removed or changed; lint reports no size or complexity warning under `src/shared/` other than the out-of-scope `Combobox` and `ScoreRangeFacet`; `src/shared/ui/index.ts` is untouched. This task changes no files: check it off in a commit containing only the checkbox, `chore(form-fields): complete tasks for split-oversized-shared-ui`.
+- [x] 7.1 Run, each on its own: `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint`, `npm run build`. Expected: every one exits 0 with no test added, removed or changed; lint reports no size or complexity warning under `src/shared/` other than the out-of-scope `Combobox` and `ScoreRangeFacet`; `src/shared/ui/index.ts` is untouched. This task changes no files: check it off in a commit containing only the checkbox, `chore(form-fields): complete tasks for split-oversized-shared-ui`.
