@@ -15,8 +15,8 @@
 
 ## 3. Measure after and check in a browser
 
-- [ ] 3.1 After task 2.2, measure again with both methods and the same routes as task 1.1, and on `next start` check in Chromium, for `/en/offerings`, `/en/evaluations`, `/en/coffeeshops` and `/en/coffeeshops/{ulid}`, that opening the filters panel shows the facets (on the offering-facet routes, the comboboxes appear after the loading status) with no console error and no CSP violation. No file changes; the before/after table goes in the final report. Expected: no cmdk chunk in the first load of any route; the offering-facet routes load less JavaScript before the first opening than in task 1.1.
+- [x] 3.1 After task 2.2, measure again with both methods and the same routes as task 1.1, and on `next start` check in Chromium, for `/en/offerings`, `/en/evaluations`, `/en/coffeeshops` and `/en/coffeeshops/{ulid}`, that opening the filters panel shows the facets (on the offering-facet routes, the comboboxes appear after the loading status) with no console error and no CSP violation. No file changes; the before/after table goes in the final report. Expected: no cmdk chunk in the first load of any route; the offering-facet routes load less JavaScript before the first opening than in task 1.1.
 
 ## 4. Full checks
 
-- [ ] 4.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes; `test:qa` fails only on files that also fail on `origin/develop`; typecheck and lint report no errors; the build succeeds.
+- [x] 4.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes; `test:qa` fails only on files that also fail on `origin/develop`; typecheck and lint report no errors; the build succeeds.
