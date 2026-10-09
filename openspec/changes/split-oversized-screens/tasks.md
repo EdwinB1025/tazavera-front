@@ -27,7 +27,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 4. offering-management
 
-- [ ] 4.1 Split `LocationForm` (D3). Commit `refactor(offering-management): move the location form fieldsets to a component`.
+- [x] 4.1 Split `LocationForm` (D3). Commit `refactor(offering-management): move the location form fieldsets to a component`.
 
 ## 5. Full checks
 
