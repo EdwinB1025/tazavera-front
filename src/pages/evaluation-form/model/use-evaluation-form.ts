@@ -1,4 +1,5 @@
 import { useReducer } from "react";
+import { useRouter } from "next/navigation";
 import type { EvaluationItem, OfferingDetail, TaxonomyNode } from "@/shared/api";
 import {
   EVALUATION_GROUPS,
@@ -16,7 +17,6 @@ import type { FormStateUpdate } from "./form-updates";
 
 /** The messages of the actions (design.md D4 and its error table). */
 export type FormMessages = {
-  savedMessage: string;
   closedMessage: string;
   incompleteMessage: string;
   notYoursMessage: string;
@@ -56,6 +56,7 @@ export function useEvaluationForm({
   taxonomies,
   messages,
 }: EvaluationFormInput): EvaluationFormModel {
+  const router = useRouter();
   const [model, dispatch] = useReducer(formReducer, undefined, () =>
     initialFormModel(offering, evaluation, taxonomies),
   );
@@ -69,8 +70,7 @@ export function useEvaluationForm({
   /**
    * Save draft (design.md D4): creates the evaluation the first time and
    * updates it afterwards. The contract's required roast level is the only
-   * client validation. On the first success the URL becomes the evaluation's
-   * own route, replaced in place so the form and its message stay.
+   * client validation.
    */
   const save = async (): Promise<string | null> => {
     const roastLevel = values.roastLevel;
@@ -88,17 +88,16 @@ export function useEvaluationForm({
       return null;
     }
     const saved = ulid ?? result.data.ulid ?? null;
-    if (!ulid && saved) {
-      dispatch({ type: "create", ulid: saved });
-      window.history.replaceState(null, "", `/${locale}/manage/evaluations/${saved}`);
-    }
+    if (!ulid && saved) dispatch({ type: "create", ulid: saved });
     return saved;
   };
 
+  /** A successful save returns to My evaluations through the app router. */
   const onSave = async () => {
     dispatch({ type: "start", busy: "save" });
     const saved = await save();
-    dispatch({ type: "settle", message: saved ? messages.savedMessage : null });
+    dispatch({ type: "settle", message: null });
+    if (saved) router.push(`/${locale}/manage/evaluations`);
   };
 
   /**
