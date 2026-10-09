@@ -25,8 +25,7 @@
   "editProfileHeading": "Edit profile",
   "passwordHeading": "Password",
   "securityHeading": "Security",
-  "securityDescription": "Two-factor authentication and passkeys.",
-  "securityLink": "Manage security",
+  "securityDescription": "Password, two-factor authentication and passkeys.",
   "dangerZoneHeading": "Danger zone",
   "signedOutText": "Sign in to manage your account.",
   "deactivateHeading": "Deactivate account",
@@ -56,5 +55,10 @@
   "retry": "Try again",
   "contactSaved": "Contact details saved",
   "contactExists": "You already have contact details saved.",
-  "urlFormatError": "Enter a valid URL."
+  "urlFormatError": "Enter a valid URL.",
+  "done": "Done",
+  "changePassword": "Change password",
+  "twoFactor": "Two-factor authentication",
+  "passkeys": "Passkeys",
+  "backToAccount": "Back to my account"
 }

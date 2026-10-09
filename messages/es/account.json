@@ -25,8 +25,7 @@
   "editProfileHeading": "Editar perfil",
   "passwordHeading": "Contraseña",
   "securityHeading": "Seguridad",
-  "securityDescription": "Autenticación en dos pasos y llaves de acceso.",
-  "securityLink": "Gestionar la seguridad",
+  "securityDescription": "Contraseña, verificación en dos pasos y llaves de acceso.",
   "dangerZoneHeading": "Zona peligrosa",
   "signedOutText": "Inicia sesión para gestionar tu cuenta.",
   "deactivateHeading": "Desactivar cuenta",
@@ -56,5 +55,10 @@
   "retry": "Reintentar",
   "contactSaved": "Datos de contacto guardados",
   "contactExists": "Ya tienes datos de contacto guardados.",
-  "urlFormatError": "Introduce una URL válida."
+  "urlFormatError": "Introduce una URL válida.",
+  "done": "Hecho",
+  "changePassword": "Cambiar la contraseña",
+  "twoFactor": "Verificación en dos pasos",
+  "passkeys": "Llaves de acceso",
+  "backToAccount": "Volver a mi cuenta"
 }

@@ -1,55 +1,22 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useId, type ReactNode } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import type { ReactNode } from "react";
+import { requestProfileWrite, signOut, useSession } from "@/features/auth";
+import { SessionGate } from "@/shared/ui";
+import { AccountEditView, type AccountEditViewTexts } from "./AccountEditView";
 import {
-  refreshProfile,
-  requestProfileWrite,
-  signIn,
-  signOut,
-  useSession,
-} from "@/features/auth";
-import {
-  AccountSection,
-  ContactSection,
-  DangerZone,
-  ExternalLink,
-  PasswordForm,
-  ProfileDetails,
-  ProfileForm,
-  type ContactSectionTexts,
-  type DangerZoneTexts,
-  type PasswordFormTexts,
-  type ProfileDetailsTexts,
-  type ProfileFormTexts,
-} from "@/features/user-account";
-import {
-  Card,
-  CardContent,
-  LoadingStatus,
-  SessionGate,
-  SignedOutPrompt,
-} from "@/shared/ui";
+  AccountLoadingCard,
+  AccountSignedOutCard,
+  type AccountGateTexts,
+} from "./AccountGateCards";
+import { AccountReadView, type AccountReadViewTexts } from "./AccountReadView";
 
 // ─── UI-specific types (declared before the component) ───
 
-export type AccountClientTexts = ContactSectionTexts &
-  DangerZoneTexts &
-  PasswordFormTexts &
-  ProfileDetailsTexts &
-  ProfileFormTexts & {
-    loading: string;
-    signedOutText: string;
-    signIn: string;
-    profileHeading: string;
-    editProfileHeading: string;
-    profileDescription: string;
-    passwordHeading: string;
-    securityHeading: string;
-    securityDescription: string;
-    securityLink: string;
-    dangerZoneHeading: string;
-  };
+export type AccountClientTexts = AccountGateTexts &
+  AccountReadViewTexts &
+  AccountEditViewTexts;
 
 export type AccountClientProps = {
   locale: string;
@@ -57,94 +24,54 @@ export type AccountClientProps = {
 };
 
 /**
- * The account page's client region (design.md D1, D4, D6 and D10; spec
- * "Account page and its session gate"). It is the injection seam: the session
- * comes from `useSession()` and the auth actions from `@/features/auth`,
- * passed to the user-account pieces as props. An authenticated session shows
- * the six sections in order; the page never redirects on its own.
+ * The account page's client region (design.md D1, D2 and D6; spec "Account
+ * page modes and their session gate"). It is the injection seam: the session
+ * comes from `useSession()` and the auth actions from `@/features/auth`. The
+ * `edit=1` query picks edit mode; "Edit profile" and "Change password" start
+ * the identity check inside the click, then open their route. The page never
+ * redirects on its own.
  */
 export function AccountClient({ locale, texts }: AccountClientProps): ReactNode {
   const session = useSession();
   const router = useRouter();
-  const editProfileHeadingId = useId();
-  const passwordHeadingId = useId();
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const editing = useSearchParams()?.get("edit") === "1";
+  const accountRoute = `/${locale}/account`;
+  const editRoute = `${accountRoute}?edit=1`;
+  const passwordRoute = `${accountRoute}/password`;
+
+  function changePassword(): void {
+    requestProfileWrite(passwordRoute);
+    router.push(passwordRoute);
+  }
 
   return (
     <SessionGate
       session={session}
-      loading={
-        <Card variant="section">
-          <CardContent>
-            <LoadingStatus text={texts.loading} />
-          </CardContent>
-        </Card>
-      }
-      signedOut={
-        <Card variant="section">
-          <CardContent>
-            <SignedOutPrompt
-              text={texts.signedOutText}
-              signInLabel={texts.signIn}
-              onSignIn={() => signIn()}
-            />
-          </CardContent>
-        </Card>
-      }
+      loading={<AccountLoadingCard texts={texts} />}
+      signedOut={<AccountSignedOutCard texts={texts} />}
     >
-      {(user) => (
-        <div className="flex flex-col gap-4">
-          <AccountSection heading={texts.profileHeading}>
-            <ProfileDetails user={user} texts={texts} />
-          </AccountSection>
-          <ContactSection ulid={user.ulid ?? ""} texts={texts} />
-          <AccountSection
-            heading={texts.editProfileHeading}
-            headingId={editProfileHeadingId}
-            description={texts.profileDescription}
-          >
-            <ProfileForm
-              user={user}
-              locale={locale}
-              labelledBy={editProfileHeadingId}
-              texts={texts}
-              refreshProfile={refreshProfile}
-              requestProfileWrite={requestProfileWrite}
-            />
-          </AccountSection>
-          <AccountSection
-            heading={texts.passwordHeading}
-            headingId={passwordHeadingId}
-          >
-            <PasswordForm
-              ulid={user.ulid ?? ""}
-              locale={locale}
-              labelledBy={passwordHeadingId}
-              texts={texts}
-              requestProfileWrite={requestProfileWrite}
-            />
-          </AccountSection>
-          <AccountSection
-            heading={texts.securityHeading}
-            description={texts.securityDescription}
-          >
-            <p className="type-body">
-              <ExternalLink href={`${apiUrl}/user/security`}>
-                {texts.securityLink}
-              </ExternalLink>
-            </p>
-          </AccountSection>
-          <AccountSection heading={texts.dangerZoneHeading}>
-            <DangerZone
-              ulid={user.ulid ?? ""}
-              locale={locale}
-              texts={texts}
-              signOut={() => signOut(router.push)}
-              requestProfileWrite={requestProfileWrite}
-            />
-          </AccountSection>
-        </div>
-      )}
+      {(user) =>
+        editing ? (
+          <AccountEditView
+            user={user}
+            locale={locale}
+            texts={texts}
+            onDone={() => router.replace(accountRoute, { scroll: false })}
+            onChangePassword={changePassword}
+            signOut={() => signOut(router.push)}
+          />
+        ) : (
+          <AccountReadView
+            user={user}
+            texts={texts}
+            onEditProfile={() => {
+              requestProfileWrite(editRoute);
+              router.replace(editRoute, { scroll: false });
+            }}
+            onChangePassword={changePassword}
+          />
+        )
+      }
     </SessionGate>
   );
 }

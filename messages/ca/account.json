@@ -25,8 +25,7 @@
   "editProfileHeading": "Editar el perfil",
   "passwordHeading": "Contrasenya",
   "securityHeading": "Seguretat",
-  "securityDescription": "Autenticació en dos passos i claus d'accés.",
-  "securityLink": "Gestiona la seguretat",
+  "securityDescription": "Contrasenya, verificació en dos passos i claus d'accés.",
   "dangerZoneHeading": "Zona perillosa",
   "signedOutText": "Inicia sessió per gestionar el teu compte.",
   "deactivateHeading": "Desactivar el compte",
@@ -56,5 +55,10 @@
   "retry": "Torna-ho a provar",
   "contactSaved": "Dades de contacte desades",
   "contactExists": "Ja tens dades de contacte desades.",
-  "urlFormatError": "Introdueix un URL vàlid."
+  "urlFormatError": "Introdueix un URL vàlid.",
+  "done": "Fet",
+  "changePassword": "Canviar la contrasenya",
+  "twoFactor": "Verificació en dos passos",
+  "passkeys": "Claus d'accés",
+  "backToAccount": "Tornar al meu compte"
 }
