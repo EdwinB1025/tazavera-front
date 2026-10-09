@@ -169,12 +169,12 @@ A confirmation dialog SHALL ask the user to confirm one destructive action befor
 - **THEN** the error message supplied by the consuming capability renders in a live alert region below the description, the dialog stays open and the destructive action can be activated again
 
 #### Scenario: Actions on a narrow viewport
-- **WHEN** the confirmation dialog renders below the small breakpoint
-- **THEN** its actions stack in one column with the destructive action above the cancellation, each filling the panel's width, and the panel stays within the viewport width minus 2rem
+- **WHEN** the confirmation dialog renders below the medium breakpoint (768px)
+- **THEN** its actions sit in one action group (base-controls "Action group"), the cancellation then the destructive action, in two equal columns, and the panel stays within the viewport width minus 2rem
 
 #### Scenario: Actions on a wider viewport
-- **WHEN** the confirmation dialog renders at or above the small breakpoint
-- **THEN** its actions sit in one row aligned to the right with the cancellation before the destructive action, and the panel's width stops growing at 32rem
+- **WHEN** the confirmation dialog renders at or above the medium breakpoint
+- **THEN** its actions sit in one row aligned to the right with the cancellation before the destructive action, each at its action width, and the panel's width stops growing at 32rem
 
 ### Requirement: Request status messages
 A view SHALL report the state of a request with the shared status presentations: a loading status for a request still running — a polite status region carrying its text beside a spinner that assistive technology ignores and that does not animate under reduced motion; a form status for a finished write — a success as a polite status region carrying its text beside a check icon that assistive technology ignores, and an error as an alert carrying its text, never colour alone; and a step-up notice for a write answered `403` — an alert carrying its text and a "Confirm identity" action that starts the write-scope sign in synchronously inside its click. Each presentation SHALL add no text of its own.

@@ -104,7 +104,7 @@ describe("DetailHeader", () => {
     fireEvent.click(view);
     expect(router.push).toHaveBeenCalledWith(`/es/evaluations?offeringId=${ULID}`);
     const row = view.parentElement as HTMLElement;
-    for (const name of ["flex", "flex-wrap", "gap-4"]) expect(row.className).toContain(name);
+    for (const name of ["grid-cols-2", "md:flex-wrap", "gap-3"]) expect(row.className).toContain(name);
     expect(container.firstElementChild?.lastElementChild).toBe(row);
     expect(row.lastElementChild?.textContent).toBe(TEXTS.evaluateLabel);
   });

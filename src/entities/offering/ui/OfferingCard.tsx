@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { OfferingSummary } from "@/shared/api";
 import {
+  ActionGroup,
   Badge,
   Card,
   CardAside,
@@ -54,7 +55,9 @@ const SCORE_ROW_CLASSES = ["flex", "flex-wrap", "items-baseline", "gap-2"].join(
 // The counts 1rem apart, the actions grouped at the end; the footer wraps.
 const FOOTER_CLASSES = ["flex", "flex-wrap", "items-center", "gap-4"].join(" ");
 const FOOTER_COUNTS_CLASSES = ["flex", "flex-wrap", "gap-4"].join(" ");
-const FOOTER_LINKS_CLASSES = ["ml-auto", "flex", "gap-4"].join(" ");
+// The actions' group fills the footer's row below `md` and sits at its end
+// from `md` (unify-action-button-widths D3).
+const FOOTER_LINKS_CLASSES = ["max-md:w-full", "md:ml-auto"].join(" ");
 
 /**
  * One offering filled into the shared card (design.md D4's field mapping and
@@ -124,7 +127,9 @@ export function OfferingCard({
           <span className="type-meta">{evaluations}</span>
           <span className="type-meta">{defective}</span>
         </div>
-        <div className={FOOTER_LINKS_CLASSES}>{actions}</div>
+        <ActionGroup align="end" className={FOOTER_LINKS_CLASSES}>
+          {actions}
+        </ActionGroup>
       </CardFooter>
     </Card>
   );

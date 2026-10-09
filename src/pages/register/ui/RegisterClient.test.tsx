@@ -128,8 +128,7 @@ describe("RegisterClient — cancelling (add-form-cancel-actions design.md D3)",
     auth.session = { state: "anonymous" };
     renderClient();
     const cancel = screen.getByRole("button", { name: TEXTS.cancelLabel });
-    expect(cancel.parentElement!.className).toContain("flex-col");
-    expect(cancel.parentElement!.className).toContain("items-center");
+    expect(cancel.parentElement!.className).toContain("grid-cols-2");
     fireEvent.click(cancel);
     expect(routerPush).toHaveBeenCalledWith("/es");
     expect(fetchMock).not.toHaveBeenCalled();

@@ -7,7 +7,7 @@ import type { EvaluationItem, OfferingDetail } from "@/shared/api";
 import { isReadyForClosing } from "@/entities/evaluation";
 import { SpecialistEvaluationRowCard, ViewOfferingButton } from "@/widgets/evaluation-row";
 import type { SpecialistEvaluationRowCardTexts } from "@/widgets/evaluation-row";
-import { Button } from "@/shared/ui";
+import { ActionGroup, Button } from "@/shared/ui";
 import { CloseEvaluationAction } from "./CloseEvaluationAction";
 import type { CloseEvaluationTexts } from "./CloseEvaluationAction";
 import { DeleteEvaluationAction } from "./DeleteEvaluationAction";
@@ -35,6 +35,10 @@ export type SpecialistEvaluationRowProps = {
   /** Called once the row's evaluation is closed. */
   onClosed: (ulid: string) => void;
 };
+
+// The row's action group fills the footer below `md`; the status line stays
+// outside it (unify-action-button-widths D3).
+const GROUP_CLASSES = "max-md:w-full";
 
 /**
  * One row of "My evaluations" (spec "My evaluations list" and "Row
@@ -75,35 +79,37 @@ export function SpecialistEvaluationRow({
               {message}
             </p>
           ) : null}
-          <Button variant="action-3" onClick={() => router.push(viewRoute)}>
-            {texts.viewLabel}
-          </Button>
-          {evaluation.offeringId ? (
-            <ViewOfferingButton
-              locale={locale}
-              offeringId={evaluation.offeringId}
-              label={texts.viewOfferingLabel}
-              suffix={offering?.coffeeInventory?.coffee?.name ?? ""}
-            />
-          ) : null}
-          {editable && isReadyForClosing(evaluation) ? (
-            <CloseEvaluationAction
+          <ActionGroup align="end" className={GROUP_CLASSES}>
+            <Button variant="action-3" onClick={() => router.push(viewRoute)}>
+              {texts.viewLabel}
+            </Button>
+            {evaluation.offeringId ? (
+              <ViewOfferingButton
+                locale={locale}
+                offeringId={evaluation.offeringId}
+                label={texts.viewOfferingLabel}
+                suffix={offering?.coffeeInventory?.coffee?.name ?? ""}
+              />
+            ) : null}
+            {editable && isReadyForClosing(evaluation) ? (
+              <CloseEvaluationAction
+                ulid={evaluation.ulid ?? ""}
+                texts={texts}
+                onMessage={setMessage}
+                onClosed={onClosed}
+              />
+            ) : null}
+            {editable ? (
+              <Button variant="action-4" onClick={() => router.push(formRoute)}>
+                {texts.editLabel}
+              </Button>
+            ) : null}
+            <DeleteEvaluationAction
               ulid={evaluation.ulid ?? ""}
               texts={texts}
-              onMessage={setMessage}
-              onClosed={onClosed}
+              onDeleted={onDeleted}
             />
-          ) : null}
-          {editable ? (
-            <Button variant="action-4" onClick={() => router.push(formRoute)}>
-              {texts.editLabel}
-            </Button>
-          ) : null}
-          <DeleteEvaluationAction
-            ulid={evaluation.ulid ?? ""}
-            texts={texts}
-            onDeleted={onDeleted}
-          />
+          </ActionGroup>
         </>
       }
     />

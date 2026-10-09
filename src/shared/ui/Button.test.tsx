@@ -49,6 +49,21 @@ describe("Button", () => {
     });
   });
 
+  // spec "Action button widths" — scenario "Minimum width per size"
+  // (unify-action-button-widths D2).
+  it("a labelled button takes its size's minimum width and keeps its label on one line", () => {
+    render(
+      <>
+        <Button size="base">Save</Button>
+        <Button size="sm">View</Button>
+      </>,
+    );
+    const base = screen.getByRole("button", { name: "Save" }).classList;
+    const sm = screen.getByRole("button", { name: "View" }).classList;
+    expect([base.contains("min-w-action-base"), base.contains("whitespace-nowrap")]).toEqual([true, true]);
+    expect(sm.contains("min-w-action-sm")).toBe(true);
+  });
+
   describe("icon and label layout (D3)", () => {
     it("renders the icon at 16px (size-4) with gap-2", () => {
       const { container } = render(

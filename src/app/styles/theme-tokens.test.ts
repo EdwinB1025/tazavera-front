@@ -815,6 +815,12 @@ const EXPECTED_RADIUS_TRADITIONAL: Record<string, string> = {
   "--radius-check": "4px",
 };
 
+// The minimum action width per button size (unify-action-button-widths D1).
+const EXPECTED_ACTION_WIDTHS: Record<string, string> = {
+  "--container-action-sm": "7.5rem",
+  "--container-action-base": "10rem",
+};
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // Typographic role verification (design.md role table)
 // Each role is an @utility type-{role} combining family, weight, style, size,
@@ -1261,6 +1267,13 @@ describe("Theme tokens guard", () => {
         }
       },
     ]);
+
+    // Action width tokens (unify-action-button-widths D1): same value in both
+    // themes, so the dark theme does not reassign them.
+    for (const [token, value] of Object.entries(EXPECTED_ACTION_WIDTHS)) {
+      items.push([`traditional @theme defines ${token}: ${value}`, () => expect(tradProps.get(token)).toBe(value)]);
+      items.push([`dark theme keeps ${token}`, () => expect(darkProps.has(token)).toBe(false)]);
+    }
 
     // Shared focus indicator: @utility focus-ring (design.md D4)
     const blocks = extractFocusRingUtilities(css);

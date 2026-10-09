@@ -631,7 +631,7 @@ The evaluation form SHALL present, for the same offering, evaluation, taxonomy t
 - **THEN** every group and the 1–9 legend start expanded, every control is read-only and no action renders
 
 ### Requirement: Cancelling the evaluation form
-An editable evaluation form, new or existing, SHALL show a "Cancel" button after the Save draft and Close evaluation actions that opens the My evaluations route `/{locale}/manage/evaluations` without saving and without sending any request, and that stays usable while an action runs. Below 768px the sticky actions bar SHALL stack the status region, the two actions side by side with equal widths, and the Cancel button centred on its own line; from 768px the actions SHALL form one right-aligned row with Cancel last. A closed evaluation, shown read-only, SHALL have no Cancel button. No warning about unsaved input SHALL be shown.
+An editable evaluation form, new or existing, SHALL show a "Cancel" button after the Save draft and Close evaluation actions that opens the My evaluations route `/{locale}/manage/evaluations` without saving and without sending any request, and that stays usable while an action runs. The sticky actions bar SHALL show the status region and then the actions in one action group (base-controls "Action group") aligned to the end, with Cancel last: below 768px Save draft and Close evaluation side by side with equal widths and Cancel on the next line at the same cell width; from 768px one right-aligned row. A closed evaluation, shown read-only, SHALL have no Cancel button. No warning about unsaved input SHALL be shown.
 
 #### Scenario: Cancel leaves for My evaluations without saving
 - **WHEN** the editable evaluation form renders and the user activates "Cancel"
@@ -644,6 +644,10 @@ An editable evaluation form, new or existing, SHALL show a "Cancel" button after
 #### Scenario: Cancel is a button
 - **WHEN** the editable evaluation form renders
 - **THEN** "Cancel" is a button, not a link, and activating it navigates to `/{locale}/manage/evaluations`
+
+#### Scenario: The form's actions share one action group
+- **WHEN** the editable evaluation form renders
+- **THEN** Save draft, Close evaluation and Cancel are in one action group aligned to the end, after the status region
 
 ### Requirement: Evaluation route headings
 The "My evaluations" list heading SHALL be the page's level-1 heading, and on every evaluation route the signed-out view SHALL expose the evaluations access message as the page's level-1 heading, both keeping their present type style.

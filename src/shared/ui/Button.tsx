@@ -114,6 +114,14 @@ const SIZE_GEOMETRY: Record<ButtonSize, string> = {
   sm: "h-8 px-3",
 };
 
+// A labelled action button is at least its size's action width and keeps its
+// label on one line; a longer label grows it (unify-action-button-widths D2).
+// The navigation treatment is header and sidebar chrome, not an action.
+const ACTION_WIDTH: Record<ButtonSize, string> = {
+  base: "min-w-action-base whitespace-nowrap",
+  sm: "min-w-action-sm whitespace-nowrap",
+};
+
 const ICON_ONLY_GEOMETRY: Record<ButtonSize, string> = {
   base: "h-10 w-10",
   sm: "h-8 w-8",
@@ -158,6 +166,7 @@ export function Button({
   const geometry = isIconOnly
     ? ICON_ONLY_GEOMETRY[size]
     : SIZE_GEOMETRY[size];
+  const width = isIconOnly || variant === "nav-button" ? "" : ACTION_WIDTH[size];
 
   // While busy the spinner (Loader2) replaces any custom icon; for icon-only
   // buttons that keeps the square footprint (D4).
@@ -192,6 +201,7 @@ export function Button({
         // by `enabled:` within the hover classes themselves.
         loading ? "" : VARIANT_HOVER[variant],
         geometry,
+        width,
         className,
       ]
         .filter(Boolean)

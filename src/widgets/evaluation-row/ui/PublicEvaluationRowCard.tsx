@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { EvaluationItem, OfferingDetail } from "@/shared/api";
-import { Card, CardAside, CardContent, CardFooter, RouteButton } from "@/shared/ui";
+import { ActionGroup, Card, CardAside, CardContent, CardFooter, RouteButton } from "@/shared/ui";
 import {
   CONTENT_CLASSES,
   FOOTER_CLASSES,
@@ -57,26 +57,31 @@ type RowActionsProps = {
   available: boolean;
 };
 
+// The footer's action group fills the row below `md` (unify-action-button-widths D3).
+const GROUP_CLASSES = "max-md:w-full";
+
 /** The View and View offering route buttons (fix-production-aut-findings D4). */
 function RowActions({ evaluation, locale, texts, suffix, available }: RowActionsProps): ReactNode {
   return (
     <CardFooter className={FOOTER_CLASSES}>
-      <RouteButton
-        href={`/${locale}/evaluations/${evaluation.ulid ?? ""}`}
-        variant="action-3"
-        size="sm"
-      >
-        {texts.viewLabel}{" "}
-        <span className="sr-only">{suffix}</span>
-      </RouteButton>
-      {available ? (
-        <ViewOfferingButton
-          locale={locale}
-          offeringId={evaluation.offeringId ?? ""}
-          label={texts.viewOfferingLabel}
-          suffix={suffix}
-        />
-      ) : null}
+      <ActionGroup align="end" className={GROUP_CLASSES}>
+        <RouteButton
+          href={`/${locale}/evaluations/${evaluation.ulid ?? ""}`}
+          variant="action-3"
+          size="sm"
+        >
+          {texts.viewLabel}{" "}
+          <span className="sr-only">{suffix}</span>
+        </RouteButton>
+        {available ? (
+          <ViewOfferingButton
+            locale={locale}
+            offeringId={evaluation.offeringId ?? ""}
+            label={texts.viewOfferingLabel}
+            suffix={suffix}
+          />
+        ) : null}
+      </ActionGroup>
     </CardFooter>
   );
 }
