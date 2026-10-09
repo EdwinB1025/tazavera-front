@@ -12,4 +12,4 @@ No derived API types are needed: `SessionUser` already carries `emailVerifiedAt`
 
 ## 3. Full checks
 
-- [ ] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes; the QA suite fails only in files that also fail on `origin/develop`; no typecheck or lint errors; the build succeeds.
+- [x] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes; the QA suite fails only in files that also fail on `origin/develop`; no typecheck or lint errors; the build succeeds.
