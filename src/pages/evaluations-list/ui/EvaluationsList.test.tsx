@@ -24,6 +24,8 @@ vi.mock("@/entities/evaluation", async (importOriginal) => ({
   listMyEvaluations: (...args: unknown[]) => listMyEvaluations(...args),
   deleteAnEvaluation: (...args: unknown[]) => deleteAnEvaluation(...args),
   closeAnEvaluation: (...args: unknown[]) => closeAnEvaluation(...args),
+  isReadyForClosing: (await importOriginal<typeof import("@/entities/evaluation")>())
+    .isReadyForClosing,
 }));
 
 const fetchOffering = vi.fn();
@@ -46,6 +48,7 @@ const TEXTS: EvaluationsListTexts = {
   roasterCaption: "Roaster:",
   editLabel: "Edit",
   viewLabel: "View",
+  viewOfferingLabel: "View offering",
   closeLabel: "Close evaluation",
   closedMessage: "Evaluation closed.",
   incompleteMessage: "Complete every group before closing.",
@@ -240,7 +243,21 @@ describe("EvaluationsList (spec: My evaluations list)", () => {
 
 describe("EvaluationsList: closing a row (close-evaluation-only-when-saved)", () => {
   it("The row's close succeeds", async () => {
-    listMyEvaluations.mockResolvedValueOnce(page(ITEMS));
+    const axes = ["fragrance", "aroma", "flavor", "aftertaste", "acidity", "sweetness", "mouthfeel"];
+    const scores = (score: number, keys: string[]) =>
+      Object.fromEntries(keys.map((axis) => [axis, { score, note: null }]));
+    // The first item is complete for the close rule (refine-evaluation-flow D3).
+    const complete = {
+      ...ITEMS[0],
+      descriptive: scores(5, axes),
+      affective: scores(6, [...axes, "overall"]),
+      tastes: [
+        { ref: "01JTAXSWEET", type: "main_tastes" },
+        { ref: "01JTAXSILKY", type: "mouthfeel" },
+        { ref: "01JTAXFLORAL", type: "aroma" },
+      ],
+    } as EvaluationItem;
+    listMyEvaluations.mockResolvedValueOnce(page([complete, ...ITEMS.slice(1)]));
     listMyEvaluations.mockReturnValueOnce(new Promise(() => {}));
     closeAnEvaluation.mockResolvedValue({ ok: true, data: null });
     const { container } = render(<List />);

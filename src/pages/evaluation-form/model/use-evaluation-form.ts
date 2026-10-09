@@ -8,6 +8,7 @@ import {
   closeAnEvaluation,
   completenessOf,
   createAnEvaluation,
+  isReadyForClosing,
   updateAnEvaluation,
 } from "@/entities/evaluation";
 import type { EvaluationCallResult, GroupKey } from "@/entities/evaluation";
@@ -28,6 +29,8 @@ export type EvaluationFormInput = {
   locale: string;
   offering: OfferingDetail | null;
   evaluation?: EvaluationItem;
+  /** `?mode=view`: read-only whatever the status (refine-evaluation-flow D4). */
+  viewOnly?: boolean;
   /** The `GET /taxonomies` tree a draft's ancestors come from (cascade-evaluation-descriptors D7). */
   taxonomies: TaxonomyNode[];
   messages: FormMessages;
@@ -37,6 +40,8 @@ export type EvaluationFormModel = {
   model: FormModel;
   /** The closed form's read-only presentation. */
   readOnly: boolean;
+  /** The saved evaluation passes the contract's close rule (refine-evaluation-flow D3). */
+  closable: boolean;
   completeness: ReturnType<typeof completenessOf>;
   edit: FormStateUpdate;
   setGroupOpen: (group: GroupKey, open: boolean) => void;
@@ -53,12 +58,13 @@ export function useEvaluationForm({
   locale,
   offering,
   evaluation,
+  viewOnly = false,
   taxonomies,
   messages,
 }: EvaluationFormInput): EvaluationFormModel {
   const router = useRouter();
   const [model, dispatch] = useReducer(formReducer, undefined, () =>
-    initialFormModel(offering, evaluation, taxonomies),
+    initialFormModel(offering, evaluation, taxonomies, viewOnly),
   );
   const { values, ulid } = model;
   const completeness = completenessOf(values);
@@ -101,8 +107,9 @@ export function useEvaluationForm({
   };
 
   /**
-   * Close evaluation (design.md D4): saves first, then closes. A `409` names
-   * the incomplete groups the completeness rule reports (design.md D10).
+   * Close evaluation (design.md D4): saves first, then closes, and a success
+   * returns to My evaluations as a save does (refine-evaluation-flow D1). A
+   * `409` names the incomplete groups the completeness rule reports (design.md D10).
    */
   const onClose = async () => {
     dispatch({ type: "start", busy: "close" });
@@ -113,7 +120,8 @@ export function useEvaluationForm({
     }
     const result = await closeAnEvaluation(saved);
     if (result.ok) {
-      dispatch({ type: "close", message: messages.closedMessage });
+      dispatch({ type: "settle", message: null });
+      router.push(`/${locale}/manage/evaluations`);
       return;
     }
     // The incomplete groups expand so their highlight is in view (D15).
@@ -133,6 +141,9 @@ export function useEvaluationForm({
   return {
     model,
     readOnly: model.closed,
+    // The form loads the evaluation once and leaves after a save: the loaded
+    // evaluation is the saved state the API checks.
+    closable: evaluation !== undefined && isReadyForClosing(evaluation),
     completeness,
     edit: (update) => dispatch({ type: "edit", update }),
     setGroupOpen: (group, open) => dispatch({ type: "groupOpen", group, open }),

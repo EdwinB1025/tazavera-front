@@ -59,6 +59,8 @@ export type EvaluationFormProps = {
   texts: EvaluationFormTexts;
   /** The evaluation being edited or read; absent for a new one. */
   evaluation?: EvaluationItem;
+  /** Shows the evaluation read-only whatever its status (refine-evaluation-flow D4). */
+  viewOnly?: boolean;
 };
 
 // ─── Layout end states (design.md D14; the summary §9) ───
@@ -78,11 +80,13 @@ export function EvaluationForm({
   taxonomies,
   texts,
   evaluation,
+  viewOnly = false,
 }: EvaluationFormProps): ReactNode {
   const form = useEvaluationForm({
     locale,
     offering,
     evaluation,
+    viewOnly,
     taxonomies,
     messages: texts.actions,
   });
@@ -121,8 +125,9 @@ export function EvaluationForm({
           cancelLabel={texts.actions.cancelLabel}
           cancelHref={`/${locale}/manage/evaluations`}
           onSave={form.onSave}
-          // Close only once the evaluation exists (close-evaluation-only-when-saved).
-          onClose={model.ulid ? form.onClose : undefined}
+          // Close only once the evaluation exists (close-evaluation-only-when-saved)
+          // and its saved state is complete (refine-evaluation-flow D3).
+          onClose={model.ulid && form.closable ? form.onClose : undefined}
           busy={model.busy}
           message={model.message}
         />
