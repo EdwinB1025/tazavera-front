@@ -44,8 +44,6 @@ export default defineConfig({
             'qa/src/features/location-management/model/submit-location.test.ts',
             // asserts Button's exact class string without the action width; stale since unify-action-button-widths
             'qa/src/features/offering-management/ui/OfferingActions.test.tsx',
-            // asserts the page number's min-w-10 without the important modifier; stale since unify-action-button-widths
-            'qa/src/shared/ui/Pagination.test.tsx',
         ],
     },
 })
