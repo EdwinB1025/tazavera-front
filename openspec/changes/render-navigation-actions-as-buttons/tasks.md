@@ -4,7 +4,7 @@ Every updated case queries the control by role `button` instead of `link` and as
 
 ## 1. Tests (test-first, one commit per capability)
 
-- [ ] 1.1 `offering-catalog`: update `OfferingDetailScreen.test.tsx`, `OfferingDetailContent.test.tsx`, `CoffeeshopDetailScreen.test.tsx`, `CoffeeshopDetailContent.test.tsx` (back controls) and `DetailHeader.test.tsx` ("View evaluations", "Evaluate") — verifying they fail only because the controls are still links
+- [x] 1.1 `offering-catalog`: update `OfferingDetailScreen.test.tsx`, `OfferingDetailContent.test.tsx`, `CoffeeshopDetailScreen.test.tsx`, `CoffeeshopDetailContent.test.tsx` (back controls) and `DetailHeader.test.tsx` ("View evaluations", "Evaluate") — verifying they fail only because the controls are still links
 - [ ] 1.2 `evaluations`: update `EvaluationForm.test.tsx` (header and bottom back, Cancel), `FormActions.test.tsx` if it queries Cancel as a link, and `EvaluationSheetView.test.tsx` (back controls) — verifying they fail only because the controls are still links
 - [ ] 1.3 `user-account`: update `PasswordScreen.test.tsx` (back) and `RegisterClient.test.tsx` / `RegisterForm.test.tsx` (Cancel) — verifying they fail only because the controls are still links
 - [ ] 1.4 `offering-management`: update `NewOfferingForm.test.tsx` (Cancel) and the New offering screen's test if it queries the back link — verifying they fail only because the controls are still links

@@ -1,15 +1,19 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup, within } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent, within } from "@testing-library/react";
 import type { CoffeeshopDetail } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
 import { CoffeeshopDetailContent, coffeeshopDetailTexts, toCoffeeshopTab } from "@/widgets/coffeeshop-detail";
 
+// The back control is a route button (render-navigation-actions-as-buttons).
+const router = vi.hoisted(() => ({ push: vi.fn(), refresh: () => {} }));
+
 afterEach(() => {
   cleanup();
+  router.push.mockReset();
 });
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: () => {}, refresh: () => {} }),
+  useRouter: () => router,
 }));
 
 // The client-only map is replaced by a stub that records its props.
@@ -103,15 +107,15 @@ describe("CoffeeshopDetailContent", () => {
 
   it("links back to the directory of the locale (spec: Back link)", () => {
     renderDetail("offerings");
-    expect(screen.getAllByRole("link", { name: "Volver a cafeterías" })[0].getAttribute("href")).toBe(
-      "/es/coffeeshops",
-    );
+    fireEvent.click(screen.getAllByRole("button", { name: "Volver a cafeterías" })[0]);
+    expect(router.push).toHaveBeenCalledWith("/es/coffeeshops");
   });
 
   it("Back link at the end", () => {
     renderDetail("offerings");
-    const links = screen.getAllByRole("link", { name: "Volver a cafeterías" });
-    expect(links.map((link) => link.getAttribute("href"))).toEqual(["/es/coffeeshops", "/es/coffeeshops"]);
+    const links = screen.getAllByRole("button", { name: "Volver a cafeterías" });
+    links.forEach((link) => fireEvent.click(link));
+    expect(router.push.mock.calls).toEqual([["/es/coffeeshops"], ["/es/coffeeshops"]]);
     const panel = screen.getByRole("tabpanel");
     expect(panel.contains(links[1])).toBe(false);
     expect(panel.compareDocumentPosition(links[1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -175,7 +179,7 @@ describe("CoffeeshopDetailContent", () => {
     render(
       <CoffeeshopDetailContent result={{ state: "error" }} locale="es" ulid="01SHOP" tab="offerings" texts={TEXTS} />,
     );
-    expect(screen.getByRole("link", { name: "Volver a cafeterías" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Volver a cafeterías" })).toBeDefined();
     expect(screen.getByText("No se pudo cargar la cafetería.")).toBeDefined();
     expect(screen.getByRole("button", { name: "Reintentar" })).toBeDefined();
     expect(screen.queryByRole("tab")).toBeNull();
