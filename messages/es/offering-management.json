@@ -20,8 +20,6 @@
   "cancelLabel": "Cancelar",
   "deleteError": "No se pudo eliminar. Inténtalo de nuevo.",
   "deletedStatus": "Ofertas eliminadas:",
-  "stepUpMessage": "Para continuar, confirma tu identidad.",
-  "stepUpLabel": "Confirmar identidad",
   "signedOutMessage": "Inicia sesión para gestionar tus ofertas.",
   "signInLabel": "Iniciar sesión",
   "newHeading": "Nueva oferta",

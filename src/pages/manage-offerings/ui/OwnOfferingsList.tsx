@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import type { TaxonomyNode } from "@/shared/api";
-import { requestProfileWrite } from "@/features/auth";
 import {
   DeleteOfferingsDialog,
   previousPageAfterDelete,
@@ -84,7 +83,6 @@ export function OwnOfferingsList({
         error={flow.error}
         onCancel={flow.cancel}
         onConfirm={flow.confirm}
-        onStepUp={() => requestProfileWrite(route)}
         texts={texts}
       />
     </>

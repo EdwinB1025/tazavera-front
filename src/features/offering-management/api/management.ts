@@ -15,9 +15,9 @@ import type {
  * is a public read whose filter is the session user's `ulid`, which lives only
  * in the browser, so it runs on the client through `publicRequest` with no
  * credential (design.md D1). Every API `message` is discarded: a non-2xx
- * status, a 422 and a transport failure all map to one error result; a write
- * also reports a 403 (the step-up) as `forbidden` (unify-api-result-shape
- * design.md D2).
+ * status, a 422 and a transport failure all map to one error result; a 403
+ * on a write is one of them: offerings need no step-up
+ * (drop-step-up-for-offerings).
  */
 
 // ─── Results (declared before the functions) ───
@@ -55,18 +55,18 @@ const JSON_HEADERS = {
 };
 
 /** A write through the token client, mapped to its result. */
-async function write(path: string, init: RequestInit): Promise<ApiResult<null, "forbidden">> {
+async function write(path: string, init: RequestInit): Promise<ApiResult<null>> {
   try {
     const response = await request(path, init);
     if (response.ok) return { ok: true, data: null };
-    return { ok: false, kind: response.status === 403 ? "forbidden" : "error" };
+    return { ok: false, kind: "error" };
   } catch {
     return { ok: false, kind: "error" };
   }
 }
 
 /** `DELETE /offerings/{offering_ulid}`. */
-export function deleteOffering(ulid: string): Promise<ApiResult<null, "forbidden">> {
+export function deleteOffering(ulid: string): Promise<ApiResult<null>> {
   return write(`/offerings/${encodeURIComponent(ulid)}`, {
     method: "DELETE",
     headers: { Accept: "application/json" },
@@ -74,7 +74,7 @@ export function deleteOffering(ulid: string): Promise<ApiResult<null, "forbidden
 }
 
 /** `DELETE /offerings` with body `{ offerings: [...] }`. */
-export function deleteOfferings(ulids: string[]): Promise<ApiResult<null, "forbidden">> {
+export function deleteOfferings(ulids: string[]): Promise<ApiResult<null>> {
   return write("/offerings", {
     method: "DELETE",
     headers: JSON_HEADERS,
