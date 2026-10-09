@@ -579,3 +579,8 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Decisión:** R18: un elemento que no existe muestra en su propia vista un mensaje "<elemento> no encontrado" (o "sin resultados"), sin Reintentar; el estado HTTP no se toca. R5: una sola función de idioma en `src/shared/lib/i18n`; el idioma solo se elige con el botón de idioma de la cabecera. R4: menús de tarjeta a 16px (se ajusta `base-controls`). R8: antes, la API documenta sus 422 y los 404 de lecturas por identificador con ficheros de ejemplo de Scribe (R40, en `tazavera-api`, local).
 - **Por qué:** Product owner, 8 oct.
 - **Afecta:** offering-catalog y evaluations (R18), auth (R5), base-controls (R4), formularios (R8), `tazavera-api` (R40).
+
+### 2026-10-09 — enlace o botón de acción según la posición (Product owner)
+- **Decisión:** el control de navegación en la primera línea del encabezado de una página (volver, encima del título) es un enlace. Cualquier otro control de navegación es un botón de acción (`RouteButton`, con la variante según "Action variants by kind"), tanto en el encabezado después de la primera línea como al final de la vista, la lista o la tarjeta. Una misma acción en dos sitios usa un único componente (p. ej. "Nueva oferta" en la cabecera y en la lista vacía).
+- **Por qué:** Product owner, 9 oct (hallazgos AUT).
+- **Afecta:** `apply-header-link-rule` y toda vista futura con encabezado o acciones finales.
