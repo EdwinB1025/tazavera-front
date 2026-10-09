@@ -24,7 +24,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 6. Locations map
 
-- [ ] 6.1 Create `src/shared/ui/LocationsMapPanel.tsx` and `src/shared/ui/locations-map-view.tsx` and split `LocationsMap` as design.md D8. Commit `refactor(offering-catalog): split the locations map`.
+- [x] 6.1 Create `src/shared/ui/LocationsMapPanel.tsx` and `src/shared/ui/locations-map-view.tsx` and split `LocationsMap` as design.md D8. Commit `refactor(offering-catalog): split the locations map`.
 
 ## 7. Full checks
 
