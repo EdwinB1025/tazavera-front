@@ -60,9 +60,13 @@ function useSidebar(): SidebarContextValue {
 }
 
 function SidebarProvider({
+  route = null,
   children,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & {
+  /** The route in view (its pathname): a new one is a new arrival. */
+  route?: string | null;
+}) {
   // Two states (design.md D3): expanded on arrival from `md`, closed on
   // arrival below it.
   const [openDesktop, setOpenDesktop] = React.useState(true);
@@ -71,6 +75,17 @@ function SidebarProvider({
   // Closed on arrival; the toolbar's "Filters" opens it (collapse-sidebar-filters).
   const [subsectionOpen, setSubsectionOpen] = React.useState(false);
   const isMobile = useIsMobile();
+
+  // The provider outlives navigations (it sits in the locale layout), so a
+  // new route resets the mobile sheet and the sub-section to their arrival
+  // state, during render so no open sheet is committed (spec "Closed on
+  // arrival on a small viewport").
+  const [arrivedAt, setArrivedAt] = React.useState(route);
+  if (route !== arrivedAt) {
+    setArrivedAt(route);
+    setOpenMobile(false);
+    setSubsectionOpen(false);
+  }
 
   const open = isMobile ? openMobile : openDesktop;
   const setOpen = isMobile ? setOpenMobile : setOpenDesktop;

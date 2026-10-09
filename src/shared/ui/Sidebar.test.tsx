@@ -114,6 +114,23 @@ describe("Sidebar (design.md D6, D11)", () => {
     ).toBe("true");
   });
 
+  it("is closed on arrival below md after leaving a route with the sheet open (spec \"Closed on arrival on a small viewport\")", () => {
+    mobile = true;
+    const tree = (route: string, sidebar: boolean) => (
+      <SidebarProvider route={route}>
+        {sidebar && <Sidebar label="Sidebar">Filters</Sidebar>}
+        <SidebarTrigger>Toggle</SidebarTrigger>
+      </SidebarProvider>
+    );
+    const { rerender } = render(tree("/es/evaluations", true));
+    fireEvent.click(screen.getByRole("button", { name: "Toggle" }));
+    expect(screen.getByRole("dialog")).toBeDefined();
+    // leaves for the landing (no sidebar), then arrives back at the list
+    rerender(tree("/es", false));
+    rerender(tree("/es/evaluations", true));
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
   it("renders the entry as its child link with asChild (design.md D7)", () => {
     const { container } = render(
       <SidebarMenuButton asChild isActive icon={Check}>
