@@ -62,51 +62,8 @@ A registration answered with `201` SHALL replace the form with a success panel c
 - **WHEN** `POST /register` answers `422`, a server error or any other status, or the request fails
 - **THEN** the generic form-level error renders above the actions, every entered value is kept except the password and its confirmation, which are cleared, and the API's message is never rendered
 
-### Requirement: Account page and its session gate
-The account page at `/{locale}/account` SHALL show one heading block and, for an authenticated session, six sections in order — Profile, Contact details, Edit profile, Password, Security and Danger zone — each named by its heading; the Profile section is read-only and filled from the session user's `data.name`, `data.surname`, `data.email` and `data.role`. Each of the sections SHALL be a section card whose header band holds its heading and, where it has one, its description, and the section cards SHALL be 1rem apart with the page background showing between them. The heading block and the section cards SHALL fill the page container's width; from the medium breakpoint the content of each section card SHALL be at most 40rem wide, aligned to the card's start. While the session is resolving, the page SHALL show the heading block and one section card with no header band, holding the loading status, in place of the sections. While the session is anonymous — including after a declined step-up or a write whose `401` no recovery resolves — the page SHALL show the heading block and one section card with no header band, holding the signed-out text and a "Sign in" action, with no automatic redirect.
-
-#### Scenario: The session is resolving
-- **WHEN** the account page opens while the session is still resolving
-- **THEN** the heading block and one section card with no header band, holding the loading status, render in place of the sections
-
-#### Scenario: Signed out
-- **WHEN** the account page is open and the session is anonymous
-- **THEN** one section card with no header band shows the signed-out text and a "Sign in" action, no section renders, and the page does not redirect
-
-#### Scenario: Signing in from the account page
-- **WHEN** the user activates "Sign in" on the account page
-- **THEN** sign in starts synchronously inside that click for the route the user is on, and the user stays on the page
-
-#### Scenario: The session ends while the page is open
-- **WHEN** the session becomes `anonymous` while the account page is open
-- **THEN** the page shows the signed-out state, whatever ended the session
-
-#### Scenario: The six sections
-- **WHEN** the session is authenticated
-- **THEN** the page shows Profile, Contact details, Edit profile, Password, Security and Danger zone in that order, each named by its heading
-
-#### Scenario: The four sections
-- **WHEN** the session is authenticated
-- **THEN** Edit profile, Password, Security and Danger zone follow Contact details in that order, each named by its heading
-
-#### Scenario: Sections hang from the page background
-- **WHEN** the session is authenticated
-- **THEN** the sections render as section cards 1rem apart with the page background showing between them, each card's header band holds its heading and, where it has one, its description, and the heading block sits 2rem above the sections
-
-#### Scenario: The gate card has no header band
-- **WHEN** the account page shows its loading card or its signed-out card
-- **THEN** the card is a section card with no header band and its content sits in the card body
-
-#### Scenario: Contact details is the second section
-- **WHEN** the session is authenticated
-- **THEN** the read-only Profile section comes first and Contact details second, each named by its heading
-
-#### Scenario: Sections fill the container
-- **WHEN** the session is authenticated on a medium or larger viewport
-- **THEN** the section cards span the page container's width and each card's content is at most 40rem wide, start-aligned
-
 ### Requirement: Profile settings
-The Profile section SHALL show the session user's name (`data.name`), surname (`data.surname`), email (`data.email`) and role (`data.role`) read-only, each as the API returns it, one labelled row per non-null value in that order, with no field to edit. The Edit profile section SHALL hold a form for name, surname and email prefilled with `data.name`, `data.surname` and `data.email`, which SHALL send `PUT /users/{data.ulid}` with `name`, `surname` and `email`. Before sending, the form SHALL check only the email's format; no field is required. A failing check SHALL show its message under the field, mark the field as invalid, move focus to it and send nothing. A `200` SHALL keep the submitted values in the form, show the success status above the actions, and refresh the profile in the session from `GET /user`, so the rest of the interface follows. A `422`, a server error, a network failure or any other status except `403` SHALL show the generic form-level error above the actions and keep the values.
+The Profile section SHALL show the session user's name (`data.name`), surname (`data.surname`), email (`data.email`) and role (`data.role`) read-only, each as the API returns it, one labelled row per non-null value in that order, with no field to edit, followed by an "Edit profile" action. Activating "Edit profile" SHALL start the identity check synchronously inside that click for the return route `/{locale}/account?edit=1` and SHALL open that route, where the page is in edit mode. In edit mode the Edit profile section SHALL hold a form for name, surname and email prefilled with `data.name`, `data.surname` and `data.email`, followed by a "Done" action that returns the page to read mode on the same route without sending anything. The form SHALL send `PUT /users/{data.ulid}` with `name`, `surname` and `email`. Before sending, the form SHALL check only the email's format; no field is required. A failing check SHALL show its message under the field, mark the field as invalid, move focus to it and send nothing. A `200` SHALL keep the submitted values in the form, show the success status above the actions, and refresh the profile in the session from `GET /user`, so the rest of the interface follows. A `422`, a server error, a network failure or any other status except `403` SHALL show the generic form-level error above the actions and keep the values.
 
 #### Scenario: The profile is shown read-only
 - **WHEN** the Profile section renders for an authenticated session
@@ -115,6 +72,14 @@ The Profile section SHALL show the session user's name (`data.name`), surname (`
 #### Scenario: The role is shown as returned
 - **WHEN** the Profile section renders for an authenticated session
 - **THEN** its Role row shows `data.role` of the session user exactly as the API returns it
+
+#### Scenario: Opening edit mode
+- **WHEN** the user activates "Edit profile"
+- **THEN** the identity check starts synchronously inside that click for `/{locale}/account?edit=1` and that route opens
+
+#### Scenario: Closing edit mode
+- **WHEN** the user activates "Done" in edit mode
+- **THEN** `/{locale}/account` opens in read mode and nothing is sent
 
 #### Scenario: The form is prefilled from the session
 - **WHEN** the Edit profile section renders for an authenticated session
@@ -159,13 +124,6 @@ The Password section SHALL collect the current password, a new password and its 
 - **WHEN** the Password section renders
 - **THEN** its "Forgot your password?" link opens the API's password reset page as an external navigation in the same tab, and the front sends no request for it
 
-### Requirement: Security section
-The Security section SHALL carry a short text and a "Manage security" action that opens the API's security page as an external navigation in the same tab. The front SHALL send no request for it.
-
-#### Scenario: The security link
-- **WHEN** the Security section renders
-- **THEN** its "Manage security" action opens the API's security page as an external navigation in the same tab and no request is sent by the front
-
 ### Requirement: Account deactivation and deletion
 The Danger zone SHALL offer deactivation and permanent deletion, each with its heading, its explanation and one action. Activating the action SHALL open its confirmation dialog and send nothing before the user confirms. While a confirmed request is pending, the dialog's confirm action SHALL show its busy state, its cancel action SHALL be disabled and Escape SHALL not close the dialog. A `200` SHALL sign the user out — the session becomes `anonymous` and the user lands on the root of the active locale — with no message shown there. A server error or a network failure SHALL show the generic error inside the dialog and allow retry.
 
@@ -190,7 +148,7 @@ The Danger zone SHALL offer deactivation and permanent deletion, each with its h
 - **THEN** the dialog stays open with the generic error and the user may retry
 
 ### Requirement: Writes and the step-up
-The profile update, the password change and the account deactivation and deletion SHALL be sent with the current token. When one of them answers `403`, the step-up notice — its text and a "Confirm identity" action — SHALL render inside the section that sent the write, above its actions row, or inside the open dialog's error area for the destructive actions. Activating "Confirm identity" SHALL start the write-scope sign in synchronously inside that click for the account route, keeping the page and any input typed on it; after signing in again the user activates the action again and the write carries the new token. No other account write SHALL show the step-up notice.
+The profile update, the password change and the account deactivation and deletion SHALL be sent with the current token. The identity check — the write-scope sign in — SHALL also start before edit mode opens and before the Change password view opens; the front SHALL not track which scope the token holds, so it starts on every "Edit profile" and "Change password" activation. When one of the writes answers `403`, the step-up notice — its text and a "Confirm identity" action — SHALL render inside the section that sent the write, above its actions row, or inside the open dialog's error area for the destructive actions. Activating "Confirm identity" SHALL start the write-scope sign in synchronously inside that click for the account route, keeping the page and any input typed on it; after signing in again the user activates the action again and the write carries the new token. No other account write SHALL show the step-up notice.
 
 #### Scenario: A write is rejected for its scope
 - **WHEN** the profile update, the password change, or a confirmed deactivation or deletion answers `403`
@@ -310,3 +268,68 @@ Both registration forms, specialist and coffee shop, SHALL show a "Cancel" link 
 #### Scenario: Cancel opens the locale root without sending anything
 - **WHEN** the registration form renders and the user activates "Cancel"
 - **THEN** the link under the submit action addresses `/{locale}` and no `POST /register` is sent
+
+### Requirement: Account page modes and their session gate
+The account page at `/{locale}/account` SHALL show one heading block and, for an authenticated session, the sections of its mode, each named by its heading. In read mode, the default, the sections SHALL be Profile, Contact details and Security, in that order; the Profile section is read-only and filled from the session user's `data.name`, `data.surname`, `data.email` and `data.role`. In edit mode, `/{locale}/account?edit=1`, the profile form SHALL take the place of the read-only profile and the Danger zone SHALL follow Security. Each of the sections SHALL be a section card whose header band holds its heading and, where it has one, its description, and the section cards SHALL be 1rem apart with the page background showing between them. The heading block and the section cards SHALL fill the page container's width; from the medium breakpoint the content of each section card SHALL be at most 40rem wide, aligned to the card's start. While the session is resolving, the page SHALL show the heading block and one section card with no header band, holding the loading status, in place of the sections. While the session is anonymous — including after a declined step-up or a write whose `401` no recovery resolves — the page SHALL show the heading block and one section card with no header band, holding the signed-out text and a "Sign in" action, with no automatic redirect.
+
+#### Scenario: The session is resolving
+- **WHEN** the account page opens while the session is still resolving
+- **THEN** the heading block and one section card with no header band, holding the loading status, render in place of the sections
+
+#### Scenario: Signed out
+- **WHEN** the account page is open and the session is anonymous
+- **THEN** one section card with no header band shows the signed-out text and a "Sign in" action, no section renders, and the page does not redirect
+
+#### Scenario: Signing in from the account page
+- **WHEN** the user activates "Sign in" on the account page
+- **THEN** sign in starts synchronously inside that click for the route the user is on, and the user stays on the page
+
+#### Scenario: The session ends while the page is open
+- **WHEN** the session becomes `anonymous` while the account page is open
+- **THEN** the page shows the signed-out state, whatever ended the session
+
+#### Scenario: The read-mode sections
+- **WHEN** the session is authenticated and the page is in read mode
+- **THEN** the page shows Profile, Contact details and Security in that order, each named by its heading, with no profile form, no Password section and no Danger zone
+
+#### Scenario: The edit-mode sections
+- **WHEN** the session is authenticated and the page is in edit mode
+- **THEN** the page shows Edit profile, Contact details, Security and Danger zone in that order, each named by its heading
+
+#### Scenario: Sections hang from the page background
+- **WHEN** the session is authenticated
+- **THEN** the sections render as section cards 1rem apart with the page background showing between them, each card's header band holds its heading and, where it has one, its description, and the heading block sits 2rem above the sections
+
+#### Scenario: The gate card has no header band
+- **WHEN** the account page shows its loading card or its signed-out card
+- **THEN** the card is a section card with no header band and its content sits in the card body
+
+#### Scenario: Sections fill the container
+- **WHEN** the session is authenticated on a medium or larger viewport
+- **THEN** the section cards span the page container's width and each card's content is at most 40rem wide, start-aligned
+
+### Requirement: Grouped security section
+The Security section SHALL carry a short text covering the password, two-factor authentication and passkeys, and three entries in order: "Change password", which starts the identity check synchronously inside the click for `/{locale}/account/password` and opens that route; "Two-factor authentication" and "Passkeys", each opening the API's security page as an external navigation in the same tab. The front SHALL send no request for the external entries.
+
+#### Scenario: Changing the password
+- **WHEN** the user activates "Change password"
+- **THEN** the identity check starts synchronously inside that click for `/{locale}/account/password` and that route opens
+
+#### Scenario: Two-factor authentication and passkeys
+- **WHEN** the Security section renders
+- **THEN** its "Two-factor authentication" and "Passkeys" entries open the API's security page as an external navigation in the same tab and no request is sent by the front
+
+### Requirement: Change password view
+The application SHALL offer the Change password view at `/{locale}/account/password`, with the account page's session gate and page shell: a back link to `/{locale}/account`, a heading block, and, for an authenticated session, one section card named "Change password" holding the password form of "Password change", its states and its reactive step-up unchanged.
+
+#### Scenario: The password form
+- **WHEN** the Change password view opens for an authenticated session
+- **THEN** one section named "Change password" shows the current-password, new-password and confirmation fields of the password form
+
+#### Scenario: Back to the account
+- **WHEN** the Change password view renders and the user has no previous page of the application
+- **THEN** its back link addresses `/{locale}/account`
+
+#### Scenario: The view's session gate
+- **WHEN** the Change password view opens and the session is anonymous
+- **THEN** one section card with no header band shows the signed-out text and a "Sign in" action, no section renders, and the page does not redirect

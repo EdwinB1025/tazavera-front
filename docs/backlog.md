@@ -25,7 +25,6 @@ The entries below follow this order. The order runs security first, then the sha
 | 0 | R41 | none (closed: environment, no code) | Deploy note | — | — (closed by Product owner 2026-10-08) |
 | 0d | R47 | none (closed: no code change) | Unplanned fix | — | — (Product owner 2026-10-08, option A: re-test on current develop) |
 | 16c | R50 | API branch in `tazavera-api` | Change (API) | S | Product owner: verify with real data (the API should deliver the resolved tree) |
-| 0e | R65 | `gate-account-edits-and-group-security` | Change (auth flow, texts) | M | — (in progress in the cloud) |
 | 16e | R66 | API branch in `tazavera-api`, then front | Change (API) | M | Product owner: enables `MustVerifyEmail` in the API himself |
 | 16d | R64 | none yet | Change (layout) | S | Product owner: confirm the gap should shrink and to what |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
@@ -67,31 +66,17 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Status:** closed (no code)
 - **Affects:** none
 
-## R65 — Account page: edit behind one identity check, and a security section (Product owner's AUT, 2026-10-09)
-
-- **Duplicated:** none. Today the account page (R59) shows Profile read-only and, below it, an always-open "Edit profile" form, a Password card, a Security card (one "Manage security" link to the API) and a Danger zone; the profile, password and danger-zone writes use the reactive step-up (`403` → "Confirm identity").
-- **Where today:** `src/pages/account/`, `src/features/user-account/` (`ProfileDetails`, `ProfileForm`, `PasswordForm`, `DangerZone`, the Security card), `src/features/auth/api/authorize.ts` (`requestProfileWrite`), `messages/{es,en,ca}/account.json`.
-- **Why it pays off now:** Product owner's AUT: the edit options must stay closed until the user confirms identity, and the security options must sit together.
-- **Owning capability:** user-account (with auth)
-- **Proposed change:** `gate-account-edits-and-group-security`
-- **Decided (Product owner, 2026-10-09):**
-  1. The Profile card shows the profile read-only, with an "Edit profile" button. The button runs the identity check (`profile:write`), skipped when the session already holds `profile:write`; back on the same `/account` page, the profile form and the danger zone open in place (option 1a, 2a), with a way to close them.
-  2. A Security section groups every account-security option: "Change password", a front view; two-factor authentication and passkeys, buttons to the API's `/user/security` page (Fortify). "Verify email" joins it once R66 enables it in the API.
-  3. Locations stay on Manage locations (coffee-shop management), not on the account page.
-- **Open decision (Augusto):** answered 2026-10-09, option A: "Change password" opens `/{locale}/account/password`, with the identity check before it opens. Still open: the copy of the new buttons (the cloud proposes it, Product owner reviews). Orchestrator's choice for review: no change to tokens or the auth flow, so the check runs on every "Edit profile" / "Change password" click, even when the token already holds `profile:write`.
-- **Type:** Change (auth flow, texts) · **Status:** in progress (cloud routine `trig_012371NMoc74PSVV6T1kwVqW`, branch `claude/gate-account-edits-and-group-security`) · **Affects:** R66
-
 ## R66 — Email verification (API + front, 2026-10-09)
 
 - **Duplicated:** none. The API has the verify-email view (`FortifyServiceProvider` `verifyEmailView`) but the feature is off: `Features::emailVerification()` is commented out in `config/fortify.php` and `User` does not implement `MustVerifyEmail`.
-- **Where today:** `tazavera-api` (`config/fortify.php`, `app/Models/User.php`, mail configuration); front: the R65 Security section.
+- **Where today:** `tazavera-api` (`config/fortify.php`, `app/Models/User.php`, mail configuration); front: the account page's Security section.
 - **Why it pays off now:** Product owner wants "Verify email" in the Security section.
 - **Owning capability:** API, then user-account
 - **Proposed change:** an API feature branch, then a front change adding the button or status
 - **Decided (Product owner, 2026-10-09):** enable email verification (`MustVerifyEmail`); Product owner makes the API change himself.
 - **Action for Product owner:** in `tazavera-api`, enable `Features::emailVerification()`, make `User` implement `MustVerifyEmail`, configure mail sending, and tell the orchestrator whether the user resource (`GET /user`) exposes the verification state; if it does, copy the regenerated contract into `contracts/openapi.yaml`.
-- **Then:** the front adds "Verify email" (a button to the API's verification page, or a verified status) to the R65 Security section.
-- **Type:** Change (API) · **Status:** accepted · **Affects:** R65
+- **Then:** the front adds "Verify email" (a button to the API's verification page, or a verified status) to the account page's Security section.
+- **Type:** Change (API) · **Status:** accepted · **Affects:** none
 
 ## R64 — Empty band above the offerings and coffee-shops lists (design lead's final AUT pass, 2026-10-09)
 
