@@ -21,11 +21,12 @@
  * and the flow's, so a completed flow settles this store.
  */
 import { useEffect, useSyncExternalStore } from "react";
-import type { Session, SessionUser } from "@/shared/api";
+import type { RegistrationToken, Session, SessionUser } from "@/shared/api";
 import {
   clearTokens,
   configureClient,
   getTokens,
+  keepRegistrationGrant,
   refreshTokens,
   request,
 } from "@/shared/api";
@@ -149,6 +150,30 @@ async function loadProfile(): Promise<void> {
     }
   })();
   return profileLoad;
+}
+
+/**
+ * Signs in with the `token` block of a registration's `201`
+ * (sign-in-after-registration design.md D3; spec "Sign-in from a registration
+ * grant"): the block is kept in memory and the session settles with
+ * `GET /user`, the post-exchange step of a completed popup sign-in. No flow
+ * record is touched and the marker is not set, so a reload ends the session.
+ * Resolves whether the session is authenticated; a refused block or a profile
+ * that cannot be loaded clears the tokens and ends `anonymous`. Never rejects.
+ */
+export async function signInWithRegistration(
+  token: RegistrationToken,
+): Promise<boolean> {
+  try {
+    keepRegistrationGrant(token);
+    await loadProfile();
+  } catch {
+    // The block is refused (design.md D1).
+  }
+  if (snapshot().state === "authenticated") return true;
+  clearTokens();
+  settle(ANONYMOUS);
+  return false;
 }
 
 /** The short pause before the one retry of a failed profile refresh (design.md D5). */

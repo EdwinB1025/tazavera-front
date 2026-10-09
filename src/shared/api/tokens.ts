@@ -42,6 +42,31 @@ export function clearTokens(): void {
 }
 
 /**
+ * Keeps the `token` block of a registration's `201` as the grant
+ * (sign-in-after-registration design.md D1): memory only, no request. A block
+ * without the four fields of RFC 6749 §5.1 with their types is refused: it
+ * throws and the memory stays as it was.
+ */
+export function keepRegistrationGrant(block: unknown): void {
+  if (!isTokenGrant(block)) {
+    throw new Error("invalid registration grant");
+  }
+  const { access_token, token_type, refresh_token, expires_in } = block;
+  tokens = { access_token, token_type, refresh_token, expires_in };
+}
+
+function isTokenGrant(block: unknown): block is TokenGrant {
+  if (typeof block !== "object" || block === null) return false;
+  const grant = block as Record<string, unknown>;
+  return (
+    typeof grant.access_token === "string" &&
+    typeof grant.token_type === "string" &&
+    typeof grant.refresh_token === "string" &&
+    typeof grant.expires_in === "number"
+  );
+}
+
+/**
  * Exchanges the code of a completed authorization for the first grant
  * (design.md D5). The `state` of the response belongs to `src/features/auth`
  * (design.md D4), so the library's state check is skipped here.
