@@ -26,7 +26,16 @@ vi.mock("@/features/auth", () => ({
   refreshProfile: auth.refreshProfile,
 }));
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+const nav = vi.hoisted(() => ({
+  query: "",
+  push: vi.fn<(href: string) => void>(),
+  replace: vi.fn<(href: string, options?: { scroll?: boolean }) => void>(),
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: nav.push, replace: nav.replace }),
+  useSearchParams: () => new URLSearchParams(nav.query),
+}));
 
 const API = "https://api.tazavera.test";
 const fetchMock =
@@ -35,6 +44,10 @@ const fetchMock =
 beforeEach(() => {
   auth.session = { state: "loading" };
   auth.signIn.mockReset();
+  auth.requestProfileWrite.mockReset();
+  nav.query = "";
+  nav.push.mockReset();
+  nav.replace.mockReset();
   fetchMock.mockReset();
   vi.stubGlobal("fetch", fetchMock);
   vi.stubEnv("NEXT_PUBLIC_API_URL", API);
@@ -52,10 +65,12 @@ const TEXTS = {
   signIn: "fx-sign-in",
   profileHeading: "fx-profile",
   editProfileHeading: "fx-edit-profile",
-  passwordHeading: "fx-password",
   securityHeading: "fx-security",
   securityDescription: "fx-security-description",
-  securityLink: "fx-security-link",
+  changePassword: "fx-change-password",
+  twoFactor: "fx-two-factor",
+  passkeys: "fx-passkeys",
+  done: "fx-done",
   dangerZoneHeading: "fx-danger",
   contactHeading: "fx-contact",
   contactDescription: "fx-contact-description",
@@ -81,6 +96,13 @@ const USER = {
   role: "specialist" as const,
 };
 
+function regionNames() {
+  return screen
+    .getAllByRole("region")
+    .map((region) => region.getAttribute("aria-labelledby"))
+    .map((id) => document.getElementById(id!)?.textContent);
+}
+
 function renderClient() {
   return render(<AccountClient locale="es" texts={TEXTS} />);
 }
@@ -101,18 +123,23 @@ describe("AccountClient — the session gate", () => {
     expect(auth.signIn).toHaveBeenCalledTimes(1);
   });
 
-  it("while authenticated shows Profile, Contact details, Edit profile, Password, Security and Danger zone in order, each named by its heading", () => {
+  it("in read mode shows Profile, Contact details and Security in order, each named by its heading", () => {
     auth.session = { state: "authenticated", user: USER };
     renderClient();
-    const names = screen
-      .getAllByRole("region")
-      .map((region) => region.getAttribute("aria-labelledby"))
-      .map((id) => document.getElementById(id!)?.textContent);
-    expect(names).toEqual([
+    expect(regionNames()).toEqual([
       TEXTS.profileHeading,
       TEXTS.contactHeading,
+      TEXTS.securityHeading,
+    ]);
+  });
+
+  it("in edit mode shows Edit profile, Contact details, Security and Danger zone in order", () => {
+    auth.session = { state: "authenticated", user: USER };
+    nav.query = "edit=1";
+    renderClient();
+    expect(regionNames()).toEqual([
       TEXTS.editProfileHeading,
-      TEXTS.passwordHeading,
+      TEXTS.contactHeading,
       TEXTS.securityHeading,
       TEXTS.dangerZoneHeading,
     ]);
@@ -121,7 +148,7 @@ describe("AccountClient — the session gate", () => {
   it("shows the signed-out state when the session turns anonymous while the page is open", () => {
     auth.session = { state: "authenticated", user: USER };
     const { rerender } = renderClient();
-    expect(screen.getAllByRole("region")).toHaveLength(6);
+    expect(screen.getAllByRole("region")).toHaveLength(3);
     auth.session = { state: "anonymous" };
     rerender(<AccountClient locale="es" texts={TEXTS} />);
     expect(screen.queryAllByRole("region")).toHaveLength(0);
@@ -146,7 +173,7 @@ describe("AccountClient — the session gate", () => {
 });
 
 describe("AccountClient — sections group", () => {
-  it("places the six sections as the children of one flex column 1rem apart", () => {
+  it("places the read-mode sections as the children of one flex column 1rem apart", () => {
     auth.session = { state: "authenticated", user: USER };
     renderClient();
     const regions = screen.getAllByRole("region");
@@ -158,15 +185,46 @@ describe("AccountClient — sections group", () => {
   });
 });
 
+describe("AccountClient — edit mode", () => {
+  it("Edit profile starts the identity check for the edit-mode route and opens it", () => {
+    auth.session = { state: "authenticated", user: USER };
+    renderClient();
+    fireEvent.click(screen.getByRole("button", { name: TEXTS.editProfileHeading }));
+    expect(auth.requestProfileWrite).toHaveBeenCalledTimes(1);
+    expect(auth.requestProfileWrite).toHaveBeenCalledWith("/es/account?edit=1");
+    expect(nav.replace).toHaveBeenCalledWith("/es/account?edit=1", { scroll: false });
+  });
+
+  it("Done returns to read mode and sends nothing", () => {
+    auth.session = { state: "authenticated", user: USER };
+    nav.query = "edit=1";
+    renderClient();
+    fireEvent.click(screen.getByRole("button", { name: TEXTS.done }));
+    expect(nav.replace).toHaveBeenCalledWith("/es/account", { scroll: false });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
 describe("AccountClient — Security section", () => {
-  it("shows its description and an external same-tab link to {API}/user/security, sending no request", () => {
+  it("Change password starts the identity check for the password view and opens it", () => {
+    auth.session = { state: "authenticated", user: USER };
+    renderClient();
+    fireEvent.click(screen.getByRole("button", { name: TEXTS.changePassword }));
+    expect(auth.requestProfileWrite).toHaveBeenCalledTimes(1);
+    expect(auth.requestProfileWrite).toHaveBeenCalledWith("/es/account/password");
+    expect(nav.push).toHaveBeenCalledWith("/es/account/password");
+  });
+
+  it("shows its description and external same-tab links to {API}/user/security for two-factor and passkeys, sending no request", () => {
     auth.session = { state: "authenticated", user: USER };
     renderClient();
     const region = screen.getByRole("region", { name: TEXTS.securityHeading });
     expect(region.textContent).toContain(TEXTS.securityDescription);
-    const link = screen.getByRole("link", { name: TEXTS.securityLink });
-    expect(link.getAttribute("href")).toBe(`${API}/user/security`);
-    expect(link.getAttribute("target")).toBeNull();
+    for (const name of [TEXTS.twoFactor, TEXTS.passkeys]) {
+      const link = screen.getByRole("link", { name });
+      expect(link.getAttribute("href")).toBe(`${API}/user/security`);
+      expect(link.getAttribute("target")).toBeNull();
+    }
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });
