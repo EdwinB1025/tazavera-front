@@ -8,7 +8,7 @@ No derived API types are needed: the change only moves layout classes and adds t
 ## 2. Button widths and action group (base-controls)
 
 - [x] 2.1 Tests: in `src/shared/ui/Button.test.tsx` one test for "Minimum width per size" (a labelled `base` button has `min-w-action-base` and `whitespace-nowrap`, a labelled `sm` button `min-w-action-sm`); a new `src/shared/ui/RouteButton.test.tsx` (a `RouteButton` of size `sm` carries `min-w-action-sm`); a new `src/shared/ui/ActionGroup.test.tsx` for "Equal columns on mobile, predefined widths from 768px" (the group has `grid grid-cols-2 gap-3 max-md:*:w-full max-md:*:min-w-0 md:flex md:flex-wrap`, plus `md:justify-end` with `align="end"`). Update any existing `Button.test.tsx` assertion on the exact geometry string that breaks, naming it in the commit. Verify: the new tests fail only on the missing behaviour and module.
-- [ ] 2.2 Implement design.md D2–D3: `Button.tsx` (min width and `whitespace-nowrap` for labelled primary/positional buttons), `ActionGroup.tsx` (exported from `src/shared/ui/index.ts`), `Pagination.tsx` (important overrides). Verify: `npx vitest related` on the changed files passes; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 2.2 Implement design.md D2–D3: `Button.tsx` (min width and `whitespace-nowrap` for labelled primary/positional buttons), `ActionGroup.tsx` (exported from `src/shared/ui/index.ts`), `Pagination.tsx` (important overrides). Verify: `npx vitest related` on the changed files passes; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 3. Dialog footer (feedback)
 

@@ -8,6 +8,7 @@
 export { Button } from "./Button";
 export { Link, LINK_CLASSES } from "./Link";
 export { RouteButton } from "./RouteButton";
+export { ActionGroup } from "./ActionGroup";
 export { BackLink } from "./BackLink";
 export { BackButton } from "./BackButton";
 export { Field } from "./Field";
