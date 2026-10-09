@@ -45,4 +45,10 @@ describe("SidebarMenuSub (collapse-sidebar-filters)", () => {
     fireEvent.click(toggle);
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
   });
+
+  it("shows its title in the sidebar entry text colour at rest (spec: theming Text and button contrast)", () => {
+    const toggle = renderSub();
+    expect(toggle.className).toContain("text-nav-text-dark");
+    expect(toggle.className).toContain("[--color-text-accent:var(--color-nav-text-dark)]");
+  });
 });
