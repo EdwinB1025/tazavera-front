@@ -348,6 +348,8 @@ Pushes: you may run `git push origin develop`, `git push origin feature/<change-
 
 Branch deletion: deleting a `claude/*` branch on GitHub is Product owner's.
 
+API branches: every implementation in `tazavera-api` is done on a `feature/*` or a `hotfix/*` branch created from `dev`, never directly on `dev` or `PROD`. When it ends, if the agent in charge has not done it, you merge it into `dev`, align `PROD` with `dev`, and push both, so that the branches match locally and on GitHub.
+
 ## 6. OpenCode agents and the change lifecycle
 
 - Run every agent from inside the change's worktree: `cd` into it first, then `opencode run --standalone --agent <architect|build> --model xiaomi/mimo-v2.6-pro --auto --title "<title>" "<prompt>"`. Without `--standalone` and `--model` it picks an unavailable model and fails.
