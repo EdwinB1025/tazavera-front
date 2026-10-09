@@ -2,7 +2,7 @@
 
 ## 1. Sidebar entry sub-section (app-shell)
 
-- [ ] 1.1 Test first. New `src/shared/ui/SidebarMenuSub.test.tsx`: "Closed by default" (inside `SidebarProvider`, the toggle named by its title reports `aria-expanded="false"`) and "Opens on its toggle" (after a click it reports `aria-expanded="true"`). In `src/widgets/app-sidebar/ui/AppSidebar.test.tsx`, one test: with `listEntry` and `subsection`, the navigation holds the entry link marked `aria-current="page"` and the sub-section toggle inside the entry's list item. No `qa/` test changes.
+- [x] 1.1 Test first. New `src/shared/ui/SidebarMenuSub.test.tsx`: "Closed by default" (inside `SidebarProvider`, the toggle named by its title reports `aria-expanded="false"`) and "Opens on its toggle" (after a click it reports `aria-expanded="true"`). In `src/widgets/app-sidebar/ui/AppSidebar.test.tsx`, one test: with `listEntry` and `subsection`, the navigation holds the entry link marked `aria-current="page"` and the sub-section toggle inside the entry's list item. No `qa/` test changes.
 
   Verify: `npx vitest related src/shared/ui/SidebarMenuSub.test.tsx src/widgets/app-sidebar/ui/AppSidebar.test.tsx --run`. Expected: only the new tests fail (and typecheck errors only for the missing module and props).
 

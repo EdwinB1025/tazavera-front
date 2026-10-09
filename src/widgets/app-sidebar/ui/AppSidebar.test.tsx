@@ -78,4 +78,20 @@ describe("AppSidebar frame (design.md D4)", () => {
     renderFrame(<AppSidebar />);
     expect(screen.getByRole("navigation").textContent).toBe("");
   });
+
+  it("nests the sub-section under the list's entry, marked current (spec: Sidebar entry sub-section)", () => {
+    pathname = "/es/offerings";
+    renderFrame(
+      <AppSidebar
+        listEntry={{ label: "Explorar ofertas", href: "/es/offerings" }}
+        subsection={{ title: "Filtros", content: <p>facets</p> }}
+      />,
+      { session: { state: "anonymous" } },
+    );
+    const entry = screen.getByRole("link", { name: "Explorar ofertas" });
+    expect(entry.getAttribute("aria-current")).toBe("page");
+    expect(
+      entry.closest("li")!.contains(screen.getByRole("button", { name: "Filtros" })),
+    ).toBe(true);
+  });
 });
