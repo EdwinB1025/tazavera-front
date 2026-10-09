@@ -11,8 +11,8 @@ const THUMB_CLASSES = "block size-5 rounded-full bg-nav-text-dark focus-visible:
 
 /**
  * The bound an input commits (design.md D3): an empty or unreadable text
- * falls back to the end of the scale; the result is rounded and kept between
- * the scale end and the other bound.
+ * falls back to the end of the scale; the result is the nearest whole
+ * number, kept between the scale end and the other bound.
  */
 export function clampedBound(
   end: ScoreRangeEnd,
