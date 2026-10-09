@@ -15,7 +15,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 - [x] 2.1 Split `OfferingCard` (D4). Commit `refactor(offering-catalog): move the offering card labels to a function`.
 - [x] 2.2 Split `CoffeeshopsScreen` (D1). Commit `refactor(offering-catalog): move the coffee shop directory texts to functions`.
-- [ ] 2.3 Split `OfferingDetailScreen` (D1, D3). Commit `refactor(offering-catalog): split the offering detail screen`.
+- [x] 2.3 Split `OfferingDetailScreen` (D1, D3). Commit `refactor(offering-catalog): split the offering detail screen`.
 - [ ] 2.4 Split `CoffeeshopsMapView` (D3). Commit `refactor(offering-catalog): split the coffee shop map view`.
 
 ## 3. user-account
