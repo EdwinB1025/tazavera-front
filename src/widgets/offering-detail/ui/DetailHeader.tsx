@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { OfferingDetail, Session } from "@/shared/api";
-import { Badge, RouteButton } from "@/shared/ui";
+import { ActionGroup, Badge, RouteButton } from "@/shared/ui";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -23,9 +23,9 @@ export type DetailHeaderProps = {
 // The badge, the heading, the captions and the actions row, 0.5rem apart.
 const HEADER_CLASSES = ["flex", "flex-col", "items-start", "gap-2"].join(" ");
 
-// The actions row: wrapping, 1rem apart both ways, start-aligned
-// (add-public-evaluations design.md D9).
-const ACTIONS_CLASSES = ["flex", "flex-wrap", "items-start", "gap-4"].join(" ");
+// The actions: one start-aligned action group, filling the header's width
+// below `md` (unify-action-button-widths D3).
+const ACTIONS_CLASSES = "max-md:w-full";
 
 /**
  * The detail header (add-offering-catalog design.md D9; spec "Offering detail
@@ -57,7 +57,7 @@ export function DetailHeader({
       <h1 className="type-heading">{offering.coffeeInventory?.coffee?.name}</h1>
       <p className="type-label">{coffeeshopCaption}</p>
       <p className="type-label">{roasterCaption}</p>
-      <div className={ACTIONS_CLASSES}>
+      <ActionGroup className={ACTIONS_CLASSES}>
         <RouteButton
           href={`/${locale}/evaluations?offeringId=${offering.ulid ?? ""}`}
           variant="action-3"
@@ -74,7 +74,7 @@ export function DetailHeader({
             {texts.evaluateLabel}
           </RouteButton>
         ) : null}
-      </div>
+      </ActionGroup>
     </div>
   );
 }

@@ -357,7 +357,7 @@ describe("OfferingCard", () => {
       const action = screen.getByRole("link", { name: ACTION_LABEL });
       const group = action.parentElement!;
       expect(classTokens(group)).toEqual(
-        expect.arrayContaining(["ml-auto", "flex", "gap-4"]),
+        expect.arrayContaining(["grid-cols-2", "md:justify-end"]),
       );
     });
 
@@ -405,7 +405,7 @@ describe("OfferingCard", () => {
         expect.arrayContaining(["flex", "flex-wrap", "gap-4"]),
       );
       expect(classTokens(links)).toEqual(
-        expect.arrayContaining(["ml-auto", "flex", "gap-4"]),
+        expect.arrayContaining(["grid-cols-2", "md:justify-end", "md:ml-auto"]),
       );
     });
   });

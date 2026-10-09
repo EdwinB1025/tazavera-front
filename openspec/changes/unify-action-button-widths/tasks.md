@@ -31,7 +31,7 @@ No derived API types are needed: the change only moves layout classes and adds t
 
 ## 7. Catalog screens (offering-catalog)
 
-- [ ] 7.1 Implement design.md D4 in `DetailHeader.tsx` (group), `OfferingCard.tsx` and `CoffeeshopCard.tsx` (the footer's actions in a group aligned to the end). No test is added. Verify: `npx vitest related` passes; typecheck and lint clean.
+- [x] 7.1 Implement design.md D4 in `DetailHeader.tsx` (group), `OfferingCard.tsx` and `CoffeeshopCard.tsx` (the footer's actions in a group aligned to the end). No test is added. Verify: `npx vitest related` passes; typecheck and lint clean.
 
 ## 8. Full checks
 
