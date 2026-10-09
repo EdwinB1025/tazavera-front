@@ -5,6 +5,7 @@ import {
   type UserLocation,
   type UserLocationsPayload,
 } from "@/shared/api";
+import { readFieldErrors } from "@/shared/lib/field-errors";
 
 /**
  * The session user's locations read (design.md D3): `GET
@@ -34,11 +35,12 @@ export async function readOwnLocations(userUlid: string): Promise<ApiResult<User
 
 /**
  * A location's creation (design.md D4): `POST /locations`. A `201` is
- * created, anything else (a `403` included) or a transport failure an error.
+ * created, a `422` carries its field messages (show-field-validation-errors
+ * D4), anything else (a `403` included) or a transport failure an error.
  */
 export async function createLocation(
   payload: CreateLocationPayload,
-): Promise<ApiResult<null>> {
+): Promise<ApiResult<null, "validation">> {
   try {
     const response = await request("/locations", {
       method: "POST",
@@ -49,6 +51,9 @@ export async function createLocation(
       body: JSON.stringify(payload),
     });
     if (response.status === 201) return { ok: true, data: null };
+    if (response.status === 422) {
+      return { ok: false, kind: "validation", errors: await readFieldErrors(response) };
+    }
     return { ok: false, kind: "error" };
   } catch {
     return { ok: false, kind: "error" };

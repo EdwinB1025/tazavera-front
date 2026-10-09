@@ -11,7 +11,7 @@
 ## 3. Location and offering forms (offering-management)
 
 - [x] 3.1 Add to `src/pages/new-offering/ui/NewOfferingForm.test.tsx` one test for "The create names the inventory field": with an item chosen, the create answered `422` with `errors: { coffeeInventoryId: ["fx-inventory-invalid"] }` shows `fx-inventory-invalid` as the inventory field's description with `aria-invalid="true"`, no `role="alert"` region renders, and choosing another item removes the message. Verify: only the new test fails; `npx tsc --noEmit` and `npm run lint` report no errors.
-- [ ] 3.2 Implement design.md D4–D6 for the location and new-offering forms. Protecting tests: `NewOfferingForm.test.tsx`, `LocationForm.test.tsx`, `LocationsPanel.test.tsx`, `submit-location.test.ts`. Verify: `npx vitest related` on the changed files passes; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 3.2 Implement design.md D4–D6 for the location and new-offering forms. Protecting tests: `NewOfferingForm.test.tsx`, `LocationForm.test.tsx`, `LocationsPanel.test.tsx`, `submit-location.test.ts`. Verify: `npx vitest related` on the changed files passes; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 4. Evaluation form (evaluations)
 

@@ -12,8 +12,11 @@ import {
   LINK_CLASSES,
   Textarea,
 } from "@/shared/ui";
+import type { FieldErrors } from "@/shared/lib/field-errors";
+import { useServerFieldErrors } from "@/shared/lib/hooks";
 import { ContactFields, type ContactFieldKey, type ContactTexts } from "@/entities/contact";
 import {
+  LOCATION_API_ALIASES,
   LOCATION_FIELD_ORDER,
   validateLocationForm,
   type LocationCheckTexts,
@@ -42,8 +45,11 @@ export type LocationFormTexts = ContactTexts &
 export type LocationFormProps = {
   texts: LocationFormTexts;
   submitState: SubmitState;
-  /** Called with the values once the client checks pass. */
-  onSubmit: (values: LocationFormValues) => void;
+  /**
+   * Called with the values once the client checks pass; resolves the
+   * messages of a `422`, else `null` (show-field-validation-errors D6).
+   */
+  onSubmit: (values: LocationFormValues) => Promise<FieldErrors | null>;
   onCancel: () => void;
 };
 
@@ -100,8 +106,9 @@ function Attribution({ texts }: { texts: LocationFormTexts }): ReactNode {
  * The new-location form (design.md D7; specs "Location form", "Location form
  * checks", "Location creation failures"): a section card whose band names the
  * form, the location and the contact fieldsets, the geocoding note and
- * attribution, the single alert region and the actions. It owns the values
- * and the client checks; the panel owns the request and passes its state.
+ * attribution, the single alert region and the actions. It owns the values,
+ * the client checks and the `422` messages under the fields; the panel owns
+ * the request and passes its state.
  */
 export function LocationForm({
   texts,
@@ -112,16 +119,20 @@ export function LocationForm({
   const headingId = useId();
   const formRef = useRef<HTMLFormElement>(null);
   const [values, setValues] = useState<LocationFormValues>(EMPTY_VALUES);
-  const [errors, setErrors] = useState<LocationFormErrors>({});
+  const [localErrors, setErrors] = useState<LocationFormErrors>({});
+  const server = useServerFieldErrors(LOCATION_FIELD_ORDER, LOCATION_API_ALIASES);
+  const errors: LocationFormErrors = { ...server.errors, ...localErrors };
   const submitting = submitState === "submitting";
 
   function update(key: keyof LocationFormValues, value: string): void {
     setValues((current) => ({ ...current, [key]: value }));
+    server.clear(key);
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
     if (submitting) return;
+    server.reset();
     const failed = validateLocationForm(values, texts);
     setErrors(failed);
     const first = LOCATION_FIELD_ORDER.find((key) => failed[key] !== undefined);
@@ -130,7 +141,9 @@ export function LocationForm({
       if (control instanceof HTMLElement) control.focus();
       return;
     }
-    onSubmit(values);
+    void Promise.resolve(onSubmit(values)).then((found) => {
+      if (found) server.show(found);
+    });
   }
 
   return (
@@ -190,7 +203,7 @@ export function LocationForm({
               <p className="type-meta">{texts.geocodingHelp}</p>
               <Attribution texts={texts} />
             </div>
-            {submitState === "error" && <FormStatus kind="error" text={texts.genericError} />}
+            {(submitState === "error" || server.unmatched) && <FormStatus kind="error" text={texts.genericError} />}
             <div className={ACTIONS_CLASSES}>
               <Button type="submit" variant="primary" size="base" loading={submitting}>
                 {texts.save}
