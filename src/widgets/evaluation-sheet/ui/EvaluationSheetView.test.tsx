@@ -1,9 +1,9 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import type { OfferingResult } from "@/entities/offering";
 import type { ApiResult, EvaluationItem } from "@/shared/api";
-import { Link } from "@/shared/ui";
+import { BackButton, Link } from "@/shared/ui";
 import { EVALUATION, SHEET_TEXTS, TAXONOMIES } from "./sheet-fixtures";
 
 /**
@@ -14,9 +14,12 @@ import { EVALUATION, SHEET_TEXTS, TAXONOMIES } from "./sheet-fixtures";
 const notFound = vi.fn(() => {
   throw new Error("NEXT_NOT_FOUND");
 });
+// "View offering" and the end back control are route buttons
+// (apply-header-link-rule); the app router is mocked.
+const router = vi.hoisted(() => ({ push: vi.fn(), refresh: vi.fn() }));
 vi.mock("next/navigation", () => ({
   notFound: () => notFound(),
-  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+  useRouter: () => router,
 }));
 
 const fetchEvaluation = vi.fn<(ulid: string) => Promise<ApiResult<EvaluationItem>>>();
@@ -52,16 +55,18 @@ const TEXTS: EvaluationViewTexts = {
 };
 
 const BACK: ReactNode = <Link href="/en/evaluations">Back</Link>;
+const BOTTOM_BACK: ReactNode = <BackButton fallback="/en/evaluations">Back</BackButton>;
 const DATE = new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "UTC" }).format(
   new Date(EVALUATION.closedAt as string),
 );
 
 async function renderView() {
-  render(await EvaluationSheetView({ locale: "en", ulid: EVALUATION.ulid as string, back: BACK, texts: TEXTS }));
+  render(await EvaluationSheetView({ locale: "en", ulid: EVALUATION.ulid as string, back: BACK, bottomBack: BOTTOM_BACK, texts: TEXTS }));
 }
 
 beforeEach(() => {
   notFound.mockClear();
+  router.push.mockClear();
   fetchEvaluation.mockReset().mockResolvedValue({ ok: true, data: EVALUATION });
   fetchOffering.mockReset().mockResolvedValue({
     ok: true,
@@ -95,21 +100,22 @@ describe("EvaluationSheetView (design.md D1, D4)", () => {
     expect(screen.getByText("Coffeeshop: Tazavera Gràcia").className).toContain("type-label");
     expect(screen.getByText("Roaster: Nómada")).toBeDefined();
     expect(screen.getByText(`Closed on ${DATE}`).className).toContain("type-meta");
-    expect(screen.getByRole("link", { name: "View offering" }).getAttribute("href")).toBe(
-      "/en/offerings/01JOFFERA",
-    );
+    fireEvent.click(screen.getByRole("button", { name: "View offering" }));
+    expect(router.push).toHaveBeenCalledWith("/en/offerings/01JOFFERA");
     expect(screen.getByRole("heading", { level: 2, name: "Context" })).toBeDefined();
     expect(fetchOffering).toHaveBeenCalledWith("01JOFFERA");
   });
 
   it("Back link at the end", async () => {
     await renderView();
-    const links = screen.getAllByRole("link", { name: "Back" });
-    expect(links.map((link) => link.getAttribute("href"))).toEqual(["/en/evaluations", "/en/evaluations"]);
+    const top = screen.getByRole("link", { name: "Back" });
+    const end = screen.getByRole("button", { name: "Back" });
+    fireEvent.click(end);
+    expect([top.getAttribute("href"), ...router.push.mock.calls[0]]).toEqual(["/en/evaluations", "/en/evaluations"]);
     const second = document.body.querySelectorAll("section")[1]!;
-    expect(second.contains(links[1])).toBe(true);
+    expect(second.contains(end)).toBe(true);
     const context = screen.getByRole("heading", { level: 2, name: "Context" });
-    expect(context.compareDocumentPosition(links[1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(context.compareDocumentPosition(end) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("renders the 404 page for an evaluation that is not closed", async () => {
@@ -123,7 +129,7 @@ describe("EvaluationSheetView (design.md D1, D4)", () => {
     await renderView();
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Offering unavailable");
     expect(screen.queryByText(/^Coffeeshop:/)).toBeNull();
-    expect(screen.queryByRole("link", { name: "View offering" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "View offering" })).toBeNull();
     expect(screen.getByRole("heading", { level: 2, name: "Context" })).toBeDefined();
   });
 
@@ -133,7 +139,7 @@ describe("EvaluationSheetView (design.md D1, D4)", () => {
     expect(fetchOffering).not.toHaveBeenCalled();
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Offering no longer exists");
     expect(screen.queryByText(/^Roaster:/)).toBeNull();
-    expect(screen.queryByRole("link", { name: "View offering" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "View offering" })).toBeNull();
     expect(screen.getAllByRole("link", { name: "Back" })[0]).toBeDefined();
     expect(screen.getByRole("heading", { level: 2, name: "Context" })).toBeDefined();
   });
