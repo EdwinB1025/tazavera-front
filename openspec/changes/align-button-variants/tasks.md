@@ -29,7 +29,7 @@ No derived API types are needed: the change only moves `variant` values. Each im
 
 ## 7. Explore actions (landing)
 
-- [ ] 7.1 The explore actions in `src/pages/home/ui/ExploreButton.tsx` and `src/pages/about/ui/ExploreButton.tsx` take `action-3`. No validation test asserts their variant; none is added. Verify: `npx vitest related` on the changed files passes; typecheck and lint report no errors.
+- [x] 7.1 The explore actions in `src/pages/home/ui/ExploreButton.tsx` and `src/pages/about/ui/ExploreButton.tsx` take `action-3`. No validation test asserts their variant; none is added. Verify: `npx vitest related` on the changed files passes; typecheck and lint report no errors.
 
 ## 8. Full checks
 

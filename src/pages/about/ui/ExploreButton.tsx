@@ -28,5 +28,5 @@ export function ExploreButton({
     router.push(`/${locale}`);
   };
 
-  return <Button onClick={handleClick}>{label}</Button>;
+  return <Button variant="action-3" onClick={handleClick}>{label}</Button>;
 }
