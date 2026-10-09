@@ -10,19 +10,17 @@ import {
   FacetPanel,
   FacetRadioList,
   FacetTextField,
-  ScoreRangeFacet,
 } from "@/shared/ui";
 import {
   appliedEvaluationFilters,
   type AppliedEvaluationTexts,
 } from "../model/applied";
+import type { EvaluationFacetSet, EvaluationFilterValues } from "../model/query";
 import {
-  SCORE_MAX,
-  SCORE_MIN,
-  scoreRangeChanges,
-  type EvaluationFacetSet,
-  type EvaluationFilterValues,
-} from "../model/query";
+  EvaluationOfferingFacet,
+  EvaluationScoreFacet,
+  EvaluationStatusFacet,
+} from "./EvaluationFacetParts";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -69,7 +67,9 @@ export const EVALUATION_SORT_KEYS = ["orderBy", "orderDirection"] as const;
  * (the public set of add-public-evaluations D7: Offering, shown only while
  * `offeringId` is in the URL, instead of Status),
  * each writing its query key on commit. When the coffees failed, Process
- * renders disabled with "Options unavailable".
+ * renders disabled with "Options unavailable". The Offering, Status and
+ * Score facets render from `EvaluationFacetParts`
+ * (split-oversized-facets design.md D4).
  */
 export function EvaluationFacets({
   set = "mine",
@@ -82,9 +82,6 @@ export function EvaluationFacets({
   const searchParams = useSearchParams();
 
   const isPublic = set === "public";
-  const offeringLabel = options.offering
-    ? `${options.offering.name} · ${options.offering.coffeeshop}`
-    : (texts.offeringFilterFallback ?? "");
   const applied = appliedEvaluationFilters(
     values,
     texts,
@@ -118,41 +115,17 @@ export function EvaluationFacets({
         texts={{ clearAll: texts.clearAll, removeFilter: texts.removeFilter }}
       >
         {isPublic && values.offeringId !== undefined ? (
-          <FacetRadioList
-            legend={texts.offering ?? ""}
-            options={[{ value: values.offeringId, label: offeringLabel }]}
-            value={values.offeringId}
-            onChange={(value) => navigate({ offeringId: value })}
-            anyLabel={texts.any}
-            texts={seeMoreTexts}
+          <EvaluationOfferingFacet
+            offeringId={values.offeringId}
+            offering={options.offering}
+            texts={texts}
+            navigate={navigate}
           />
         ) : null}
         {isPublic ? null : (
-          <FacetRadioList
-            legend={texts.status}
-            options={[
-              { value: "open", label: texts.statusOpen },
-              { value: "closed", label: texts.statusClosed },
-            ]}
-            value={values.status}
-            onChange={(value) => navigate({ status: value })}
-            anyLabel={texts.any}
-            texts={seeMoreTexts}
-          />
+          <EvaluationStatusFacet values={values} texts={texts} navigate={navigate} />
         )}
-        <ScoreRangeFacet
-          legend={texts.score}
-          min={SCORE_MIN}
-          max={SCORE_MAX}
-          value={[values.scoreMin ?? SCORE_MIN, values.scoreMax ?? SCORE_MAX]}
-          onCommit={(range) => navigate(scoreRangeChanges(range))}
-          texts={{
-            minThumb: texts.scoreMin,
-            maxThumb: texts.scoreMax,
-            from: texts.rangeFrom,
-            to: texts.rangeTo,
-          }}
-        />
+        <EvaluationScoreFacet values={values} texts={texts} navigate={navigate} />
         <FacetRadioList
           legend={texts.process}
           options={(options.processes ?? []).map((value) => ({

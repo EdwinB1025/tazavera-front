@@ -12,7 +12,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 3. Evaluation facets
 
-- [ ] 3.1 Create `src/features/evaluation-facets/ui/EvaluationFacetParts.tsx` and split `EvaluationFacets` as design.md D4. Commit `refactor(filtering): split the evaluation facet panel`.
+- [x] 3.1 Create `src/features/evaluation-facets/ui/EvaluationFacetParts.tsx` and split `EvaluationFacets` as design.md D4. Commit `refactor(filtering): split the evaluation facet panel`.
 
 ## 4. Evaluation filter parsing
 
