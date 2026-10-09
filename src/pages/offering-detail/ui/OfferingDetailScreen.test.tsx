@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, cleanup, fireEvent, screen } from "@testing-library/react";
+import { render, cleanup, screen } from "@testing-library/react";
 import { getMessages } from "@/shared/lib/i18n";
 import type { OfferingDetailProps } from "@/widgets/offering-detail";
 import { OfferingDetailScreen } from "@/pages/offering-detail";
@@ -61,8 +61,9 @@ describe("OfferingDetailScreen", () => {
       <OfferingDetailScreen locale="es" ulid={ULID} tab={undefined} />,
     );
     const es = getMessages("catalog", "es");
-    fireEvent.click(screen.getByRole("button", { name: es.detailBackLabel }));
-    expect(router.push).toHaveBeenCalledWith("/es/offerings");
+    expect(screen.getByRole("link", { name: es.detailBackLabel }).getAttribute("href")).toBe(
+      "/es/offerings",
+    );
     const bars = container.querySelectorAll(".animate-pulse");
     expect(bars).toHaveLength(3);
     const sizes = Array.from(bars).map((bar) =>
