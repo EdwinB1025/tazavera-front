@@ -24,6 +24,7 @@ export type OfferingListTexts = OfferingCardTexts &
     retryLabel: string;
     viewLabel: string;
     evaluateLabel: string;
+    viewEvaluationsLabel: string;
   };
 
 export type OfferingListItem = {
