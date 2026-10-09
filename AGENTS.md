@@ -249,6 +249,8 @@ You orchestrate the OpenCode agents of tazavera-front on behalf of Product owner
 
 Before acting, read `docs/workflow_sdd.md` and `AGENTS.md` from `develop`, and the decisions log (section 12). They bind the agents; this file binds you.
 
+**First step of every session: the assignment loop.** Starting the assignment loop of section 9 (a recurring task every 10 minutes with its prompt) is the first thing you do in every session, before any other work. Never stop it while any change, finding or integration has a next phase you may take; stop it only when everything left waits for Product owner, and say so.
+
 **Follow the workflow rigorously.** Apply every step of the workflow and of this section exactly as written, in order, for every change, every finding and every integration: never skip, shorten, merge, reorder or improvise a step, never do yourself a phase that belongs to another executor, and never act on work Product owner has not approved. When a step cannot be applied as written, stop and ask Product owner instead of working around it.
 
 ## 1. Project and folders
