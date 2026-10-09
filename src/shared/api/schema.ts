@@ -295,7 +295,7 @@ export interface paths {
             path: {
                 /**
                  * @description The evaluation.
-                 * @example 01M4E1CZ8YNRJNN32PG9AKGMSH
+                 * @example 01M4GDD84946WPV8JQ87V6419V
                  */
                 evaluation: string;
                 /**
@@ -3173,8 +3173,6 @@ export interface operations {
                      * @example 01M35F5RX4ADGC3CSDXXYB08DA
                      */
                     offeringId: string;
-                    /** @example architecto */
-                    status?: string | null;
                     /**
                      * @description Brewing/extraction method used (max 60 chars). El campo value no debe ser mayor que 60 caracteres.
                      * @example v60
@@ -3641,7 +3639,7 @@ export interface operations {
             path: {
                 /**
                  * @description The evaluation.
-                 * @example 01M4E1CZ8YNRJNN32PG9AKGMSH
+                 * @example 01M4GDD84946WPV8JQ87V6419V
                  */
                 evaluation: string;
                 /**
