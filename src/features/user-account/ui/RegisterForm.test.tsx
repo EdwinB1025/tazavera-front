@@ -225,4 +225,22 @@ describe("RegisterForm — pending and result", () => {
       expect(screen.queryByText("api-message")).toBeNull();
     });
   }
+
+  it("The registration names invalid fields: a 422 message shows under its field and clears on edit", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse(422, { message: "api-message", errors: { email: ["fx-email-taken"] } }),
+    );
+    renderForm();
+    fillValid();
+    await submit();
+
+    const email = field(TEXTS.emailLabel);
+    expect(email.getAttribute("aria-invalid")).toBe("true");
+    const describedBy = email.getAttribute("aria-describedby") ?? "";
+    expect(document.getElementById(describedBy)?.textContent).toBe("fx-email-taken");
+    expect(screen.queryByRole("alert")).toBeNull();
+
+    type(TEXTS.emailLabel, "ana@example.org");
+    expect(screen.queryByText("fx-email-taken")).toBeNull();
+  });
 });
