@@ -57,6 +57,14 @@ describe("CoffeeshopsScreen", () => {
     expect(screen.getByText("Cafeterías de especialidad y sus ubicaciones.")).toBeTruthy();
   });
 
+  it("renders the heading, the trigger, the view control and the sort in the route's locale (spec: Localized texts)", () => {
+    render(<CoffeeshopsScreen locale="en" searchParams={{}} />);
+    expect(screen.getByRole("heading", { level: 1, name: "Explore coffee shops" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Filters" })).toBeTruthy();
+    expect(screen.getByRole("radiogroup", { name: "View" })).toBeTruthy();
+    expect(screen.getByRole("combobox", { name: "Sort by" })).toBeTruthy();
+  });
+
   it("shows three skeleton cards in the one-column list while loading (spec: Loading)", () => {
     block.suspend = true;
     const { container } = render(<CoffeeshopsScreen locale="es" searchParams={{}} />);
