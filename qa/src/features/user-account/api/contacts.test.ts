@@ -1,22 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 /**
- * The contact requests (design.md D4). The token client is replaced by a spy
+ * The contact requests (design.md D4), sent through readPrimaryContact and
+ * submitContact (the raw request helpers are private since
+ * unify-api-result-shape). The token client is replaced by a spy
  * so each request's path, method, headers and body can be inspected.
  */
 const { request } = vi.hoisted(() => ({ request: vi.fn() }));
 vi.mock("@/shared/api", () => ({ request }));
 
-import { createContact, fetchContact } from "@/features/user-account/api/contacts";
+import { readPrimaryContact, submitContact } from "@/features/user-account/api/contacts";
 
 beforeEach(() => {
   request.mockReset();
   request.mockResolvedValue(new Response(null, { status: 200 }));
 });
 
-describe("fetchContact", () => {
+describe("readPrimaryContact", () => {
   it("sends one GET to /users/{ulid}/contacts with Accept JSON and no body", async () => {
-    await fetchContact("u1");
+    await readPrimaryContact("u1");
     expect(request).toHaveBeenCalledTimes(1);
     const [path, init] = request.mock.calls[0] as [string, RequestInit | undefined];
     expect(path).toBe("/users/u1/contacts");
@@ -26,7 +28,7 @@ describe("fetchContact", () => {
   });
 });
 
-describe("createContact", () => {
+describe("submitContact", () => {
   it("sends one POST to /users/{ulid}/contacts with the payload as the JSON body", async () => {
     const payload = {
       address: "Carrer de Verdi 12",
@@ -38,7 +40,7 @@ describe("createContact", () => {
       web: null,
       social: null,
     };
-    await createContact("u1", payload);
+    await submitContact("u1", payload);
     expect(request).toHaveBeenCalledTimes(1);
     const [path, init] = request.mock.calls[0] as [string, RequestInit];
     expect(path).toBe("/users/u1/contacts");

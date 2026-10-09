@@ -16,12 +16,6 @@ export default defineConfig({
             'qa/src/widgets/offering-list/lib/resolve-taxonomies.test.ts',
             // imports ThemeSelect, deleted by refine-header-aut (design.md D4b)
             'qa/src/widgets/app-header/ui/ThemeSelect.test.tsx',
-            // lacks the required cancel props of add-form-cancel-actions (design.md D5)
-            'qa/src/features/user-account/ui/RegisterForm.test.tsx',
-            // lacks the required cancel props of add-form-cancel-actions (design.md D5)
-            'qa/src/pages/register/ui/RegisterClient.test.tsx',
-            // asserts the old primary add button; stale since align-button-variants
-            'qa/src/features/user-account/ui/ContactSection.test.tsx',
             // superseded by the validation suite's row tests (refine-evaluation-flow D5); pending deletion
             'qa/src/pages/evaluations-list/ui/EvaluationRowCard.test.tsx',
         ],
