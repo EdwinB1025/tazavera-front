@@ -197,7 +197,9 @@ describe("ConfirmDialog", () => {
   });
 
   describe("layout (spec: Actions on a narrow viewport, Actions on a wider viewport, design.md D8)", () => {
-    it("orders cancel before confirm in a row from sm and stacks confirm above cancel at full width below it", () => {
+    // Scenarios "Actions on a narrow viewport" / "Actions on a wider
+    // viewport" (unify-action-button-widths): one end-aligned action group.
+    it("groups cancel then confirm in one action group aligned to the end", () => {
       render(<Host initiallyOpen />);
       const cancel = screen.getByRole("button", { name: "Cancel" });
       const confirm = screen.getByRole("button", { name: "Delete" });
@@ -205,18 +207,10 @@ describe("ConfirmDialog", () => {
       expect(cancel.compareDocumentPosition(confirm)).toBe(
         Node.DOCUMENT_POSITION_FOLLOWING,
       );
-      expect(tokensOf(cancel.parentElement!)).toEqual([
-        "mt-6",
-        "flex",
-        "flex-col-reverse",
-        "gap-3",
-        "sm:flex-row",
-        "sm:justify-end",
-      ]);
-      for (const button of [cancel, confirm]) {
-        expect(tokensOf(button)).toContain("w-full");
-        expect(tokensOf(button)).toContain("sm:w-auto");
-      }
+      expect(tokensOf(cancel.parentElement!)).toEqual(
+        expect.arrayContaining(["grid-cols-2", "md:justify-end"]),
+      );
+      expect([cancel, confirm].some((button) => tokensOf(button).includes("w-full"))).toBe(false);
     });
 
     it("renders the panel centred on the card surface with a container radius, a shadow, 1.5rem padding and no border", () => {

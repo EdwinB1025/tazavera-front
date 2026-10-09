@@ -289,7 +289,7 @@ Every group except Defects and Extrinsic SHALL show a completeness indicator bes
 
 ### Requirement: Saving a draft
 
-Save draft SHALL create the evaluation with `createAnEvaluation` the first time and update it with `updateAnEvaluation` afterwards, sending `offeringId` only on creation, `descriptive.roastLevel` and the entered parts. On success the form SHALL navigate client-side, without a full page load, to the My evaluations route `/{locale}/manage/evaluations`. On failure the form SHALL stay with its message in a status region beside the actions.
+Save draft SHALL create the evaluation with `createAnEvaluation` the first time and update it with `updateAnEvaluation` afterwards, sending `offeringId` only on creation, `descriptive.roastLevel` and the entered parts. On success the form SHALL navigate client-side, without a full page load, to the My evaluations route `/{locale}/manage/evaluations`. On failure the form SHALL stay with its message in a status region beside the actions. A `422` SHALL show the messages for `descriptive.roastLevel` and `extractionMethod` under the roast level and extraction method fields as form-fields "Server validation errors" states, and the generic failure message only when one of its keys names neither field.
 
 #### Scenario: The first save
 
@@ -309,7 +309,12 @@ Save draft SHALL create the evaluation with `createAnEvaluation` the first time 
 #### Scenario: The API refuses the write
 
 - **WHEN** a save answers `403`
-- **THEN** the "not yours" message appears; when it answers `409` the "already closed" message appears; when it answers `422` or fails for any other reason the generic failure message appears; in every case the form stays without navigating, no retry is offered and nothing is sent again automatically
+- **THEN** the "not yours" message appears; when it answers `409` the "already closed" message appears; when it answers any other non-2xx status except `422` or fails for any other reason the generic failure message appears; in every case the form stays without navigating, no retry is offered and nothing is sent again automatically
+
+#### Scenario: The API names an invalid field
+
+- **WHEN** a save answers `422` with a message for `descriptive.roastLevel`
+- **THEN** that message renders under the roast level field, which is marked invalid, no failure message appears, the form stays without navigating, and the message clears when the specialist changes the roast level
 
 ### Requirement: Closing an evaluation
 
@@ -626,7 +631,7 @@ The evaluation form SHALL present, for the same offering, evaluation, taxonomy t
 - **THEN** every group and the 1–9 legend start expanded, every control is read-only and no action renders
 
 ### Requirement: Cancelling the evaluation form
-An editable evaluation form, new or existing, SHALL show a "Cancel" button after the Save draft and Close evaluation actions that opens the My evaluations route `/{locale}/manage/evaluations` without saving and without sending any request, and that stays usable while an action runs. Below 768px the sticky actions bar SHALL stack the status region, the two actions side by side with equal widths, and the Cancel button centred on its own line; from 768px the actions SHALL form one right-aligned row with Cancel last. A closed evaluation, shown read-only, SHALL have no Cancel button. No warning about unsaved input SHALL be shown.
+An editable evaluation form, new or existing, SHALL show a "Cancel" button after the Save draft and Close evaluation actions that opens the My evaluations route `/{locale}/manage/evaluations` without saving and without sending any request, and that stays usable while an action runs. The sticky actions bar SHALL show the status region and then the actions in one action group (base-controls "Action group") aligned to the end, with Cancel last: below 768px Save draft and Close evaluation side by side with equal widths and Cancel on the next line at the same cell width; from 768px one right-aligned row. A closed evaluation, shown read-only, SHALL have no Cancel button. No warning about unsaved input SHALL be shown.
 
 #### Scenario: Cancel leaves for My evaluations without saving
 - **WHEN** the editable evaluation form renders and the user activates "Cancel"
@@ -639,6 +644,10 @@ An editable evaluation form, new or existing, SHALL show a "Cancel" button after
 #### Scenario: Cancel is a button
 - **WHEN** the editable evaluation form renders
 - **THEN** "Cancel" is a button, not a link, and activating it navigates to `/{locale}/manage/evaluations`
+
+#### Scenario: The form's actions share one action group
+- **WHEN** the editable evaluation form renders
+- **THEN** Save draft, Close evaluation and Cancel are in one action group aligned to the end, after the status region
 
 ### Requirement: Evaluation route headings
 The "My evaluations" list heading SHALL be the page's level-1 heading, and on every evaluation route the signed-out view SHALL expose the evaluations access message as the page's level-1 heading, both keeping their present type style.

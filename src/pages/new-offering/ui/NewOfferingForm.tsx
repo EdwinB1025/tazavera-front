@@ -10,6 +10,7 @@ import {
   type LocationsFieldsetTexts,
 } from "@/features/offering-management";
 import {
+  ActionGroup,
   Button,
   Card,
   CardContent,
@@ -50,15 +51,6 @@ const FORM_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
 const ALERT_CLASSES = ["type-error", "flex", "flex-col", "items-start", "gap-3"].join(" ");
 // The success status: the message, then the link, 0.5rem apart, no box.
 const STATUS_CLASSES = ["type-body", "flex", "flex-col", "items-start", "gap-2"].join(" ");
-// Submit, then Cancel: a wrapping row 0.75rem apart, aligned to the end from
-// `sm`.
-const ACTIONS_CLASSES = [
-  "flex",
-  "flex-wrap",
-  "items-center",
-  "gap-3",
-  "sm:justify-end",
-].join(" ");
 
 type CreateFormProps = {
   locale: string;
@@ -76,7 +68,7 @@ function CreateForm({ locale, disabled = false, texts }: CreateFormProps): React
   const created =
     status.state === "created" ? `${texts.createdStatus} ${status.count}` : null;
 
-  const alert = status.state === "failed" ? texts.createError : null;
+  const alert = status.state === "failed" || flow.serverUnmatched ? texts.createError : null;
 
   return (
     <Card variant="section" className={PANEL_CLASSES}>
@@ -95,7 +87,7 @@ function CreateForm({ locale, disabled = false, texts }: CreateFormProps): React
               ref={fieldRef}
               value={flow.item}
               onChange={flow.choose}
-              error={flow.itemMissing ? texts.inventoryRequired : undefined}
+              error={flow.itemMissing ? texts.inventoryRequired : flow.fieldErrors.coffeeInventoryId}
               disabled={disabled}
               texts={texts}
             />
@@ -118,7 +110,8 @@ function CreateForm({ locale, disabled = false, texts }: CreateFormProps): React
                 <Link href={listRoute}>{texts.viewMyOfferings}</Link>
               </div>
             ) : null}
-            <div className={ACTIONS_CLASSES}>
+            {/* Submit, then Cancel: one end-aligned action group (unify-action-button-widths D3). */}
+            <ActionGroup align="end">
               <Button
                 type="submit"
                 variant="primary"
@@ -130,7 +123,7 @@ function CreateForm({ locale, disabled = false, texts }: CreateFormProps): React
               <RouteButton href={listRoute} variant="action-4" size="base">
                 {texts.cancelLabel}
               </RouteButton>
-            </div>
+            </ActionGroup>
           </form>
         </div>
       </CardContent>

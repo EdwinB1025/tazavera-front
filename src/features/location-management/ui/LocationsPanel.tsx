@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import type { FieldErrors } from "@/shared/lib/field-errors";
 import type { GeocodeOutcome } from "@/shared/lib/geocoding";
 import { FormStatus, LoadingStatus } from "@/shared/ui";
 import type { LocationFormValues } from "../model/location-form";
@@ -133,13 +134,18 @@ export function LocationsPanel({
     setFormOpen(false);
   }
 
-  async function handleSubmit(values: LocationFormValues): Promise<void> {
+  /** Sends the form; resolves the messages of a `422` (show-field-validation-errors D6). */
+  async function handleSubmit(values: LocationFormValues): Promise<FieldErrors | null> {
     setSubmitState("submitting");
     const outcome = await submitLocation(values, geocodeCache.current);
-    if (!mounted.current) return;
+    if (!mounted.current) return null;
+    if (outcome.status === "invalid") {
+      setSubmitState("idle");
+      return outcome.errors;
+    }
     if (outcome.status !== "created") {
       setSubmitState(outcome.status);
-      return;
+      return null;
     }
     setSubmitState("idle");
     setFormOpen(false);
@@ -150,13 +156,14 @@ export function LocationsPanel({
     );
     document.getElementById(headingId)?.focus();
     reload();
+    return null;
   }
 
   const form = (
     <LocationForm
       texts={texts}
       submitState={submitState}
-      onSubmit={(values) => void handleSubmit(values)}
+      onSubmit={handleSubmit}
       onCancel={closeForm}
     />
   );

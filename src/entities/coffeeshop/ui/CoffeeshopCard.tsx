@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { CoffeeshopSummary } from "@/shared/api";
-import { Badge, Card, CardContent, CardFooter, RouteButton } from "@/shared/ui";
+import { ActionGroup, Badge, Card, CardContent, CardFooter, RouteButton } from "@/shared/ui";
 import { uniqueCities } from "../model/locations";
 
 // ─── UI-specific types (declared before the component) ───
@@ -26,7 +26,9 @@ const CITY_SEPARATOR = " · ";
 const CONTENT_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
 const FOOTER_CLASSES = ["flex", "flex-wrap", "items-center", "gap-4"].join(" ");
 const FOOTER_COUNTS_CLASSES = ["flex", "flex-wrap", "gap-4"].join(" ");
-const FOOTER_LINKS_CLASSES = ["ml-auto", "flex", "flex-wrap", "items-center", "gap-4"].join(" ");
+// The actions' group fills the footer's row below `md` and sits at its end
+// from `md` (unify-action-button-widths D3).
+const FOOTER_LINKS_CLASSES = ["max-md:w-full", "md:ml-auto"].join(" ");
 
 function withCount(text: string, count: number | undefined): string {
   return text.replace("{count}", String(count ?? 0));
@@ -58,12 +60,12 @@ export function CoffeeshopCard({ coffeeshop, locale, texts, actions }: Coffeesho
             {withCount(texts.verifiedCount, coffeeshop.verifiedOfferingsCount)}
           </span>
         </div>
-        <div className={FOOTER_LINKS_CLASSES}>
+        <ActionGroup align="end" className={FOOTER_LINKS_CLASSES}>
           <RouteButton href={`/${locale}/coffeeshops/${coffeeshop.ulid ?? ""}`} variant="action-3" size="sm">
             {texts.viewLabel}
           </RouteButton>
           {actions}
-        </div>
+        </ActionGroup>
       </CardFooter>
     </Card>
   );

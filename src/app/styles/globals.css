@@ -252,6 +252,18 @@
 }
 
 /* =========================================================
+   TAZAVERA — ACTION WIDTH TOKENS (unify-action-button-widths D1)
+   The minimum width of a labelled action button per size, the same in
+   both themes. Tailwind reads --container-* for min-w-*, generating
+   min-w-action-sm and min-w-action-base.
+   ========================================================= */
+
+@theme {
+    --container-action-sm: 7.5rem;
+    --container-action-base: 10rem;
+}
+
+/* =========================================================
    TAZAVERA — FACET-ROW SHADOWS (add-facet-controls design.md D10)
    Selected row: Tailwind's default shadow-md; row hover: its default
    inset-shadow-sm. Both are none in the dark theme.

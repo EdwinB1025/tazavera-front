@@ -1,4 +1,5 @@
 import { request, type ApiResult, type Contact, type ContactCreatePayload } from "@/shared/api";
+import { readFieldErrors, type FieldErrors } from "@/shared/lib/field-errors";
 
 /**
  * The session user's contact read (design.md D4): `GET
@@ -45,12 +46,13 @@ export async function readPrimaryContact(ulid: string): Promise<PrimaryContactRe
 }
 
 /** The contact creation's outcome (design.md D3, D4; unify-api-result-shape design.md D2). */
-export type ContactWrite = ApiResult<Contact, "conflict">;
+export type ContactWrite = ApiResult<Contact, "conflict" | "validation">;
 
 /**
  * The contact creation with its status mapped to an outcome: a `201` the
- * created contact, a `409` a conflict (it exists), anything else (a `403`
- * included) the generic error.
+ * created contact, a `409` a conflict (it exists), a `422` its field messages
+ * (show-field-validation-errors D4), anything else (a `403` included) the
+ * generic error.
  */
 export async function submitContact(
   ulid: string,
@@ -58,17 +60,20 @@ export async function submitContact(
 ): Promise<ContactWrite> {
   let status: number | null = null;
   let created: Contact | undefined;
+  let invalid: FieldErrors = {};
   try {
     const response = await createContact(ulid, payload);
     status = response.status;
     if (status === 201) {
       created = ((await response.json()) as ContactCreatedBody).data;
     }
+    if (status === 422) invalid = await readFieldErrors(response);
   } catch {
     // A network failure, or a `201` body that cannot be read, shows the
     // generic error (design.md D4).
   }
   if (status === 201 && created !== undefined) return { ok: true, data: created };
   if (status === 409) return { ok: false, kind: "conflict" };
+  if (status === 422) return { ok: false, kind: "validation", errors: invalid };
   return { ok: false, kind: "error" };
 }

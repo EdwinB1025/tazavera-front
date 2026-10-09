@@ -42,7 +42,6 @@ export function RegisterSuccessPanel({
         <Button
           variant="primary"
           size="base"
-          className="w-full"
           onClick={() => signIn()}
         >
           {texts.signIn}

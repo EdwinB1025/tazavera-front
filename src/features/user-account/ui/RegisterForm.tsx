@@ -2,7 +2,8 @@
 
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import type { RegisterPayload, RegistrationToken } from "@/shared/api";
-import { Button, Field, Input, FormStatus, RouteButton } from "@/shared/ui";
+import { ActionGroup, Button, Field, Input, FormStatus, RouteButton } from "@/shared/ui";
+import { useServerFieldErrors } from "@/shared/lib/hooks";
 import { isValidEmail } from "@/entities/contact";
 import { registerUser } from "../api/register";
 import { NewPasswordFields } from "./NewPasswordFields";
@@ -105,7 +106,9 @@ function check(
  * documents, sends `POST /register` through the public client with the
  * route's role, and on a `201` signs in with its token block through
  * `signInWithToken` or, without a block or when that fails, gives way to the
- * success panel. Every other outcome shows the generic error and clears the
+ * success panel. A `422` shows its messages under their fields
+ * (show-field-validation-errors D3); every outcome but a `201` shows the
+ * generic error, a `422` only for a key that names no field, and clears the
  * two password fields.
  */
 export function RegisterForm({
@@ -124,6 +127,7 @@ export function RegisterForm({
   const [pending, setPending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [created, setCreated] = useState(false);
+  const server = useServerFieldErrors(FIELD_ORDER);
 
   if (created) {
     return <RegisterSuccessPanel texts={texts} signIn={signIn} />;
@@ -131,11 +135,13 @@ export function RegisterForm({
 
   function update(field: RegisterField, value: string): void {
     setValues((current) => ({ ...current, [field]: value }));
+    server.clear(field);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     if (pending) return;
+    server.reset();
     const found = check(values, texts);
     setErrors(found);
     const firstInvalid = FIELD_ORDER.find((field) => found[field]);
@@ -157,7 +163,7 @@ export function RegisterForm({
       return;
     }
     setPending(false);
-    setFailed(true);
+    setFailed(result.kind === "validation" ? server.show(result.errors) : true);
     setValues((current) => ({
       ...current,
       password: "",
@@ -173,7 +179,7 @@ export function RegisterForm({
       onSubmit={handleSubmit}
       className="flex flex-col gap-6"
     >
-      <Field label={texts.nameLabel} error={errors.name} required>
+      <Field label={texts.nameLabel} error={errors.name ?? server.errors.name} required>
         <Input
           name="name"
           type="text"
@@ -182,7 +188,7 @@ export function RegisterForm({
           onChange={(event) => update("name", event.target.value)}
         />
       </Field>
-      <Field label={texts.surnameLabel} error={errors.surname} required>
+      <Field label={texts.surnameLabel} error={errors.surname ?? server.errors.surname} required>
         <Input
           name="surname"
           type="text"
@@ -191,7 +197,7 @@ export function RegisterForm({
           onChange={(event) => update("surname", event.target.value)}
         />
       </Field>
-      <Field label={texts.emailLabel} error={errors.email} required>
+      <Field label={texts.emailLabel} error={errors.email ?? server.errors.email} required>
         <Input
           name="email"
           type="email"
@@ -204,25 +210,21 @@ export function RegisterForm({
         texts={texts}
         password={values.password}
         passwordConfirmation={values.passwordConfirmation}
-        passwordError={errors.password}
-        passwordConfirmationError={errors.passwordConfirmation}
+        passwordError={errors.password ?? server.errors.password}
+        passwordConfirmationError={
+          errors.passwordConfirmation ?? server.errors.passwordConfirmation
+        }
         onChange={update}
       />
       {failed && <FormStatus kind="error" text={texts.genericError} />}
-      <div className="flex flex-col items-center gap-3">
-        <Button
-          type="submit"
-          variant="primary"
-          size="base"
-          loading={pending}
-          className="w-full"
-        >
+      <ActionGroup>
+        <Button type="submit" variant="primary" size="base" loading={pending}>
           {texts.registerSubmit}
         </Button>
         <RouteButton href={cancelHref} variant="action-4" size="base">
           {texts.cancelLabel}
         </RouteButton>
-      </div>
+      </ActionGroup>
     </form>
   );
 }

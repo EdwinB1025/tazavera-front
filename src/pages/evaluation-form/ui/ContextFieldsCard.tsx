@@ -5,6 +5,7 @@ import type { EvaluationFormState } from "@/entities/evaluation";
 import { Card, CardContent, Field, Select } from "@/shared/ui";
 import { withExtractionMethod, withRoastLevel } from "../model/form-updates";
 import type { FormStateUpdate } from "../model/form-updates";
+import type { EvaluationServerField } from "../model/use-evaluation-form";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -38,6 +39,10 @@ export type ContextFieldsCardProps = {
   values: EvaluationFormState;
   readOnly: boolean;
   roastLevelMissing: boolean;
+  /** A `422`'s messages under the two fields (show-field-validation-errors D6). */
+  fieldErrors: Partial<Record<EvaluationServerField, string>>;
+  /** Called when the specialist edits one of the two fields. */
+  onFieldEdit: (field: EvaluationServerField) => void;
   onEdit: FormStateUpdate;
   texts: ContextFieldsTexts;
 };
@@ -54,6 +59,8 @@ export function ContextFieldsCard({
   values,
   readOnly,
   roastLevelMissing,
+  fieldErrors,
+  onFieldEdit,
   onEdit,
   texts,
 }: ContextFieldsCardProps): ReactNode {
@@ -72,12 +79,19 @@ export function ContextFieldsCard({
           <Field
             label={texts.roastLevelLabel}
             required
-            error={roastLevelMissing ? texts.actions.roastLevelRequired : undefined}
+            error={
+              roastLevelMissing
+                ? texts.actions.roastLevelRequired
+                : fieldErrors["descriptive.roastLevel"]
+            }
           >
             <Select
               value={values.roastLevel ?? ""}
               disabled={readOnly}
-              onChange={(event) => onEdit(withRoastLevel(event.target.value))}
+              onChange={(event) => {
+                onFieldEdit("descriptive.roastLevel");
+                onEdit(withRoastLevel(event.target.value));
+              }}
             >
               {values.roastLevel === null ? (
                 <option value="">{texts.roastLevelPlaceholder}</option>
@@ -90,11 +104,14 @@ export function ContextFieldsCard({
             </Select>
           </Field>
         ) : null}
-        <Field label={texts.extractionMethodLabel}>
+        <Field label={texts.extractionMethodLabel} error={fieldErrors.extractionMethod}>
           <Select
             value={storedMethod ?? ""}
             disabled={readOnly}
-            onChange={(event) => onEdit(withExtractionMethod(event.target.value))}
+            onChange={(event) => {
+              onFieldEdit("extractionMethod");
+              onEdit(withExtractionMethod(event.target.value));
+            }}
           >
             <option value="">{texts.extractionMethodPlaceholder}</option>
             {EXTRACTION_METHODS.map((method) => (

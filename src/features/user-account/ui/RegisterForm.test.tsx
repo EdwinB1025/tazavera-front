@@ -225,4 +225,35 @@ describe("RegisterForm — pending and result", () => {
       expect(screen.queryByText("api-message")).toBeNull();
     });
   }
+
+  it("The registration names invalid fields: a 422 message shows under its field and clears on edit", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse(422, { message: "api-message", errors: { email: ["fx-email-taken"] } }),
+    );
+    renderForm();
+    fillValid();
+    await submit();
+
+    const email = field(TEXTS.emailLabel);
+    expect(email.getAttribute("aria-invalid")).toBe("true");
+    const describedBy = email.getAttribute("aria-describedby") ?? "";
+    expect(document.getElementById(describedBy)?.textContent).toBe("fx-email-taken");
+    expect(screen.queryByRole("alert")).toBeNull();
+
+    type(TEXTS.emailLabel, "ana@example.org");
+    expect(screen.queryByText("fx-email-taken")).toBeNull();
+  });
+});
+
+// user-account "Cancelling registration" — scenario "Register and Cancel share
+// one action group" (unify-action-button-widths).
+describe("RegisterForm — actions", () => {
+  it("puts Register and Cancel in one action group, neither full width", () => {
+    renderForm();
+    const submitButton = screen.getByRole("button", { name: TEXTS.registerSubmit });
+    const cancel = screen.getByRole("button", { name: TEXTS.cancelLabel });
+    expect(submitButton.parentElement).toBe(cancel.parentElement);
+    expect(cancel.parentElement!.classList.contains("grid-cols-2")).toBe(true);
+    expect([submitButton, cancel].some((button) => button.classList.contains("w-full"))).toBe(false);
+  });
 });

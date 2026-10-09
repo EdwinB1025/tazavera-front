@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { CoffeeInventoryItem, LocationItem } from "@/shared/api";
+import { useServerFieldErrors } from "@/shared/lib/hooks";
 import { createOfferings, fetchMyLocations } from "../api/management";
 
 /**
@@ -11,9 +12,12 @@ import { createOfferings, fetchMyLocations } from "../api/management";
  * selected; with none the submit is unavailable. An empty selection is sent
  * as is: the contract does not require `locations` (M2). A submit with no item chosen
  * marks the item missing and sends nothing. A 201 reports the created count
- * and resets the choice and the selection; a failure, a 422 or a 403 keeps every
+ * and resets the choice and the selection; a failure or a 403 keeps every
  * value with the generic error: the create is a plain write with no identity
- * check (drop-step-up-for-offerings).
+ * check (drop-step-up-for-offerings). A 422 keeps every value, shows the
+ * `coffeeInventoryId` message under the inventory field until the next
+ * choice, and the generic error only for a key that names no field
+ * (show-field-validation-errors D5, D6).
  */
 
 // ─── State (declared before the hook) ───
@@ -42,6 +46,10 @@ export type CreateFlow = {
   /** A submit found no item chosen; cleared by the next choice. */
   itemMissing: boolean;
   status: CreateStatus;
+  /** The `422` messages by field. */
+  fieldErrors: Partial<Record<"coffeeInventoryId", string>>;
+  /** A `422` key named no field: the generic error shows. */
+  serverUnmatched: boolean;
   choose: (item: CoffeeInventoryItem | null) => void;
   /** Sends the create call; `false` when no item is chosen and nothing was sent. */
   submit: () => boolean;
@@ -52,13 +60,11 @@ export type CreateFlowOptions = {
   enabled: boolean;
 };
 
-export function useCreateFlow({ enabled }: CreateFlowOptions): CreateFlow {
-  const [item, setItem] = useState<CoffeeInventoryItem | null>(null);
-  const [itemMissing, setItemMissing] = useState(false);
-  const [status, setStatus] = useState<CreateStatus>({ state: "idle" });
+const INVENTORY_FIELD = ["coffeeInventoryId"] as const;
 
-  // Bumped by `reloadLocations`; a result for an older attempt reads as
-  // loading.
+/** The coffeeshop's locations read, and a reload through the loading state. */
+function useLocationsRead(enabled: boolean): { locations: LocationsState; reload: () => void } {
+  // Bumped by `reload`; a result for an older attempt reads as loading.
   const [attempt, setAttempt] = useState(0);
   const [settled, setSettled] = useState<{
     attempt: number;
@@ -79,6 +85,15 @@ export function useCreateFlow({ enabled }: CreateFlowOptions): CreateFlow {
   }, [enabled, attempt]);
   const locations: LocationsState =
     settled !== null && settled.attempt === attempt ? settled.result : { state: "loading" };
+  return { locations, reload: () => setAttempt((value) => value + 1) };
+}
+
+export function useCreateFlow({ enabled }: CreateFlowOptions): CreateFlow {
+  const [item, setItem] = useState<CoffeeInventoryItem | null>(null);
+  const [itemMissing, setItemMissing] = useState(false);
+  const [status, setStatus] = useState<CreateStatus>({ state: "idle" });
+  const server = useServerFieldErrors(INVENTORY_FIELD);
+  const { locations, reload } = useLocationsRead(enabled);
 
   // `null` keeps the initial selection: the only location when there is one.
   const [picked, setPicked] = useState<string[] | null>(null);
@@ -96,12 +111,13 @@ export function useCreateFlow({ enabled }: CreateFlowOptions): CreateFlow {
   };
   const reloadLocations = () => {
     setPicked(null);
-    setAttempt((value) => value + 1);
+    reload();
   };
   const submitBlocked = locations.state === "success" && locations.data.length === 0;
 
   const choose = (next: CoffeeInventoryItem | null) => {
     setItem(next);
+    server.clear("coffeeInventoryId");
     if (next !== null) setItemMissing(false);
   };
 
@@ -112,11 +128,15 @@ export function useCreateFlow({ enabled }: CreateFlowOptions): CreateFlow {
       return false;
     }
     setStatus({ state: "pending" });
+    server.reset();
     createOfferings(item.ulid ?? "", selectedLocations).then((result) => {
       if (result.ok) {
         setItem(null);
         setPicked(null);
         setStatus({ state: "created", count: result.data });
+      } else if (result.kind === "validation") {
+        server.show(result.errors);
+        setStatus({ state: "idle" });
       } else {
         setStatus({ state: "failed" });
       }
@@ -133,6 +153,8 @@ export function useCreateFlow({ enabled }: CreateFlowOptions): CreateFlow {
     item,
     itemMissing,
     status,
+    fieldErrors: server.errors,
+    serverUnmatched: server.unmatched,
     choose,
     submit,
   };

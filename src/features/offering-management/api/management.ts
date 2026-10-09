@@ -1,4 +1,5 @@
 import { publicRequest, request } from "@/shared/api";
+import { readFieldErrors } from "@/shared/lib/field-errors";
 import type {
   ApiResult,
   CoffeeInventoryItem,
@@ -15,9 +16,10 @@ import type {
  * is a public read whose filter is the session user's `ulid`, which lives only
  * in the browser, so it runs on the client through `publicRequest` with no
  * credential (design.md D1). Every API `message` is discarded: a non-2xx
- * status, a 422 and a transport failure all map to one error result; a 403
- * on a write is one of them: offerings need no step-up
- * (drop-step-up-for-offerings).
+ * status and a transport failure map to one error result; a 403 on a write
+ * is one of them: offerings need no step-up (drop-step-up-for-offerings). A
+ * 422 on the create carries its field messages (show-field-validation-errors
+ * D4).
  */
 
 // ─── Results (declared before the functions) ───
@@ -108,13 +110,16 @@ export async function searchCoffeeInventory(
 export async function createOfferings(
   coffeeInventoryId: string,
   locations: string[],
-): Promise<ApiResult<number>> {
+): Promise<ApiResult<number, "validation">> {
   try {
     const response = await request("/offerings", {
       method: "POST",
       headers: JSON_HEADERS,
       body: JSON.stringify({ coffeeInventoryId, locations }),
     });
+    if (response.status === 422) {
+      return { ok: false, kind: "validation", errors: await readFieldErrors(response) };
+    }
     if (!response.ok) return { ok: false, kind: "error" };
     const payload: CreateOfferingsPayload = await response.json();
     return { ok: true, data: payload.data?.length ?? 0 };

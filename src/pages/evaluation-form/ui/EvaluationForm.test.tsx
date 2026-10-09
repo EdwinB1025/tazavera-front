@@ -239,6 +239,25 @@ describe("EvaluationForm: saving a draft (design.md D4; tasks 6.1)", () => {
     expect(push).not.toHaveBeenCalled();
   });
 
+  it("The API names an invalid field: a 422 message shows under the roast level and clears on change", async () => {
+    updateAnEvaluation.mockResolvedValue({
+      ok: false,
+      kind: "validation",
+      errors: { "descriptive.roastLevel": ["fx-roast-invalid"] },
+    });
+    renderForm({ evaluation: OPEN_EVALUATION });
+    save();
+    const roast = screen.getByLabelText(/Roast level/);
+    await waitFor(() => expect(roast.getAttribute("aria-invalid")).toBe("true"));
+    const describedBy = roast.getAttribute("aria-describedby") ?? "";
+    expect(document.getElementById(describedBy)?.textContent).toBe("fx-roast-invalid");
+    expect(screen.getByRole("status").textContent).toBe("");
+    expect(push).not.toHaveBeenCalled();
+
+    fireEvent.change(roast, { target: { value: "dark" } });
+    expect(screen.queryByText("fx-roast-invalid")).toBeNull();
+  });
+
   it("sends each descriptor block's selection to its request field (design.md D7)", async () => {
     createAnEvaluation.mockResolvedValue({ ok: true, data: CREATED });
     renderForm();
@@ -424,12 +443,21 @@ describe("EvaluationForm: Cancel (add-form-cancel-actions design.md D1, D2)", ()
     renderForm();
     const cancel = screen.getByRole("button", { name: "Cancel" });
     expect(cancel.className).toContain("bg-action-4-bg");
-    expect(cancel.parentElement!.className).toContain("self-center");
     fireEvent.click(cancel);
     expect(router.push).toHaveBeenCalledWith("/en/manage/evaluations");
     expect(createAnEvaluation).not.toHaveBeenCalled();
     expect(updateAnEvaluation).not.toHaveBeenCalled();
     expect(closeAnEvaluation).not.toHaveBeenCalled();
+  });
+
+  // Scenario "The form's actions share one action group" (unify-action-button-widths).
+  it("Save draft, Close evaluation and Cancel share one end-aligned action group", () => {
+    renderForm({ evaluation: COMPLETE_EVALUATION });
+    const group = screen.getByRole("button", { name: "Cancel" }).parentElement!;
+    for (const name of ["Save draft", "Close evaluation"]) {
+      expect(screen.getByRole("button", { name }).parentElement).toBe(group);
+    }
+    expect([group.classList.contains("grid-cols-2"), group.classList.contains("md:justify-end")]).toEqual([true, true]);
   });
 });
 
