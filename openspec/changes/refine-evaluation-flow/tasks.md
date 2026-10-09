@@ -16,7 +16,7 @@
 
 ## 3. Form: read-only mode, Close readiness, close returns (D1, D3, D4)
 
-- [ ] 3.1 Tests first in `src/pages/evaluation-form/ui/EvaluationForm.test.tsx`, with a `COMPLETE_EVALUATION` fixture in `form-fixtures.ts`. New tests: "An open evaluation opened with View" (`viewOnly` on an open evaluation: no slider, no Save draft, Close evaluation or Cancel, two "My evaluations" buttons), "No close on an incomplete saved evaluation" (`OPEN_EVALUATION` has no Close evaluation). Update the assertions that break:
+- [x] 3.1 Tests first in `src/pages/evaluation-form/ui/EvaluationForm.test.tsx`, with a `COMPLETE_EVALUATION` fixture in `form-fixtures.ts`. New tests: "An open evaluation opened with View" (`viewOnly` on an open evaluation: no slider, no Save draft, Close evaluation or Cancel, two "My evaluations" buttons), "No close on an incomplete saved evaluation" (`OPEN_EVALUATION` has no Close evaluation). Update the assertions that break:
   - "Close on a saved open evaluation" → renders `COMPLETE_EVALUATION`;
   - "saves first, then closes, then shows the read-only view…" → renders `COMPLETE_EVALUATION`, keeps the save-then-close order and expects `router.push("/en/manage/evaluations")` instead of the read-only view;
   - "shows the incomplete message on a 409…" and "expands exactly the incomplete groups on a 409 close" → render `COMPLETE_EVALUATION`, set the Acidity intensity to 0 before closing, and expect only `acidity` highlighted and expanded;

@@ -131,6 +131,22 @@ export const OPEN_EVALUATION: EvaluationItem = {
   closedAt: null,
 };
 
+const AXES = ["fragrance", "aroma", "flavor", "aftertaste", "acidity", "sweetness", "mouthfeel"];
+const scores = (score: number, axes: string[]) =>
+  Object.fromEntries(axes.map((axis) => [axis, { score, note: null }]));
+
+/** An open evaluation the close rule accepts (refine-evaluation-flow D3). */
+export const COMPLETE_EVALUATION: EvaluationItem = {
+  ...OPEN_EVALUATION,
+  descriptive: scores(5, AXES),
+  affective: scores(6, [...AXES, "overall"]),
+  tastes: [
+    { ref: "01JTAXFLORAL0000000000000A", type: "aroma" },
+    { ref: "01JTAXSWEET00000000000000C", type: "main_tastes" },
+    { ref: "01JTAXSILKY00000000000000D", type: "mouthfeel" },
+  ],
+} as EvaluationItem;
+
 function taxon(ulid: string, level: number, name: string, categories: string[], children: TaxonomyNode[] = []): TaxonomyNode {
   return { ulid, level, nameEn: name, nameEs: name, nameCa: name, color: "#aa3355", categories, children: children as never };
 }

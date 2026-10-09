@@ -89,6 +89,22 @@ describe("EvaluationDetail (design.md D1)", () => {
     expect(screen.queryByRole("button", { name: "Save draft" })).toBeNull();
   });
 
+  it("renders an open evaluation read-only with viewOnly (refine-evaluation-flow D4)", async () => {
+    getMyEvaluation.mockResolvedValue({ ok: true, data: OPEN_EVALUATION });
+    render(
+      <EvaluationDetail
+        locale="en"
+        ulid={OPEN_EVALUATION.ulid!}
+        taxonomies={TAXONOMIES}
+        texts={TEXTS}
+        viewOnly
+      />,
+    );
+    await screen.findByRole("heading", { level: 1 });
+    expect(screen.queryAllByRole("slider")).toHaveLength(0);
+    expect(screen.queryByRole("button", { name: "Save draft" })).toBeNull();
+  });
+
   it("shows the 404 page for an unknown or another user's evaluation", async () => {
     getMyEvaluation.mockResolvedValue({ ok: false, kind: "not-found" });
     const errors = vi.spyOn(console, "error").mockImplementation(() => {});
