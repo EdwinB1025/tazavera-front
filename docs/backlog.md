@@ -26,7 +26,7 @@ The entries below follow this order. The order runs security first, then the sha
 | 0d | R47 | none (closed: no code change) | Unplanned fix | — | — (Product owner 2026-10-08, option A: re-test on current develop) |
 | 16c | R50 | API branch in `tazavera-api` | Change (API) | S | Product owner: verify with real data (the API should deliver the resolved tree) |
 | 0e | R65 | `gate-account-edits-and-group-security` | Change (auth flow, texts) | M | Product owner: password view route and check timing |
-| 16e | R66 | API branch in `tazavera-api`, then front | Change (API) | M | Product owner: go-ahead for the API design |
+| 16e | R66 | API branch in `tazavera-api`, then front | Change (API) | M | Product owner: enables `MustVerifyEmail` in the API himself |
 | 16d | R64 | none yet | Change (layout) | S | Product owner: confirm the gap should shrink and to what |
 | 1 | R20 | `upgrade-next-16-4` | Refactor (fast lane) | S | — |
 | 2 | R39 | `add-code-structure-lint-rules` | Refactor (fast lane) | S | R20 (the ESLint config upgrades with it) |
@@ -88,8 +88,10 @@ Every entry of the technical review (R20–R39) takes the fast lane by Product o
 - **Why it pays off now:** Product owner wants "Verify email" in the Security section.
 - **Owning capability:** API, then user-account
 - **Proposed change:** an API feature branch, then a front change adding the button or status
-- **Open decision (Augusto):** go-ahead for the API design (mail sending, where the verification link returns, whether the user resource exposes `email_verified_at`, which needs a contract update).
-- **Type:** Change (API) · **Status:** proposed · **Affects:** R65
+- **Decided (Product owner, 2026-10-09):** enable email verification (`MustVerifyEmail`); Product owner makes the API change himself.
+- **Action for Product owner:** in `tazavera-api`, enable `Features::emailVerification()`, make `User` implement `MustVerifyEmail`, configure mail sending, and tell the orchestrator whether the user resource (`GET /user`) exposes the verification state; if it does, copy the regenerated contract into `contracts/openapi.yaml`.
+- **Then:** the front adds "Verify email" (a button to the API's verification page, or a verified status) to the R65 Security section.
+- **Type:** Change (API) · **Status:** accepted · **Affects:** R65
 
 ## R64 — Empty band above the offerings and coffee-shops lists (design lead's final AUT pass, 2026-10-09)
 
