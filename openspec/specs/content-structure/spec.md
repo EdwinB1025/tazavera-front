@@ -70,7 +70,7 @@ A paged list SHALL offer a pagination navigation, named by its own label, with P
 - **THEN** its actions and page numbers sit 0.25rem apart below 768px and 0.5rem apart from 768px
 
 ### Requirement: Page sections
-A page SHALL be built from sections that span the full width of the page content area, each on either the page background or the section background. Each section's content SHALL sit in a horizontally centered container at most 72rem wide, with side padding of 1rem below the medium breakpoint (768px) and 2rem from it. Each section SHALL have vertical padding of 3rem below 768px and 4rem from it. A section SHALL contribute no content of its own: the consuming capability fills it. A feature view SHALL use one section on the page background and hang its content from that background: inside the container, its top-level blocks (the header block, the group of section cards, the actions row when it has one) SHALL be 2rem apart, its section cards SHALL be 1rem apart with the page background showing between them, and no wrapper SHALL paint a surface between the page background and the section cards. The offerings catalog and the coffee shop directory SHALL each render their heading block, toolbar and results in that one section, the toolbar 1.5rem above the results at every viewport width. The section background SHALL be used only by the landing and About pages.
+A page SHALL be built from sections that span the full width of the page content area, each on either the page background or the section background. Each section's content SHALL sit in a horizontally centered container at most 72rem wide, with side padding of 1rem below the medium breakpoint (768px) and 2rem from it. Each section SHALL have vertical padding of 3rem below 768px and 4rem from it. A section SHALL contribute no content of its own: the consuming capability fills it. A feature view SHALL use one section on the page background and hang its content from that background: inside the container, its top-level blocks (the header block, the group of section cards, the actions row when it has one) SHALL be 2rem apart, its section cards SHALL be 1rem apart with the page background showing between them, and no wrapper SHALL paint a surface between the page background and the section cards. The offerings catalog, the coffee shop directory and the public evaluations list SHALL each render their heading block, toolbar and results in that one section, the toolbar 1.5rem above the results at every viewport width. The section background SHALL be used only by the landing and About pages.
 
 #### Scenario: Centered content
 - **WHEN** a page renders on a viewport wider than 72rem plus its side padding
@@ -98,6 +98,10 @@ A page SHALL be built from sections that span the full width of the page content
 
 #### Scenario: Directory toolbar close to its results
 - **WHEN** the coffee shop directory renders at any viewport width
+- **THEN** its heading block, toolbar and results sit in one section on the page background, and the results start 1.5rem below the toolbar
+
+#### Scenario: Public evaluations toolbar close to its results
+- **WHEN** the public evaluations list renders at any viewport width
 - **THEN** its heading block, toolbar and results sit in one section on the page background, and the results start 1.5rem below the toolbar
 
 ### Requirement: Collapsible section
