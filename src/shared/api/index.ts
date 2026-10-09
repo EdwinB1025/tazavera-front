@@ -26,6 +26,7 @@ export {
   keepRegistrationGrant,
   keepTokens,
   refreshTokens,
+  restoreReadTokens,
 } from "./tokens";
 export { distinctCoffeeValues, fetchCoffees } from "./coffees";
 export type { CoffeeSummary } from "./coffees";
