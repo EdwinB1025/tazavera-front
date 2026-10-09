@@ -28,7 +28,7 @@
 ## 4. Optional extrinsic notes (D2)
 
 - [x] 4.1 Tests first in `src/pages/evaluation-form/ui/EvaluationGroupCard.test.tsx`: new test "Extrinsic notes start behind Add note" (the four labels shown, four "Add note (…)" buttons and no textarea). Update "shows the Extrinsic group's five fields in the contract's order" → the five "Add note" controls in contract order. In `EvaluationForm.test.tsx` and `src/entities/evaluation/model/load.test.ts` / `body.test.ts`: update only the assertions that break. Expected: fails only because the fields are always open.
-- [ ] 4.2 Implement D2 in `ExtrinsicField.tsx` and `GroupParts.tsx`. Verify: related tests, typecheck, lint.
+- [x] 4.2 Implement D2 in `ExtrinsicField.tsx` and `GroupParts.tsx`. Verify: related tests, typecheck, lint.
 
 ## 5. Full checks
 
