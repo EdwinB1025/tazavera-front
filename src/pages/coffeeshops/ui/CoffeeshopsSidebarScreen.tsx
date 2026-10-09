@@ -15,15 +15,26 @@ export type CoffeeshopsSidebarScreenProps = {
 /**
  * The directory's slot screen (add-coffeeshop-directory design.md D9;
  * app-shell spec "Shown on the coffee shop directory"): the sidebar for every
- * session state, with no navigation entries, holding the coffee shop facets.
+ * session state, with the list's entry holding the coffee shop facets in its
+ * collapsible sub-section (collapse-sidebar-filters).
  */
 export function CoffeeshopsSidebarScreen({ locale, searchParams }: CoffeeshopsSidebarScreenProps): ReactNode {
+  const filters = getMessages("filters", locale);
   return (
-    <AppSidebar>
-      <CoffeeshopFacets
-        values={parseCoffeeshopFilters(searchParams)}
-        texts={coffeeshopFacetsTexts(getMessages("coffeeshops", locale), getMessages("filters", locale))}
-      />
-    </AppSidebar>
+    <AppSidebar
+      listEntry={{
+        label: getMessages("shell", locale).exploreCoffeeshops ?? "",
+        href: `/${locale}/coffeeshops`,
+      }}
+      subsection={{
+        title: filters.title ?? "",
+        content: (
+          <CoffeeshopFacets
+            values={parseCoffeeshopFilters(searchParams)}
+            texts={coffeeshopFacetsTexts(getMessages("coffeeshops", locale), filters)}
+          />
+        ),
+      }}
+    />
   );
 }

@@ -37,6 +37,9 @@ type SidebarContextValue = {
    * mounted-sidebar count again (design.md D3).
    */
   register: () => () => void;
+  /** Whether the sidebar entry's sub-section is open (collapse-sidebar-filters). */
+  subsectionOpen: boolean;
+  setSubsectionOpen: (open: boolean) => void;
 };
 
 /**
@@ -65,6 +68,8 @@ function SidebarProvider({
   const [openDesktop, setOpenDesktop] = React.useState(true);
   const [openMobile, setOpenMobile] = React.useState(false);
   const [count, setCount] = React.useState(0);
+  // Closed on arrival; the toolbar's "Filters" opens it (collapse-sidebar-filters).
+  const [subsectionOpen, setSubsectionOpen] = React.useState(false);
   const isMobile = useIsMobile();
 
   const open = isMobile ? openMobile : openDesktop;
@@ -88,6 +93,8 @@ function SidebarProvider({
         isMobile,
         present: count > 0,
         register,
+        subsectionOpen,
+        setSubsectionOpen,
       }}
     >
       <div

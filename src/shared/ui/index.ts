@@ -39,6 +39,11 @@ export { Sheet, SheetTrigger, SheetContent, SheetTitle } from "./Sheet";
 // The whole Sidebar module (its parts, `useSidebar` and `SIDEBAR_ID`):
 // re-exported as a set so this server-safe entry names no hook itself.
 export * from "./Sidebar";
+export {
+  SidebarMenuSub,
+  SidebarSubsectionProvider,
+  SidebarSubsectionOutlet,
+} from "./SidebarMenuSub";
 export { FiltersTrigger } from "./FiltersTrigger";
 export { Card, CardAside, CardContent, CardFooter } from "./Card";
 export { Badge } from "./Badge";

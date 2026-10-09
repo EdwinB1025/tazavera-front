@@ -44,7 +44,7 @@ The shell SHALL present the header above a main area that holds the content of t
 - **THEN** the main area shows the light blue-green backdrop, and cards on it show the cream card surface; and in the dark theme the backdrop is darker than the cards on it
 
 ### Requirement: Header brand and primary navigation
-The header SHALL show the brand logotype, linking to the root of the active locale. The brand logotype and the primary navigation SHALL sit in one group on the left, and the language selector, the theme switch and the session control SHALL sit in one group on the right, in that order, on every viewport. On medium and larger viewports it SHALL also show the "Top rated", "Explore coffee shops" and "About us" entries, in that order; on small viewports those entries SHALL NOT be shown in the header and a navigation menu control, showing a three-lines menu icon and named from the active locale's catalog, SHALL take their place, opening a menu that lists the same entries, in the same order and with the same destinations, presented like the entries of the user menu, the entry of the current route marked as the current page. The primary navigation entries SHALL be presented as navigation items of the header, not as inline text links, and the entry of the current route SHALL be marked as the current page.
+The header SHALL show the brand logotype, linking to the root of the active locale. The brand logotype and the primary navigation SHALL sit in one group on the left, and the language selector, the theme switch and the session control SHALL sit in one group on the right, in that order, on every viewport. On medium and larger viewports it SHALL also show the "Top rated", "Explore coffee shops" and "About us" entries, in that order; on small viewports those entries SHALL NOT be shown in the header and a navigation menu control, showing a three-lines menu icon and named from the active locale's catalog, SHALL take their place, opening a menu that lists the same entries, in the same order and with the same destinations, presented like the entries of the user menu, the entry of the current route marked as the current page, each entry showing a decorative icon that reflects it before its text. The entries of that menu SHALL take the header menu entry treatment, not the inline link treatment. The primary navigation entries SHALL be presented as navigation items of the header, not as inline text links, and the entry of the current route SHALL be marked as the current page.
 
 #### Scenario: Brand link
 - **WHEN** the user activates the brand logotype in the header
@@ -86,6 +86,10 @@ The header SHALL show the brand logotype, linking to the root of the active loca
 - **WHEN** the current route's path equals an entry's path, ignoring the query
 - **THEN** that entry carries `aria-current="page"` and a bottom bar in the navigation indicator colour, takes no hover fill, and no other entry is marked
 
+#### Scenario: Navigation menu entries carry icons and the header look
+- **WHEN** the user opens the navigation menu on a small viewport
+- **THEN** each entry shows a decorative icon hidden from assistive technology before its text, takes `nav-text` with `nav-text-hover` on hover and focus, and shows no underline and no link colour, in both themes
+
 ### Requirement: Signed-out header
 While the session is anonymous, the header SHALL show the language selector, the theme switch and a "Sign in" action, and SHALL NOT show a user menu. On a 375px-wide viewport the signed-out header SHALL fit without horizontal overflow.
 
@@ -106,7 +110,7 @@ While the session is anonymous, the header SHALL show the language selector, the
 - **THEN** the header's sign-in label fits on one line
 
 ### Requirement: Signed-in header and user menu
-While the session is authenticated, the header SHALL show the brand logotype, the language selector, the theme switch and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The control SHALL show an initials circle and, on a medium or larger viewport, the user's name and a chevron after the circle; below that viewport it SHALL show the circle alone. The menu SHALL offer one account entry pointing at the account page, the security entry as an external link to the API's security page, the management entry for the user's role, for a specialist the offerings entry, and sign out.
+While the session is authenticated, the header SHALL show the brand logotype, the language selector, the theme switch and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The control SHALL show an initials circle and, on a medium or larger viewport, the user's name and a chevron after the circle; below that viewport it SHALL show the circle alone. The menu SHALL offer one account entry pointing at the account page, the security entry as an external link to the API's security page, the management entry for the user's role, for a specialist the offerings entry, and sign out. Each entry SHALL show a decorative icon that reflects its action before its text and SHALL take the header menu entry treatment, not the inline link treatment, while keeping its order, destination and behaviour.
 
 #### Scenario: User control carries the user's initials
 - **WHEN** the session is authenticated
@@ -155,6 +159,10 @@ While the session is authenticated, the header SHALL show the brand logotype, th
 #### Scenario: Sign out
 - **WHEN** the user activates "Sign out"
 - **THEN** the application signs the user out and the header renders as anonymous
+
+#### Scenario: Menu entries carry icons and the header look
+- **WHEN** the user opens the user menu
+- **THEN** each entry shows a decorative icon hidden from assistive technology before its text, takes `nav-text` with `nav-text-hover` on hover and focus, and shows no underline and no link colour, in both themes
 
 ### Requirement: Session states in the shell
 The shell SHALL follow the session state. While the session is still resolving it SHALL show neither the "Sign in" action nor the user menu, and when the session cannot be resolved it SHALL render the anonymous shell.
@@ -222,7 +230,7 @@ The brand logotype SHALL render in three forms: the drawing alone, the drawing w
 - **THEN** the icon still follows the operating-system appearance, and a browser with no support for a dark icon shows the traditional colors
 
 ### Requirement: Management sidebar
-The sidebar SHALL appear for an authenticated user on a management route and, for every session state, on the offerings list route, on the coffee shop directory route and on a coffee shop detail route while its Offerings tab is shown; on every other route there SHALL be no sidebar. The content of the sidebar SHALL come from the route in view: the navigation entries of a management area, or the controls of a list, supplied by the capability that owns that route; this capability defines the region, its presentation and its controls. On medium and larger viewports the sidebar SHALL be expanded on arrival and collapsible; on small viewports it SHALL be closed on arrival and SHALL open as a full-screen overlay. When the user navigates within the application, the sidebar SHALL follow the route reached, never keeping the content of the previous route.
+The sidebar SHALL appear for an authenticated user on a management route and, for every session state, on the offerings list route, on the coffee shop directory route and on a coffee shop detail route while its Offerings tab is shown; on every other route there SHALL be no sidebar. The content of the sidebar SHALL come from the route in view: the navigation entries of a management area, or the controls of a list, supplied by the capability that owns that route, a list's controls sitting in the sub-section of the list's entry (see "Sidebar entry sub-section"); this capability defines the region, its presentation and its controls. On medium and larger viewports the sidebar SHALL be expanded on arrival and collapsible; on small viewports it SHALL be closed on arrival and SHALL open as a full-screen overlay. When the user navigates within the application, the sidebar SHALL follow the route reached, never keeping the content of the previous route.
 
 #### Scenario: Shown on a management route
 - **WHEN** an authenticated user is on a management route
@@ -230,11 +238,11 @@ The sidebar SHALL appear for an authenticated user on a management route and, fo
 
 #### Scenario: Shown on the offerings list
 - **WHEN** a visitor, signed in or not, is on the offerings list route, with or without a query
-- **THEN** the sidebar appears with the content the offerings list supplies and no navigation entries
+- **THEN** the sidebar appears with one navigation entry, "Explore offerings", pointing at `/{locale}/offerings` and marked as the current page, holding the content the offerings list supplies in its sub-section
 
 #### Scenario: Shown on the coffee shop directory
 - **WHEN** a visitor, signed in or not, is on the coffee shop directory route, with or without a query
-- **THEN** the sidebar appears with the coffee shop facets and no navigation entries
+- **THEN** the sidebar appears with one navigation entry, "Explore coffee shops", pointing at `/{locale}/coffeeshops` and marked as the current page, holding the coffee shop facets in its sub-section
 
 #### Scenario: Shown on the coffee shop Offerings tab
 - **WHEN** a visitor, signed in or not, is on a coffee shop detail route with the Offerings tab shown, and then selects the Locations tab
@@ -569,3 +577,14 @@ A route SHALL load the client code of a shared control only when it renders that
 #### Scenario: Route without a combobox
 - **WHEN** a route that renders no combobox, such as the entry page of a locale, is loaded
 - **THEN** the JavaScript it loads contains no command-menu library code
+
+### Requirement: Sidebar entry sub-section
+A sidebar entry MAY hold a collapsible sub-section, nested below the entry and indented from it, built on the shared collapsible section (content-structure "Collapsible section"). Its header SHALL be a toggle with the sidebar entry look, whose accessible name is the title its consumer supplies and which exposes whether the sub-section is expanded. The sub-section SHALL be closed on arrival on its route, SHALL open only when the user activates its toggle or a control of the route opens it, and SHALL close again when the user leaves the route. While closed, its content SHALL stay mounted, keeping its state, out of the tab order and the accessibility tree. When no entry of the list is in the sidebar, the sub-section SHALL stand at the top of the sidebar content with the same behaviour.
+
+#### Scenario: Closed by default
+- **WHEN** the user arrives on a route whose sidebar entry holds a sub-section
+- **THEN** the sub-section's toggle, nested below the entry, reports it collapsed and its content is not shown
+
+#### Scenario: Opens on its toggle
+- **WHEN** the user activates the sub-section's toggle by pointer or keyboard
+- **THEN** the toggle reports it expanded and its content is shown below it

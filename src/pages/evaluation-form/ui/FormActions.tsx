@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Button, Link } from "@/shared/ui";
+import { Button, RouteButton } from "@/shared/ui";
 import type { FormBusy } from "../model/form-model";
 
 // ─── UI-specific types (declared before the component) ───
@@ -95,9 +95,11 @@ export function FormActions({
           </Button>
         ) : null}
       </div>
-      <Link href={cancelHref} className="self-center">
-        {cancelLabel}
-      </Link>
+      <div className="self-center">
+        <RouteButton href={cancelHref} variant="action-4" size="base">
+          {cancelLabel}
+        </RouteButton>
+      </div>
     </div>
   );
 }

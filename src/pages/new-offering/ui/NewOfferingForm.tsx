@@ -14,6 +14,7 @@ import {
   Card,
   CardContent,
   Link,
+  RouteButton,
   SessionGate,
   SignedOutPrompt,
 } from "@/shared/ui";
@@ -142,7 +143,9 @@ function CreateForm({ locale, route, disabled = false, texts }: CreateFormProps)
               >
                 {texts.submitLabel}
               </Button>
-              <Link href={listRoute}>{texts.cancelLabel}</Link>
+              <RouteButton href={listRoute} variant="action-4" size="base">
+                {texts.cancelLabel}
+              </RouteButton>
             </div>
           </form>
         </div>

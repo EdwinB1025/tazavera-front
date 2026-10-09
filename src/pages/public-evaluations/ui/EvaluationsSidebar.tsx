@@ -43,9 +43,14 @@ export async function EvaluationsSidebar({
         ),
   ]);
   const options: EvaluationFacetsOptions = { processes, offering };
+  const texts = facetsTexts(locale);
+  // No entry for this list: the sub-section stands alone (collapse-sidebar-filters).
   return (
-    <AppSidebar>
-      <EvaluationFacets set="public" values={values} options={options} texts={facetsTexts(locale)} />
-    </AppSidebar>
+    <AppSidebar
+      subsection={{
+        title: texts.title,
+        content: <EvaluationFacets set="public" values={values} options={options} texts={texts} />,
+      }}
+    />
   );
 }
