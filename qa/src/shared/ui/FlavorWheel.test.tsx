@@ -121,7 +121,7 @@ describe("FlavorWheel — initial render", () => {
   it("renders a figure with a visually hidden caption and an aria-hidden SVG", () => {
     const { container } = renderWheel();
     const figure = container.querySelector("figure");
-    expect(figure?.className).toBe("@container");
+    expect(figure).not.toBeNull();
     const caption = figure?.querySelector("figcaption");
     expect(caption?.textContent).toBe("texts.label");
     expect(caption?.className).toBe("sr-only");
@@ -130,17 +130,12 @@ describe("FlavorWheel — initial render", () => {
     expect(svg?.getAttribute("viewBox")).toBe("-204 -204 408 408");
   });
 
-  it("lays out by container width: stacked, then two columns from 42rem", () => {
+  // stack-flavor-wheel-layout D1: stacked on every width (the layout and
+  // wheel classes are asserted by the validation suite).
+  it("stacks the wheel, the panel and the note-list section", () => {
     const { container } = renderWheel();
     const layout = container.querySelector("figure > div");
-    expect(layout?.className).toBe(
-      "flex flex-col gap-6 @2xl:grid @2xl:grid-cols-[minmax(0,32rem)_minmax(16rem,1fr)] @2xl:grid-rows-[auto_1fr] @2xl:gap-x-8 @2xl:gap-y-6",
-    );
-    const wheel = container.querySelector("svg")?.parentElement;
-    expect(wheel?.className).toBe(
-      "mx-auto aspect-square w-full max-w-128 @2xl:row-span-2 @2xl:mx-0 @2xl:self-start",
-    );
-    // Column 2 stacks the panel and the note-list section.
+    // After the wheel: the panel, then the note-list section.
     expect(
       Array.from(layout?.children ?? [])
         .slice(1)
@@ -226,8 +221,12 @@ describe("FlavorWheel — active note", () => {
 describe("FlavorWheel — expand and collapse", () => {
   it("activates a leaf on click without expanding anything", () => {
     const { container } = renderWheel();
+    // The wheel draws every level (stack-flavor-wheel-layout D2); expansion
+    // only changes the note list, which keeps its three level-0 rows.
+    const before = segmentIds(container);
     fireEvent.click(segment(container, "nutty")!);
-    expect(segmentIds(container)).toEqual(["fruity", "floral", "nutty"]);
+    expect(segmentIds(container)).toEqual(before);
+    expect(screen.getAllByRole("treeitem")).toHaveLength(3);
     expect(row("Nutty").className).toBe(`${ROW_CLASSES} bg-surface-section`);
   });
 });
