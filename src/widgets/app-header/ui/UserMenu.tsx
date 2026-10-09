@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import NextLink from "next/link";
 import type { SessionUser } from "@/shared/api";
 import { openSecurityPopup } from "@/shared/lib/security-popup";
 import {
@@ -9,9 +10,15 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  Link,
 } from "@/shared/ui";
-import { ChevronDown } from "@/shared/ui/icons";
+import {
+  ChevronDown,
+  ClipboardList,
+  Compass,
+  LogOut,
+  ShieldCheck,
+  User,
+} from "@/shared/ui/icons";
 
 // ─── UI-specific types (declared before the component) ───
 // Every interface text arrives as a prop (design.md D10). The user's name is
@@ -82,6 +89,9 @@ const CIRCLE_CLASSES = [
 // tokens `add-auth` keeps — never happens. Only the API's `/user/security` is
 // an external destination and stays a native anchor (design.md), opened in a
 // popup window so the tab keeps its tokens (open-security-pages-in-popup D4).
+// The internal entries render `next/link` and not the shared `Link`, so they
+// take the header menu entry treatment and no inline-link look; each entry
+// leads with a decorative icon (add-user-menu-icons D1, D2).
 
 /**
  * User menu (design.md D5; spec "Signed-in header and user menu").
@@ -119,26 +129,39 @@ export function UserMenu({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" surface="nav">
         <DropdownMenuItem asChild>
-          <Link href={`/${locale}/account`}>{texts.myAccount}</Link>
+          <NextLink href={`/${locale}/account`}>
+            <User aria-hidden className="size-4" />
+            {texts.myAccount}
+          </NextLink>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <a href={securityUrl} onClick={(event) => openSecurityPopup(event)}>
+            <ShieldCheck aria-hidden className="size-4" />
             {texts.security}
           </a>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         {management && (
           <DropdownMenuItem asChild>
-            <Link href={management.href}>{management.text}</Link>
+            <NextLink href={management.href}>
+              <ClipboardList aria-hidden className="size-4" />
+              {management.text}
+            </NextLink>
           </DropdownMenuItem>
         )}
         {user.role === "specialist" && (
           <DropdownMenuItem asChild>
-            <Link href={`/${locale}/offerings`}>{texts.exploreOfferings}</Link>
+            <NextLink href={`/${locale}/offerings`}>
+              <Compass aria-hidden className="size-4" />
+              {texts.exploreOfferings}
+            </NextLink>
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem onSelect={onSignOut}>{texts.signOut}</DropdownMenuItem>
+        <DropdownMenuItem onSelect={onSignOut}>
+          <LogOut aria-hidden className="size-4" />
+          {texts.signOut}
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

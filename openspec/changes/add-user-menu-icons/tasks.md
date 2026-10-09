@@ -2,8 +2,8 @@ No derived API types are needed: the change only touches header menu markup and 
 
 ## 1. User menu icons and header look (app-shell)
 
-- [ ] 1.1 Add to `src/widgets/app-header/ui/AppHeader.test.tsx` (describe "UserMenu") one test for the scenario "Menu entries carry icons and the header look": for a specialist, every menu item contains an `svg` with `aria-hidden="true"` before its text, its classes include `hover:text-nav-text-hover` and `type-navlist-item`, and include neither `underline` nor `text-text-link`. Verify: the test fails on the current menu (no icons, link classes); the other tests of the file pass; `npx tsc --noEmit` and `npm run lint` report no errors.
-- [ ] 1.2 Implement design.md D1 and D2 in `src/widgets/app-header/ui/UserMenu.tsx`, adding the needed exports to `src/shared/ui/icons.ts`. Protecting tests: `src/widgets/app-header/ui/AppHeader.test.tsx`, `src/shared/ui/icons.test.ts`. Verify: `npx vitest related` on the changed files passes, the test of 1.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 1.1 Add to `src/widgets/app-header/ui/AppHeader.test.tsx` (describe "UserMenu") one test for the scenario "Menu entries carry icons and the header look": for a specialist, every menu item contains an `svg` with `aria-hidden="true"` before its text, its classes include `hover:text-nav-text-hover` and `type-navlist-item`, and include neither `underline` nor `text-text-link`. Verify: the test fails on the current menu (no icons, link classes); the other tests of the file pass; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 1.2 Implement design.md D1 and D2 in `src/widgets/app-header/ui/UserMenu.tsx`, adding the needed exports to `src/shared/ui/icons.ts`. Protecting tests: `src/widgets/app-header/ui/AppHeader.test.tsx`, `src/shared/ui/icons.test.ts`. Verify: `npx vitest related` on the changed files passes, the test of 1.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 2. Navigation menu icons and header look (app-shell)
 
