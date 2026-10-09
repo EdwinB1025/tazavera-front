@@ -70,6 +70,8 @@ const TEXTS = {
   changePassword: "fx-change-password",
   twoFactor: "fx-two-factor",
   passkeys: "fx-passkeys",
+  verifyEmail: "fx-verify-email",
+  emailVerifiedStatus: "fx-email-verified",
   done: "fx-done",
   dangerZoneHeading: "fx-danger",
   contactHeading: "fx-contact",
@@ -226,5 +228,28 @@ describe("AccountClient — Security section", () => {
       expect(link.getAttribute("target")).toBeNull();
     }
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("while the email is unverified lists a same-tab Verify email link to {API}/email/verify before two-factor", () => {
+    auth.session = { state: "authenticated", user: { ...USER, emailVerifiedAt: null } };
+    renderClient();
+    const link = screen.getByRole("link", { name: TEXTS.verifyEmail });
+    expect(link.getAttribute("href")).toBe(`${API}/email/verify`);
+    expect(link.getAttribute("target")).toBeNull();
+    const items = link.closest("ul")!.querySelectorAll("li");
+    expect(items[0].contains(link)).toBe(true);
+    expect(items[1].textContent).toBe(TEXTS.twoFactor);
+  });
+
+  it("when the email is verified lists the text Email verified first and no Verify email link", () => {
+    auth.session = {
+      state: "authenticated",
+      user: { ...USER, emailVerifiedAt: "2026-10-09T10:00:00Z" },
+    };
+    renderClient();
+    const item = screen.getByRole("link", { name: TEXTS.twoFactor }).closest("ul")!
+      .firstElementChild!;
+    expect(item.textContent).toBe(TEXTS.emailVerifiedStatus);
+    expect(screen.queryByRole("link", { name: TEXTS.verifyEmail })).toBeNull();
   });
 });

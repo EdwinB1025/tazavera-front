@@ -7,7 +7,7 @@ No derived API types are needed: `SessionUser` already carries `emailVerifiedAt`
 
 ## 2. Security verification entry (user-account)
 
-- [ ] 2.1 Add to `src/pages/account/ui/AccountClient.test.tsx` one test per scenario: "Verifying the email" (`emailVerifiedAt: null`: a link named `verifyEmail` with `href` `{API}/email/verify`, no `target`, in the first `li` of the Security list, before the two-factor link), "The email is verified" (`emailVerifiedAt` set: the text `emailVerifiedStatus` in the first `li` and no `verifyEmail` link); add the new keys to the `TEXTS` fixture. Verify: both tests fail on the current `SecuritySection`; the rest pass; `npx tsc --noEmit` reports only errors for the new text keys; `npm run lint` reports no errors.
+- [x] 2.1 Add to `src/pages/account/ui/AccountClient.test.tsx` one test per scenario: "Verifying the email" (`emailVerifiedAt: null`: a link named `verifyEmail` with `href` `{API}/email/verify`, no `target`, in the first `li` of the Security list, before the two-factor link), "The email is verified" (`emailVerifiedAt` set: the text `emailVerifiedStatus` in the first `li` and no `verifyEmail` link); add the new keys to the `TEXTS` fixture. Verify: both tests fail on the current `SecuritySection`; the rest pass; `npx tsc --noEmit` reports only errors for the new text keys; `npm run lint` reports no errors.
 - [ ] 2.2 Implement design.md D2, the D3 keys `verifyEmail` and `emailVerifiedStatus`, and the `securityDescription` copy in the three locales. Protecting tests: `AccountClient.test.tsx`, `AccountScreen.test.tsx`. Verify: `npx vitest related` on the changed files passes; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 3. Full checks
