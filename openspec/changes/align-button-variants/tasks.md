@@ -2,7 +2,7 @@ No derived API types are needed: the change only moves `variant` values. Each im
 
 ## 1. Confirmation dialog (feedback)
 
-- [ ] 1.1 Update `src/shared/ui/ConfirmDialog.test.tsx` ("calls onConfirm when the primary confirm action is activated"): the confirm action carries `bg-action-2-bg` instead of `bg-action-primary`. Verify: the updated assertion fails on the current dialog; the other tests of the file pass; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 1.1 Update `src/shared/ui/ConfirmDialog.test.tsx` ("calls onConfirm when the primary confirm action is activated"): the confirm action carries `bg-action-2-bg` instead of `bg-action-primary`. Verify: the updated assertion fails on the current dialog; the other tests of the file pass; `npx tsc --noEmit` and `npm run lint` report no errors.
 - [ ] 1.2 In `src/shared/ui/ConfirmDialog.tsx` the confirm action takes `action-2`. Verify: `npx vitest related` on the changed file passes, the test of 1.1 included; typecheck and lint report no errors.
 
 ## 2. Pagination (content-structure)
