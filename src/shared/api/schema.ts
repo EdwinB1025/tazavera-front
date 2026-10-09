@@ -111,6 +111,65 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/email/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Display the email verification prompt. */
+        get: operations["displayTheEmailVerificationPrompt"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/email/verify/{id}/{hash}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description The ID of the verify.
+                 * @example architecto
+                 */
+                id: string;
+                /** @example architecto */
+                hash: string;
+            };
+            cookie?: never;
+        };
+        /** Mark the authenticated user's email address as verified. */
+        get: operations["markTheAuthenticatedUsersEmailAddressAsVerified"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/email/verification-notification": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send a new email verification notification. */
+        post: operations["sendANewEmailVerificationNotification"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/evaluations/{evaluation_ulid}": {
         parameters: {
             query?: never;
@@ -782,32 +841,32 @@ export interface operations {
         parameters: {
             query?: {
                 /**
-                 * @description Filter by coffee name (max 150 chars). Must not be greater than 150 characters.
+                 * @description Filter by coffee name (max 150 chars). El campo value no debe ser mayor que 150 caracteres.
                  * @example Geisha
                  */
                 coffeeName?: string | null;
                 /**
-                 * @description Filter by country of origin (max 60 chars). Must not be greater than 60 characters.
+                 * @description Filter by country of origin (max 60 chars). El campo value no debe ser mayor que 60 caracteres.
                  * @example Colombia
                  */
                 originCountry?: string | null;
                 /**
-                 * @description Filter by region of origin (max 90 chars). Must not be greater than 90 characters.
+                 * @description Filter by region of origin (max 90 chars). El campo value no debe ser mayor que 90 caracteres.
                  * @example Huila
                  */
                 originRegion?: string | null;
                 /**
-                 * @description Filter by processing method (max 60 chars). Must not be greater than 60 characters.
+                 * @description Filter by processing method (max 60 chars). El campo value no debe ser mayor que 60 caracteres.
                  * @example Washed
                  */
                 process?: string | null;
                 /**
-                 * @description Filter by producer name (max 150 chars). Must not be greater than 150 characters.
+                 * @description Filter by producer name (max 150 chars). El campo value no debe ser mayor que 150 caracteres.
                  * @example Finca La Esperanza
                  */
                 producer?: string | null;
                 /**
-                 * @description Filter by city (max 90 chars). Must not be greater than 90 characters.
+                 * @description Filter by city (max 90 chars). El campo value no debe ser mayor que 90 caracteres.
                  * @example Barcelona
                  */
                 city?: string | null;
@@ -940,7 +999,7 @@ export interface operations {
         parameters: {
             query?: {
                 /**
-                 * @description Filter by coffee name (partial match, max 150 chars). Must not be greater than 150 characters.
+                 * @description Filter by coffee name (partial match, max 150 chars). El campo value no debe ser mayor que 150 caracteres.
                  * @example Huila
                  */
                 name?: string | null;
@@ -1037,17 +1096,17 @@ export interface operations {
         parameters: {
             query?: {
                 /**
-                 * @description Filter by the coffee shop (business) name. Partial, case-insensitive match. Must not be greater than 150 characters.
+                 * @description Filter by the coffee shop (business) name. Partial, case-insensitive match. El campo value no debe ser mayor que 150 caracteres.
                  * @example nomad
                  */
                 name?: string;
                 /**
-                 * @description Filter coffee shops with at least one location whose primary contact is in this city. Must not be greater than 90 characters.
+                 * @description Filter coffee shops with at least one location whose primary contact is in this city. El campo value no debe ser mayor que 90 caracteres.
                  * @example Barcelona
                  */
                 city?: string;
                 /**
-                 * @description Filter coffee shops with at least one location whose primary contact has this postal code. Must not be greater than 12 characters.
+                 * @description Filter coffee shops with at least one location whose primary contact has this postal code. El campo value no debe ser mayor que 12 caracteres.
                  * @example 08001
                  */
                 postalCode?: string;
@@ -1067,12 +1126,12 @@ export interface operations {
                  */
                 orderDirection?: "asc" | "desc";
                 /**
-                 * @description Page number. Default: 1. Must be at least 1.
+                 * @description Page number. Default: 1. El tamaño de value debe ser de al menos 1.
                  * @example 1
                  */
                 page?: number;
                 /**
-                 * @description Must be at least 1. Must not be greater than 50.
+                 * @description El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 50.
                  * @example 1
                  */
                 perPage?: number;
@@ -1407,6 +1466,68 @@ export interface operations {
             };
         };
     };
+    displayTheEmailVerificationPrompt: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example Unauthenticated. */
+                        message?: string;
+                    };
+                };
+            };
+        };
+    };
+    markTheAuthenticatedUsersEmailAddressAsVerified: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description The ID of the verify.
+                 * @example architecto
+                 */
+                id: string;
+                /** @example architecto */
+                hash: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example Unauthenticated. */
+                        message?: string;
+                    };
+                };
+            };
+        };
+    };
+    sendANewEmailVerificationNotification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
     getAnEvaluation: {
         parameters: {
             query?: never;
@@ -1609,12 +1730,12 @@ export interface operations {
                  */
                 locationId?: string;
                 /**
-                 * @description Filter by the city of the evaluation location. Must not be greater than 90 characters.
+                 * @description Filter by the city of the evaluation location. El campo value no debe ser mayor que 90 caracteres.
                  * @example Barcelona
                  */
                 city?: string;
                 /**
-                 * @description Filter by coffee processing method. Must not be greater than 90 characters.
+                 * @description Filter by coffee processing method. El campo value no debe ser mayor que 90 caracteres.
                  * @example Washed
                  */
                 process?: string;
@@ -1624,12 +1745,12 @@ export interface operations {
                  */
                 status?: "open" | "closed";
                 /**
-                 * @description Minimum cupping score (0–100). Must be at least 0. Must not be greater than 100.
+                 * @description Minimum cupping score (0–100). El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.
                  * @example 80
                  */
                 scoreMin?: number;
                 /**
-                 * @description Maximum cupping score (0–100). Must be ≥ scoreMin. Must be at least 0. Must not be greater than 100.
+                 * @description Maximum cupping score (0–100). Must be ≥ scoreMin. El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.
                  * @example 95
                  */
                 scoreMax?: number;
@@ -1644,12 +1765,12 @@ export interface operations {
                  */
                 orderDirection?: "asc" | "desc";
                 /**
-                 * @description Must be at least 1.
+                 * @description El tamaño de value debe ser de al menos 1.
                  * @example 16
                  */
                 page?: number;
                 /**
-                 * @description Must be at least 1. Must not be greater than 50.
+                 * @description El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 50.
                  * @example 22
                  */
                 perPage?: number;
@@ -2091,12 +2212,12 @@ export interface operations {
                  */
                 locationId?: string;
                 /**
-                 * @description Filter by the city of the evaluation location. Must not be greater than 90 characters.
+                 * @description Filter by the city of the evaluation location. El campo value no debe ser mayor que 90 caracteres.
                  * @example Barcelona
                  */
                 city?: string;
                 /**
-                 * @description Filter by coffee processing method. Must not be greater than 90 characters.
+                 * @description Filter by coffee processing method. El campo value no debe ser mayor que 90 caracteres.
                  * @example Washed
                  */
                 process?: string;
@@ -2106,12 +2227,12 @@ export interface operations {
                  */
                 status?: "open" | "closed";
                 /**
-                 * @description Minimum cupping score (0–100). Must be at least 0. Must not be greater than 100.
+                 * @description Minimum cupping score (0–100). El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.
                  * @example 80
                  */
                 scoreMin?: number;
                 /**
-                 * @description Maximum cupping score (0–100). Must be ≥ scoreMin. Must be at least 0. Must not be greater than 100.
+                 * @description Maximum cupping score (0–100). Must be ≥ scoreMin. El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.
                  * @example 95
                  */
                 scoreMax?: number;
@@ -2126,12 +2247,12 @@ export interface operations {
                  */
                 orderDirection?: "asc" | "desc";
                 /**
-                 * @description Must be at least 1.
+                 * @description El tamaño de value debe ser de al menos 1.
                  * @example 16
                  */
                 page?: number;
                 /**
-                 * @description Must be at least 1. Must not be greater than 50.
+                 * @description El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 50.
                  * @example 22
                  */
                 perPage?: number;
@@ -2579,12 +2700,12 @@ export interface operations {
                  */
                 locationId?: string;
                 /**
-                 * @description Filter by the city of the evaluation location. Must not be greater than 90 characters.
+                 * @description Filter by the city of the evaluation location. El campo value no debe ser mayor que 90 caracteres.
                  * @example Barcelona
                  */
                 city?: string;
                 /**
-                 * @description Filter by coffee processing method. Must not be greater than 90 characters.
+                 * @description Filter by coffee processing method. El campo value no debe ser mayor que 90 caracteres.
                  * @example Washed
                  */
                 process?: string;
@@ -2594,12 +2715,12 @@ export interface operations {
                  */
                 status?: "open" | "closed";
                 /**
-                 * @description Minimum cupping score (0–100). Must be at least 0. Must not be greater than 100.
+                 * @description Minimum cupping score (0–100). El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.
                  * @example 80
                  */
                 scoreMin?: number;
                 /**
-                 * @description Maximum cupping score (0–100). Must be ≥ scoreMin. Must be at least 0. Must not be greater than 100.
+                 * @description Maximum cupping score (0–100). Must be ≥ scoreMin. El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.
                  * @example 95
                  */
                 scoreMax?: number;
@@ -2614,12 +2735,12 @@ export interface operations {
                  */
                 orderDirection?: "asc" | "desc";
                 /**
-                 * @description Must be at least 1.
+                 * @description El tamaño de value debe ser de al menos 1.
                  * @example 16
                  */
                 page?: number;
                 /**
-                 * @description Must be at least 1. Must not be greater than 50.
+                 * @description El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 50.
                  * @example 22
                  */
                 perPage?: number;
@@ -3055,7 +3176,7 @@ export interface operations {
                     /** @example architecto */
                     status?: string | null;
                     /**
-                     * @description Brewing/extraction method used (max 60 chars). Must not be greater than 60 characters.
+                     * @description Brewing/extraction method used (max 60 chars). El campo value no debe ser mayor que 60 caracteres.
                      * @example v60
                      */
                     extractionMethod?: string | null;
@@ -3073,7 +3194,7 @@ export interface operations {
                         /** @example null */
                         fragrance?: {
                             /**
-                             * @description Fragrance intensity (0–15). Must be between 0 and 15.
+                             * @description Fragrance intensity (0–15). El campo value tiene que estar entre 0 - 15.
                              * @example 11
                              */
                             score?: number | null;
@@ -3093,7 +3214,7 @@ export interface operations {
                         /** @example null */
                         aroma?: {
                             /**
-                             * @description Aroma intensity (0–15). Must be between 0 and 15.
+                             * @description Aroma intensity (0–15). El campo value tiene que estar entre 0 - 15.
                              * @example 5
                              */
                             score?: number | null;
@@ -3113,7 +3234,7 @@ export interface operations {
                         /** @example null */
                         flavor?: {
                             /**
-                             * @description Flavor intensity (0–15). Must be between 0 and 15.
+                             * @description Flavor intensity (0–15). El campo value tiene que estar entre 0 - 15.
                              * @example 12
                              */
                             score?: number | null;
@@ -3133,7 +3254,7 @@ export interface operations {
                         /** @example null */
                         acidity?: {
                             /**
-                             * @description Acidity intensity (0–15). Must be between 0 and 15.
+                             * @description Acidity intensity (0–15). El campo value tiene que estar entre 0 - 15.
                              * @example 12
                              */
                             score?: number | null;
@@ -3146,7 +3267,7 @@ export interface operations {
                         /** @example null */
                         sweetness?: {
                             /**
-                             * @description Sweetness intensity (0–15). Must be between 0 and 15.
+                             * @description Sweetness intensity (0–15). El campo value tiene que estar entre 0 - 15.
                              * @example 6
                              */
                             score?: number | null;
@@ -3159,7 +3280,7 @@ export interface operations {
                         /** @example null */
                         mouthfeel?: {
                             /**
-                             * @description Mouthfeel intensity (0–15). Must be between 0 and 15.
+                             * @description Mouthfeel intensity (0–15). El campo value tiene que estar entre 0 - 15.
                              * @example 11
                              */
                             score?: number | null;
@@ -3179,7 +3300,7 @@ export interface operations {
                         /** @example null */
                         aftertaste?: {
                             /**
-                             * @description Aftertaste intensity (0–15). Must be between 0 and 15.
+                             * @description Aftertaste intensity (0–15). El campo value tiene que estar entre 0 - 15.
                              * @example 5
                              */
                             score?: number | null;
@@ -3212,7 +3333,7 @@ export interface operations {
                         /** @example [] */
                         overall?: {
                             /**
-                             * @description Overall preference (1–9). Must be between 1 and 9.
+                             * @description Overall preference (1–9). El campo value tiene que estar entre 1 - 9.
                              * @example 8
                              */
                             score?: number | null;
@@ -3225,7 +3346,7 @@ export interface operations {
                         /** @example [] */
                         fragrance?: {
                             /**
-                             * @description Fragrance preference (1–9). Must be between 1 and 9.
+                             * @description Fragrance preference (1–9). El campo value tiene que estar entre 1 - 9.
                              * @example 7
                              */
                             score?: number | null;
@@ -3238,7 +3359,7 @@ export interface operations {
                         /** @example [] */
                         aroma?: {
                             /**
-                             * @description Aroma preference (1–9). Must be between 1 and 9.
+                             * @description Aroma preference (1–9). El campo value tiene que estar entre 1 - 9.
                              * @example 7
                              */
                             score?: number | null;
@@ -3251,7 +3372,7 @@ export interface operations {
                         /** @example [] */
                         flavor?: {
                             /**
-                             * @description Flavor preference (1–9). Must be between 1 and 9.
+                             * @description Flavor preference (1–9). El campo value tiene que estar entre 1 - 9.
                              * @example 9
                              */
                             score?: number | null;
@@ -3264,7 +3385,7 @@ export interface operations {
                         /** @example [] */
                         aftertaste?: {
                             /**
-                             * @description Aftertaste preference (1–9). Must be between 1 and 9.
+                             * @description Aftertaste preference (1–9). El campo value tiene que estar entre 1 - 9.
                              * @example 9
                              */
                             score?: number | null;
@@ -3277,7 +3398,7 @@ export interface operations {
                         /** @example [] */
                         acidity?: {
                             /**
-                             * @description Acidity preference (1–9). Must be between 1 and 9.
+                             * @description Acidity preference (1–9). El campo value tiene que estar entre 1 - 9.
                              * @example 9
                              */
                             score?: number | null;
@@ -3290,7 +3411,7 @@ export interface operations {
                         /** @example [] */
                         sweetness?: {
                             /**
-                             * @description Sweetness preference (1–9). Must be between 1 and 9.
+                             * @description Sweetness preference (1–9). El campo value tiene que estar entre 1 - 9.
                              * @example 9
                              */
                             score?: number | null;
@@ -3303,7 +3424,7 @@ export interface operations {
                         /** @example [] */
                         mouthfeel?: {
                             /**
-                             * @description Mouthfeel preference (1–9). Must be between 1 and 9.
+                             * @description Mouthfeel preference (1–9). El campo value tiene que estar entre 1 - 9.
                              * @example 8
                              */
                             score?: number | null;
@@ -3727,7 +3848,7 @@ export interface operations {
                     /** @example architecto */
                     status?: string | null;
                     /**
-                     * @description Brewing/extraction method used (max 60 chars). Must not be greater than 60 characters.
+                     * @description Brewing/extraction method used (max 60 chars). El campo value no debe ser mayor que 60 caracteres.
                      * @example v60
                      */
                     extractionMethod?: string | null;
@@ -3745,7 +3866,7 @@ export interface operations {
                         /** @example null */
                         fragrance?: {
                             /**
-                             * @description Must be between 0 and 15.
+                             * @description El campo value tiene que estar entre 0 - 15.
                              * @example 1
                              */
                             score?: number | null;
@@ -3762,7 +3883,7 @@ export interface operations {
                         /** @example null */
                         aroma?: {
                             /**
-                             * @description Must be between 0 and 15.
+                             * @description El campo value tiene que estar entre 0 - 15.
                              * @example 1
                              */
                             score?: number | null;
@@ -3779,7 +3900,7 @@ export interface operations {
                         /** @example null */
                         flavor?: {
                             /**
-                             * @description Must be between 0 and 15.
+                             * @description El campo value tiene que estar entre 0 - 15.
                              * @example 1
                              */
                             score?: number | null;
@@ -3796,7 +3917,7 @@ export interface operations {
                         /** @example null */
                         acidity?: {
                             /**
-                             * @description Must be between 0 and 15.
+                             * @description El campo value tiene que estar entre 0 - 15.
                              * @example 1
                              */
                             score?: number | null;
@@ -3806,7 +3927,7 @@ export interface operations {
                         /** @example null */
                         sweetness?: {
                             /**
-                             * @description Must be between 0 and 15.
+                             * @description El campo value tiene que estar entre 0 - 15.
                              * @example 1
                              */
                             score?: number | null;
@@ -3816,7 +3937,7 @@ export interface operations {
                         /** @example null */
                         mouthfeel?: {
                             /**
-                             * @description Must be between 0 and 15.
+                             * @description El campo value tiene que estar entre 0 - 15.
                              * @example 1
                              */
                             score?: number | null;
@@ -3833,7 +3954,7 @@ export interface operations {
                         /** @example null */
                         aftertaste?: {
                             /**
-                             * @description Must be between 0 and 15.
+                             * @description El campo value tiene que estar entre 0 - 15.
                              * @example 1
                              */
                             score?: number | null;
@@ -3863,7 +3984,7 @@ export interface operations {
                         /** @example [] */
                         overall?: {
                             /**
-                             * @description Must be between 1 and 9.
+                             * @description El campo value tiene que estar entre 1 - 9.
                              * @example 2
                              */
                             score?: number | null;
@@ -3873,7 +3994,7 @@ export interface operations {
                         /** @example [] */
                         fragrance?: {
                             /**
-                             * @description Must be between 1 and 9.
+                             * @description El campo value tiene que estar entre 1 - 9.
                              * @example 2
                              */
                             score?: number | null;
@@ -3883,7 +4004,7 @@ export interface operations {
                         /** @example [] */
                         aroma?: {
                             /**
-                             * @description Must be between 1 and 9.
+                             * @description El campo value tiene que estar entre 1 - 9.
                              * @example 2
                              */
                             score?: number | null;
@@ -3893,7 +4014,7 @@ export interface operations {
                         /** @example [] */
                         flavor?: {
                             /**
-                             * @description Must be between 1 and 9.
+                             * @description El campo value tiene que estar entre 1 - 9.
                              * @example 2
                              */
                             score?: number | null;
@@ -3903,7 +4024,7 @@ export interface operations {
                         /** @example [] */
                         aftertaste?: {
                             /**
-                             * @description Must be between 1 and 9.
+                             * @description El campo value tiene que estar entre 1 - 9.
                              * @example 2
                              */
                             score?: number | null;
@@ -3913,7 +4034,7 @@ export interface operations {
                         /** @example [] */
                         acidity?: {
                             /**
-                             * @description Must be between 1 and 9.
+                             * @description El campo value tiene que estar entre 1 - 9.
                              * @example 2
                              */
                             score?: number | null;
@@ -3923,7 +4044,7 @@ export interface operations {
                         /** @example [] */
                         sweetness?: {
                             /**
-                             * @description Must be between 1 and 9.
+                             * @description El campo value tiene que estar entre 1 - 9.
                              * @example 2
                              */
                             score?: number | null;
@@ -3933,7 +4054,7 @@ export interface operations {
                         /** @example [] */
                         mouthfeel?: {
                             /**
-                             * @description Must be between 1 and 9.
+                             * @description El campo value tiene que estar entre 1 - 9.
                              * @example 2
                              */
                             score?: number | null;
@@ -4241,7 +4362,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @example Evaluation is incomplete, all scores need to be provided, and at least one cata attribute for each MainTastes, mouthfeel and the set of sensorial axis. */
+                        /** @example The evaluation is incomplete: every score must be provided, with at least one CATA attribute for each axis: MainTastes, mouthfeel and the set of sensory axes. */
                         message?: string;
                     };
                 };
@@ -4543,22 +4664,22 @@ export interface operations {
             content: {
                 "application/json": {
                     /**
-                     * @description Location name (max 150 characters). Must not be greater than 150 characters.
+                     * @description Location name (max 150 characters). El campo value no debe ser mayor que 150 caracteres.
                      * @example Cafeteria Gràcia
                      */
                     name: string;
                     /**
-                     * @description Optional. Short description (max 255 characters). Must not be greater than 255 characters.
+                     * @description Optional. Short description (max 255 characters). El campo value no debe ser mayor que 255 caracteres.
                      * @example Barra de especialidad en Gràcia.
                      */
                     description?: string | null;
                     /**
-                     * @description Optional. Latitude (-90 to 90), computed by the client. Required when longitud is sent. This field is required when <code>longitud</code> is present. Must be between -90 and 90.
+                     * @description Optional. Latitude (-90 to 90), computed by the client. Required when longitud is sent. This field is required when <code>longitud</code> is present. El campo value tiene que estar entre -90 - 90.
                      * @example 41.4029
                      */
                     latitud?: number | null;
                     /**
-                     * @description Optional. Longitude (-180 to 180), computed by the client. Required when latitud is sent. This field is required when <code>latitud</code> is present. Must be between -180 and 180.
+                     * @description Optional. Longitude (-180 to 180), computed by the client. Required when latitud is sent. This field is required when <code>latitud</code> is present. El campo value tiene que estar entre -180 - 180.
                      * @example 2.1565
                      */
                     longitud?: number | null;
@@ -4568,42 +4689,42 @@ export interface operations {
                      */
                     contact: {
                         /**
-                         * @description Optional. Phone number (max 25 characters). Must not be greater than 25 characters.
+                         * @description Optional. Phone number (max 25 characters). El campo value no debe ser mayor que 25 caracteres.
                          * @example +34 932 123 456
                          */
                         phone?: string | null;
                         /**
-                         * @description Optional. Contact email address (max 255 characters). Must be a valid email address. Must not be greater than 255 characters.
+                         * @description Optional. Contact email address (max 255 characters). El campo value no es un correo válido. El campo value no debe ser mayor que 255 caracteres.
                          * @example hola@cafeteria.example
                          */
                         email?: string | null;
                         /**
-                         * @description Optional. Website URL (max 255 characters). Must be a valid URL. Must not be greater than 255 characters.
+                         * @description Optional. Website URL (max 255 characters). Must be a valid URL. El campo value no debe ser mayor que 255 caracteres.
                          * @example https://cafeteria.example
                          */
                         web?: string | null;
                         /**
-                         * @description Optional. Social media handle or URL (max 255 characters). Must not be greater than 255 characters.
+                         * @description Optional. Social media handle or URL (max 255 characters). El campo value no debe ser mayor que 255 caracteres.
                          * @example @cafeteria.bcn
                          */
                         social?: string | null;
                         /**
-                         * @description Street address (max 255 characters). Must not be greater than 255 characters.
+                         * @description Street address (max 255 characters). El campo value no debe ser mayor que 255 caracteres.
                          * @example Carrer de Verdi 12
                          */
                         address: string;
                         /**
-                         * @description Optional. Country (max 60 characters). Must not be greater than 60 characters.
+                         * @description Optional. Country (max 60 characters). El campo value no debe ser mayor que 60 caracteres.
                          * @example España
                          */
                         country?: string | null;
                         /**
-                         * @description City (max 90 characters). Must not be greater than 90 characters.
+                         * @description City (max 90 characters). El campo value no debe ser mayor que 90 caracteres.
                          * @example Barcelona
                          */
                         city: string;
                         /**
-                         * @description Optional. Postal code (max 12 characters). Must not be greater than 12 characters.
+                         * @description Optional. Postal code (max 12 characters). El campo value no debe ser mayor que 12 caracteres.
                          * @example 08012
                          */
                         postal_code?: string | null;
@@ -5181,42 +5302,42 @@ export interface operations {
         parameters: {
             query?: {
                 /**
-                 * @description Filter by coffee name (partial match). Must not be greater than 150 characters.
+                 * @description Filter by coffee name (partial match). El campo value no debe ser mayor que 150 caracteres.
                  * @example Geisha
                  */
                 coffeeName?: string;
                 /**
-                 * @description Filter by roastery name (partial match). Must not be greater than 150 characters.
+                 * @description Filter by roastery name (partial match). El campo value no debe ser mayor que 150 caracteres.
                  * @example Nómada
                  */
                 roasteryName?: string;
                 /**
-                 * @description Filter by country of origin. Must not be greater than 90 characters.
+                 * @description Filter by country of origin. El campo value no debe ser mayor que 90 caracteres.
                  * @example Colombia
                  */
                 originCountry?: string;
                 /**
-                 * @description Filter by region of origin. Must not be greater than 90 characters.
+                 * @description Filter by region of origin. El campo value no debe ser mayor que 90 caracteres.
                  * @example Huila
                  */
                 originRegion?: string;
                 /**
-                 * @description Filter by processing method. Must not be greater than 90 characters.
+                 * @description Filter by processing method. El campo value no debe ser mayor que 90 caracteres.
                  * @example Washed
                  */
                 process?: string;
                 /**
-                 * @description Filter by producer name. Must not be greater than 150 characters.
+                 * @description Filter by producer name. El campo value no debe ser mayor que 150 caracteres.
                  * @example Finca La Esperanza
                  */
                 producer?: string;
                 /**
-                 * @description Filter by coffee variety. Must not be greater than 90 characters.
+                 * @description Filter by coffee variety. El campo value no debe ser mayor que 90 caracteres.
                  * @example Caturra
                  */
                 variety?: string;
                 /**
-                 * @description Filter by the city of the offering location. Must not be greater than 90 characters.
+                 * @description Filter by the city of the offering location. El campo value no debe ser mayor que 90 caracteres.
                  * @example Barcelona
                  */
                 city?: string;
@@ -5236,112 +5357,112 @@ export interface operations {
                  */
                 verified?: boolean;
                 /**
-                 * @description Minimum average cupping score (0–100). Must be at least 0. Must not be greater than 100.
+                 * @description Minimum average cupping score (0–100). El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.
                  * @example 80
                  */
                 cuppingAvgMin?: number;
                 /**
-                 * @description Maximum average cupping score (0–100). Must be ≥ cuppingAvgMin. Must be at least 0. Must not be greater than 100.
+                 * @description Maximum average cupping score (0–100). Must be ≥ cuppingAvgMin. El tamaño de value debe ser de al menos 0. El campo value no debe ser mayor que 100.
                  * @example 95
                  */
                 cuppingAvgMax?: number;
                 /**
-                 * @description Minimum number of evaluations. Must be at least 0.
+                 * @description Minimum number of evaluations. El tamaño de value debe ser de al menos 0.
                  * @example 1
                  */
                 evaluationCountMin?: number;
                 /**
-                 * @description Maximum number of evaluations. Must be ≥ evaluationCountMin. Must be at least 0.
+                 * @description Maximum number of evaluations. Must be ≥ evaluationCountMin. El tamaño de value debe ser de al menos 0.
                  * @example 50
                  */
                 evaluationCountMax?: number;
                 /**
-                 * @description Minimum number of defective evaluations. Must be at least 0.
+                 * @description Minimum number of defective evaluations. El tamaño de value debe ser de al menos 0.
                  * @example 0
                  */
                 defectiveCountMin?: number;
                 /**
-                 * @description Maximum number of defective evaluations. Must be ≥ defectiveCountMin. Must be at least 0.
+                 * @description Maximum number of defective evaluations. Must be ≥ defectiveCountMin. El tamaño de value debe ser de al menos 0.
                  * @example 5
                  */
                 defectiveCountMax?: number;
                 /**
-                 * @description Minimum fragrance score (1–9). Must be at least 1. Must not be greater than 9.
+                 * @description Minimum fragrance score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.
                  * @example 6
                  */
                 fragranceMin?: number;
                 /**
-                 * @description Maximum fragrance score (1–9). Must be at least 1. Must not be greater than 9.
+                 * @description Maximum fragrance score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.
                  * @example 8
                  */
                 fragranceMax?: number;
                 /**
-                 * @description Minimum aroma score (1–9). Must be at least 1. Must not be greater than 9.
+                 * @description Minimum aroma score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.
                  * @example 6
                  */
                 aromaMin?: number;
                 /**
-                 * @description Maximum aroma score (1–9). Must be at least 1. Must not be greater than 9.
+                 * @description Maximum aroma score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.
                  * @example 8
                  */
                 aromaMax?: number;
                 /**
-                 * @description Minimum flavor score (1–9). Must be at least 1. Must not be greater than 9.
+                 * @description Minimum flavor score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.
                  * @example 6
                  */
                 flavorMin?: number;
                 /**
-                 * @description Maximum flavor score (1–9). Must be at least 1. Must not be greater than 9.
+                 * @description Maximum flavor score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.
                  * @example 8
                  */
                 flavorMax?: number;
                 /**
-                 * @description Minimum aftertaste score (1–9). Must be at least 1. Must not be greater than 9.
+                 * @description Minimum aftertaste score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.
                  * @example 6
                  */
                 aftertasteMin?: number;
                 /**
-                 * @description Maximum aftertaste score (1–9). Must be at least 1. Must not be greater than 9.
+                 * @description Maximum aftertaste score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.
                  * @example 8
                  */
                 aftertasteMax?: number;
                 /**
-                 * @description Minimum acidity score (1–9). Must be at least 1. Must not be greater than 9.
+                 * @description Minimum acidity score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.
                  * @example 6
                  */
                 acidityMin?: number;
                 /**
-                 * @description Maximum acidity score (1–9). Must be at least 1. Must not be greater than 9.
+                 * @description Maximum acidity score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.
                  * @example 8
                  */
                 acidityMax?: number;
                 /**
-                 * @description Minimum sweetness score (1–9). Must be at least 1. Must not be greater than 9.
+                 * @description Minimum sweetness score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.
                  * @example 6
                  */
                 sweetnessMin?: number;
                 /**
-                 * @description Maximum sweetness score (1–9). Must be at least 1. Must not be greater than 9.
+                 * @description Maximum sweetness score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.
                  * @example 8
                  */
                 sweetnessMax?: number;
                 /**
-                 * @description Minimum mouthfeel score (1–9). Must be at least 1. Must not be greater than 9.
+                 * @description Minimum mouthfeel score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.
                  * @example 6
                  */
                 mouthfeelMin?: number;
                 /**
-                 * @description Maximum mouthfeel score (1–9). Must be at least 1. Must not be greater than 9.
+                 * @description Maximum mouthfeel score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.
                  * @example 8
                  */
                 mouthfeelMax?: number;
                 /**
-                 * @description Minimum overall score (1–9). Must be at least 1. Must not be greater than 9.
+                 * @description Minimum overall score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.
                  * @example 6
                  */
                 overallMin?: number;
                 /**
-                 * @description Maximum overall score (1–9). Must be at least 1. Must not be greater than 9.
+                 * @description Maximum overall score (1–9). El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 9.
                  * @example 8
                  */
                 overallMax?: number;
@@ -5398,12 +5519,12 @@ export interface operations {
                  */
                 orderDirection?: "asc" | "desc";
                 /**
-                 * @description Must be at least 1.
+                 * @description El tamaño de value debe ser de al menos 1.
                  * @example 22
                  */
                 page?: number;
                 /**
-                 * @description Must be at least 1. Must not be greater than 50.
+                 * @description El tamaño de value debe ser de al menos 1. El campo value no debe ser mayor que 50.
                  * @example 7
                  */
                 perPage?: number;
@@ -6335,7 +6456,7 @@ export interface operations {
         parameters: {
             query?: {
                 /**
-                 * @description Filter by roastery name (partial match, max 150 chars). Must not be greater than 150 characters.
+                 * @description Filter by roastery name (partial match, max 150 chars). El campo value no debe ser mayor que 150 caracteres.
                  * @example Nómada
                  */
                 name?: string | null;
@@ -6620,7 +6741,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @example logout successfully. */
+                        /** @example Logged out successfully. */
                         message?: string;
                     };
                 };
@@ -6648,7 +6769,7 @@ export interface operations {
                      */
                     surname: string;
                     /**
-                     * @description Email address. Must be unique. Must be a valid email address.
+                     * @description Email address. Must be unique. El campo value no es un correo válido.
                      * @example augusto@example.com
                      */
                     email: string;
@@ -6687,6 +6808,8 @@ export interface operations {
                             surname?: string;
                             /** @example laura@tazavera.test */
                             email?: string;
+                            /** @example null */
+                            emailVerifiedAt?: string | null;
                             /** @example coffeeshop */
                             role?: string;
                         };
@@ -6731,6 +6854,8 @@ export interface operations {
                             surname?: string;
                             /** @example andres@tazavera.test */
                             email?: string;
+                            /** @example null */
+                            emailVerifiedAt?: string | null;
                             /** @example specialist */
                             role?: string;
                         };
@@ -6842,42 +6967,42 @@ export interface operations {
             content: {
                 "application/json": {
                     /**
-                     * @description Optional. Phone number (max 25 characters). Must not be greater than 25 characters.
+                     * @description Optional. Phone number (max 25 characters). El campo value no debe ser mayor que 25 caracteres.
                      * @example +34 932 123 456
                      */
                     phone?: string | null;
                     /**
-                     * @description Optional. Contact email address (max 255 characters). Must be a valid email address. Must not be greater than 255 characters.
+                     * @description Optional. Contact email address (max 255 characters). El campo value no es un correo válido. El campo value no debe ser mayor que 255 caracteres.
                      * @example hola@cafeteria.example
                      */
                     email?: string | null;
                     /**
-                     * @description Optional. Website URL (max 255 characters). Must be a valid URL. Must not be greater than 255 characters.
+                     * @description Optional. Website URL (max 255 characters). Must be a valid URL. El campo value no debe ser mayor que 255 caracteres.
                      * @example https://cafeteria.example
                      */
                     web?: string | null;
                     /**
-                     * @description Optional. Social media handle or URL (max 255 characters). Must not be greater than 255 characters.
+                     * @description Optional. Social media handle or URL (max 255 characters). El campo value no debe ser mayor que 255 caracteres.
                      * @example @cafeteria.bcn
                      */
                     social?: string | null;
                     /**
-                     * @description Street address (max 255 characters). Must not be greater than 255 characters.
+                     * @description Street address (max 255 characters). El campo value no debe ser mayor que 255 caracteres.
                      * @example Carrer de Verdi 12
                      */
                     address: string;
                     /**
-                     * @description Optional. Country (max 60 characters). Must not be greater than 60 characters.
+                     * @description Optional. Country (max 60 characters). El campo value no debe ser mayor que 60 caracteres.
                      * @example España
                      */
                     country?: string | null;
                     /**
-                     * @description City (max 90 characters). Must not be greater than 90 characters.
+                     * @description City (max 90 characters). El campo value no debe ser mayor que 90 caracteres.
                      * @example Barcelona
                      */
                     city: string;
                     /**
-                     * @description Optional. Postal code (max 12 characters). Must not be greater than 12 characters.
+                     * @description Optional. Postal code (max 12 characters). El campo value no debe ser mayor que 12 caracteres.
                      * @example 08012
                      */
                     postal_code?: string | null;
@@ -7005,7 +7130,7 @@ export interface operations {
                      */
                     surname?: string;
                     /**
-                     * @description Email address. Must be unique (excluding the current user). Must be a valid email address.
+                     * @description Email address. Must be unique (excluding the current user). El campo value no es un correo válido.
                      * @example augusto@example.com
                      */
                     email?: string;
@@ -7028,6 +7153,8 @@ export interface operations {
                             surname?: string;
                             /** @example laura@tazavera.test */
                             email?: string;
+                            /** @example null */
+                            emailVerifiedAt?: string | null;
                             /** @example coffeeshop */
                             role?: string;
                         };
