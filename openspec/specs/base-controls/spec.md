@@ -112,11 +112,19 @@ Links SHALL show rest, hover and keyboard focus states, and SHALL offer a back v
 - **THEN** it stays an inline text run so its text wraps with the surrounding text
 
 ### Requirement: Theme-driven corner radii
-Corner radii SHALL come from the radius token family — `radius-pill` for action buttons and pill shapes, `radius-container` for containers, `radius-field` for fields and menus, `radius-check` for checkboxes — and every radius token SHALL have a value in both themes.
+Corner radii SHALL come from the radius token family — `radius-pill` for action buttons and pill shapes, `radius-container` for containers and for menus opened from a card, `radius-field` for fields and for menus opened from a field or the navigation, `radius-check` for checkboxes — and every radius token SHALL have a value in both themes.
 
 #### Scenario: Traditional shapes
 - **WHEN** the traditional theme is active
-- **THEN** action buttons render fully rounded, containers at 16px corner radius, fields and menus at 8px, and checkboxes at 4px
+- **THEN** action buttons render fully rounded, containers and menus opened from a card at 16px corner radius, fields and menus opened from a field or the navigation at 8px, and checkboxes at 4px
+
+#### Scenario: Menu opened from a field or the navigation
+- **WHEN** a menu panel opens from a field (Select, Combobox) or from the navigation (the header nav menu)
+- **THEN** its panel uses the field radius (`radius-field`)
+
+#### Scenario: Menu opened from a card
+- **WHEN** a menu panel opens from a card
+- **THEN** its panel uses the container radius (`radius-container`)
 
 #### Scenario: Dark theme shapes
 - **WHEN** the dark theme is active
