@@ -126,12 +126,12 @@ describe("EvaluationSheetView (design.md D1, D4)", () => {
       "Opening an evaluation that is not closed",
       () => fetchEvaluation.mockResolvedValue({ ok: true, data: { ...EVALUATION, status: "open" } }),
     ],
-  ])("shows the title, the line and the back link with no Retry (spec: %s)", async (_, arrange) => {
+  ])("shows the title, the line and the back button with no Retry (spec: %s)", async (_, arrange) => {
     arrange();
     await renderView();
     const title = screen.getByRole("heading", { level: 1, name: "Evaluation not found" });
     expect(screen.getByText(TEXTS.notFoundLine)).toBeDefined();
-    const back = screen.getByRole("link", { name: "Back" });
+    const back = screen.getByRole("button", { name: "Back" });
     expect(title.compareDocumentPosition(back) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Retry" })).toBeNull();
     expect(screen.queryByRole("heading", { level: 2, name: "Context" })).toBeNull();

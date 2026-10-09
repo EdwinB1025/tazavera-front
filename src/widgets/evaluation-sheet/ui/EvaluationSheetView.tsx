@@ -102,7 +102,11 @@ async function load(ulid: string): Promise<ViewData | "not-found" | null> {
   }
 }
 
-/** The not-found state (show-item-not-found-message design.md D2): the title and line above the back link, no Retry. */
+/**
+ * The not-found state (show-item-not-found-message design.md D2): the title and
+ * line above the back button, which follows the title and so is a button
+ * (base-controls "Navigation controls by position"); no Retry.
+ */
 function EvaluationNotFound({ back, texts }: { back: ReactNode; texts: EvaluationViewTexts }): ReactNode {
   return (
     <PageSection surface="page" containerClassName={HEADER_CONTAINER_CLASSES}>
@@ -131,7 +135,7 @@ export async function EvaluationSheetView({
   texts,
 }: EvaluationSheetViewProps): Promise<ReactNode> {
   const data = await load(ulid);
-  if (data === "not-found") return <EvaluationNotFound back={back} texts={texts} />;
+  if (data === "not-found") return <EvaluationNotFound back={bottomBack} texts={texts} />;
   if (data === null) {
     return (
       <>
