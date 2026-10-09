@@ -11,6 +11,7 @@ import { EvaluationFormHeader } from "./EvaluationFormHeader";
 import { EvaluationGroupList } from "./EvaluationGroupList";
 import { FormActions } from "./FormActions";
 import type { EvaluationGroupTexts } from "./group-texts";
+import { ScaleLegend } from "./ScaleLegend";
 import type { ScaleLegendTexts } from "./ScaleLegend";
 
 // ─── UI-specific types (declared before the component) ───
@@ -68,8 +69,8 @@ const FORM_CLASSES = ["flex", "flex-col", "gap-8", "pb-36", "md:pb-0"].join(" ")
 /**
  * The CVA combined form (design.md D3, D11, D12, D14; spec "Evaluation
  * form"): one state object for the whole form, the page header block, the
- * context card with the roast level and the extraction method, and the eight
- * group cards in CVA order with their completeness indicators, and the
+ * 1–9 legend, the context card with the roast level and the extraction
+ * method, and the eight group cards in CVA order with their completeness indicators, and the
  * actions with their status region (design.md D4).
  */
 export function EvaluationForm({
@@ -91,6 +92,8 @@ export function EvaluationForm({
   return (
     <form noValidate className={FORM_CLASSES} onSubmit={(event) => event.preventDefault()}>
       <EvaluationFormHeader locale={locale} offering={offering} texts={texts} />
+      {/* The legend is the form's first section (move-scale-legend-first D1). */}
+      <ScaleLegend texts={texts.legend} open={model.legendOpen} onOpenChange={form.setLegendOpen} />
       <ContextFieldsCard
         offering={offering}
         values={model.values}
