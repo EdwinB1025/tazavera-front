@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import type { EvaluationItem, OfferingDetail } from "@/shared/api";
 
 /**
@@ -17,11 +17,13 @@ vi.mock("next/navigation", () => ({
 
 const listMyEvaluations = vi.fn();
 const deleteAnEvaluation = vi.fn();
+const closeAnEvaluation = vi.fn();
 vi.mock("@/entities/evaluation", async (importOriginal) => ({
   loadEvaluationOfferings: (await importOriginal<typeof import("@/entities/evaluation")>())
     .loadEvaluationOfferings,
   listMyEvaluations: (...args: unknown[]) => listMyEvaluations(...args),
   deleteAnEvaluation: (...args: unknown[]) => deleteAnEvaluation(...args),
+  closeAnEvaluation: (...args: unknown[]) => closeAnEvaluation(...args),
 }));
 
 const fetchOffering = vi.fn();
@@ -44,6 +46,9 @@ const TEXTS: EvaluationsListTexts = {
   roasterCaption: "Roaster:",
   editLabel: "Edit",
   viewLabel: "View",
+  closeLabel: "Close evaluation",
+  closedMessage: "Evaluation closed.",
+  incompleteMessage: "Complete every group before closing.",
   ratingExceptionalLabel: "Exceptional",
   ratingExcellentLabel: "Excellent",
   ratingGoodLabel: "Good",
@@ -230,6 +235,26 @@ describe("EvaluationsList (spec: My evaluations list)", () => {
         "Alpha",
       ]),
     );
+  });
+});
+
+describe("EvaluationsList: closing a row (close-evaluation-only-when-saved)", () => {
+  it("The row's close succeeds", async () => {
+    listMyEvaluations.mockResolvedValueOnce(page(ITEMS));
+    listMyEvaluations.mockReturnValueOnce(new Promise(() => {}));
+    closeAnEvaluation.mockResolvedValue({ ok: true, data: null });
+    const { container } = render(<List />);
+    await screen.findAllByRole("heading", { level: 2 });
+    const row = () => screen.getAllByRole("listitem")[0];
+    fireEvent.click(within(row()).getByRole("button", { name: "Close evaluation" }));
+    await waitFor(() =>
+      expect(within(row()).getByRole("status").textContent).toBe("Evaluation closed."),
+    );
+    expect(closeAnEvaluation).toHaveBeenCalledWith("01JEVAL3");
+    expect(within(row()).getByRole("button", { name: "View" })).toBeDefined();
+    expect(within(row()).queryByRole("button", { name: "Edit" })).toBeNull();
+    expect(within(row()).queryByRole("button", { name: "Close evaluation" })).toBeNull();
+    expect(container.querySelector('[aria-busy="true"]')).toBeNull();
   });
 });
 
