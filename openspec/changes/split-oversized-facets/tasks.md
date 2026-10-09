@@ -4,7 +4,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 1. Combobox
 
-- [ ] 1.1 Create `src/shared/ui/use-combobox-input.ts` and `src/shared/ui/ComboboxPopup.tsx` and split `Combobox` as design.md D2. Commit `refactor(filtering): split the combobox`.
+- [x] 1.1 Create `src/shared/ui/use-combobox-input.ts` and `src/shared/ui/ComboboxPopup.tsx` and split `Combobox` as design.md D2. Commit `refactor(filtering): split the combobox`.
 
 ## 2. Score range facet
 
