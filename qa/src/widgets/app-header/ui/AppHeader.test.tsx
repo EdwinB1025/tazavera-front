@@ -181,12 +181,6 @@ describe("LanguageSelect (spec: Language selection)", () => {
     return { ...utils, onLocaleChange };
   }
 
-  function openMenu() {
-    fireEvent.pointerDown(
-      screen.getByRole("button", { name: TEXTS.languageSelector }),
-    );
-  }
-
   it("carries an accessible name naming the current language (spec: Selector is named)", () => {
     // the composed string passed as its label is the trigger's accessible name
     renderSelect();

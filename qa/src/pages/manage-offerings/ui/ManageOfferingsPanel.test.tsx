@@ -2,11 +2,7 @@ import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import {
   render,
   screen,
-  fireEvent,
   cleanup,
-  waitFor,
-  act,
-  within,
 } from "@testing-library/react";
 import type { OfferingSummary, Session } from "@/shared/api";
 
@@ -154,11 +150,6 @@ beforeEach(() => {
   }
 });
 
-function skeletonCount(container: HTMLElement): number {
-  // Each skeleton card holds three pulsing shapes.
-  return container.querySelectorAll(".animate-pulse").length / 3;
-}
-
 describe("ManageOfferingsPanel — header (design.md D6)", () => {
   it("lays the header out as a stacked row that spreads from md, the title group 0.5rem apart", async () => {
     mocks.publicRequest.mockResolvedValue(pageOf(ITEMS));
@@ -175,22 +166,11 @@ describe("ManageOfferingsPanel — header (design.md D6)", () => {
 
 
 describe("ManageOfferingsPanel — deleting (spec 'Deleting offerings')", () => {
-  const DELETE_A = "Delete Huila El Mirador — Tazavera Gràcia";
-
-  function ok(): Response {
-    return jsonResponse(200, { message: "never shown" });
-  }
-
   async function loaded(page = 1, items = ITEMS) {
     mocks.publicRequest.mockResolvedValueOnce(pageOf(items, page, page));
     const view = renderPanel(page);
     await screen.findAllByRole("heading", { level: 2 });
     return view;
-  }
-
-  function confirmButton(): HTMLElement {
-    const dialog = screen.getByRole("alertdialog");
-    return within(dialog).getByRole("button", { name: TEXTS.deleteConfirmLabel });
   }
 
   it("renders no status line before a delete", async () => {

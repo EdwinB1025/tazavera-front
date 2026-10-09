@@ -92,13 +92,6 @@ async function submit() {
   });
 }
 
-function jsonResponse(status: number, body: unknown = {}): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
 describe("RegisterForm — the request", () => {
   it("labels the form by the page heading and turns off native validation", () => {
     renderForm();
