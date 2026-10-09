@@ -70,7 +70,7 @@ A paged list SHALL offer a pagination navigation, named by its own label, with P
 - **THEN** its actions and page numbers sit 0.25rem apart below 768px and 0.5rem apart from 768px
 
 ### Requirement: Page sections
-A page SHALL be built from sections that span the full width of the page content area, each on either the page background or the section background. Each section's content SHALL sit in a horizontally centered container at most 72rem wide, with side padding of 1rem below the medium breakpoint (768px) and 2rem from it. Each section SHALL have vertical padding of 3rem below 768px and 4rem from it. A section SHALL contribute no content of its own: the consuming capability fills it. A feature view SHALL use one section on the page background and hang its content from that background: inside the container, its top-level blocks (the header block, the group of section cards, the actions row when it has one) SHALL be 2rem apart, its section cards SHALL be 1rem apart with the page background showing between them, and no wrapper SHALL paint a surface between the page background and the section cards. The section background SHALL be used only by the landing and About pages.
+A page SHALL be built from sections that span the full width of the page content area, each on either the page background or the section background. Each section's content SHALL sit in a horizontally centered container at most 72rem wide, with side padding of 1rem below the medium breakpoint (768px) and 2rem from it. Each section SHALL have vertical padding of 3rem below 768px and 4rem from it. A section SHALL contribute no content of its own: the consuming capability fills it. A feature view SHALL use one section on the page background and hang its content from that background: inside the container, its top-level blocks (the header block, the group of section cards, the actions row when it has one) SHALL be 2rem apart, its section cards SHALL be 1rem apart with the page background showing between them, and no wrapper SHALL paint a surface between the page background and the section cards. The offerings catalog and the coffee shop directory SHALL each render their heading block, toolbar and results in that one section, the toolbar 1.5rem above the results at every viewport width. The section background SHALL be used only by the landing and About pages.
 
 #### Scenario: Centered content
 - **WHEN** a page renders on a viewport wider than 72rem plus its side padding
@@ -91,6 +91,14 @@ A page SHALL be built from sections that span the full width of the page content
 #### Scenario: Feature view hangs from the page background
 - **WHEN** a feature view with a header block, several section cards and an actions row renders
 - **THEN** it sits in one section on the page background, the header block, the group of section cards and the actions row are 2rem apart, the section cards are 1rem apart, and the page background shows between them and around them
+
+#### Scenario: Catalog toolbar close to its results
+- **WHEN** the offerings catalog renders at any viewport width
+- **THEN** its heading block, toolbar and results sit in one section on the page background, and the results start 1.5rem below the toolbar
+
+#### Scenario: Directory toolbar close to its results
+- **WHEN** the coffee shop directory renders at any viewport width
+- **THEN** its heading block, toolbar and results sit in one section on the page background, and the results start 1.5rem below the toolbar
 
 ### Requirement: Collapsible section
 A collapsible section SHALL present a header that spans the full width of its container, with the consumer's title at the start and a chevron at the end, and a body that the header shows and hides. The section SHALL start collapsed unless its consumer opens it initially, and activating the header with a pointer or the keyboard SHALL toggle it. The header SHALL expose whether the section is expanded and SHALL reference the body in both states; its accessible name SHALL be the title only, and any extra header content the consumer adds SHALL be exposed as its description. The chevron SHALL point down while collapsed and up while expanded, and SHALL never be the only carrier of the state. While collapsed, the body SHALL show nothing and take up no space in the page, and its content SHALL be out of the tab order and the accessibility tree, while keeping its state for the next opening. Opening and closing SHALL animate the body's height over 0.25s, and SHALL happen instantly when the user prefers reduced motion. The header SHALL show the shared focus indicator when focused from the keyboard, and the section SHALL contribute no text of its own: the consumer supplies the title, the extra header content and the body.
