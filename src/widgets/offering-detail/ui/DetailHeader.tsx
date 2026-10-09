@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { OfferingDetail, Session } from "@/shared/api";
-import { Badge, Link } from "@/shared/ui";
+import { Badge, RouteButton } from "@/shared/ui";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -31,8 +31,9 @@ const ACTIONS_CLASSES = ["flex", "flex-wrap", "items-start", "gap-4"].join(" ");
  * The detail header (add-offering-catalog design.md D9; spec "Offering detail
  * page" — "Header"): the status badge, the coffee name as the page heading,
  * the coffeeshop and roaster captions, and the actions row: "View
- * evaluations" always, then the Evaluate link for a signed-in specialist only
- * (add-public-evaluations design.md D9). No score renders here.
+ * evaluations" always, then Evaluate for a signed-in specialist only
+ * (add-public-evaluations design.md D9), both action buttons
+ * (render-navigation-actions-as-buttons). No score renders here.
  */
 export function DetailHeader({
   offering,
@@ -57,15 +58,21 @@ export function DetailHeader({
       <p className="type-label">{coffeeshopCaption}</p>
       <p className="type-label">{roasterCaption}</p>
       <div className={ACTIONS_CLASSES}>
-        <Link href={`/${locale}/evaluations?offeringId=${offering.ulid ?? ""}`}>
+        <RouteButton
+          href={`/${locale}/evaluations?offeringId=${offering.ulid ?? ""}`}
+          variant="action-3"
+          size="sm"
+        >
           {texts.viewEvaluationsLabel}
-        </Link>
+        </RouteButton>
         {isSpecialist ? (
-          <Link
+          <RouteButton
             href={`/${locale}/manage/evaluations/new?offering=${offering.ulid ?? ""}`}
+            variant="action-3"
+            size="sm"
           >
             {texts.evaluateLabel}
-          </Link>
+          </RouteButton>
         ) : null}
       </div>
     </div>
