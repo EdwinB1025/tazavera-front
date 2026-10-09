@@ -371,10 +371,15 @@ describe("NewOfferingForm — section card panel (design.md D15)", () => {
       "rounded-container",
       "shadow-lg",
       "w-full",
-      "md:max-w-160",
     ]) {
       expect(card!.classList.contains(cls), cls).toBe(true);
     }
+    // The card fills the container; its content is capped from `md`.
+    expect(card!.classList.contains("md:max-w-160")).toBe(false);
+    const content = form!.parentElement!;
+    expect(content.classList.contains("md:max-w-160")).toBe(true);
+    expect(content.classList.contains("w-full")).toBe(true);
+    expect(content.classList.contains("mx-auto")).toBe(false);
     expect(card!.classList.contains("border-l-4")).toBe(false);
     // No header band.
     expect(card!.querySelector(".bg-surface-section")).toBeNull();
