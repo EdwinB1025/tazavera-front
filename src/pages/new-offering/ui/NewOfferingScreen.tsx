@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { getMessages } from "@/shared/lib/i18n";
-import { ArrowLeft, PageSection, RouteButton } from "@/shared/ui";
+import { BackLink, PageSection } from "@/shared/ui";
 import { NewOfferingForm, type NewOfferingFormTexts } from "./NewOfferingForm";
 
 // ─── UI-specific types (declared before the component) ───
@@ -56,14 +56,7 @@ export function NewOfferingScreen({ locale }: NewOfferingScreenProps): ReactNode
     <div className="flex-1">
       <PageSection surface="page">
         <div className={COLUMN_CLASSES}>
-          <RouteButton
-            href={`/${locale}/manage/offerings`}
-            variant="action-3"
-            size="sm"
-            icon={ArrowLeft}
-          >
-            {catalog.backLabel}
-          </RouteButton>
+          <BackLink fallback={`/${locale}/manage/offerings`}>{catalog.backLabel}</BackLink>
           <div className={BODY_CLASSES}>
             <div className={TITLE_GROUP_CLASSES}>
               <p className="type-eyebrow-strong">{catalog.eyebrow}</p>
