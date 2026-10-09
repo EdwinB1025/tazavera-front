@@ -6,8 +6,9 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
  * 4.1 and the later form tasks).
  */
 
+const push = vi.fn();
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
+  useRouter: () => ({ push, replace: vi.fn(), refresh: vi.fn() }),
 }));
 
 const createAnEvaluation = vi.fn();
@@ -42,6 +43,7 @@ afterEach(() => {
   createAnEvaluation.mockReset();
   updateAnEvaluation.mockReset();
   closeAnEvaluation.mockReset();
+  push.mockReset();
   vi.restoreAllMocks();
 });
 
@@ -163,33 +165,29 @@ function save() {
 }
 
 describe("EvaluationForm: saving a draft (design.md D4; tasks 6.1)", () => {
-  it("creates the evaluation on the first save, replaces the route and shows the saved message", async () => {
-    const replaceState = vi.spyOn(window.history, "replaceState");
+  it("creates the evaluation on the first save and returns to My evaluations", async () => {
     createAnEvaluation.mockResolvedValue({ ok: true, data: CREATED });
     renderForm();
     save();
-    await waitFor(() => expect(screen.getByRole("status").textContent).toBe("Draft saved."));
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/en/manage/evaluations"));
     const state = { ...emptyFormState("medium_light"), roastLevel: "medium_light" as const };
     expect(createAnEvaluation).toHaveBeenCalledWith(buildCreateBody(state, OFFERING.ulid!));
-    expect(replaceState).toHaveBeenCalledWith(null, "", `/en/manage/evaluations/${CREATED.ulid}`);
     expect(updateAnEvaluation).not.toHaveBeenCalled();
   });
 
-  it("updates the evaluation on a later save, without offeringId, and leaves the route", async () => {
+  it("updates the evaluation on a later save, without offeringId, and returns to My evaluations", async () => {
     createAnEvaluation.mockResolvedValue({ ok: true, data: CREATED });
     updateAnEvaluation.mockResolvedValue({ ok: true, data: CREATED });
     renderForm();
     save();
-    await waitFor(() => expect(createAnEvaluation).toHaveBeenCalledTimes(1));
-    const replaceState = vi.spyOn(window.history, "replaceState");
+    await waitFor(() => expect(push).toHaveBeenCalledTimes(1));
     save();
-    await waitFor(() => expect(updateAnEvaluation).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(push).toHaveBeenCalledTimes(2));
     const [ulid, body] = updateAnEvaluation.mock.calls[0];
     expect(ulid).toBe(CREATED.ulid);
     expect(body).not.toHaveProperty("offeringId");
-    expect(replaceState).not.toHaveBeenCalled();
     expect(createAnEvaluation).toHaveBeenCalledTimes(1);
-    await waitFor(() => expect(screen.getByRole("status").textContent).toBe("Draft saved."));
+    expect(push).toHaveBeenLastCalledWith("/en/manage/evaluations");
   });
 
   it("updates a loaded evaluation and sends a stored extraction method back unchanged", async () => {
@@ -226,6 +224,7 @@ describe("EvaluationForm: saving a draft (design.md D4; tasks 6.1)", () => {
     save();
     await waitFor(() => expect(screen.getByRole("status").textContent).toBe(text));
     expect(updateAnEvaluation).toHaveBeenCalledTimes(1);
+    expect(push).not.toHaveBeenCalled();
   });
 
   it("sends each descriptor block's selection to its request field (design.md D7)", async () => {
