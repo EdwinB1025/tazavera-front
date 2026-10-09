@@ -25,6 +25,8 @@ export type EvaluationDetailProps = {
   /** The `GET /taxonomies` tree, read on the server (design.md D1). */
   taxonomies: TaxonomyNode[];
   texts: EvaluationDetailTexts;
+  /** Shows the evaluation read-only whatever its status (refine-evaluation-flow D4). */
+  viewOnly?: boolean;
 };
 
 type DetailState =
@@ -64,6 +66,7 @@ export function EvaluationDetail({
   ulid,
   taxonomies,
   texts,
+  viewOnly = false,
 }: EvaluationDetailProps): ReactNode {
   const [attempt, setAttempt] = useState(0);
   const key = `${ulid}:${attempt}`;
@@ -109,6 +112,7 @@ export function EvaluationDetail({
       taxonomies={taxonomies}
       texts={texts}
       evaluation={detail.evaluation}
+      viewOnly={viewOnly}
     />
   );
 }

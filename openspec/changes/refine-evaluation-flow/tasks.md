@@ -23,7 +23,7 @@
   - "shows the not-yours message on a 403…" → renders `COMPLETE_EVALUATION`;
   - "expands every group when a successful close turns the form read-only" → after a successful close the groups keep their state and `router.push("/en/manage/evaluations")` is called.
   In `src/pages/evaluation-form/ui/EvaluationDetail.test.tsx`: new test, `viewOnly` passes through (an open evaluation renders no Save draft). Expected: fails only because `viewOnly`, `closable` and the navigation are missing.
-- [ ] 3.2 Implement D1, D3's form part and D4 in `form-model.ts`, `use-evaluation-form.ts`, `EvaluationForm.tsx`, `EvaluationDetail.tsx`, `EvaluationScreen.tsx` and `app/[locale]/manage/evaluations/[ulid]/page.tsx`. Verify: related tests, typecheck, lint.
+- [x] 3.2 Implement D1, D3's form part and D4 in `form-model.ts`, `use-evaluation-form.ts`, `EvaluationForm.tsx`, `EvaluationDetail.tsx`, `EvaluationScreen.tsx` and `app/[locale]/manage/evaluations/[ulid]/page.tsx`. Verify: related tests, typecheck, lint.
 
 ## 4. Optional extrinsic notes (D2)
 
