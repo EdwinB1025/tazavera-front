@@ -2,7 +2,7 @@
 
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import type { RegisterPayload, RegistrationToken } from "@/shared/api";
-import { Button, Field, Input, FormStatus, Link } from "@/shared/ui";
+import { Button, Field, Input, FormStatus, RouteButton } from "@/shared/ui";
 import { isValidEmail } from "@/entities/contact";
 import { registerUser } from "../api/register";
 import { NewPasswordFields } from "./NewPasswordFields";
@@ -219,7 +219,9 @@ export function RegisterForm({
         >
           {texts.registerSubmit}
         </Button>
-        <Link href={cancelHref}>{texts.cancelLabel}</Link>
+        <RouteButton href={cancelHref} variant="action-4" size="base">
+          {texts.cancelLabel}
+        </RouteButton>
       </div>
     </form>
   );
