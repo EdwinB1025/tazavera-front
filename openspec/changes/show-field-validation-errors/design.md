@@ -22,7 +22,7 @@ Today each `api` segment maps a `422` to `{ ok: false, kind: "error" }` (`src/sh
 
 `ApiFailureKind` gains `"validation"`. `ApiResult<T, K>` gains a third member, present only when `K` includes `"validation"`: `{ ok: false; kind: "validation"; errors: FieldErrors }`. The plain failure member keeps `kind: Exclude<K, "validation"> | "error"`. A function that never names `"validation"` keeps its type unchanged.
 
-### D2. The mapping (`src/shared/api/validation.ts`, exported from `@/shared/api`)
+### D2. The mapping (`src/shared/lib/field-errors.ts`, imported as `@/shared/lib/field-errors`)
 
 ```ts
 /** A 422's messages: each API key → its first message. */
@@ -33,7 +33,7 @@ export type FieldErrors = Record<string, string>;
 - `readFieldErrors(response: Response): Promise<FieldErrors>` — reads the JSON body and returns `toFieldErrors`; a body that cannot be read gives `{}`.
 - `splitFieldErrors<F extends string>(errors: FieldErrors, fields: readonly F[], aliases?: Readonly<Record<string, F>>): { fields: Partial<Record<F, string>>; unmatched: boolean }` — pure: a key maps to `aliases[key]` when given, else to itself when it is in `fields`. `unmatched` is `true` when a key maps to no field or when no field received a message (an empty map), so the form-level error shows.
 
-It lives in `shared/api` because it reads the API's response shape and every `api` segment (features, entities) and the forms (features, pages) import it.
+It lives in `shared` because every `api` segment (features, entities) and the forms (features, pages) import it; in `shared/lib` rather than `shared/api` because many tests replace `@/shared/api` with a mock that holds only `request`, which would drop the mapping (found while building task 2.2). `result.ts` imports the `FieldErrors` type from it.
 
 ### D3. The form state (`useServerFieldErrors`, `src/shared/lib/hooks/index.ts`)
 

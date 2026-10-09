@@ -28,9 +28,9 @@ None.
 
 ## Impact
 
-- New: `src/shared/api/validation.ts`, `src/shared/api/validation.test.ts`.
-- Modified: `src/shared/api/result.ts`, `src/shared/api/index.ts`, `src/shared/lib/hooks/index.ts`; `src/features/user-account` (api `register.ts`, `account.ts`, `contacts.ts`; `model/use-contact-form.ts`; ui `RegisterForm.tsx`, `ProfileForm.tsx`, `PasswordForm.tsx`, `ContactForm.tsx`); `src/features/location-management` (`api/locations.ts`, `model/submit-location.ts`, `ui/LocationForm.tsx`, `ui/LocationsPanel.tsx`); `src/features/offering-management` (`api/management.ts`, `model/create-flow.ts`); `src/pages/new-offering/ui/NewOfferingForm.tsx`; `src/entities/evaluation/api/user-evaluations.ts`; `src/pages/evaluation-form` (`model/use-evaluation-form.ts`, `ui/EvaluationForm.tsx`, `ui/ContextFieldsCard.tsx`).
-- Tests: the mapping (`validation.test.ts`); one form per capability (`RegisterForm.test.tsx`, `NewOfferingForm.test.tsx`, `EvaluationForm.test.tsx`); `ContactSection.test.tsx` (its `422` case's body).
+- New: `src/shared/lib/field-errors.ts`, `src/shared/lib/field-errors.test.ts`.
+- Modified: `src/shared/api/result.ts`, `src/shared/lib/hooks/index.ts`; `src/features/user-account` (api `register.ts`, `account.ts`, `contacts.ts`; `model/use-contact-form.ts`; ui `RegisterForm.tsx`, `ProfileForm.tsx`, `PasswordForm.tsx`, `ContactForm.tsx`); `src/features/location-management` (`api/locations.ts`, `model/submit-location.ts`, `ui/LocationForm.tsx`, `ui/LocationsPanel.tsx`); `src/features/offering-management` (`api/management.ts`, `model/create-flow.ts`); `src/pages/new-offering/ui/NewOfferingForm.tsx`; `src/entities/evaluation/api/user-evaluations.ts`; `src/pages/evaluation-form` (`model/use-evaluation-form.ts`, `ui/EvaluationForm.tsx`, `ui/ContextFieldsCard.tsx`).
+- Tests: the mapping (`field-errors.test.ts`); one form per capability (`RegisterForm.test.tsx`, `NewOfferingForm.test.tsx`, `EvaluationForm.test.tsx`); `ContactSection.test.tsx` (its `422` case's body).
 
 ## Propose status
 
@@ -38,6 +38,6 @@ None.
 - Date: 2026-10-09
 - `openspec validate show-field-validation-errors --strict`: valid
 - Resolves backlog entry: R8
-- Resolved (Product owner, 2026-10-08 and this change's prompt): one shared pure mapping in `src/shared/api`, a `validation` kind on `ApiResult`, the API's text under each field's `Field`, the existing form-level line for unmatched keys, clearing on edit, no new token, dependency or text.
-- Decided by the architect (design.md): the mapping and `FieldErrors` live in `src/shared/api/validation.ts` and the form state in a `useServerFieldErrors` hook in `src/shared/lib/hooks`; `unmatched` also covers a `422` with no usable message; the API key aliases of the contact and location forms (D5); the evaluation form maps only `descriptive.roastLevel` and `extractionMethod` and the new-offering form only `coffeeInventoryId` (D5).
+- Resolved (Product owner, 2026-10-08 and this change's prompt): one shared pure mapping in `src/shared`, a `validation` kind on `ApiResult`, the API's text under each field's `Field`, the existing form-level line for unmatched keys, clearing on edit, no new token, dependency or text.
+- Decided by the architect (design.md): the mapping and `FieldErrors` live in `src/shared/lib/field-errors.ts` (moved from `src/shared/api` during the build, design.md D2) and the form state in a `useServerFieldErrors` hook in `src/shared/lib/hooks`; `unmatched` also covers a `422` with no usable message; the API key aliases of the contact and location forms (D5); the evaluation form maps only `descriptive.roastLevel` and `extractionMethod` and the new-offering form only `coffeeInventoryId` (D5).
 - Open: none blocking. Product owner may later want the evaluation form's collapsed groups and the new-offering locations group to show field messages (a new change).
