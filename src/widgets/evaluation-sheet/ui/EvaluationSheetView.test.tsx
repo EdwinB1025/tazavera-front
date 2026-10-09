@@ -49,6 +49,8 @@ const TEXTS: EvaluationViewTexts = {
   offeringMissingLabel: "Offering no longer exists",
   errorMessage: "The evaluation could not be loaded.",
   retryLabel: "Retry",
+  notFoundTitle: "Evaluation not found",
+  notFoundLine: "It may not be published yet, or the link may be wrong.",
 };
 
 const BACK: ReactNode = <Link href="/en/evaluations">Back</Link>;
@@ -112,10 +114,22 @@ describe("EvaluationSheetView (design.md D1, D4)", () => {
     expect(context.compareDocumentPosition(links[1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("renders the 404 page for an evaluation that is not closed", async () => {
-    fetchEvaluation.mockResolvedValue({ ok: true, data: { ...EVALUATION, status: "open" } });
-    await expect(renderView()).rejects.toThrow("NEXT_NOT_FOUND");
-    expect(notFound).toHaveBeenCalledTimes(1);
+  it.each([
+    ["Opening an unknown evaluation", () => fetchEvaluation.mockResolvedValue({ ok: false, kind: "not-found" })],
+    [
+      "Opening an evaluation that is not closed",
+      () => fetchEvaluation.mockResolvedValue({ ok: true, data: { ...EVALUATION, status: "open" } }),
+    ],
+  ])("shows the title, the line and the back link with no Retry (spec: %s)", async (_, arrange) => {
+    arrange();
+    await renderView();
+    const title = screen.getByRole("heading", { level: 1, name: "Evaluation not found" });
+    expect(screen.getByText(TEXTS.notFoundLine)).toBeDefined();
+    const back = screen.getByRole("link", { name: "Back" });
+    expect(title.compareDocumentPosition(back) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Retry" })).toBeNull();
+    expect(screen.queryByRole("heading", { level: 2, name: "Context" })).toBeNull();
+    expect(notFound).not.toHaveBeenCalled();
   });
 
   it("shows offeringUnavailable as the h1 when the offering read failed, keeping the presentation", async () => {
