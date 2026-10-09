@@ -15,7 +15,7 @@ No derived API types are needed: the change only moves `variant` values. Each im
 
 ## 4. Add location (offering-management)
 
-- [ ] 4.1 `AddLocationButton` in `src/features/location-management/ui/LocationsPanelStates.tsx` takes `action-1`. No validation test asserts its variant; none is added. Verify: `npx vitest related` on the changed file passes; typecheck and lint report no errors.
+- [x] 4.1 `AddLocationButton` in `src/features/location-management/ui/LocationsPanelStates.tsx` takes `action-1`. No validation test asserts its variant; none is added. Verify: `npx vitest related` on the changed file passes; typecheck and lint report no errors.
 
 ## 5. Add contact details (user-account)
 
