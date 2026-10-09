@@ -110,14 +110,14 @@ describe("useDeleteFlow — requests and outcomes", () => {
     expect(onDeleted).toHaveBeenCalledWith(1);
   });
 
-  it("asks for the step-up on a 403 and keeps the confirmation and its target", async () => {
+  it("treats a 403 as a failure and keeps the confirmation and its target", async () => {
     const { result, onDeleted } = setup();
     request.mockResolvedValue(response(403));
 
     act(() => result.current.start({ kind: "many", ulids: ["01A"] }));
     await act(async () => result.current.confirm());
 
-    expect(result.current.error).toBe("step-up");
+    expect(result.current.error).toBe("failed");
     expect(result.current.target).toEqual({ kind: "many", ulids: ["01A"] });
     expect(onDeleted).not.toHaveBeenCalled();
   });

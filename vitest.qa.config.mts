@@ -20,14 +20,8 @@ export default defineConfig({
             'qa/src/features/user-account/ui/RegisterForm.test.tsx',
             // lacks the required cancel props of add-form-cancel-actions (design.md D5)
             'qa/src/pages/register/ui/RegisterClient.test.tsx',
-            // its routing mock lacks useRouter; stale since render-navigation-actions-as-buttons
-            'qa/src/pages/new-offering/ui/NewOfferingForm.test.tsx',
             // asserts the old primary add button; stale since align-button-variants
             'qa/src/features/user-account/ui/ContactSection.test.tsx',
-            // asserts a 422 maps to error; stale since show-field-validation-errors (design.md D6)
-            'qa/src/features/location-management/model/submit-location.test.ts',
-            // asserts Button's exact class string without the action width; stale since unify-action-button-widths
-            'qa/src/features/offering-management/ui/OfferingActions.test.tsx',
             // superseded by the validation suite's row tests (refine-evaluation-flow D5); pending deletion
             'qa/src/pages/evaluations-list/ui/EvaluationRowCard.test.tsx',
         ],

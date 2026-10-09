@@ -43,7 +43,7 @@ const DELETE_CLASSES = [
   "focus-visible:focus-ring disabled:opacity-50 disabled:cursor-not-allowed",
   "border bg-action-2-bg text-action-2-text border-action-2-border",
   "enabled:hover:bg-action-2-bg-hover enabled:hover:text-action-2-text-hover",
-  "h-8 px-3",
+  "h-8 px-3 min-w-action-sm whitespace-nowrap",
 ].join(" ");
 
 describe("OfferingActions (design.md D7)", () => {

@@ -36,17 +36,17 @@ describe("fetchOwnOfferings (design.md D1)", () => {
     publicRequest.mockResolvedValue(jsonResponse(200, { data, meta: META }));
 
     await expect(fetchOwnOfferings("01USER", 2)).resolves.toEqual({
-      state: "success",
-      data,
-      meta: META,
+      ok: true,
+      data: { data, meta: META },
     });
   });
 
-  it("maps an empty data to its empty result", async () => {
+  it("maps an empty data to a success result with no offerings", async () => {
     publicRequest.mockResolvedValue(jsonResponse(200, { data: [], meta: META }));
 
     await expect(fetchOwnOfferings("01USER", 1)).resolves.toEqual({
-      state: "empty",
+      ok: true,
+      data: { data: [], meta: META },
     });
   });
 
@@ -54,7 +54,8 @@ describe("fetchOwnOfferings (design.md D1)", () => {
     publicRequest.mockResolvedValue(jsonResponse(status, { message: "nope" }));
 
     await expect(fetchOwnOfferings("01USER", 1)).resolves.toEqual({
-      state: "error",
+      ok: false,
+      kind: "error",
     });
   });
 });
@@ -64,17 +65,18 @@ describe("searchCoffeeInventory (design.md D9)", () => {
     const data = [{ ulid: "01I" }];
     request.mockResolvedValue(jsonResponse(200, { data }));
 
-    await expect(searchCoffeeInventory("hu", new AbortController().signal)).resolves.toEqual(
+    await expect(searchCoffeeInventory("hu", new AbortController().signal)).resolves.toEqual({
+      ok: true,
       data,
-    );
+    });
   });
 
-  it.each([403, 422, 500])("rejects on a %i status", async (status) => {
+  it.each([403, 422, 500])("maps a %i status to its error result", async (status) => {
     request.mockResolvedValue(jsonResponse(status, { message: "nope" }));
 
     await expect(
       searchCoffeeInventory("hu", new AbortController().signal),
-    ).rejects.toBeInstanceOf(Error);
+    ).resolves.toEqual({ ok: false, kind: "error" });
   });
 });
 
@@ -99,26 +101,32 @@ describe("createOfferings (design.md D10)", () => {
     request.mockResolvedValue(jsonResponse(201, { data: [{}, {}], message: "ok" }));
 
     await expect(createOfferings("01I", ["01L1"])).resolves.toEqual({
-      outcome: "ok",
-      count: 2,
+      ok: true,
+      data: 2,
     });
   });
 
-  it("maps a 403 to forbidden", async () => {
-    request.mockResolvedValue(jsonResponse(403, { message: "nope" }));
-
-    await expect(createOfferings("01I", [])).resolves.toEqual({ outcome: "forbidden" });
-  });
-
-  it.each([422, 500])("maps a %i status to failed", async (status) => {
+  it.each([403, 500])("maps a %i status to its error result", async (status) => {
     request.mockResolvedValue(jsonResponse(status, { message: "nope" }));
 
-    await expect(createOfferings("01I", [])).resolves.toEqual({ outcome: "failed" });
+    await expect(createOfferings("01I", [])).resolves.toEqual({ ok: false, kind: "error" });
   });
 
-  it("maps a transport failure to failed", async () => {
+  it("maps a 422 to its validation result with the field messages", async () => {
+    request.mockResolvedValue(
+      jsonResponse(422, { message: "nope", errors: { coffeeInventoryId: ["Pick one"] } }),
+    );
+
+    await expect(createOfferings("01I", [])).resolves.toEqual({
+      ok: false,
+      kind: "validation",
+      errors: { coffeeInventoryId: "Pick one" },
+    });
+  });
+
+  it("maps a transport failure to its error result", async () => {
     request.mockRejectedValue(new TypeError("Failed to fetch"));
 
-    await expect(createOfferings("01I", [])).resolves.toEqual({ outcome: "failed" });
+    await expect(createOfferings("01I", [])).resolves.toEqual({ ok: false, kind: "error" });
   });
 });

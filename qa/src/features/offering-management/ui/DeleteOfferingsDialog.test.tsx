@@ -30,8 +30,6 @@ const TEXTS = {
   deleteConfirmLabel: "Delete",
   cancelLabel: "Cancel",
   deleteError: "It could not be deleted. Try again.",
-  stepUpMessage: "To continue, confirm your identity.",
-  stepUpLabel: "Confirm your identity",
 };
 
 type Overrides = Partial<Parameters<typeof DeleteOfferingsDialog>[0]>;
@@ -43,7 +41,6 @@ function renderDialog(overrides: Overrides = {}) {
     error: "none" as const,
     onCancel: vi.fn(),
     onConfirm: vi.fn(),
-    onStepUp: vi.fn(),
     texts: TEXTS,
     ...overrides,
   };
@@ -66,23 +63,5 @@ describe("DeleteOfferingsDialog (design.md D7)", () => {
     expect(props.onCancel).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: TEXTS.cancelLabel }));
     expect(props.onCancel).toHaveBeenCalledTimes(1);
-  });
-
-  it("shows the delete error in the dialog's alert region on a failure", () => {
-    renderDialog({ error: "failed" });
-
-    const [alert] = screen.getAllByRole("alert");
-    expect(alert.textContent).toBe(TEXTS.deleteError);
-    expect(screen.queryByText(TEXTS.stepUpMessage)).toBeNull();
-  });
-
-  it("starts the identity check synchronously within the step-up click and keeps the dialog", () => {
-    const props = renderDialog({ error: "step-up" });
-
-    fireEvent.click(screen.getByRole("button", { name: TEXTS.stepUpLabel }));
-
-    expect(props.onStepUp).toHaveBeenCalledTimes(1);
-    expect(props.onCancel).not.toHaveBeenCalled();
-    expect(screen.getByRole("alertdialog")).toBeTruthy();
   });
 });
