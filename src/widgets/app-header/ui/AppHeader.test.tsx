@@ -362,6 +362,12 @@ describe("NavigationMenu (spec: Header brand and primary navigation; fix-product
       null,
     ]);
   });
+
+  it("shows a decorative icon and the header look on every entry (spec: Navigation menu entries carry icons and the header look)", () => {
+    renderAt();
+    fireEvent.pointerDown(screen.getByRole("button", { name: TEXTS.navigationMenu }));
+    expectHeaderMenuEntries(screen.getAllByRole("menuitem"));
+  });
 });
 
 describe("LanguageSelect (spec: Language selection)", () => {

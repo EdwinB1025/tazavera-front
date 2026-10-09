@@ -7,7 +7,7 @@ No derived API types are needed: the change only touches header menu markup and 
 
 ## 2. Navigation menu icons and header look (app-shell)
 
-- [ ] 2.1 Add to `src/widgets/app-header/ui/AppHeader.test.tsx` (describe "NavigationMenu") one test for the scenario "Navigation menu entries carry icons and the header look", with the same assertions as 1.1 over the navigation menu's items. Verify: the test fails on the current menu; the other tests of the file pass; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 2.1 Add to `src/widgets/app-header/ui/AppHeader.test.tsx` (describe "NavigationMenu") one test for the scenario "Navigation menu entries carry icons and the header look", with the same assertions as 1.1 over the navigation menu's items. Verify: the test fails on the current menu; the other tests of the file pass; `npx tsc --noEmit` and `npm run lint` report no errors.
 - [ ] 2.2 Implement design.md D1–D3 in `src/widgets/app-header/lib/nav-entries.ts` and `src/widgets/app-header/ui/NavigationMenu.tsx`, adding the needed exports to `src/shared/ui/icons.ts`. Protecting tests: `src/widgets/app-header/ui/AppHeader.test.tsx`. Verify: `npx vitest related` on the changed files passes, the test of 2.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 3. Full checks
