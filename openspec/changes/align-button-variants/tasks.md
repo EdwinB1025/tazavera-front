@@ -7,7 +7,7 @@ No derived API types are needed: the change only moves `variant` values. Each im
 
 ## 2. Pagination (content-structure)
 
-- [ ] 2.1 In `src/shared/ui/Pagination.tsx` Previous and Next take `action-3`. No validation test asserts their variant; none is added. Verify: `npx vitest related` on the changed file passes; typecheck and lint report no errors.
+- [x] 2.1 In `src/shared/ui/Pagination.tsx` Previous and Next take `action-3`. No validation test asserts their variant; none is added. Verify: `npx vitest related` on the changed file passes; typecheck and lint report no errors.
 
 ## 3. Map and offering detail (offering-catalog)
 
