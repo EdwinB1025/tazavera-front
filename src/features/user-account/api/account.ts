@@ -1,3 +1,4 @@
+import { readFieldErrors } from "@/shared/lib/field-errors";
 import {
   request,
   type ApiResult,
@@ -8,10 +9,11 @@ import {
 /**
  * The outcome of an account write (design.md D2; unify-api-result-shape
  * design.md D2): `200` is a success, `403` (`forbidden`) asks for the
- * write-scope step-up, and any other status or a network failure is the
- * generic error.
+ * write-scope step-up, a `422` carries its field messages
+ * (show-field-validation-errors D4), and any other status or a network
+ * failure is the generic error.
  */
-export type AccountWriteResult = ApiResult<null, "forbidden">;
+export type AccountWriteResult = ApiResult<null, "forbidden" | "validation">;
 
 /** Sends one account write through the token client and maps its status. */
 async function write(path: string, init: RequestInit): Promise<AccountWriteResult> {
@@ -19,6 +21,9 @@ async function write(path: string, init: RequestInit): Promise<AccountWriteResul
   try {
     const response = await request(path, init);
     status = response.status;
+    if (status === 422) {
+      return { ok: false, kind: "validation", errors: await readFieldErrors(response) };
+    }
   } catch {
     // A network failure shows the generic error.
   }

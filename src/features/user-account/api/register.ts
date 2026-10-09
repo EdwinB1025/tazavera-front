@@ -1,3 +1,4 @@
+import { readFieldErrors } from "@/shared/lib/field-errors";
 import {
   publicRequest,
   type ApiResult,
@@ -8,10 +9,11 @@ import {
 /**
  * The outcome of a registration (design.md D3; unify-api-result-shape
  * design.md D2): `201` creates the account and carries the body's `token`
- * block, or `null` without one (sign-in-after-registration design.md D2); any
+ * block, or `null` without one (sign-in-after-registration design.md D2); a
+ * `422` carries its field messages (show-field-validation-errors D4); any
  * other status or a network failure is the generic error.
  */
-export type RegisterResult = ApiResult<RegistrationToken | null>;
+export type RegisterResult = ApiResult<RegistrationToken | null, "validation">;
 
 /** The registration (design.md D1): `POST /register` through the public client. */
 export async function registerUser(
@@ -26,6 +28,9 @@ export async function registerUser(
       },
       body: JSON.stringify(payload),
     });
+    if (response.status === 422) {
+      return { ok: false, kind: "validation", errors: await readFieldErrors(response) };
+    }
     if (response.status !== 201) return { ok: false, kind: "error" };
     return { ok: true, data: await tokenOf(response) };
   } catch {

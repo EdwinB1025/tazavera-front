@@ -6,7 +6,7 @@
 ## 2. Account forms (user-account)
 
 - [x] 2.1 Add to `src/features/user-account/ui/RegisterForm.test.tsx` one test for "The registration names invalid fields": a valid submit answered `422` with `errors: { email: ["fx-email-taken"] }` shows `fx-email-taken` as the Email field's description, the Email input has `aria-invalid="true"`, the generic error is absent; typing in Email removes `fx-email-taken`. In `src/features/user-account/ui/ContactSection.test.tsx`, the `"422"` row of the generic-error table gets the body `{ message, errors: { unknownKey: ["fx-api-field-error"] } }` (a key that names no field), its assertions unchanged. Verify: only the new test fails; `npx tsc --noEmit` and `npm run lint` report no errors.
-- [ ] 2.2 Implement design.md D4–D6 for registration, profile, password and contact. Protecting tests: `RegisterForm.test.tsx`, `ProfileForm.test.tsx`, `PasswordForm.test.tsx`, `ContactSection.test.tsx`. Verify: `npx vitest related` on the changed files passes; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 2.2 Implement design.md D4–D6 for registration, profile, password and contact. Protecting tests: `RegisterForm.test.tsx`, `ProfileForm.test.tsx`, `PasswordForm.test.tsx`, `ContactSection.test.tsx`. Verify: `npx vitest related` on the changed files passes; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 3. Location and offering forms (offering-management)
 
