@@ -240,17 +240,17 @@ Every group except Defects and Extrinsic SHALL show a completeness indicator bes
 
 ### Requirement: Saving a draft
 
-Save draft SHALL create the evaluation with `createAnEvaluation` the first time and update it with `updateAnEvaluation` afterwards, sending `offeringId` only on creation, `descriptive.roastLevel` and the entered parts. On the first success the route SHALL become `/{locale}/manage/evaluations/{ulid}` and a saved confirmation SHALL appear in a status region beside the actions.
+Save draft SHALL create the evaluation with `createAnEvaluation` the first time and update it with `updateAnEvaluation` afterwards, sending `offeringId` only on creation, `descriptive.roastLevel` and the entered parts. On success the form SHALL navigate client-side, without a full page load, to the My evaluations route `/{locale}/manage/evaluations`. On failure the form SHALL stay with its message in a status region beside the actions.
 
 #### Scenario: The first save
 
 - **WHEN** the specialist saves a new form and the creation succeeds
-- **THEN** the route becomes the evaluation's own route, later saves update it, and the saved confirmation appears
+- **THEN** the app router navigates to `/{locale}/manage/evaluations`
 
 #### Scenario: A later save
 
 - **WHEN** the specialist saves an already created evaluation and the update succeeds
-- **THEN** the saved confirmation appears and the route stays
+- **THEN** the app router navigates to `/{locale}/manage/evaluations`
 
 #### Scenario: The form is not valid
 
@@ -260,7 +260,7 @@ Save draft SHALL create the evaluation with `createAnEvaluation` the first time 
 #### Scenario: The API refuses the write
 
 - **WHEN** a save answers `403`
-- **THEN** the "not yours" message appears; when it answers `409` the "already closed" message appears; when it answers `422` or fails for any other reason the generic failure message appears; no retry is offered and nothing is sent again automatically
+- **THEN** the "not yours" message appears; when it answers `409` the "already closed" message appears; when it answers `422` or fails for any other reason the generic failure message appears; in every case the form stays without navigating, no retry is offered and nothing is sent again automatically
 
 ### Requirement: Closing an evaluation
 
