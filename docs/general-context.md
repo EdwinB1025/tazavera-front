@@ -571,3 +571,8 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Decisión:** todos los cambios en curso son `Refactor (fast lane)`: `refine-evaluation-flow`, `show-item-not-found-message` (R18), `show-field-validation-errors` (R8), `secure-step-up`, `unify-action-button-widths`, `close-mobile-filters-on-arrival`, `tighten-public-evaluations-spacing`, `adopt-next-intl-routing` (R43, antes `Change`) y el cambio siguiente del step-up. Cada uno se archiva cuando pasan las comprobaciones completas y `/opsx:verify` no da ningún CRITICAL, sin esperar petición del Product owner. R43 deja de esperar la prueba en navegador para archivarse.
 - **Por qué:** Product owner, 9 oct ("los últimos cambios son todos refactoring - fast lane").
 - **Afecta:** los cambios listados.
+
+### 2026-10-09 — R43: margen de JS por ruta a +14 KB gz (Product owner)
+- **Decisión:** el margen de Open 6 pasa de +3 KB a **+14 KB gz por ruta de locale** respecto a la medición "antes" (opción A). Medido en la tarea 7.1: +13,4/+13,5 KB gz en cada ruta, por el núcleo de `use-intl` que el provider lleva al cliente. Sustituye solo el número de Open 6 de la entrada "R43: respuestas a los Open".
+- **Por qué:** Product owner, 9 oct ("A").
+- **Afecta:** `adopt-next-intl-routing` (design.md Open 6, tarea 7.1).
