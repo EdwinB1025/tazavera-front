@@ -12,7 +12,7 @@
 
 ## 2. Sidebar facets sub-section (filtering)
 
-- [ ] 2.1 Test first. In `src/shared/ui/FiltersTrigger.test.tsx`: "Facets open from the toolbar" (from `md` with the sidebar open and the sub-section closed the trigger shows and, activated, opens the sub-section; below `md` it opens the sidebar and the sub-section); update "renders from md only while the sidebar is collapsed" to the new visibility rule. In `src/pages/coffeeshops/ui/CoffeeshopsSidebarScreen.test.tsx`, "Filters keep applying while collapsed" (the "Filters" toggle reports collapsed under the "Explore coffee shops" entry, and the name facet still holds the URL value) and update its "no navigation" assertion. In `src/pages/offerings-sidebar/ui/OfferingsSidebarScreen.test.tsx`, update the "no navigation" assertion to the "Explore offerings" entry. No `qa/` test changes.
+- [x] 2.1 Test first. In `src/shared/ui/FiltersTrigger.test.tsx`: "Facets open from the toolbar" (from `md` with the sidebar open and the sub-section closed the trigger shows and, activated, opens the sub-section; below `md` it opens the sidebar and the sub-section); update "renders from md only while the sidebar is collapsed" to the new visibility rule. In `src/pages/coffeeshops/ui/CoffeeshopsSidebarScreen.test.tsx`, "Filters keep applying while collapsed" (the "Filters" toggle reports collapsed under the "Explore coffee shops" entry, and the name facet still holds the URL value) and update its "no navigation" assertion. In `src/pages/offerings-sidebar/ui/OfferingsSidebarScreen.test.tsx`, update the "no navigation" assertion to the "Explore offerings" entry. No `qa/` test changes.
 
   Verify: `npx vitest related` on those test files. Expected: only the new and updated assertions fail.
 

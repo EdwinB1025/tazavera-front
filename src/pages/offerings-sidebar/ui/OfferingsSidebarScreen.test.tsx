@@ -74,12 +74,12 @@ const SESSIONS: Record<string, Session> = {
 /**
  * The offerings slot screen (add-sidebar-slot design.md D9; spec "Shown on
  * the offerings list"; extract-filtered-offerings design.md D5, D7): the
- * sidebar for every session state, with no navigation entries, holding the
- * filtered offerings facets.
+ * sidebar for every session state, with the list's entry holding the
+ * filtered offerings facets (collapse-sidebar-filters).
  */
 describe("OfferingsSidebarScreen (extract-filtered-offerings design.md D5, D7)", () => {
   it.each(Object.keys(SESSIONS))(
-    "renders the sidebar with no navigation and the facets for a %s session",
+    "renders the sidebar with the list's entry and the facets for a %s session",
     (key) => {
       const searchParams = { process: "washed" };
       render(
@@ -91,7 +91,9 @@ describe("OfferingsSidebarScreen (extract-filtered-offerings design.md D5, D7)",
       );
       const sidebars = screen.getAllByRole("complementary");
       expect(sidebars).toHaveLength(1);
-      expect(screen.queryByRole("navigation")).toBeNull();
+      expect(
+        within(screen.getByRole("navigation")).getByRole("link", { name: "Explorar ofertas" }),
+      ).toBeDefined();
       expect(within(sidebars[0]!).getByTestId("filtered-offerings-facets")).toBeDefined();
       expect(facets.props?.locale).toBe("es");
       expect(facets.props?.searchParams).toBe(searchParams);
