@@ -3,7 +3,7 @@
 ## 1. Close readiness (D3)
 
 - [x] 1.1 Tests first. Create `src/entities/evaluation/model/closing.test.ts` for `isReadyForClosing`: a complete evaluation → `true`; one score 0 → `false`; no `main_tastes` → `false`; no `mouthfeel` → `false`; only `defects` besides `main_tastes` and `mouthfeel` → `false`. Expected: fails only because the module is missing.
-- [ ] 1.2 Implement `src/entities/evaluation/model/closing.ts` and export it from `src/entities/evaluation/index.ts`. Verify: related tests, `npx tsc --noEmit`, `npm run lint`.
+- [x] 1.2 Implement `src/entities/evaluation/model/closing.ts` and export it from `src/entities/evaluation/index.ts`. Verify: related tests, `npx tsc --noEmit`, `npm run lint`.
 
 ## 2. Card actions (D3, D5)
 

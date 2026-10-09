@@ -21,6 +21,7 @@ export type { EvaluationFormState, ExtrinsicFieldKey } from "./model/state";
 export { buildCreateBody, buildUpdateBody } from "./model/body";
 export { formStateFromEvaluation } from "./model/load";
 export { completenessOf } from "./model/completeness";
+export { isReadyForClosing } from "./model/closing";
 export {
   closeAnEvaluation,
   createAnEvaluation,
