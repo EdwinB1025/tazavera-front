@@ -3,14 +3,13 @@
 import type { ReactNode } from "react";
 import { clearFiltersHref, useFilterNavigation } from "@/shared/lib/filter-query";
 import {
-  Combobox,
+  ComboboxLoader,
   FacetCascade,
   FacetPanel,
   FacetRadioList,
   FacetTextField,
   ScoreRangeFacet,
   type ComboboxOption,
-  type ComboboxTexts,
   type FacetOption,
 } from "@/shared/ui";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -31,7 +30,8 @@ import type { OfferingFilterTexts } from "../model/texts";
 export type OfferingFacetsProps = {
   values: OfferingFilterValues;
   options: OfferingFacetOptions;
-  texts: OfferingFilterTexts;
+  /** `loading` is the comboboxes' loading text (lazy-load-facet-controls design.md D3). */
+  texts: OfferingFilterTexts & { loading?: string };
 };
 
 /** The sort keys "Clear all" keeps (design.md D5). */
@@ -50,7 +50,9 @@ function asComboboxValue(value: string | undefined): ComboboxOption | null {
  * sidebar"): the eleven facets in the spec order inside the shared facet
  * panel, each writing its query key on commit. A facet whose options failed
  * renders disabled with "Options unavailable". Coffee and Roastery are the
- * same search-as-you-type combobox (search-coffee-facet design.md D4).
+ * same search-as-you-type combobox (search-coffee-facet design.md D4). The
+ * comboboxes load on the sub-section's first opening
+ * (lazy-load-facet-controls design.md D1).
  */
 export function OfferingFacets({ values, options, texts }: OfferingFacetsProps): ReactNode {
   const { navigate, navigateTo } = useFilterNavigation();
@@ -59,11 +61,12 @@ export function OfferingFacets({ values, options, texts }: OfferingFacetsProps):
 
   const applied = appliedOfferingFilters(values, { tasteNotes: options.tasteNotes, texts });
   const seeMoreTexts = { seeMore: texts.seeMore, seeLess: texts.seeLess };
-  const comboboxTexts: ComboboxTexts = {
+  const comboboxTexts = {
     searching: texts.searching,
     noMatches: texts.noOptionMatches,
     loadError: texts.searchFailed,
     optionCount: texts.optionCount,
+    loading: texts.loading ?? "",
   };
   const listed = new Set(
     (options.tasteNotes ?? []).flatMap((note) => [
@@ -109,7 +112,7 @@ export function OfferingFacets({ values, options, texts }: OfferingFacetsProps):
       texts={{ clearAll: texts.clearAll, removeFilter: texts.removeFilter }}
     >
       <div className="px-3">
-        <Combobox
+        <ComboboxLoader
           label={texts.coffeeName}
           variant="inverse"
           search={searchCoffees}
@@ -158,7 +161,7 @@ export function OfferingFacets({ values, options, texts }: OfferingFacetsProps):
       {radioFacet("process", texts.process, options.processes)}
       {radioFacet("variety", texts.variety, options.varieties)}
       <div className="px-3">
-        <Combobox
+        <ComboboxLoader
           label={texts.producer}
           variant="inverse"
           options={asOptions(options.producers)}
@@ -171,7 +174,7 @@ export function OfferingFacets({ values, options, texts }: OfferingFacetsProps):
         />
       </div>
       <div className="px-3">
-        <Combobox
+        <ComboboxLoader
           label={texts.roastery}
           variant="inverse"
           search={searchRoasteries}

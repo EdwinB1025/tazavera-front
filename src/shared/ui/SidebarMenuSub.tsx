@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useId } from "react";
+import { createContext, useContext, useEffect, useId, useState } from "react";
 import type { ReactNode } from "react";
 import { Collapsible, CollapsibleBody, CollapsibleHeader } from "./Collapsible";
 import { useSidebar } from "./Sidebar";
@@ -32,11 +32,14 @@ const TOGGLE_CLASSES = [
  * app-shell "Sidebar entry sub-section"): the shared `Collapsible`, driven by
  * the provider's `subsectionOpen` so a control outside the sidebar (the
  * toolbar's "Filters") can open it. Closed on arrival, and closed again when
- * it unmounts, so the next route starts closed.
+ * it unmounts, so the next route starts closed. Its content learns whether
+ * it has been opened since it mounted (lazy-load-facet-controls design.md D2).
  */
 export function SidebarMenuSub({ title, children }: SidebarMenuSubProps): ReactNode {
   const { subsectionOpen, setSubsectionOpen } = useSidebar();
   const toggleId = useId();
+  const [opened, setOpened] = useState(false);
+  if (subsectionOpen && !opened) setOpened(true);
   useEffect(() => () => setSubsectionOpen(false), [setSubsectionOpen]);
   return (
     <Collapsible open={subsectionOpen} onOpenChange={setSubsectionOpen}>
@@ -45,7 +48,9 @@ export function SidebarMenuSub({ title, children }: SidebarMenuSubProps): ReactN
           {title}
         </CollapsibleHeader>
         <SubsectionToggleContext.Provider value={toggleId}>
-          <CollapsibleBody>{children}</CollapsibleBody>
+          <SubsectionOpenedContext.Provider value={opened}>
+            <CollapsibleBody>{children}</CollapsibleBody>
+          </SubsectionOpenedContext.Provider>
         </SubsectionToggleContext.Provider>
       </div>
     </Collapsible>
@@ -58,6 +63,13 @@ export function SidebarMenuSub({ title, children }: SidebarMenuSubProps): ReactN
  * such as the facet panel, shows no title of its own.
  */
 export const SubsectionToggleContext = createContext<string | null>(null);
+
+/**
+ * Whether the enclosing sub-section has been opened since it mounted, or
+ * `true` outside one (lazy-load-facet-controls design.md D2): content that
+ * loads its code on the first opening, such as the facet comboboxes.
+ */
+export const SubsectionOpenedContext = createContext(true);
 
 const SidebarSubsectionContext = createContext<ReactNode>(null);
 

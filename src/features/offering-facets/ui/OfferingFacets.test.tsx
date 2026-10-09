@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach, beforeAll, beforeEach } from "vitest";
 import { render, screen, fireEvent, cleanup, within } from "@testing-library/react";
 import { getMessages } from "@/shared/lib/i18n";
+import { SidebarProvider, SidebarMenuSub } from "@/shared/ui";
 import { OfferingFacets, offeringFacetsTexts } from "@/features/offering-facets";
 import { parseOfferingFilters } from "../model/query";
 import { appliedOfferingFilters } from "../model/applied";
@@ -30,8 +31,19 @@ afterEach(() => {
 });
 
 // jsdom has no ResizeObserver; Radix Slider and Popover measure with one.
-// cmdk scrolls the active option into view, which jsdom lacks too.
+// cmdk scrolls the active option into view, which jsdom lacks too. The
+// sidebar reads the md breakpoint through matchMedia, which jsdom lacks.
 beforeAll(() => {
+  window.matchMedia = ((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  })) as unknown as typeof window.matchMedia;
   if (!("ResizeObserver" in globalThis)) {
     globalThis.ResizeObserver = class {
       observe(): void {}
@@ -87,8 +99,9 @@ function radio(group: string, name: string): HTMLInputElement {
 }
 
 describe("OfferingFacets (design.md D7)", () => {
-  it("shows the eleven facets in the spec order", () => {
+  it("shows the eleven facets in the spec order", async () => {
     renderPanel("");
+    await screen.findByRole("combobox", { name: "Coffee" });
     const facets = [
       screen.getByRole("combobox", { name: "Coffee" }),
       screen.getByRole("radiogroup", { name: "Verification" }),
@@ -112,6 +125,7 @@ describe("OfferingFacets (design.md D7)", () => {
 
   it("writes the chosen coffee's name to coffeeName without page", async () => {
     renderPanel("page=2");
+    await screen.findByRole("combobox", { name: "Coffee" });
     fireEvent.change(screen.getByRole("combobox", { name: "Coffee" }), {
       target: { value: "hui" },
     });
@@ -145,7 +159,7 @@ describe("OfferingFacets (design.md D7)", () => {
     expect(nav.push).toHaveBeenCalledWith("/en/offerings?process=natural", { scroll: false });
   });
 
-  it("disables the five coffee-based facets with Options unavailable when the coffees fail", () => {
+  it("disables the five coffee-based facets with Options unavailable when the coffees fail", async () => {
     renderPanel("", {
       ...OPTIONS,
       countries: null,
@@ -154,6 +168,7 @@ describe("OfferingFacets (design.md D7)", () => {
       varieties: null,
       producers: null,
     });
+    await screen.findByRole("combobox", { name: "Coffee" });
     for (const name of ["Origin country", "Origin region", "Process", "Variety"]) {
       const group = screen.getByRole("radiogroup", { name });
       for (const input of within(group).getAllByRole("radio", { hidden: true })) {
@@ -198,6 +213,31 @@ describe("OfferingFacets (design.md D7)", () => {
       "/en/offerings?orderBy=cupping_avg&orderDirection=desc",
       { scroll: false },
     );
+  });
+
+  it("shows the comboboxes in their places once loaded after the first opening (spec: Facets after loading)", async () => {
+    render(
+      <SidebarProvider>
+        <SidebarMenuSub title="Filters">
+          <OfferingFacets
+            values={parseOfferingFilters(new URLSearchParams())}
+            options={OPTIONS}
+            texts={{ ...TEXTS, loading: "Loading…" }}
+          />
+        </SidebarMenuSub>
+      </SidebarProvider>,
+    );
+    expect(screen.queryByRole("combobox", { name: "Coffee" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Filters" }));
+    const coffee = await screen.findByRole("combobox", { name: "Coffee" });
+    const producer = await screen.findByRole("combobox", { name: "Producer" });
+    expect(await screen.findByRole("combobox", { name: "Roastery" })).toBeDefined();
+    expect(screen.queryByText("Loading…")).toBeNull();
+    const following = Node.DOCUMENT_POSITION_FOLLOWING;
+    const verification = screen.getByRole("radiogroup", { name: "Verification" });
+    const variety = screen.getByRole("radiogroup", { name: "Variety" });
+    expect(coffee.compareDocumentPosition(verification) & following).toBeTruthy();
+    expect(variety.compareDocumentPosition(producer) & following).toBeTruthy();
   });
 
   it("shows no chips and no Clear all without filters", () => {

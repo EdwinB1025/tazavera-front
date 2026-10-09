@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { fetchCoffees } from "@/shared/api";
+import { getMessages } from "@/shared/lib/i18n";
 import { fetchTaxonomies } from "@/entities/taxonomy";
 import {
   OfferingFacets,
@@ -23,7 +24,8 @@ export type FilteredOfferingsFacetsProps = {
  * The filtered offerings facets (extract-filtered-offerings design.md D4;
  * add-offering-facets design.md D7): a thin async composition that reads the
  * coffees and the taxonomies settled, so one failure disables only the facets
- * it feeds, and renders the facet panel.
+ * it feeds, and renders the facet panel, with the `account` catalog's loading
+ * text for its comboboxes (lazy-load-facet-controls design.md D3).
  */
 export async function FilteredOfferingsFacets({
   locale,
@@ -35,7 +37,7 @@ export async function FilteredOfferingsFacets({
     <OfferingFacets
       values={parseOfferingFilters(searchParams)}
       options={offeringFacetOptions(coffees, taxonomies, locale)}
-      texts={texts}
+      texts={{ ...texts, loading: getMessages("account", locale).loading ?? "" }}
     />
   );
 }
