@@ -253,3 +253,56 @@ describe("AccountClient — Security section", () => {
     expect(screen.queryByRole("link", { name: TEXTS.verifyEmail })).toBeNull();
   });
 });
+
+describe("AccountClient — Security section popup", () => {
+  const ENTRIES = [
+    [TEXTS.verifyEmail, `${API}/email/verify`],
+    [TEXTS.twoFactor, `${API}/user/security`],
+    [TEXTS.passkeys, `${API}/user/security`],
+  ] as const;
+
+  function renderUnverified() {
+    auth.session = { state: "authenticated", user: { ...USER, emailVerifiedAt: null } };
+    renderClient();
+  }
+
+  it("a plain click on each API entry opens it in a popup window and the tab does not navigate", () => {
+    const open = vi.fn().mockReturnValue({ closed: false });
+    vi.stubGlobal("open", open);
+    renderUnverified();
+    for (const [name, url] of ENTRIES) {
+      open.mockClear();
+      const notPrevented = fireEvent.click(screen.getByRole("link", { name }));
+      expect(notPrevented).toBe(false);
+      expect(open).toHaveBeenCalledWith(url, "tazavera-security", "popup");
+    }
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("when the popup is blocked opens the entry in a new tab and the tab does not navigate", () => {
+    const open = vi.fn().mockReturnValue(null);
+    vi.stubGlobal("open", open);
+    renderUnverified();
+    const notPrevented = fireEvent.click(screen.getByRole("link", { name: TEXTS.verifyEmail }));
+    expect(notPrevented).toBe(false);
+    expect(open).toHaveBeenLastCalledWith(`${API}/email/verify`, "_blank", "noopener");
+  });
+
+  it("reloads the profile once the popup window closes", () => {
+    vi.useFakeTimers();
+    try {
+      const popup = { closed: false };
+      vi.stubGlobal("open", vi.fn().mockReturnValue(popup));
+      auth.refreshProfile.mockReset().mockResolvedValue(undefined);
+      renderUnverified();
+      fireEvent.click(screen.getByRole("link", { name: TEXTS.verifyEmail }));
+      vi.advanceTimersByTime(1000);
+      expect(auth.refreshProfile).not.toHaveBeenCalled();
+      popup.closed = true;
+      vi.advanceTimersByTime(1000);
+      expect(auth.refreshProfile).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
