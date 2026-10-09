@@ -12,4 +12,4 @@ No derived API types are needed: the change adds no API field; the grant type st
 
 ## 3. Full checks
 
-- [ ] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: every validation test passes; the QA suite fails only in files that also fail on `origin/develop` or in QA copies of the tests and mocks updated in 1.1 and 2.1, which are reported, never edited; no typecheck or lint errors; the build succeeds (a failure only from downloading the Google font is environmental).
+- [x] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: every validation test passes; the QA suite fails only in files that also fail on `origin/develop` or in QA copies of the tests and mocks updated in 1.1 and 2.1, which are reported, never edited; no typecheck or lint errors; the build succeeds (a failure only from downloading the Google font is environmental).
