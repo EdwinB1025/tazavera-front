@@ -469,7 +469,8 @@ describe("EvaluationForm: read-only presentation (design.md D4, D14; tasks 7.3)"
     for (const name of ["Save draft", "Close evaluation", "Cancel"]) {
       expect(screen.queryByRole("button", { name })).toBeNull();
     }
-    expect(screen.getAllByRole("button", { name: "My evaluations" })).toHaveLength(2);
+    expect(screen.getByRole("link", { name: "My evaluations" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "My evaluations" })).toBeDefined();
   });
   it("No Cancel on a closed evaluation", () => {
     renderForm({ evaluation: CLOSED });
