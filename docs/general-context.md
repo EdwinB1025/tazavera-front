@@ -599,3 +599,8 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Decisión:** al integrar las reglas en `AGENTS.md`, los comandos y herramientas que no sean de OpenSpec ni de OpenCode se nombran con terminología general, no con el nombre de una herramienta concreta (p. ej. "programar una sesión en la nube" en lugar de `RemoteTrigger` o `claude --cloud`, "tarea recurrente cada 10 minutos" en lugar de `/loop`, "compactar el contexto" en lugar de `/compact`, "subagente" en lugar de "Agent tool"). Es el único cambio de redacción permitido en las reglas existentes; ninguna regla se quita ni cambia de contenido.
 - **Por qué:** Product owner, 9 oct.
 - **Afecta:** `AGENTS.md` (secciones del orquestador y del design lead).
+
+### 2026-10-09 — los últimos cambios son `Refactor (fast lane)` (Product owner)
+- **Decisión:** todos los cambios en curso son `Refactor (fast lane)`: `refine-evaluation-flow`, `show-item-not-found-message` (R18), `show-field-validation-errors` (R8), `secure-step-up`, `unify-action-button-widths`, `close-mobile-filters-on-arrival`, `tighten-public-evaluations-spacing`, `adopt-next-intl-routing` (R43, antes `Change`) y el cambio siguiente del step-up. Cada uno se archiva cuando pasan las comprobaciones completas y `/opsx:verify` no da ningún CRITICAL, sin esperar petición del Product owner. R43 deja de esperar la prueba en navegador para archivarse.
+- **Por qué:** Product owner, 9 oct ("los últimos cambios son todos refactoring - fast lane").
+- **Afecta:** los cambios listados.
