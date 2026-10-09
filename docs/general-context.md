@@ -586,3 +586,8 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Decisión:** (1) el toggle "Filtros" del sidebar (1,06:1 en el tema tradicional) usa en reposo el token de texto de las entradas del sidebar: arreglo no planificado, sin token nuevo. (2) Los 9 escenarios sin test de la pasada 2 se cubren como cobertura no planificada (sustituye la pregunta al Product owner del tablero). (3) El Purpose de `openspec/specs/testing/spec.md` se escribe a mano, excepción única a "specs nunca a mano". (4) `move-flavor-wheel-types`, refactor fast lane para los 11 ciclos de tipos. (5) Las 48 advertencias de lint van a la siguiente ronda de refactor. **No decidido** (cambia cuándo cargan las facetas): cargar los combobox de facetas solo al abrir el panel (riesgo 3), pregunta al Product owner en el tablero.
 - **Por qué:** `docs/review/technical-review-2026-10-09.md` (riesgos 1–6); regla de autonomía del 9 oct.
 - **Afecta:** app-shell, theming, testing, feedback.
+
+### 2026-10-09 — el orquestador fusiona en `master` (Product owner)
+- **Decisión:** el Product owner da permiso al orquestador para fusionar `develop` en `master` y subir `master` (paso 5 de la secuencia final). Hecho: `50f6fba`, árbol idéntico a `develop` comprobado. Excepción a "solo el Product owner fusiona en `master`" para esta secuencia.
+- **Por qué:** Product owner, 9 oct ("You have the permission to merge master").
+- **Afecta:** secuencia final, paso 5.
