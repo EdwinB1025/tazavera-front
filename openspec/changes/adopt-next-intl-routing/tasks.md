@@ -10,7 +10,7 @@
 ## 3. Server locale and provider (app-shell)
 
 - [x] 3.1 In `app/layout.test.tsx` and `qa/app/layout.test.tsx`, move the locale mock from the `x-locale` header of `next/headers` to `getLocale` of `next-intl/server` returning the case's locale (`next/headers` keeps answering an empty `Headers` for the theme cookie); assertions and expected values unchanged. Commit `test(app-shell): …`. Expected: the "metadata description text of the en catalog" case fails in `app/layout.test.tsx` (the layout still reads `x-locale`); every other case passes.
-- [ ] 3.2 `app/layout.tsx` and `app/[locale]/not-found.tsx` read `await getLocale()` (design.md D3); `src/shared/lib/i18n/request.ts` returns `{ locale }` only, resolved with `hasLocale` and `routing.defaultLocale`, and `getCatalogs` with its `MessageCatalogs` type leaves `messages.ts` (design.md D4); `app/[locale]/layout.tsx` wraps `AppShell` in `<NextIntlClientProvider messages={null}>` (design.md D5). Expected: `npx vitest related` on the changed files passes; both layout test files pass; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 3.2 `app/layout.tsx` and `app/[locale]/not-found.tsx` read `await getLocale()` (design.md D3); `src/shared/lib/i18n/request.ts` returns `{ locale }` only, resolved with `hasLocale` and `routing.defaultLocale`, and `getCatalogs` with its `MessageCatalogs` type leaves `messages.ts` (design.md D4); `app/[locale]/layout.tsx` wraps `AppShell` in `<NextIntlClientProvider messages={null}>` (design.md D5). Expected: `npx vitest related` on the changed files passes; both layout test files pass; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 4. Sign-in locale from `useSession()` (auth)
 

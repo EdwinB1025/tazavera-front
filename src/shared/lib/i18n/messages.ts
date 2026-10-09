@@ -8,15 +8,12 @@
  * Components never call the translation API.
  */
 
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { resolve as pathResolve } from "node:path";
 import { isSupportedLocale } from "@/shared/config/locales";
 
 /** One area's texts: flat text-key to rendered text. */
 export type MessageCatalog = Record<string, string>;
-
-/** Every area's catalog of one locale, namespaced by area. */
-export type MessageCatalogs = Record<string, MessageCatalog>;
 
 const MESSAGES_DIR = pathResolve(process.cwd(), "messages");
 
@@ -31,16 +28,4 @@ export function getMessages(area: string, locale: string): MessageCatalog {
   requireSupportedLocale(locale);
   const file = pathResolve(MESSAGES_DIR, locale, `${area}.json`);
   return JSON.parse(readFileSync(file, "utf-8")) as MessageCatalog;
-}
-
-/** Every area's catalog for a locale, namespaced by area. */
-export function getCatalogs(locale: string): MessageCatalogs {
-  requireSupportedLocale(locale);
-  const catalogs: MessageCatalogs = {};
-  for (const entry of readdirSync(pathResolve(MESSAGES_DIR, locale))) {
-    if (!entry.endsWith(".json")) continue;
-    const area = entry.slice(0, -".json".length);
-    catalogs[area] = getMessages(area, locale);
-  }
-  return catalogs;
 }
