@@ -374,14 +374,6 @@ describe("requestProfileWrite — step-up in the popup of design.md D10 (spec: S
 describe("the popup handshake of design.md D10 (spec: Sign in)", () => {
   const route = "/en/offerings/1";
 
-  const PROFILE = {
-    ulid: "user-ulid-1",
-    name: "Andrés",
-    surname: "Gómez",
-    email: "andres@example.test",
-    role: "specialist",
-  };
-
   /**
    * A popup window of this test's own and a window the flow never opened: a
    * message listener left behind by an earlier test's page load answers only

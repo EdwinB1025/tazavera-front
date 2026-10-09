@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent, act } from "@testing-library/react";
+import { render, screen, cleanup, act } from "@testing-library/react";
 import { configureClient, type Session } from "@/shared/api";
 import {
   ManageLocationsClient,
@@ -73,7 +73,6 @@ const TEXTS = {
 } as ManageLocationsClientTexts;
 
 const COFFEESHOP = { ulid: "01COFFEESHOP", role: "coffeeshop" as const };
-const SPECIALIST = { ulid: "01SPECIALIST", role: "specialist" as const };
 
 function renderClient() {
   return render(<ManageLocationsClient locale="es" headingId="h" texts={TEXTS} />);

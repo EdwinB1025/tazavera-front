@@ -5,7 +5,6 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { resolve as pathResolve } from "node:path";
 import type { Session } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
-import { signIn, signOut } from "@/features/auth";
 import { AppShell } from "@/app/shell";
 
 // The shell's client chrome drives navigation through the app router hooks,
