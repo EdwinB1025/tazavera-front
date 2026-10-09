@@ -39,7 +39,7 @@ No test file and no route file changes.
 
 ### D1 — Placement and imports
 
-Every new unit is a sibling file in the segment of the unit it comes from, imported by relative path, never through the slice's public index, which does not change. A new file with hooks, handlers or browser APIs starts with `"use client"`. The new combobox files are imported only by `Combobox.tsx`, so they stay in the lazily loaded chunk and the list routes' First Load JS does not grow.
+Every new unit is a sibling file in the segment of the unit it comes from, imported by relative path, never through the slice's public index, which does not change. A new file with hooks, handlers or browser APIs starts with `"use client"`. The new combobox files are imported only by `Combobox.tsx`, so they stay in the lazily loaded chunk. The list routes' First Load JS may grow by at most 1 KB gzipped per route (accepted by the orchestrator on 2026-10-09 under Product owner's no-behaviour-change autonomy rule; it replaces the earlier "does not grow" condition). Measured before → after the split, gzipped: offerings 229113 → 229335 B, evaluations 225293 → 225487 B, coffee shop detail 244854 → 245310 B, directory unchanged.
 
 ### D2 — Combobox
 

@@ -40,4 +40,5 @@ None.
 - **Validation:** `openspec validate split-oversized-facets --strict` → "Change 'split-oversized-facets' is valid".
 - **Source:** technical review 2026-10-09, top risk 6 and Appendix B.1/B.2 (no backlog entry; typed `Refactor (fast lane)` by the orchestrator).
 - **Resolved:** one split per unit (design.md D2–D6); the combobox's new files stay behind the lazy-load boundary (D1); scope units without a lint warning are left as they are.
+- **Artifact update 2026-10-09:** the list routes' First Load JS growth after the split (offerings 229113 → 229335 B gz, evaluations 225293 → 225487 B gz, coffee shop detail 244854 → 245310 B gz, directory unchanged) is accepted by the orchestrator under Product owner's no-behaviour-change autonomy rule; design.md D1 and task 6.1 now allow at most +1 KB gz per list route instead of no growth.
 - **Open:** nothing.
