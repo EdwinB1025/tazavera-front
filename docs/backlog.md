@@ -27,7 +27,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 | 3 | R8 | none yet | Change (behaviour) | M | R40 |
 | 4 | R10 | none yet | Change (behaviour) | S | before the first facet that shows an error |
 | 5 | R50 | API branch in `tazavera-api` | Change (API) | S | API fix (confirmed on local data 2026-10-09: level-1 notes come back at the top of `cataConcordance`) |
-| 6 | R43 | `adopt-next-intl-routing` | Change | L | its design summary |
 | 7 | R45 | none yet | Change (behaviour, API) | M | Product owner: API change and contract update; not to be designed yet |
 | 8 | R1 | none (Playwright suite) | Change (tests) | — | the pre-deployment Playwright suite |
 
@@ -97,17 +96,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 - **Status:** deferred
 - **Affects:** R49 (how often its orphan rule applies), the flavor wheel
 
-## R43 — Adopt next-intl for locale routing
-
-- **Duplicated:** locale handling written by hand next to next-intl, which the project uses only for its plugin and `getRequestConfig`: the locale list in `src/shared/config/locales.ts` instead of `defineRouting`, the locale prefix in `proxy.ts` instead of the next-intl middleware, and the active locale read from the URL (R5's `localeFromPath`) instead of `useLocale()` / `getLocale()`
-- **Where today:** `src/shared/config/locales.ts`, `src/shared/lib/i18n/`, `proxy.ts`, `app/layout.tsx`, `src/features/auth` (after R5), the language selector, and every importer of the locale config (~60 files with tests)
-- **Why it pays off now:** one library for i18n, following its standard structure. It moves no grade of `docs/review/technical-review.md`; it risks two of them (JS per route, R28; `proxy.ts` headers and CSP, R31)
-- **Owning capability:** app-shell (with auth)
-- **Proposed change:** `adopt-next-intl-routing` (L, about 3–4 h after the summary is approved)
-- **Open decision (Augusto):** the design summary settles how the next-intl middleware coexists with the CSP nonce and headers of `proxy.ts`, where the provider goes, and how the sign-in code receives the locale. Condition: measure the JS per route before and after; the change must not exceed R28's target. Texts keep reaching components as props (no `useTranslations`)
-- **Type:** Change
-- **Status:** accepted (last priority, Product owner 2026-10-08)
-- **Affects:** R5 (its function is removed here), R28, R31 (both go first)
 
 ## R45 — Ask for the first location in coffee-shop registration
 
