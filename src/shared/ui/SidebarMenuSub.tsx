@@ -13,12 +13,18 @@ export type SidebarMenuSubProps = {
   children?: ReactNode;
 };
 
-// The toggle takes the sidebar entry's hover treatment (Sidebar.tsx
-// MENU_BUTTON_CLASSES); the collapsible header keeps its own focus ring.
+// The toggle takes the sidebar entry's text colour and hover treatment
+// (Sidebar.tsx MENU_BUTTON_CLASSES); the collapsible header keeps its own
+// focus ring. The header's title and chevron colour through
+// --color-text-accent, so the toggle points that variable at the entry
+// tokens (theming "Text and button contrast").
 const TOGGLE_CLASSES = [
   "px-3",
+  "text-nav-text-dark",
+  "[--color-text-accent:var(--color-nav-text-dark)]",
   "hover:bg-nav-hover",
   "hover:text-nav-text-hover",
+  "hover:[--color-text-accent:var(--color-nav-text-hover)]",
 ].join(" ");
 
 /**
