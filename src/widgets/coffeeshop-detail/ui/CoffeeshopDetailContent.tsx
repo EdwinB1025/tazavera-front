@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { CoffeeshopDetail } from "@/shared/api";
-import { BackLink, PageSection, RetryButton } from "@/shared/ui";
+import { BackButton, BackLink, PageSection, RetryButton } from "@/shared/ui";
 import type { CoffeeshopTab } from "../lib/tab";
 import { CoffeeshopHeader } from "./CoffeeshopHeader";
 import { CoffeeshopTabs } from "./CoffeeshopTabs";
@@ -85,7 +85,9 @@ export function CoffeeshopDetailContent({
           />
         }
       />
-      <div>{backLink}</div>
+      <div>
+        <BackButton fallback={`/${locale}/coffeeshops`}>{texts.backToDirectory}</BackButton>
+      </div>
     </PageSection>
   );
 }

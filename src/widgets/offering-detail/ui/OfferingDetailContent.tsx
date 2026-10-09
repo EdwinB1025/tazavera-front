@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { OfferingDetail, Session, TaxonomyNode } from "@/shared/api";
-import { BackLink, PageSection, RetryButton } from "@/shared/ui";
+import { BackButton, BackLink, PageSection, RetryButton } from "@/shared/ui";
 import type { DetailTab } from "../lib/tab";
 import { DetailHeader } from "./DetailHeader";
 import type { DetailHeaderTexts } from "./DetailHeader";
@@ -119,7 +119,9 @@ export function OfferingDetailContent({
         }
         provisional={provisional}
       />
-      <div>{backLink}</div>
+      <div>
+        <BackButton fallback={`/${locale}/offerings`}>{texts.backLabel}</BackButton>
+      </div>
     </PageSection>
   );
 }
