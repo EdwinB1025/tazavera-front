@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import type { Contact } from "@/shared/api";
-import { Button, FormStatus } from "@/shared/ui";
+import { ActionGroup, Button, FormStatus } from "@/shared/ui";
 import { ContactFields, type ContactTexts } from "@/entities/contact";
 import type { ContactCheckTexts } from "../model/contact-checks";
 import { useContactForm } from "../model/use-contact-form";
@@ -64,7 +64,7 @@ export function ContactForm({
       {form.outcome === "error" && (
         <FormStatus kind="error" text={texts.genericError} />
       )}
-      <div className="flex flex-wrap gap-3">
+      <ActionGroup>
         <Button type="submit" variant="primary" size="base" loading={form.pending}>
           {texts.save}
         </Button>
@@ -76,7 +76,7 @@ export function ContactForm({
         >
           {texts.cancel}
         </Button>
-      </div>
+      </ActionGroup>
     </form>
   );
 }

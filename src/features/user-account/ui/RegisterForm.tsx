@@ -2,7 +2,7 @@
 
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import type { RegisterPayload, RegistrationToken } from "@/shared/api";
-import { Button, Field, Input, FormStatus, RouteButton } from "@/shared/ui";
+import { ActionGroup, Button, Field, Input, FormStatus, RouteButton } from "@/shared/ui";
 import { isValidEmail } from "@/entities/contact";
 import { registerUser } from "../api/register";
 import { NewPasswordFields } from "./NewPasswordFields";
@@ -209,20 +209,14 @@ export function RegisterForm({
         onChange={update}
       />
       {failed && <FormStatus kind="error" text={texts.genericError} />}
-      <div className="flex flex-col items-center gap-3">
-        <Button
-          type="submit"
-          variant="primary"
-          size="base"
-          loading={pending}
-          className="w-full"
-        >
+      <ActionGroup>
+        <Button type="submit" variant="primary" size="base" loading={pending}>
           {texts.registerSubmit}
         </Button>
         <RouteButton href={cancelHref} variant="action-4" size="base">
           {texts.cancelLabel}
         </RouteButton>
-      </div>
+      </ActionGroup>
     </form>
   );
 }

@@ -18,7 +18,7 @@ No derived API types are needed: the change only moves layout classes and adds t
 ## 4. Account screens (user-account)
 
 - [x] 4.1 Test in `src/features/user-account/ui/RegisterForm.test.tsx` for "Register and Cancel share one action group": both buttons have the same parent element, which has `grid-cols-2`, and neither button has `w-full`. Verify: it fails on the current form.
-- [ ] 4.2 Implement design.md D4 in `RegisterForm.tsx` (group), `ContactForm.tsx` (group), `RegisterSuccessPanel.tsx` (lone, `w-full` removed). Verify: `npx vitest related` passes, 4.1 included; typecheck and lint clean.
+- [x] 4.2 Implement design.md D4 in `RegisterForm.tsx` (group), `ContactForm.tsx` (group), `RegisterSuccessPanel.tsx` (lone, `w-full` removed). Verify: `npx vitest related` passes, 4.1 included; typecheck and lint clean.
 
 ## 5. Evaluation screens (evaluations)
 
