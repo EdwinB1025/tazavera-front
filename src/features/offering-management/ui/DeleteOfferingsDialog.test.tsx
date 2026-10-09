@@ -30,8 +30,6 @@ const TEXTS = {
   deleteConfirmLabel: "Delete",
   cancelLabel: "Cancel",
   deleteError: "It could not be deleted. Try again.",
-  stepUpMessage: "To continue, confirm your identity.",
-  stepUpLabel: "Confirm your identity",
 };
 
 type Overrides = Partial<Parameters<typeof DeleteOfferingsDialog>[0]>;
@@ -43,7 +41,6 @@ function renderDialog(overrides: Overrides = {}) {
     error: "none" as const,
     onCancel: vi.fn(),
     onConfirm: vi.fn(),
-    onStepUp: vi.fn(),
     texts: TEXTS,
     ...overrides,
   };
@@ -77,18 +74,12 @@ describe("DeleteOfferingsDialog (design.md D7)", () => {
     expect(cancel.disabled).toBe(true);
   });
 
-  it("renders the step-up text and action inside the dialog's single alert region, with no role of their own", () => {
-    renderDialog({ error: "step-up" });
+  it("renders the delete error inside the dialog's single alert region, with no step-up action", () => {
+    renderDialog({ error: "failed" });
 
     const alerts = screen.getAllByRole("alert");
     expect(alerts).toHaveLength(1);
-    const message = screen.getByText(TEXTS.stepUpMessage);
-    const action = screen.getByRole("button", { name: TEXTS.stepUpLabel });
-    expect(alerts[0].contains(message)).toBe(true);
-    expect(alerts[0].contains(action)).toBe(true);
-    expect(message.getAttribute("role")).toBeNull();
-    expect(message.closest("[role]")).toBe(alerts[0]);
-    expect(action.parentElement!.closest("[role]")).toBe(alerts[0]);
-    expect(screen.queryByText(TEXTS.deleteError)).toBeNull();
+    expect(alerts[0].textContent).toBe(TEXTS.deleteError);
+    expect(screen.queryByRole("button", { name: "Confirm your identity" })).toBeNull();
   });
 });
