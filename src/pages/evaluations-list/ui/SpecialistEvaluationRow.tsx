@@ -70,7 +70,7 @@ export function SpecialistEvaluationRow({
               {message}
             </p>
           ) : null}
-          <Button variant="action-3" onClick={() => router.push(formRoute)}>
+          <Button variant={viewOnly ? "action-3" : "action-4"} onClick={() => router.push(formRoute)}>
             {viewOnly ? texts.viewLabel : texts.editLabel}
           </Button>
           {viewOnly ? null : (

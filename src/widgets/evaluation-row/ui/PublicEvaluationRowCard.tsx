@@ -66,7 +66,7 @@ function RowActions({ evaluation, locale, texts, suffix, available }: RowActions
       {available ? (
         <RouteButton
           href={`/${locale}/offerings/${evaluation.offeringId ?? ""}`}
-          variant="action-4"
+          variant="action-3"
           size="sm"
         >
           {texts.viewOfferingLabel}{" "}

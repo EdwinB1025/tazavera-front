@@ -59,7 +59,7 @@ export function CloseEvaluationAction({
   };
 
   return (
-    <Button variant="action-3" loading={pending} onClick={pending ? undefined : close}>
+    <Button variant="action-2" loading={pending} onClick={pending ? undefined : close}>
       {texts.closeLabel}
     </Button>
   );

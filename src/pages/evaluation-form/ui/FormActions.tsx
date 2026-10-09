@@ -77,7 +77,7 @@ export function FormActions({
       </p>
       <div className={BUTTONS_CLASSES}>
         <Button
-          variant="action-3"
+          variant="primary"
           className={BUTTON_WIDTH_CLASSES}
           loading={busy === "save"}
           onClick={idle ? onSave : undefined}
@@ -86,7 +86,7 @@ export function FormActions({
         </Button>
         {onClose ? (
           <Button
-            variant="primary"
+            variant="action-2"
             className={BUTTON_WIDTH_CLASSES}
             loading={busy === "close"}
             onClick={idle ? onClose : undefined}
