@@ -5,12 +5,12 @@
  * returns the user who started the step-up. Another user's grant is never
  * installed: its web session is ended with `POST /logout` and it is dropped.
  */
+import type { SessionUser } from "@/shared/api";
 import {
   exchangeCode,
   exchangeCodeForGrant,
   keepTokens,
   requestWithToken,
-  type SessionUser,
 } from "@/shared/api";
 import type { PendingFlow } from "../model/flow";
 
