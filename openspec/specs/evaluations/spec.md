@@ -46,7 +46,7 @@ The route `/{locale}/manage/evaluations` SHALL show the evaluations of the signe
 
 ### Requirement: Row actions
 
-Each row SHALL offer Edit for an open evaluation, View for a closed one or for any evaluation whose `offeringId` is `null`, and Delete with an explicit confirmation for all of them. An open row whose `offeringId` is not `null` SHALL also offer Close evaluation between Edit and Delete, which calls `closeAnEvaluation` and reports its outcome in the row with the form's messages; on success the row SHALL show the closed state without a full page reload.
+Each row SHALL offer, in this order: View, on every row, which opens the form read-only (`/{locale}/manage/evaluations/{ulid}?mode=view`); View offering, only when the evaluation's `offeringId` is not `null`, which opens `/{locale}/offerings/{offeringId}` and is the public row's control (the "View offering" text with the row's hidden suffix); Close evaluation; Edit, only for an open evaluation whose `offeringId` is not `null`, which opens the form route `/{locale}/manage/evaluations/{ulid}` for editing; and Delete with an explicit confirmation, on every row. Close evaluation SHALL appear only on an open row whose `offeringId` is not `null` and whose evaluation is complete by the contract's close rule: the 7 `descriptive` and 8 `affective` scores greater than 0, and among `tastes` at least one of `type` `main_tastes`, one of `type` `mouthfeel` and one aromatic one (any `type` other than `main_tastes`, `mouthfeel` and `defects`). It calls `closeAnEvaluation` and reports its outcome in the row with the form's messages; on success the row SHALL show the closed state without a full page reload.
 
 #### Scenario: Editing an open evaluation
 
@@ -56,22 +56,42 @@ Each row SHALL offer Edit for an open evaluation, View for a closed one or for a
 #### Scenario: Viewing a closed evaluation
 
 - **WHEN** the specialist activates View on a closed row
-- **THEN** the same form route opens read-only
+- **THEN** the form route opens read-only
+
+#### Scenario: Viewing an open evaluation
+
+- **WHEN** the specialist activates View on an open row
+- **THEN** the form route opens with `?mode=view`, read-only
+
+#### Scenario: Actions of a complete open row
+
+- **WHEN** an open row whose offering exists and whose evaluation is complete renders
+- **THEN** it offers View, View offering, Close evaluation, Edit and Delete, in this order
+
+#### Scenario: No close on an incomplete open row
+
+- **WHEN** an open row whose evaluation is not complete renders
+- **THEN** it offers View, View offering, Edit and Delete, and no Close evaluation
+
+#### Scenario: Viewing the offering of a row
+
+- **WHEN** the specialist activates View offering on a row
+- **THEN** `/{locale}/offerings/{offeringId}` opens
 
 #### Scenario: A row whose offering was deleted
 
 - **WHEN** a row's evaluation has `offeringId` `null`, open or closed
-- **THEN** the row offers View, which opens the form route read-only, and Delete, and no Close evaluation
+- **THEN** the row offers View, which opens the form route read-only, and Delete, and no View offering, no Edit and no Close evaluation
 
 #### Scenario: Closing an open evaluation from its row
 
-- **WHEN** the specialist activates Close evaluation on an open row
+- **WHEN** the specialist activates Close evaluation on a complete open row
 - **THEN** `closeAnEvaluation` is sent for the row's evaluation
 
 #### Scenario: The row's close succeeds
 
 - **WHEN** the close sent from a row succeeds
-- **THEN** the row shows the closed confirmation, offers View instead of Edit and no longer offers Close evaluation
+- **THEN** the row shows the closed confirmation, keeps View, and no longer offers Edit or Close evaluation
 
 #### Scenario: The row's close finds the evaluation incomplete
 
@@ -100,7 +120,7 @@ Each row SHALL offer Edit for an open evaluation, View for a closed one or for a
 
 ### Requirement: Evaluation form
 
-The route `/{locale}/manage/evaluations/new?offering={ulid}` SHALL present the CVA combined form for a new evaluation of that offering and the route `/{locale}/manage/evaluations/{ulid}` the same form loaded from the evaluation. The form SHALL carry the header fields roast level (prefilled from the offering's `coffeeInventory.coffee.roastLevel`) and extraction method, and the eight groups in CVA order: Fragrance / Aroma, Flavor / Aftertaste, Acidity, Sweetness, Mouthfeel, Overall, Defects and Extrinsic. Every group with a descriptive part SHALL offer one intensity control per axis on the 0–15 scale and every group with an affective part one preference control per axis on the 1–9 scale, Overall having only the affective one. Defects SHALL offer only its descriptor block and Extrinsic only its five optional text fields, in this order: Farming, Processing, Trading, Certifications and General observation, sent as `extrinsics.farming`, `extrinsics.processing`, `extrinsics.trading`, `extrinsics.certifications` and `extrinsics.generalObservation`; General observation keeps its "Add note" control and the other four each show a labelled text area, and none of the five counts towards completeness. The header fields SHALL sit in a section card (content-structure "Section card") with no header band. At every viewport each group SHALL be a section card whose header band holds a collapsible section header (content-structure "Collapsible section") carrying the group name and, in the band's aside, its completeness indicator; groups SHALL sit 1rem apart and the form's top-level blocks 2rem apart; every group SHALL start collapsed in an editable form and expanded in a closed one, and while a group is collapsed its card SHALL show only its header band, with no separator under it. As the form's first section, after the header and before the context fields, the form SHALL show the informative collapsible section "Affective quality impression", the 1–9 legend, as a section card with its collapsible header in the band: the nine values in order, each with a bean mark with its number inside it and its label (1 Extremely low, 2 Very low, 3 Moderately low, 4 Slightly low, 5 Neither high nor low, 6 Slightly high, 7 Moderately high, 8 Very high, 9 Extremely high); it follows the groups' initial-state rule and has no completeness indicator. An evaluation whose `offeringId` is `null` SHALL open read-only, with the "Offering no longer exists" message in place of the offering header and the roast level, and keeps its extraction method. A form shown read-only (a closed evaluation, or an evaluation whose `offeringId` is `null`), which has no actions, SHALL repeat the header's back button to `/{locale}/manage/evaluations`, with the same text, after the read-only status at the end of the form; an editable form SHALL show no second back button.
+The route `/{locale}/manage/evaluations/new?offering={ulid}` SHALL present the CVA combined form for a new evaluation of that offering and the route `/{locale}/manage/evaluations/{ulid}` the same form loaded from the evaluation; with the query `?mode=view` that route SHALL render the evaluation read-only whatever its status. The form SHALL carry the header fields roast level (prefilled from the offering's `coffeeInventory.coffee.roastLevel`) and extraction method, and the eight groups in CVA order: Fragrance / Aroma, Flavor / Aftertaste, Acidity, Sweetness, Mouthfeel, Overall, Defects and Extrinsic. Every group with a descriptive part SHALL offer one intensity control per axis on the 0–15 scale and every group with an affective part one preference control per axis on the 1–9 scale, Overall having only the affective one. Defects SHALL offer only its descriptor block and Extrinsic only its five optional text fields, in this order: Farming, Processing, Trading, Certifications and General observation, sent as `extrinsics.farming`, `extrinsics.processing`, `extrinsics.trading`, `extrinsics.certifications` and `extrinsics.generalObservation`; General observation keeps its "Add note" control; each of the other four, like Overall's note, always shows its label and shows its text area only once "Add note" is activated, or on load when it holds a saved value; an unopened field is sent as `null`, and none of the five counts towards completeness. The header fields SHALL sit in a section card (content-structure "Section card") with no header band. At every viewport each group SHALL be a section card whose header band holds a collapsible section header (content-structure "Collapsible section") carrying the group name and, in the band's aside, its completeness indicator; groups SHALL sit 1rem apart and the form's top-level blocks 2rem apart; every group SHALL start collapsed in an editable form and expanded in a closed one, and while a group is collapsed its card SHALL show only its header band, with no separator under it. As the form's first section, after the header and before the context fields, the form SHALL show the informative collapsible section "Affective quality impression", the 1–9 legend, as a section card with its collapsible header in the band: the nine values in order, each with a bean mark with its number inside it and its label (1 Extremely low, 2 Very low, 3 Moderately low, 4 Slightly low, 5 Neither high nor low, 6 Slightly high, 7 Moderately high, 8 Very high, 9 Extremely high); it follows the groups' initial-state rule and has no completeness indicator. An evaluation whose `offeringId` is `null` SHALL open read-only, with the "Offering no longer exists" message in place of the offering header and the roast level, and keeps its extraction method. A form shown read-only (a closed evaluation, an evaluation whose `offeringId` is `null`, or any evaluation opened with `?mode=view`), which has no actions, SHALL repeat the header's back button to `/{locale}/manage/evaluations`, with the same text, after the read-only status at the end of the form; an editable form SHALL show no second back button.
 
 #### Scenario: The form header
 
@@ -152,6 +172,11 @@ The route `/{locale}/manage/evaluations/new?offering={ulid}` SHALL present the C
 - **WHEN** the form opens for a closed evaluation
 - **THEN** the same content is shown with every control read-only and with no save, close, note or remove-note action
 
+#### Scenario: An open evaluation opened with View
+
+- **WHEN** the evaluation route opens an open evaluation with `?mode=view`
+- **THEN** the form is shown read-only, with no editable control, no save, close or cancel action, and the read-only back button to `/{locale}/manage/evaluations` at its end
+
 #### Scenario: An unknown offering or evaluation
 
 - **WHEN** the new form is opened without an `offering` query value or with an unknown one, or the evaluation route names an evaluation that does not exist or belongs to another user
@@ -171,15 +196,20 @@ The route `/{locale}/manage/evaluations/new?offering={ulid}` SHALL present the C
 - **WHEN** the evaluation form renders
 - **THEN** the header's back control, and the second one of a read-only form, are buttons, not links, that navigate to `/{locale}/manage/evaluations`
 
+#### Scenario: Extrinsic notes start behind Add note
+
+- **WHEN** the Extrinsic group of a new evaluation is expanded
+- **THEN** Farming, Processing, Trading and Certifications each show their label and an "Add note" control, and no text area
+
 #### Scenario: Editing and sending the extrinsic fields
 
-- **WHEN** the specialist fills some of the Extrinsic group's five fields, leaves the rest empty and saves
-- **THEN** the write body's `extrinsics` carries `farming`, `processing`, `trading`, `certifications` and `generalObservation`, each with its entered text, and an empty field as `null`
+- **WHEN** the specialist opens and fills some of the Extrinsic group's five fields, leaves the rest unopened or empty and saves
+- **THEN** the write body's `extrinsics` carries `farming`, `processing`, `trading`, `certifications` and `generalObservation`, each with its entered text, and an unopened or empty field as `null`
 
 #### Scenario: Loading the extrinsic fields
 
 - **WHEN** the form opens for an existing evaluation whose `extrinsics` holds values
-- **THEN** each of the five Extrinsic fields shows its value from `extrinsics`, and a closed evaluation shows each non-empty value as text under its label
+- **THEN** each of the five Extrinsic fields that holds a value shows its text area with that value, and a closed evaluation shows each non-empty value as text under its label
 
 ### Requirement: Descriptor blocks
 
@@ -278,7 +308,7 @@ Save draft SHALL create the evaluation with `createAnEvaluation` the first time 
 
 ### Requirement: Closing an evaluation
 
-Close evaluation SHALL appear in the form only when the evaluation exists: a form that edits a saved evaluation, including a new form once its first save created it. A new form with nothing saved SHALL NOT offer it. Close evaluation SHALL save the form and then call `closeAnEvaluation`. On success the form SHALL become the read-only view and a closed confirmation SHALL appear.
+Close evaluation SHALL appear in the form only when the evaluation exists and its saved state (the evaluation as loaded, not unsaved edits) is complete by the contract's close rule of "Row actions". A new form, or a saved evaluation that is not complete, SHALL NOT offer it. Close evaluation SHALL save the form and then call `closeAnEvaluation`. On success the specialist SHALL return to `/{locale}/manage/evaluations`, as after a successful save; a failed close SHALL keep the form with its message.
 
 #### Scenario: No close on a new evaluation
 
@@ -287,18 +317,23 @@ Close evaluation SHALL appear in the form only when the evaluation exists: a for
 
 #### Scenario: Close on a saved open evaluation
 
-- **WHEN** the form renders a saved open evaluation
+- **WHEN** the form renders a saved open evaluation that is complete
 - **THEN** the Close evaluation action renders
+
+#### Scenario: No close on an incomplete saved evaluation
+
+- **WHEN** the form renders a saved open evaluation that is not complete
+- **THEN** no Close evaluation action renders
 
 #### Scenario: Closing a complete evaluation
 
 - **WHEN** the specialist closes the evaluation and the close succeeds
-- **THEN** the read-only view replaces the form with every group expanded and the closed confirmation appears
+- **THEN** `/{locale}/manage/evaluations` opens
 
 #### Scenario: Closing an incomplete evaluation
 
-- **WHEN** the close answers `409`
-- **THEN** the incomplete message appears and the groups that are incomplete are highlighted and expanded, collapsed ones included
+- **WHEN** the close answers `409`, the form's unsaved edits having left it incomplete
+- **THEN** the form stays, the incomplete message appears and the groups that are incomplete are highlighted and expanded, collapsed ones included
 
 #### Scenario: Closing is refused
 
