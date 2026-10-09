@@ -8,7 +8,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 2. Radio group
 
-- [ ] 2.1 Create `src/shared/ui/RadioOptionRow.tsx` and split `RadioGroup` as design.md D4. Commit `refactor(form-fields): split the radio group`.
+- [x] 2.1 Create `src/shared/ui/RadioOptionRow.tsx` and split `RadioGroup` as design.md D4. Commit `refactor(form-fields): split the radio group`.
 
 ## 3. Bean scale
 
