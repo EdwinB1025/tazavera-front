@@ -2,7 +2,7 @@
 
 ## 1. Tighten the public evaluations toolbar spacing (content-structure)
 
-- [ ] 1.1 Test first. In `src/pages/public-evaluations/ui/ListScreen.test.tsx`, add one test for the scenario "Public evaluations toolbar close to its results": the heading and the results (the stubbed list) sit in the same `section`, and the container holding the header column and the results carries `gap-6` (one class assertion). Update existing assertions only where the structure change breaks them. No `qa/` test changes.
+- [x] 1.1 Test first. In `src/pages/public-evaluations/ui/ListScreen.test.tsx`, add one test for the scenario "Public evaluations toolbar close to its results": the heading and the results (the stubbed list) sit in the same `section`, and the container holding the header column and the results carries `gap-6` (one class assertion). Update existing assertions only where the structure change breaks them. No `qa/` test changes.
 
   Verify: `npx vitest related src/pages/public-evaluations/ui/ListScreen.test.tsx --run`. Expected: only the new test fails. `npx tsc --noEmit` and `npm run lint` pass.
 

@@ -83,4 +83,13 @@ describe("ListScreen (summary §5.2)", () => {
       { scroll: false },
     );
   });
+
+  it("holds the heading, toolbar and results in one section, the results 1.5rem below the toolbar (spec: Public evaluations toolbar close to its results)", () => {
+    renderScreen({});
+    const container = screen
+      .getByRole("heading", { level: 1 })
+      .closest("section")!.firstElementChild!;
+    expect(container.contains(screen.getByTestId("public-list"))).toBe(true);
+    expect(container.getAttribute("class")!.split(/\s+/)).toContain("gap-6");
+  });
 });
