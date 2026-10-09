@@ -100,7 +100,7 @@ Each row SHALL offer Edit for an open evaluation, View for a closed one or for a
 
 ### Requirement: Evaluation form
 
-The route `/{locale}/manage/evaluations/new?offering={ulid}` SHALL present the CVA combined form for a new evaluation of that offering and the route `/{locale}/manage/evaluations/{ulid}` the same form loaded from the evaluation. The form SHALL carry the header fields roast level (prefilled from the offering's `coffeeInventory.coffee.roastLevel`) and extraction method, and the eight groups in CVA order: Fragrance / Aroma, Flavor / Aftertaste, Acidity, Sweetness, Mouthfeel, Overall, Defects and Extrinsic. Every group with a descriptive part SHALL offer one intensity control per axis on the 0–15 scale and every group with an affective part one preference control per axis on the 1–9 scale, Overall having only the affective one. Defects SHALL offer only its descriptor block and Extrinsic only its five optional text fields, in this order: Farming, Processing, Trading, Certifications and General observation, sent as `extrinsics.farming`, `extrinsics.processing`, `extrinsics.trading`, `extrinsics.certifications` and `extrinsics.generalObservation`; General observation keeps its "Add note" control and the other four each show a labelled text area, and none of the five counts towards completeness. The header fields SHALL sit in a section card (content-structure "Section card") with no header band. At every viewport each group SHALL be a section card whose header band holds a collapsible section header (content-structure "Collapsible section") carrying the group name and, in the band's aside, its completeness indicator; groups SHALL sit 1rem apart and the form's top-level blocks 2rem apart; every group SHALL start collapsed in an editable form and expanded in a closed one, and while a group is collapsed its card SHALL show only its header band, with no separator under it. As the form's first section, after the header and before the context fields, the form SHALL show the informative collapsible section "Affective quality impression", the 1–9 legend, as a section card with its collapsible header in the band: the nine values in order, each with a bean mark with its number inside it and its label (1 Extremely low, 2 Very low, 3 Moderately low, 4 Slightly low, 5 Neither high nor low, 6 Slightly high, 7 Moderately high, 8 Very high, 9 Extremely high); it follows the groups' initial-state rule and has no completeness indicator. An evaluation whose `offeringId` is `null` SHALL open read-only, with the "Offering no longer exists" message in place of the offering header and the roast level, and keeps its extraction method. A form shown read-only (a closed evaluation, or an evaluation whose `offeringId` is `null`), which has no actions, SHALL repeat the header's back button to `/{locale}/manage/evaluations`, with the same text, after the read-only status at the end of the form; an editable form SHALL show no second back button.
+The route `/{locale}/manage/evaluations/new?offering={ulid}` SHALL present the CVA combined form for a new evaluation of that offering and the route `/{locale}/manage/evaluations/{ulid}` the same form loaded from the evaluation. The form SHALL carry the header fields roast level (prefilled from the offering's `coffeeInventory.coffee.roastLevel`) and extraction method, and the eight groups in CVA order: Fragrance / Aroma, Flavor / Aftertaste, Acidity, Sweetness, Mouthfeel, Overall, Defects and Extrinsic. Every group with a descriptive part SHALL offer one intensity control per axis on the 0–15 scale and every group with an affective part one preference control per axis on the 1–9 scale, Overall having only the affective one. Defects SHALL offer only its descriptor block and Extrinsic only its five optional text fields, in this order: Farming, Processing, Trading, Certifications and General observation, sent as `extrinsics.farming`, `extrinsics.processing`, `extrinsics.trading`, `extrinsics.certifications` and `extrinsics.generalObservation`; General observation keeps its "Add note" control and the other four each show a labelled text area, and none of the five counts towards completeness. The header fields SHALL sit in a section card (content-structure "Section card") with no header band. At every viewport each group SHALL be a section card whose header band holds a collapsible section header (content-structure "Collapsible section") carrying the group name and, in the band's aside, its completeness indicator; groups SHALL sit 1rem apart and the form's top-level blocks 2rem apart; every group SHALL start collapsed in an editable form and expanded in a closed one, and while a group is collapsed its card SHALL show only its header band, with no separator under it. As the form's first section, after the header and before the context fields, the form SHALL show the informative collapsible section "Affective quality impression", the 1–9 legend, as a section card with its collapsible header in the band: the nine values in order, each with a bean mark with its number inside it and its label (1 Extremely low, 2 Very low, 3 Moderately low, 4 Slightly low, 5 Neither high nor low, 6 Slightly high, 7 Moderately high, 8 Very high, 9 Extremely high); it follows the groups' initial-state rule and has no completeness indicator. An evaluation whose `offeringId` is `null` SHALL open read-only, with the "Offering no longer exists" message in place of the offering header and the roast level, and keeps its extraction method. A form shown read-only (a closed evaluation, or an evaluation whose `offeringId` is `null`), which has no actions, SHALL repeat the header's back button to `/{locale}/manage/evaluations`, with the same text, after the read-only status at the end of the form; an editable form SHALL show no second back button. For a signed-in specialist, when the evaluation route's evaluation request, or the new form's offering request, answers `404`, the route SHALL show, in place of the form, the item's title as the page heading ("Evaluation not found" or "Offering not found"), the line "It may have been removed, or the link may be wrong." below it and then the header's back button to `/{locale}/manage/evaluations`, with no retry action, in the route's locale; a new form opened without an `offering` query value SHALL show the 404 page.
 
 #### Scenario: The form header
 
@@ -152,14 +152,19 @@ The route `/{locale}/manage/evaluations/new?offering={ulid}` SHALL present the C
 - **WHEN** the form opens for a closed evaluation
 - **THEN** the same content is shown with every control read-only and with no save, close, note or remove-note action
 
+#### Scenario: No offering on the new form
+
+- **WHEN** the new form is opened without an `offering` query value
+- **THEN** the 404 page is shown
+
 #### Scenario: An unknown offering or evaluation
 
-- **WHEN** the new form is opened without an `offering` query value or with an unknown one, or the evaluation route names an evaluation that does not exist or belongs to another user
-- **THEN** the 404 page is shown
+- **WHEN** a signed-in specialist opens the new form and the offering request answers `404`, or opens the evaluation route and the evaluation request answers `404` (an evaluation that does not exist or belongs to another user)
+- **THEN** in place of the form, the item's heading ("Offering not found" or "Evaluation not found"), the line "It may have been removed, or the link may be wrong." and, below them, the back button to `/{locale}/manage/evaluations` are shown, with no retry action
 
 #### Scenario: The form cannot be loaded
 
-- **WHEN** the evaluation or its offering cannot be loaded for any reason other than an authentication failure
+- **WHEN** the evaluation or its offering cannot be loaded for any reason other than an authentication failure or the `404` of the evaluation, or of the new form's offering
 - **THEN** a failure message with a retry action is shown
 
 #### Scenario: Back link at the end of a read-only evaluation
@@ -458,7 +463,7 @@ The list body SHALL offer a sort choice labelled for assistive technology, whose
 - **THEN** the list falls back to the default order
 
 ### Requirement: Read-only evaluation view
-The system SHALL show, at `/{locale}/evaluations/{ulid}` to any visitor, one closed specialist evaluation: a header with the offering's identity (coffee name as the page heading, the coffeeshop and roaster captions, the "Closed on" line and a "View offering" link) and the read-only evaluation presentation below. The route SHALL offer a back button to the previous page, whose fallback destination is the plain list with no query. When the offering cannot be loaded, the header SHALL show the offering-unavailable message as the heading with no captions and no "View offering" link while the presentation still renders. When the evaluation's `offeringId` is null, no offering request SHALL be made and the header SHALL show the offering-missing message as the heading with no captions and no "View offering" link while the back button and the presentation still render. When the evaluation renders, the back button SHALL be repeated, with the same text and destination, at the end of the second section, after the presentation; the loading and error states SHALL keep only the first section's back button.
+The system SHALL show, at `/{locale}/evaluations/{ulid}` to any visitor, one closed specialist evaluation: a header with the offering's identity (coffee name as the page heading, the coffeeshop and roaster captions, the "Closed on" line and a "View offering" link) and the read-only evaluation presentation below. The route SHALL offer a back button to the previous page, whose fallback destination is the plain list with no query. When the offering cannot be loaded, the header SHALL show the offering-unavailable message as the heading with no captions and no "View offering" link while the presentation still renders. When the evaluation's `offeringId` is null, no offering request SHALL be made and the header SHALL show the offering-missing message as the heading with no captions and no "View offering" link while the back button and the presentation still render. When the evaluation renders, the back button SHALL be repeated, with the same text and destination, at the end of the second section, after the presentation; the loading, not-found and error states SHALL keep only one back button. When the evaluation request answers `404` (an unknown identifier, or an evaluation that is not closed) or answers an evaluation whose `status` is not closed, the view SHALL show, in its first section, the title "Evaluation not found" as the page heading and the line "It may not be published yet, or the link may be wrong." below it (in the route's locale), followed by the back button, with no retry action and no presentation.
 
 #### Scenario: Loading the view
 - **WHEN** the view is being loaded
@@ -468,9 +473,13 @@ The system SHALL show, at `/{locale}/evaluations/{ulid}` to any visitor, one clo
 - **WHEN** the request returns 200 with `status` closed
 - **THEN** the header shows the offering's identity and the presentation shows the evaluation's results
 
+#### Scenario: Opening an unknown evaluation
+- **WHEN** the evaluation request answers `404` (an unknown identifier, or an evaluation that is not closed)
+- **THEN** the heading "Evaluation not found" and the line "It may not be published yet, or the link may be wrong." render, the back button renders below them, and no Retry control and no presentation render
+
 #### Scenario: Opening an evaluation that is not closed
 - **WHEN** the request returns 200 with `status` other than closed
-- **THEN** the route renders the 404 page
+- **THEN** the same heading, line and back button render as for an unknown evaluation, with no Retry control and no presentation
 
 #### Scenario: The offering cannot be loaded
 - **WHEN** the evaluation loads but its offering request fails
@@ -481,7 +490,7 @@ The system SHALL show, at `/{locale}/evaluations/{ulid}` to any visitor, one clo
 - **THEN** no offering request is made, the heading shows the offering-missing message with no captions and no "View offering" link, and the back button and the presentation render as usual
 
 #### Scenario: The evaluation cannot be loaded
-- **WHEN** the evaluation request or the taxonomy request fails with any non-2xx status (an unknown ULID included, whose 404 is undocumented) or a transport failure
+- **WHEN** the evaluation request or the taxonomy request fails with a transport failure or a non-2xx status other than the evaluation's `404`
 - **THEN** the first section keeps the back button and the second section shows the error message with a Retry control
 
 #### Scenario: Retrying after a failure
