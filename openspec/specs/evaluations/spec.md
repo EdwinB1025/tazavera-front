@@ -80,7 +80,7 @@ Each row SHALL offer Edit for an open evaluation, View for a closed one or for a
 
 ### Requirement: Evaluation form
 
-The route `/{locale}/manage/evaluations/new?offering={ulid}` SHALL present the CVA combined form for a new evaluation of that offering and the route `/{locale}/manage/evaluations/{ulid}` the same form loaded from the evaluation. The form SHALL carry the header fields roast level (prefilled from the offering's `coffeeInventory.coffee.roastLevel`) and extraction method, and the eight groups in CVA order: Fragrance / Aroma, Flavor / Aftertaste, Acidity, Sweetness, Mouthfeel, Overall, Defects and Extrinsic. Every group with a descriptive part SHALL offer one intensity control per axis on the 0–15 scale and every group with an affective part one preference control per axis on the 1–9 scale, Overall having only the affective one. Defects SHALL offer only its descriptor block and Extrinsic only its optional notes field, sent as `extrinsics.generalObservation`. The header fields SHALL sit in a section card (content-structure "Section card") with no header band. At every viewport each group SHALL be a section card whose header band holds a collapsible section header (content-structure "Collapsible section") carrying the group name and, in the band's aside, its completeness indicator; groups SHALL sit 1rem apart and the form's top-level blocks 2rem apart; every group SHALL start collapsed in an editable form and expanded in a closed one, and while a group is collapsed its card SHALL show only its header band, with no separator under it. Right after the Flavor / Aftertaste group, which holds Main tastes, the form SHALL show the informative collapsible section "Affective quality impression", the 1–9 legend, as a section card with its collapsible header in the band: the nine values in order, each with a bean mark with its number inside it and its label (1 Extremely low, 2 Very low, 3 Moderately low, 4 Slightly low, 5 Neither high nor low, 6 Slightly high, 7 Moderately high, 8 Very high, 9 Extremely high); it follows the groups' initial-state rule and has no completeness indicator. An evaluation whose `offeringId` is `null` SHALL open read-only, with the "Offering no longer exists" message in place of the offering header and the roast level, and keeps its extraction method. A form shown read-only (a closed evaluation, or an evaluation whose `offeringId` is `null`), which has no actions, SHALL repeat the header's back link to `/{locale}/manage/evaluations`, with the same text, after the read-only status at the end of the form; an editable form SHALL show no second back link.
+The route `/{locale}/manage/evaluations/new?offering={ulid}` SHALL present the CVA combined form for a new evaluation of that offering and the route `/{locale}/manage/evaluations/{ulid}` the same form loaded from the evaluation. The form SHALL carry the header fields roast level (prefilled from the offering's `coffeeInventory.coffee.roastLevel`) and extraction method, and the eight groups in CVA order: Fragrance / Aroma, Flavor / Aftertaste, Acidity, Sweetness, Mouthfeel, Overall, Defects and Extrinsic. Every group with a descriptive part SHALL offer one intensity control per axis on the 0–15 scale and every group with an affective part one preference control per axis on the 1–9 scale, Overall having only the affective one. Defects SHALL offer only its descriptor block and Extrinsic only its optional notes field, sent as `extrinsics.generalObservation`. The header fields SHALL sit in a section card (content-structure "Section card") with no header band. At every viewport each group SHALL be a section card whose header band holds a collapsible section header (content-structure "Collapsible section") carrying the group name and, in the band's aside, its completeness indicator; groups SHALL sit 1rem apart and the form's top-level blocks 2rem apart; every group SHALL start collapsed in an editable form and expanded in a closed one, and while a group is collapsed its card SHALL show only its header band, with no separator under it. Right after the Flavor / Aftertaste group, which holds Main tastes, the form SHALL show the informative collapsible section "Affective quality impression", the 1–9 legend, as a section card with its collapsible header in the band: the nine values in order, each with a bean mark with its number inside it and its label (1 Extremely low, 2 Very low, 3 Moderately low, 4 Slightly low, 5 Neither high nor low, 6 Slightly high, 7 Moderately high, 8 Very high, 9 Extremely high); it follows the groups' initial-state rule and has no completeness indicator. An evaluation whose `offeringId` is `null` SHALL open read-only, with the "Offering no longer exists" message in place of the offering header and the roast level, and keeps its extraction method. A form shown read-only (a closed evaluation, or an evaluation whose `offeringId` is `null`), which has no actions, SHALL repeat the header's back button to `/{locale}/manage/evaluations`, with the same text, after the read-only status at the end of the form; an editable form SHALL show no second back button.
 
 #### Scenario: The form header
 
@@ -145,7 +145,11 @@ The route `/{locale}/manage/evaluations/new?offering={ulid}` SHALL present the C
 #### Scenario: Back link at the end of a read-only evaluation
 
 - **WHEN** the form opens for a closed evaluation
-- **THEN** a second back link with the same text and destination as the header's renders after the last group and the read-only status, and an editable form renders only the header's back link
+- **THEN** a second back button with the same text and destination as the header's renders after the last group and the read-only status, and an editable form renders only the header's back button
+
+#### Scenario: Back buttons on the evaluation form
+- **WHEN** the evaluation form renders
+- **THEN** the header's back control, and the second one of a read-only form, are buttons, not links, that navigate to `/{locale}/manage/evaluations`
 
 ### Requirement: Descriptor blocks
 
@@ -414,11 +418,11 @@ The list body SHALL offer a sort choice labelled for assistive technology, whose
 - **THEN** the list falls back to the default order
 
 ### Requirement: Read-only evaluation view
-The system SHALL show, at `/{locale}/evaluations/{ulid}` to any visitor, one closed specialist evaluation: a header with the offering's identity (coffee name as the page heading, the coffeeshop and roaster captions, the "Closed on" line and a "View offering" link) and the read-only evaluation presentation below. The route SHALL offer a back link to the previous page, whose fallback destination is the plain list with no query. When the offering cannot be loaded, the header SHALL show the offering-unavailable message as the heading with no captions and no "View offering" link while the presentation still renders. When the evaluation's `offeringId` is null, no offering request SHALL be made and the header SHALL show the offering-missing message as the heading with no captions and no "View offering" link while the back link and the presentation still render. When the evaluation renders, the back link SHALL be repeated, with the same text and destination, at the end of the second section, after the presentation; the loading and error states SHALL keep only the first section's back link.
+The system SHALL show, at `/{locale}/evaluations/{ulid}` to any visitor, one closed specialist evaluation: a header with the offering's identity (coffee name as the page heading, the coffeeshop and roaster captions, the "Closed on" line and a "View offering" link) and the read-only evaluation presentation below. The route SHALL offer a back button to the previous page, whose fallback destination is the plain list with no query. When the offering cannot be loaded, the header SHALL show the offering-unavailable message as the heading with no captions and no "View offering" link while the presentation still renders. When the evaluation's `offeringId` is null, no offering request SHALL be made and the header SHALL show the offering-missing message as the heading with no captions and no "View offering" link while the back button and the presentation still render. When the evaluation renders, the back button SHALL be repeated, with the same text and destination, at the end of the second section, after the presentation; the loading and error states SHALL keep only the first section's back button.
 
 #### Scenario: Loading the view
 - **WHEN** the view is being loaded
-- **THEN** the first section shows the back link and three placeholder bars and the second section shows two placeholder cards
+- **THEN** the first section shows the back button and three placeholder bars and the second section shows two placeholder cards
 
 #### Scenario: Viewing a closed evaluation
 - **WHEN** the request returns 200 with `status` closed
@@ -434,11 +438,11 @@ The system SHALL show, at `/{locale}/evaluations/{ulid}` to any visitor, one clo
 
 #### Scenario: Viewing an evaluation whose offering was deleted
 - **WHEN** the evaluation loads with `status` closed and `offeringId` null
-- **THEN** no offering request is made, the heading shows the offering-missing message with no captions and no "View offering" link, and the back link and the presentation render as usual
+- **THEN** no offering request is made, the heading shows the offering-missing message with no captions and no "View offering" link, and the back button and the presentation render as usual
 
 #### Scenario: The evaluation cannot be loaded
 - **WHEN** the evaluation request or the taxonomy request fails with any non-2xx status (an unknown ULID included, whose 404 is undocumented) or a transport failure
-- **THEN** the first section keeps the back link and the second section shows the error message with a Retry control
+- **THEN** the first section keeps the back button and the second section shows the error message with a Retry control
 
 #### Scenario: Retrying after a failure
 - **WHEN** the visitor activates Retry
@@ -446,7 +450,11 @@ The system SHALL show, at `/{locale}/evaluations/{ulid}` to any visitor, one clo
 
 #### Scenario: Back link at the end
 - **WHEN** the view renders a closed evaluation
-- **THEN** a second back link with the same text and destination renders after the presentation's last section
+- **THEN** a second back button with the same text and destination renders after the presentation's last section
+
+#### Scenario: Back buttons on the read-only evaluation view
+- **WHEN** the read-only evaluation view renders
+- **THEN** its back controls are buttons, not links, with the same text and destination
 
 ### Requirement: Read-only evaluation presentation
 One read-only presentation SHALL render an evaluation's results for the evaluation view and for the provisional evaluation tab. It SHALL show: a summary card with the score and its rating word and a definition list of "Closed on" (`closedAt`, omitted when null), "Extraction method" (`extractionMethod`, labelled from the catalog of the nine values and shown raw otherwise) and "Defective cup" (`isDefective`, Yes/No text); an intensity card with the seven `descriptive.*.score` values as read-only meters over 0 to 15 whose value text reads "{v}/15" and whose accessible value reads "{v} de 15" over the labels LOW, MEDIUM and HIGH, a null score rendering as 0; a preference card with the eight `affective.*.score` values as read-only bean scales over 1 to 9 whose value text reads "{v}/9" and whose accessible value reads "{v} de 9", a null or 0 score omitting its scale; a descriptors card with five blocks (Fragrance / Aroma, Flavor / Aftertaste, Main tastes, Mouthfeel, Defects) built from `tastes[]` by `type` (`fragrance`/`aroma`, `flavor`/`aftertaste`, `main_tastes`, `mouthfeel`, `defects`) with the taxonomy names resolved from `GET /taxonomies` at levels 0, 1 and 2 in the route's locale, shown as a read-only descriptor cascade, and an empty text when a block has nothing; a notes list of the non-null `descriptive.*.note` and `affective.*.note` values headed "{Intensity or Preference} · {axis}"; and an extrinsic-attributes list of the non-null `extrinsics.*` fields with their labels. Scores, notes and descriptors SHALL never be conveyed by color alone: every meter also carries its value as text and every descriptor carries its name.
@@ -534,15 +542,19 @@ The evaluation form SHALL present, for the same offering, evaluation, taxonomy t
 - **THEN** every group and the 1–9 legend start expanded, every control is read-only and no action renders
 
 ### Requirement: Cancelling the evaluation form
-An editable evaluation form, new or existing, SHALL show a "Cancel" link after the Save draft and Close evaluation actions that opens the My evaluations route `/{locale}/manage/evaluations` without saving and without sending any request, and that stays usable while an action runs. Below 768px the sticky actions bar SHALL stack the status region, the two actions side by side with equal widths, and the Cancel link centred on its own line; from 768px the actions SHALL form one right-aligned row with Cancel last. A closed evaluation, shown read-only, SHALL have no Cancel link. No warning about unsaved input SHALL be shown.
+An editable evaluation form, new or existing, SHALL show a "Cancel" button after the Save draft and Close evaluation actions that opens the My evaluations route `/{locale}/manage/evaluations` without saving and without sending any request, and that stays usable while an action runs. Below 768px the sticky actions bar SHALL stack the status region, the two actions side by side with equal widths, and the Cancel button centred on its own line; from 768px the actions SHALL form one right-aligned row with Cancel last. A closed evaluation, shown read-only, SHALL have no Cancel button. No warning about unsaved input SHALL be shown.
 
 #### Scenario: Cancel leaves for My evaluations without saving
 - **WHEN** the editable evaluation form renders and the user activates "Cancel"
-- **THEN** the link after Close evaluation addresses `/{locale}/manage/evaluations` and no save or close request is sent
+- **THEN** the button after Close evaluation navigates to `/{locale}/manage/evaluations` and no save or close request is sent
 
 #### Scenario: No Cancel on a closed evaluation
 - **WHEN** a closed evaluation renders read-only
-- **THEN** no "Cancel" link renders
+- **THEN** no "Cancel" button renders
+
+#### Scenario: Cancel is a button
+- **WHEN** the editable evaluation form renders
+- **THEN** "Cancel" is a button, not a link, and activating it navigates to `/{locale}/manage/evaluations`
 
 ### Requirement: Evaluation route headings
 The "My evaluations" list heading SHALL be the page's level-1 heading, and on every evaluation route the signed-out view SHALL expose the evaluations access message as the page's level-1 heading, both keeping their present type style.
