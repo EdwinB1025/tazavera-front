@@ -12,4 +12,4 @@ No derived API types are needed: the change removes the 403 mapping of existing 
 
 ## 3. Full checks
 
-- [ ] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: every validation test passes; the QA suite fails only in files that also fail on `origin/develop`, apart from the stale QA copies of the tests updated here, which are reported to Product owner, not edited; no typecheck or lint errors; the build succeeds.
+- [x] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: every validation test passes; the QA suite fails only in files that also fail on `origin/develop`, apart from the stale QA copies of the tests updated here, which are reported to Product owner, not edited; no typecheck or lint errors; the build succeeds.
