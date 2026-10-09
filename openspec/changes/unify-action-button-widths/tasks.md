@@ -2,8 +2,8 @@ No derived API types are needed: the change only moves layout classes and adds t
 
 ## 1. Action width tokens (theming)
 
-- [ ] 1.1 Register the two width tokens in the existing radius-token test of `src/app/styles/theme-tokens.test.ts` (check items: the traditional `@theme` defines `--container-action-sm: 7.5rem` and `--container-action-base: 10rem`; the dark theme does not reassign them). Verify: the new items fail before 1.2; the rest of the file passes; `npx tsc --noEmit` and `npm run lint` report no errors.
-- [ ] 1.2 Implement design.md D1 in `src/app/styles/globals.css`. Verify: `npx vitest related src/app/styles/globals.css src/app/styles/theme-tokens.test.ts --run` passes; `npm run build` emits `min-w-action-sm` and `min-w-action-base`.
+- [x] 1.1 Register the two width tokens in the existing radius-token test of `src/app/styles/theme-tokens.test.ts` (check items: the traditional `@theme` defines `--container-action-sm: 7.5rem` and `--container-action-base: 10rem`; the dark theme does not reassign them). Verify: the new items fail before 1.2; the rest of the file passes; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 1.2 Implement design.md D1 in `src/app/styles/globals.css`. Verify: `npx vitest related src/app/styles/globals.css src/app/styles/theme-tokens.test.ts --run` passes; `npm run build` emits `min-w-action-sm` and `min-w-action-base`.
 
 ## 2. Button widths and action group (base-controls)
 
