@@ -16,7 +16,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 4. Intensity slider
 
-- [ ] 4.1 Create `src/shared/ui/IntensitySliderParts.tsx` and split `IntensitySlider` as design.md D6. Commit `refactor(form-fields): split the intensity slider`.
+- [x] 4.1 Create `src/shared/ui/IntensitySliderParts.tsx` and split `IntensitySlider` as design.md D6. Commit `refactor(form-fields): split the intensity slider`.
 
 ## 5. Descriptor chip group
 
