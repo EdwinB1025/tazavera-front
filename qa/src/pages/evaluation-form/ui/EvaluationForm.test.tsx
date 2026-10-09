@@ -6,8 +6,11 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
  * 4.1 and the later form tasks).
  */
 
+// Saving and closing return to the list through the app router
+// (return-to-list-after-save); test infrastructure only.
+const router = vi.hoisted(() => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }));
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
+  useRouter: () => router,
 }));
 
 const createAnEvaluation = vi.fn();
@@ -20,7 +23,13 @@ vi.mock("@/entities/evaluation", async (importOriginal) => ({
   closeAnEvaluation: (...args: unknown[]) => closeAnEvaluation(...args),
 }));
 import { EvaluationForm } from "@/pages/evaluation-form/ui/EvaluationForm";
-import { FORM_TEXTS, OFFERING, OPEN_EVALUATION, TAXONOMIES } from "@/pages/evaluation-form/ui/form-fixtures";
+import {
+  COMPLETE_EVALUATION,
+  FORM_TEXTS,
+  OFFERING,
+  OPEN_EVALUATION,
+  TAXONOMIES,
+} from "@/pages/evaluation-form/ui/form-fixtures";
 
 // Inside a form the Radix radio group measures each bean for its hidden
 // native radio; jsdom has no ResizeObserver. Test infrastructure only.
@@ -37,13 +46,12 @@ beforeAll(() => {
 
 afterEach(() => {
   cleanup();
+  router.push.mockReset();
   createAnEvaluation.mockReset();
   updateAnEvaluation.mockReset();
   closeAnEvaluation.mockReset();
   vi.restoreAllMocks();
 });
-
-const CREATED = { ...OPEN_EVALUATION, ulid: "01JEVALNEW0000000000000001" };
 
 function renderForm(props: Partial<Parameters<typeof EvaluationForm>[0]> = {}) {
   return render(
@@ -79,17 +87,9 @@ describe("EvaluationForm: closing (design.md D4, D10; tasks 7.1)", () => {
     fireEvent.click(screen.getByRole("button", { name: "Close evaluation" }));
   }
 
-  it("creates a new evaluation first, then closes the created one", async () => {
-    createAnEvaluation.mockResolvedValue({ ok: true, status: 201, data: CREATED });
-    closeAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: null });
-    renderForm();
-    closeEvaluation();
-    await waitFor(() => expect(closeAnEvaluation).toHaveBeenCalledWith(CREATED.ulid));
-  });
-
   it("does not close when the save fails", async () => {
-    updateAnEvaluation.mockResolvedValue({ ok: false, status: 422 });
-    renderForm({ evaluation: OPEN_EVALUATION });
+    updateAnEvaluation.mockResolvedValue({ ok: false, kind: "error" });
+    renderForm({ evaluation: COMPLETE_EVALUATION });
     closeEvaluation();
     await waitFor(() => expect(screen.getByRole("status").textContent).toBe("Something went wrong."));
     expect(closeAnEvaluation).not.toHaveBeenCalled();
@@ -124,28 +124,28 @@ describe("EvaluationForm: one action at a time (design.md D4)", () => {
   function pendingUpdate() {
     const pending: Array<(value: unknown) => void> = [];
     updateAnEvaluation.mockImplementation(() => new Promise((settle) => pending.push(settle)));
-    return () => pending.forEach((settle) => settle({ ok: true, status: 200, data: OPEN_EVALUATION }));
+    return () => pending.forEach((settle) => settle({ ok: true, data: COMPLETE_EVALUATION }));
   }
 
   it("ignores Close evaluation while a save is running", async () => {
     const finish = pendingUpdate();
-    renderForm({ evaluation: OPEN_EVALUATION });
+    renderForm({ evaluation: COMPLETE_EVALUATION });
     fireEvent.click(screen.getByRole("button", { name: "Save draft" }));
     fireEvent.click(screen.getByRole("button", { name: "Close evaluation" }));
     finish();
-    await waitFor(() => expect(screen.getByRole("status").textContent).toBe("Draft saved."));
+    await waitFor(() => expect(router.push).toHaveBeenCalledWith("/en/manage/evaluations"));
     expect(updateAnEvaluation).toHaveBeenCalledTimes(1);
     expect(closeAnEvaluation).not.toHaveBeenCalled();
   });
 
   it("ignores Save draft while a close is running", async () => {
     const finish = pendingUpdate();
-    closeAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: null });
-    renderForm({ evaluation: OPEN_EVALUATION });
+    closeAnEvaluation.mockResolvedValue({ ok: true, data: null });
+    renderForm({ evaluation: COMPLETE_EVALUATION });
     fireEvent.click(screen.getByRole("button", { name: "Close evaluation" }));
     fireEvent.click(screen.getByRole("button", { name: "Save draft" }));
     finish();
-    await waitFor(() => expect(screen.getByRole("status").textContent).toBe("Evaluation closed."));
+    await waitFor(() => expect(router.push).toHaveBeenCalledWith("/en/manage/evaluations"));
     expect(updateAnEvaluation).toHaveBeenCalledTimes(1);
     expect(closeAnEvaluation).toHaveBeenCalledTimes(1);
   });
@@ -183,9 +183,9 @@ describe("EvaluationForm: section states (design.md D15; tasks 11.3)", () => {
   }
 
   it("keeps a group the user expanded before a 409", async () => {
-    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
-    closeAnEvaluation.mockResolvedValue({ ok: false, status: 409 });
-    const { container } = renderForm({ evaluation: OPEN_EVALUATION });
+    updateAnEvaluation.mockResolvedValue({ ok: true, data: COMPLETE_EVALUATION });
+    closeAnEvaluation.mockResolvedValue({ ok: false, kind: "conflict" });
+    const { container } = renderForm({ evaluation: COMPLETE_EVALUATION });
     fireEvent.click(screen.getByRole("button", { name: "Overall" }));
     closeEvaluation();
     await waitFor(() =>
@@ -213,22 +213,13 @@ describe("EvaluationForm: the 1–9 legend (design.md D16; tasks 12.2)", () => {
   }
 
   it("stays collapsed on a 409 close", async () => {
-    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
-    closeAnEvaluation.mockResolvedValue({ ok: false, status: 409 });
-    renderForm({ evaluation: OPEN_EVALUATION });
+    updateAnEvaluation.mockResolvedValue({ ok: true, data: COMPLETE_EVALUATION });
+    closeAnEvaluation.mockResolvedValue({ ok: false, kind: "conflict" });
+    renderForm({ evaluation: COMPLETE_EVALUATION });
     fireEvent.click(screen.getByRole("button", { name: "Close evaluation" }));
     await waitFor(() =>
       expect(screen.getByRole("status").textContent).toBe("Complete every group before closing."),
     );
     expect(legendHeader().getAttribute("aria-expanded")).toBe("false");
-  });
-
-  it("expands when a successful close turns the form read-only", async () => {
-    updateAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: OPEN_EVALUATION });
-    closeAnEvaluation.mockResolvedValue({ ok: true, status: 200, data: null });
-    renderForm({ evaluation: OPEN_EVALUATION });
-    fireEvent.click(screen.getByRole("button", { name: "Close evaluation" }));
-    await waitFor(() => expect(screen.getByRole("status").textContent).toBe("Evaluation closed."));
-    expect(legendHeader().getAttribute("aria-expanded")).toBe("true");
   });
 });

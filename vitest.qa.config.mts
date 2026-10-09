@@ -13,31 +13,23 @@ export default defineConfig({
             // stale since fix-production-aut-findings (R42); see the merge report
             'qa/src/widgets/app-header/ui/AppHeader.test.tsx',
             // stale since fix-production-aut-findings (R42); see the merge report
-            'qa/src/widgets/evaluation-row/ui/EvaluationRowCard.test.tsx',
-            // stale since fix-production-aut-findings (R42); see the merge report
             'qa/src/widgets/offering-list/lib/resolve-taxonomies.test.ts',
             // imports ThemeSelect, deleted by refine-header-aut (design.md D4b)
             'qa/src/widgets/app-header/ui/ThemeSelect.test.tsx',
             // lacks the required cancel props of add-form-cancel-actions (design.md D5)
-            'qa/src/pages/evaluation-form/ui/FormActions.test.tsx',
-            // lacks the required cancel props of add-form-cancel-actions (design.md D5)
             'qa/src/features/user-account/ui/RegisterForm.test.tsx',
             // lacks the required cancel props of add-form-cancel-actions (design.md D5)
             'qa/src/pages/register/ui/RegisterClient.test.tsx',
-            // queries the back control as a link; stale since render-navigation-actions-as-buttons
-            'qa/src/pages/public-evaluation/ui/ViewScreen.test.tsx',
             // its routing mock lacks useRouter; stale since render-navigation-actions-as-buttons
             'qa/src/pages/new-offering/ui/NewOfferingForm.test.tsx',
             // asserts the old primary add button; stale since align-button-variants
             'qa/src/features/user-account/ui/ContactSection.test.tsx',
-            // closes incomplete evaluations and expects the read-only switch; stale since refine-evaluation-flow
-            'qa/src/pages/evaluation-form/ui/EvaluationForm.test.tsx',
-            // asserts the 404 page of an unknown evaluation; stale since show-item-not-found-message
-            'qa/src/pages/evaluation-form/ui/EvaluationDetail.test.tsx',
             // asserts a 422 maps to error; stale since show-field-validation-errors (design.md D6)
             'qa/src/features/location-management/model/submit-location.test.ts',
             // asserts Button's exact class string without the action width; stale since unify-action-button-widths
             'qa/src/features/offering-management/ui/OfferingActions.test.tsx',
+            // superseded by the validation suite's row tests (refine-evaluation-flow D5); pending deletion
+            'qa/src/pages/evaluations-list/ui/EvaluationRowCard.test.tsx',
         ],
     },
 })

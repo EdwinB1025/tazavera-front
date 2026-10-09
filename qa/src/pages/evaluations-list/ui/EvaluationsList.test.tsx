@@ -22,6 +22,9 @@ vi.mock("@/entities/evaluation", async (importOriginal) => ({
     .loadEvaluationOfferings,
   listMyEvaluations: (...args: unknown[]) => listMyEvaluations(...args),
   deleteAnEvaluation: (...args: unknown[]) => deleteAnEvaluation(...args),
+  closeAnEvaluation: vi.fn(),
+  isReadyForClosing: (await importOriginal<typeof import("@/entities/evaluation")>())
+    .isReadyForClosing,
 }));
 
 const fetchOffering = vi.fn();
@@ -44,6 +47,10 @@ const TEXTS: EvaluationsListTexts = {
   roasterCaption: "Roaster:",
   editLabel: "Edit",
   viewLabel: "View",
+  viewOfferingLabel: "View offering",
+  closeLabel: "Close evaluation",
+  closedMessage: "Evaluation closed.",
+  incompleteMessage: "Complete every group before closing.",
   ratingExceptionalLabel: "Exceptional",
   ratingExcellentLabel: "Excellent",
   ratingGoodLabel: "Good",
@@ -95,13 +102,13 @@ const ITEMS: EvaluationItem[] = [
 ];
 
 function page(data: EvaluationItem[], meta = { current_page: 1, last_page: 1, per_page: 15, total: data.length }) {
-  return { ok: true, status: 200, data: { data, meta } };
+  return { ok: true, data: { data, meta } };
 }
 
 beforeEach(() => {
   listMyEvaluations.mockReset();
   fetchOffering.mockReset();
-  fetchOffering.mockImplementation(async (ulid: string) => ({ status: "found", offering: OFFERINGS[ulid] }));
+  fetchOffering.mockImplementation(async (ulid: string) => ({ ok: true, data: OFFERINGS[ulid] }));
 });
 
 afterEach(cleanup);

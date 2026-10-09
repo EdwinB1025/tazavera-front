@@ -33,7 +33,13 @@ vi.mock("@/entities/offering", async (importOriginal) => ({
 import { EvaluationDetail } from "@/pages/evaluation-form/ui/EvaluationDetail";
 import { FORM_TEXTS, OFFERING, OPEN_EVALUATION, TAXONOMIES } from "@/pages/evaluation-form/ui/form-fixtures";
 
-const TEXTS = { ...FORM_TEXTS, loadErrorMessage: "This evaluation could not be loaded.", retryLabel: "Retry" };
+const TEXTS = {
+  ...FORM_TEXTS,
+  loadErrorMessage: "This evaluation could not be loaded.",
+  retryLabel: "Retry",
+  notFoundTitle: "Evaluation not found",
+  notFoundLine: "It may have been removed, or the link may be wrong.",
+};
 
 beforeAll(() => {
   vi.stubGlobal(
@@ -50,7 +56,7 @@ beforeEach(() => {
   getMyEvaluation.mockReset();
   fetchOffering.mockReset();
   notFound.mockClear();
-  fetchOffering.mockResolvedValue({ status: "found", offering: OFFERING });
+  fetchOffering.mockResolvedValue({ ok: true, data: OFFERING });
 });
 
 afterEach(cleanup);

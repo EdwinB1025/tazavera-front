@@ -40,6 +40,7 @@ function fullState(): EvaluationFormState & { roastLevel: "medium" } {
       mouthfeel: ["01JTAXSILKY00000000000000D"],
       defects: ["01JTAXMOULD00000000000000E"],
     },
+    extrinsics: { farming: null, processing: null, trading: null, certifications: null },
     generalObservation: "Washed station",
     fragranceNotEvaluated: false,
   };

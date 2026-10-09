@@ -11,8 +11,8 @@ afterEach(() => {
 describe("BeanMark bean artwork (add-evaluation-scales design.md D4)", () => {
   // jsdom has no CSS engine, so the artwork is verified by its exact token
   // classes (design.md D4: the disc a full circle in
-  // `fill-evaluation-bean-on`/`-off`, the bean path in the matching
-  // `fill-`/`stroke-evaluation-bean-mark-on`/`-mark-off`).
+  // `fill-evaluation-bean-on`/`-off`). The bean path keeps one colour in
+  // every state, `fill-`/`stroke-evaluation-bean-mark-off` (unify-bean-outline).
 
   it("renders aria-hidden, being decorative artwork", () => {
     const { container } = render(createElement(BeanMark, { variant: "on" }));
@@ -21,12 +21,12 @@ describe("BeanMark bean artwork (add-evaluation-scales design.md D4)", () => {
     expect(svg!.getAttribute("aria-hidden")).not.toBeNull();
   });
 
-  it('variant "on": the disc in fill-evaluation-bean-on, the path in the matching mark tokens', () => {
+  it('variant "on": the disc in fill-evaluation-bean-on, the path in the shared mark tokens', () => {
     const { container } = render(createElement(BeanMark, { variant: "on" }));
     const svg = container.querySelector("svg");
     const disc = svg!.querySelector(".fill-evaluation-bean-on");
     const mark = svg!.querySelector(
-      "path.fill-evaluation-bean-mark-on.stroke-evaluation-bean-mark-on",
+      "path.fill-evaluation-bean-mark-off.stroke-evaluation-bean-mark-off",
     );
     expect(disc).not.toBeNull();
     expect(mark).not.toBeNull();
@@ -34,7 +34,7 @@ describe("BeanMark bean artwork (add-evaluation-scales design.md D4)", () => {
     expect(disc).not.toBe(mark);
   });
 
-  it('variant "off": the disc in fill-evaluation-bean-off, the path in the matching mark tokens', () => {
+  it('variant "off": the disc in fill-evaluation-bean-off, the path in the shared mark tokens', () => {
     const { container } = render(createElement(BeanMark, { variant: "off" }));
     const svg = container.querySelector("svg");
     const disc = svg!.querySelector(".fill-evaluation-bean-off");
