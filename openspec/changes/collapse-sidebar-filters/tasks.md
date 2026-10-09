@@ -6,7 +6,7 @@
 
   Verify: `npx vitest related src/shared/ui/SidebarMenuSub.test.tsx src/widgets/app-sidebar/ui/AppSidebar.test.tsx --run`. Expected: only the new tests fail (and typecheck errors only for the missing module and props).
 
-- [ ] 1.2 `SidebarProvider` holds `subsectionOpen` / `setSubsectionOpen` (closed on arrival). New `src/shared/ui/SidebarMenuSub.tsx`: `SidebarMenuSub` (a controlled `Collapsible` on that state, header with the sidebar entry hover classes, body below, indented; closes on unmount) and `SidebarSubsectionProvider` / `SidebarSubsectionOutlet` (the outlet renders the sub-section a parent provides). `AppSidebar` takes `listEntry` and `subsection`: nested under the list entry; on a management route with role entries, provided to the outlet that `EvaluationsSidebarEntry` renders under its current entry; otherwise standalone above `children`.
+- [x] 1.2 `SidebarProvider` holds `subsectionOpen` / `setSubsectionOpen` (closed on arrival). New `src/shared/ui/SidebarMenuSub.tsx`: `SidebarMenuSub` (a controlled `Collapsible` on that state, header with the sidebar entry hover classes, body below, indented; closes on unmount) and `SidebarSubsectionProvider` / `SidebarSubsectionOutlet` (the outlet renders the sub-section a parent provides). `AppSidebar` takes `listEntry` and `subsection`: nested under the list entry; on a management route with role entries, provided to the outlet that `EvaluationsSidebarEntry` renders under its current entry; otherwise standalone above `children`.
 
   Verify: `npx vitest related` on the changed files, `npx tsc --noEmit`, `npm run lint`. Expected: all pass.
 
