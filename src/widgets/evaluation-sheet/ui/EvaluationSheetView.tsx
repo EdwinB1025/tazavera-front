@@ -4,7 +4,7 @@ import type { EvaluationItem, OfferingDetail, TaxonomyNode } from "@/shared/api"
 import { fetchEvaluation } from "@/entities/evaluation";
 import { fetchOffering } from "@/entities/offering";
 import { collectTaxonomyRefs, fetchTaxonomiesCovering } from "@/entities/taxonomy";
-import { Link, PageSection, RetryButton } from "@/shared/ui";
+import { PageSection, RetryButton, RouteButton } from "@/shared/ui";
 import { cn } from "@/shared/lib/utils";
 import { EvaluationSheet } from "./EvaluationSheet";
 import { EvaluationSheetSkeleton } from "./EvaluationSheetBaseline";
@@ -29,6 +29,8 @@ export type EvaluationSheetViewProps = {
   ulid: string;
   /** The route's back link, kept in section 1 in every state. */
   back: ReactNode;
+  /** The route's back button, at the end of section 2 of a closed evaluation (apply-header-link-rule). */
+  bottomBack: ReactNode;
   texts: EvaluationViewTexts;
 };
 
@@ -41,8 +43,8 @@ type ViewData = {
 
 // Section 1: the back link and the header block, 1.5rem apart (summary §5.3).
 const HEADER_CONTAINER_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
-// Section 2: the sheet, then the back link again, 2rem apart
-// (add-bottom-back-links D3).
+// Section 2: the sheet, then the back button, 2rem apart
+// (add-bottom-back-links D3; apply-header-link-rule).
 const SHEET_CONTAINER_CLASSES = ["flex", "flex-col", "gap-8"].join(" ");
 const HEADER_BLOCK_CLASSES = ["flex", "flex-col", "items-start", "gap-2"].join(" ");
 const STATE_CLASSES = ["flex", "flex-col", "items-center", "gap-4", "text-center"].join(" ");
@@ -106,6 +108,7 @@ export async function EvaluationSheetView({
   locale,
   ulid,
   back,
+  bottomBack,
   texts,
 }: EvaluationSheetViewProps): Promise<ReactNode> {
   const data = await load(ulid);
@@ -155,9 +158,13 @@ export async function EvaluationSheetView({
           ) : null}
           {metaLine ? <p className="type-meta">{metaLine}</p> : null}
           {offering ? (
-            <Link href={`/${locale}/offerings/${evaluation.offeringId ?? ""}`}>
+            <RouteButton
+              href={`/${locale}/offerings/${evaluation.offeringId ?? ""}`}
+              variant="action-3"
+              size="sm"
+            >
               {texts.viewOfferingLabel}
-            </Link>
+            </RouteButton>
           ) : null}
         </div>
       </PageSection>
@@ -168,7 +175,7 @@ export async function EvaluationSheetView({
           locale={locale}
           texts={texts}
         />
-        <div>{back}</div>
+        <div>{bottomBack}</div>
       </PageSection>
     </>
   );

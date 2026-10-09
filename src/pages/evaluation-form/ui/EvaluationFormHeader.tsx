@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { OfferingDetail } from "@/shared/api";
-import { ArrowLeft, RouteButton } from "@/shared/ui";
+import { BackLink } from "@/shared/ui";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -38,14 +38,7 @@ export function EvaluationFormHeader({
     `${texts.roasterCaption} ${offering?.coffeeInventory?.roastery?.name ?? ""}`.trim();
   return (
     <div className={HEADER_CLASSES}>
-      <RouteButton
-        href={`/${locale}/manage/evaluations`}
-        variant="action-3"
-        size="sm"
-        icon={ArrowLeft}
-      >
-        {texts.backLabel}
-      </RouteButton>
+      <BackLink fallback={`/${locale}/manage/evaluations`}>{texts.backLabel}</BackLink>
       <p className="type-eyebrow mt-4">{texts.eyebrow}</p>
       <h1 className="type-heading mt-4">
         {offering ? offering.coffeeInventory?.coffee?.name : texts.offeringMissingLabel}
