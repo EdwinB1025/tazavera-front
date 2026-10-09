@@ -279,15 +279,19 @@ The Contact details section SHALL render its states — reading, read error with
 - **THEN** the API receives the same method, path, headers and body as before the refactor, and the status is mapped to an outcome by the account feature's request layer
 
 ### Requirement: Cancelling registration
-Both registration forms, specialist and coffee shop, SHALL show a "Cancel" button under the full-width submit action, centred, that opens the root of the active locale `/{locale}` without sending anything. The success panel and the loading state SHALL have no Cancel button. No warning about unsaved input SHALL be shown.
+Both registration forms, specialist and coffee shop, SHALL show a "Cancel" button after the submit action, the two in one action group (base-controls "Action group"), that opens the root of the active locale `/{locale}` without sending anything. Neither button SHALL span the form's full width. The success panel and the loading state SHALL have no Cancel button. No warning about unsaved input SHALL be shown.
 
 #### Scenario: Cancel opens the locale root without sending anything
 - **WHEN** the registration form renders and the user activates "Cancel"
-- **THEN** the button under the submit action navigates to `/{locale}` and no `POST /register` is sent
+- **THEN** the button after the submit action navigates to `/{locale}` and no `POST /register` is sent
 
 #### Scenario: Cancel is a button
 - **WHEN** the registration form renders
 - **THEN** "Cancel" is a button, not a link, and activating it navigates to `/{locale}`
+
+#### Scenario: Register and Cancel share one action group
+- **WHEN** the registration form renders
+- **THEN** the submit action and "Cancel" are in one action group and neither is full width
 
 ### Requirement: Account page modes and their session gate
 The account page at `/{locale}/account` SHALL show one heading block and, for an authenticated session, the sections of its mode, each named by its heading. In read mode, the default, the sections SHALL be Profile, Contact details and Security, in that order; the Profile section is read-only and filled from the session user's `data.name`, `data.surname`, `data.email` and `data.role`. In edit mode, `/{locale}/account?edit=1`, the profile form SHALL take the place of the read-only profile and the Danger zone SHALL follow Security. Each of the sections SHALL be a section card whose header band holds its heading and, where it has one, its description, and the section cards SHALL be 1rem apart with the page background showing between them. The heading block and the section cards SHALL fill the page container's width; from the medium breakpoint the content of each section card SHALL be at most 40rem wide, aligned to the card's start. While the session is resolving, the page SHALL show the heading block and one section card with no header band, holding the loading status, in place of the sections. While the session is anonymous — including after a declined step-up or a write whose `401` no recovery resolves — the page SHALL show the heading block and one section card with no header band, holding the signed-out text and a "Sign in" action, with no automatic redirect.
