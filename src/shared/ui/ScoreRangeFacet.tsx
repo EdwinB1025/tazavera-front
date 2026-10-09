@@ -1,10 +1,13 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Slider } from "radix-ui";
-import { Field } from "./Field";
-import { Input } from "./Input";
 import { FACET_LEGEND_CLASSES } from "./facet-row";
+import {
+  clampedBound,
+  ScoreRangeInput,
+  ScoreRangeSlider,
+  type ScoreRangeEnd,
+} from "./ScoreRangeParts";
 
 // ─── UI-specific types (declared before the component) ───
 // Bounds, range and texts come from the consumer; no generated API type is
@@ -24,13 +27,13 @@ export type ScoreRangeFacetProps = {
   disabled?: boolean;
 };
 
-const THUMB_CLASSES = "block size-5 rounded-full bg-nav-text-dark focus-visible:focus-ring";
-
 /**
  * Score range facet (spec filtering "Score range facet"; design.md D8): a
  * Radix two-thumb slider and "From" / "To" number inputs over a local draft
  * that follows `value`. The slider commits on release and on each keyboard
  * step; an input commits on Enter or blur, clamped, when the range changed.
+ * The slider and the inputs render from `ScoreRangeParts`
+ * (split-oversized-facets design.md D3).
  */
 export function ScoreRangeFacet({
   legend,
@@ -52,14 +55,9 @@ export function ScoreRangeFacet({
     setToText(String(value[1]));
   }
 
-  function commitInput(end: "from" | "to"): void {
+  function commitInput(end: ScoreRangeEnd): void {
     const [lo, hi] = draft;
-    const text = end === "from" ? fromText : toText;
-    const parsed = Number.parseFloat(text);
-    const bound = end === "from" ? min : max;
-    const raw = text.trim() === "" || Number.isNaN(parsed) ? bound : Math.round(parsed);
-    const clamped =
-      end === "from" ? Math.min(Math.max(raw, min), hi) : Math.min(Math.max(raw, lo), max);
+    const clamped = clampedBound(end, end === "from" ? fromText : toText, draft, min, max);
     const next: ScoreRange = end === "from" ? [clamped, hi] : [lo, clamped];
     if (end === "from") setFromText(String(clamped));
     else setToText(String(clamped));
@@ -68,64 +66,41 @@ export function ScoreRangeFacet({
     onCommit(next);
   }
 
-  function inputField(end: "from" | "to"): ReactNode {
-    return (
-      <div className="flex-1">
-        <Field label={end === "from" ? texts.from : texts.to} variant="inverse">
-          <Input
-            type="number"
-            inputMode="numeric"
-            min={min}
-            max={max}
-            step={1}
-            disabled={disabled}
-            value={end === "from" ? fromText : toText}
-            onChange={(event) =>
-              end === "from" ? setFromText(event.target.value) : setToText(event.target.value)
-            }
-            onKeyDown={(event) => {
-              if (event.key !== "Enter") return;
-              event.preventDefault();
-              commitInput(end);
-            }}
-            onBlur={() => commitInput(end)}
-          />
-        </Field>
-      </div>
-    );
-  }
-
   return (
     <fieldset className="flex flex-col">
       <legend className={FACET_LEGEND_CLASSES}>{legend}</legend>
-      <div className="mt-3 px-3">
-        <div className="px-2.5">
-          <Slider.Root
-            min={min}
-            max={max}
-            step={1}
-            minStepsBetweenThumbs={0}
-            value={[draft[0], draft[1]]}
-            disabled={disabled}
-            onValueChange={([lo = min, hi = max]) => {
-              setDraft([lo, hi]);
-              setFromText(String(lo));
-              setToText(String(hi));
-            }}
-            onValueCommit={([lo = min, hi = max]) => onCommit([lo, hi])}
-            className="relative flex h-5 w-full touch-none select-none items-center data-disabled:opacity-50"
-          >
-            <Slider.Track className="relative h-1.5 grow overflow-hidden rounded-pill bg-border-inverse">
-              <Slider.Range className="absolute h-full bg-surface-checked" />
-            </Slider.Track>
-            <Slider.Thumb aria-label={texts.minThumb} className={THUMB_CLASSES} />
-            <Slider.Thumb aria-label={texts.maxThumb} className={THUMB_CLASSES} />
-          </Slider.Root>
-        </div>
-      </div>
+      <ScoreRangeSlider
+        min={min}
+        max={max}
+        value={draft}
+        disabled={disabled}
+        thumbLabels={[texts.minThumb, texts.maxThumb]}
+        onChange={([lo, hi]) => {
+          setDraft([lo, hi]);
+          setFromText(String(lo));
+          setToText(String(hi));
+        }}
+        onCommit={onCommit}
+      />
       <div className="mt-2 flex gap-3 px-3">
-        {inputField("from")}
-        {inputField("to")}
+        <ScoreRangeInput
+          label={texts.from}
+          min={min}
+          max={max}
+          text={fromText}
+          disabled={disabled}
+          onTextChange={setFromText}
+          onCommit={() => commitInput("from")}
+        />
+        <ScoreRangeInput
+          label={texts.to}
+          min={min}
+          max={max}
+          text={toText}
+          disabled={disabled}
+          onTextChange={setToText}
+          onCommit={() => commitInput("to")}
+        />
       </div>
     </fieldset>
   );

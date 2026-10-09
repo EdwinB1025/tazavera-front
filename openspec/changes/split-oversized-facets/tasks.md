@@ -8,7 +8,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 2. Score range facet
 
-- [ ] 2.1 Create `src/shared/ui/ScoreRangeParts.tsx` and split `ScoreRangeFacet` as design.md D3. Commit `refactor(filtering): split the score range facet`.
+- [x] 2.1 Create `src/shared/ui/ScoreRangeParts.tsx` and split `ScoreRangeFacet` as design.md D3. Commit `refactor(filtering): split the score range facet`.
 
 ## 3. Evaluation facets
 
