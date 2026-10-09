@@ -247,6 +247,23 @@ describe("NewOfferingForm — create (design.md D5, D10)", () => {
     expect(screen.queryByText("Rejected")).toBeNull();
   });
 
+  it("The create names the inventory field: a 422 message shows under it and clears on a new choice", async () => {
+    createAnswer = async () =>
+      jsonResponse(422, { message: "m", errors: { coffeeInventoryId: ["fx-inventory-invalid"] } });
+    renderForm();
+    await chooseMirador();
+    await submit();
+    expect(input().getAttribute("aria-invalid")).toBe("true");
+    const describedBy = (input().getAttribute("aria-describedby") ?? "").split(" ");
+    expect(describedBy.map((id) => document.getElementById(id)?.textContent)).toContain(
+      "fx-inventory-invalid",
+    );
+    expect(screen.queryByRole("alert")).toBeNull();
+
+    await chooseMirador();
+    expect(screen.queryByText("fx-inventory-invalid")).toBeNull();
+  });
+
   it("on a 403 the form error shows and the chosen values are kept, with no step-up", async () => {
     createAnswer = async () => jsonResponse(403, { message: "Forbidden" });
     renderForm();
