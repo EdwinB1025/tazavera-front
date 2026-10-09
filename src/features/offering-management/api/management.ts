@@ -108,14 +108,13 @@ export async function searchCoffeeInventory(
 export async function createOfferings(
   coffeeInventoryId: string,
   locations: string[],
-): Promise<ApiResult<number, "forbidden">> {
+): Promise<ApiResult<number>> {
   try {
     const response = await request("/offerings", {
       method: "POST",
       headers: JSON_HEADERS,
       body: JSON.stringify({ coffeeInventoryId, locations }),
     });
-    if (response.status === 403) return { ok: false, kind: "forbidden" };
     if (!response.ok) return { ok: false, kind: "error" };
     const payload: CreateOfferingsPayload = await response.json();
     return { ok: true, data: payload.data?.length ?? 0 };

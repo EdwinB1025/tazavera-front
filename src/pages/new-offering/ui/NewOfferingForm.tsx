@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, type ReactNode } from "react";
-import { requestProfileWrite, signIn, useSession } from "@/features/auth";
+import { signIn, useSession } from "@/features/auth";
 import {
   InventoryField,
   LocationsFieldset,
@@ -31,8 +31,6 @@ export type NewOfferingFormTexts = InventoryFieldTexts &
     createError: string;
     createdStatus: string;
     viewMyOfferings: string;
-    stepUpMessage: string;
-    stepUpLabel: string;
   };
 
 export type NewOfferingFormProps = {
@@ -48,8 +46,7 @@ const PANEL_CLASSES = "w-full";
 const CONTENT_CLASSES = ["w-full", "md:max-w-160"].join(" ");
 // The form's children: a column 1.5rem apart.
 const FORM_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
-// The error or the step-up: a column of the text and its button 0.75rem
-// apart, no box.
+// The generic error: a column, no box.
 const ALERT_CLASSES = ["type-error", "flex", "flex-col", "items-start", "gap-3"].join(" ");
 // The success status: the message, then the link, 0.5rem apart, no box.
 const STATUS_CLASSES = ["type-body", "flex", "flex-col", "items-start", "gap-2"].join(" ");
@@ -65,14 +62,13 @@ const ACTIONS_CLASSES = [
 
 type CreateFormProps = {
   locale: string;
-  route: string;
   /** While the session resolves, every control is unavailable. */
   disabled?: boolean;
   texts: NewOfferingFormTexts;
 };
 
 /** The form panel of a signed-in coffeeshop, or its unavailable copy while loading. */
-function CreateForm({ locale, route, disabled = false, texts }: CreateFormProps): ReactNode {
+function CreateForm({ locale, disabled = false, texts }: CreateFormProps): ReactNode {
   const flow = useCreateFlow({ enabled: !disabled });
   const fieldRef = useRef<HTMLDivElement>(null);
   const listRoute = `/${locale}/manage/offerings` as const;
@@ -80,19 +76,7 @@ function CreateForm({ locale, route, disabled = false, texts }: CreateFormProps)
   const created =
     status.state === "created" ? `${texts.createdStatus} ${status.count}` : null;
 
-  let alert: ReactNode = null;
-  if (status.state === "failed") {
-    alert = texts.createError;
-  } else if (status.state === "step-up") {
-    alert = (
-      <>
-        <span>{texts.stepUpMessage}</span>
-        <Button variant="primary" size="sm" onClick={() => requestProfileWrite(route)}>
-          {texts.stepUpLabel}
-        </Button>
-      </>
-    );
-  }
+  const alert = status.state === "failed" ? texts.createError : null;
 
   return (
     <Card variant="section" className={PANEL_CLASSES}>
@@ -160,8 +144,7 @@ function CreateForm({ locale, route, disabled = false, texts }: CreateFormProps)
  * renders the form panel for a signed-in coffeeshop, its unavailable copy
  * while the session resolves, the signed-out branch in its place for an
  * anonymous visitor and the 404 for another role. The form's error area is
- * its single `role="alert"` region: the generic error or the step-up, whose
- * text and action carry no role of their own.
+ * its single `role="alert"` region, which holds the generic error.
  */
 export function NewOfferingForm({ locale, texts }: NewOfferingFormProps): ReactNode {
   const session = useSession();
@@ -169,7 +152,7 @@ export function NewOfferingForm({ locale, texts }: NewOfferingFormProps): ReactN
   return (
     <SessionGate
       session={session}
-      loading={<CreateForm locale={locale} route={route} disabled texts={texts} />}
+      loading={<CreateForm locale={locale} disabled texts={texts} />}
       signedOut={
         <SignedOutPrompt
           text={texts.signedOutMessage}
@@ -179,7 +162,7 @@ export function NewOfferingForm({ locale, texts }: NewOfferingFormProps): ReactN
       }
       allows={(user) => user.role === "coffeeshop"}
     >
-      {() => <CreateForm locale={locale} route={route} texts={texts} />}
+      {() => <CreateForm locale={locale} texts={texts} />}
     </SessionGate>
   );
 }
