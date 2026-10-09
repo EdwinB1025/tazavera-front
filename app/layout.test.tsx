@@ -7,14 +7,19 @@ import { generateMetadata } from "./layout";
  * Page metadata tests (design.md D13; the landing spec "Page metadata", "Metadata
  * by locale"). The document title is exactly `Tazavera` and the document
  * description is the metadata description text of the `landing` catalog of the
- * route's locale — the locale the proxy forwards on the request as `x-locale`,
- * the same source the layout reads for `<html lang>` (design.md D13).
+ * route's locale — the locale `getLocale()` reads from the request, the same
+ * source the layout reads for `<html lang>` (design.md D13;
+ * adopt-next-intl-routing design.md D3).
  */
 
 const request = vi.hoisted(() => ({ locale: "es" }));
 
+vi.mock("next-intl/server", () => ({
+  getLocale: async () => request.locale,
+}));
+
 vi.mock("next/headers", () => ({
-  headers: async () => new Headers({ "x-locale": request.locale }),
+  headers: async () => new Headers(),
 }));
 
 // `next/font` is compiler-transformed and cannot load in the test runner, and
