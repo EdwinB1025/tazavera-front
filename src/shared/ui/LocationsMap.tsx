@@ -222,8 +222,8 @@ export function LocationsMap({
         className="size-full focus-visible:focus-ring"
       />
       <div className={ZOOM_CLASSES}>
-        <Button variant="action-4" size="sm" icon={Plus} aria-label={texts.zoomIn} onClick={() => mapRef.current?.zoomIn()} />
-        <Button variant="action-4" size="sm" icon={Minus} aria-label={texts.zoomOut} onClick={() => mapRef.current?.zoomOut()} />
+        <Button variant="action-3" size="sm" icon={Plus} aria-label={texts.zoomIn} onClick={() => mapRef.current?.zoomIn()} />
+        <Button variant="action-3" size="sm" icon={Minus} aria-label={texts.zoomOut} onClick={() => mapRef.current?.zoomOut()} />
       </div>
       {panelPoint ? (
         <div

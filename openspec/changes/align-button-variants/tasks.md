@@ -11,7 +11,7 @@ No derived API types are needed: the change only moves `variant` values. Each im
 
 ## 3. Map and offering detail (offering-catalog)
 
-- [ ] 3.1 Zoom in and Zoom out in `src/shared/ui/LocationsMap.tsx`, and "Back to list" in `src/widgets/coffeeshop-list/ui/CoffeeshopsMapView.tsx`, take `action-3`; "Evaluate" in `src/widgets/offering-detail/ui/DetailHeader.tsx` takes `action-1`. No validation test asserts these variants; none is added. Verify: `npx vitest related` on the changed files passes; typecheck and lint report no errors.
+- [x] 3.1 Zoom in and Zoom out in `src/shared/ui/LocationsMap.tsx`, and "Back to list" in `src/widgets/coffeeshop-list/ui/CoffeeshopsMapView.tsx`, take `action-3`; "Evaluate" in `src/widgets/offering-detail/ui/DetailHeader.tsx` takes `action-1`. No validation test asserts these variants; none is added. Verify: `npx vitest related` on the changed files passes; typecheck and lint report no errors.
 
 ## 4. Add location (offering-management)
 
