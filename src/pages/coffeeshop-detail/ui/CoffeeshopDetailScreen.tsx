@@ -56,6 +56,7 @@ export function CoffeeshopDetailScreen({ locale, ulid, searchParams }: Coffeesho
     defectiveLabel: landing.cardDefectiveLabel,
     viewLabel: landing.cardViewLabel,
     evaluateLabel: landing.cardEvaluateLabel,
+    viewEvaluationsLabel: landing.cardViewEvaluationsLabel,
     verifiedLabel: landing.cardVerifiedLabel,
     provisionalLabel: landing.cardProvisionalLabel,
     ratingExceptionalLabel: landing.cardRatingExceptionalLabel,

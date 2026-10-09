@@ -50,6 +50,7 @@ const LIST_TEXTS = {
   defectiveLabel: "defectiveLabel",
   viewLabel: "viewLabel",
   evaluateLabel: "evaluateLabel",
+  viewEvaluationsLabel: "viewEvaluationsLabel",
   verifiedLabel: "verifiedLabel",
   provisionalLabel: "provisionalLabel",
   ratingExceptionalLabel: "ratingExceptionalLabel",

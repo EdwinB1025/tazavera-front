@@ -56,6 +56,7 @@ export function HomeScreen({ locale, page }: HomeScreenProps): ReactNode {
     defectiveLabel: catalog.cardDefectiveLabel,
     viewLabel: catalog.cardViewLabel,
     evaluateLabel: catalog.cardEvaluateLabel,
+    viewEvaluationsLabel: catalog.cardViewEvaluationsLabel,
     verifiedLabel: catalog.cardVerifiedLabel,
     provisionalLabel: catalog.cardProvisionalLabel,
     ratingExceptionalLabel: catalog.cardRatingExceptionalLabel,

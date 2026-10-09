@@ -50,6 +50,8 @@
     "qa/src/widgets/offering-list/api/offerings.test.ts",
     "qa/src/features/user-account/ui/ContactSection.test.tsx",
     "qa/src/features/user-account/ui/ProfileForm.test.tsx",
-    "qa/src/features/location-management/ui/LocationForm.test.tsx"
+    "qa/src/features/location-management/ui/LocationForm.test.tsx",
+    "qa/src/widgets/offering-list/ui/OfferingList.test.tsx",
+    "qa/src/widgets/offering-list/ui/FilteredOfferingsResults.test.tsx"
   ]
 }
