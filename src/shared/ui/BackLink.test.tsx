@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { describe, it, expect, afterEach, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { resetNavigationHistory } from "@/shared/lib/navigation-history";
 import { BackLink } from "@/shared/ui";
 
@@ -9,6 +9,11 @@ import { BackLink } from "@/shared/ui";
  * scenarios are covered by `src/shared/lib/navigation-history.test.ts`.
  */
 
+// The back control is a route button (render-navigation-actions-as-buttons);
+// the app router is mocked — test infrastructure only.
+const router = vi.hoisted(() => ({ push: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => router }));
+
 afterEach(() => {
   cleanup();
   resetNavigationHistory();
@@ -17,8 +22,7 @@ afterEach(() => {
 describe("BackLink (design.md D5)", () => {
   it("addresses its fallback when the user has no previous page (spec: No previous page)", () => {
     render(<BackLink fallback="/es/offerings">Volver</BackLink>);
-    expect(screen.getByRole("link", { name: "Volver" }).getAttribute("href")).toBe(
-      "/es/offerings",
-    );
+    fireEvent.click(screen.getByRole("button", { name: "Volver" }));
+    expect(router.push).toHaveBeenCalledWith("/es/offerings");
   });
 });
