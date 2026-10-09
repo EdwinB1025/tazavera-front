@@ -38,6 +38,90 @@ type DangerAction = "deactivate" | "delete";
 
 type DialogError = "generic" | "stepUp" | null;
 
+type DangerBlockContent = {
+  action: DangerAction;
+  heading: string;
+  text: string;
+  title: string;
+  label: string;
+};
+
+/** The deactivation block, then the deletion block. */
+function dangerBlocks(texts: DangerZoneTexts): DangerBlockContent[] {
+  return [
+    {
+      action: "deactivate",
+      heading: texts.deactivateHeading,
+      text: texts.deactivateText,
+      title: texts.deactivateConfirmTitle,
+      label: texts.confirmDeactivate,
+    },
+    {
+      action: "delete",
+      heading: texts.deleteHeading,
+      text: texts.deleteText,
+      title: texts.deleteConfirmTitle,
+      label: texts.confirmDelete,
+    },
+  ];
+}
+
+/** One block: its heading, explanation and trigger, and its `ConfirmDialog`. */
+function DangerBlock({
+  block,
+  first,
+  open,
+  pending,
+  error,
+  cancelLabel,
+  onOpen,
+  onOpenChange,
+  onConfirm,
+}: {
+  block: DangerBlockContent;
+  first: boolean;
+  open: boolean;
+  pending: boolean;
+  error: ReactNode;
+  cancelLabel: string;
+  onOpen: () => void;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => void;
+}): ReactNode {
+  return (
+    <div
+      className={
+        first
+          ? "flex flex-col"
+          : "flex flex-col border-t border-border-subtle pt-6"
+      }
+    >
+      <h3 className="type-card-heading">{block.heading}</h3>
+      <p className="type-body mt-2">{block.text}</p>
+      <div className="mt-4 flex flex-wrap gap-3">
+        <Button
+          variant="action-2"
+          size="base"
+          onClick={onOpen}
+        >
+          {block.label}
+        </Button>
+      </div>
+      <ConfirmDialog
+        open={open}
+        onOpenChange={onOpenChange}
+        title={block.title}
+        description={block.text}
+        confirmLabel={block.label}
+        cancelLabel={cancelLabel}
+        onConfirm={onConfirm}
+        pending={pending}
+        error={open ? error : undefined}
+      />
+    </div>
+  );
+}
+
 /**
  * The Danger zone (spec "Account deactivation and deletion"; design.md D6, D7
  * and D10): two blocks, each with its heading, explanation and `action-2`
@@ -95,63 +179,21 @@ export function DangerZone({
       texts.genericError
     ) : undefined;
 
-  const blocks: Array<{
-    action: DangerAction;
-    heading: string;
-    text: string;
-    title: string;
-    label: string;
-  }> = [
-    {
-      action: "deactivate",
-      heading: texts.deactivateHeading,
-      text: texts.deactivateText,
-      title: texts.deactivateConfirmTitle,
-      label: texts.confirmDeactivate,
-    },
-    {
-      action: "delete",
-      heading: texts.deleteHeading,
-      text: texts.deleteText,
-      title: texts.deleteConfirmTitle,
-      label: texts.confirmDelete,
-    },
-  ];
-
   return (
     <div className="flex flex-col gap-6">
-      {blocks.map((block, index) => (
-        <div
+      {dangerBlocks(texts).map((block, index) => (
+        <DangerBlock
           key={block.action}
-          className={
-            index === 0
-              ? "flex flex-col"
-              : "flex flex-col border-t border-border-subtle pt-6"
-          }
-        >
-          <h3 className="type-card-heading">{block.heading}</h3>
-          <p className="type-body mt-2">{block.text}</p>
-          <div className="mt-4 flex flex-wrap gap-3">
-            <Button
-              variant="action-2"
-              size="base"
-              onClick={() => openDialog(block.action)}
-            >
-              {block.label}
-            </Button>
-          </div>
-          <ConfirmDialog
-            open={openAction === block.action}
-            onOpenChange={handleOpenChange}
-            title={block.title}
-            description={block.text}
-            confirmLabel={block.label}
-            cancelLabel={texts.cancel}
-            onConfirm={() => void confirm(block.action)}
-            pending={pending}
-            error={openAction === block.action ? errorContent : undefined}
-          />
-        </div>
+          block={block}
+          first={index === 0}
+          open={openAction === block.action}
+          pending={pending}
+          error={errorContent}
+          cancelLabel={texts.cancel}
+          onOpen={() => openDialog(block.action)}
+          onOpenChange={handleOpenChange}
+          onConfirm={() => void confirm(block.action)}
+        />
       ))}
     </div>
   );
