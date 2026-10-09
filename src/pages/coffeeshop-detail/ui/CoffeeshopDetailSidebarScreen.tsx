@@ -24,13 +24,20 @@ export function CoffeeshopDetailSidebarScreen({
   searchParams,
 }: CoffeeshopDetailSidebarScreenProps): ReactNode {
   if (toCoffeeshopTab(searchParams.tab) !== "offerings") return null;
+  const filters = getMessages("filters", locale);
+  // No entry for this list: the sub-section stands alone (collapse-sidebar-filters).
   return (
-    <AppSidebar>
-      <FilteredOfferingsFacets
-        locale={locale}
-        searchParams={searchParams}
-        texts={offeringFacetsTexts(getMessages("filters", locale))}
-      />
-    </AppSidebar>
+    <AppSidebar
+      subsection={{
+        title: filters.title ?? "",
+        content: (
+          <FilteredOfferingsFacets
+            locale={locale}
+            searchParams={searchParams}
+            texts={offeringFacetsTexts(filters)}
+          />
+        ),
+      }}
+    />
   );
 }

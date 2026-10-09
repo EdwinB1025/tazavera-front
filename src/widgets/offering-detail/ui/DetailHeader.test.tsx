@@ -1,7 +1,12 @@
-import { describe, it, expect, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { describe, it, expect, afterEach, vi } from "vitest";
+import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import type { OfferingDetail, Session } from "@/shared/api";
 import { DetailHeader } from "./DetailHeader";
+
+// The header actions are route buttons (render-navigation-actions-as-buttons);
+// the app router is mocked — test infrastructure only.
+const router = vi.hoisted(() => ({ push: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => router }));
 
 /**
  * Detail header tests (add-offering-catalog design.md D9; specs "Header",
@@ -79,18 +84,15 @@ describe("DetailHeader", () => {
 
   it("renders the Evaluate link for a signed-in specialist (spec: Evaluate link for specialists)", () => {
     renderHeader(OFFERING, SPECIALIST);
-    expect(
-      screen
-        .getByRole("link", { name: TEXTS.evaluateLabel })
-        .getAttribute("href"),
-    ).toBe(`/es/manage/evaluations/new?offering=${ULID}`);
+    fireEvent.click(screen.getByRole("button", { name: TEXTS.evaluateLabel }));
+    expect(router.push).toHaveBeenCalledWith(`/es/manage/evaluations/new?offering=${ULID}`);
   });
 
   it("renders no Evaluate link for an anonymous viewer or another role (spec: No Evaluate link for other viewers)", () => {
     for (const session of [ANONYMOUS, OTHER_ROLE]) {
       const { unmount } = renderHeader(OFFERING, session);
       expect(
-        screen.queryByRole("link", { name: TEXTS.evaluateLabel }),
+        screen.queryByRole("button", { name: TEXTS.evaluateLabel }),
       ).toBeNull();
       unmount();
     }
@@ -98,8 +100,9 @@ describe("DetailHeader", () => {
 
   it("renders View evaluations before Evaluate in the actions row, last in the title group (add-public-evaluations D9)", () => {
     const { container } = renderHeader(OFFERING, SPECIALIST);
-    const view = screen.getByRole("link", { name: TEXTS.viewEvaluationsLabel });
-    expect(view.getAttribute("href")).toBe(`/es/evaluations?offeringId=${ULID}`);
+    const view = screen.getByRole("button", { name: TEXTS.viewEvaluationsLabel });
+    fireEvent.click(view);
+    expect(router.push).toHaveBeenCalledWith(`/es/evaluations?offeringId=${ULID}`);
     const row = view.parentElement as HTMLElement;
     for (const name of ["flex", "flex-wrap", "gap-4"]) expect(row.className).toContain(name);
     expect(container.firstElementChild?.lastElementChild).toBe(row);
@@ -108,6 +111,6 @@ describe("DetailHeader", () => {
 
   it("always renders View evaluations, whatever the session (spec: The link is always shown)", () => {
     renderHeader(OFFERING, ANONYMOUS);
-    expect(screen.getByRole("link", { name: TEXTS.viewEvaluationsLabel })).toBeDefined();
+    expect(screen.getByRole("button", { name: TEXTS.viewEvaluationsLabel })).toBeDefined();
   });
 });

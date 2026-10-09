@@ -53,6 +53,8 @@
     "qa/src/features/location-management/ui/LocationForm.test.tsx",
     "qa/src/widgets/offering-list/ui/OfferingList.test.tsx",
     "qa/src/widgets/offering-list/ui/FilteredOfferingsResults.test.tsx",
-    "qa/src/entities/evaluation/model/body.test.ts"
+    "qa/src/entities/evaluation/model/body.test.ts",
+    "qa/src/pages/evaluations-list/ui/EvaluationRowCard.test.tsx",
+    "qa/src/pages/evaluations-list/ui/EvaluationsList.test.tsx"
   ]
 }

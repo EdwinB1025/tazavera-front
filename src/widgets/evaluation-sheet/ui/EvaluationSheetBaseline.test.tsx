@@ -17,7 +17,7 @@ vi.mock("@/entities/evaluation", async (importOriginal) => ({
 const fetchTaxonomies = vi.fn();
 vi.mock("@/entities/taxonomy", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/entities/taxonomy")>()),
-  fetchTaxonomies: () => fetchTaxonomies(),
+  fetchTaxonomiesCovering: () => fetchTaxonomies(),
 }));
 
 import { EvaluationSheetBaseline, EvaluationSheetSkeleton } from "./EvaluationSheetBaseline";

@@ -1,3 +1,5 @@
+import { Info, Star, Store, type LucideIcon } from "@/shared/ui/icons";
+
 // ─── Derived types (declared before the function) ───
 
 export type PrimaryNavEntryTexts = {
@@ -11,6 +13,8 @@ export type PrimaryNavEntry = {
   path: `/${string}`;
   query: string;
   label: string;
+  /** The entry's decorative icon in the navigation menu (add-user-menu-icons D3). */
+  icon: LucideIcon;
 };
 
 /**
@@ -29,8 +33,14 @@ export function primaryNavEntries(
       path: `/${locale}/offerings`,
       query: "?verified=1&orderBy=cupping_avg&orderDirection=desc",
       label: texts.topRated,
+      icon: Star,
     },
-    { path: `/${locale}/coffeeshops`, query: "", label: texts.exploreCoffeeshops },
-    { path: `/${locale}/about`, query: "", label: texts.aboutUs },
+    {
+      path: `/${locale}/coffeeshops`,
+      query: "",
+      label: texts.exploreCoffeeshops,
+      icon: Store,
+    },
+    { path: `/${locale}/about`, query: "", label: texts.aboutUs, icon: Info },
   ];
 }

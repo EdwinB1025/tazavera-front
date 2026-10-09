@@ -14,21 +14,26 @@ export type FiltersTriggerProps = {
 
 /**
  * The body "Filters" trigger (add-offering-facets design.md D8; spec
- * "Offerings filter toolbar"): opens the sidebar that holds the facets.
- * Below `md` it always renders (it opens the full-screen overlay); from
- * `md` only while the sidebar is collapsed.
+ * "Offerings filter toolbar"): opens the sidebar and its facets
+ * sub-section (collapse-sidebar-filters). Below `md` it always renders (it
+ * opens the full-screen overlay); from `md` only while the sidebar is
+ * collapsed or the sub-section closed.
  */
 export function FiltersTrigger({ label }: FiltersTriggerProps): ReactNode {
-  const { open, setOpen, isMobile } = useSidebar();
-  if (!isMobile && open) return null;
+  const { open, setOpen, isMobile, subsectionOpen, setSubsectionOpen } = useSidebar();
+  const expanded = open && subsectionOpen;
+  if (!isMobile && expanded) return null;
   return (
     <Button
       type="button"
       variant="primary"
       icon={SlidersHorizontal}
-      aria-expanded={open}
+      aria-expanded={expanded}
       aria-controls={SIDEBAR_ID}
-      onClick={() => setOpen(true)}
+      onClick={() => {
+        setOpen(true);
+        setSubsectionOpen(true);
+      }}
     >
       {label}
     </Button>

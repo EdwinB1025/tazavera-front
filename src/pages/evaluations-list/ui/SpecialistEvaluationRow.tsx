@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import type { EvaluationItem, OfferingDetail } from "@/shared/api";
 import { SpecialistEvaluationRowCard } from "@/widgets/evaluation-row";
 import type { SpecialistEvaluationRowCardTexts } from "@/widgets/evaluation-row";
 import { Button } from "@/shared/ui";
+import { CloseEvaluationAction } from "./CloseEvaluationAction";
+import type { CloseEvaluationTexts } from "./CloseEvaluationAction";
 import { DeleteEvaluationAction } from "./DeleteEvaluationAction";
 import type { DeleteEvaluationTexts } from "./DeleteEvaluationAction";
 
@@ -13,6 +16,7 @@ import type { DeleteEvaluationTexts } from "./DeleteEvaluationAction";
 
 /** Every label and caption of a row, from the `evaluations` catalog (design.md D14). */
 export type EvaluationRowTexts = DeleteEvaluationTexts &
+  CloseEvaluationTexts &
   SpecialistEvaluationRowCardTexts & {
     editLabel: string;
     viewLabel: string;
@@ -26,6 +30,8 @@ export type SpecialistEvaluationRowProps = {
   texts: EvaluationRowTexts;
   /** Called once the row's evaluation is deleted. */
   onDeleted: (ulid: string) => void;
+  /** Called once the row's evaluation is closed. */
+  onClosed: (ulid: string) => void;
 };
 
 /**
@@ -33,7 +39,9 @@ export type SpecialistEvaluationRowProps = {
  * actions"): the shared row card with the specialist's actions in its slot
  * (add-public-evaluations design.md D6) — Edit for an open evaluation, View
  * for a closed one or one whose offering was deleted, both opening its form
- * route, and Delete with its confirmation.
+ * route, Close for an open one with its offering (close-evaluation-only-when-saved)
+ * with the outcome's message in a status line, and Delete with its
+ * confirmation.
  */
 export function SpecialistEvaluationRow({
   evaluation,
@@ -41,8 +49,12 @@ export function SpecialistEvaluationRow({
   locale,
   texts,
   onDeleted,
+  onClosed,
 }: SpecialistEvaluationRowProps): ReactNode {
   const router = useRouter();
+  // Mounted only while it holds a message: one status region per row would
+  // sit beside the list's result count otherwise.
+  const [message, setMessage] = useState<string | null>(null);
   const viewOnly = evaluation.status === "closed" || evaluation.offeringId === null;
   const formRoute = `/${locale}/manage/evaluations/${evaluation.ulid ?? ""}`;
 
@@ -53,9 +65,22 @@ export function SpecialistEvaluationRow({
       texts={texts}
       actions={
         <>
+          {message ? (
+            <p role="status" className="type-body">
+              {message}
+            </p>
+          ) : null}
           <Button variant="action-3" onClick={() => router.push(formRoute)}>
             {viewOnly ? texts.viewLabel : texts.editLabel}
           </Button>
+          {viewOnly ? null : (
+            <CloseEvaluationAction
+              ulid={evaluation.ulid ?? ""}
+              texts={texts}
+              onMessage={setMessage}
+              onClosed={onClosed}
+            />
+          )}
           <DeleteEvaluationAction
             ulid={evaluation.ulid ?? ""}
             texts={texts}

@@ -1,0 +1,15 @@
+# Tasks
+
+## 1. Close only for a saved evaluation (evaluations)
+
+- [x] 1.1 Test first, in `src/pages/evaluation-form/ui/EvaluationForm.test.tsx`: "No close on a new evaluation" (a new form, no `evaluation`, renders no "Close evaluation" button) and "Close on a saved open evaluation" (a form with `OPEN_EVALUATION` renders it). The first fails before 1.2.
+- [x] 1.2 `FormActions` renders Close only when the form's evaluation exists (its `ulid` is set: loaded, or created by the first save); `EvaluationForm` passes that. Save draft, Cancel and the status region unchanged. No existing validation test closes a new form, so no assertion changes.
+
+  Verify: `npx vitest related src/pages/evaluation-form/ui/FormActions.tsx src/pages/evaluation-form/ui/EvaluationForm.tsx --run`, `npx tsc --noEmit`, `npm run lint`. Expected: all pass.
+
+## 2. Close on open rows (evaluations)
+
+- [x] 2.1 Test first. In `src/pages/evaluations-list/ui/EvaluationRowCard.test.tsx` (texts gain `closeLabel`, `closedMessage`, `incompleteMessage`): "Closing an open evaluation from its row" (an open row has a "Close evaluation" button with the Edit button's `bg-action-3-bg`, between Edit and Delete; activating it sends `closeAnEvaluation` with the row's ulid), "The row's close finds the evaluation incomplete" (a `409` shows the incomplete message in a `status` element and keeps Edit), "No close on a closed row" (a closed row has no Close), and the orphan scenario's existing test also asserts no Close. In `src/pages/evaluations-list/ui/EvaluationsList.test.tsx` (texts gain the same keys; the entity mock adds `closeAnEvaluation`): "The row's close succeeds" (after a successful close of the first row, that row shows the closed message, offers View and no Close, and no loading placeholder appears). The new assertions fail before 2.2.
+- [x] 2.2 A `CloseEvaluationAction` in `src/pages/evaluations-list/ui/` sends `closeAnEvaluation` with its loading state and reports the outcome's message (success → `closedMessage`, `conflict` → `incompleteMessage`, `forbidden` → `notYoursMessage`, else `failureMessage`); `SpecialistEvaluationRow` renders it between Edit and Delete for open rows with an `offeringId`, and the message in a `role="status"` line while there is one; on success it calls a new `onClosed(ulid)`. `EvaluationsList` marks that row `closed` in place and reloads quietly as after a deletion. `EvaluationsListScreen` maps the reused catalog keys.
+
+  Verify: `npx vitest related src/pages/evaluations-list/ui/CloseEvaluationAction.tsx src/pages/evaluations-list/ui/SpecialistEvaluationRow.tsx src/pages/evaluations-list/ui/EvaluationsList.tsx src/pages/evaluations-list/ui/EvaluationsListScreen.tsx --run`, `npx tsc --noEmit`, `npm run lint`. Expected: all pass. Then the full checks, each on its own: `npm run test:run`, `npm run test:qa` (only failures that also fail on `origin/develop` are allowed, plus stale QA copies of the changed files), `npx tsc --noEmit`, `npm run lint`, `npm run build`. Expected: all pass.
