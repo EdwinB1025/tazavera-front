@@ -182,7 +182,7 @@ function startInteractive(
     outcome = new Promise(() => {});
   }
   void oauth.calculatePKCECodeChallenge(verifier).then((challenge) => {
-    const url = authorizeUrl(scope, state, challenge);
+    const url = authorizeUrl(scope, state, challenge, undefined, expectedUlid);
     if (popup) {
       popup.location.assign(url);
     } else {
@@ -250,6 +250,15 @@ async function completePopup(
     // (secure-step-up design.md D3).
     if (settled === false) return "other-account";
   }
+  // The API refuses a step-up by another user before issuing a code: the
+  // previous session stays as it was (scope-write-token-to-action design.md D3).
+  if (
+    error === "access_denied" &&
+    state === pending.state &&
+    pending.expectedUlid !== undefined
+  ) {
+    return "other-account";
+  }
   removeMarker();
   seam?.anonymous();
   return "failed";
@@ -279,12 +288,16 @@ export function startSilent(returnRoute: string): void {
     });
 }
 
-/** The authorization request of design.md D5. */
+/**
+ * The authorization request of design.md D5; a step-up names its expected
+ * user in `login_hint` (scope-write-token-to-action design.md D3).
+ */
 function authorizeUrl(
   scope: Scope,
   state: string,
   challenge: string,
   prompt?: "none",
+  loginHint?: string,
 ): string {
   const url = new URL(`${apiUrl()}/oauth/authorize`);
   url.searchParams.set("response_type", "code");
@@ -298,6 +311,9 @@ function authorizeUrl(
   url.searchParams.set("lang", activeLang());
   if (prompt !== undefined) {
     url.searchParams.set("prompt", prompt);
+  }
+  if (loginHint) {
+    url.searchParams.set("login_hint", loginHint);
   }
   return url.toString();
 }

@@ -30,6 +30,8 @@ export type DangerZoneProps = {
   signOut: () => void;
   /** Starts the write-scope sign in (design.md D6). */
   requestProfileWrite: (returnRoute: string) => void;
+  /** Ends the write permission of a granted step-up when a dialog is cancelled (scope-write-token-to-action design.md D4). */
+  endProfileWrite?: () => void;
 };
 
 type DangerAction = "deactivate" | "delete";
@@ -49,6 +51,7 @@ export function DangerZone({
   texts,
   signOut,
   requestProfileWrite,
+  endProfileWrite,
 }: DangerZoneProps): ReactNode {
   const [openAction, setOpenAction] = useState<DangerAction | null>(null);
   const [pending, setPending] = useState(false);
@@ -63,6 +66,7 @@ export function DangerZone({
     if (!open) {
       setOpenAction(null);
       setError(null);
+      endProfileWrite?.();
     }
   }
 

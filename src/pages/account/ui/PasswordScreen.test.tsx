@@ -18,13 +18,29 @@ vi.mock("next/navigation", () => ({ useRouter: () => router }));
 
 const auth = vi.hoisted(() => ({
   session: { state: "loading" } as Session,
+  endProfileWrite: vi.fn<() => void>(),
 }));
 
-vi.mock("@/features/auth", () => ({
-  useSession: () => auth.session,
-  signIn: vi.fn(),
-  requestProfileWrite: vi.fn(),
-}));
+vi.mock("@/features/auth", async () => {
+  const { useEffect } = await import("react");
+  return {
+    useSession: () => auth.session,
+    signIn: vi.fn(),
+    requestProfileWrite: vi.fn(),
+    endProfileWrite: auth.endProfileWrite,
+    // A stand-in for the write-scope hook over the mocked endProfileWrite: it
+    // ends the scope when inactive and when an active consumer unmounts.
+    useProfileWriteScope: (active: boolean) => {
+      useEffect(() => {
+        if (!active) {
+          auth.endProfileWrite();
+          return;
+        }
+        return () => auth.endProfileWrite();
+      }, [active]);
+    },
+  };
+});
 
 afterEach(() => {
   cleanup();
@@ -61,6 +77,14 @@ describe("PasswordScreen", () => {
     expect(screen.getByRole("link", { name: es.backToAccount }).getAttribute("href")).toBe(
       "/es/account",
     );
+  });
+
+  it("leaving the view ends the write permission (spec: The action ends)", () => {
+    auth.session = { state: "authenticated", user: USER };
+    const { unmount } = render(<PasswordScreen locale="es" />);
+    auth.endProfileWrite.mockClear();
+    unmount();
+    expect(auth.endProfileWrite).toHaveBeenCalledTimes(1);
   });
 
   it("while anonymous shows the signed-out text and Sign in, with no section (spec: The view's session gate)", () => {

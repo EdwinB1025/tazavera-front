@@ -8,6 +8,8 @@
  * so `src/pages/callback` imports through this entry point and never
  * deep-imports. `signInWithRegistration` signs in with a registration's token
  * block (sign-in-after-registration design.md D3), for `src/pages/register`.
+ * `endProfileWrite` and `useProfileWriteScope` end a step-up's write scope
+ * with its action (scope-write-token-to-action design.md D4).
  */
 export { completeCallback, requestProfileWrite, signIn } from "./api/authorize";
 export {
@@ -16,3 +18,4 @@ export {
   signOut,
   useSession,
 } from "./model/session";
+export { endProfileWrite, useProfileWriteScope } from "./model/write-scope";

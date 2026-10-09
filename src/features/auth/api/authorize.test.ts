@@ -490,6 +490,7 @@ describe("requestProfileWrite — step-up in the popup of design.md D10 (spec: S
         "code_challenge_method",
         "theme",
         "lang",
+        "login_hint",
       ].sort(),
     );
     expect(params.scope).toBe("profile:write");
@@ -554,7 +555,7 @@ describe("requestProfileWrite — step-up in the popup of design.md D10 (spec: S
     await stepUp(loaded);
     const pending = loaded.flow.readHeldFlow()!;
 
-    answer({ error: "access_denied", state: pending.state });
+    answer({ error: "server_error", state: pending.state });
 
     await vi.waitFor(() => {
       expect(session.current).toEqual({ state: "anonymous" });
@@ -634,6 +635,49 @@ describe("requestProfileWrite — step-up in the popup of design.md D10 (spec: S
     expect(loaded.getTokens()?.access_token).toBe(GRANT.access_token);
     expect(session.current).toEqual({ state: "authenticated", user: PROFILE });
     expect(loaded.flow.hasMarker()).toBe(true);
+  });
+
+  it("carries login_hint with the session user's ulid (spec: The step-up names the expected user)", async () => {
+    const loaded = await loadWithSession();
+    await signedIn(loaded);
+
+    const url = await stepUp(loaded);
+
+    expect(url.searchParams.get("login_hint")).toBe(PROFILE.ulid);
+  });
+
+  it("keeps the previous tokens, marker and session and resolves other-account when the API answers access_denied (spec: The API refuses another user)", async () => {
+    const loaded = await loadWithSession();
+    const session = await signedIn(loaded);
+    const outcome = loaded.requestProfileWrite(route);
+    await vi.waitFor(() => {
+      expect(popup.location.assign).toHaveBeenCalledTimes(1);
+    });
+
+    answer({ error: "access_denied", state: loaded.flow.readHeldFlow()!.state });
+
+    expect(await outcome).toBe("other-account");
+    expect(loaded.getTokens()?.access_token).toBe(GRANT.access_token);
+    expect(loaded.flow.hasMarker()).toBe(true);
+    expect(session.current).toEqual({ state: "authenticated", user: PROFILE });
+  });
+
+  it("puts the read tokens back with no request when the action ends after a granted step-up (spec: The write tokens last only the action)", async () => {
+    const loaded = await loadWithSession();
+    await signedIn(loaded);
+    const outcome = loaded.requestProfileWrite(route);
+    await vi.waitFor(() => {
+      expect(popup.location.assign).toHaveBeenCalledTimes(1);
+    });
+    tokenAnswer = WRITE_GRANT;
+    answer({ code: "code-2", state: loaded.flow.readHeldFlow()!.state });
+    expect(await outcome).toBe("granted");
+    const requestsBefore = fetchMock.mock.calls.length;
+
+    loaded.endProfileWrite();
+
+    expect(loaded.getTokens()).toEqual(GRANT);
+    expect(fetchMock.mock.calls).toHaveLength(requestsBefore);
   });
 
   it("ends the other user's web session and the session anonymous at the callback when another user completes a full-page step-up (spec: Another user completes the step-up after a full-page redirect)", async () => {
