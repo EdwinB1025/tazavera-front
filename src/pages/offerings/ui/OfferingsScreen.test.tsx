@@ -70,4 +70,15 @@ describe("OfferingsScreen", () => {
     expect(classes).not.toContain("bg-surface-section");
   });
 
+  it("holds the heading, toolbar and results in one section, the results 1.5rem below the toolbar (spec: Catalog toolbar close to its results)", () => {
+    render(
+      <OfferingsScreen locale="es" searchParams={{}} toolbar={<div>toolbar</div>} />,
+    );
+    const container = screen
+      .getByRole("heading", { level: 1 })
+      .closest("section")!.firstElementChild!;
+    expect(container.contains(screen.getByTestId("filtered-offerings-results"))).toBe(true);
+    expect(container.getAttribute("class")!.split(/\s+/)).toContain("gap-6");
+  });
+
 });

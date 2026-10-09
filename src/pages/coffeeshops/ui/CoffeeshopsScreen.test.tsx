@@ -64,4 +64,13 @@ describe("CoffeeshopsScreen", () => {
     expect(column?.children).toHaveLength(3);
     expect(screen.queryByTestId("coffeeshops-block")).toBeNull();
   });
+
+  it("holds the heading, toolbar and results in one section, the results 1.5rem below the toolbar (spec: Directory toolbar close to its results)", () => {
+    render(<CoffeeshopsScreen locale="es" searchParams={{}} />);
+    const container = screen
+      .getByRole("heading", { level: 1 })
+      .closest("section")!.firstElementChild!;
+    expect(container.contains(screen.getByTestId("coffeeshops-block"))).toBe(true);
+    expect(container.getAttribute("class")!.split(/\s+/)).toContain("gap-6");
+  });
 });

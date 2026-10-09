@@ -2,7 +2,7 @@
 
 ## 1. Tighten the list toolbar spacing (content-structure)
 
-- [ ] 1.1 Test first. In `src/pages/offerings/ui/OfferingsScreen.test.tsx` and `src/pages/coffeeshops/ui/CoffeeshopsScreen.test.tsx`, add one test per screen for the scenarios "Catalog toolbar close to its results" and "Directory toolbar close to its results": the heading and the results (the stubbed results block) sit in the same `section`, and the container holding the header column and the results carries `gap-6` (one class assertion per screen). Keep "Toolbar region contributes nothing" as it is (the heading block stays the only child of its header column when the toolbar is empty); update other existing assertions only where the structure change breaks them. No `qa/` test changes.
+- [x] 1.1 Test first. In `src/pages/offerings/ui/OfferingsScreen.test.tsx` and `src/pages/coffeeshops/ui/CoffeeshopsScreen.test.tsx`, add one test per screen for the scenarios "Catalog toolbar close to its results" and "Directory toolbar close to its results": the heading and the results (the stubbed results block) sit in the same `section`, and the container holding the header column and the results carries `gap-6` (one class assertion per screen). Keep "Toolbar region contributes nothing" as it is (the heading block stays the only child of its header column when the toolbar is empty); update other existing assertions only where the structure change breaks them. No `qa/` test changes.
 
   Verify: `npx vitest related src/pages/offerings/ui/OfferingsScreen.test.tsx src/pages/coffeeshops/ui/CoffeeshopsScreen.test.tsx --run`. Expected: only the two new tests fail. `npx tsc --noEmit` and `npm run lint` pass.
 
