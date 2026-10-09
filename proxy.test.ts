@@ -97,7 +97,7 @@ describe("proxy.ts locale routing (design.md D2)", () => {
     vi.stubEnv("NEXT_PUBLIC_API_URL", API_URL);
     const response = runProxyOn("https://tazavera.test/es/about?ref=nav");
     expect(response.headers.get("location")).toBeNull();
-    expect(response.headers.get("x-middleware-request-x-locale")).toBe("es");
+    expect(response.headers.get("x-middleware-request-x-next-intl-locale")).toBe("es");
   });
 
   // Framework and asset paths are not application routes: they must reach
@@ -107,7 +107,24 @@ describe("proxy.ts locale routing (design.md D2)", () => {
     const response = runProxyOn("https://tazavera.test/_next/static/x.js");
     expect(response.status).toBe(200);
     expect(response.headers.get("location")).toBeNull();
-    expect(response.headers.get("x-middleware-request-x-locale")).toBeNull();
+    expect(response.headers.get("x-middleware-request-x-next-intl-locale")).toBeNull();
+  });
+
+  // The locale comes only from the URL and the language selector
+  // (adopt-next-intl-routing; spec "Locale chosen only by the user").
+  it("redirects the root URL to the default locale whatever the browser language, setting no cookie (spec: Browser language ignored)", () => {
+    const response = proxy(
+      new NextRequest("https://tazavera.test/", {
+        headers: {
+          "accept-language": "en",
+          cookie: "NEXT_LOCALE=en",
+          "sec-fetch-dest": "document",
+        },
+      }),
+    );
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe("https://tazavera.test/es");
+    expect(response.headers.get("set-cookie")).toBeNull();
   });
 });
 

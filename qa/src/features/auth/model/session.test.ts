@@ -34,6 +34,16 @@ import type { Session } from "@/shared/api";
  * encode it.
  */
 
+/**
+ * The locale `useLocale()` answers under the provider: the cases start from
+ * routes under `/en` (adopt-next-intl-routing design.md D7: sign out lands on
+ * the locale `useSession()` records). Test infrastructure only.
+ */
+vi.mock("next-intl", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next-intl")>()),
+  useLocale: () => "en",
+}));
+
 const API_URL = "https://api.tazavera.test";
 const APP_URL = "https://app.tazavera.test";
 const CLIENT_ID = "client-ulid-1";

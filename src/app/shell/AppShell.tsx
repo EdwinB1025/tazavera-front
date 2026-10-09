@@ -1,10 +1,7 @@
 import { Suspense, type ReactNode } from "react";
 import type { Session } from "@/shared/api";
-import {
-  DEFAULT_LOCALE,
-  isSupportedLocale,
-  type Locale,
-} from "@/shared/config/locales";
+import { hasLocale, type Locale } from "next-intl";
+import { routing } from "@/shared/config/locales";
 import { LOCALE_NAMES } from "@/shared/config/locale-names";
 import { getMessages } from "@/shared/lib/i18n";
 import type { Theme } from "@/shared/lib/theme";
@@ -50,12 +47,14 @@ export function AppShell({
   children,
 }: AppShellProps): ReactNode {
   // design.md D6 (correction 3 of round 1): the locale is resolved with
-  // `isSupportedLocale` and never cast. An unsupported locale resolves to
-  // DEFAULT_LOCALE (es) for the whole composition — catalog word, code and
+  // `hasLocale` and never cast. An unsupported locale resolves to the
+  // default locale (es) for the whole composition — catalog word, code and
   // own name — so the name reads "ES — Idioma: Español" and the shell
   // renders without throwing (the catalog included, since `getMessages`
   // rejects an unsupported locale).
-  const active: Locale = isSupportedLocale(locale) ? locale : DEFAULT_LOCALE;
+  const active: Locale = hasLocale(routing.locales, locale)
+    ? locale
+    : routing.defaultLocale;
   const texts = getMessages("shell", active);
 
   return (

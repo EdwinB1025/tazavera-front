@@ -21,6 +21,10 @@ export default defineConfig({
     },
     test: {
         environment: 'jsdom',
+        // next-intl's ESM build imports `next/server` and `next/navigation`
+        // without an extension, which Node cannot resolve from an external
+        // module; inlined, Vite resolves them (adopt-next-intl-routing D2).
+        server: { deps: { inline: ['next-intl', 'use-intl'] } },
         // The QA suite runs only with `npm run test:qa` (vitest.qa.config.mts).
         exclude: [...configDefaults.exclude, 'qa/**'],
         // vmThreads creates jsdom once per worker and keeps per-file isolation.

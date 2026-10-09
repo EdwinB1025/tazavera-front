@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { renderHook, cleanup } from "@testing-library/react";
-import { DEFAULT_LOCALE } from "@/shared/config/locales";
+import { routing } from "@/shared/config/locales";
 
 /**
  * Starting a flow and completing it at the callback (design.md D3, D4, D5 and
@@ -24,6 +24,18 @@ import { DEFAULT_LOCALE } from "@/shared/config/locales";
  * the session tests of task 4.1; here the outcomes assert their flow data,
  * marker and opening.
  */
+
+/**
+ * The locale `useLocale()` answers under the provider: the cases start from
+ * routes under `/en` (adopt-next-intl-routing design.md D7: the sign-in flow
+ * takes the locale `useSession()` records). Test infrastructure only.
+ */
+const intl = vi.hoisted(() => ({ locale: "en" }));
+
+vi.mock("next-intl", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next-intl")>()),
+  useLocale: () => intl.locale,
+}));
 
 const API_URL = "https://api.tazavera.test";
 const APP_URL = "https://app.tazavera.test";
@@ -191,6 +203,10 @@ describe("signIn — the popup start of design.md D10 (spec: Sign in)", () => {
   it("opens {NEXT_PUBLIC_API_URL}/oauth/authorize with exactly the parameters of design.md D5, carrying the theme and the language of the route (spec: The authorization page carries the theme and language)", async () => {
     const { signIn, flow } = await load();
     locationMock.pathname = route;
+    // The route's locale reaches the flow through a mounted session
+    // consumer (adopt-next-intl-routing design.md D7).
+    const session = await import("../model/session");
+    const consumer = renderHook(() => session.useSession());
     document.cookie = "theme=dark";
 
     signIn(route);
@@ -222,6 +238,7 @@ describe("signIn — the popup start of design.md D10 (spec: Sign in)", () => {
     expect(params.code_challenge_method).toBe("S256");
     expect(params.theme).toBe("dark");
     expect(params.lang).toBe("en");
+    consumer.unmount();
   });
 
   it("navigates the current page to the authorization URL and stores the flow record with its return route when window.open returns null (spec: The popup cannot be opened)", async () => {
@@ -349,7 +366,7 @@ describe("completeCallback — the outcomes of design.md D4 (spec: Return throug
     expect(fetchMock).not.toHaveBeenCalled();
     expect(flow.readFlow()).toBeNull();
     expect(flow.hasMarker()).toBe(false);
-    expect(openedRoute()).toBe(`/${DEFAULT_LOCALE}`);
+    expect(openedRoute()).toBe(`/${routing.defaultLocale}`);
   });
 });
 

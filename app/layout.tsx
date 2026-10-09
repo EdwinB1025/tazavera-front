@@ -1,18 +1,17 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { getLocale } from "next-intl/server";
 import { nunito, lora } from "@/app/fonts";
-import { DEFAULT_LOCALE } from "@/shared/config/locales";
 import { getMessages } from "@/shared/lib/i18n";
 import { readTheme } from "@/shared/lib/theme";
 import "@/app/styles/globals.css";
 
 // Page metadata (design.md D13): the title is exactly `Tazavera` and the
 // description is the metadata description text of the `landing` catalog of
-// the route's locale (spec "Metadata by locale"), which arrives on the
-// request from `proxy.ts` as `x-locale`.
+// the route's locale (spec "Metadata by locale"), which `getLocale()` reads
+// from the request (adopt-next-intl-routing design.md D3).
 export async function generateMetadata(): Promise<Metadata> {
-  const requestHeaders = await headers();
-  const lang = requestHeaders.get("x-locale") ?? DEFAULT_LOCALE;
+  const lang = await getLocale();
   return {
     title: "Tazavera",
     description: getMessages("landing", lang).metaDescription,
@@ -21,11 +20,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const requestHeaders = await headers();
-  // The route's locale arrives on the request from `proxy.ts`, which routes
-  // on it (design.md D2). The theme preference cookie is read on the server,
-  // so the page renders in the right theme with no flash and with no inline
-  // script (design.md D12).
-  const lang = requestHeaders.get("x-locale") ?? DEFAULT_LOCALE;
+  // The route's locale, which the next-intl middleware of `proxy.ts` resolves
+  // and `getLocale()` reads; `es` on `/callback`, which no middleware routes
+  // (adopt-next-intl-routing design.md D3). The theme preference cookie is
+  // read on the server, so the page renders in the right theme with no flash
+  // and with no inline script (design.md D12).
+  const lang = await getLocale();
   const dataTheme = readTheme(requestHeaders.get("cookie"));
 
   return (

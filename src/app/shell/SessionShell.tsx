@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import type { Session } from "@/shared/api";
 import type { Theme } from "@/shared/lib/theme";
-import { LOCALES } from "@/shared/config/locales";
+import { routing } from "@/shared/config/locales";
 import { useSession } from "@/features/auth";
 import { EvaluationsSidebarEntry } from "@/features/manage-evaluations";
 import { SidebarProvider } from "@/shared/ui";
@@ -85,7 +85,7 @@ export function SessionShell({
         <ShellChrome
           session={supplied}
           locale={locale}
-          locales={[...LOCALES]}
+          locales={[...routing.locales]}
           texts={texts}
           theme={theme}
           leading={<SidebarReopenControl />}
