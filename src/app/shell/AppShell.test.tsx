@@ -20,6 +20,14 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
+// The session hook reads the route's locale with `useLocale()` under the
+// `[locale]` layout's provider (adopt-next-intl-routing design.md D7), which
+// these renders do not mount. Test infrastructure only.
+vi.mock("next-intl", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next-intl")>()),
+  useLocale: () => shellPathname.split("/")[1],
+}));
+
 // The header actions call the public entries of `@/features/auth` (design.md
 // D1) through `ShellChrome`'s handlers. Only those two entries are replaced
 // by spies: the session hook and `completeCallback` keep their real

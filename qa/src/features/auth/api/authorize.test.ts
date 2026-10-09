@@ -24,6 +24,18 @@ import { renderHook, cleanup } from "@testing-library/react";
  * marker and opening.
  */
 
+/**
+ * The locale `useLocale()` answers under the provider: the cases start from
+ * routes under `/en` (adopt-next-intl-routing design.md D7: the sign-in flow
+ * takes the locale `useSession()` records). Test infrastructure only.
+ */
+const intl = vi.hoisted(() => ({ locale: "en" }));
+
+vi.mock("next-intl", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next-intl")>()),
+  useLocale: () => intl.locale,
+}));
+
 const API_URL = "https://api.tazavera.test";
 const APP_URL = "https://app.tazavera.test";
 const CLIENT_ID = "client-ulid-1";
