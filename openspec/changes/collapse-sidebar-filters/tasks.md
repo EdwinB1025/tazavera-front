@@ -16,6 +16,6 @@
 
   Verify: `npx vitest related` on those test files. Expected: only the new and updated assertions fail.
 
-- [ ] 2.2 `FiltersTrigger` opens the sidebar and the sub-section, shows from `md` while the sidebar is collapsed or the sub-section closed, and reports both in `aria-expanded`. The sidebar screens pass their facets as `subsection` titled with `filters.title`: offerings and coffee shops with their `listEntry` (`shell.exploreOfferings`, `shell.exploreCoffeeshops`), my evaluations nested in the role entry, public evaluations and the coffee shop Offerings tab standalone.
+- [x] 2.2 `FiltersTrigger` opens the sidebar and the sub-section, shows from `md` while the sidebar is collapsed or the sub-section closed, and reports both in `aria-expanded`. The sidebar screens pass their facets as `subsection` titled with `filters.title`: offerings and coffee shops with their `listEntry` (`shell.exploreOfferings`, `shell.exploreCoffeeshops`), my evaluations nested in the role entry, public evaluations and the coffee shop Offerings tab standalone.
 
   Verify: `npx vitest related` on the changed files, `npx tsc --noEmit`, `npm run lint`. Expected: all pass. Then the full checks, each on its own: `npm run test:run`, `npm run test:qa` (only failures that also fail on `origin/develop` are allowed), `npx tsc --noEmit`, `npm run lint`, `npm run build`. Expected: all pass.
