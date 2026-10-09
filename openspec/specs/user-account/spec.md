@@ -63,7 +63,7 @@ A registration answered with `201` SHALL replace the form with a success panel c
 - **THEN** the generic form-level error renders above the actions, every entered value is kept except the password and its confirmation, which are cleared, and the API's message is never rendered
 
 ### Requirement: Profile settings
-The Profile section SHALL show the session user's name (`data.name`), surname (`data.surname`), email (`data.email`) and role (`data.role`) read-only, each as the API returns it, one labelled row per non-null value in that order, with no field to edit, followed by an "Edit profile" action. Activating "Edit profile" SHALL start the identity check synchronously inside that click for the return route `/{locale}/account?edit=1` and SHALL open that route, where the page is in edit mode. In edit mode the Edit profile section SHALL hold a form for name, surname and email prefilled with `data.name`, `data.surname` and `data.email`, followed by a "Done" action that returns the page to read mode on the same route without sending anything. The form SHALL send `PUT /users/{data.ulid}` with `name`, `surname` and `email`. Before sending, the form SHALL check only the email's format; no field is required. A failing check SHALL show its message under the field, mark the field as invalid, move focus to it and send nothing. A `200` SHALL keep the submitted values in the form, show the success status above the actions, and refresh the profile in the session from `GET /user`, so the rest of the interface follows. A `422`, a server error, a network failure or any other status except `403` SHALL show the generic form-level error above the actions and keep the values.
+The Profile section SHALL show the session user's name (`data.name`), surname (`data.surname`), email (`data.email`) and role (`data.role`) read-only, each as the API returns it, one labelled row per non-null value in that order, with no field to edit; right after the email row it SHALL show an "Email verification" row whose value is the text "Verified" when `data.emailVerifiedAt` is set and "Not verified" when it is null, and no such row when the field is absent, the state never shown by colour alone; followed by an "Edit profile" action. Activating "Edit profile" SHALL start the identity check synchronously inside that click for the return route `/{locale}/account?edit=1` and SHALL open that route, where the page is in edit mode. In edit mode the Edit profile section SHALL hold a form for name, surname and email prefilled with `data.name`, `data.surname` and `data.email`, followed by a "Done" action that returns the page to read mode on the same route without sending anything. The form SHALL send `PUT /users/{data.ulid}` with `name`, `surname` and `email`. Before sending, the form SHALL check only the email's format; no field is required. A failing check SHALL show its message under the field, mark the field as invalid, move focus to it and send nothing. A `200` SHALL keep the submitted values in the form, show the success status above the actions, and refresh the profile in the session from `GET /user`, so the rest of the interface follows. A `422`, a server error, a network failure or any other status except `403` SHALL show the generic form-level error above the actions and keep the values.
 
 #### Scenario: The profile is shown read-only
 - **WHEN** the Profile section renders for an authenticated session
@@ -72,6 +72,18 @@ The Profile section SHALL show the session user's name (`data.name`), surname (`
 #### Scenario: The role is shown as returned
 - **WHEN** the Profile section renders for an authenticated session
 - **THEN** its Role row shows `data.role` of the session user exactly as the API returns it
+
+#### Scenario: A verified email
+- **WHEN** the Profile section renders for a session user whose `data.emailVerifiedAt` is set
+- **THEN** right after the Email row it shows an "Email verification" row with the text "Verified"
+
+#### Scenario: An unverified email
+- **WHEN** the Profile section renders for a session user whose `data.emailVerifiedAt` is null
+- **THEN** right after the Email row it shows an "Email verification" row with the text "Not verified"
+
+#### Scenario: No verification state
+- **WHEN** the Profile section renders for a session user without `data.emailVerifiedAt`
+- **THEN** it shows no "Email verification" row
 
 #### Scenario: Opening edit mode
 - **WHEN** the user activates "Edit profile"
@@ -309,7 +321,7 @@ The account page at `/{locale}/account` SHALL show one heading block and, for an
 - **THEN** the section cards span the page container's width and each card's content is at most 40rem wide, start-aligned
 
 ### Requirement: Grouped security section
-The Security section SHALL carry a short text covering the password, two-factor authentication and passkeys, and three entries in order: "Change password", which starts the identity check synchronously inside the click for `/{locale}/account/password` and opens that route; "Two-factor authentication" and "Passkeys", each opening the API's security page as an external navigation in the same tab. The front SHALL send no request for the external entries.
+The Security section SHALL carry a short text covering the password, email verification, two-factor authentication and passkeys, and its entries in order: "Change password", which starts the identity check synchronously inside the click for `/{locale}/account/password` and opens that route; then a list whose first item is the email verification entry, followed by "Two-factor authentication" and "Passkeys", each opening the API's security page as an external navigation in the same tab. While the session user's `data.emailVerifiedAt` is null, the email verification entry SHALL be a "Verify email" link opening the API's email verification page (`{API}/email/verify`) as an external navigation in the same tab; when it is set, the entry SHALL be the plain text "Email verified" with no link; when the field is absent, there SHALL be no email verification entry. The front SHALL send no request for the external entries.
 
 #### Scenario: Changing the password
 - **WHEN** the user activates "Change password"
@@ -318,6 +330,14 @@ The Security section SHALL carry a short text covering the password, two-factor 
 #### Scenario: Two-factor authentication and passkeys
 - **WHEN** the Security section renders
 - **THEN** its "Two-factor authentication" and "Passkeys" entries open the API's security page as an external navigation in the same tab and no request is sent by the front
+
+#### Scenario: Verifying the email
+- **WHEN** the Security section renders for a session user whose `data.emailVerifiedAt` is null
+- **THEN** the first item of its list, before "Two-factor authentication", is a "Verify email" link to `{API}/email/verify` that opens in the same tab
+
+#### Scenario: The email is verified
+- **WHEN** the Security section renders for a session user whose `data.emailVerifiedAt` is set
+- **THEN** the first item of its list is the text "Email verified" and there is no "Verify email" link
 
 ### Requirement: Change password view
 The application SHALL offer the Change password view at `/{locale}/account/password`, with the account page's session gate and page shell: a back link to `/{locale}/account`, a heading block, and, for an authenticated session, one section card named "Change password" holding the password form of "Password change", its states and its reactive step-up unchanged.
