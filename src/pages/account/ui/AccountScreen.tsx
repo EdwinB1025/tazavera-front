@@ -58,6 +58,7 @@ export function AccountScreen({ locale }: AccountScreenProps): ReactNode {
     genericError: catalog.genericError,
     stepUpText: catalog.stepUpText,
     stepUpButton: catalog.stepUpButton,
+    stepUpOtherAccount: catalog.stepUpOtherAccount,
     contactHeading: catalog.contactHeading,
     contactDescription: catalog.contactDescription,
     contactEmptyText: catalog.contactEmptyText,

@@ -39,6 +39,7 @@
   "cancel": "Cancel",
   "stepUpText": "To continue, confirm your identity by signing in again.",
   "stepUpButton": "Confirm identity",
+  "stepUpOtherAccount": "Confirm your identity with the account you signed in with.",
   "profileDescription": "Update your personal information",
   "roleLabel": "Role",
   "save": "Save",
