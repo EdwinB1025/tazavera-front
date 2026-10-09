@@ -35,6 +35,8 @@ const TEXTS = {
   backLabel: "texts.backLabel",
   errorMessage: "texts.errorMessage",
   retryLabel: "texts.retryLabel",
+  notFoundTitle: "Offering not found",
+  notFoundLine: "It may have been removed, or the link may be wrong.",
   tabInventory: "texts.tabInventory",
   tabConsensus: "texts.tabConsensus",
   tabProvisional: "texts.tabProvisional",
@@ -140,6 +142,16 @@ describe("OfferingDetailContent", () => {
     expect(message.className).toContain("type-body");
     expect(screen.queryByRole("tablist")).toBeNull();
     expect(container.querySelector("h1")).toBeNull();
+  });
+
+  it("renders the title and the line above the back link, with no retry action and no tabs (spec: Unknown offering)", () => {
+    renderContent({ state: "not-found" });
+    const title = screen.getByRole("heading", { level: 1, name: "Offering not found" });
+    const back = screen.getByRole("button", { name: TEXTS.backLabel });
+    expect(screen.getByText(TEXTS.notFoundLine).className).toContain("type-body");
+    expect(title.compareDocumentPosition(back) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByRole("button", { name: TEXTS.retryLabel })).toBeNull();
+    expect(screen.queryByRole("tablist")).toBeNull();
   });
 
   it("calls router.refresh() when the retry action is activated (spec: Retry reloads)", () => {

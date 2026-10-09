@@ -47,6 +47,8 @@ export async function EvaluationScreen({
                 ...formTextsFrom(catalog),
                 loadErrorMessage: catalog.formLoadErrorMessage,
                 retryLabel: catalog.retryLabel,
+                notFoundTitle: catalog.formNotFoundTitle,
+                notFoundLine: catalog.formNotFoundLine,
               }}
             />
           ) : (

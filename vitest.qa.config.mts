@@ -38,6 +38,8 @@ export default defineConfig({
             'qa/src/features/user-account/ui/ContactSection.test.tsx',
             // closes incomplete evaluations and expects the read-only switch; stale since refine-evaluation-flow
             'qa/src/pages/evaluation-form/ui/EvaluationForm.test.tsx',
+            // asserts the 404 page of an unknown evaluation; stale since show-item-not-found-message
+            'qa/src/pages/evaluation-form/ui/EvaluationDetail.test.tsx',
         ],
     },
 })

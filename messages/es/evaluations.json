@@ -96,5 +96,7 @@
   "fragranceNotEvaluatedLabel": "Fragancia no evaluada — usar los valores de aroma",
   "closedMessage": "Evaluación cerrada.",
   "incompleteMessage": "Todavía no se puede cerrar la evaluación: completa los grupos resaltados.",
-  "resultCount": "Resultados: {count}"
+  "resultCount": "Resultados: {count}",
+  "formNotFoundTitle": "Evaluación no encontrada",
+  "formNotFoundLine": "Puede que se haya retirado o que el enlace no sea correcto."
 }

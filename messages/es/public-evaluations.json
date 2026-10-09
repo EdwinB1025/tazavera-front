@@ -28,5 +28,7 @@
   "extrinsicGeneralObservation": "Observación general",
   "offeringFacet": "Oferta",
   "offeringFilterFallback": "Oferta seleccionada",
-  "metaDescription": "Evaluaciones públicas de especialistas"
+  "metaDescription": "Evaluaciones públicas de especialistas",
+  "viewNotFoundTitle": "Evaluación no encontrada",
+  "viewNotFoundLine": "Puede que aún no esté publicada o que el enlace no sea correcto."
 }

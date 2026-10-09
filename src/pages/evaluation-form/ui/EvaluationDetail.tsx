@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { notFound } from "next/navigation";
 import type { EvaluationItem, OfferingDetail, TaxonomyNode } from "@/shared/api";
 import { getMyEvaluation } from "@/entities/evaluation";
 import { fetchOffering } from "@/entities/offering";
@@ -11,12 +10,15 @@ import { Card, CardContent } from "@/shared/ui";
 import { EvaluationForm } from "./EvaluationForm";
 import type { EvaluationFormTexts } from "./EvaluationForm";
 import { LoadFailure } from "./LoadFailure";
+import { NotFoundNotice } from "./NotFoundNotice";
 
 // ─── UI-specific types (declared before the component) ───
 
 export type EvaluationDetailTexts = EvaluationFormTexts & {
   loadErrorMessage: string;
   retryLabel: string;
+  notFoundTitle: string;
+  notFoundLine: string;
 };
 
 export type EvaluationDetailProps = {
@@ -57,8 +59,9 @@ async function loadDetail(ulid: string): Promise<DetailState> {
  * The `/{ulid}` content (design.md D1, D11; spec "Evaluation form"): the
  * evaluation and its offering load on the client — the evaluation needs the
  * token and the offering's key comes from it. Loading shows a placeholder; an
- * unknown evaluation, or another user's, is the 404 page; any other failure
- * shows the failure message with a retry. A loaded open evaluation fills the
+ * unknown evaluation, or another user's, shows the not-found title and line
+ * with the back button (show-item-not-found-message design.md D4); any other
+ * failure shows the failure message with a retry. A loaded open evaluation fills the
  * form for editing, a closed one its read-only presentation.
  */
 export function EvaluationDetail({
@@ -84,7 +87,14 @@ export function EvaluationDetail({
   }, [ulid, key]);
 
   if (detail.state === "not-found") {
-    notFound();
+    return (
+      <NotFoundNotice
+        locale={locale}
+        title={texts.notFoundTitle}
+        line={texts.notFoundLine}
+        backLabel={texts.backLabel}
+      />
+    );
   }
   if (detail.state === "loading") {
     return (

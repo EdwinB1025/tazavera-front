@@ -55,5 +55,7 @@
   "detailViewEvaluations": "Ver evaluaciones",
   "detailTabProvisional": "Evaluación provisional",
   "detailProvisionalEmpty": "Esta oferta aún no tiene evaluación provisional.",
-  "detailProvisionalError": "No se pudo cargar la evaluación provisional."
+  "detailProvisionalError": "No se pudo cargar la evaluación provisional.",
+  "detailNotFoundTitle": "Oferta no encontrada",
+  "detailNotFoundLine": "Puede que se haya retirado o que el enlace no sea correcto."
 }
