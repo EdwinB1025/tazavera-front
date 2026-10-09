@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import type { Session } from "@/shared/api";
 import type { Theme } from "@/shared/lib/theme";
 import { LOCALES } from "@/shared/config/locales";
@@ -57,6 +58,9 @@ export function SessionShell({
   children,
 }: SessionShellProps): ReactNode {
   const hookValue = useSession();
+  // A new route is a new arrival for the sidebar state (spec "Closed on
+  // arrival on a small viewport").
+  const pathname = usePathname();
   const supplied = session ?? hookValue;
   // The management area's entries for the session's role, by the user menu's
   // role rule (add-specialist-evaluations design.md D5): a specialist gets
@@ -71,7 +75,7 @@ export function SessionShell({
   // body; the region is the route's slot or the default sidebar.
   return (
     // The provider's own element is the shell root (refine-app-header D15).
-    <SidebarProvider className="flex flex-1 flex-col">
+    <SidebarProvider route={pathname} className="flex flex-1 flex-col">
       <AppSidebarProvider
         session={supplied}
         entries={entries}
