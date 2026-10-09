@@ -2,7 +2,13 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, type ReactNode } from "react";
-import { refreshProfile, requestProfileWrite, signOut, useSession } from "@/features/auth";
+import {
+  refreshProfile,
+  requestProfileWrite,
+  signOut,
+  useProfileWriteScope,
+  useSession,
+} from "@/features/auth";
 import { SessionGate } from "@/shared/ui";
 import { AccountEditView, type AccountEditViewTexts } from "./AccountEditView";
 import {
@@ -43,6 +49,9 @@ export function AccountClient({ locale, texts }: AccountClientProps): ReactNode 
   const editRoute = `${accountRoute}?edit=1`;
   const passwordRoute = `${accountRoute}/password`;
   const [otherAccount, setOtherAccount] = useState(false);
+  // Closing or leaving edit mode ends the step-up's action
+  // (scope-write-token-to-action design.md D4).
+  useProfileWriteScope(editing);
 
   /** Starts the step-up inside the click, then opens the route once granted. */
   function stepUpThen(returnRoute: string, open: () => void): void {

@@ -1,7 +1,12 @@
 "use client";
 
 import { useId, type ReactNode } from "react";
-import { requestProfileWrite, useSession } from "@/features/auth";
+import {
+  endProfileWrite,
+  requestProfileWrite,
+  useProfileWriteScope,
+  useSession,
+} from "@/features/auth";
 import {
   AccountSection,
   PasswordForm,
@@ -34,6 +39,8 @@ export type PasswordClientProps = {
 export function PasswordClient({ locale, texts }: PasswordClientProps): ReactNode {
   const session = useSession();
   const headingId = useId();
+  // Leaving the view ends the step-up's action (scope-write-token-to-action design.md D4).
+  useProfileWriteScope(true);
   return (
     <SessionGate
       session={session}
@@ -48,6 +55,7 @@ export function PasswordClient({ locale, texts }: PasswordClientProps): ReactNod
             labelledBy={headingId}
             texts={texts}
             requestProfileWrite={requestProfileWrite}
+            endProfileWrite={endProfileWrite}
           />
         </AccountSection>
       )}
