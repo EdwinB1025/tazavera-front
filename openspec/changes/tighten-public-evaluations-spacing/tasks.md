@@ -6,6 +6,6 @@
 
   Verify: `npx vitest related src/pages/public-evaluations/ui/ListScreen.test.tsx --run`. Expected: only the new test fails. `npx tsc --noEmit` and `npm run lint` pass.
 
-- [ ] 1.2 In `src/pages/public-evaluations/ui/ListScreen.tsx`, render one `PageSection surface="page"`. Its `containerClassName` is `flex flex-col gap-6`; its children are the existing header column (heading block + toolbar, `flex flex-col gap-8`, unchanged) and the list's `Suspense` boundary. No margin or padding on the toolbar or the list block; `PageSection` unchanged.
+- [x] 1.2 In `src/pages/public-evaluations/ui/ListScreen.tsx`, render one `PageSection surface="page"`. Its `containerClassName` is `flex flex-col gap-6`; its children are the existing header column (heading block + toolbar, `flex flex-col gap-8`, unchanged) and the list's `Suspense` boundary. No margin or padding on the toolbar or the list block; `PageSection` unchanged.
 
   Verify: `npx vitest related src/pages/public-evaluations/ui/ListScreen.tsx --run`, `npx tsc --noEmit`, `npm run lint`. Expected: all pass. Then the full checks, each on its own: `npm run test:run`, `npm run test:qa` (only failures that also fail on `origin/develop` are allowed), `npx tsc --noEmit`, `npm run lint`, `npm run build`. Expected: all pass.
