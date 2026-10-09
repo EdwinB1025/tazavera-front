@@ -9,4 +9,4 @@
 
 ## 2. Full checks
 
-- [ ] 2.1 Run, each on its own: `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint`, `npm run build`. Expected: every one exits 0, except `npm run test:qa` failures that also fail on `origin/develop`. This task changes no files: check it off in a commit containing only the checkbox, `chore(user-account): complete tasks for center-register-card-content`.
+- [x] 2.1 Run, each on its own: `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint`, `npm run build`. Expected: every one exits 0, except `npm run test:qa` failures that also fail on `origin/develop`. This task changes no files: check it off in a commit containing only the checkbox, `chore(user-account): complete tasks for center-register-card-content`.
