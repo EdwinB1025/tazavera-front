@@ -1,4 +1,4 @@
-import type { AxisKey, GroupKey } from "@/entities/evaluation";
+import type { AxisKey, ExtrinsicFieldKey, GroupKey } from "@/entities/evaluation";
 
 /** The group card's texts, from the `evaluations` catalog (design.md D14). */
 export type EvaluationGroupTexts = {
@@ -22,4 +22,6 @@ export type EvaluationGroupTexts = {
   noteLabel: string;
   /** The label of the Extrinsic group's notes field. */
   extrinsicNoteLabel: string;
+  /** The labels of the Extrinsic group's other four fields. */
+  extrinsicLabels: Record<ExtrinsicFieldKey, string>;
 };

@@ -7,10 +7,12 @@ import type {
   GroupPart,
   PartKey,
 } from "@/entities/evaluation";
+import { EXTRINSIC_FIELDS } from "@/entities/evaluation";
 import { cn } from "@/shared/lib/utils";
-import { withGeneralObservation } from "../model/form-updates";
+import { withExtrinsic, withGeneralObservation } from "../model/form-updates";
 import type { FormStateUpdate } from "../model/form-updates";
 import { AxisNote, IntensityControl, PreferenceControl } from "./AxisControls";
+import { ExtrinsicField } from "./ExtrinsicField";
 import type { EvaluationGroupTexts } from "./group-texts";
 import { NoteField } from "./NoteField";
 
@@ -159,7 +161,11 @@ export function AffectivePart({
   );
 }
 
-/** The Extrinsic group's notes field, sent as `extrinsics.generalObservation`. */
+/**
+ * The Extrinsic group's five fields in the contract's order (add-extrinsic-fields):
+ * farming, processing, trading and certifications, then the general
+ * observation note, sent as `extrinsics.generalObservation`.
+ */
 export function ExtrinsicNotes({
   state,
   onChange,
@@ -168,6 +174,15 @@ export function ExtrinsicNotes({
 }: ExtrinsicNotesProps): ReactNode {
   return (
     <div data-part="notes" className={PART_CLASSES}>
+      {EXTRINSIC_FIELDS.map((field) => (
+        <ExtrinsicField
+          key={field}
+          label={texts.extrinsicLabels[field]}
+          value={state.extrinsics[field]}
+          readOnly={readOnly}
+          onChange={(next) => onChange(withExtrinsic(field, next))}
+        />
+      ))}
       <NoteField
         label={texts.extrinsicNoteLabel}
         addLabel={texts.addNoteLabel}

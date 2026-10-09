@@ -16,8 +16,8 @@ export type {
   GroupPart,
   PartKey,
 } from "./model/groups";
-export { ROAST_LEVELS, emptyFormState, toRoastLevel } from "./model/state";
-export type { EvaluationFormState } from "./model/state";
+export { EXTRINSIC_FIELDS, ROAST_LEVELS, emptyFormState, toRoastLevel } from "./model/state";
+export type { EvaluationFormState, ExtrinsicFieldKey } from "./model/state";
 export { buildCreateBody, buildUpdateBody } from "./model/body";
 export { formStateFromEvaluation } from "./model/load";
 export { completenessOf } from "./model/completeness";

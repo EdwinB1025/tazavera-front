@@ -4,6 +4,7 @@ import type {
   DescriptiveAxisKey,
   DescriptorSelectionKey,
   EvaluationFormState,
+  ExtrinsicFieldKey,
   PartKey,
 } from "@/entities/evaluation";
 
@@ -76,4 +77,8 @@ export function withNote(part: PartKey, axis: AxisKey, note: string | null): For
 
 export function withGeneralObservation(note: string | null): FormValuesUpdate {
   return (current) => ({ ...current, generalObservation: note });
+}
+
+export function withExtrinsic(field: ExtrinsicFieldKey, value: string | null): FormValuesUpdate {
+  return (current) => ({ ...current, extrinsics: { ...current.extrinsics, [field]: value } });
 }
