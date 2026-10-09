@@ -62,14 +62,9 @@ export type CreateFlowOptions = {
 
 const INVENTORY_FIELD = ["coffeeInventoryId"] as const;
 
-export function useCreateFlow({ enabled }: CreateFlowOptions): CreateFlow {
-  const [item, setItem] = useState<CoffeeInventoryItem | null>(null);
-  const [itemMissing, setItemMissing] = useState(false);
-  const [status, setStatus] = useState<CreateStatus>({ state: "idle" });
-  const server = useServerFieldErrors(INVENTORY_FIELD);
-
-  // Bumped by `reloadLocations`; a result for an older attempt reads as
-  // loading.
+/** The coffeeshop's locations read, and a reload through the loading state. */
+function useLocationsRead(enabled: boolean): { locations: LocationsState; reload: () => void } {
+  // Bumped by `reload`; a result for an older attempt reads as loading.
   const [attempt, setAttempt] = useState(0);
   const [settled, setSettled] = useState<{
     attempt: number;
@@ -90,6 +85,15 @@ export function useCreateFlow({ enabled }: CreateFlowOptions): CreateFlow {
   }, [enabled, attempt]);
   const locations: LocationsState =
     settled !== null && settled.attempt === attempt ? settled.result : { state: "loading" };
+  return { locations, reload: () => setAttempt((value) => value + 1) };
+}
+
+export function useCreateFlow({ enabled }: CreateFlowOptions): CreateFlow {
+  const [item, setItem] = useState<CoffeeInventoryItem | null>(null);
+  const [itemMissing, setItemMissing] = useState(false);
+  const [status, setStatus] = useState<CreateStatus>({ state: "idle" });
+  const server = useServerFieldErrors(INVENTORY_FIELD);
+  const { locations, reload } = useLocationsRead(enabled);
 
   // `null` keeps the initial selection: the only location when there is one.
   const [picked, setPicked] = useState<string[] | null>(null);
@@ -107,7 +111,7 @@ export function useCreateFlow({ enabled }: CreateFlowOptions): CreateFlow {
   };
   const reloadLocations = () => {
     setPicked(null);
-    setAttempt((value) => value + 1);
+    reload();
   };
   const submitBlocked = locations.state === "success" && locations.data.length === 0;
 
