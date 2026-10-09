@@ -4,7 +4,7 @@ No test-writing task: this is a refactor (fast lane). The protecting tests keep 
 
 ## 1. Checkbox
 
-- [ ] 1.1 Create `src/shared/ui/ControlMessages.tsx` (design.md D2) and split `Checkbox` as design.md D3. Commit `refactor(form-fields): split the checkbox`.
+- [x] 1.1 Create `src/shared/ui/ControlMessages.tsx` (design.md D2) and split `Checkbox` as design.md D3. Commit `refactor(form-fields): split the checkbox`.
 
 ## 2. Radio group
 

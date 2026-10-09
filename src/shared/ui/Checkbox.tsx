@@ -2,6 +2,7 @@
 
 import { useId, type InputHTMLAttributes, type ReactNode } from "react";
 import { Check } from "@/shared/ui/icons";
+import { ControlMessages, useControlMessages } from "./ControlMessages";
 import { useFieldControl } from "./use-field-control";
 import {
   FACET_MESSAGE_CLASSES,
@@ -77,6 +78,22 @@ const MARK_CLASSES = [
   "peer-disabled:opacity-50",
 ].join(" ");
 
+/** The box classes: treatment, border by state, then the consumer's class. */
+function boxClasses(
+  isRow: boolean,
+  invalid: boolean,
+  className: string | undefined,
+): string {
+  const border = invalid
+    ? "border-feedback-error"
+    : isRow
+      ? "border-nav-button-border"
+      : "border-border-strong";
+  return [isRow ? withoutDisabledFade(BOX_CLASSES) : BOX_CLASSES, border, className]
+    .filter(Boolean)
+    .join(" ");
+}
+
 /**
  * Tazavera checkbox.
  *
@@ -100,8 +117,7 @@ export function Checkbox({
   ...rest
 }: CheckboxProps): ReactNode {
   const checkboxId = useId();
-  const helpId = useId();
-  const errorId = useId();
+  const messages = useControlMessages(help, error);
 
   // D1.1: the attribute contract renders from the control's own props; an
   // explicit prop wins over the generated or derived value. An empty string
@@ -110,8 +126,6 @@ export function Checkbox({
   // (design.md D7): no React state mirrors the choice, the mark follows the
   // input's real state through CSS. The checkbox's own ids and messages are
   // the field it resolves from, so an enclosing Field never applies.
-  const hasHelp = help != null && help !== "";
-  const hasError = error != null && error !== "";
   const { id, describedBy, ariaInvalid, required, invalid } = useFieldControl(
     {
       id: idProp,
@@ -121,9 +135,9 @@ export function Checkbox({
     },
     {
       controlId: checkboxId,
-      helpId: hasHelp ? helpId : undefined,
-      errorId: hasError ? errorId : undefined,
-      invalid: hasError,
+      helpId: messages.hasHelp ? messages.helpId : undefined,
+      errorId: messages.hasError ? messages.errorId : undefined,
+      invalid: messages.hasError,
       required: false,
       variant,
     },
@@ -144,32 +158,18 @@ export function Checkbox({
             aria-describedby={describedBy}
             aria-invalid={ariaInvalid}
             required={required}
-            className={[
-              row ? withoutDisabledFade(BOX_CLASSES) : BOX_CLASSES,
-              invalid
-                ? "border-feedback-error"
-                : row
-                  ? "border-nav-button-border"
-                  : "border-border-strong",
-              className,
-            ]
-              .filter(Boolean)
-              .join(" ")}
+            className={boxClasses(row !== undefined, invalid, className)}
           />
           <Check className={row ? withoutDisabledFade(MARK_CLASSES) : MARK_CLASSES} />
         </span>
         <span className={row ? row.label : "type-label"}>{label}</span>
       </label>
-      {hasHelp && (
-        <p id={helpId} className={row ? `type-meta mt-1 ${FACET_MESSAGE_CLASSES}` : "type-meta mt-1"}>
-          {help}
-        </p>
-      )}
-      {hasError && (
-        <p id={errorId} className={row ? `type-error mt-1 ${FACET_MESSAGE_CLASSES}` : "type-error mt-1"}>
-          {error}
-        </p>
-      )}
+      <ControlMessages
+        ids={messages}
+        help={help}
+        error={error}
+        className={row ? FACET_MESSAGE_CLASSES : undefined}
+      />
     </div>
   );
 }
