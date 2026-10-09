@@ -12,8 +12,7 @@ import {
 
 /**
  * Flavor wheel geometry tests (design.md D5; design-summary §4.2, §10). Pure
- * functions with no React: ring radii by the deepest expanded level,
- * proportional spans from 12 o'clock clockwise, arc path data, label
+ * functions with no React: ring radii, arc path data, label
  * orientation and the estimated label fit (`characters × 0.6 × font size`).
  * Angles are in degrees, 0 at 12 o'clock, growing clockwise.
  */
@@ -25,8 +24,6 @@ function node(
 ): WheelGeometryNode {
   return { id, count, children };
 }
-
-const NONE = new Set<string>();
 
 describe("ringRadii", () => {
   it("uses 80–200 for ring 0 around an 80 hole when D = 0", () => {
@@ -59,50 +56,6 @@ describe("ringRadii", () => {
 
   it("keeps the constant viewBox", () => {
     expect(VIEWBOX).toBe("-204 -204 408 408");
-  });
-});
-
-describe("layoutWheel", () => {
-  describe("sizes rings by the deepest expanded level", () => {
-    const tree = [node("a", 2, [node("a1", 2, [node("a11", 1)])])];
-    const bounds = (expanded: ReadonlySet<string>) =>
-      layoutWheel(tree, expanded).segments.map(({ node: n, inner, outer }) => ({
-        id: n.id,
-        inner,
-        outer,
-      }));
-
-    it("fills ring 0 from 80 to 200 with nothing expanded", () => {
-      expect(layoutWheel(tree, NONE).radii).toEqual(ringRadii(0));
-      expect(bounds(NONE)).toEqual([{ id: "a", inner: 80, outer: 200 }]);
-    });
-
-    it("splits two rings with a root expanded", () => {
-      const expanded = new Set(["a"]);
-      expect(layoutWheel(tree, expanded).radii).toEqual(ringRadii(1));
-      expect(bounds(expanded)).toEqual([
-        { id: "a", inner: 80, outer: 140 },
-        { id: "a1", inner: 140, outer: 200 },
-      ]);
-    });
-
-    it("ignores an expanded note under a collapsed parent", () => {
-      const expanded = new Set(["a1"]);
-      expect(layoutWheel(tree, expanded).radii).toEqual(ringRadii(0));
-      expect(bounds(expanded)).toEqual([{ id: "a", inner: 80, outer: 200 }]);
-    });
-
-    it("returns to one ring when collapsing back", () => {
-      layoutWheel(tree, new Set(["a"]));
-      expect(layoutWheel(tree, NONE).radii).toEqual(ringRadii(0));
-      expect(bounds(NONE)).toEqual([{ id: "a", inner: 80, outer: 200 }]);
-    });
-  });
-
-  it("gives the children of a collapsed parent no spans", () => {
-    const tree = [node("a", 2, [node("a1", 2)]), node("b", 1)];
-    const { segments } = layoutWheel(tree, NONE);
-    expect(segments.map((s) => s.node.id)).toEqual(["a", "b"]);
   });
 });
 
@@ -216,7 +169,6 @@ describe("layoutWheel — groups (add-offering-catalog design.md D19)", () => {
         grouped("fruity", 1, "aromatics", [node("berry", 1), node("citrus", 1)]),
         grouped("body", 1, "mouthfeel"),
       ],
-      new Set(["fruity"]),
       ["aromatics", "mouthfeel"],
     );
     const children = segments.filter((s) => s.ring === 1);
@@ -227,6 +179,6 @@ describe("layoutWheel — groups (add-offering-catalog design.md D19)", () => {
   });
 
   it("returns no group arcs without a group order", () => {
-    expect(layoutWheel([node("a", 1)], NONE).groupArcs).toEqual([]);
+    expect(layoutWheel([node("a", 1)]).groupArcs).toEqual([]);
   });
 });

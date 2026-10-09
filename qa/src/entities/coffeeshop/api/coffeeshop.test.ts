@@ -22,16 +22,16 @@ beforeEach(() => {
 });
 
 describe("fetchCoffeeshop", () => {
-  it("resolves found on 200, not-found on 404, failed on 500 and on a transport failure (spec: Unknown coffee shop or failure)", async () => {
+  it("resolves found on 200, not-found on 404, an error on 500 and on a transport failure (spec: Unknown coffee shop or failure)", async () => {
     const data = { ulid: "01SHOP", name: "Nomad Coffee" };
     publicRequest.mockResolvedValueOnce(jsonResponse(200, { data }));
-    expect(await fetchCoffeeshop("01SHOP")).toEqual({ status: "found", coffeeshop: data });
+    expect(await fetchCoffeeshop("01SHOP")).toEqual({ ok: true, data });
     expect(publicRequest).toHaveBeenCalledWith("/coffeeshops/01SHOP");
     publicRequest.mockResolvedValueOnce(jsonResponse(404, {}));
-    expect(await fetchCoffeeshop("01SHOP")).toEqual({ status: "not-found" });
+    expect(await fetchCoffeeshop("01SHOP")).toEqual({ ok: false, kind: "not-found" });
     publicRequest.mockResolvedValueOnce(jsonResponse(500, {}));
-    expect(await fetchCoffeeshop("01SHOP")).toEqual({ status: "failed" });
+    expect(await fetchCoffeeshop("01SHOP")).toEqual({ ok: false, kind: "error" });
     publicRequest.mockRejectedValueOnce(new TypeError("network"));
-    expect(await fetchCoffeeshop("01SHOP")).toEqual({ status: "failed" });
+    expect(await fetchCoffeeshop("01SHOP")).toEqual({ ok: false, kind: "error" });
   });
 });

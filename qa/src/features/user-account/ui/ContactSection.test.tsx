@@ -81,16 +81,7 @@ afterEach(() => {
 });
 
 function renderSection() {
-  const requestProfileWrite = vi.fn<(returnRoute: string) => void>();
-  const utils = render(
-    <ContactSection
-      ulid="u1"
-      locale="es"
-      texts={TEXTS}
-      requestProfileWrite={requestProfileWrite}
-    />,
-  );
-  return { ...utils, requestProfileWrite };
+  return render(<ContactSection ulid="u1" texts={TEXTS} />);
 }
 
 async function settle(): Promise<void> {
@@ -196,12 +187,12 @@ function precedes(a: Node, b: Node): boolean {
 }
 
 describe("ContactSection — the add form", () => {
-  it("the add button has the primary treatment and an aria-hidden icon before its label", async () => {
+  it("the add button has the action-1 treatment and an aria-hidden icon before its label", async () => {
     request.mockResolvedValueOnce(json(200, { data: [] }));
     renderSection();
     await settle();
     const button = screen.getByRole("button", { name: TEXTS.contactAddButton });
-    expect(button.classList.contains("bg-action-primary")).toBe(true);
+    expect(button.classList.contains("bg-action-1-bg")).toBe(true);
     const icon = button.querySelector("svg")!;
     expect(icon).not.toBeNull();
     expect(icon.getAttribute("aria-hidden")).toBe("true");

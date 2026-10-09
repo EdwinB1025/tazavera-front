@@ -2,9 +2,13 @@ import { describe, it, expect, afterEach, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { FormActions } from "@/pages/evaluation-form/ui/FormActions";
 
+// Cancel is a route button (render-navigation-actions-as-buttons); the app
+// router is mocked — test infrastructure only.
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+
 /**
  * The form's actions (design.md D4, D14; the summary §9; tasks 6.1): Save
- * draft (`action-3`) and Close evaluation (`primary`), the `role="status"`
+ * draft (`primary`) and Close evaluation (`action-2`), the `role="status"`
  * region beside them, a sticky bar below `md` and an actions row from `md`.
  */
 
@@ -17,6 +21,8 @@ function renderActions(props: Partial<Parameters<typeof FormActions>[0]> = {}) {
     <FormActions
       saveLabel="Save draft"
       closeLabel="Close evaluation"
+      cancelLabel="Cancel"
+      cancelHref="/es/manage/evaluations"
       onSave={onSave}
       onClose={onClose}
       busy={null}
@@ -28,12 +34,12 @@ function renderActions(props: Partial<Parameters<typeof FormActions>[0]> = {}) {
 }
 
 describe("FormActions (design.md D4, D14)", () => {
-  it("renders Save draft as action-3 and Close evaluation as primary", () => {
+  it("renders Save draft as primary and Close evaluation as action-2", () => {
     const { onSave, onClose } = renderActions();
     const save = screen.getByRole("button", { name: "Save draft" });
     const close = screen.getByRole("button", { name: "Close evaluation" });
-    expect(save.className).toContain("bg-action-3-bg");
-    expect(close.className).toContain("bg-action-primary");
+    expect(save.className).toContain("bg-action-primary");
+    expect(close.className).toContain("bg-action-2-bg");
     fireEvent.click(save);
     expect(onSave).toHaveBeenCalledTimes(1);
     fireEvent.click(close);
@@ -63,7 +69,7 @@ describe("FormActions (design.md D4, D14)", () => {
       expect(bar.className).toContain(token);
     }
     const buttons = screen.getByRole("button", { name: "Save draft" }).parentElement!;
-    expect(buttons.className).toContain("gap-4");
+    expect(buttons.className).toContain("gap-3");
     expect(buttons.className).toContain("md:justify-end");
   });
 

@@ -162,7 +162,7 @@ describe("hasOfferingFilters (design.md D4)", () => {
 
 describe("scoreRangeChanges (design.md D4)", () => {
   it("writes only the bound that differs from its end", () => {
-    expect(scoreRangeChanges([60, 100])).toEqual({ cuppingAvgMin: "60", cuppingAvgMax: undefined });
-    expect(scoreRangeChanges([0, 90])).toEqual({ cuppingAvgMin: undefined, cuppingAvgMax: "90" });
+    expect(scoreRangeChanges([70, 100])).toEqual({ cuppingAvgMin: "70", cuppingAvgMax: undefined });
+    expect(scoreRangeChanges([60, 90])).toEqual({ cuppingAvgMin: undefined, cuppingAvgMax: "90" });
   });
 });

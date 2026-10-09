@@ -3,9 +3,10 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 /**
  * The single-offering read (add-offering-catalog design.md D3; spec "Offering
  * detail page" — "Error and retry"). `fetchOffering` sends
- * `GET /offerings/{ulid}` through `publicRequest` and resolves `found` with
- * the `data` of a `200`, `not-found` for a `404` or a `200` without `data`
- * (add-specialist-evaluations design.md D1), and `failed` for any other
+ * `GET /offerings/{ulid}` through `publicRequest` and resolves the shared
+ * result (unify-api-result-shape design.md D2): `ok` with the `data` of a
+ * `200`, `not-found` for a `404` or a `200` without `data`
+ * (add-specialist-evaluations design.md D1), and `error` for any other
  * non-2xx status or a transport failure; it never rejects.
  */
 
@@ -46,16 +47,16 @@ describe("fetchOffering (design.md D3)", () => {
     publicRequest.mockResolvedValue(jsonResponse(200, { data: OFFERING }));
     const result = await fetchOffering(ULID);
     expect(publicRequest).toHaveBeenCalledWith(`/offerings/${ULID}`);
-    expect(result).toEqual({ status: "found", offering: OFFERING });
+    expect(result).toEqual({ ok: true, data: OFFERING });
   });
 
   it("resolves a 200 without data as not-found", async () => {
     publicRequest.mockResolvedValue(jsonResponse(200, {}));
-    await expect(fetchOffering(ULID)).resolves.toEqual({ status: "not-found" });
+    await expect(fetchOffering(ULID)).resolves.toEqual({ ok: false, kind: "not-found" });
   });
 
-  it("resolves any other non-2xx status as failed", async () => {
+  it("resolves any other non-2xx status as an error", async () => {
     publicRequest.mockResolvedValue(jsonResponse(500, { message: "boom" }));
-    await expect(fetchOffering(ULID)).resolves.toEqual({ status: "failed" });
+    await expect(fetchOffering(ULID)).resolves.toEqual({ ok: false, kind: "error" });
   });
 });

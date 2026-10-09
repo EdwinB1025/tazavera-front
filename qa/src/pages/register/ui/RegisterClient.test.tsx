@@ -71,6 +71,7 @@ const TEXTS: RegisterClientTexts = {
   registerSuccessText: "fx-success-text",
   signIn: "fx-sign-in",
   loading: "fx-loading",
+  cancelLabel: "fx-cancel",
 };
 
 function renderClient(role: "specialist" | "coffeeshop" = "specialist") {

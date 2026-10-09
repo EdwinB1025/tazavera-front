@@ -66,12 +66,14 @@ describe("FiltersTrigger (design.md D8)", () => {
     expect(trigger()).not.toBeNull();
   });
 
-  it("mirrors open in aria-expanded and controls the sidebar", () => {
+  // collapse-sidebar-filters: expanded means the sidebar open with its facets
+  // sub-section open, which the trigger itself opens.
+  it("mirrors the open sidebar and sub-section in aria-expanded and controls the sidebar", () => {
     mobile = true;
     renderTrigger();
     expect(trigger()!.getAttribute("aria-expanded")).toBe("false");
     expect(trigger()!.getAttribute("aria-controls")).toBe(SIDEBAR_ID);
-    act(() => fireEvent.click(screen.getByRole("button", { name: "toggle" })));
+    act(() => fireEvent.click(trigger()!));
     expect(trigger()!.getAttribute("aria-expanded")).toBe("true");
   });
 

@@ -16,6 +16,25 @@ let shellPathname = "/es";
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: () => {} }),
   usePathname: () => shellPathname,
+  // Read by the shell's navigation tracker (fix-production-aut-findings
+  // design.md D5); no assertion depends on it.
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+// The language selector switches locale through next-intl's navigation
+// (adopt-next-intl-routing design.md D6), which needs the same router
+// context. Test infrastructure only: no assertion below depends on it.
+vi.mock("@/shared/lib/locale-navigation", () => ({
+  useRouter: () => ({ push: () => {} }),
+  usePathname: () => shellPathname.replace(/^\/[^/]*/, "") || "/",
+}));
+
+// The session hook reads the route's locale with `useLocale()` under the
+// `[locale]` layout's provider (adopt-next-intl-routing design.md D7), which
+// these renders do not mount. Test infrastructure only.
+vi.mock("next-intl", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next-intl")>()),
+  useLocale: () => shellPathname.split("/")[1],
 }));
 
 // The header actions call the public entries of `@/features/auth` (design.md
@@ -201,7 +220,10 @@ describe("route files (architecture rule: routing only)", () => {
     const offenders: string[] = [];
     for (const file of collectPages(pathResolve(process.cwd(), "app"))) {
       const content = readFileSync(file, "utf-8");
-      if (!/from\s+"@\//.test(content)) {
+      // A route file that only answers not found (add-not-found-page
+      // design.md D7: the locale catch-all calls `notFound()`) has no view.
+      const answersNotFound = /\bnotFound\(\)/.test(content);
+      if (!answersNotFound && !/from\s+"@\//.test(content)) {
         offenders.push(`${file}: imports nothing from src/`);
       }
       if (/\buse[A-Z]/.test(content)) {

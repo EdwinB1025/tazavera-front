@@ -42,11 +42,14 @@ const TEXTS = {
   brandLink: "texts.brandLink",
   myAccount: "texts.myAccount",
   security: "texts.security",
-  themeSelector: "texts.themeSelector",
+  themeToggleToDark: "texts.themeToggleToDark",
+  themeToggleToTraditional: "texts.themeToggleToTraditional",
   manageOfferings: "texts.manageOfferings",
   manageEvaluations: "texts.manageEvaluations",
+  exploreOfferings: "texts.exploreOfferings",
   signOut: "texts.signOut",
   exploreCoffeeshops: "texts.exploreCoffeeshops",
+  navigationMenu: "texts.navigationMenu",
 };
 
 function renderHeader(session: Session = ANONYMOUS, leading?: ReactNode) {
@@ -97,7 +100,11 @@ describe("AppHeader, signed-out state", () => {
     renderHeader();
     const left = screen.getByRole("banner").children[0] as HTMLElement;
     expect(left.firstElementChild!.classList.contains("md:hidden")).toBe(true);
-    expect(within(left).queryByRole("button")).toBeNull();
+    // The only control in the left group is the small-viewport navigation
+    // menu (fix-production-aut-findings D7); no leading control renders.
+    expect(
+      within(left).getAllByRole("button").map((button) => button.getAttribute("aria-label")),
+    ).toEqual([TEXTS.navigationMenu]);
   });
 
   it("renders the Sign in action in the nav-button-* tokens", () => {
@@ -250,27 +257,6 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
     ).toBeTruthy();
     expect(right.className).toContain("ml-auto");
     expect(right.className).not.toContain("hidden");
-    expect(right.className).not.toContain("md:");
-  });
-
-  it("renders the internal entries with the internal Link treatment (unplanned fix: base-controls \"Link navigation\")", () => {
-    renderSignedIn("specialist");
-    openMenu();
-    const entries: Array<[string, string]> = [
-      [TEXTS.myAccount, "/es/account"],
-      [TEXTS.manageEvaluations, "/es/manage/evaluations"],
-    ];
-    for (const [name, href] of entries) {
-      // The entry is the anchor itself and carries the shared `Link`
-      // treatment, so the internal route opens through the client-side
-      // navigator instead of a full reload. Only /user/security stays a
-      // native anchor (the case below).
-      const entry = screen.getByRole("menuitem", { name });
-      expect(entry.getAttribute("href")).toBe(href);
-      expect(entry.className).toContain("underline");
-      expect(entry.className).toContain("text-text-link");
-      expect(entry.className).toContain("hover:text-text-link-hover");
-    }
   });
 
   it("invokes the session's sign out and closes (spec: Sign out)", () => {

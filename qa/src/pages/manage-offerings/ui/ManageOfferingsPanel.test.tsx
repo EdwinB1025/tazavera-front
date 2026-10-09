@@ -90,8 +90,6 @@ const TEXTS = {
   cancelLabel: "Cancel",
   deleteError: "It could not be deleted. Try again.",
   deletedStatus: "Offerings deleted:",
-  stepUpMessage: "To continue, confirm your identity.",
-  stepUpLabel: "Confirm your identity",
 };
 
 const COFFEESHOP: Session = {
@@ -171,7 +169,7 @@ describe("ManageOfferingsPanel — header (design.md D6)", () => {
     expect(titleGroup.parentElement!.className).toBe(
       "flex flex-col items-start gap-4 md:flex-row md:flex-wrap md:items-end md:justify-between",
     );
-    await screen.findAllByRole("heading", { level: 3 });
+    await screen.findAllByRole("heading", { level: 2 });
   });
 });
 
@@ -186,7 +184,7 @@ describe("ManageOfferingsPanel — deleting (spec 'Deleting offerings')", () => 
   async function loaded(page = 1, items = ITEMS) {
     mocks.publicRequest.mockResolvedValueOnce(pageOf(items, page, page));
     const view = renderPanel(page);
-    await screen.findAllByRole("heading", { level: 3 });
+    await screen.findAllByRole("heading", { level: 2 });
     return view;
   }
 

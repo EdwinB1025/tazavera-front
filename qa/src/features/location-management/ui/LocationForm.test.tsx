@@ -27,8 +27,6 @@ const TEXTS: LocationFormTexts = {
   save: "fx-save",
   cancel: "fx-cancel",
   genericError: "fx-generic-error",
-  stepUpText: "fx-step-up",
-  stepUpButton: "fx-confirm",
   requiredError: "fx-required",
   emailFormatError: "fx-email-format",
   contactAddressLabel: "fx-address",
@@ -42,31 +40,26 @@ const TEXTS: LocationFormTexts = {
 };
 
 function renderForm(submitState: SubmitState = "idle") {
-  const onSubmit = vi.fn();
+  const onSubmit = vi.fn().mockResolvedValue(null);
   const onCancel = vi.fn();
-  const requestProfileWrite = vi.fn();
   const utils = render(
     <LocationForm
-      locale="es"
       texts={TEXTS}
       submitState={submitState}
       onSubmit={onSubmit}
       onCancel={onCancel}
-      requestProfileWrite={requestProfileWrite}
     />,
   );
   const rerenderWith = (state: SubmitState) =>
     utils.rerender(
       <LocationForm
-        locale="es"
         texts={TEXTS}
         submitState={state}
         onSubmit={onSubmit}
         onCancel={onCancel}
-        requestProfileWrite={requestProfileWrite}
       />,
     );
-  return { ...utils, onSubmit, onCancel, requestProfileWrite, rerenderWith };
+  return { ...utils, onSubmit, onCancel, rerenderWith };
 }
 
 function input(name: string): HTMLInputElement | HTMLTextAreaElement {

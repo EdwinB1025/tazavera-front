@@ -57,7 +57,7 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("ListScreen (summary §5.2)", () => {
-  it("renders the eyebrow and h1, the toolbar 2rem below them, and the list in the section surface", () => {
+  it("renders the eyebrow and h1, and the toolbar 2rem below them, on the page surface", () => {
     renderScreen({});
     expect(screen.getByText("Evaluations").className).toContain("type-eyebrow-strong");
     const heading = screen.getByRole("heading", { level: 1, name: "Specialist evaluations" });
@@ -66,8 +66,6 @@ describe("ListScreen (summary §5.2)", () => {
     expect(header.className).toContain("bg-surface-page");
     expect((heading.parentElement?.parentElement as HTMLElement).className).toContain("gap-8");
     expect(screen.getByRole("combobox", { name: "Sort by" })).toBeDefined();
-    const body = screen.getByTestId("public-list").closest("section") as HTMLElement;
-    expect(body.className).toContain("bg-surface-section");
   });
 
   it("is unfiltered with no facet in the URL", () => {

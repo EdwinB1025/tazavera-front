@@ -64,13 +64,20 @@ describe("submitLocation outcome (design.md D4)", () => {
     });
   });
 
-  it("is step-up on 403", async () => {
-    request.mockResolvedValue(new Response(null, { status: 403 }));
-    await expect(submitLocation(VALUES, new Map())).resolves.toEqual({ status: "step-up" });
+  it("is invalid with the field messages on 422", async () => {
+    request.mockResolvedValue(
+      new Response(JSON.stringify({ errors: { "contact.city": ["Required"] } }), {
+        status: 422,
+      }),
+    );
+    await expect(submitLocation(VALUES, new Map())).resolves.toEqual({
+      status: "invalid",
+      errors: { "contact.city": "Required" },
+    });
   });
 
-  it.each([422, 500])("is error on %i", async (status) => {
-    request.mockResolvedValue(new Response(null, { status }));
+  it("is error on 500", async () => {
+    request.mockResolvedValue(new Response(null, { status: 500 }));
     await expect(submitLocation(VALUES, new Map())).resolves.toEqual({ status: "error" });
   });
 

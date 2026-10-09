@@ -12,6 +12,8 @@ const mocks = vi.hoisted(() => ({
   request: vi.fn(),
   publicRequest: vi.fn(),
   notFound: vi.fn(),
+  // Cancel is a route button (render-navigation-actions-as-buttons).
+  push: vi.fn(),
 }));
 vi.mock("@/features/auth", () => ({
   useSession: () => mocks.session,
@@ -22,7 +24,10 @@ vi.mock("@/shared/api", () => ({
   request: mocks.request,
   publicRequest: mocks.publicRequest,
 }));
-vi.mock("next/navigation", () => ({ notFound: mocks.notFound }));
+vi.mock("next/navigation", () => ({
+  notFound: mocks.notFound,
+  useRouter: () => ({ push: mocks.push }),
+}));
 
 import { NewOfferingForm } from "@/pages/new-offering/ui/NewOfferingForm";
 
@@ -77,8 +82,6 @@ const TEXTS = {
   createError: "The offerings could not be created. Check the data and try again.",
   createdStatus: "Offerings created:",
   viewMyOfferings: "View my offerings",
-  stepUpMessage: "To continue, confirm your identity.",
-  stepUpLabel: "Confirm your identity",
 };
 
 const COFFEESHOP: Session = {

@@ -32,31 +32,8 @@
   ],
   "exclude": [
     "node_modules",
-    "qa/src/entities/offering/ui/OfferingCard.test.tsx",
-    "qa/src/entities/taxonomy/model/descriptor-rows.test.ts",
-    "qa/src/shared/ui/flavor-wheel-geometry.test.ts",
-    "qa/src/widgets/app-header/ui/AppHeader.test.tsx",
     "qa/src/widgets/app-header/ui/ThemeSelect.test.tsx",
-    "qa/src/widgets/evaluation-row/ui/EvaluationRowCard.test.tsx",
     "qa/src/widgets/offering-list/lib/resolve-taxonomies.test.ts",
-    "qa/src/pages/evaluation-form/ui/FormActions.test.tsx",
-    "qa/src/features/user-account/ui/RegisterForm.test.tsx",
-    "qa/src/pages/register/ui/RegisterClient.test.tsx",
-    "qa/src/entities/taxonomy/api/taxonomies.test.ts",
-    "qa/src/features/location-management/api/locations.test.ts",
-    "qa/src/features/offering-facets/model/options.test.ts",
-    "qa/src/features/user-account/api/contacts.test.ts",
-    "qa/src/pages/public-evaluations/ui/EvaluationsSidebar.test.tsx",
-    "qa/src/widgets/offering-list/api/offerings.test.ts",
-    "qa/src/features/user-account/ui/ContactSection.test.tsx",
-    "qa/src/features/user-account/ui/ProfileForm.test.tsx",
-    "qa/src/features/location-management/ui/LocationForm.test.tsx",
-    "qa/src/widgets/offering-list/ui/OfferingList.test.tsx",
-    "qa/src/widgets/offering-list/ui/FilteredOfferingsResults.test.tsx",
-    "qa/src/entities/evaluation/model/body.test.ts",
-    "qa/src/pages/evaluations-list/ui/EvaluationRowCard.test.tsx",
-    "qa/src/pages/evaluations-list/ui/EvaluationsList.test.tsx",
-    "qa/src/features/offering-management/ui/DeleteOfferingsDialog.test.tsx",
-    "qa/src/pages/evaluation-form/ui/EvaluationDetail.test.tsx"
+    "qa/src/pages/evaluations-list/ui/EvaluationRowCard.test.tsx"
   ]
 }

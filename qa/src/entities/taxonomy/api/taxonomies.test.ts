@@ -8,10 +8,11 @@ import { fetchTaxonomies } from "@/entities/taxonomy/api/taxonomies";
  * the original file keeps its `fetchVerifiedOfferings` cases.
  *
  * `fetchTaxonomies()` requests `{NEXT_PUBLIC_API_URL}/taxonomies` with plain
- * `fetch` and no options, so no credential header — asserted as a call with
- * the URL and no second argument — and returns `data`. A non-2xx status or a
- * transport failure rejects; nothing about the rejection reason is asserted,
- * because the API's error body and status never reach the presentation.
+ * `fetch` and only the one-hour cache init, so no credential header, and
+ * resolves the shared result with the payload (unify-api-result-shape
+ * design.md D1). A non-2xx status or a transport failure resolves an error
+ * result, because the API's error body and status never reach the
+ * presentation.
  */
 
 const API_URL = "https://api.tazavera.test";
@@ -53,20 +54,20 @@ describe("fetchTaxonomies (design.md D4)", () => {
     // Plain `fetch` with the URL and no options, so no credential header is
     // sent (design.md D4).
     expect(fetchSpy).toHaveBeenCalledWith(`${API_URL}/taxonomies`, { next: { revalidate: 3600 } });
-    expect(result.data).toEqual(TAXONOMIES_PAYLOAD.data);
+    expect(result).toEqual({ ok: true, data: TAXONOMIES_PAYLOAD });
   });
 
-  it("rejects when the API answers with a non-2xx status (spec: Error and retry)", async () => {
+  it("resolves an error when the API answers with a non-2xx status (spec: Error and retry)", async () => {
     fetchSpy.mockResolvedValue({
       ok: false,
       status: 500,
       json: async () => ({ message: "boom" }),
     });
-    await expect(fetchTaxonomies()).rejects.toBeDefined();
+    await expect(fetchTaxonomies()).resolves.toEqual({ ok: false, kind: "error" });
   });
 
-  it("rejects when the request fails to transport (spec: Error and retry)", async () => {
+  it("resolves an error when the request fails to transport (spec: Error and retry)", async () => {
     fetchSpy.mockRejectedValue(new Error("network down"));
-    await expect(fetchTaxonomies()).rejects.toBeDefined();
+    await expect(fetchTaxonomies()).resolves.toEqual({ ok: false, kind: "error" });
   });
 });

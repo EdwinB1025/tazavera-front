@@ -8,16 +8,16 @@ import type { CreateLocationPayload } from "@/shared/api";
 const { request } = vi.hoisted(() => ({ request: vi.fn() }));
 vi.mock("@/shared/api", () => ({ request }));
 
-import { createLocation, fetchOwnLocations } from "@/features/location-management/api/locations";
+import { createLocation, readOwnLocations } from "@/features/location-management/api/locations";
 
 beforeEach(() => {
   request.mockReset();
   request.mockResolvedValue(new Response(null, { status: 200 }));
 });
 
-describe("fetchOwnLocations", () => {
+describe("readOwnLocations", () => {
   it("sends one GET to /users/{ulid}/locations through request", async () => {
-    await fetchOwnLocations("u1");
+    await readOwnLocations("u1");
     expect(request).toHaveBeenCalledTimes(1);
     const [path, init] = request.mock.calls[0] as [string, RequestInit | undefined];
     expect(path).toBe("/users/u1/locations");

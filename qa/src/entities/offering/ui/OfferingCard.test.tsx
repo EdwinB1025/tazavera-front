@@ -14,11 +14,10 @@ afterEach(() => {
 /**
  * OfferingCard tests (design.md D4's card field mapping and D8; the landing
  * spec "Offering card content" — "Score and rating tier", "No score", "Origin
- * line skips null values", "Footer counts", "View link for everyone" — and
- * "Taxonomy badges on the offering card" — "Rows by level"). The actions slot
- * cases cover replace-offering-card-session's design.md D1 and the spec
- * "Offering card actions" — "Consumer actions after View", "No consumer
- * actions". Written before
+ * line skips null values", "Footer counts"). The tree layout of the taxonomy
+ * badges (nest-card-taste-notes design.md D2) is covered by the validation
+ * suite; since fix-production-aut-findings (design.md D3) the card renders no
+ * View of its own. Written before
  * the implementation (task 4.2): the import goes through the slice's public
  * API, which fails to resolve until `src/entities/offering/` exists
  * (`lib/rating.ts`, `ui/OfferingCard.tsx` and the entity entry `index.ts`), so
@@ -34,14 +33,15 @@ afterEach(() => {
  */
 
 // ─── Texts props (design.md D11: every label and caption arrives as a prop;
-// eleven keys — `evaluateLabel` moved to the list's texts, design.md D3) ─────
+// ten keys — `evaluateLabel` moved to the list's texts, design.md D3, and
+// `viewLabel` left with the card's own View, fix-production-aut-findings
+// design.md D3) ─────────────────────────────────────────────────────────────
 
 const TEXTS = {
   coffeeshopCaption: "texts.coffeeshopCaption",
   roasterCaption: "texts.roasterCaption",
   evaluationsLabel: "texts.evaluationsLabel",
   defectiveLabel: "texts.defectiveLabel",
-  viewLabel: "texts.viewLabel",
   verifiedLabel: "texts.verifiedLabel",
   provisionalLabel: "texts.provisionalLabel",
   ratingExceptionalLabel: "texts.ratingExceptionalLabel",
@@ -50,15 +50,41 @@ const TEXTS = {
   ratingCommercialLabel: "texts.ratingCommercialLabel",
 };
 
-// ─── Resolved taxonomy badge data (design.md D5 and D8: the labels, colors
-// and levels arrive resolved) ───────────────────────────────────────────────
+// ─── Resolved taxonomy badge tree (nest-card-taste-notes design.md D1: the
+// labels, colors and levels arrive resolved, nested as the concordance) ─────
 
-type ResolvedTaxonomyBadge = { label: string; color: string; level: 0 | 1 | 2 };
+type ResolvedTaxonomyBadge = {
+  ref: string;
+  label: string;
+  color: string;
+  level: 0 | 1 | 2;
+  children: ResolvedTaxonomyBadge[];
+};
 
 const TAXONOMIES: ResolvedTaxonomyBadge[] = [
-  { label: "Floral", color: "#336699", level: 0 },
-  { label: "Jazmin", color: "#000000", level: 1 },
-  { label: "Bergamota", color: "#FFFFFF", level: 2 },
+  {
+    ref: "01JTAXN0DE0000000000000001",
+    label: "Floral",
+    color: "#336699",
+    level: 0,
+    children: [
+      {
+        ref: "01JTAXN0DE0000000000000002",
+        label: "Jazmin",
+        color: "#000000",
+        level: 1,
+        children: [
+          {
+            ref: "01JTAXN0DE0000000000000003",
+            label: "Bergamota",
+            color: "#FFFFFF",
+            level: 2,
+            children: [],
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 // ─── Offering fixture (design.md D4's mapping table) ────────────────────────
@@ -127,7 +153,6 @@ function renderCard(options: RenderOptions = {}) {
   return render(
     <OfferingCard
       offering={options.offering ?? OFFERING}
-      locale="es"
       taxonomies={options.taxonomies ?? TAXONOMIES}
       texts={TEXTS}
       actions={options.actions}
@@ -201,9 +226,9 @@ describe("OfferingCard", () => {
     it("renders every label and caption from the texts props", () => {
       // The per-tier rule (label-rating-badge design.md D1): one card per
       // score range (90 or above, 85 to below 90, 80 to below 85, below 80)
-      // plus the provisional card. Their union must cover all eleven texts —
-      // the seven labels and captions plus the four tier words — so the case
-      // fails whenever any of the eleven is never rendered.
+      // plus the provisional card. Their union must cover all ten texts —
+      // the six labels and captions plus the four tier words — so the case
+      // fails whenever any of the ten is never rendered.
       const { container: exceptionalCard } = renderCard({
         offering: OFFERING_EXCEPTIONAL,
       });
@@ -237,17 +262,6 @@ describe("OfferingCard", () => {
       const { container } = renderCard();
       expect(classTokens(container.firstElementChild!)).toEqual(
         expect.arrayContaining(["flex", "flex-col", "h-full"]),
-      );
-    });
-
-    it("keeps the three taxonomy rows 0.5rem apart", () => {
-      const { container } = renderCard();
-      const content = container.querySelector("h3")!.parentElement!;
-      const rows = elementsWith(content, "flex-wrap");
-      const stack = rows[0].parentElement!;
-      expect(rows.every((row) => row.parentElement === stack)).toBe(true);
-      expect(classTokens(stack)).toEqual(
-        expect.arrayContaining(["flex", "flex-col", "gap-2"]),
       );
     });
   });

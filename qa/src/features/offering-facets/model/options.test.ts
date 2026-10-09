@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { CoffeeSummary, TaxonomiesPayload, TaxonomyNode } from "@/shared/api";
+import type { ApiResult, CoffeeSummary, TaxonomiesPayload, TaxonomyNode } from "@/shared/api";
 import { offeringFacetOptions, tasteNoteOptions } from "@/features/offering-facets/model/options";
 
 /**
@@ -34,8 +34,8 @@ const COFFEES = [
   { country: "Colombia", region: "Huila", process: "washed", variety: "Caturra", producer: null },
 ] as CoffeeSummary[];
 
-function fulfilled<T>(value: T): PromiseSettledResult<T> {
-  return { status: "fulfilled", value };
+function fulfilled<T>(value: T): ApiResult<T> {
+  return { ok: true, data: value };
 }
 
 describe("tasteNoteOptions (design.md D7)", () => {
@@ -44,12 +44,13 @@ describe("tasteNoteOptions (design.md D7)", () => {
       {
         value: "F",
         label: "Fruity",
+        color: "",
         children: [
-          { value: "B", label: "Berry" },
-          { value: "C", label: "Citrus" },
+          { value: "B", label: "Berry", color: "" },
+          { value: "C", label: "Citrus", color: "" },
         ],
       },
-      { value: "N", label: "Nutty", children: [] },
+      { value: "N", label: "Nutty", color: "", children: [] },
     ]);
   });
 

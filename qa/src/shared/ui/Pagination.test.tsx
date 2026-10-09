@@ -176,7 +176,7 @@ describe("Pagination", () => {
         screen.getByRole("button", { name: "texts.pageLabel 9" }),
       );
       expect(number).toEqual(
-        expect.arrayContaining(["h-10", "min-w-10", "px-3!"]),
+        expect.arrayContaining(["h-10", "min-w-10!", "px-3!"]),
       );
     });
 

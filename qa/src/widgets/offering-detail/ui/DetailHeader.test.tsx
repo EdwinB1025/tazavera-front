@@ -1,7 +1,12 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import type { OfferingDetail, Session } from "@/shared/api";
 import { DetailHeader } from "@/widgets/offering-detail/ui/DetailHeader";
+
+// The header actions are route buttons (render-navigation-actions-as-buttons);
+// the app router is mocked — test infrastructure only.
+const router = vi.hoisted(() => ({ push: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => router }));
 
 /**
  * Detail header tests (add-offering-catalog design.md D9; specs "Header",

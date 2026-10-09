@@ -59,7 +59,10 @@ afterEach(cleanup);
 describe("PublicEvaluationList (design.md D4, D6)", () => {
 
   it("renders the empty message on an empty page", async () => {
-    fetchEvaluations.mockResolvedValue({ data: [], meta: { current_page: 1, last_page: 1, total: 0 } });
+    fetchEvaluations.mockResolvedValue({
+      ok: true,
+      data: { data: [], meta: { current_page: 1, last_page: 1, total: 0 } },
+    });
     await renderList();
     expect(screen.getByText("There are no evaluations yet.")).toBeDefined();
     expect(fetchOffering).not.toHaveBeenCalled();

@@ -1,8 +1,9 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import type { EvaluationItem, OfferingDetail } from "@/shared/api";
-import { EvaluationRowCard } from "@/widgets/evaluation-row/ui/EvaluationRowCard";
-import type { EvaluationRowCardTexts } from "@/widgets/evaluation-row/ui/EvaluationRowCard";
+import { PublicEvaluationRowCard } from "@/widgets/evaluation-row/ui/PublicEvaluationRowCard";
+import type { PublicEvaluationRowCardTexts } from "@/widgets/evaluation-row/ui/PublicEvaluationRowCard";
+import { SpecialistEvaluationRowCard } from "@/widgets/evaluation-row/ui/SpecialistEvaluationRowCard";
 
 /**
  * The row card of the `evaluation-row` widget (design.md D6; spec "Public
@@ -11,7 +12,11 @@ import type { EvaluationRowCardTexts } from "@/widgets/evaluation-row/ui/Evaluat
  * without a coffee name.
  */
 
-const TEXTS: EvaluationRowCardTexts = {
+const TEXTS: PublicEvaluationRowCardTexts & {
+  openLabel: string;
+  closedLabel: string;
+  createdOnLabel: string;
+} = {
   openLabel: "Open",
   closedLabel: "Closed",
   createdOnLabel: "Created on",
@@ -50,14 +55,16 @@ const DATE = new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "UTC
   new Date(CLOSED.closedAt as string),
 );
 
+// The public row's actions are route buttons (fix-production-aut-findings D4).
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+
 afterEach(cleanup);
 
 describe("EvaluationRowCard, public variant (design.md D6)", () => {
 
   it("renders an empty aside and no date line for a null score and a null closedAt", () => {
     const { container } = render(
-      <EvaluationRowCard
-        variant="public"
+      <PublicEvaluationRowCard
         evaluation={{ ...CLOSED, cuppingScore: null, closedAt: null }}
         offering={OFFERING}
         locale="en"
@@ -71,35 +78,32 @@ describe("EvaluationRowCard, public variant (design.md D6)", () => {
   });
 
   it("shows offeringUnavailable with no captions and no View offering when the offering read failed", () => {
-    render(<EvaluationRowCard variant="public" evaluation={CLOSED} offering={null} locale="en" texts={TEXTS} />);
+    render(<PublicEvaluationRowCard evaluation={CLOSED} offering={null} locale="en" texts={TEXTS} />);
     expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("Offering unavailable");
     expect(screen.queryByText(/^Coffeeshop:/)).toBeNull();
-    expect(screen.queryByRole("link", { name: /^View offering/ })).toBeNull();
-    expect(screen.getByRole("link", { name: `View Offering unavailable, ${DATE}` })).toBeDefined();
+    expect(screen.queryByRole("button", { name: /^View offering/ })).toBeNull();
+    expect(screen.getByRole("button", { name: `View Offering unavailable, ${DATE}` })).toBeDefined();
   });
 
   it("omits the date and its comma from the suffix when closedAt is null", () => {
     render(
-      <EvaluationRowCard
-        variant="public"
+      <PublicEvaluationRowCard
         evaluation={{ ...CLOSED, offeringId: null, closedAt: null }}
         offering={null}
         locale="en"
         texts={TEXTS}
       />,
     );
-    expect(screen.getByRole("link", { name: "View Offering no longer exists" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "View Offering no longer exists" })).toBeDefined();
   });
 });
 
 describe("EvaluationRowCard, specialist variant (design.md D6)", () => {
   it("keeps the status badge and renders its own actions instead of the public links", () => {
     render(
-      <EvaluationRowCard
-        variant="specialist"
+      <SpecialistEvaluationRowCard
         evaluation={CLOSED}
         offering={OFFERING}
-        locale="en"
         texts={TEXTS}
         actions={<button type="button">Delete</button>}
       />,

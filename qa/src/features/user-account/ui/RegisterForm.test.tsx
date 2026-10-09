@@ -2,6 +2,10 @@ import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent, act } from "@testing-library/react";
 import { RegisterForm, type RegisterFormTexts } from "@/features/user-account";
 
+// Cancel is a route button (render-navigation-actions-as-buttons); the app
+// router is mocked — test infrastructure only.
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+
 /**
  * Registration form (specs "Registration routes", "Registration form" and
  * "Registration result"; design.md D2, D3 and D9). The request goes through
@@ -35,6 +39,7 @@ const TEXTS: RegisterFormTexts = {
   registerSuccessTitle: "fx-success-title",
   registerSuccessText: "fx-success-text",
   signIn: "fx-sign-in",
+  cancelLabel: "fx-cancel",
 };
 
 const fetchMock =
@@ -48,6 +53,7 @@ beforeEach(() => {
 
 function renderForm(role: "specialist" | "coffeeshop" = "specialist") {
   const signIn = vi.fn<() => void>();
+  const signInWithToken = vi.fn<() => Promise<boolean>>();
   render(
     <>
       <h1 id="register-title">title</h1>
@@ -56,6 +62,8 @@ function renderForm(role: "specialist" | "coffeeshop" = "specialist") {
         labelledBy="register-title"
         texts={TEXTS}
         signIn={signIn}
+        signInWithToken={signInWithToken}
+        cancelHref="/es"
       />
     </>,
   );
