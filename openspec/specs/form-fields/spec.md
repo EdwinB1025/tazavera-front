@@ -200,7 +200,7 @@ Every data-entry control SHALL take its colors and corner radii from semantic to
 - **THEN** verification fails and reports the missing token
 
 ### Requirement: Bean scale
-A bean scale SHALL let the user choose one affective score from 1 to 9 and show it as a row of nine bean marks whose filled marks run from the first up to the chosen score, the rest rendered empty. It SHALL present its group name above the row and the score as text beside the row, and SHALL accept an optional help text and an optional error message supplied by the consuming capability, marking a required score as required. A bean scale in read-only mode SHALL display a score without offering a choice.
+A bean scale SHALL let the user choose one affective score from 1 to 9 and show it as a row of nine bean marks whose filled marks run from the first up to the chosen score, the rest rendered empty. It SHALL present its group name above the row and the score as text beside the row, and SHALL accept an optional help text and an optional error message supplied by the consuming capability, marking a required score as required. A bean scale in read-only mode SHALL display a score without offering a choice. Each bean's lines SHALL keep one colour in every state; only the background behind the bean SHALL change between filled and empty.
 
 #### Scenario: Choosing a score
 - **WHEN** the user activates one of the nine beans
@@ -241,6 +241,10 @@ A bean scale SHALL let the user choose one affective score from 1 to 9 and show 
 #### Scenario: The mark's background stays inside the bean
 - **WHEN** a bean renders
 - **THEN** its filled or empty colour shows only inside the bean's outline
+
+#### Scenario: The bean's lines keep one colour
+- **WHEN** a bean scale renders filled, empty and partly filled beans
+- **THEN** every bean's lines show the same colour, and only the background behind each bean differs between filled and empty
 
 ### Requirement: Intensity slider
 An intensity slider SHALL let the user choose one descriptive intensity from 0 to 15 in whole steps and show it as a slider track filled from the start up to the chosen value in the gradient from the low end to the high end of the scale. It SHALL present its label and the value text the consuming capability supplied in one header row, and the marks 0, 5, 10 and 15 with the three scale labels below the track. It SHALL accept an optional help text and an optional error message supplied by the consuming capability. With no value it SHALL show intensity 0, and in read-only mode it SHALL display an intensity without offering a choice.
