@@ -42,6 +42,7 @@ export function EvaluationsListScreen({
   const catalog = getMessages("evaluations", locale);
   const landing = getMessages("landing", locale);
   const filters = getMessages("filters", locale);
+  const publicEvaluations = getMessages("public-evaluations", locale);
   // The facet values and the applied list (add-evaluation-facets D4, D5, D9).
   const values = parseEvaluationFilters(searchParams);
   const applied = appliedEvaluationFilters(values, {
@@ -64,6 +65,7 @@ export function EvaluationsListScreen({
     roasterCaption: catalog.roasterCaption,
     editLabel: catalog.editLabel,
     viewLabel: catalog.viewLabel,
+    viewOfferingLabel: publicEvaluations.viewOfferingLabel,
     closeLabel: catalog.closeLabel,
     closedMessage: catalog.closedMessage,
     incompleteMessage: catalog.incompleteMessage,

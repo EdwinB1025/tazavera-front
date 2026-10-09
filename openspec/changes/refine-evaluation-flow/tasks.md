@@ -12,7 +12,7 @@
   - "Closing an open evaluation from its row" and "The row's close finds the evaluation incomplete" → render `COMPLETE`; the order becomes the one above;
   - the orphan "offers View and Delete…" → also no View offering; its View opens `?mode=view`.
   In `src/pages/evaluations-list/ui/EvaluationsList.test.tsx`: add `isReadyForClosing` (the original) to the entity mock and `viewOfferingLabel` to TEXTS; "The row's close succeeds" → the first item is complete. Expected: the new and updated tests fail only because the actions are missing.
-- [ ] 2.2 Implement D5 and D3's list part: `ViewOfferingButton` in `EvaluationRowParts.tsx`, used by `PublicEvaluationRowCard.tsx` and exported by the widget; `SpecialistEvaluationRow.tsx` (actions and order, `viewOfferingLabel` in its texts); `EvaluationsListScreen.tsx` (`viewOfferingLabel` from `public-evaluations`). Verify: related tests (including `src/widgets/evaluation-row/ui/EvaluationRowCard.test.tsx` unchanged), typecheck, lint.
+- [x] 2.2 Implement D5 and D3's list part: `ViewOfferingButton` in `EvaluationRowParts.tsx`, used by `PublicEvaluationRowCard.tsx` and exported by the widget; `SpecialistEvaluationRow.tsx` (actions and order, `viewOfferingLabel` in its texts); `EvaluationsListScreen.tsx` (`viewOfferingLabel` from `public-evaluations`). Verify: related tests (including `src/widgets/evaluation-row/ui/EvaluationRowCard.test.tsx` unchanged), typecheck, lint.
 
 ## 3. Form: read-only mode, Close readiness, close returns (D1, D3, D4)
 

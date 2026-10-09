@@ -4,5 +4,6 @@
  */
 export { SpecialistEvaluationRowCard } from "./ui/SpecialistEvaluationRowCard";
 export type { SpecialistEvaluationRowCardTexts } from "./ui/SpecialistEvaluationRowCard";
+export { ViewOfferingButton } from "./ui/EvaluationRowParts";
 export { PublicEvaluationRowCard } from "./ui/PublicEvaluationRowCard";
 export type { PublicEvaluationRowCardTexts } from "./ui/PublicEvaluationRowCard";

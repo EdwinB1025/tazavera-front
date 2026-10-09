@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { EvaluationItem, OfferingDetail } from "@/shared/api";
 import { ratingTierFor } from "@/entities/offering";
-import { Badge } from "@/shared/ui";
+import { Badge, RouteButton } from "@/shared/ui";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -44,6 +44,28 @@ export function scoreRow(evaluation: EvaluationItem, texts: EvaluationRowSharedT
       <div className="type-meta">{SCORE_SCALE}</div>
       <Badge variant={tier}>{tierWords[tier]}</Badge>
     </div>
+  );
+}
+
+export type ViewOfferingButtonProps = {
+  locale: string;
+  offeringId: string;
+  label: string;
+  /** The hidden suffix that tells the row's actions apart. */
+  suffix: string;
+};
+
+/** The View offering route button of both rows (refine-evaluation-flow D5). */
+export function ViewOfferingButton({
+  locale,
+  offeringId,
+  label,
+  suffix,
+}: ViewOfferingButtonProps): ReactNode {
+  return (
+    <RouteButton href={`/${locale}/offerings/${offeringId}`} variant="action-3" size="sm">
+      {label} <span className="sr-only">{suffix}</span>
+    </RouteButton>
   );
 }
 
