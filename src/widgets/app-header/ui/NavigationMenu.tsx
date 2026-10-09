@@ -1,12 +1,12 @@
 "use client";
 
 import type { ReactNode } from "react";
+import NextLink from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  Link,
 } from "@/shared/ui";
 import { Menu } from "@/shared/ui/icons";
 import { primaryNavEntries } from "../lib/nav-entries";
@@ -45,7 +45,8 @@ const TRIGGER_CLASSES = [
  * design.md D7; spec "Header brand and primary navigation"): a three-lines
  * icon control that replaces the hidden primary navigation below `md` and
  * lists its entries, in order, the way the user menu lists its own — menu
- * items over the shared `Link` on the header's menu surface.
+ * items over `next/link`, each led by its decorative icon, on the header's
+ * menu surface (add-user-menu-icons D1–D3).
  */
 export function NavigationMenu({
   locale,
@@ -58,14 +59,15 @@ export function NavigationMenu({
         <Menu aria-hidden className="size-6" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" surface="nav">
-        {primaryNavEntries(locale, texts).map(({ path, query, label }) => (
+        {primaryNavEntries(locale, texts).map(({ path, query, label, icon: Icon }) => (
           <DropdownMenuItem key={path} asChild>
-            <Link
+            <NextLink
               href={`${path}${query}`}
               aria-current={path === currentPath ? "page" : undefined}
             >
+              <Icon aria-hidden className="size-4" />
               {label}
-            </Link>
+            </NextLink>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
