@@ -13,12 +13,17 @@ import { FORM_TEXTS } from "./form-fixtures";
 
 afterEach(cleanup);
 
-function renderGroup(key: GroupKey, complete?: boolean, readOnly?: boolean) {
+function renderGroup(
+  key: GroupKey,
+  complete?: boolean,
+  readOnly?: boolean,
+  state = emptyFormState("medium"),
+) {
   const group = EVALUATION_GROUPS.find((candidate) => candidate.key === key)!;
   return render(
     <EvaluationGroupCard
       group={group}
-      state={emptyFormState("medium")}
+      state={state}
       onChange={vi.fn()}
       texts={FORM_TEXTS.group}
       complete={complete}
@@ -86,10 +91,29 @@ describe("EvaluationGroupCard (design.md D14, D15)", () => {
     const { container } = renderGroup("extrinsic");
     fireEvent.click(screen.getByRole("button", { name: "Extrinsic" }));
     const labels = ["Farming", "Processing", "Trading", "Certifications"];
-    const areas = labels.map((label) => screen.getByLabelText(label));
-    for (const area of areas) expect(area.tagName).toBe("TEXTAREA");
-    const fields = [...areas, screen.getByRole("button", { name: "Add note" })];
+    const fields = [
+      ...labels.map((label) => screen.getByRole("button", { name: `Add note (${label})` })),
+      screen.getByRole("button", { name: "Add note" }),
+    ];
     const order = [...container.querySelectorAll("textarea, button:not([aria-expanded])")];
     expect(order).toEqual(fields);
+  });
+
+  it("Extrinsic notes start behind Add note", () => {
+    const { container } = renderGroup("extrinsic");
+    fireEvent.click(screen.getByRole("button", { name: "Extrinsic" }));
+    for (const label of ["Farming", "Processing", "Trading", "Certifications"]) {
+      expect(screen.getByText(label).className).toContain("type-label");
+    }
+    expect(container.querySelectorAll("textarea")).toHaveLength(0);
+  });
+
+  it("Loading the extrinsic fields", () => {
+    const state = emptyFormState("medium");
+    state.extrinsics.farming = "Organic";
+    renderGroup("extrinsic", undefined, false, state);
+    fireEvent.click(screen.getByRole("button", { name: "Extrinsic" }));
+    expect((screen.getByLabelText("Note (Farming)") as HTMLTextAreaElement).value).toBe("Organic");
+    expect(screen.getByRole("button", { name: "Add note (Processing)" })).toBeDefined();
   });
 });

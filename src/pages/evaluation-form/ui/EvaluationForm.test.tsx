@@ -137,9 +137,8 @@ describe("EvaluationForm: header and tree (tasks 4.1)", () => {
     expect(sliders.every((slider) => slider.value === "0")).toBe(true);
     expect(screen.getAllByRole("radiogroup")).toHaveLength(8);
     expect(screen.queryAllByRole("radio", { checked: true })).toHaveLength(0);
-    // Only the four extrinsic fields' text areas, empty (add-extrinsic-fields).
-    const textboxes = screen.queryAllByRole("textbox") as HTMLTextAreaElement[];
-    expect(textboxes.map((box) => box.value)).toEqual(["", "", "", ""]);
+    // The extrinsic fields start behind "Add note" too (refine-evaluation-flow D2).
+    expect(screen.queryAllByRole("textbox")).toHaveLength(0);
     expect(screen.queryAllByRole("checkbox", { checked: true })).toHaveLength(0);
   });
 
