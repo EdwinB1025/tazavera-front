@@ -4,7 +4,8 @@
  * application — path plus query, no hash — and anything else is refused, so the
  * callback never opens a destination outside the application.
  */
-import { localeFromPath } from "@/shared/config/locales";
+import { hasLocale } from "next-intl";
+import { routing } from "@/shared/config/locales";
 
 /** A placeholder origin the route is resolved against; it never reaches the URL. */
 const BASE = "http://app.invalid";
@@ -20,6 +21,8 @@ export function toAppRoute(route: unknown): string | null {
   }
   const url = new URL(route, BASE);
   if (url.origin !== BASE || url.pathname.startsWith("//")) return null;
-  if (localeFromPath(url.pathname) === null) return null;
+  // The first segment must be a supported locale (adopt-next-intl-routing
+  // design.md D7).
+  if (!hasLocale(routing.locales, url.pathname.split("/")[1])) return null;
   return url.pathname + url.search;
 }

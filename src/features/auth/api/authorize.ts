@@ -14,11 +14,8 @@
  */
 import * as oauth from "oauth4webapi";
 import { exchangeCode } from "@/shared/api";
-import {
-  DEFAULT_LOCALE,
-  localeFromPath,
-  type Locale,
-} from "@/shared/config/locales";
+import type { Locale } from "next-intl";
+import { routing } from "@/shared/config/locales";
 import { readTheme } from "@/shared/lib/theme";
 import {
   clearFlow,
@@ -30,6 +27,7 @@ import {
   setMarker,
   type PendingFlow,
 } from "../model/flow";
+import { activeLocale } from "../model/active-locale";
 import { toAppRoute } from "../model/return-route";
 
 /** The scopes the authorization page is asked for (design.md D5). */
@@ -120,7 +118,7 @@ export async function completeCallback(
   const pending = readFlow();
   // Only an application route opens; any other destination takes the root of
   // the default locale (fix-auth-return-query design.md D3).
-  const returnRoute = toAppRoute(pending?.returnRoute) ?? `/${DEFAULT_LOCALE}`;
+  const returnRoute = toAppRoute(pending?.returnRoute) ?? `/${routing.defaultLocale}`;
   if (code !== undefined && error === undefined && pending !== null && state === pending.state) {
     try {
       await exchangeCode(code, pending.verifier);
@@ -285,9 +283,12 @@ function frontOpener(): Window | null {
   }
 }
 
-/** `lang` is the locale of the route that starts the flow (design.md D5). */
+/**
+ * `lang` is the locale of the route that starts the flow (design.md D5), as
+ * `useSession()` records it (adopt-next-intl-routing design.md D7).
+ */
 function activeLang(): Locale {
-  return localeFromPath(window.location.pathname) ?? DEFAULT_LOCALE;
+  return activeLocale();
 }
 
 /** The first value of a query parameter that may repeat. */

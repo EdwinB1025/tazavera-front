@@ -21,6 +21,7 @@
  * and the flow's, so a completed flow settles this store.
  */
 import { useEffect, useSyncExternalStore } from "react";
+import { useLocale } from "next-intl";
 import type { RegistrationToken, Session, SessionUser } from "@/shared/api";
 import {
   clearTokens,
@@ -30,8 +31,8 @@ import {
   refreshTokens,
   request,
 } from "@/shared/api";
-import { DEFAULT_LOCALE, localeFromPath } from "@/shared/config/locales";
 import { configureSession, currentRoute, startSilent } from "../api/authorize";
+import { activeLocale, recordLocale } from "./active-locale";
 import { hasMarker, removeMarker } from "./flow";
 
 const LOADING: Session = { state: "loading" };
@@ -69,8 +70,13 @@ function settle(session: Session): void {
   for (const listener of [...listeners]) listener();
 }
 
-/** The current session: loading, anonymous, or authenticated with the user. */
+/**
+ * The current session: loading, anonymous, or authenticated with the user.
+ * It also records the page's locale for the auth flows
+ * (adopt-next-intl-routing design.md D7).
+ */
 export function useSession(): Session {
+  recordLocale(useLocale());
   useEffect(() => {
     start();
   }, []);
@@ -106,9 +112,12 @@ export function signOut(openRoute: OpenRoute): void {
     });
 }
 
-/** The root of the active locale (design.md D5: where the user lands). */
+/**
+ * The root of the active locale (design.md D5: where the user lands), as
+ * `useSession()` records it (adopt-next-intl-routing design.md D7).
+ */
 function localeRoot(): string {
-  return `/${localeFromPath(window.location.pathname) ?? DEFAULT_LOCALE}`;
+  return `/${activeLocale()}`;
 }
 
 /** The session start of design.md D1, run at every consumer's mount. */
