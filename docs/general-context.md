@@ -14,7 +14,7 @@ Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`A
 
 **Mandato del Product owner (9 oct):** implementar solo lo aprobado; el orquestador decide solo lo que no cambia el comportamiento pedido (registro de decisiones, "autonomía del orquestador"); los conflictos de integración los resuelve una sesión en la nube, nunca en local; el orquestador puede fusionar `develop` en `master` tras una comprobación completa.
 
-**Estado al cerrar:** `master` = `develop` = `qa` en contenido (`master` `7a19ce0`). La secuencia final (pasos 1–6) está hecha, con el informe técnico `docs/review/technical-review-2026-10-09.md`; sus riesgos 1–6 están resueltos (contraste, cobertura de la pasada 2, Purpose de `testing`, ciclos de tipos, carga diferida de las facetas y ronda de lint: 48 → 1 aviso residual en un test QA). Nada en vuelo en la nube. Abierto en el backlog, sin aprobar para diseño: R40, R10, R50, R45, R1.
+**Estado al cerrar:** `master` = `develop` = `qa` en contenido (`master` `7a19ce0`). La secuencia final (pasos 1–6) está hecha, con el informe técnico `docs/review/technical-review-2026-10-09.md`; sus riesgos 1–6 están resueltos (contraste, cobertura de la pasada 2, Purpose de `testing`, ciclos de tipos, carga diferida de las facetas y ronda de lint: 48 → 1 aviso residual en un test QA). Nada en vuelo en la nube. Abierto en el backlog: R45 y R1 (R40, R50 y R10 se cerraron el 9 oct; corregido el 10 oct). Lo pendiente está en la sección "Pendiente" del tablero.
 
 **Rutinas en la nube:** se programan con al menos 3–5 minutos de margen; si la hora queda en el pasado al crearla, se mueve la hora (nunca se lanza a mano además del planificador: duplica la sesión).
 
