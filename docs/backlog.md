@@ -16,54 +16,14 @@ One section per candidate, in this format:
 - **Status:** proposed | accepted | deferred
 - **Affects:** <changes that should wait for it or reference it>
 
-## Priority order (2026-10-09)
+## Priority order (2026-10-10)
 
 The table lists only open entries, in the order they are to be taken. Effort: S < 2 h, M 2–6 h, L > 6 h.
 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
-| 1 | R40 | API branch in `tazavera-api` | Change (API) | M | PO: review of the API diff |
-| 4 | R10 | none yet | Change (behaviour) | S | before the first facet that shows an error |
-| 5 | R50 | API branch in `tazavera-api` | Change (API) | S | API fix (confirmed on local data 2026-10-09: level-1 notes come back at the top of `cataConcordance`) |
-| 7 | R45 | none yet | Change (behaviour, API) | M | Product owner: API change and contract update; not to be designed yet |
-| 8 | R1 | none (Playwright suite) | Change (tests) | — | the pre-deployment Playwright suite |
-
-## R40 — Document the 422 and 404 responses in the API (tazavera-api)
-
-- **Duplicated:** none. Scribe documents the request body from each FormRequest's rules, but a response only from an example (`@response` / `@responseFile`, an API Resource or a response call). Only two write endpoints (the coffee-shop location and the user contact) have a 422 example, and no read by identifier has a 404.
-- **Where today:** `tazavera-api`: the controllers of the write endpoints (register, profile, password, offerings, evaluations, locations, coffee shops) and of the reads by identifier (offering, coffee shop, evaluation); the Scribe example files
-- **Why it pays off now:** the front may not use an undocumented response (`AGENTS.md` → API contract), so R8 (per-field errors) and R18 (unknown item message) wait for it
-- **Owning capability:** API (outside the front); the front then copies `contracts/openapi.yaml` and regenerates `schema.ts`
-- **Proposed change:** in `tazavera-api`, a branch that adds a 422 example file in Laravel's standard shape (`message` plus `errors` per field) to every write endpoint and a 404 example file to every read by identifier, then runs `php artisan scribe:generate`. Documentation only: no API behaviour changes. Done locally by the orchestrator, never from the front repository.
-- **Open decision (Augusto):** none (Product owner asked for it on 2026-10-08); review the API diff before its merge
-- **Type:** Change
-- **Status:** accepted
-- **Affects:** R8, R18
-
-## R10 — Error boundary of the row facets in the traditional theme (refine-facet-controls Q2)
-
-- **Duplicated:** none; the row facets' radio and checkbox boxes take the error boundary colour in the dark theme only — in the traditional theme they keep the cream boundary under an error
-- **Where today:** the row facet controls of `add-facet-controls` (inside the sidebar's `variant-inverse` scope); seen in `docs/design/refine-facet-controls/captures/375-light.png` vs `375-dark.png` ("Proceso", "Solo disponibles")
-- **Why it pays off now:** no consumer passes an error to a facet today; the first facet that shows a validation error would show it only by the left bar and the text in the traditional theme
-- **Owning capability:** filtering
-- **Proposed change:** none yet — schedule it before a facet consumer shows errors
-- **Open decision (Augusto):** none
-- **Type:** Change
-- **Status:** accepted
-- **Affects:** `add-offering-facets`, `add-evaluation-facets`
-
-## R50 — Consensus concordance loses the parent of unmarked intermediate notes (API; found by the design lead for R49)
-
-- **Duplicated:** none. Read from the code, not run: `tazavera-api/app/Services/OfferingConsensusService.php:189-197`, `resolveParentOfferingTasteId` looks a node's parent up only among the directly marked references, so a level-1 ancestor that was not itself marked is stored with `parent_id` null and comes back at the top level of `cataConcordance`, apart from its level-0 parent. The seed marks aromatic leaves only (`EvaluationFactory::taxonomyRefs`), so in seeded data almost every level-1 note is affected. The contract example (`contracts/openapi.yaml:6550-6615`) shows a proper three-level tree.
-- **Where today:** the API consensus service; seen on the front in the offering card's taste notes (R49) and the flavor wheel (`buildFlavorWheelNodes` keeps top-level nodes as roots)
-- **Why it pays off now:** R49 renders the notes as nested trees; with this defect many children appear detached from their parent
-- **Owning capability:** API (consumed by landing and offering-catalog)
-- **Proposed change:** none yet: an API fix by Product owner; the front does not adapt to it
-- **Open decision (Augusto):** Product owner (2026-10-08): the API always delivers the consensus tree resolved; the very high note counts come from anomalous seeders (real evaluations identify few flavours). Verify the code reading against real data before any work; if the tree arrives resolved, close this entry
-- **Type:** Change (API)
-- **Status:** deferred
-- **Affects:** R49 (how often its orphan rule applies), the flavor wheel
-
+| 1 | R45 | none yet | Change (behaviour, API) | M | Product owner: API change and contract update; not to be designed yet |
+| 2 | R1 | none (Playwright suite) | Change (tests) | — | the pre-deployment Playwright suite |
 
 ## R45 — Ask for the first location in coffee-shop registration
 
@@ -90,6 +50,42 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 - **Affects:** none
 
 ## Closed entries
+
+## R40 — Document the 422 and 404 responses in the API (tazavera-api)
+
+- **Duplicated:** none. Scribe documented a response only from an example; only two write endpoints had a 422 example, and no read by identifier had a 404.
+- **Where today:** `tazavera-api`, the write controllers, the reads by identifier and the Scribe example files
+- **Why it pays off now:** R8 (per-field errors) and R18 (unknown item message) waited for it
+- **Owning capability:** API (outside the front)
+- **Proposed change:** done in `tazavera-api` `feature/document-422-404-responses` (`78548de`, docs regenerated `5228a3b`), merged into `dev`, `PROD` aligned. Every write endpoint documents its 422 (`message` plus `errors` per field), every read or action by identifier its 404, and a JSON 404 answers a translated message (`exceptions.not_found`, en/es/ca). API suite 158/158. Contract copied to the front (`2bdde09`, identical to the API's `public/docs/openapi.yaml`); R18 and R8 built on it afterwards and are in `master`.
+- **Open decision (Augusto):** none. Product owner's review of the API diff was not recorded before the merge (`git -C tazavera-api show 78548de`)
+- **Type:** Change
+- **Status:** closed (2026-10-09; closed in this file 2026-10-10)
+- **Affects:** R8, R18 (both done)
+
+## R50 — Consensus concordance loses the parent of unmarked intermediate notes (API; found by the design lead for R49)
+
+- **Duplicated:** none. `resolveParentOfferingTasteId` looked a node's parent up only among the directly marked references, so unmarked level-1 ancestors came back at the top level of `cataConcordance`.
+- **Where today:** `tazavera-api/app/Services/OfferingConsensusService.php`
+- **Why it pays off now:** R49 renders the notes as nested trees
+- **Owning capability:** API (consumed by landing and offering-catalog)
+- **Proposed change:** done in `tazavera-api` `feature/resolve-consensus-parents` (`3b531c6`, merge `709c617`), `PROD` aligned: unmarked ancestors are registered while climbing the tree, so no level-1 or level-2 note stays at the root; regression test (40 orphans before, 0 after), API suite 159/159. The contract does not change.
+- **Open decision (Augusto):** none
+- **Type:** Change (API)
+- **Status:** closed (2026-10-09; closed in this file 2026-10-10)
+- **Affects:** R49, the flavor wheel
+
+## R10 — Error boundary of the row facets in the traditional theme (refine-facet-controls Q2)
+
+- **Duplicated:** none
+- **Where today:** the row facet controls of `add-facet-controls`
+- **Why it pays off now:** the first facet that shows a validation error
+- **Owning capability:** filtering
+- **Proposed change:** none. Closed without a code change on 2026-10-09: a cloud session verified that the facets already use `border-feedback-error`, the project's error token (in the traditional theme `oxblood-300` on the sidebar); the cream tone comes from the design, and Product owner wants no contrast questions
+- **Open decision (Augusto):** none
+- **Type:** Change
+- **Status:** closed (2026-10-09; closed in this file 2026-10-10)
+- **Affects:** none
 
 ## R41 — Sign-in does not authenticate (production AUT, 2026-10-08)
 
