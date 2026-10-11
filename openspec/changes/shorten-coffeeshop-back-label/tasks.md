@@ -14,4 +14,4 @@ No derived API types are needed: the change reads no new API field (design.md Co
 
 ## 2. Full checks
 
-- [ ] 2.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass, except failures that come only from QA tests made stale on purpose (a QA test asserting "Volver a cafeterías", "Back to coffee shops" or "Torna a les cafeteries", such as `qa/src/widgets/coffeeshop-detail/ui/CoffeeshopDetailContent.test.tsx`); those are left untouched and listed in the final report with the reason. Any other failure is fixed in its own `fix(offering-catalog): …` commit.
+- [x] 2.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass, except failures that come only from QA tests made stale on purpose (a QA test asserting "Volver a cafeterías", "Back to coffee shops" or "Torna a les cafeteries", such as `qa/src/widgets/coffeeshop-detail/ui/CoffeeshopDetailContent.test.tsx`); those are left untouched and listed in the final report with the reason. Any other failure is fixed in its own `fix(offering-catalog): …` commit.
