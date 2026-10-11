@@ -230,8 +230,11 @@ describe("InventoryListClient (spec 'Coffee inventory card')", () => {
     renderList();
 
     const card = (await screen.findByRole("heading", { level: 2 })).closest(".rounded-container");
-    const view = within(card as HTMLElement).getByRole("button", { name: TEXTS.view });
-    const create = within(card as HTMLElement).getByRole("button", { name: TEXTS.createOffering });
+    const identification = "Huila El Mirador — Nómada Roasters";
+    const view = within(card as HTMLElement).getByRole("button", { name: `${TEXTS.view} ${identification}` });
+    const create = within(card as HTMLElement).getByRole("button", {
+      name: `${TEXTS.createOffering} ${identification}`,
+    });
     expect(view.className).toContain("bg-action-3-bg");
     expect(create.className).toContain("bg-action-1-bg");
     fireEvent.click(view);
@@ -240,6 +243,20 @@ describe("InventoryListClient (spec 'Coffee inventory card')", () => {
     expect(mocks.push).toHaveBeenLastCalledWith(
       "/en/manage/offerings/new?inventory=01K5Y4R7N2D9W6T3H8M1Q5V0XC",
     );
+  });
+
+  it("Card actions name the coffee: label, then coffee and roastery when present, the label alone visible", async () => {
+    const withoutRoastery: CoffeeInventoryItem = { ...ITEMS[1], roastery: undefined };
+    mocks.request.mockResolvedValue(answer(200, [ITEMS[0], withoutRoastery]));
+    renderList();
+    await screen.findAllByRole("heading", { level: 2 });
+
+    ["Huila El Mirador — Nómada Roasters", "Sidama Bensa"].forEach((identification) => {
+      [TEXTS.view, TEXTS.createOffering].forEach((label) => {
+        const button = screen.getByRole("button", { name: `${label} ${identification}` });
+        expect(button.querySelector(".sr-only")?.textContent).toBe(identification);
+      });
+    });
   });
 });
 
