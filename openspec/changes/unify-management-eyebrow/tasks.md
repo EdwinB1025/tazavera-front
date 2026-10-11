@@ -12,4 +12,4 @@ No derived API types are needed: the change reads no new API field. design.md is
 
 ## 3. Full checks
 
-- [ ] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass; no QA test asserts the inventory eyebrow's class, so none is expected to become stale. Any QA test made stale on purpose is left untouched and listed in the final report; any other failure is fixed in its own `fix(offering-management): …` commit.
+- [x] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass; no QA test asserts the inventory eyebrow's class, so none is expected to become stale. Any QA test made stale on purpose is left untouched and listed in the final report; any other failure is fixed in its own `fix(offering-management): …` commit.
