@@ -20,7 +20,7 @@ permissions:
     resource: "*docs/design/*/corrections.md"
     effect: allow
   - action: edit
-    resource: "*docs/backlog.md"
+    resource: "*docs/design/backlog.md"
     effect: allow
   # Archived changes only change through openspec archive
   - action: edit
@@ -156,7 +156,7 @@ permissions:
     resource: "git add docs/design/*/corrections.md"
     effect: allow
   - action: shell
-    resource: "git add docs/backlog.md"
+    resource: "git add docs/design/backlog.md"
     effect: allow
   - action: shell
     resource: "git commit *"
