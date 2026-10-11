@@ -33,3 +33,24 @@ None.
 
 ### Final checks
 Validation 206 / 1167 passed (cloud, after the verify fixes). Not re-run locally: npm is denied in this session's permission mode. Review by the orchestrator: test before implementation in every task pair, no edit to `qa/`, `contracts/`, `schema.ts` or configuration, archive with only specs, the archived folder and the backlog entry. Integrated into `qa` by fast-forward (`qa` = `24ff3a2e`, pushed 2026-10-11 ~12:23 UTC). Round end pending: full checks on `qa` in the cloud (`trig_01LoD554svG8YdeBcoQoc5pW`, 12:28 UTC) and the design lead's visual check (375/1280 against `develop`), then `qa` → `develop`.
+
+## Session 2026-10-11 — round end (R67 + R68), `qa` → `develop`
+Summary: the orchestrator started the local stack (API, Caddy at `https://localhost:8443`, production builds of `develop` and then `qa` on `:3000`; guide `tazavera-documentation/arranque-local-con-caddy.md`) and ran the design lead locally (plan usage 19 % / 43 %). Stopped because: completed. MVC reachable: yes (not needed).
+
+### Agent feedback
+Design lead, visual check: **PASS**. Captures at 1280 and 375 px, traditional and dark themes, signed in as the coffeeshop account (`nomad-coffee@tazavera.test`). Unchanged screens are pixel-identical to `develop` (My offerings, header, New offering, Manage locations, signed-out header). Every difference comes from R67/R68: two user-menu entries (MapPin and Compass icons hidden from screen readers, focus ring shown with the keyboard), the inventory list (heading block, closed "Filtros" section with six text filters, chip and "Borrar todo", no-matches state, two columns at 1280 and one at 375), the detail and "Artículo de inventario no encontrado", and the coffee preselected in New offering. No `qa` screen scrolls sideways at 375. No new tokens or shared UI changes, so no contrast pair to measure. No drift against backlog entries R67 and R68. Not reached on the live API: loading, empty and error states (covered by tests). Not seen: the rendered focus ring on the card buttons and the 375 filters panel capture (unreadable at 43,000 px tall).
+
+### Decisions taken
+#### D3 — Round end without a separate cloud check
+- Context: section 8 merges `qa` into `develop` after the design lead's visual check. / Decision: merged locally after the cloud full checks on `qa` `24ff3a2` (unchanged since) and a clean merge simulation. / Result: `develop` `c52bf6c6`, pushed. On the merge: validation 206 / 1167, `npx tsc --noEmit` clean (after `npx next typegen` for the new routes), lint 0 errors and 1 existing warning in `qa/`.
+
+### Deferred to Product owner
+#### Q1 — My offerings scrolls sideways at 375 px (pre-existing, not from this round)
+- Question: the page is 431 px wide at 375 because each card's action row (Ver, Seleccionar, Eliminar) is too wide; same on `develop`. / Why deferred: a defect in merged code is a new change (workflow §4) and it changes what users see. / Options: (A) order it fast lane with end state "no horizontal scroll at 375 px on My offerings"; (B) a traditional change. / Recommendation: A; the end state follows the settled mobile-first rule. / Blocks: nothing.
+#### Q2 — Two eyebrow styles on the coffee shop's management pages
+- Question: the inventory pages use `type-eyebrow` (design D6/D7, like the public lists); My offerings and New offering use `type-eyebrow-strong` ("GESTIÓN"). / Options: (A) keep as built; (B) `type-eyebrow-strong` in `src/pages/manage-inventory/ui/InventoryListClient.tsx:54` and `src/pages/inventory-detail/ui/InventoryDetailView.tsx:36` (a correction, fast lane if you order it). / Recommendation: B, one style across the management pages. / Blocks: nothing.
+#### Q3 — Card action names without the item's name
+- Question: every inventory card has "Ver" and "Crear oferta" with the same accessible name, so a screen-reader user cannot tell them apart (My offerings' "Ver" is the same; its Eliminar and Seleccionar name the item). / Options: (A) a change that adds the coffee name (and roastery) to the card action names on both lists; (B) leave it. / Recommendation: A. / Blocks: nothing.
+
+### Final checks
+Validation 206 files / 1167 tests passed on merged `develop` `c52bf6c6` (local, 2026-10-11 ~15:28 local time).
