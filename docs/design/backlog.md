@@ -22,23 +22,10 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
-| 1 | R70 | unify-management-eyebrow | Refactor (fast lane), by Product owner's order | S | — |
 | 2 | R71 | name-card-actions-by-coffee | Refactor (fast lane), by Product owner's order | S | R70 (same inventory pages; run after it) |
 | 3 | R72 | shorten-coffeeshop-back-label | Refactor (fast lane), by Product owner's order | S | R71 |
 | 4 | R1 | none yet (Playwright suite) | Change (tests) | — | Product owner, 2026-10-11: start once R70–R72 and the QA cleanup are in `develop` |
 | 5 | R45 | none yet | Change (behaviour, API) | M | Product owner: deferred, to review 2026-10-12; not to be designed yet |
-
-## R70 — One eyebrow style on the coffee shop's management pages (Product owner, 2026-10-11)
-
-- **Duplicated:** two eyebrow styles on the management pages: the coffee inventory list and detail use `type-eyebrow`; My offerings and New offering use `type-eyebrow-strong` ("GESTIÓN"). Round R67+R68 Q2.
-- **Where today:** `src/pages/manage-inventory/ui/InventoryListClient.tsx:54`, `src/pages/inventory-detail/ui/InventoryDetailView.tsx:36`
-- **Why it pays off now:** one style across the coffee shop's management pages
-- **Owning capability:** offering-management
-- **Proposed change:** unify-management-eyebrow. Settled end state (Product owner chose option B): the eyebrow of the inventory list and of the inventory detail uses `type-eyebrow-strong`, as My offerings and New offering do. Nothing else changes (texts, layout, other pages).
-- **Open decision (Augusto):** none (answered 2026-10-11: B)
-- **Type:** Refactor (fast lane), by Product owner's order of 2026-10-11 (one test per new scenario)
-- **Status:** accepted
-- **Affects:** R71 (same pages)
 
 ## R71 — Card actions name the coffee they act on (Product owner, 2026-10-11)
 
