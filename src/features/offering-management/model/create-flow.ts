@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CoffeeInventoryItem, LocationItem } from "@/shared/api";
 import { useServerFieldErrors } from "@/shared/lib/hooks";
-import { createOfferings, fetchMyLocations } from "../api/management";
+import { createOfferings, fetchMyLocations, listCoffeeInventory } from "../api/management";
 
 /**
  * The create form's state (design.md D5, D10; spec "Creating offerings"): the
@@ -58,6 +58,8 @@ export type CreateFlow = {
 export type CreateFlowOptions = {
   /** Off while the session resolves: nothing loads. */
   enabled: boolean;
+  /** The inventory item to choose on arrival (add-coffee-inventory-explorer D8). */
+  preselected?: string;
 };
 
 const INVENTORY_FIELD = ["coffeeInventoryId"] as const;
@@ -88,8 +90,40 @@ function useLocationsRead(enabled: boolean): { locations: LocationsState; reload
   return { locations, reload: () => setAttempt((value) => value + 1) };
 }
 
-export function useCreateFlow({ enabled }: CreateFlowOptions): CreateFlow {
+/**
+ * The preselected inventory item (add-coffee-inventory-explorer design.md
+ * D8): one unfiltered inventory read; the item with that `ulid` is chosen
+ * unless the user chose first. No match or a failure changes nothing.
+ */
+function usePreselection(
+  enabled: boolean,
+  preselected: string | undefined,
+  apply: (item: CoffeeInventoryItem) => void,
+): () => void {
+  const touched = useRef(false);
+  const applyRef = useRef(apply);
+  useEffect(() => {
+    applyRef.current = apply;
+  });
+  useEffect(() => {
+    if (!enabled || !preselected) return;
+    let current = true;
+    listCoffeeInventory({}).then((read) => {
+      const found = read.ok ? read.data.find((item) => item.ulid === preselected) : undefined;
+      if (current && found && !touched.current) applyRef.current(found);
+    });
+    return () => {
+      current = false;
+    };
+  }, [enabled, preselected]);
+  return () => {
+    touched.current = true;
+  };
+}
+
+export function useCreateFlow({ enabled, preselected }: CreateFlowOptions): CreateFlow {
   const [item, setItem] = useState<CoffeeInventoryItem | null>(null);
+  const markTouched = usePreselection(enabled, preselected, setItem);
   const [itemMissing, setItemMissing] = useState(false);
   const [status, setStatus] = useState<CreateStatus>({ state: "idle" });
   const server = useServerFieldErrors(INVENTORY_FIELD);
@@ -116,6 +150,7 @@ export function useCreateFlow({ enabled }: CreateFlowOptions): CreateFlow {
   const submitBlocked = locations.state === "success" && locations.data.length === 0;
 
   const choose = (next: CoffeeInventoryItem | null) => {
+    markTouched();
     setItem(next);
     server.clear("coffeeInventoryId");
     if (next !== null) setItemMissing(false);

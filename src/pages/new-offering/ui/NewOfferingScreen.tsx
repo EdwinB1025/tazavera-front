@@ -7,6 +7,8 @@ import { NewOfferingForm, type NewOfferingFormTexts } from "./NewOfferingForm";
 
 export type NewOfferingScreenProps = {
   locale: string;
+  /** The route's `inventory` query: the item to choose on arrival (add-coffee-inventory-explorer D8). */
+  inventory?: string;
 };
 
 // ─── Layout (summary §6.3) ───
@@ -24,7 +26,7 @@ const TITLE_GROUP_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
  * combobox's option-count announcement comes from the `filters` catalog,
  * which holds the shared combobox's texts.
  */
-export function NewOfferingScreen({ locale }: NewOfferingScreenProps): ReactNode {
+export function NewOfferingScreen({ locale, inventory }: NewOfferingScreenProps): ReactNode {
   const catalog = getMessages("offering-management", locale);
   const filters = getMessages("filters", locale);
 
@@ -62,7 +64,7 @@ export function NewOfferingScreen({ locale }: NewOfferingScreenProps): ReactNode
               <p className="type-eyebrow-strong">{catalog.eyebrow}</p>
               <h1 className="type-heading">{catalog.newHeading}</h1>
             </div>
-            <NewOfferingForm locale={locale} texts={texts} />
+            <NewOfferingForm locale={locale} inventory={inventory} texts={texts} />
           </div>
         </div>
       </PageSection>
