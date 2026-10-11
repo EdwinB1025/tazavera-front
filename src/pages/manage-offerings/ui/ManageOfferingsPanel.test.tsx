@@ -334,6 +334,20 @@ describe("ManageOfferingsPanel — selection (spec 'Offering selection')", () =>
     ).toBeTruthy();
   });
 
+  it("puts each card's Select last in the badge's row, outside the footer (spec: 'Select in the badge row')", async () => {
+    await loaded();
+
+    const badges = screen.getAllByText(TEXTS.provisionalLabel);
+    [SELECT_A, SELECT_B].forEach((name, index) => {
+      const select = checkbox(name);
+      const row = badges[index].parentElement!;
+      expect(row.lastElementChild!.contains(select)).toBe(true);
+      expect(row.className.split(" ")).toContain("justify-between");
+      const remove = screen.getByRole("button", { name: name.replace("Select", "Delete") });
+      expect(remove.parentElement!.parentElement!.contains(select)).toBe(false);
+    });
+  });
+
   it("renders the toolbar in the success state: select all, the count and the bulk delete, laid out in one wrapping row", async () => {
     await loaded();
 
