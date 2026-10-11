@@ -38,5 +38,21 @@
   "createdStatus": "Offerings created:",
   "viewMyOfferings": "View my offerings",
   "inventoryLotCaption": "Lot:",
-  "inventoryProducedCaption": "Produced on:"
+  "inventoryProducedCaption": "Produced on:",
+  "inventoryHeading": "Coffee inventory",
+  "inventoryIntro": "The coffees available to create your offerings.",
+  "inventoryEmpty": "There is no coffee in the inventory.",
+  "inventoryError": "The coffee inventory could not be loaded.",
+  "inventorySignedOut": "Sign in to explore the coffee inventory.",
+  "inventoryView": "View",
+  "inventoryCreateOffering": "Create offering",
+  "inventoryProcess": "Process",
+  "inventoryVariety": "Variety",
+  "inventoryRoastLevel": "Roast level",
+  "inventoryAltitude": "Altitude",
+  "inventoryProducer": "Producer",
+  "inventoryCertifications": "Certifications",
+  "inventoryRoastery": "Roastery",
+  "inventoryRoastLot": "Roast lot",
+  "inventoryProductionDate": "Production date"
 }

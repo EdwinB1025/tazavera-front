@@ -2,8 +2,10 @@ import { publicRequest, request } from "@/shared/api";
 import { readFieldErrors } from "@/shared/lib/field-errors";
 import type {
   ApiResult,
+  CoffeeInventoryFilterKey,
   CoffeeInventoryItem,
   CoffeeInventoryPayload,
+  CoffeeInventoryQuery,
   CreateOfferingsPayload,
   LocationItem,
   LocationsPayload,
@@ -84,26 +86,49 @@ export function deleteOfferings(ulids: string[]): Promise<ApiResult<null>> {
   });
 }
 
+/** The filter keys of `GET /coffeeInventory`, in the contract's order. */
+const INVENTORY_KEYS = [
+  "coffeeName",
+  "originCountry",
+  "originRegion",
+  "process",
+  "producer",
+  "city",
+] as const satisfies readonly CoffeeInventoryFilterKey[];
+
 /**
- * The inventory items matching a coffee name: `GET /coffeeInventory?coffeeName={text}`.
- * A failure is an error result; the combobox search rejects on it, so the
- * combobox shows its failure row (unify-api-result-shape design.md D3).
+ * The inventory items matching `query`: `GET /coffeeInventory` with each
+ * non-empty key (add-coffee-inventory-explorer design.md D1). Any non-2xx
+ * status or a failure is an error result.
  */
-export async function searchCoffeeInventory(
-  coffeeName: string,
-  signal: AbortSignal,
+export async function listCoffeeInventory(
+  query: CoffeeInventoryQuery,
+  signal?: AbortSignal,
 ): Promise<ApiResult<CoffeeInventoryItem[]>> {
+  const params = INVENTORY_KEYS.filter((key) => query[key]).map(
+    (key) => `${key}=${encodeURIComponent(query[key]!)}`,
+  );
+  const path = params.length > 0 ? `/coffeeInventory?${params.join("&")}` : "/coffeeInventory";
   try {
-    const response = await request(
-      `/coffeeInventory?coffeeName=${encodeURIComponent(coffeeName)}`,
-      { headers: { Accept: "application/json" }, signal },
-    );
+    const response = await request(path, { headers: { Accept: "application/json" }, signal });
     if (!response.ok) return { ok: false, kind: "error" };
     const payload: CoffeeInventoryPayload = await response.json();
     return { ok: true, data: payload.data ?? [] };
   } catch {
     return { ok: false, kind: "error" };
   }
+}
+
+/**
+ * The inventory items matching a coffee name: `GET /coffeeInventory?coffeeName={text}`.
+ * A failure is an error result; the combobox search rejects on it, so the
+ * combobox shows its failure row (unify-api-result-shape design.md D3).
+ */
+export function searchCoffeeInventory(
+  coffeeName: string,
+  signal: AbortSignal,
+): Promise<ApiResult<CoffeeInventoryItem[]>> {
+  return listCoffeeInventory({ coffeeName }, signal);
 }
 
 /** `POST /offerings` with body `{ coffeeInventoryId, locations }`; the data is the created count. */
