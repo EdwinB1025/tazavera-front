@@ -4,7 +4,7 @@ No derived API types are needed: the change reads only `OfferingSummary` fields 
 
 - [x] 1.1 Test in `src/entities/offering/ui/OfferingCard.test.tsx` for "Consumer content in the badge row": render a card with `badgeRowEnd` set to a sentinel element; assert the sentinel and the verification badge share one parent, the sentinel is that parent's last child, the parent's classes include `justify-between`, and the sentinel is not inside the footer. Verify: the test fails only because the slot does not render (a typecheck error for the unknown `badgeRowEnd` prop is allowed); the rest of the file passes; lint is clean.
 - [x] 1.2 Test in `src/widgets/offering-list/ui/OfferingList.test.tsx` for "Footer actions share one height": for a signed-in specialist, the View, View evaluations and Evaluate buttons of a card each carry the `h-8` class. Verify: the test passes at once (the buttons already share `size="sm"`, design.md D4); the rest of the file passes.
-- [ ] 1.3 Implement design.md D1 in `src/entities/offering/ui/OfferingCard.tsx`. Verify: `npx vitest related` on the changed files passes, 1.1 and 1.2 included; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 1.3 Implement design.md D1 in `src/entities/offering/ui/OfferingCard.tsx`. Verify: `npx vitest related` on the changed files passes, 1.1 and 1.2 included; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 2. Select in the badge row, View and Delete in the footer (offering-management)
 
