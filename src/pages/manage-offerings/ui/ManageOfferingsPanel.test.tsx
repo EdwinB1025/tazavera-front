@@ -265,8 +265,11 @@ describe("ManageOfferingsPanel — list states (spec 'My offerings list')", () =
     renderPanel();
     await screen.findAllByRole("heading", { level: 2 });
 
-    const views = screen.getAllByRole("button", { name: TEXTS.viewLabel });
-    ["Huila El Mirador — Tazavera Gràcia", "Sidama Bensa — Tazavera Born"].forEach(
+    const identifications = ["Huila El Mirador — Tazavera Gràcia", "Sidama Bensa — Tazavera Born"];
+    const views = identifications.map((identification) =>
+      screen.getByRole("button", { name: `${TEXTS.viewLabel} ${identification}` }),
+    );
+    identifications.forEach(
       (identification, index) => {
         const remove = screen.getByRole("button", { name: `Delete ${identification}` });
         const group = views[index].parentElement!;
@@ -275,6 +278,17 @@ describe("ManageOfferingsPanel — list states (spec 'My offerings list')", () =
         expect(remove.classList.contains("h-8")).toBe(true);
       },
     );
+  });
+
+  it("names each View by its label, then the coffee and the location, with the label alone visible (spec: 'View names the offering')", async () => {
+    mocks.publicRequest.mockResolvedValue(pageOf(ITEMS));
+    renderPanel();
+    await screen.findAllByRole("heading", { level: 2 });
+
+    ["Huila El Mirador — Tazavera Gràcia", "Sidama Bensa — Tazavera Born"].forEach((identification) => {
+      const view = screen.getByRole("button", { name: `${TEXTS.viewLabel} ${identification}` });
+      expect(view.querySelector(".sr-only")?.textContent).toBe(identification);
+    });
   });
 
   it("renders the empty message and the create link, and no card, when there are no offerings", async () => {
