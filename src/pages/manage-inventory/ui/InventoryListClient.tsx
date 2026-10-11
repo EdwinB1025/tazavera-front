@@ -51,7 +51,7 @@ export function InventoryListClient({
   return (
     <div className={SECTION_CLASSES}>
       <div className={HEADING_BLOCK_CLASSES}>
-        <p className="type-eyebrow">{texts.eyebrow}</p>
+        <p className="type-eyebrow-strong">{texts.eyebrow}</p>
         <h1 className="type-heading">{texts.heading}</h1>
         <p className="type-body">{texts.intro}</p>
       </div>

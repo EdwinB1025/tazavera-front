@@ -3,7 +3,7 @@ No derived API types are needed: the change reads no new API field. design.md is
 ## 1. Inventory list eyebrow (offering-management)
 
 - [x] 1.1 Test in `src/pages/manage-inventory/ui/InventoryListClient.test.tsx` for "Inventory list eyebrow": render the list for a signed-in coffeeshop and assert the "Management" eyebrow's `className` is exactly `type-eyebrow-strong` (pattern of `src/pages/manage-offerings/ui/ManageOfferingsPanel.test.tsx`, header test). Verify: the test fails only because the eyebrow is still `type-eyebrow`; the rest of the file passes; `npx tsc --noEmit` and `npm run lint` report no errors.
-- [ ] 1.2 In `src/pages/manage-inventory/ui/InventoryListClient.tsx`, change the eyebrow's class from `type-eyebrow` to `type-eyebrow-strong`; nothing else changes. Verify: `npx vitest related` on the changed files passes, 1.1 included, with no existing assertion edited; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 1.2 In `src/pages/manage-inventory/ui/InventoryListClient.tsx`, change the eyebrow's class from `type-eyebrow` to `type-eyebrow-strong`; nothing else changes. Verify: `npx vitest related` on the changed files passes, 1.1 included, with no existing assertion edited; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 2. Inventory detail eyebrow (offering-management)
 
