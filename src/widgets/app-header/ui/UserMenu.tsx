@@ -32,6 +32,8 @@ export type UserMenuTexts = {
   manageOfferings: string;
   /** The coffee shop's locations entry, after "Manage offerings" (add-manage-locations-menu-entry D1). */
   manageLocations?: string;
+  /** The coffee shop's inventory entry, after "Manage locations" (add-coffee-inventory-explorer D9). */
+  exploreInventory?: string;
   manageEvaluations: string;
   /** The specialist's offerings entry (refine-header-aut D5). */
   exploreOfferings: string;
@@ -105,7 +107,8 @@ const CIRCLE_CLASSES = [
  * natively (an external destination, not the internal link treatment per
  * `base-controls`), the management entry for the user's
  * role, for a coffee shop the locations entry after it
- * (add-manage-locations-menu-entry D1), for a specialist the offerings entry
+ * (add-manage-locations-menu-entry D1) and then the inventory entry
+ * (add-coffee-inventory-explorer D9), for a specialist the offerings entry
  * (refine-header-aut D5), and
  * sign out.
  */
@@ -160,6 +163,14 @@ export function UserMenu({
             <NextLink href={`/${locale}/manage/locations`}>
               <MapPin aria-hidden className="size-4" />
               {texts.manageLocations}
+            </NextLink>
+          </DropdownMenuItem>
+        )}
+        {user.role === "coffeeshop" && (
+          <DropdownMenuItem asChild>
+            <NextLink href={`/${locale}/manage/inventory`}>
+              <Compass aria-hidden className="size-4" />
+              {texts.exploreInventory}
             </NextLink>
           </DropdownMenuItem>
         )}

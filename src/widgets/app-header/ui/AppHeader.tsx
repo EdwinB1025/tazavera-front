@@ -40,6 +40,8 @@ export type AppHeaderTexts = {
   manageOfferings: string;
   /** The coffee shop's locations entry (add-manage-locations-menu-entry D1). */
   manageLocations?: string;
+  /** The coffee shop's inventory entry (add-coffee-inventory-explorer D9). */
+  exploreInventory?: string;
   manageEvaluations: string;
   exploreOfferings: string;
   signOut: string;
