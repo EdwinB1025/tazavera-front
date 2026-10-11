@@ -429,3 +429,31 @@ describe("NewOfferingForm — cancelling (add-form-cancel-actions design.md D4)"
     expect(createCalls()).toHaveLength(0);
   });
 });
+
+describe("NewOfferingForm — preselected item (spec 'Creating an offering from an inventory item')", () => {
+  it("Preselected item: the input shows its coffee name and its lot help, and submit sends its ulid", async () => {
+    render(<NewOfferingForm locale="en" inventory="01I1" texts={TEXTS} />);
+    await act(async () => {});
+
+    expect(
+      mocks.request.mock.calls.some(([path]) => path === "/coffeeInventory"),
+    ).toBe(true);
+    expect(input().value).toBe("Huila El Mirador");
+    expect(screen.getByText("Lot: L-2026-014 · Produced on: 2026-09-19")).toBeTruthy();
+    await submit();
+    expect(JSON.parse(createCalls()[0]![1].body as string).coffeeInventoryId).toBe("01I1");
+  });
+
+  it("Unknown preselected item: the input stays empty with the typing hint and no error", async () => {
+    render(<NewOfferingForm locale="en" inventory="01UNKNOWN" texts={TEXTS} />);
+    await act(async () => {});
+
+    expect(
+      mocks.request.mock.calls.some(([path]) => path === "/coffeeInventory"),
+    ).toBe(true);
+    expect(input().value).toBe("");
+    expect(screen.getByText(TEXTS.inventoryHelp)).toBeTruthy();
+    expect(screen.queryByText(TEXTS.inventoryRequired)).toBeNull();
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+});

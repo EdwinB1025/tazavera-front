@@ -14,7 +14,7 @@
 
 ## 4. Create offering from an item (offering-management)
 
-- [ ] 4.1 Tests, one per scenario, for "Creating an offering from an inventory item" (Preselected item, Unknown preselected item) in `src/pages/new-offering/ui/NewOfferingForm.test.tsx`. No existing assertion changes. Verify: the new tests fail only because the preselection is missing (a typecheck error for the missing `inventory` prop is allowed); the rest of the file passes; lint is clean.
+- [x] 4.1 Tests, one per scenario, for "Creating an offering from an inventory item" (Preselected item, Unknown preselected item) in `src/pages/new-offering/ui/NewOfferingForm.test.tsx`. No existing assertion changes. Verify: the new tests fail only because the preselection is missing (a typecheck error for the missing `inventory` prop is allowed); the rest of the file passes; lint is clean.
 - [ ] 4.2 Implement design.md D8. Verify: `npx vitest related` on the changed files passes, 4.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 5. Inventory filters (filtering)
