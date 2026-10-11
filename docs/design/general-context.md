@@ -8,9 +8,9 @@ Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`d
 - El `handoff.md` y el `corrections.md` de cada cambio.
 - Desde el 11 oct, los artefactos de comunicación (tablero, contexto general y backlog) viven en `docs/design/`, y el workflow en `docs/agents/`, junto a los archivos de rol.
 
-**Actualizado:** 2026-10-11 ~13:30 UTC.
+**Actualizado:** 2026-10-11 ~13:35 UTC (sesión en curso).
 
-## Al retomar (sesión cerrada el 11 oct ~13:30 UTC)
+## Al retomar
 
 **Primer paso, siempre:** la lista de arranque de `docs/agents/orchestrator.md` antes de cualquier respuesta: arrancar el loop de asignación (cada 10 minutos), leer las reglas comunes de `AGENTS.md`, `docs/agents/orchestrator.md`, `docs/agents/workflow_sdd.md`, el tablero, este contexto con su registro de decisiones, el backlog y los handoffs activos, el uso del plan y el estado de cada ejecutor. El loop de la sesión del 11 oct (`bac72779`) muere al cerrarla.
 
@@ -18,15 +18,14 @@ Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`d
 
 **Mandato del Product owner:** implementar solo lo aprobado; el orquestador decide solo lo que no cambia el comportamiento pedido; los conflictos de integración van a una sesión en la nube; el orquestador lanza él mismo cada sesión en la nube (rutina programada de un solo uso), esté o no Product owner. La vía rápida por orden de Product owner (todo hallazgo de la AUT incluido) puede añadir comportamiento, con un test por escenario nuevo.
 
-**Estado al cerrar:** ronda de vía rápida R67 + R68 en `qa` (`24ff3a2`):
-- R67 `add-manage-locations-menu-entry`: "Administrar ubicaciones" en el menú de usuario de la cafetería.
-- R68 `add-coffee-inventory-explorer`: "Explorar el inventario de café" (lista `/{locale}/manage/inventory` con los seis filtros del contrato, detalle `/{locale}/manage/inventory/{ulid}`, "Crear oferta" con el café preseleccionado en Nueva oferta).
-- Comprobación completa de `qa` en la nube hecha (validación 1167, QA 1955, tsc, lint 0 errores, build OK) y merge con `develop` simulado sin conflictos.
-- **Falta para cerrar la ronda:** la comprobación visual del design lead (375/1280, `qa` frente a `develop`) y después merge de `qa` en `develop`. Hay un worktree en `qa` listo: `C:/Porjects/Full Stack/Sprint5/tazavera-front-round` (sin `npm ci` ni `.env.local`). **Espera a Product owner:** una cuenta de cafetería de la API local y arrancar el servidor de `qa` en el puerto 3000 (CORS y OAuth están en `localhost:3000`); antes, el design lead captura `develop` como referencia.
-- No hay nada en la nube ni en OpenCode. Handoffs: `docs/design/add-manage-locations-menu-entry/handoff.md` y `docs/design/add-coffee-inventory-explorer/handoff.md` (en "Closed for review": los textos nuevos del menú son opcionales en los tipos del header).
+**Estado (11 oct ~13:35 UTC):** ronda de vía rápida R67 + R68 **cerrada**: `qa` mergeado en `develop` `c52bf6c6` tras la revisión visual PASS del design lead (R67 "Administrar ubicaciones" y R68 "Explorar el inventario de café" en el menú de la cafetería; lista, detalle y preselección en Nueva oferta). En `develop`: validación 1167, tsc, lint 0 errores.
+- **Esperan al Product owner** (tablero, Pendiente 0b–0d; handoff de `add-coffee-inventory-explorer`, Q1–Q3): desbordamiento de Mis ofertas a 375 px (previo), estilo del eyebrow en las páginas de gestión, nombres accesibles de las acciones de las tarjetas.
+- No hay nada en la nube ni en OpenCode. Worktree `tazavera-front-round` en `qa` (con `npm ci`, sin `.env.local`; el build usa las variables del lanzador).
 - `tazavera-front-qa` es otra carpeta (con su propio `.git`), no un worktree: no tocarla.
 
-**Permisos (11 oct):** en modo "no preguntar" se deniega escribir en `.claude/` y en los ajustes. `Sprint5/.claude/settings.local.json` bloquea editar `AGENTS.md`, `CLAUDE.md`, `docs/agents/` y `.claude/`, y permite npm/npx/opencode con `env -C`, `until` y leer el uso del plan. Al reiniciar: comprobar que esos bloqueos se aplican y si npm y `until` ya corren; si no, las comprobaciones completas se repiten en una sesión de solo lectura en la nube al final de la ronda.
+**Entorno local (11 oct):** el orquestador lo arranca solo, según `tazavera-documentation/arranque-local-con-caddy.md`: `php artisan serve` (un `cd` solo a `tazavera-api` antes), `caddy start --config deploy/Caddy/Caddyfile.local --adapter caddyfile` (la CA ya es de confianza) y el front con un lanzador de node (`scratchpad/run-front.mjs <carpeta> run build|start`) que fija `cwd`, `NODE_EXTRA_CA_CERTS` y las tres `NEXT_PUBLIC_*` (las variables en línea y `cp .env*` se deniegan). Cuenta de cafetería sembrada: `nomad-coffee@tazavera.test` / `password` (contraseña por defecto del factory; una por negocio de `coffeeshops-barcelona.json`). El design lead captura con Chrome sin interfaz por el protocolo DevTools, navegando con `window.next.router.push` (una recarga pierde los tokens).
+
+**Permisos (11 oct):** modo "no preguntar". Se permiten npm/npx/node, `git -C`, un `cd` solo, `until`, leer `~/.claude` (uso del plan); se deniegan `env -C`, las variables en línea, comandos encadenados de PowerShell como `Get-Process`, escribir `.env*`, `.claude/`, `AGENTS.md`, `CLAUDE.md` y `docs/agents/`.
 
 **Rutinas en la nube:** se programan con al menos 3–5 minutos de margen; si la hora queda en el pasado al crearla, se mueve la hora (nunca se lanza a mano además del planificador: duplica la sesión). Cada prompt nombra el archivo de rol, los pasos del workflow y el `SKILL.md` de cada fase (la nube no tiene `/opsx:*` ni `.claude/`).
 
