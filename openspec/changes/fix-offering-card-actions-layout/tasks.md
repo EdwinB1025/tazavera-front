@@ -14,4 +14,4 @@ No derived API types are needed: the change reads only `OfferingSummary` fields 
 
 ## 3. Full checks
 
-- [ ] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: every validation test passes; the QA suite, the typecheck and the build fail only in `qa/src/features/offering-management/ui/OfferingActions.test.tsx`, stale on purpose (design.md Risks), which is listed in the final report and not rewritten; lint reports no errors.
+- [x] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: every validation test passes; the QA suite, the typecheck and the build fail only in `qa/src/features/offering-management/ui/OfferingActions.test.tsx`, stale on purpose (design.md Risks), which is listed in the final report and not rewritten; lint reports no errors.
