@@ -1,6 +1,6 @@
 ## 1. Derived types (offering-management)
 
-- [ ] 1.1 Add `CoffeeInventoryQuery` and `CoffeeInventoryFilterKey` to `src/shared/api/index.ts` as design.md "Derived types" states. Verify: `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 1.1 Add `CoffeeInventoryQuery` and `CoffeeInventoryFilterKey` to `src/shared/api/index.ts` as design.md "Derived types" states. Verify: `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 2. Inventory list (offering-management)
 
