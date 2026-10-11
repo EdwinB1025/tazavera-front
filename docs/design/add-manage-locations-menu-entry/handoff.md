@@ -25,3 +25,9 @@ None.
 
 ### Final checks
 Not re-run locally: npm is denied in this session's permission mode; integration relies on the cloud counts above. Review by the orchestrator: commit order test → feat, scope limited to app-shell files, messages and the change folder, one new test for the one new scenario, no existing assertion changed. Deviation: task 1.1's checkbox went into the feat commit (stated in its body). The session did not follow the `.opencode/skills/openspec-*` files (the prompt did not name them); the R68 prompt does. Integrated into `qa` by fast-forward (`qa` = `751cd35`, pushed 2026-10-11 ~11:43 UTC). Pending: design lead behaviour review and the round's visual check before `qa` → `develop`.
+
+## Session 2026-10-11 — round end (R67 + R68), `qa` → `develop`
+Summary: design lead visual check PASS with the coffeeshop account at 1280/375 px in both themes: "Administrar ubicaciones" right after "Gestionar ofertas" on desktop and mobile, MapPin icon hidden from screen readers, link to `/es/manage/locations`, focus ring shown with the keyboard; no drift against the backlog entry. `qa` merged into `develop` `c52bf6c6`. Stopped because: completed. Detail and the round's deferred questions in `docs/design/add-coffee-inventory-explorer/handoff.md`.
+
+### Final checks
+Validation 206 / 1167 passed on merged `develop` `c52bf6c6` (local).
