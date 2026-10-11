@@ -62,7 +62,7 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 - **Why it pays off now:** the same short back label as the public evaluations (`public-evaluations.json` `backLabel`)
 - **Owning capability:** coffeeshop-directory
 - **Proposed change:** shorten-coffeeshop-back-label. Settled end state: every back control of the coffee shop detail reads es "Volver", en "Back", ca "Tornar" (the public evaluations' wording); destination and behaviour unchanged. Nothing else changes.
-- **Open decision (Augusto):** none (answered 2026-10-11)
+- **Open decision (Augusto):** none (answered 2026-10-11). Product owner, 2026-10-11 (option A): the existing validation tests that assert "Volver a cafeterías" (`src/pages/coffeeshop-detail/ui/CoffeeshopDetailScreen.test.tsx`, `src/widgets/coffeeshop-detail/ui/CoffeeshopDetailContent.test.tsx`) may change only that label string to the new label, as the tests of the scenarios this change modifies; nothing else in them changes
 - **Type:** Refactor (fast lane), by Product owner's order of 2026-10-11 (one test per new scenario)
 - **Status:** accepted
 - **Affects:** none
