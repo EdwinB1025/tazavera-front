@@ -22,25 +22,8 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
-| 1 | R69 | fix-offering-card-actions-layout | Refactor (fast lane), by Product owner's order | S | — |
 | 3 | R45 | none yet | Change (behaviour, API) | M | Product owner: API change and contract update; not to be designed yet |
 | 4 | R1 | none (Playwright suite) | Change (tests) | — | the pre-deployment Playwright suite |
-
-## R69 — Offering card actions fit the card at 375 px; Select moves to the badge row (Product owner, 2026-10-11)
-
-- **Duplicated:** none. Defect seen by Product owner on a phone (My offerings, coffee shop account): the action row "Ver · Seleccionar · Eliminar" overflows the card (Eliminar is cut at the right edge), and the page scrolls sideways (431 px wide at 375 px; round R67+R68 Q1). Product owner also reports that the "Ver" / "Ver evaluaciones" button looks shorter than the other card buttons.
-- **Where today:** `src/entities/offering/ui/OfferingCard.tsx` (badge row and `actions` slot in the footer), `src/entities/offering/ui/OfferingViewButton.tsx` (`RouteButton` `action-3` `sm`), `src/features/offering-management/ui/OfferingActions.tsx` (Select checkbox + Delete), `src/pages/manage-offerings/ui/OwnOfferingsGrid.tsx` (composes the slots)
-- **Why it pays off now:** My offerings is the coffee shop's main screen and is unusable on a phone
-- **Owning capability:** offering-management
-- **Proposed change:** fix-offering-card-actions-layout. Settled end state (Product owner's words: "verifica el responsive de las tarjetas para que los botones se vean bien dentro de la tarjeta, haz que seleccionar sea una sección al final de la sección donde está el provisional"):
-  1. On My offerings, the "Seleccionar" checkbox leaves the footer and sits in the card's top row, at the end (right-aligned) of the row that holds the Provisional / Verificada badge. Its accessible name stays as today (visible label + coffee and location).
-  2. The footer keeps "Ver" and "Eliminar". At 375 px and 1280 px every card button lies fully inside the card (wrapping onto a new line when needed) and the page has no horizontal scroll.
-  3. The view button ("Ver" on My offerings, "Ver evaluaciones" on the public cards) has the same height as the other buttons in the same card footer, on every card list.
-  4. Nothing else changes: texts, requests, the public cards' content and the selection toolbar stay as today. Semantic tokens and existing components only; no new token or dependency.
-- **Open decision (Augusto):** none (end state settled above)
-- **Type:** Refactor (fast lane), by Product owner's order of 2026-10-11 (one test per new scenario)
-- **Status:** accepted
-- **Affects:** answers round R67+R68 Q1 (option A)
 
 ## R45 — Ask for the first location in coffee-shop registration
 

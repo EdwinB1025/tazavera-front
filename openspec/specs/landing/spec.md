@@ -174,7 +174,7 @@ The document metadata of both public pages SHALL carry the title exactly `Tazave
 - **THEN** the document title is exactly `Tazavera` and the document description is the metadata description text of that locale's catalog
 
 ### Requirement: Offering card actions
-The offering card's footer SHALL render, in its group of actions, the actions its consumer supplies for that card, in the order supplied. The card SHALL render no action of its own, so it renders no action at all when the consumer supplies none.
+The offering card's footer SHALL render, in its group of actions, the actions its consumer supplies for that card, in the order supplied, every one of them at the same height. The card SHALL render no action of its own, so it renders no action at all when the consumer supplies none. The card SHALL also render, at the end of the row that holds its verification state badge and aligned to that row's right edge, the content its consumer supplies for that row; when the consumer supplies none, the row shows only the badge, as before.
 
 #### Scenario: Consumer actions after View
 - **WHEN** a consumer renders offering cards and supplies actions for them
@@ -183,6 +183,14 @@ The offering card's footer SHALL render, in its group of actions, the actions it
 #### Scenario: No consumer actions
 - **WHEN** a consumer supplies no actions for a card
 - **THEN** no action renders in the footer and the footer shows only the counts
+
+#### Scenario: Consumer content in the badge row
+- **WHEN** a consumer supplies content for a card's badge row
+- **THEN** that content renders as the last item of the row that holds the verification state badge, after the badge, that row spreads its items to both ends, and the content is not inside the card's footer
+
+#### Scenario: Footer actions share one height
+- **WHEN** the entry-page list renders an offering card for a signed-in specialist
+- **THEN** the View, "View evaluations" and Evaluate buttons of the card's footer all render at the same height
 
 ### Requirement: Taxonomy badge trees on the offering card
 The taxonomy badges of an offering card SHALL come from the offering's consensus — every taxonomy reference of its CATA concordance, including nested children, where the notes marked on several aromatic attributes are already condensed into the single `aromatics` group — and never from its per-attribute sensory taxonomy. Each taxonomy value SHALL render once, however many times its reference appears, with the children of every occurrence nested under that single badge. Each badge SHALL carry the taxonomy's name in the active locale and the taxonomy's data color with the treatment of its own level. The badges SHALL render as nested trees following the concordance tree as the API delivers it: each top-level note starts a tree; its children render below it, indented, in one column behind a left connector line; and each child's own children render below that child, further indented, wrapping. The trees SHALL sit side by side and wrap onto further lines, so that no tree overflows the card at any viewport width. A reference that resolves to no taxonomy SHALL render no badge, and an offering without a consensus SHALL render no taxonomy badge. The hierarchy SHALL be exposed to assistive technologies as nested lists.

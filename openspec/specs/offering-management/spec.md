@@ -29,7 +29,7 @@ Both management routes — `/{locale}/manage/offerings` and `/{locale}/manage/of
 - **THEN** the 404 page renders
 
 ### Requirement: My offerings list
-The list route SHALL show the offerings of the signed-in coffeeshop — the API's offering list filtered by the coffeeshop's user identifier — one offering card per offering of the current page, in a grid of one column below the large breakpoint (1024px), two columns from 1024px and three from the extra-large breakpoint (1536px), with the cards of one row sharing their height. The requested page SHALL live in the route's query (`?page=n`) and Previous and Next pagination SHALL follow the API's current and last page. The list SHALL cover loading, empty, success and error states.
+The list route SHALL show the offerings of the signed-in coffeeshop — the API's offering list filtered by the coffeeshop's user identifier — one offering card per offering of the current page, in a grid of one column below the large breakpoint (1024px), two columns from 1024px and three from the extra-large breakpoint (1536px), with the cards of one row sharing their height. Each card's footer SHALL hold the View action followed by the Delete action, each a button of the footer's group of actions with no other control between them, at the same height, so at 375px and at 1280px every button of the card lies inside the card, moving to a new line when the row has no room, and the page does not scroll sideways. The requested page SHALL live in the route's query (`?page=n`) and Previous and Next pagination SHALL follow the API's current and last page. The list SHALL cover loading, empty, success and error states.
 
 #### Scenario: Success
 - **WHEN** the coffeeshop's offerings load and the API returns offerings
@@ -38,6 +38,10 @@ The list route SHALL show the offerings of the signed-in coffeeshop — the API'
 #### Scenario: Grid beside the sidebar
 - **WHEN** the list renders offering cards
 - **THEN** the cards fill one column below 1024px, two from 1024px and three from 1536px, separated by a gap, and the cards of one row share the same height
+
+#### Scenario: Card actions fit the card
+- **WHEN** the list renders offering cards
+- **THEN** each card's footer group of actions holds exactly the View button followed by the Delete button, both directly in the group, with no Select control in the footer, and both buttons at the same height
 
 #### Scenario: Loading
 - **WHEN** the list is loading its data
@@ -68,7 +72,11 @@ The list route SHALL show the offerings of the signed-in coffeeshop — the API'
 - **THEN** "New offering" is a button in positional treatment 1, not a link, and activating it opens the create route
 
 ### Requirement: Offering selection
-In the success state of the list, each offering card SHALL offer a Select control whose accessible name identifies that offering by its coffee name and its location name, and the selection toolbar SHALL offer a select-all checkbox labelled for the page and show the number of selected offerings. The select-all checkbox SHALL be unchecked when nothing is selected and checked when every card on the page is selected, and activating it on a partial selection SHALL select all offerings of the page. The bulk delete action SHALL be unavailable at zero selected. The selection SHALL cover the current page only and SHALL clear on a page change and after a successful delete.
+In the success state of the list, each offering card SHALL offer a Select control whose accessible name identifies that offering by its coffee name and its location name, and the selection toolbar SHALL offer a select-all checkbox labelled for the page and show the number of selected offerings. The Select control SHALL sit in the card's top row, at the end of the row that holds the verification state badge, aligned to the row's right edge, and not in the card's footer. The select-all checkbox SHALL be unchecked when nothing is selected and checked when every card on the page is selected, and activating it on a partial selection SHALL select all offerings of the page. The bulk delete action SHALL be unavailable at zero selected. The selection SHALL cover the current page only and SHALL clear on a page change and after a successful delete.
+
+#### Scenario: Select in the badge row
+- **WHEN** the list renders offering cards
+- **THEN** each card's Select control, named by its visible label followed by the coffee name and the location name, is the last item of the row that holds the card's verification state badge, that row spreads its items to both ends, and the Select control is not inside the card's footer
 
 #### Scenario: Select one offering
 - **WHEN** the coffeeshop activates a card's Select control
