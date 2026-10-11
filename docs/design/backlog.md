@@ -27,7 +27,7 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 | 3 | R72 | shorten-coffeeshop-back-label | Refactor (fast lane), by Product owner's order | S | R71 |
 | 4 | R1 | none yet (Playwright suite) | Change (tests) | — | Product owner, 2026-10-11: start once R70–R72 and the QA cleanup are in `develop` |
 | 5 | R45 | none yet | Change (behaviour, API) | M | Product owner: deferred, to review 2026-10-12; not to be designed yet |
-| 3b | R73 | remember-list-preferences | Refactor (fast lane), by Product owner's order | M | Taken before R1. API first (Product owner): per-user storage of each list's filters and order, then the contract copy by the orchestrator |
+| 3b | R73 | remember-list-preferences | Refactor (fast lane), by Product owner's order | S | R72 and the QA cleanup; taken before R1 |
 
 ## R70 — One eyebrow style on the coffee shop's management pages (Product owner, 2026-10-11)
 
@@ -92,22 +92,23 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 - **Status:** deferred
 - **Affects:** none
 
-## R73 — Editing lists remember their filters and order in the user's account (Product owner, 2026-10-11)
+## R73 — Editing lists remember their filters and order for the browser tab (Product owner, 2026-10-11)
 
 - **Duplicated:** none. Today the filters and order of the editing lists live only in the page address; leaving the list and coming back from the menu opens it with no filters and the default order.
 - **Where today:** My evaluations (`src/pages/evaluations-list/`: filters and sort in the URL, `parseEvaluationFilters`, `EVALUATION_SORT_KEYS`), Coffee inventory (`src/pages/manage-inventory/`: six text filters in the URL), My offerings (`src/pages/manage-offerings/`: no filters or order today); `src/shared/lib/filter-query`
 - **Why it pays off now:** specialists and coffee shops work the same filtered list across several visits
 - **Owning capability:** filtering (with offering-management and evaluations for the lists)
 - **Proposed change:** remember-list-preferences. Settled end state (Product owner, 2026-10-11):
-  1. Every editing list (My evaluations, Coffee inventory, My offerings) keeps its last applied filters and order **in the signed-in user's account** (option C), so they follow the user to any device and survive closing the browser.
+  1. Every editing list (My evaluations, Coffee inventory, My offerings) keeps its last applied filters and order **for the browser tab** (option A, `sessionStorage`): they survive leaving the list and coming back, and are forgotten when the tab is closed or the user signs out (or another user signs in).
   2. Opening the list (from the menu, a link or a new session) with no filters or order in its address applies the stored ones; the address then shows them, as when the user applies them by hand.
   3. The stored filters and order change only when the user applies new filters or another order; clearing the filters ("Borrar todo" / removing every chip) stores the empty state.
   4. The page number is not stored: a restored list starts at page 1 (option A).
   5. A list with nothing stored behaves as today. My offerings has no filters or order today, so it stores nothing until it gets some.
-  6. If the stored preferences cannot be read or saved, the list works as today (no error shown for the preferences).
-- **Open decision (Augusto):** answered 2026-10-11: 1 → C (in the account, until new filters or order are applied), 2 → all editing lists, 3 → A (no page), 4 → fast lane. **API first, by Product owner:** an authenticated per-user store of each list's preferences (for example `GET /user/list-preferences/{list}` and `PUT /user/list-preferences/{list}` with `{ filters, orderBy, orderDirection }`, `list` one of `evaluations`, `coffee-inventory`, `offerings`), documented in Scribe; the orchestrator then copies the contract and regenerates the types. The exact endpoints are Product owner's to settle in the API; the front uses only what the contract states.
+  6. If the browser storage cannot be read or written (private mode, blocked storage), the list works as today, with no error shown.
+  7. No request to the API changes; no API or contract change.
+- **Open decision (Augusto):** answered 2026-10-11: 1 → A (browser tab, until new filters or order are applied; first answered C, changed to A the same day), 2 → all editing lists, 3 → A (no page), 4 → fast lane.
 - **Type:** Refactor (fast lane), by Product owner's order of 2026-10-11 (one test per new scenario)
-- **Status:** accepted; waits for the API change and the contract copy
+- **Status:** accepted
 - **Affects:** R1 (runs after it)
 
 ## Closed entries
