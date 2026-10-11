@@ -8,21 +8,29 @@ Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`d
 - El `handoff.md` y el `corrections.md` de cada cambio.
 - Desde el 11 oct, los artefactos de comunicación (tablero, contexto general y backlog) viven en `docs/design/`, y el workflow en `docs/agents/`, junto a los archivos de rol.
 
-**Actualizado:** 2026-10-09 ~21:12 UTC.
+**Actualizado:** 2026-10-11 ~13:30 UTC.
 
-## Al retomar (sesión cerrada el 9 oct ~21:12 UTC)
+## Al retomar (sesión cerrada el 11 oct ~13:30 UTC)
 
-**Primer paso, siempre:** arrancar el loop de asignación (tarea recurrente cada 10 minutos con el prompt de revisión; `AGENTS.md`, orquestador, primera regla y §9). El loop de la sesión del 9 oct (`16453fe0`) se detuvo al cerrar: no quedaba trabajo aprobado ni preguntas abiertas.
+**Primer paso, siempre:** la lista de arranque de `docs/agents/orchestrator.md` antes de cualquier respuesta: arrancar el loop de asignación (cada 10 minutos), leer las reglas comunes de `AGENTS.md`, `docs/agents/orchestrator.md`, `docs/agents/workflow_sdd.md`, el tablero, este contexto con su registro de decisiones, el backlog y los handoffs activos, el uso del plan y el estado de cada ejecutor. El loop de la sesión del 11 oct (`bac72779`) muere al cerrarla.
 
-**Mandato del Product owner (9 oct):** implementar solo lo aprobado; el orquestador decide solo lo que no cambia el comportamiento pedido (registro de decisiones, "autonomía del orquestador"); los conflictos de integración los resuelve una sesión en la nube, nunca en local; el orquestador puede fusionar `develop` en `master` tras una comprobación completa.
+**Reglas (11 oct):** reglas comunes en `AGENTS.md`; un archivo por rol en `docs/agents/`; workflow en `docs/agents/workflow_sdd.md`; registros (tablero, contexto, backlog) en `docs/design/`. **Solo Product owner revisa las reglas** (`c83919d7`): el orquestador no edita ni propone cambios de reglas; sigue el flujo tal como está y, si un paso no se puede aplicar, se para y lo dice.
 
-**Estado al cerrar:** `master` = `develop` = `qa` en contenido (`master` `7a19ce0`). La secuencia final (pasos 1–6) está hecha, con el informe técnico `docs/review/technical-review-2026-10-09.md`; sus riesgos 1–6 están resueltos (contraste, cobertura de la pasada 2, Purpose de `testing`, ciclos de tipos, carga diferida de las facetas y ronda de lint: 48 → 1 aviso residual en un test QA). Nada en vuelo en la nube. Abierto en el backlog: R45 y R1 (R40, R50 y R10 se cerraron el 9 oct; corregido el 10 oct). Lo pendiente está en la sección "Pendiente" del tablero.
+**Mandato del Product owner:** implementar solo lo aprobado; el orquestador decide solo lo que no cambia el comportamiento pedido; los conflictos de integración van a una sesión en la nube; el orquestador lanza él mismo cada sesión en la nube (rutina programada de un solo uso), esté o no Product owner. La vía rápida por orden de Product owner (todo hallazgo de la AUT incluido) puede añadir comportamiento, con un test por escenario nuevo.
 
-**Rutinas en la nube:** se programan con al menos 3–5 minutos de margen; si la hora queda en el pasado al crearla, se mueve la hora (nunca se lanza a mano además del planificador: duplica la sesión).
+**Estado al cerrar:** ronda de vía rápida R67 + R68 en `qa` (`24ff3a2`):
+- R67 `add-manage-locations-menu-entry`: "Administrar ubicaciones" en el menú de usuario de la cafetería.
+- R68 `add-coffee-inventory-explorer`: "Explorar el inventario de café" (lista `/{locale}/manage/inventory` con los seis filtros del contrato, detalle `/{locale}/manage/inventory/{ulid}`, "Crear oferta" con el café preseleccionado en Nueva oferta).
+- Comprobación completa de `qa` en la nube hecha (validación 1167, QA 1955, tsc, lint 0 errores, build OK) y merge con `develop` simulado sin conflictos.
+- **Falta para cerrar la ronda:** la comprobación visual del design lead (375/1280, `qa` frente a `develop`) y después merge de `qa` en `develop`. Hay un worktree en `qa` listo: `C:/Porjects/Full Stack/Sprint5/tazavera-front-round` (sin `npm ci` ni `.env.local`). **Espera a Product owner:** una cuenta de cafetería de la API local y arrancar el servidor de `qa` en el puerto 3000 (CORS y OAuth están en `localhost:3000`); antes, el design lead captura `develop` como referencia.
+- No hay nada en la nube ni en OpenCode. Handoffs: `docs/design/add-manage-locations-menu-entry/handoff.md` y `docs/design/add-coffee-inventory-explorer/handoff.md` (en "Closed for review": los textos nuevos del menú son opcionales en los tipos del header).
+- `tazavera-front-qa` es otra carpeta (con su propio `.git`), no un worktree: no tocarla.
+
+**Permisos (11 oct):** en modo "no preguntar" se deniega escribir en `.claude/` y en los ajustes. `Sprint5/.claude/settings.local.json` bloquea editar `AGENTS.md`, `CLAUDE.md`, `docs/agents/` y `.claude/`, y permite npm/npx/opencode con `env -C`, `until` y leer el uso del plan. Al reiniciar: comprobar que esos bloqueos se aplican y si npm y `until` ya corren; si no, las comprobaciones completas se repiten en una sesión de solo lectura en la nube al final de la ronda.
+
+**Rutinas en la nube:** se programan con al menos 3–5 minutos de margen; si la hora queda en el pasado al crearla, se mueve la hora (nunca se lanza a mano además del planificador: duplica la sesión). Cada prompt nombra el archivo de rol, los pasos del workflow y el `SKILL.md` de cada fase (la nube no tiene `/opsx:*` ni `.claude/`).
 
 **API (`tazavera-api`):** `dev` = `PROD` = `89e25c4`, en local y en GitHub; el checkout local está en `PROD`. Toda implementación va por `feature/*` o `hotfix/*` desde `dev`; al terminar, el orquestador fusiona en `dev` y alinea `PROD`. Hechos el 9 oct: R40 (422/404 documentados, 404 traducido), R50 (consenso sin notas huérfanas), login para las páginas de verificación de correo, `login_hint` del step-up (`RequireHintedUserForStepUp`). Scribe se ejecuta desde la carpeta del API.
-
-**Permisos:** la sesión corre en modo "no preguntar": escribir en `.claude/` se deniega siempre (carpeta protegida); `AGENTS.md` depende de la regla `deny` de `Sprint5/.claude/settings.local.json`. Si una edición se deniega, darle el texto al Product owner.
 
 ## Estado
 
@@ -54,9 +62,9 @@ Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`d
 - **OpenCode:** `xiaomi/mimo-v2.6-pro` para el arquitecto y el build (GLM 5.2 descartado). El proveedor a veces se cuelga sin error (CPU a cero, log vacío): parar a los 15–20 min sin salida y relanzar. OpenCode Desktop deja huérfano `opencode-cli serve --service`.
 - **Nube:**
   - Entorno Default, red Trusted, `NEXT_PUBLIC_API_URL=http://localhost:8000`, script de setup vacío (corre fuera del repo). El prompt arranca con `npm ci` y `npx next typegen`.
-  - Product owner lanza las sesiones (`claude --cloud` exige terminal interactiva).
-  - Detalle en `.claude/CLAUDE.md` §10.
-- **Límites del plan Pro:** la barra de estado guarda el uso en `~/.claude/usage-snapshot.json` (5 h y 7 días). Reglas en `.claude/CLAUDE.md` §9.
+  - El orquestador lanza las sesiones como rutinas programadas de un solo uso (Product owner, 11 oct).
+  - Detalle en `docs/agents/orchestrator.md` §7.
+- **Límites del plan Pro:** la barra de estado guarda el uso en `~/.claude/usage-snapshot.json` (5 h y 7 días; el 11 oct ~12:38 UTC: 15 % y 42 %). Reglas en `docs/agents/orchestrator.md` §9.
 
 ## Decisiones de producto abiertas o vigentes
 
@@ -595,3 +603,13 @@ Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquesta
 - **Decisión:** sí. Los combobox de facetas (y lo que solo usan ellos, como cmdk) se cargan con un import dinámico la primera vez que se abre el panel de filtros (como Leaflet), con un breve estado de carga en esa primera apertura; objetivo ≤ 170 KB gz de JS por ruta de lista, sin cambiar qué filtros hay, su orden ni su comportamiento una vez cargados. Cambio normal (`lazy-load-facet-controls`, filtering), lanzado en la nube de propose a archive. La ronda de refactor de las advertencias de lint sigue en paralelo sin tocar las facetas hasta que este cambio se integre.
 - **Por qué:** Product owner, 9 oct ("Yes"), riesgo 3 del informe técnico 2026-10-09.
 - **Afecta:** filtering, app-shell (sidebar); la ronda de refactor de lint.
+
+### 2026-10-11 — vía rápida por orden del Product owner y lanzamiento de la nube (Product owner)
+- **Decisión:** una entrada que el Product owner ordena "fast lane" (todo hallazgo de la AUT incluido) va por la vía rápida desde `qa` aunque añada comportamiento, textos, pantallas o tests, con un test por escenario nuevo; su entrada del backlog registra la orden y el estado final. El orquestador lanza él mismo cada sesión en la nube como rutina programada, esté o no el Product owner. Cada prompt nombra el archivo de rol, los pasos del workflow y el `SKILL.md` de cada fase.
+- **Por qué:** Product owner, 11 oct (R67 y R68 "en fast lane"; "you are autonomous to run these changes").
+- **Afecta:** todas las entradas de vía rápida y sus prompts; `docs/agents/` (reglas comunes "Refactor changes" y "OpenSpec skills").
+
+### 2026-10-11 — las reglas solo las revisa el Product owner (Product owner)
+- **Decisión:** reglas comunes en `AGENTS.md`, un archivo por rol y el workflow en `docs/agents/`, registros en `docs/design/`. Solo el Product owner revisa `AGENTS.md`, `docs/agents/`, `CLAUDE.md` y `.claude/` (bloqueados en los ajustes); el orquestador sigue el flujo establecido y, si un paso no se puede aplicar, se para y lo dice.
+- **Por qué:** Product owner, 11 oct ("once the flow is established you need to follow it, revisions are only done by me").
+- **Afecta:** todos los agentes; `docs/agents/orchestrator.md` §3 y §5 (`c83919d7`).
