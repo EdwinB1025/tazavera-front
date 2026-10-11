@@ -7,6 +7,8 @@ export { useOwnOfferings } from "./model/own-offerings";
 export type { OwnOfferings } from "./model/own-offerings";
 export { OfferingActions } from "./ui/OfferingActions";
 export type { OfferingActionsTexts } from "./ui/OfferingActions";
+export { OfferingSelect } from "./ui/OfferingSelect";
+export type { OfferingSelectTexts } from "./ui/OfferingSelect";
 export { SelectionToolbar } from "./ui/SelectionToolbar";
 export type { SelectionToolbarTexts } from "./ui/SelectionToolbar";
 export { previousPageAfterDelete, useDeleteFlow } from "./model/delete-flow";

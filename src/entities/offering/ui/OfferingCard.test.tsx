@@ -57,6 +57,7 @@ const TEXTS = {
 
 const ACTION_LABEL = "ACTION";
 const SECOND_ACTION_LABEL = "ACTION_2";
+const ROW_END_LABEL = "ROW_END";
 const ACTION = <Link href="/es/action">{ACTION_LABEL}</Link>;
 const SECOND_ACTION = <Link href="/es/action-2">{SECOND_ACTION_LABEL}</Link>;
 const TWO_ACTIONS = (
@@ -203,6 +204,7 @@ function ratingBadges(root: HTMLElement): HTMLElement[] {
 type RenderOptions = {
   offering?: OfferingSummary;
   actions?: ReactNode;
+  badgeRowEnd?: ReactNode;
   taxonomies?: ResolvedTaxonomyBadge[];
 };
 
@@ -214,6 +216,7 @@ function renderCard(options: RenderOptions = {}) {
       taxonomies={options.taxonomies ?? TAXONOMIES}
       texts={TEXTS}
       actions={options.actions}
+      badgeRowEnd={options.badgeRowEnd}
     />,
   );
 }
@@ -359,6 +362,16 @@ describe("OfferingCard", () => {
       expect(classTokens(group)).toEqual(
         expect.arrayContaining(["grid-cols-2", "md:justify-end"]),
       );
+    });
+
+    it("renders the consumer's badge-row content last in the badge's row, outside the footer (spec: 'Consumer content in the badge row')", () => {
+      renderCard({ actions: ACTION, badgeRowEnd: <span>{ROW_END_LABEL}</span> });
+      const end = screen.getByText(ROW_END_LABEL);
+      const row = screen.getByText(TEXTS.verifiedLabel).parentElement!;
+      expect(row.lastElementChild).toBe(end);
+      expect(classTokens(row)).toContain("justify-between");
+      const group = screen.getByRole("link", { name: ACTION_LABEL }).parentElement!;
+      expect(group.parentElement!.contains(end)).toBe(false);
     });
 
     it("renders no action of its own when the consumer supplies none (spec: 'No consumer actions')", () => {
