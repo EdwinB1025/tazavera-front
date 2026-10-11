@@ -25,7 +25,7 @@
 ## 6. Inventory sidebar (offering-management)
 
 - [x] 6.1 Test for "Coffee inventory sidebar" (Entries on the inventory list) in `src/pages/manage-inventory/ui/ManageInventorySidebarScreen.test.tsx`: the three entries in order, their hrefs, only "Explore coffee inventory" with `aria-current="page"`, and the "Filters" toggle. Verify: the test fails only because the module does not exist yet; lint is clean.
-- [ ] 6.2 Implement `ManageInventorySidebarScreen` (design.md D6), `app/[locale]/@sidebar/manage/inventory/page.tsx` and `app/[locale]/@sidebar/manage/inventory/[ulid]/page.tsx` (D7). Verify: `npx vitest related` on the changed files passes, 6.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 6.2 Implement `ManageInventorySidebarScreen` (design.md D6), `app/[locale]/@sidebar/manage/inventory/page.tsx` and `app/[locale]/@sidebar/manage/inventory/[ulid]/page.tsx` (D7). Verify: `npx vitest related` on the changed files passes, 6.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 7. Explore coffee inventory in the user menu (app-shell)
 

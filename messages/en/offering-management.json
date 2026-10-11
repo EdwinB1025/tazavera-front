@@ -66,5 +66,6 @@
   "facetRegion": "Region",
   "facetProcess": "Process",
   "facetProducer": "Producer",
-  "facetCity": "City"
+  "facetCity": "City",
+  "sidebarExploreInventory": "Explore coffee inventory"
 }
