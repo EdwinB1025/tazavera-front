@@ -12,4 +12,4 @@ No derived API types are needed: the change reads no new API field (design.md Co
 
 ## 3. Full checks
 
-- [ ] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass, except failures that come only from QA tests made stale on purpose (a QA test that looks up My offerings' View or the inventory card's View or Create offering by the old exact name, or renders `InventoryCardActions` with `ulid`); those are left untouched and listed in the final report with the reason. Any other failure is fixed in its own `fix(offering-management): …` commit.
+- [x] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass, except failures that come only from QA tests made stale on purpose (a QA test that looks up My offerings' View or the inventory card's View or Create offering by the old exact name, or renders `InventoryCardActions` with `ulid`); those are left untouched and listed in the final report with the reason. Any other failure is fixed in its own `fix(offering-management): …` commit.
