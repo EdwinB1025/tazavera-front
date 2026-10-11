@@ -54,5 +54,11 @@
   "inventoryCertifications": "Certificacions",
   "inventoryRoastery": "Torrador",
   "inventoryRoastLot": "Lot de torrat",
-  "inventoryProductionDate": "Data de producció"
+  "inventoryProductionDate": "Data de producció",
+  "inventoryLoading": "Carregant…",
+  "inventoryBack": "Torna a l'inventari de cafè",
+  "inventoryNotFoundTitle": "Article d'inventari no trobat",
+  "inventoryNotFoundLine": "Pot ser que s'hagi retirat o que l'enllaç no sigui correcte.",
+  "inventoryCoffeeLot": "Lot del cafè",
+  "inventoryRoasteryDescription": "Sobre el torrador"
 }

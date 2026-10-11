@@ -4,3 +4,5 @@
  */
 export { InventoryCard } from "./ui/InventoryCard";
 export type { InventoryCardTexts } from "./model/rows";
+export { InventoryFields } from "./ui/InventoryFields";
+export type { InventoryFieldsTexts } from "./model/rows";

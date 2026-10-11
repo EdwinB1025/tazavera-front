@@ -58,3 +58,28 @@ export function inventoryRows(item: CoffeeInventoryItem, texts: InventoryCardTex
     .filter(([, value]) => value !== null)
     .map(([label, value]) => ({ label, value: value ?? "" }));
 }
+
+/** The detail's labels: the card's plus the coffee's lot and the roastery's description. */
+export type InventoryFieldsTexts = InventoryCardTexts & {
+  coffeeLot: string;
+  roasteryDescription: string;
+};
+
+/**
+ * Every field of the item for its detail (design.md D3): the card's rows, the
+ * coffee's lot, one row per certification (its code, its description) and the
+ * roastery's description when present.
+ */
+export function detailRows(item: CoffeeInventoryItem, texts: InventoryFieldsTexts): InventoryRow[] {
+  const certifications = (item.coffee?.certifications ?? []).map((certification) => ({
+    label: certification.code ?? "",
+    value: certification.description ?? "",
+  }));
+  const description = item.roastery?.description;
+  return [
+    ...inventoryRows(item, texts),
+    { label: texts.coffeeLot, value: item.coffee?.lot ?? "" },
+    ...certifications,
+    ...(description ? [{ label: texts.roasteryDescription, value: description }] : []),
+  ];
+}

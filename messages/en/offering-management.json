@@ -54,5 +54,11 @@
   "inventoryCertifications": "Certifications",
   "inventoryRoastery": "Roastery",
   "inventoryRoastLot": "Roast lot",
-  "inventoryProductionDate": "Production date"
+  "inventoryProductionDate": "Production date",
+  "inventoryLoading": "Loading…",
+  "inventoryBack": "Back to the coffee inventory",
+  "inventoryNotFoundTitle": "Inventory item not found",
+  "inventoryNotFoundLine": "It may have been removed, or the link may be wrong.",
+  "inventoryCoffeeLot": "Coffee lot",
+  "inventoryRoasteryDescription": "About the roastery"
 }

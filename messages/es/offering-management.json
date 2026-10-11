@@ -54,5 +54,11 @@
   "inventoryCertifications": "Certificaciones",
   "inventoryRoastery": "Tostador",
   "inventoryRoastLot": "Lote de tueste",
-  "inventoryProductionDate": "Fecha de producción"
+  "inventoryProductionDate": "Fecha de producción",
+  "inventoryLoading": "Cargando…",
+  "inventoryBack": "Volver al inventario de café",
+  "inventoryNotFoundTitle": "Artículo de inventario no encontrado",
+  "inventoryNotFoundLine": "Puede que se haya retirado o que el enlace no sea correcto.",
+  "inventoryCoffeeLot": "Lote del café",
+  "inventoryRoasteryDescription": "Sobre el tostador"
 }

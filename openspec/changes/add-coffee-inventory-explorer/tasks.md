@@ -10,7 +10,7 @@
 ## 3. Inventory detail (offering-management)
 
 - [x] 3.1 Tests, one per scenario, for "Coffee inventory detail" (Detail of an item, Detail loading, Detail error and retry, Unknown item) in `src/pages/inventory-detail/ui/InventoryDetailClient.test.tsx`. Verify: the new tests fail only because the module does not exist yet; lint is clean.
-- [ ] 3.2 Implement design.md D7 (without its sidebar route, task 6.2), D10's detail texts and `app/[locale]/manage/inventory/[ulid]/page.tsx`. Verify: `npx vitest related` on the changed files passes, 3.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 3.2 Implement design.md D7 (without its sidebar route, task 6.2), D10's detail texts and `app/[locale]/manage/inventory/[ulid]/page.tsx`. Verify: `npx vitest related` on the changed files passes, 3.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 4. Create offering from an item (offering-management)
 
