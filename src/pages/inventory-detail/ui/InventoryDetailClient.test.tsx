@@ -165,3 +165,13 @@ describe("InventoryDetailClient (spec 'Coffee inventory detail')", () => {
     expect(screen.queryByRole("link", { name: TEXTS.back })).toBeNull();
   });
 });
+
+describe("InventoryDetailClient (spec 'Access to the coffee inventory pages')", () => {
+  it("Another role: the 404 and no inventory request on the detail", () => {
+    mocks.session = { state: "authenticated", user: { ulid: "01SPEC", role: "specialist" } };
+    renderDetail();
+
+    expect(mocks.notFound).toHaveBeenCalledTimes(1);
+    expect(mocks.request).not.toHaveBeenCalled();
+  });
+});
