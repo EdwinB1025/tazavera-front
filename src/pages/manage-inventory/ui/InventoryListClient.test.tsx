@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { render, screen, fireEvent, cleanup, within } from "@testing-library/react";
 import type { CoffeeInventoryItem, Session } from "@/shared/api";
+import { SidebarProvider } from "@/shared/ui";
 
 // The session, the token client and the router are replaced by spies so the
 // list states can be driven without the network or Next's runtime. Test
@@ -111,7 +112,12 @@ function answer(status: number, data: CoffeeInventoryItem[] = []) {
 }
 
 function renderList() {
-  return render(<InventoryListClient locale="en" texts={TEXTS} />);
+  // The toolbar's trigger reads the sidebar state (task 5.2).
+  return render(
+    <SidebarProvider>
+      <InventoryListClient locale="en" texts={TEXTS} />
+    </SidebarProvider>,
+  );
 }
 
 function skeletonCount(container: HTMLElement): number {
@@ -120,6 +126,16 @@ function skeletonCount(container: HTMLElement): number {
 }
 
 beforeEach(() => {
+  // jsdom has no matchMedia; the sidebar reads the md breakpoint through it.
+  window.matchMedia = ((query: string) => ({
+    matches: false,
+    media: query,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  })) as unknown as typeof window.matchMedia;
   mocks.session = COFFEESHOP;
   for (const fn of [mocks.signIn, mocks.request, mocks.push, mocks.notFound]) fn.mockReset();
 });
