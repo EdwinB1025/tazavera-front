@@ -2,10 +2,12 @@ import type { ReactNode } from "react";
 import type { OfferingSummary } from "@/shared/api";
 import {
   OfferingActions,
+  OfferingSelect,
   SelectionToolbar,
   type DeleteTarget,
   type OwnOfferings,
   type OfferingActionsTexts,
+  type OfferingSelectTexts,
   type SelectionToolbarTexts,
 } from "@/features/offering-management";
 import {
@@ -22,6 +24,7 @@ import { GRID_CLASSES } from "./SkeletonGrid";
 export type OwnOfferingsGridTexts = OfferingCardTexts &
   PaginationTexts &
   OfferingActionsTexts &
+  OfferingSelectTexts &
   SelectionToolbarTexts & {
     viewLabel: string;
   };
@@ -74,6 +77,14 @@ export function OwnOfferingsGrid({
               offering={offering}
               taxonomies={buildTasteNoteTree(offering, lookup)}
               texts={texts}
+              badgeRowEnd={
+                <OfferingSelect
+                  offering={offering}
+                  selected={selection.selected.has(offering.ulid ?? "")}
+                  onToggle={() => selection.toggle(offering.ulid ?? "")}
+                  texts={texts}
+                />
+              }
               actions={
                 <>
                   <OfferingViewButton
@@ -83,8 +94,6 @@ export function OwnOfferingsGrid({
                   />
                   <OfferingActions
                     offering={offering}
-                    selected={selection.selected.has(offering.ulid ?? "")}
-                    onToggle={() => selection.toggle(offering.ulid ?? "")}
                     onDelete={() => onDelete({ kind: "one", ulid: offering.ulid ?? "" })}
                     texts={texts}
                   />
