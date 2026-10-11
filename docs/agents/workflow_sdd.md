@@ -11,7 +11,7 @@ There are two workflows, chosen by the change's type (section 3):
 | Actor | Model / tool | Role |
 |---|---|---|
 | Product owner | — | Designs the system with the orchestrator, decides, reviews, writes corrections, commits review rounds and configuration, approves merges into `develop` and merges into `master`. |
-| Orchestrator | Claude Code (main session) | Holds the design conversations with Product owner: proposes and verifies design options, computes contrasts, reviews code and artifacts, prepares corrections; never decides. Runs both workflows on Product owner's behalf: types each change, assigns its next phase, launches and watches the executors, reviews and integrates their work, and keeps the project records (board, backlog, decisions log, handoffs, the generic rules of `AGENTS.md`). Its role per step is in sections 3a and 3b. Rules: `docs/agents/orchestrator.md`. |
+| Orchestrator | Claude Code (main session) | Holds the design conversations with Product owner: proposes and verifies design options, computes contrasts, reviews code and artifacts, prepares corrections; never decides. Runs both workflows on Product owner's behalf: types each change, assigns its next phase, launches and watches the executors, reviews and integrates their work, and keeps the project records (board, backlog, decisions log, handoffs). It never revises the rules: that is Product owner's. Its role per step is in sections 3a and 3b. Rules: `docs/agents/orchestrator.md`. |
 | Design lead | Claude Code subagent (`.claude/agents/design-lead.md`) | Design and visual quality in both workflows: prepares the design summary after the design conversation, visual reviews, cloud prompts and the review of their results, dependency analyses. Its role per step is in sections 3a and 3b. Reports to the orchestrator; never decides. Rules: `docs/agents/design-lead.md`. |
 | Architect agent | OpenCode (`xiaomi/mimo-v2.6-pro`) or a Claude cloud session | Writes and maintains OpenSpec artifacts (proposal, specs, design, tasks), researches libraries, validates, verifies and archives. Never implements. Rules: `docs/agents/architect.md`. |
 | Build agent | OpenCode (`xiaomi/mimo-v2.6-pro`) or a Claude cloud session | Implements tasks, test-first, one commit per task. Applies unplanned fixes and coverage. Never touches OpenSpec artifacts beyond task checkboxes. Rules: `docs/agents/build.md`. |
@@ -22,9 +22,9 @@ OpenSpec runs with the **core profile plus `verify`**: `/opsx:explore` (installe
 
 | Path | Owner | Content |
 |---|---|---|
-| `AGENTS.md` | Product owner; the orchestrator keeps its generic rules current | Common rules for every agent and the table of role files. Read-only for agents. Generic rules only: code-specific rules go to the design summary or design.md. |
-| `docs/agents/<role>.md` | Product owner; the orchestrator keeps its generic rules current | One rule file per role (architect, build, orchestrator, design lead): start checklist, the workflow steps it owns, authority, stop conditions, report. Read-only for agents. |
-| `docs/agents/workflow_sdd.md` | Product owner; the orchestrator keeps it current | This document: the development process, next to the role files. |
+| `AGENTS.md` | Product owner (the only one who revises it) | Common rules for every agent and the table of role files. Read-only for agents. Generic rules only: code-specific rules go to the design summary or design.md. |
+| `docs/agents/<role>.md` | Product owner (the only one who revises them) | One rule file per role (architect, build, orchestrator, design lead): start checklist, the workflow steps it owns, authority, stop conditions, report. Read-only for agents. |
+| `docs/agents/workflow_sdd.md` | Product owner (the only one who revises it) | This document: the development process, next to the role files. |
 | `.opencode/agents/*.md` | Product owner | Model and permissions per agent. |
 | `openspec/config.yaml` | Product owner | Project context and the list of capabilities. |
 | `openspec/specs/<capability>/spec.md` | Architect, via archive only | Main specs: what the app does today. |

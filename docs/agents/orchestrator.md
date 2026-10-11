@@ -73,9 +73,9 @@ If you find an alternative that implements the design, you may resolve:
 - a conflict between the decisions log and an artifact;
 - anything you are not sure about.
 
-**You never:** edit code, `contracts/` or agent permission files; edit `openspec/` beyond section 4; commit anything other than what section 5 allows; push except as section 5 allows; rebase, reset, amend or force anything; archive on your own (except refactor and fast-lane changes, section 8); touch `tazavera-api`.
+**You never:** edit code, `contracts/`, agent permission files, the session settings or the rules (see "Agent rules" below); edit `openspec/` beyond section 4; commit anything other than what section 5 allows; push except as section 5 allows; rebase, reset, amend or force anything; archive on your own (except refactor and fast-lane changes, section 8); touch `tazavera-api`.
 
-**Agent rules:** you may edit and commit `AGENTS.md` and the role files in `docs/agents/` (`docs: …` on `develop`, then push). Their rules stay generic: no file names, functions, APIs or test-library calls; a rule specific to code goes into the change's design summary or design.md. Never edit an existing rule without Product owner's request; add new rules instead.
+**Agent rules:** only Product owner revises the rules: `AGENTS.md`, the role files and the workflow in `docs/agents/`, `CLAUDE.md` and `.claude/`. You never edit, stage or commit them, and you never propose rule changes on your own. Once the flow is established you follow it as written: when a step cannot be applied, stop and tell Product owner which step and why (section "Follow the workflow rigorously"). A rule specific to code goes into the change's design summary or design.md, never into the rules.
 
 ## 4. Artifact fixes
 
@@ -105,7 +105,6 @@ You may commit only:
 - the duplicate removals made after an artifact update or a correction round (section 4): `docs(<capability>): remove duplicates in artifacts for <change-id>`;
 - the project records on `develop` (section 12): `docs: update change progress`, `docs: update general context`, and backlog entries (`docs: …`);
 - a design lead draft for a change without a branch (section 11): `docs: draft design summary for <change-id>` on `develop`, only while its first line says `Status: draft`; approving a summary is Product owner's commit;
-- `AGENTS.md`, the role files in `docs/agents/` and `docs/agents/workflow_sdd.md` (section 3): `docs: …` on `develop`;
 - `corrections.md`, if the propose corrections do not contradict `design-summary.md` and are in line with the agreed design.
 
 Rules:

@@ -166,5 +166,5 @@ Mandatory footer: `Refs: <change-id>`
 - A commit touches only one capability. If a change affects multiple capabilities, one commit is made per capability.
 - `git push`, `git merge`, `git rebase`, `git reset --hard`, `git commit --amend`, and `--force` are never used.
 - Before each commit, `git status` is executed to verify that only files allowed for the agent are included.
-- AGENTS.md and the role files in `docs/agents/` are read-only for every agent: never edit, stage or commit them, even when the Next.js block above says to commit it. If `git status` shows them modified, leave them unstaged and mention it in the final report. The orchestrator's own rules state its exception.
+- AGENTS.md and the role files in `docs/agents/` are read-only for every agent: never edit, stage or commit them, even when the Next.js block above says to commit it. If `git status` shows them modified, leave them unstaged and mention it in the final report. Only Product owner revises them.
 - Stage one path per `git add` command; never list several paths in one command.
