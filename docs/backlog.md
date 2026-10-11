@@ -22,28 +22,8 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
-| 2 | R68 | `add-coffee-inventory-explorer` | Refactor (fast lane), maximum priority (Product owner) | L | R67 (same user menu) |
 | 3 | R45 | none yet | Change (behaviour, API) | M | Product owner: API change and contract update; not to be designed yet |
 | 4 | R1 | none (Playwright suite) | Change (tests) | — | the pre-deployment Playwright suite |
-
-## R68 — Explore the coffee inventory (Product owner, 2026-10-11)
-
-- **Duplicated:** none. The coffee inventory is read today only by the New offering combobox (`searchCoffeeInventory` in `src/features/offering-management/api`, `coffeeName` only); reuse that request rather than adding a second one.
-- **Where today:** nothing; the list screens to follow are the offerings list and the evaluations list (toolbar, cards, filters in the sidebar)
-- **Why it pays off now:** the coffee shop sees the available inventory before creating offerings
-- **Owning capability:** offering-management
-- **Proposed change:** `add-coffee-inventory-explorer`, settled with Product owner on 2026-10-11:
-  - **Entry point:** a user menu and mobile submenu entry "Explore coffee inventory", `coffeeshop` role only, after "Manage locations" (R67); route `/{locale}/manage/inventory`.
-  - **List:** built like the offerings and evaluations lists (toolbar, cards, filters in the sidebar). Data from `GET /coffeeInventory` (`listCoffeeInventory`), which needs the `coffeeshop` role and `profile:read`: loaded on the client through the add-auth client (settled decision). The contract has no pagination: the list shows every item returned, with the list's loading, empty and error states.
-  - **Filters:** only the query parameters the contract defines: `coffeeName` (max 150), `originCountry` (60), `originRegion` (90), `process` (60), `producer` (150), `city` (90), as text filters reflected in the URL like the other lists. No other filter.
-  - **Card:** coffee name, country and region, process, variety, roast level, altitude, producer when present, certifications, roastery, roast lot and production date (only contract fields). Actions: "View" (`action-3`) and "Create offering" (`action-1`), following the button variant rule.
-  - **View:** a detail page `/{locale}/manage/inventory/{ulid}` with every field of the item, built from the list data (the contract has no read of one inventory item); an unknown `ulid` shows the project's item-not-found message. Its header follows the header link rule (back link first; "Create offering" as an action button).
-  - **Create offering:** opens New offering (`/{locale}/manage/offerings/new`) with that inventory item already selected in the inventory field; the coffee shop only picks the locations. Without a preselected item, New offering stays as today.
-  - Texts in the message catalogs (es, en, ca); icons through `src/shared/ui/icons.ts`; semantic tokens only.
-- **Open decision (Augusto):** none (entry point, card actions and detail page answered 2026-10-11)
-- **Type:** Refactor (fast lane), by Product owner's decision (new screen; maximum priority)
-- **Status:** accepted
-- **Affects:** New offering (inventory preselection); the user menu (after R67)
 
 ## R45 — Ask for the first location in coffee-shop registration
 
