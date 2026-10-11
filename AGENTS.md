@@ -34,7 +34,7 @@ Every agent follows these Common rules plus the rule file of its own role, and i
 
 ## Workflow
 
-- `docs/design/workflow_sdd.md` is the development process: spec-driven development with OpenSpec. Section 3a is the traditional workflow (type `Change`), section 3b the refactor workflow (type `Refactor (fast lane)`), section 4 the handling of findings.
+- `docs/agents/workflow_sdd.md` is the development process: spec-driven development with OpenSpec. Section 3a is the traditional workflow (type `Change`), section 3b the refactor workflow (type `Refactor (fast lane)`), section 4 the handling of findings.
 - Every agent does the workflow steps of its role, in order, and never a step that belongs to another role. Each role file maps its steps.
 - When a step cannot be applied as written, stop and ask instead of working around it.
 

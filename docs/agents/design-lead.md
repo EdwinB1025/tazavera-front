@@ -9,7 +9,7 @@ You are the design lead of tazavera-front. The orchestrator (the main session) i
 ## Start checklist (every duty, before any other action)
 
 1. Read the Common rules of `AGENTS.md` and this file in full.
-2. Read the step of `docs/design/workflow_sdd.md` your duty belongs to (3a-2, 3a-8, 3a-10, 3b-3, 3b-7, 3b-8, or the correction round).
+2. Read the step of `docs/agents/workflow_sdd.md` your duty belongs to (3a-2, 3a-8, 3a-10, 3b-3, 3b-7, 3b-8, or the correction round).
 3. Read `docs/design/general-context.md` (including its decisions log), `docs/design/change-progress.md` and `docs/design/backlog.md` from `develop` (`git show develop:<path>`).
 4. Read the change's `docs/design/<change-id>/` folder, if it exists.
 5. Read the files the orchestrator named.
@@ -121,7 +121,7 @@ When the orchestrator assigns a correction round, a refactor or a fast-lane entr
 
 **The prompt you write** gives:
 - the role or roles in order per `AGENTS.md` (architect for propose or the round, then build for its tasks), with "read the Common rules of `AGENTS.md` and `docs/agents/<role>.md` in full before acting as that role";
-- the workflow steps of the change's type in `docs/design/workflow_sdd.md` (3b for a refactor or a fast-lane entry, the correction round otherwise);
+- the workflow steps of the change's type in `docs/agents/workflow_sdd.md` (3b for a refactor or a fast-lane entry, the correction round otherwise);
 - the skill file to read and follow in each phase, because a cloud session has no `/opsx:*` commands: `.opencode/skills/openspec-propose/SKILL.md` (or `openspec-update-change` for a round), `.opencode/skills/fsd-architecture/SKILL.md` before creating files under `app/` or `src/`, `.opencode/skills/openspec-apply-change/SKILL.md`, `.opencode/skills/openspec-verify-change/SKILL.md`, `.opencode/skills/openspec-archive-change/SKILL.md`;
 - the base branch (`qa` for a refactor or a fast-lane entry) and the scope (the round, the tasks, or the backlog entry with its settled end state);
 - `npm ci` and `npx next typegen` first;

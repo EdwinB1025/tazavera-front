@@ -24,7 +24,7 @@ OpenSpec runs with the **core profile plus `verify`**: `/opsx:explore` (installe
 |---|---|---|
 | `AGENTS.md` | Product owner; the orchestrator keeps its generic rules current | Common rules for every agent and the table of role files. Read-only for agents. Generic rules only: code-specific rules go to the design summary or design.md. |
 | `docs/agents/<role>.md` | Product owner; the orchestrator keeps its generic rules current | One rule file per role (architect, build, orchestrator, design lead): start checklist, the workflow steps it owns, authority, stop conditions, report. Read-only for agents. |
-| `docs/design/workflow_sdd.md` | Product owner; the orchestrator keeps it current | This document: the development process. |
+| `docs/agents/workflow_sdd.md` | Product owner; the orchestrator keeps it current | This document: the development process, next to the role files. |
 | `.opencode/agents/*.md` | Product owner | Model and permissions per agent. |
 | `openspec/config.yaml` | Product owner | Project context and the list of capabilities. |
 | `openspec/specs/<capability>/spec.md` | Architect, via archive only | Main specs: what the app does today. |
@@ -310,7 +310,7 @@ How the rules evolved: first by reading the reasoning threads of the architect a
 | 23 | 2026-10-08 | Change type (`refactor` / `change`) decides the workflow; the refactor fast lane on `qa` without design summary or artifact review; archive on passing checks | Refactors with a clear goal waiting on design steps they do not need | `AGENTS.md` → Refactor changes; sections 3 and 3b |
 | 24 | 2026-10-08 | Explore removed from the workflow; the design lead drafts the summary and the orchestrator hands it to Product owner with questions; the orchestrator holds the design conversations | The workflow as actually practised | Sections 1 and 3a |
 | 25 | 2026-10-11 | One rule file per role in `docs/agents/` (start checklist, workflow steps owned, authority, stop conditions, report); `AGENTS.md` keeps only the common rules; every phase follows its OpenSpec skill file, also in cloud sessions; fast lane by Product owner's order may add behaviour with one test per new scenario; the orchestrator launches every cloud session | A cloud session that skipped the skills; an orchestrator that skipped its start reading and the design lead's steps | `AGENTS.md` → Roles and rule files, Workflow, OpenSpec skills, Refactor changes; `docs/agents/` |
-| 26 | 2026-10-11 | The communication artifacts (board, general context with the decisions log, backlog, this workflow) live in `docs/design/`, next to each change's design folder | One place for everything agents and Product owner exchange | Section 2 |
+| 26 | 2026-10-11 | The communication artifacts (board, general context with the decisions log, backlog) live in `docs/design/`, next to each change's design folder; this workflow lives in `docs/agents/`, next to the role files | One place for everything agents and Product owner exchange, and one for the rules | Section 2 |
 
 ## 10. Known limits
 

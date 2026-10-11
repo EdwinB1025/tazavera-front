@@ -11,7 +11,7 @@ These rules apply only to the build agent, together with the Common rules of `AG
 ## Start checklist (before any other action)
 
 1. Read the Common rules of `AGENTS.md` and this file in full.
-2. Read your workflow step in `docs/design/workflow_sdd.md` (3a-8 for a change, 3b-4 and 3b-5 for a refactor or a fast-lane entry; section 4 for unplanned fixes and coverage).
+2. Read your workflow step in `docs/agents/workflow_sdd.md` (3a-8 for a change, 3b-4 and 3b-5 for a refactor or a fast-lane entry; section 4 for unplanned fixes and coverage).
 3. Read `openspec-apply-change` in full and follow it (where `/opsx:apply` is not installed, read `.opencode/skills/openspec-apply-change/SKILL.md`). Before creating files under `app/` or `src/`, read `fsd-architecture` the same way. Never follow the architect skills (`openspec-propose`, `-explore`, `-update-change`, `-sync-specs`, `-verify-change`, `-archive-change`).
 4. Read the current state by command: `git status`, `git log`, `openspec status`, and the change's `tasks.md`.
 5. Check that you are on `feature/<change-id>`; if another branch is active, stop and flag it.

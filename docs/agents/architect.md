@@ -11,7 +11,7 @@ These rules apply only to the architect agent, together with the Common rules of
 ## Start checklist (before any other action)
 
 1. Read the Common rules of `AGENTS.md` and this file in full.
-2. Read your workflow step in `docs/design/workflow_sdd.md` (3a for a change, 3b for a refactor or a fast-lane entry).
+2. Read your workflow step in `docs/agents/workflow_sdd.md` (3a for a change, 3b for a refactor or a fast-lane entry).
 3. Read the skill of your phase in full and follow it (see the table below). Where the `/opsx:*` commands are not installed, read `.opencode/skills/<skill>/SKILL.md`.
 4. Read the current state by command: `git status`, `git log`, `openspec status`, and the change's `tasks.md` if it exists.
 5. Check that you are on `feature/<change-id>`; if another branch is active, stop and flag it.

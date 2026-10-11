@@ -10,14 +10,14 @@ Do every step, in order, before answering Product owner or acting. A question fr
 
 1. **Start the assignment loop** of section 9 (a recurring task every 10 minutes with its prompt). Never stop it while any change, finding or integration has a next phase you may take; stop it only when everything left waits for Product owner, and say so.
 2. Read the Common rules of `AGENTS.md` and this file in full.
-3. Read `docs/design/workflow_sdd.md` from `develop`. It binds the agents; this file binds you.
+3. Read `docs/agents/workflow_sdd.md` from `develop`. It binds the agents; this file binds you.
 4. Read the records of section 12, in this order: the board (`docs/design/change-progress.md`), `docs/design/general-context.md`, its decisions log, `docs/design/backlog.md`, and the handoff of each active change.
 5. Read the plan usage (section 9, "Plan limits").
 6. Check the state of every executor: running cloud routines and their branches, OpenCode runs, worktrees (`git worktree list`).
 
-**Follow the workflow rigorously.** Apply every step of `docs/design/workflow_sdd.md` and of this file exactly as written, in order, for every change, every finding and every integration: never skip, shorten, merge, reorder or improvise a step, never do yourself a phase that belongs to another executor, and never act on work Product owner has not approved. When a step cannot be applied as written, stop and ask Product owner instead of working around it.
+**Follow the workflow rigorously.** Apply every step of `docs/agents/workflow_sdd.md` and of this file exactly as written, in order, for every change, every finding and every integration: never skip, shorten, merge, reorder or improvise a step, never do yourself a phase that belongs to another executor, and never act on work Product owner has not approved. When a step cannot be applied as written, stop and ask Product owner instead of working around it.
 
-**Check precedents against the workflow.** Before reusing an earlier prompt, command or decision as a template, check it against `docs/design/workflow_sdd.md` and this file; a precedent never replaces a step.
+**Check precedents against the workflow.** Before reusing an earlier prompt, command or decision as a template, check it against `docs/agents/workflow_sdd.md` and this file; a precedent never replaces a step.
 
 ## 1. Project and folders
 
@@ -105,7 +105,7 @@ You may commit only:
 - the duplicate removals made after an artifact update or a correction round (section 4): `docs(<capability>): remove duplicates in artifacts for <change-id>`;
 - the project records on `develop` (section 12): `docs: update change progress`, `docs: update general context`, and backlog entries (`docs: …`);
 - a design lead draft for a change without a branch (section 11): `docs: draft design summary for <change-id>` on `develop`, only while its first line says `Status: draft`; approving a summary is Product owner's commit;
-- `AGENTS.md`, the role files in `docs/agents/` and `docs/design/workflow_sdd.md` (section 3): `docs: …` on `develop`;
+- `AGENTS.md`, the role files in `docs/agents/` and `docs/agents/workflow_sdd.md` (section 3): `docs: …` on `develop`;
 - `corrections.md`, if the propose corrections do not contradict `design-summary.md` and are in line with the agreed design.
 
 Rules:
@@ -123,7 +123,7 @@ API branches: every implementation in `tazavera-api` is done on a `feature/*` or
 
 - Run every agent from inside the change's worktree: `cd` into it first (or `env -C <worktree>`), then `opencode run --standalone --agent <architect|build> --model xiaomi/mimo-v2.6-pro --auto --title "<title>" "<prompt>"`. Without `--standalone` and `--model` it picks an unavailable model and fails.
 - Every prompt you write for an agent includes: "Do not ask questions in this session. If you need a decision that is not in the artifacts, write the question in your final report and stop. Run each command on its own, without pipes, redirects or chaining."
-- Never override or narrow what `AGENTS.md`, the agent's role file and `docs/design/workflow_sdd.md` tell an agent to do: files it edits, records it keeps (such as `## Propose status`), commit scope and commit message. Your prompts give only the task, the phase, the source of the decisions (for example a corrections round) and the clause above. If an agent's own flow seems to conflict with this file or the task prompt, defer it to Product owner instead of overriding it.
+- Never override or narrow what `AGENTS.md`, the agent's role file and `docs/agents/workflow_sdd.md` tell an agent to do: files it edits, records it keeps (such as `## Propose status`), commit scope and commit message. Your prompts give only the task, the phase, the source of the decisions (for example a corrections round) and the clause above. If an agent's own flow seems to conflict with this file or the task prompt, defer it to Product owner instead of overriding it.
 - If a run ends with an unanswered question, an interruption or a non-zero exit, record it in the handoff with the agent's last message, and do not rerun until the question is answered.
 - With `--auto`, everything not denied is allowed. Before the first run in a worktree, check that its `.opencode/agents/` holds the restricted profile named in the task prompt (`git status` shows them modified). If not, stop.
 - A denied command that the agent then works around is expected, not a failure.
@@ -162,13 +162,13 @@ Correction rounds, refactor changes, fast-lane entries and heavy applies (sectio
 - `Default`, network Trusted, variable `NEXT_PUBLIC_API_URL=http://localhost:8000`.
 - The setup script is empty: setup scripts run outside the repository. Every prompt starts with `npm ci` and `npx next typegen`.
 - The cloud cannot reach this machine (API, mock, dev server).
-- The `/opsx:*` commands and `.claude/` are not available there: the role files in `docs/agents/`, `docs/design/workflow_sdd.md` and the skills in `.opencode/skills/` are, because they are in the repository.
+- The `/opsx:*` commands and `.claude/` are not available there: the role files in `docs/agents/`, `docs/agents/workflow_sdd.md` and the skills in `.opencode/skills/` are, because they are in the repository.
 
 **Cycle:**
 1. Commit what the session needs (the round in `corrections.md` is Product owner's), then push `feature/<change-id>` (or `qa` for a refactor or fast-lane entry).
 2. Have the prompt written. The design lead writes it (its section 3) when it can run locally; when the plan usage is unknown or at 80% or more (section 9), you write it and the design lead reviews the result before the round ends. It gives:
    - the role or roles in order (architect, then build), with "read the Common rules of `AGENTS.md` and `docs/agents/<role>.md` in full before acting as that role";
-   - the workflow steps of the change's type in `docs/design/workflow_sdd.md` (3a, 3b, or the correction round);
+   - the workflow steps of the change's type in `docs/agents/workflow_sdd.md` (3a, 3b, or the correction round);
    - the skill file to read and follow in each phase: `.opencode/skills/openspec-propose/SKILL.md`, `.opencode/skills/fsd-architecture/SKILL.md` (before creating files under `app/` or `src/`), `.opencode/skills/openspec-apply-change/SKILL.md`, `.opencode/skills/openspec-verify-change/SKILL.md`, `.opencode/skills/openspec-archive-change/SKILL.md`;
    - the base branch;
    - the scope (which round, which tasks, or which backlog entry);
