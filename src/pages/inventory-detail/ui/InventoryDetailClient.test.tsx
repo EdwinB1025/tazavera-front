@@ -132,6 +132,14 @@ describe("InventoryDetailClient (spec 'Coffee inventory detail')", () => {
     ]);
   });
 
+  it("Inventory detail eyebrow: the management eyebrow style", async () => {
+    mocks.request.mockResolvedValue(answer(200, [ITEM]));
+    renderDetail();
+
+    await screen.findByRole("heading", { level: 1, name: "Huila El Mirador" });
+    expect(screen.getByText(TEXTS.eyebrow).className).toBe("type-eyebrow-strong");
+  });
+
   it("Detail loading: the back link and the loading status, no heading of the item", () => {
     mocks.request.mockReturnValue(new Promise(() => {}));
     renderDetail();
