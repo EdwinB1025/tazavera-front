@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
 import type { OfferingSummary } from "@/shared/api";
 import {
+  LABEL_SEPARATOR,
   OfferingActions,
   OfferingSelect,
+  offeringIdentification,
   SelectionToolbar,
   type DeleteTarget,
   type OwnOfferings,
@@ -90,7 +92,13 @@ export function OwnOfferingsGrid({
                   <OfferingViewButton
                     ulid={offering.ulid ?? ""}
                     locale={locale}
-                    label={texts.viewLabel}
+                    label={
+                      <>
+                        {texts.viewLabel}
+                        {LABEL_SEPARATOR}
+                        <span className="sr-only">{offeringIdentification(offering)}</span>
+                      </>
+                    }
                   />
                   <OfferingActions
                     offering={offering}
