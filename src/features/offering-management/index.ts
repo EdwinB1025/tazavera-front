@@ -23,4 +23,4 @@ export type { LocationsFieldsetTexts } from "./ui/LocationsFieldset";
 export { ManagementSidebarEntries } from "./ui/ManagementSidebarEntries";
 export { useCoffeeInventory } from "./model/inventory";
 export type { InventoryState } from "./model/inventory";
-export { LABEL_SEPARATOR, offeringIdentification } from "./lib/identification";
+export { LABEL_SEPARATOR, inventoryIdentification, offeringIdentification } from "./lib/identification";

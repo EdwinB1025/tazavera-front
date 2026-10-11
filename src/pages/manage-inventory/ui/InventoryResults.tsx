@@ -90,7 +90,7 @@ function InventoryBody({ locale, count, texts, inventory, retry }: InventoryBody
           key={item.ulid ?? index}
           item={item}
           texts={texts}
-          actions={<InventoryCardActions locale={locale} ulid={item.ulid ?? ""} texts={texts} />}
+          actions={<InventoryCardActions locale={locale} item={item} texts={texts} />}
         />
       ))}
     </div>
