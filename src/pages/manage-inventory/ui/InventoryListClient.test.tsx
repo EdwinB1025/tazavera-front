@@ -235,3 +235,16 @@ describe("InventoryListClient (spec 'Coffee inventory card')", () => {
     );
   });
 });
+
+describe("InventoryListClient (design.md D6 layout)", () => {
+  it("puts the heading block 2rem above the toolbar, and the results 1.5rem below it", async () => {
+    mocks.request.mockResolvedValue(answer(200, ITEMS));
+    renderList();
+
+    await screen.findAllByRole("heading", { level: 2 });
+    const headingBlock = screen.getByRole("heading", { level: 1 }).parentElement!;
+    expect(headingBlock.parentElement!.className).toBe("flex flex-col gap-8");
+    const toolbar = screen.getByRole("button", { name: TEXTS.trigger }).closest("div")!;
+    expect(toolbar.parentElement!.className).toBe("flex flex-col gap-6");
+  });
+});

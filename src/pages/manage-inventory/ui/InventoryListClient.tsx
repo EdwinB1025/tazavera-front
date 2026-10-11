@@ -29,8 +29,8 @@ export type InventoryListClientProps = {
   texts: InventoryListTexts;
 };
 
-// The heading block and the results, 1.5rem apart (the directory's section).
-const SECTION_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
+// The heading block and the toolbar, 2rem apart (design.md D6).
+const SECTION_CLASSES = ["flex", "flex-col", "gap-8"].join(" ");
 // The eyebrow, the heading and the intro, 0.5rem apart.
 const HEADING_BLOCK_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
 
