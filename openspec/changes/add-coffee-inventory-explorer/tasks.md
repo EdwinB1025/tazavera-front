@@ -29,7 +29,7 @@
 
 ## 7. Explore coffee inventory in the user menu (app-shell)
 
-- [ ] 7.1 Test in `src/widgets/app-header/ui/AppHeader.test.tsx` for "Explore coffee inventory entry for a coffeeshop": with a `coffeeshop` session, the menu item named `TEXTS.exploreInventory` points at `/es/manage/inventory` and comes right after the "Manage locations" item. Add `exploreInventory` to the file's texts fixture. No existing assertion changes. Verify: the new test fails only because the entry is missing; the rest of the file passes; lint is clean.
+- [x] 7.1 Test in `src/widgets/app-header/ui/AppHeader.test.tsx` for "Explore coffee inventory entry for a coffeeshop": with a `coffeeshop` session, the menu item named `TEXTS.exploreInventory` points at `/es/manage/inventory` and comes right after the "Manage locations" item. Add `exploreInventory` to the file's texts fixture. No existing assertion changes. Verify: the new test fails only because the entry is missing; the rest of the file passes; lint is clean.
 - [ ] 7.2 Implement design.md D9. Verify: `npx vitest related` on the changed files passes, 7.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 8. Full checks
