@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import type { CoffeeInventoryQuery } from "@/shared/api";
 import { signIn, useSession } from "@/features/auth";
 import { SessionGate, SignedOutPrompt } from "@/shared/ui";
 import {
@@ -21,6 +22,10 @@ export type InventoryListTexts = InventoryResultsTexts & {
 
 export type InventoryListClientProps = {
   locale: string;
+  /** The filters the address carries (none by default). */
+  query?: CoffeeInventoryQuery;
+  /** The number of applied filters. */
+  count?: number;
   texts: InventoryListTexts;
 };
 
@@ -36,7 +41,12 @@ const HEADING_BLOCK_CLASSES = ["flex", "flex-col", "gap-2"].join(" ");
  * resolves, the signed-out prompt for an anonymous visitor, the 404 for
  * another role and the results for a signed-in coffeeshop.
  */
-export function InventoryListClient({ locale, texts }: InventoryListClientProps): ReactNode {
+export function InventoryListClient({
+  locale,
+  query = {},
+  count = 0,
+  texts,
+}: InventoryListClientProps): ReactNode {
   const session = useSession();
   return (
     <div className={SECTION_CLASSES}>
@@ -57,7 +67,7 @@ export function InventoryListClient({ locale, texts }: InventoryListClientProps)
         }
         allows={(user) => user.role === "coffeeshop"}
       >
-        {() => <InventoryResults locale={locale} query={{}} texts={texts} />}
+        {() => <InventoryResults locale={locale} query={query} count={count} texts={texts} />}
       </SessionGate>
     </div>
   );

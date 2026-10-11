@@ -20,7 +20,7 @@
 ## 5. Inventory filters (filtering)
 
 - [x] 5.1 Tests, one per scenario: "Inventory facets in the sidebar" (Facets in order) and "Applied inventory filters" (Remove one chip, Clear all) in `src/features/inventory-facets/ui/InventoryFacets.test.tsx`; "Inventory filter state in the URL" (Commit a text facet, Out-of-range value in the address), "Inventory filter toolbar" (Trigger count) and "Filtered inventory results" (Filtered empty, Result count announced) in `src/pages/manage-inventory/ui/InventoryResults.test.tsx`. Verify: the new tests fail only because the facets and their wiring do not exist yet (typecheck errors for the missing modules and props are allowed); lint is clean.
-- [ ] 5.2 Implement design.md D5, wire the parsed filters, the toolbar and the filtered results into the list (D6), and add D10's facet labels. Verify: `npx vitest related` on the changed files passes, 5.1 and 2.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 5.2 Implement design.md D5, wire the parsed filters, the toolbar and the filtered results into the list (D6), and add D10's facet labels. Verify: `npx vitest related` on the changed files passes, 5.1 and 2.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 6. Inventory sidebar (offering-management)
 

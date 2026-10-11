@@ -16,6 +16,8 @@ vi.mock("@/shared/api", () => ({
   publicRequest: vi.fn(),
   request: mocks.request,
 }));
+// The skeleton card's widget also exports actions that read the session.
+vi.mock("@/features/auth", () => ({ useSession: vi.fn(), signIn: vi.fn() }));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: mocks.push, replace: vi.fn(), refresh: vi.fn() }),
   usePathname: () => "/en/manage/inventory",

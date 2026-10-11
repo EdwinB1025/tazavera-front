@@ -60,5 +60,11 @@
   "inventoryNotFoundTitle": "Article d'inventari no trobat",
   "inventoryNotFoundLine": "Pot ser que s'hagi retirat o que l'enllaç no sigui correcte.",
   "inventoryCoffeeLot": "Lot del cafè",
-  "inventoryRoasteryDescription": "Sobre el torrador"
+  "inventoryRoasteryDescription": "Sobre el torrador",
+  "facetCoffeeName": "Nom del cafè",
+  "facetCountry": "País",
+  "facetRegion": "Regió",
+  "facetProcess": "Procés",
+  "facetProducer": "Productor",
+  "facetCity": "Ciutat"
 }

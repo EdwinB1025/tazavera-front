@@ -60,5 +60,11 @@
   "inventoryNotFoundTitle": "Inventory item not found",
   "inventoryNotFoundLine": "It may have been removed, or the link may be wrong.",
   "inventoryCoffeeLot": "Coffee lot",
-  "inventoryRoasteryDescription": "About the roastery"
+  "inventoryRoasteryDescription": "About the roastery",
+  "facetCoffeeName": "Coffee name",
+  "facetCountry": "Country",
+  "facetRegion": "Region",
+  "facetProcess": "Process",
+  "facetProducer": "Producer",
+  "facetCity": "City"
 }

@@ -20,3 +20,4 @@ export { LocationsFieldset } from "./ui/LocationsFieldset";
 export type { LocationsFieldsetTexts } from "./ui/LocationsFieldset";
 export { ManagementSidebarEntries } from "./ui/ManagementSidebarEntries";
 export { useCoffeeInventory } from "./model/inventory";
+export type { InventoryState } from "./model/inventory";

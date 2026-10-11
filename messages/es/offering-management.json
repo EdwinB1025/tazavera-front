@@ -60,5 +60,11 @@
   "inventoryNotFoundTitle": "Artículo de inventario no encontrado",
   "inventoryNotFoundLine": "Puede que se haya retirado o que el enlace no sea correcto.",
   "inventoryCoffeeLot": "Lote del café",
-  "inventoryRoasteryDescription": "Sobre el tostador"
+  "inventoryRoasteryDescription": "Sobre el tostador",
+  "facetCoffeeName": "Nombre del café",
+  "facetCountry": "País",
+  "facetRegion": "Región",
+  "facetProcess": "Proceso",
+  "facetProducer": "Productor",
+  "facetCity": "Ciudad"
 }
