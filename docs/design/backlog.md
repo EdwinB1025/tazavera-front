@@ -22,25 +22,9 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
-| 2 | R71 | name-card-actions-by-coffee | Refactor (fast lane), by Product owner's order | S | R70 (same inventory pages; run after it) |
 | 3 | R72 | shorten-coffeeshop-back-label | Refactor (fast lane), by Product owner's order | S | R71 |
 | 4 | R1 | none yet (Playwright suite) | Change (tests) | — | Product owner, 2026-10-11: start once R70–R72 and the QA cleanup are in `develop` |
 | 5 | R45 | none yet | Change (behaviour, API) | M | Product owner: deferred, to review 2026-10-12; not to be designed yet |
-
-## R71 — Card actions name the coffee they act on (Product owner, 2026-10-11)
-
-- **Duplicated:** none. Defect found by the design lead (round R67+R68 Q3): every inventory card has "Ver" and "Crear oferta" with the same accessible name on every card, and My offerings' "Ver" too, so a screen-reader user cannot tell the cards apart. My offerings' "Seleccionar" and "Eliminar" already name the item (visible label + coffee — location, `src/features/offering-management/lib/identification.ts`).
-- **Where today:** `src/pages/manage-inventory/ui/InventoryCardActions.tsx` (View, Create offering), `src/entities/offering/ui/OfferingViewButton.tsx` (as used by `src/pages/manage-offerings/ui/OwnOfferingsGrid.tsx`)
-- **Why it pays off now:** WCAG 2.5.3 / 2.4.6 on the coffee shop's two main lists
-- **Owning capability:** offering-management
-- **Proposed change:** name-card-actions-by-coffee. Settled end state (Product owner chose option A):
-  1. On the coffee inventory list, each card's "Ver" and "Crear oferta" have an accessible name that starts with the visible label and then names the coffee (and its roastery when the item has one), as Select and Delete do on My offerings (visible text unchanged; the extra words only for assistive technology).
-  2. On My offerings, each card's "Ver" has an accessible name that starts with "Ver" and then names the offering as Select and Delete do (coffee — location).
-  3. Nothing else changes: visible texts, layout, the public cards' actions and the requests stay as today. No new interface text; existing components only.
-- **Open decision (Augusto):** none (answered 2026-10-11: A)
-- **Type:** Refactor (fast lane), by Product owner's order of 2026-10-11 (one test per new scenario)
-- **Status:** accepted
-- **Affects:** R70 (same pages; runs after it)
 
 ## R72 — Coffee shop detail back control reads "Volver" (Product owner, 2026-10-11)
 
