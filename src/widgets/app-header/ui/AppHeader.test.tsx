@@ -46,6 +46,8 @@ const TEXTS = {
   themeToggleToDark: "texts.themeToggleToDark",
   themeToggleToTraditional: "texts.themeToggleToTraditional",
   manageOfferings: "texts.manageOfferings",
+  manageLocations: "texts.manageLocations",
+  exploreInventory: "texts.exploreInventory",
   manageEvaluations: "texts.manageEvaluations",
   exploreOfferings: "texts.exploreOfferings",
   signOut: "texts.signOut",
@@ -732,6 +734,26 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
     ).toBe("/es/manage/offerings");
     // only a specialist gets the offerings entry (spec: Menu content)
     expect(screen.queryByText(TEXTS.exploreOfferings)).toBeNull();
+  });
+
+  it("offers \"Manage locations\" to /es/manage/locations right after \"Manage offerings\" for a coffeeshop (spec: Manage locations entry for a coffeeshop)", () => {
+    renderSignedIn("coffeeshop");
+    openMenu();
+    const offerings = screen.getByRole("menuitem", { name: TEXTS.manageOfferings });
+    const locations = screen.getByRole("menuitem", { name: TEXTS.manageLocations });
+    expect(locations.getAttribute("href")).toBe("/es/manage/locations");
+    const items = screen.getAllByRole("menuitem");
+    expect(items.indexOf(locations)).toBe(items.indexOf(offerings) + 1);
+  });
+
+  it("offers \"Explore coffee inventory\" to /es/manage/inventory right after \"Manage locations\" for a coffeeshop (spec: Explore coffee inventory entry for a coffeeshop)", () => {
+    renderSignedIn("coffeeshop");
+    openMenu();
+    const locations = screen.getByRole("menuitem", { name: TEXTS.manageLocations });
+    const inventory = screen.getByRole("menuitem", { name: TEXTS.exploreInventory });
+    expect(inventory.getAttribute("href")).toBe("/es/manage/inventory");
+    const items = screen.getAllByRole("menuitem");
+    expect(items.indexOf(inventory)).toBe(items.indexOf(locations) + 1);
   });
 
   it("offers \"Manage evaluations\" to /es/manage/evaluations followed by \"Explore offerings\" to /es/offerings for a specialist (spec: Management entry for a specialist)", () => {
