@@ -24,7 +24,7 @@ OpenSpec runs with the **core profile plus `verify`**: `/opsx:explore` (installe
 |---|---|---|
 | `AGENTS.md` | Product owner; the orchestrator keeps its generic rules current | Common rules for every agent and the table of role files. Read-only for agents. Generic rules only: code-specific rules go to the design summary or design.md. |
 | `docs/agents/<role>.md` | Product owner; the orchestrator keeps its generic rules current | One rule file per role (architect, build, orchestrator, design lead): start checklist, the workflow steps it owns, authority, stop conditions, report. Read-only for agents. |
-| `docs/workflow_sdd.md` | Product owner; the orchestrator keeps it current | This document: the development process. |
+| `docs/design/workflow_sdd.md` | Product owner; the orchestrator keeps it current | This document: the development process. |
 | `.opencode/agents/*.md` | Product owner | Model and permissions per agent. |
 | `openspec/config.yaml` | Product owner | Project context and the list of capabilities. |
 | `openspec/specs/<capability>/spec.md` | Architect, via archive only | Main specs: what the app does today. |
@@ -32,9 +32,9 @@ OpenSpec runs with the **core profile plus `verify`**: `/opsx:explore` (installe
 | `docs/design/<change-id>/design-summary.md` | Design lead drafts, Product owner approves (architect: `## Propose status`) | Design decisions taken in chat. Source of truth for the architect. Traditional workflow only. |
 | `docs/design/<change-id>/corrections.md` | Product owner (architect: `### Status`) | Review rounds that change spec or design. |
 | `docs/design/<change-id>/handoff.md` | Orchestrator | Sessions, decisions, points closed for review, deferred questions of a change. |
-| `docs/backlog.md` | Product owner and orchestrator (architect: removes resolved entries on archive) | Refactor candidates in priority order. Source of the refactor workflow. |
-| `docs/change-progress.md` | Orchestrator | The board: phase, assignee and blocker of every change. |
-| `docs/general-context.md` | Orchestrator | Project context and the decisions log. |
+| `docs/design/backlog.md` | Product owner and orchestrator (architect: removes resolved entries on archive) | Refactor candidates in priority order. Source of the refactor workflow. |
+| `docs/design/change-progress.md` | Orchestrator | The board: phase, assignee and blocker of every change. |
+| `docs/design/general-context.md` | Orchestrator | Project context and the decisions log. |
 | `contracts/openapi.yaml` | Product owner | API contract, copied from the backend. Never edited by agents. |
 | `qa/` | Product owner (through reduction plans) | The QA suite (section 3c). |
 
@@ -61,10 +61,11 @@ Every change and every backlog entry carries a type. The orchestrator assigns it
 |---|---|---|
 | `refactor` | All of these hold: what users see, the requests sent to the API and every requirement in `openspec/specs/` stay the same; it adds no dependency, token, text, screen or test; it touches no security (CSP, headers, tokens, the auth flow, credential storage); and it has no open decision for Product owner | Refactor workflow (3b), the fast lane |
 | `change` | Any of the above fails: new functionality, a behaviour or design change, a dependency, security, new texts or spec wording, new tests, or an open decision | Traditional workflow (3a) |
+| `refactor` by Product owner's order | Product owner orders the entry "fast lane" (every AUT correction included) and its backlog entry settles the end state, even when it adds behaviour, texts, screens or tests | Refactor workflow (3b), with one test per new scenario (`AGENTS.md` → Refactor changes) |
 
 - When in doubt, the type is `change`.
 - An entry typed `change` only because of an open decision becomes `refactor` once Product owner answers it, if the answer keeps behaviour; otherwise it stays `change`.
-- The type is recorded on the board, in the backlog entry (`Type:`) and, for a refactor, on the first line of the proposal (`Type: refactor`).
+- The type is recorded on the board, in the backlog entry (`Type:`) and, for a refactor, on the first line of the proposal (`Type: Refactor (fast lane)`). A fast lane by Product owner's order is recorded in the backlog entry with its date.
 - An agent that finds a refactor needs a behaviour change or an unsettled decision stops; the orchestrator retypes it `change` and it continues in the traditional workflow.
 
 ## 3a. Traditional workflow
@@ -97,9 +98,13 @@ Design in chat ─► summary draft (design lead) ─► handoff to Product owne
 
 Explore (`/opsx:explore`) is not part of the workflow: the design lead's draft and Product owner's answers take its place.
 
+Every `/opsx:*` step runs its OpenSpec skill. Where the commands are not installed (a Claude cloud session), the agent reads `.opencode/skills/<skill>/SKILL.md` and follows it (`AGENTS.md` → OpenSpec skills); the cloud prompt names each skill file.
+
 ## 3b. Refactor workflow
 
-Refactor changes keep behaviour: what users see, the requests sent to the API and every requirement in `openspec/specs/` stay the same. They come from backlog entries typed `refactor` (section 3) and run in rounds on the `qa` branch, while `develop` is in UAT on `master`.
+Refactor changes keep behaviour: what users see, the requests sent to the API and every requirement in `openspec/specs/` stay the same. They come from backlog entries typed `refactor` (section 3) and run in rounds on the `qa` branch, while `develop` is in UAT on `master`. A fast lane by Product owner's order follows the same steps; it may add behaviour, with one test per new scenario.
+
+Each change of a round runs in one cloud session that the orchestrator launches as a scheduled run. The session reads `AGENTS.md`, the role file of each role it plays (architect, then build) and this section, and follows each phase's skill file.
 
 ```
 develop ──► qa ──► feature/<change-id> (cloud: propose ─► apply ─► full checks ─► verify ─► archive) ──► qa
@@ -111,12 +116,12 @@ master ◄── Product owner tests develop ◄── qa into develop ◄──
 |:-:|---|---|---|---|
 | 1 | **Round plan.** The next backlog entries typed `refactor`, by the backlog's priority order and dependencies. | Orchestrator | Checks each entry's type again; decides the round and which changes run in parallel (merge simulation); updates the board | Groups the entries and analyses their dependencies |
 | 2 | **Start.** `develop` is merged into `qa`. | Orchestrator | Merges and pushes `qa` | — |
-| 3 | **Propose** from the backlog entry and the review it cites: `Type: refactor` on the proposal's first line, a spec delta that states the property kept or established, propose status at the end of `proposal.md`. No design summary, explore or artifact review. | Architect (cloud) | Launches the cloud session on `feature/<change-id>` from `qa` and watches it | Writes the cloud prompt |
-| 4 | **Apply.** One commit per task; related tests, typecheck and lint after each task. No new tests; existing tests keep their assertions. | Build (same cloud session) | Watches the session; a session that stalls is relaunched | — |
+| 3 | **Propose** from the backlog entry and the review it cites (`openspec-propose`): `Type: Refactor (fast lane)` on the proposal's first line, a spec delta that states the property kept or established (or, for a fast lane by order, the new requirements with their scenarios), propose status at the end of `proposal.md`. No design summary, explore or artifact review. | Architect (cloud) | Launches the cloud session on `feature/<change-id>` from `qa` as a scheduled run and watches it (routine runs and branch; the assignment loop when no background watch can run). Writes the prompt when the design lead cannot run (plan usage unknown or at 80% or more) | Writes the cloud prompt: roles and their role files, the workflow steps, the skill file of each phase, base and target branch, checks |
+| 4 | **Apply** (`openspec-apply-change`). One commit per task; related tests, typecheck and lint after each task. No new tests (a fast lane by order: one test per new scenario); existing tests keep their assertions. | Build (same cloud session) | Watches the session; a session that stalls is relaunched | — |
 | 5 | **Full checks.** Validation suite, QA suite, typecheck, lint, build; failures fixed in their own commit. | Build | — | — |
-| 6 | **Verify and archive.** `/opsx:verify` with no CRITICAL, then the archive without waiting for Product owner. | Architect (same cloud session) | — | — |
-| 7 | **Integration** into `qa`. | Orchestrator | Reviews the branch (commit format, scope, no new tests, no changed assertions), re-runs the full checks, merges into `qa` | Reviews the result for behaviour drift |
-| 8 | **Round end.** `qa` is merged into `develop`. | Orchestrator | Merges and pushes `develop`; updates the board and the backlog | Visual check of the screens the round touched (375 and 1280 px), compared with `develop` |
+| 6 | **Verify and archive** (`openspec-verify-change`, `openspec-archive-change`). Verify with no CRITICAL, then the archive without waiting for Product owner. | Architect (same cloud session) | — | — |
+| 7 | **Integration** into `qa`. | Orchestrator | Reviews the branch (commit format, scope, no new tests or one per new scenario for a fast lane by order, no changed assertions, each phase's skill in the run log), re-runs the full checks (or, when npm cannot run locally, takes the session's counts and records it in the handoff), merges into `qa` by fast-forward, writes the handoff | Reviews the result for behaviour drift against the backlog entry |
+| 8 | **Round end.** `qa` is merged into `develop`. | Orchestrator | When the full checks were not re-run locally, runs them on `qa` in a read-only cloud session with a merge simulation; then merges and pushes `develop`; updates the board and the backlog | Visual check of the screens the round touched (375 and 1280 px), compared with `develop` |
 | 9 | **Release.** Product owner tests `develop` and merges it into `master`. | Product owner | Runs the full QA suite before the merge into `master` and reports | — |
 
 If a refactor turns out to need a behaviour change or a decision its backlog entry does not settle, the agent stops, the orchestrator retypes it `change` and it moves to the traditional workflow.
@@ -173,12 +178,12 @@ Run the related tests, npm run lint and npx tsc --noEmit after each commit, and 
 
 The build refactors on its own only inside the files of its current task, as part of that task's commit. Anything wider (duplication across files, a new shared helper, utility or constant, a unit over the size limits it cannot keep) is reported as a refactor candidate in its final report.
 
-1. Product owner or the orchestrator adds the candidates worth keeping to `docs/backlog.md`, in its priority order: what is duplicated, where, why it would pay off, owning capability, proposed change, open decisions, status.
+1. Product owner or the orchestrator adds the candidates worth keeping to `docs/design/backlog.md`, in its priority order: what is duplicated, where, why it would pay off, owning capability, proposed change, open decisions, status.
 2. Before each propose, the architect reads the backlog. If the change would add to a duplication or touch the same code, it stops and recommends the refactor as its own change first. It never folds a backlog entry into the change being proposed.
 3. The orchestrator types each entry (section 3). A `refactor` entry goes to the next refactoring round (section 3b); a `change` entry goes to the traditional workflow (section 3a), after Product owner answers its open decision if it has one.
 4. When that change is archived, the architect removes the entry from the backlog in the archive commit.
 
-Entry format of `docs/backlog.md`:
+Entry format of `docs/design/backlog.md`:
 
 ```markdown
 ## R<n> — <title>
@@ -234,7 +239,7 @@ Each correction must state its end state; the architect stops and asks when it i
 | Unplanned fix | Build | `fix(<capability>): <what it fixes>` |
 | Unplanned coverage | Build | `test(<capability>): <what it verifies>` |
 | Last task without files | Build | `chore(<capability>): complete tasks for <change-id>` |
-| Archive | Architect | `chore(openspec): archive <change-id>` (includes `docs/backlog.md` when the change resolves an entry) |
+| Archive | Architect | `chore(openspec): archive <change-id>` (includes `docs/design/backlog.md` when the change resolves an entry) |
 | Handoff | Orchestrator | `docs(<capability>): update handoff for <change-id>` |
 | Board, general context | Orchestrator | `docs: update change progress`, `docs: update general context` |
 
@@ -242,11 +247,11 @@ A task's `test(...)` commit may fail only on the behaviour or module the next co
 
 ## 6. Enforcement: rules vs permissions
 
-`AGENTS.md` says what each agent must do; the permission files in `.opencode/agents/` block what it must never do, regardless of its reasoning. Rules are evaluated in order and the last matching rule wins.
+`AGENTS.md` and the role files in `docs/agents/` say what each agent must do; the permission files in `.opencode/agents/` block what it must never do, regardless of its reasoning. Rules are evaluated in order and the last matching rule wins.
 
 | | Architect | Build |
 |---|---|---|
-| Edit | Only `openspec/changes/` (not `archive/`), `design-summary.md`, `corrections.md`, `docs/backlog.md` | Everything except `openspec/` (bar `tasks.md`), `docs/`, `AGENTS.md`, `contracts/`, `schema.ts`; `package*.json` asks |
+| Edit | Only `openspec/changes/` (not `archive/`), `design-summary.md`, `corrections.md`, `docs/design/backlog.md` | Everything except `openspec/` (bar `tasks.md`), `docs/`, `AGENTS.md`, `contracts/`, `schema.ts`; `package*.json` asks |
 | OpenSpec CLI | All; `archive` asks | Read-only: `status`, `instructions`, `list`, `show` |
 | Skills | `openspec-apply*` denied | `openspec-propose/explore/update/sync/verify/archive*` denied |
 | Shell | Unlisted commands ask; checks (`test`, `lint`, `build`, `tsc`) allowed | Unlisted commands ask; `npm run`, `tsc`, `vitest`, `node -e` allowed; installs ask |
@@ -282,14 +287,14 @@ How the rules evolved: first by reading the reasoning threads of the architect a
 |:-:|---|---|---|---|
 | 1 | 2026-09-29 | Feature-Sliced Design: layers, imports only downwards, `app/` for routing only | Project structure | `AGENTS.md` → Architecture |
 | 2 | 2026-09-28/30 | The contract is the only source of truth; generated types are never edited | Agents inventing fields and error formats | `AGENTS.md` → API contract |
-| 3 | 2026-10-01 | Split into common rules and one section per role; design summary as the architect's source of truth, with `## Propose status` | Agents mixing roles; the architect re-deciding settled design | `AGENTS.md` → Agent roles, Design context |
-| 4 | 2026-10-02 | Build working method from its reasoning threads: plan once, check facts by running commands instead of reasoning, the simplest implementation, at most two alternatives, stop on contradictions | Build threads that traced code by hand and compared many options | `AGENTS.md` → Build → Working method |
+| 3 | 2026-10-01 | Split into common rules and one section per role; design summary as the architect's source of truth, with `## Propose status` | Agents mixing roles; the architect re-deciding settled design | `AGENTS.md` → Roles and rule files; `docs/agents/architect.md` → Design context |
+| 4 | 2026-10-02 | Build working method from its reasoning threads: plan once, check facts by running commands instead of reasoning, the simplest implementation, at most two alternatives, stop on contradictions | Build threads that traced code by hand and compared many options | `docs/agents/build.md` → Working method |
 | 5 | 2026-10-02 | Correction flow: rounds in `corrections.md`, the architect turns them into tasks, the build implements only tasks | Corrections implemented straight from review messages | `AGENTS.md` → Review findings flow |
-| 6 | 2026-10-02 | Architect working method from its reasoning threads: write artifact text directly in the edit, record end states not implementations, do not predict test results, smallest spec wording | Architect threads that drafted every section twice and designed the build's code | `AGENTS.md` → Architect → Working method |
+| 6 | 2026-10-02 | Architect working method from its reasoning threads: write artifact text directly in the edit, record end states not implementations, do not predict test results, smallest spec wording | Architect threads that drafted every section twice and designed the build's code | `docs/agents/architect.md` → Working method |
 | 7 | 2026-10-02 | Unplanned fix and unplanned coverage as the two paths for findings that change no decision; the backlog for refactor candidates | Small defects forced into full correction rounds | `AGENTS.md` → Review findings flow; section 4 |
-| 8 | 2026-10-02 | Bounded research (5 searches, 3 candidates) and no research against settled decisions or existing code | Long library searches for things already decided or built | `AGENTS.md` → Research |
-| 9 | 2026-10-02 | Read the current state by command at the start of every request; no deliberation on tool mechanics or cosmetics; one path per `git add`; write code directly in the edit; one probe for ambiguous tasks, never reverse a stated decision | Threads that relied on stale outputs, debated whitespace or batching, and flip-flopped | `AGENTS.md` → Working method (common and build) |
-| 10 | 2026-10-02 | Tasks state the exact source text a test asserts only when design.md defines it; otherwise the expected behaviour | Tests asserting paraphrases; tasks over-prescribing classes | `AGENTS.md` → Architect → Tasks |
+| 8 | 2026-10-02 | Bounded research (5 searches, 3 candidates) and no research against settled decisions or existing code | Long library searches for things already decided or built | `docs/agents/architect.md` → Research |
+| 9 | 2026-10-02 | Read the current state by command at the start of every request; no deliberation on tool mechanics or cosmetics; one path per `git add`; write code directly in the edit; one probe for ambiguous tasks, never reverse a stated decision | Threads that relied on stale outputs, debated whitespace or batching, and flip-flopped | `AGENTS.md` → Working method; `docs/agents/build.md` → Working method |
+| 10 | 2026-10-02 | Tasks state the exact source text a test asserts only when design.md defines it; otherwise the expected behaviour | Tests asserting paraphrases; tasks over-prescribing classes | `docs/agents/architect.md` → Tasks |
 | 11 | 2026-10-04 | One worktree per change; agents edit only in the worktree they started in | Two agents working in parallel on one checkout | `AGENTS.md` → Working method |
 | 12 | — | Orchestrator (Claude Code) runs the agents: one task per Build run, handoff per change, artifact clean-up and duplicate removal before each Build run, points closed for review | Product owner relaying every message by hand | `docs/agents/orchestrator.md` §4–7 |
 | 13 | — | Design lead subagent: summaries, visual reviews with captures at 375 and 1280 px, cloud prompts; visual check after each UI task | jsdom cannot see layout; visual defects found late | `docs/agents/design-lead.md`; section 3a |
@@ -300,11 +305,12 @@ How the rules evolved: first by reading the reasoning threads of the architect a
 | 18 | 2026-10-08 | Tests verify only spec scenarios, one test per scenario, plus guards; refactors add no tests; the rest moves to the QA suite through the reduction plan | 2,246 test cases, too many to manage | `AGENTS.md` → Testing |
 | 19 | 2026-10-08 | No new guard tests: one general test per rule that lists every offender | Guards multiplying per token and per component | `AGENTS.md` → Testing |
 | 20 | 2026-10-08 | SOLID and code-structure rules from the technical review: imports inside a segment, same-layer composition, public index scope, shared request client, requests in the `api` segment, reuse before copying, one component per variant, size and complexity limits. Generic only; code specifics go to the summary or design.md | ISO/IEC 25010 review: duplication, cycles, layer violations, oversized units | `AGENTS.md` → Architecture, Code structure |
-| 21 | 2026-10-08 | Code-structure rules also checked by ESLint built-in rules, as warnings first (R39) | Rules that only review enforces | `docs/backlog.md` R39 |
+| 21 | 2026-10-08 | Code-structure rules also checked by ESLint built-in rules, as warnings first (R39) | Rules that only review enforces | `docs/design/backlog.md` R39 |
 | 22 | 2026-10-08 | Two test suites; related tests after each task, full checks (validation suite, typecheck, lint, build) after the last task; the QA suite for refactors and before each release | Full suite run after every task; QA suite unreachable from the cloud | `AGENTS.md` → Testing; section 3c |
 | 23 | 2026-10-08 | Change type (`refactor` / `change`) decides the workflow; the refactor fast lane on `qa` without design summary or artifact review; archive on passing checks | Refactors with a clear goal waiting on design steps they do not need | `AGENTS.md` → Refactor changes; sections 3 and 3b |
 | 24 | 2026-10-08 | Explore removed from the workflow; the design lead drafts the summary and the orchestrator hands it to Product owner with questions; the orchestrator holds the design conversations | The workflow as actually practised | Sections 1 and 3a |
 | 25 | 2026-10-11 | One rule file per role in `docs/agents/` (start checklist, workflow steps owned, authority, stop conditions, report); `AGENTS.md` keeps only the common rules; every phase follows its OpenSpec skill file, also in cloud sessions; fast lane by Product owner's order may add behaviour with one test per new scenario; the orchestrator launches every cloud session | A cloud session that skipped the skills; an orchestrator that skipped its start reading and the design lead's steps | `AGENTS.md` → Roles and rule files, Workflow, OpenSpec skills, Refactor changes; `docs/agents/` |
+| 26 | 2026-10-11 | The communication artifacts (board, general context with the decisions log, backlog, this workflow) live in `docs/design/`, next to each change's design folder | One place for everything agents and Product owner exchange | Section 2 |
 
 ## 10. Known limits
 
@@ -313,3 +319,5 @@ How the rules evolved: first by reading the reasoning threads of the architect a
 - `openspec update` may regenerate command files; check that each `/opsx-*` command keeps its `agent` field after updating OpenSpec.
 - `openspec validate --strict` requires a spec delta, so a refactor must state something observable it keeps or establishes; if a refactor has nothing to state, decide case by case.
 - Running only the related tests per task can let a commit break an unrelated test; the full checks after the last task catch it before verify.
+- A Claude cloud session has no `/opsx:*` commands and no `.claude/`: it gets its rules from `AGENTS.md`, `docs/agents/` and this document, and its skills from `.opencode/skills/`, all named in its prompt. It cannot reach this machine, so visual checks with the local API stay with the local design lead.
+- `.claude/` is protected while the orchestrator runs in don't-ask mode: its entry files are updated by Product owner.

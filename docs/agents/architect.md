@@ -11,11 +11,11 @@ These rules apply only to the architect agent, together with the Common rules of
 ## Start checklist (before any other action)
 
 1. Read the Common rules of `AGENTS.md` and this file in full.
-2. Read your workflow step in `docs/workflow_sdd.md` (3a for a change, 3b for a refactor or a fast-lane entry).
+2. Read your workflow step in `docs/design/workflow_sdd.md` (3a for a change, 3b for a refactor or a fast-lane entry).
 3. Read the skill of your phase in full and follow it (see the table below). Where the `/opsx:*` commands are not installed, read `.opencode/skills/<skill>/SKILL.md`.
 4. Read the current state by command: `git status`, `git log`, `openspec status`, and the change's `tasks.md` if it exists.
 5. Check that you are on `feature/<change-id>`; if another branch is active, stop and flag it.
-6. Read the design context your phase needs ("Design context" below): `docs/backlog.md` and, for a change, every file in `docs/design/<change-id>/`.
+6. Read the design context your phase needs ("Design context" below): `docs/design/backlog.md` and, for a change, every file in `docs/design/<change-id>/`.
 
 ## Your workflow steps
 
@@ -43,16 +43,16 @@ Stop and write the question in your final report when: instructions contradict e
 
 ## Design context
 
-- Before /opsx:explore or /opsx:propose, read `docs/backlog.md`. If an entry affects the change being designed (the change would add to the duplication or touch the same code), stop and tell Product owner, recommending the refactor as its own change first. Never fold a backlog entry into the change being proposed.
+- Before /opsx:explore or /opsx:propose, read `docs/design/backlog.md`. If an entry affects the change being designed (the change would add to the duplication or touch the same code), stop and tell Product owner, recommending the refactor as its own change first. Never fold a backlog entry into the change being proposed.
 - When running /opsx:explore, /opsx:propose or a correction round, first read every file in `docs/design/<change-id>/` (design-summary.md, corrections.md if present, and any value sources they reference). They are the design source of truth: do not re-decide what they settle; resolve only what they list as open. If the folder is missing or its files contradict each other, stop and ask. A refactor change has no design folder (see Refactor changes).
 - Precedence: the latest round of corrections.md overrides earlier rounds, and corrections.md overrides design-summary.md. A difference explained by this precedence is not a contradiction.
 - When /opsx:propose finishes, write or replace only a final section `## Propose status` in design-summary.md: change-id, date, `openspec validate` result, what was resolved (with its decision) and what remains open. Never edit the rest of the file; report anything wrong in it instead. For a refactor change, the same section goes at the end of `proposal.md`.
-- If the change resolves a backlog entry, record its id in `## Propose status`. When archiving the change, remove that entry from `docs/backlog.md`, and only that entry.
+- If the change resolves a backlog entry, record its id in `## Propose status`. When archiving the change, remove that entry from `docs/design/backlog.md`, and only that entry.
 - Settle in design.md only implementation details that no product decision covers and that affect a single component. A mechanism shared by several components, or anything that changes a settled decision, goes to Product owner as a question before propose continues.
 
 ## Research
 
-- Research only for decisions the design leaves open or for behaviour neither the design nor the project already covers. Never research alternatives to what the design summary or corrections settle, or to behaviour the project already provides (a requirement in `openspec/specs/`, or an existing component, utility, token or entry point in `src/`). If you believe a settled decision or an existing implementation has a clearly better library option, report it to Product owner instead, as a candidate for `docs/backlog.md`.
+- Research only for decisions the design leaves open or for behaviour neither the design nor the project already covers. Never research alternatives to what the design summary or corrections settle, or to behaviour the project already provides (a requirement in `openspec/specs/`, or an existing component, utility, token or entry point in `src/`). If you believe a settled decision or an existing implementation has a clearly better library option, report it to Product owner instead, as a candidate for `docs/design/backlog.md`.
 - When a change needs non-trivial behaviour that a maintained library is likely to solve (accessibility patterns such as combobox or focus trapping, parsing, formatting, data fetching), search the web before designing it from scratch.
 - Evaluate each candidate on: active maintenance, compatibility with the project's installed versions (check package.json), license, bundle size, accessibility, and whether it allows unstyled use with the project's tokens.
 - Limit: at most 5 searches and 3 candidates per decision. Stop as soon as one candidate meets all the criteria. If none does within the limit, stop searching: record "no suitable library found", with the searches made and why each candidate failed, and design it in-house.
@@ -81,7 +81,7 @@ Stop and write the question in your final report when: instructions contradict e
 - Only commits `openspec/changes/<change-id>/`, the `## Propose status` section of design-summary.md and the `### Status` sections of corrections.md, plus the archive commit described below. Never commits code or configuration.
 - Commits: one on completing propose (`docs(<capability>): propose <change-id>`), one per artifact review requested by Product owner (`docs(<capability>): update <artifact> for <change-id>`), one per correction round (`docs(<capability>): apply review round <N> for <change-id>`).
 - Does not commit if `openspec validate <change-id> --strict` fails.
-- Runs `openspec archive <change-id> --yes` only when Product owner requests it (for a refactor change, once its full checks pass), every task in tasks.md is checked, `/opsx:verify` reports no CRITICAL findings, and every WARNING classified as an unplanned fix or unplanned coverage has been resolved or explicitly deferred by Product owner. The archive commit contains only `openspec/specs/`, the archived change folder and, if the change resolved a backlog entry, `docs/backlog.md` (`chore(openspec): archive <change-id>`). `openspec/specs/` is never modified by hand.
+- Runs `openspec archive <change-id> --yes` only when Product owner requests it (for a refactor change, once its full checks pass), every task in tasks.md is checked, `/opsx:verify` reports no CRITICAL findings, and every WARNING classified as an unplanned fix or unplanned coverage has been resolved or explicitly deferred by Product owner. The archive commit contains only `openspec/specs/`, the archived change folder and, if the change resolved a backlog entry, `docs/design/backlog.md` (`chore(openspec): archive <change-id>`). `openspec/specs/` is never modified by hand.
 - Runs `/opsx:sync` only as part of `/opsx:archive`, never on its own; main specs change only when a change is archived.
 - Does not push or merge.
 

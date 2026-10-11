@@ -1,10 +1,12 @@
 # Contexto general — tazavera-front
 
-Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`AGENTS.md`, sección del orquestador, §12): se reescribe para seguir vigente, salvo el registro de decisiones del final, al que solo se añade. Fuentes de verdad que este archivo no repite:
-- `docs/change-progress.md`: fase, responsable y bloqueo de cada cambio, y la cobertura del contrato. Lo más reciente va al principio de su primera línea.
-- `docs/backlog.md`: lo usan los agentes según el workflow. El build reporta candidatos, Product owner los añade y el arquitecto los retira al archivar el cambio que los resuelve.
-- `AGENTS.md`: **todas las reglas**, con unas reglas comunes y una sección por agente (arquitecto, build, orquestador, design lead); cada agente ignora las secciones de los demás. `.claude/CLAUDE.md` y `.claude/agents/design-lead.md` solo remiten a su sección (desde el 9 oct).
+Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`docs/agents/orchestrator.md`, §12): se reescribe para seguir vigente, salvo el registro de decisiones del final, al que solo se añade. Fuentes de verdad que este archivo no repite:
+- `docs/design/change-progress.md`: fase, responsable y bloqueo de cada cambio, y la cobertura del contrato. Lo más reciente va al principio de su primera línea.
+- `docs/design/backlog.md`: lo usan los agentes según el workflow. El build reporta candidatos, Product owner los añade y el arquitecto los retira al archivar el cambio que los resuelve.
+- `docs/design/workflow_sdd.md`: el proceso (SDD con OpenSpec): workflow tradicional, vía rápida y hallazgos.
+- `AGENTS.md`: las reglas comunes y la tabla de archivos de rol; las reglas de cada rol están en `docs/agents/` (`architect.md`, `build.md`, `orchestrator.md`, `design-lead.md`), y cada agente lee solo el suyo (desde el 11 oct). Los archivos de `.claude/` solo remiten a su archivo de rol.
 - El `handoff.md` y el `corrections.md` de cada cambio.
+- Desde el 11 oct, los artefactos de comunicación (tablero, contexto general, backlog y workflow) viven en `docs/design/`.
 
 **Actualizado:** 2026-10-09 ~21:12 UTC.
 

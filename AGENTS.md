@@ -34,7 +34,7 @@ Every agent follows these Common rules plus the rule file of its own role, and i
 
 ## Workflow
 
-- `docs/workflow_sdd.md` is the development process: spec-driven development with OpenSpec. Section 3a is the traditional workflow (type `Change`), section 3b the refactor workflow (type `Refactor (fast lane)`), section 4 the handling of findings.
+- `docs/design/workflow_sdd.md` is the development process: spec-driven development with OpenSpec. Section 3a is the traditional workflow (type `Change`), section 3b the refactor workflow (type `Refactor (fast lane)`), section 4 the handling of findings.
 - Every agent does the workflow steps of its role, in order, and never a step that belongs to another role. Each role file maps its steps.
 - When a step cannot be applied as written, stop and ask instead of working around it.
 
@@ -118,7 +118,7 @@ Findings come from Product owner's review, from `/opsx:verify` or from the build
 
 - Defect, or missing test coverage, for behaviour already stated in spec.md or design.md that changes no decision → Product owner passes it to the build, which handles it as an unplanned fix or unplanned coverage (see the build's rules). It does not go to corrections.md.
 - Change to specified behaviour or to a design decision → Product owner reports it in `docs/design/<change-id>/corrections.md`, one section per review round (`## Round N`), as a numbered list, and commits that round himself before the architect processes it. The architect turns the round into artifact updates and new tasks in `tasks.md`; the build implements them only as tasks. No agent implements a correction directly from corrections.md.
-- Refactor candidates reported by the build are kept in `docs/backlog.md`, one entry per candidate: what is duplicated, where, and why it would pay off. Product owner adds entries; the architect removes an entry only when archiving the change that resolves it.
+- Refactor candidates reported by the build are kept in `docs/design/backlog.md`, one entry per candidate: what is duplicated, where, and why it would pay off. Product owner adds entries; the architect removes an entry only when archiving the change that resolves it.
 - Reviews of the artifacts before /opsx:apply arrive as a message from Product owner. The architect applies them directly to the artifacts, records them in `## Propose status` and commits one `docs(<capability>): update artifacts for <change-id>`. `corrections.md` is used only for findings after the build has started.
 
 ## Refactor changes
