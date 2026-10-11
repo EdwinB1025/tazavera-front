@@ -8,6 +8,8 @@ Tablero de los cambios OpenSpec de tazavera-front: en qué fase está cada uno, 
 
 | # | Qué | Espera a | Pregunta exacta o siguiente paso |
 |:-:|---|---|---|
+| 0a | R67 `add-manage-locations-menu-entry` (fast lane, prioridad máxima) | Product owner | Lanzar la sesión en la nube desde `qa` con `prompt-r67.md` (scratchpad del orquestador, 11 oct), o pedir al orquestador que la programe |
+| 0b | R68 `add-coffee-inventory-explorer` (fast lane, prioridad máxima) | R67 mergeado en `qa` | Después, sesión en la nube desde `qa` con `prompt-r68.md` |
 | 1 | R45: primera ubicación en el registro de cafetería | Product owner | Cambio del API primero (`StoreUserRequest` con bloque `location`); "no se diseña aún". ¿Cuándo lo abres? |
 | 2 | R1: test E2E del cambio de idioma | Suite Playwright previa al despliegue | ¿Empezamos la suite Playwright? |
 | 3 | R42 (`fix-production-aut-findings`), preguntas 1 y 2 sin respuesta registrada | Product owner | (1) Una oferta sin consenso no muestra sabores en la tarjeta: ¿se queda así o se pide la evaluación base (una petición por tarjeta o cambio del API)? (2) ¿"Volver a cafeterías" pasa a "Volver"? Si ya lo decidiste en la AUT, dímelo y lo cierro |
