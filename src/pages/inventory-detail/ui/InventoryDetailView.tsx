@@ -33,7 +33,7 @@ export function InventoryDetailView({ locale, item, texts }: InventoryDetailView
   return (
     <div className={BODY_CLASSES}>
       <div className={HEADER_CLASSES}>
-        <p className="type-eyebrow">{texts.eyebrow}</p>
+        <p className="type-eyebrow-strong">{texts.eyebrow}</p>
         <h1 className="type-heading">{item.coffee?.name}</h1>
         <div className={ACTION_CLASSES}>
           <RouteButton
