@@ -173,6 +173,13 @@ describe("InventoryListClient (spec 'Access to the coffee inventory pages')", ()
 });
 
 describe("InventoryListClient (spec 'Coffee inventory list')", () => {
+  it("Inventory list eyebrow: the management eyebrow style", () => {
+    mocks.request.mockReturnValue(new Promise(() => {}));
+    renderList();
+
+    expect(screen.getByText(TEXTS.eyebrow).className).toBe("type-eyebrow-strong");
+  });
+
   it("Success: one card per returned item, in order, and no pagination", async () => {
     mocks.request.mockResolvedValue(answer(200, ITEMS));
     renderList();
