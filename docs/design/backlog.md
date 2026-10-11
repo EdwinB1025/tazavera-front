@@ -22,21 +22,8 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
-| 3 | R72 | shorten-coffeeshop-back-label | Refactor (fast lane), by Product owner's order | S | R71 |
 | 4 | R1 | none yet (Playwright suite) | Change (tests) | — | Product owner, 2026-10-11: start once R70–R72 and the QA cleanup are in `develop` |
 | 5 | R45 | none yet | Change (behaviour, API) | M | Product owner: deferred, to review 2026-10-12; not to be designed yet |
-
-## R72 — Coffee shop detail back control reads "Volver" (Product owner, 2026-10-11)
-
-- **Duplicated:** none. R42 question 2, answered: the coffee shop detail's back controls read "Volver a cafeterías".
-- **Where today:** `messages/{es,en,ca}/coffeeshops.json` `backToDirectory`, used by `src/widgets/coffeeshop-detail/ui/CoffeeshopDetailContent.tsx` (top link, bottom button, error state) and `src/pages/coffeeshop-detail/ui/CoffeeshopDetailScreen.tsx`
-- **Why it pays off now:** the same short back label as the public evaluations (`public-evaluations.json` `backLabel`)
-- **Owning capability:** coffeeshop-directory
-- **Proposed change:** shorten-coffeeshop-back-label. Settled end state: every back control of the coffee shop detail reads es "Volver", en "Back", ca "Tornar" (the public evaluations' wording); destination and behaviour unchanged. Nothing else changes.
-- **Open decision (Augusto):** none (answered 2026-10-11)
-- **Type:** Refactor (fast lane), by Product owner's order of 2026-10-11 (one test per new scenario)
-- **Status:** accepted
-- **Affects:** none
 
 ## R45 — Ask for the first location in coffee-shop registration
 
