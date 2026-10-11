@@ -260,6 +260,23 @@ describe("ManageOfferingsPanel — list states (spec 'My offerings list')", () =
     expect(grid.className).not.toMatch(/\bmd:grid-cols|\bxl:grid-cols/);
   });
 
+  it("holds only View then Delete in each card's footer group, at one height (spec: 'Card actions fit the card')", async () => {
+    mocks.publicRequest.mockResolvedValue(pageOf(ITEMS));
+    renderPanel();
+    await screen.findAllByRole("heading", { level: 2 });
+
+    const views = screen.getAllByRole("button", { name: TEXTS.viewLabel });
+    ["Huila El Mirador — Tazavera Gràcia", "Sidama Bensa — Tazavera Born"].forEach(
+      (identification, index) => {
+        const remove = screen.getByRole("button", { name: `Delete ${identification}` });
+        const group = views[index].parentElement!;
+        expect(Array.from(group.children)).toEqual([views[index], remove]);
+        expect(views[index].classList.contains("h-8")).toBe(true);
+        expect(remove.classList.contains("h-8")).toBe(true);
+      },
+    );
+  });
+
   it("renders the empty message and the create link, and no card, when there are no offerings", async () => {
     mocks.publicRequest.mockResolvedValue(pageOf([]));
     renderPanel();
