@@ -110,7 +110,7 @@ While the session is anonymous, the header SHALL show the language selector, the
 - **THEN** the header's sign-in label fits on one line
 
 ### Requirement: Signed-in header and user menu
-While the session is authenticated, the header SHALL show the brand logotype, the language selector, the theme switch and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The control SHALL show an initials circle and, on a medium or larger viewport, the user's name and a chevron after the circle; below that viewport it SHALL show the circle alone. The menu SHALL offer one account entry pointing at the account page, the security entry as an external link to the API's security page, the management entry for the user's role, for a specialist the offerings entry, and sign out. Each entry SHALL show a decorative icon that reflects its action before its text and SHALL take the header menu entry treatment, not the inline link treatment, while keeping its order, destination and behaviour.
+While the session is authenticated, the header SHALL show the brand logotype, the language selector, the theme switch and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The control SHALL show an initials circle and, on a medium or larger viewport, the user's name and a chevron after the circle; below that viewport it SHALL show the circle alone. The menu SHALL offer one account entry pointing at the account page, the security entry as an external link to the API's security page, the management entries for the user's role, for a specialist the offerings entry, and sign out. Each entry SHALL show a decorative icon that reflects its action before its text and SHALL take the header menu entry treatment, not the inline link treatment, while keeping its order, destination and behaviour.
 
 #### Scenario: User control carries the user's initials
 - **WHEN** the session is authenticated
@@ -138,7 +138,7 @@ While the session is authenticated, the header SHALL show the brand logotype, th
 
 #### Scenario: Menu content
 - **WHEN** the user opens the user menu
-- **THEN** it offers the account entry, the external security entry, the management entry for the user's role and, for a specialist, the offerings entry, and the sign out action
+- **THEN** it offers the account entry, the external security entry, the management entries for the user's role and, for a specialist, the offerings entry, and the sign out action
 
 #### Scenario: The account entry points at the account page
 - **WHEN** the user opens the user menu
@@ -147,6 +147,10 @@ While the session is authenticated, the header SHALL show the brand logotype, th
 #### Scenario: Management entry for a coffeeshop
 - **WHEN** the authenticated user's `data.role` from `GET /user` is `coffeeshop`
 - **THEN** the menu offers "Manage offerings", pointing at the management area for offerings
+
+#### Scenario: Manage locations entry for a coffeeshop
+- **WHEN** the authenticated user's `data.role` from `GET /user` is `coffeeshop`
+- **THEN** the menu offers "Manage locations", pointing at `/{locale}/manage/locations`, right after "Manage offerings"
 
 #### Scenario: Management entry for a specialist
 - **WHEN** the authenticated user's `data.role` from `GET /user` is `specialist`

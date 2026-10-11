@@ -22,22 +22,9 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
-| 1 | R67 | `add-manage-locations-menu-entry` | Refactor (fast lane), maximum priority (Product owner) | S | — |
 | 2 | R68 | `add-coffee-inventory-explorer` | Refactor (fast lane), maximum priority (Product owner) | L | R67 (same user menu) |
 | 3 | R45 | none yet | Change (behaviour, API) | M | Product owner: API change and contract update; not to be designed yet |
 | 4 | R1 | none (Playwright suite) | Change (tests) | — | the pre-deployment Playwright suite |
-
-## R67 — "Manage locations" entry in the user menu (Product owner, 2026-10-11)
-
-- **Duplicated:** none. Manage locations (`/{locale}/manage/locations`) exists, but the user menu only offers the coffee shop "Manage offerings"; Manage locations is reachable only from the management sidebar.
-- **Where today:** the user menu and the mobile submenu of the app header (`src/widgets/app-header`); the Manage locations screen (`src/pages/manage-locations`)
-- **Why it pays off now:** the coffee shop reaches its locations in one step, like its offerings
-- **Owning capability:** app-shell
-- **Proposed change:** `add-manage-locations-menu-entry`: for the `coffeeshop` role, the user menu and the mobile submenu add "Manage locations" right after "Manage offerings", pointing to `/{locale}/manage/locations`, with an icon from `src/shared/ui/icons.ts` and the same look as the other entries; texts in the shell catalogs (es, en, ca). Other roles see no change.
-- **Open decision (Augusto):** none
-- **Type:** Refactor (fast lane), by Product owner's decision (adds a menu entry; maximum priority)
-- **Status:** accepted
-- **Affects:** R68 (adds the next entry to the same menu)
 
 ## R68 — Explore the coffee inventory (Product owner, 2026-10-11)
 
