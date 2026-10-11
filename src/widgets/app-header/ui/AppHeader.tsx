@@ -38,6 +38,8 @@ export type AppHeaderTexts = {
   themeToggleToDark: string;
   themeToggleToTraditional: string;
   manageOfferings: string;
+  /** The coffee shop's locations entry (add-manage-locations-menu-entry D1). */
+  manageLocations?: string;
   manageEvaluations: string;
   exploreOfferings: string;
   signOut: string;

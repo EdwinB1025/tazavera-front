@@ -86,6 +86,7 @@ export function AppShell({
           themeToggleToDark: texts.themeToggleToDark!,
           themeToggleToTraditional: texts.themeToggleToTraditional!,
           manageOfferings: texts.manageOfferings!,
+          manageLocations: texts.manageLocations!,
           manageEvaluations: texts.manageEvaluations!,
           exploreOfferings: texts.exploreOfferings!,
           signOut: texts.signOut!,
