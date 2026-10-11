@@ -10,7 +10,7 @@ No derived API types are needed: the change reads no new API field (design.md Co
   - same file, "renders the back link, the error and the retry action, and no tab (spec: Unknown coffee shop or failure)" (line 196) → "Unknown coffee shop or failure"
 
   Verify: the new test and the five edited tests fail only because the controls still read the old label; the rest of both files passes; `npx tsc --noEmit` and `npm run lint` report no errors.
-- [ ] 1.2 Implement design.md D1: set `backToDirectory` to "Volver" in `messages/es/coffeeshops.json`, "Back" in `messages/en/coffeeshops.json` and "Tornar" in `messages/ca/coffeeshops.json`. No file under `src/` changes. Verify: `npx vitest related` on the changed files and the two test files passes, 1.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 1.2 Implement design.md D1: set `backToDirectory` to "Volver" in `messages/es/coffeeshops.json`, "Back" in `messages/en/coffeeshops.json` and "Tornar" in `messages/ca/coffeeshops.json`. No file under `src/` changes. Verify: `npx vitest related` on the changed files and the two test files passes, 1.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 2. Full checks
 
