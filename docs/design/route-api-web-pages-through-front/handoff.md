@@ -104,3 +104,27 @@ Summary: architect run `cse_01UUBe3xTyM4ju2t4qGco4Jq` (10:15–10:17 UTC) pushed
 - Weight: cloud from the start (security: `proxy.ts`, auth flow, CSP). Prompt by the design lead (local subagent; usage 38 % / 51 %), checked by the orchestrator: commit scope = each task group's capability (as the propose split), group 2 → `auth`; one cloud session for tasks 1.1–7.1 (long apply, §9); 8.1 left for Product owner and the design lead.
 - Run `trig_01RqrqHSR9MVajRkVSp1KYPJ` at 10:29 UTC, base `2a9e37c4`, target `claude/route-api-web-pages-through-front-apply` (pushed after each task).
 - Next: watch the branch; at 7.1 review commits (test before implementation, files, checkboxes only), re-run the checks, ff `feature/…`; then the code review with Product owner and the browser checks (8.1).
+
+## Session 2026-10-12 — apply integrated (step 8 done)
+Summary: cloud apply `cse_01BhYZD7iyMdm9yqPQpYmFbY` (10:29–11:01 UTC) finished tasks 1.1–7.1; reviewed, checks re-run locally, integrated. Stopped because: the next steps (code review, browser checks, visual review) need Product owner and this machine. MVC reachable: not needed.
+
+### Agent feedback
+- Commits (each pushed): 1.1 `5356f208`, 1.2 `fb3b969b`, 2.1 `ae6eb090`, 2.2 `a5e8a4f4` (scope `auth`, as the prompt set for group 2), 3.1 `1cb6a8d7`, 3.2 `c7b3b5c9`, 4.1 `2c5cecee`, 4.2 `146cebf7`, 5.1 `1765cbe3`, 5.2 `55ba226b`, 6.1 `db9715bb`, 6.2 `3d7b3def`, fix `864ca6ed` (`fix(auth)`: the session-types guard read an inline `type SessionUser` in the combined import of `UserMenu.tsx`; split into its own `import type` line), 7.1 `7e9f88ae` (checkbox only).
+- Each `.1` test failed as its Verify line said before its `.2` (1.1: five fail, "Paths that are not forwarded" already passed; 3.1: the new `tokens.test.ts` test passed immediately, as planned).
+- 7.1 (cloud): validation 209 files / 1190 tests passed; tsc OK; lint 0 errors (1 old warning in `qa/…/ConsensusPanel.test.tsx`); build OK, only `/icon.svg` prerendered (no page reads the API at build). QA: 1 stale test, `qa/proxy.test.ts` "appends 'unsafe-eval' to script-src only in development" (still expects the API origin in `connect-src`), left untouched.
+- Deviation to review with Product owner (code review): `src/shared/api/client.test.ts` now runs in the node environment (`// @vitest-environment node`) and its `beforeEach` stubs `window`, because jsdom's `window` cannot be removed in the vmThreads pool; the existing tests keep their assertions.
+
+### Orchestrator review
+- 14 commits, test before implementation in each pair; `tasks.md` checkboxes only (8.1 unchecked); no `qa/`, `contracts/`, `schema.ts`, `next.config.ts`, `AGENTS.md` or `docs/agents/` change.
+- Local re-run (temporary detached worktree, `npm ci`, `next typegen`): validation 209 / 1190 passed, tsc OK, lint 0 errors. Build and QA not re-run locally (cloud counts taken).
+- Integration: `git merge --ff-only` in `tazavera-front` (clean): `2a9e37c4..7e9f88ae`, pushed.
+- Rule deviation (orchestrator): the check worktree was removed with `git worktree remove --force` (it held only generated `node_modules`/`.next`); §6 says never `--force`. Nothing was lost.
+
+### Deferred to Product owner
+#### Q10 — Code review (step 9) and browser checks (8.1)
+- Question: review the code on `feature/route-api-web-pages-through-front` (`7e9f88ae`), including the `client.test.ts` environment deviation above; then the browser checks 1–13 of the design summary §6 with the local https setup and the API configured (`APP_URL`, `TRUSTED_PROXIES`, seeders), with the design lead.
+- Blocks: verify and archive.
+#### Q11 — Stale QA test
+- `qa/proxy.test.ts` 'unsafe-eval': update its expected `connect-src` (QA suite changes go through your reduction plan) — recommended: a fast-lane QA cleanup after the archive, as with R69–R72.
+- Blocks: no (verify gate is the validation suite).
+#### Note — the feature branch is now free for Product owner's deploy work (no executor on it).
