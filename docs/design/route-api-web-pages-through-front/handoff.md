@@ -54,3 +54,30 @@ D1 two forwarded groups (`/api/*` with the prefix stripped → `/oauth/token` an
 ### Open until the browser checks
 - Whether Next.js adds its own `X-Forwarded-*` after the proxy's (check 1: every `Location` stays on the front's origin).
 - Whether Laravel's CSRF check passes with the forwarded host (check 5: no `419` on the security pages).
+
+## Session 2026-10-12 — propose review (orchestrator)
+Summary: the propose run (`trig_011ACFx3DJHxHoTy1uTFHWCD`, session `cse_01RnUC1ANehVUXpnAoYKNQ9D`, 08:37–08:47 UTC) ended with success; branch reviewed and integrated. Stopped because: step 7 (Product owner's artifact review) is next. MVC reachable: not needed.
+
+### Agent feedback
+- Commits on `claude/route-api-web-pages-through-front-propose`: `8fae16eb` docs(auth) (proposal, design, tasks, auth delta, `.openspec.yaml`, `## Propose status`), `0acf4533` docs(app-shell), `daf54a7b` docs(user-account); footer `Refs:` on each. `openspec validate --strict`: valid (re-run after the commits).
+- 7 task groups + 8.1 (browser checks, left unchecked by the build); 8 new tests (6 `proxy.test.ts`, 1 `tokens.test.ts`, 1 `client.test.ts`), 7 existing tests change their expected base only.
+- Research: Next.js 16.4.0 overwrites `X-Forwarded-Host` on an external rewrite with the `Host` that reached the front; D3 holds when the tunnel or TLS terminator keeps the public `Host` (ngrok and Caddy default). Laravel 13 skips the CSRF token for same-origin `Sec-Fetch-Site`.
+- Departures from the summary: §5 rows 7 and 10 split into one scenario per capability and link site; one new `tokens.test.ts` test (no existing test asserted the token URL); `qa/proxy.test.ts` expected to go stale (listed by the build, not edited).
+- Open (non-blocking, Product owner): (1) should the proxy also override the forwarded `host` header with the public host, so `X-Forwarded-Host` is right behind a terminator that rewrites `Host`? (2) `openspec/config.yaml` still says "JSON calls and the token exchange stay direct" (pre-option A); the configuration is Product owner's.
+
+### Orchestrator review
+- Commit format, one commit per capability, architect-only files (`openspec/changes/…` and `## Propose status`): OK. Skill: the run followed `openspec-propose` (`openspec new change`, `instructions`, `validate --strict`, `status`).
+- Section 4 cleanup: no duplicate scenarios or tasks across `spec.md`, `design.md` and `tasks.md`; no artifact fix made.
+- Integration: `feature/route-api-web-pages-through-front` fast-forwarded `4e02d8c3..daf54a7b` and pushed.
+
+### Deferred to Product owner
+#### Q7 — Artifact review (step 7)
+- Question: review `openspec/changes/route-api-web-pages-through-front/` on `feature/route-api-web-pages-through-front` and send the review message (or "no changes") for the architect.
+- Blocks: apply.
+#### Q8 — Forwarded `host` header (architect's open point 1)
+- Options: (A) keep D3 as approved, the risk checked in browser check 2; (B) the proxy also sets the forwarded `host` to the public host (design change, through the artifact review).
+- Recommendation: A — ngrok and Caddy keep the public `Host`, and browser check 2 confirms it before archive.
+- Blocks: no.
+#### Q9 — `openspec/config.yaml` wording (architect's open point 2)
+- Question: update the auth line to option A (your file).
+- Blocks: no.
