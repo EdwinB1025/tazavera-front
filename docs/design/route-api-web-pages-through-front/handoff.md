@@ -34,6 +34,10 @@ D1 two forwarded groups (`/api/*` with the prefix stripped → `/oauth/token` an
 #### Q6 — How to sign in without ngrok (Blocks propose: no)
 - Context: the token endpoint is now on the front's origin, so a production build signs in only when the front is served over `https` (ngrok gives it). A local production build on `http://localhost:3000` or the Docker stack without ngrok cannot sign in; Caddy no longer serves the browser. / Options: (A) every end-to-end check through ngrok, Caddy leaves the stack; (B) Caddy in front of the front for local and Docker checks; (C) accept `http` on `localhost` in the token exchange (changes security code). / Recommendation: A (B only if checks without ngrok are wanted; not C). `npm run dev` is unaffected.
 
+### API callback registration (orchestrator's read-only check of the API, 2026-10-12)
+- The OAuth front client's `redirect_uris` are written by `FrontClientSeeder` as `{FRONT_URL}/callback`. Product owner: the seeder is re-run once the API configuration is in place, so the client gets `https://<public origin>/callback`. Added to the summary (§0, browser check 3).
+- Product owner asked for a summary of the decided setup for the deploy assistant to update the deployment documentation (given in chat, 2026-10-12).
+
 ### Open until the browser checks
 - Whether Next.js adds its own `X-Forwarded-*` after the proxy's (check 1: every `Location` stays on the front's origin).
 - Whether Laravel's CSRF check passes with the forwarded host (check 5: no `419` on the security pages).
