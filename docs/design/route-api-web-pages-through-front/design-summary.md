@@ -22,7 +22,7 @@ Product owner delegated the open points a–d to the design lead; only what is g
 
 ## 0. Product owner's answers (2026-10-12), settled
 
-- **Setup:** the demo environment is the production environment: one server with one public entry point (one ngrok URL). There is no public API address.
+- **Setup:** the build environment is a single server with one public entry point (one ngrok URL); there is no public API address.
 - **D10 revised, option A: the front is the only door.**
   - It forwards the API's web routes, `POST /oauth/token` and every JSON call.
   - The front calls the API under a path prefix that the proxy strips when forwarding to `API_INTERNAL_URL`. No API code change.
@@ -164,13 +164,13 @@ The API's pages build every form action, link and asset URL with `route()`, `url
   - `validateAuthResponse` gets only the `code` (`tokens.ts:101-106`), so no RFC 9207 `iss` check runs;
   - no `openid` scope is requested, so there is no ID token to validate;
   - Passport (league/oauth2-server) sends no `iss` in the authorization response.
-- `oauth4webapi` refuses a non-`https` token endpoint in a production build (`tokens.ts:178-182`). With the token endpoint on the front's origin, **a production build signs in only when the front itself is served over `https`** (ngrok in the demo/production setup). See the Open question.
+- `oauth4webapi` refuses a non-`https` token endpoint in a production build (`tokens.ts:178-182`). With the token endpoint on the front's origin, **a production build signs in only when the front itself is served over `https`** (the ngrok origin in the build environment). See the Open question.
 
 ### D9 — One public entry point (replaces the first draft's D9)
 
 - One public address: the front's. The API is reachable only from the front (forwarding, server-side reads), at `API_INTERNAL_URL`, and publishes no public port.
 - The browser's network shows only the front's origin plus Nominatim and the map tiles.
-- The demo and production run the same build, whose public values are all the ngrok origin:
+- The build environment's public values are all the ngrok origin:
   - `NEXT_PUBLIC_APP_URL` = the ngrok origin;
   - `NEXT_PUBLIC_API_URL` = the ngrok origin + `/api`;
   - the API's `APP_URL` and `FRONT_URL` = the ngrok origin (Q1);
@@ -246,7 +246,7 @@ Run on a production build over `https`: through ngrok (the target setup), or wit
 ## 7. Open — Product owner's
 
 1. **`https` for the front outside ngrok.** With the token endpoint on the front's origin (D8), a production build signs in only when the front is served over `https`.
-   - The demo/production setup has it (ngrok).
+   - The build environment has it (the ngrok origin).
    - A local production build on `http://localhost:3000`, and the Docker stack without ngrok, cannot sign in. Before this change the API's Caddy gave the token endpoint `https`.
    - Caddy's role (D1) changes accordingly: the browser no longer reaches the API.
    - Options:
