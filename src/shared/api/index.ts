@@ -29,6 +29,7 @@ export {
   restoreReadTokens,
 } from "./tokens";
 export { distinctCoffeeValues, fetchCoffees } from "./coffees";
+export { API_PREFIX, forwardToApi } from "./forwarding";
 export type { CoffeeSummary } from "./coffees";
 export type { ApiResult } from "./result";
 

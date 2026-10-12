@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
+import { forwardToApi } from "@/shared/api";
 import { routing } from "@/shared/config/locales";
 import { NOMINATIM_ORIGIN } from "@/shared/lib/geocoding";
 
@@ -64,6 +65,14 @@ function setSecurityHeaders(response: NextResponse) {
  */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // The API's surface (route-api-web-pages-through-front design.md D1, D2):
+  // `/api/…` and the API's web routes are forwarded before anything else —
+  // the API's assets carry file extensions — with none of the headers below.
+  const forwarded = forwardToApi(request);
+  if (forwarded) {
+    return forwarded;
+  }
 
   // Framework and asset paths are not application routes (design.md D2) and
   // are excluded from the proxy entirely — the same outcome as leaving them
