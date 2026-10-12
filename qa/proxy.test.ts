@@ -21,7 +21,6 @@ import { proxy } from "../proxy";
  */
 
 const API_URL = "https://api.tazavera.test";
-const API_ORIGIN = "https://api.tazavera.test";
 
 function expectedCsp(nonce: string, dev: boolean): string {
   return [
@@ -30,7 +29,7 @@ function expectedCsp(nonce: string, dev: boolean): string {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' blob: data: https://tile.openstreetmap.org",
     "font-src 'self'",
-    `connect-src 'self' ${API_ORIGIN} https://nominatim.openstreetmap.org`,
+    "connect-src 'self' https://nominatim.openstreetmap.org",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

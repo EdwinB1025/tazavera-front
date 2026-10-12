@@ -14,6 +14,7 @@
  */
 import * as oauth from "oauth4webapi";
 import type { Locale } from "next-intl";
+import { apiWebPageUrl } from "@/shared/api";
 import { routing } from "@/shared/config/locales";
 import { readTheme } from "@/shared/lib/theme";
 import {
@@ -297,7 +298,7 @@ function authorizeUrl(
   prompt?: "none",
   loginHint?: string,
 ): string {
-  const url = new URL(`${apiUrl()}/oauth/authorize`);
+  const url = new URL(apiWebPageUrl("/oauth/authorize"));
   url.searchParams.set("response_type", "code");
   url.searchParams.set("client_id", process.env.NEXT_PUBLIC_OAUTH_CLIENT_ID ?? "");
   url.searchParams.set("redirect_uri", `${appUrl()}/callback`);
@@ -338,11 +339,6 @@ function activeLang(): Locale {
 /** The first value of a query parameter that may repeat. */
 function single(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
-}
-
-/** `{NEXT_PUBLIC_API_URL}`, read per call like every env value here. */
-function apiUrl(): string {
-  return process.env.NEXT_PUBLIC_API_URL ?? "";
 }
 
 /** `{NEXT_PUBLIC_APP_URL}` — the front's origin (design.md D4). */

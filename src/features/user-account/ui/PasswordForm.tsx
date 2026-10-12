@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { apiWebPageUrl } from "@/shared/api";
 import {
   Button,
   Field,
@@ -89,7 +90,7 @@ export function PasswordForm({
           />
         </Field>
         <p className="type-body">
-          <ExternalLink href={`${process.env.NEXT_PUBLIC_API_URL}/forgot-password`}>
+          <ExternalLink href={apiWebPageUrl("/forgot-password")}>
             {texts.forgotPasswordLink}
           </ExternalLink>
         </p>

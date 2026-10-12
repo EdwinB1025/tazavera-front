@@ -200,7 +200,7 @@ describe("signIn — the popup start of design.md D10 (spec: Sign in)", () => {
     expect(url.searchParams.get("code_challenge_method")).toBe("S256");
   });
 
-  it("opens {NEXT_PUBLIC_API_URL}/oauth/authorize with exactly the parameters of design.md D5, carrying the theme and the language of the route (spec: The authorization page carries the theme and language)", async () => {
+  it("opens {NEXT_PUBLIC_APP_URL}/oauth/authorize with exactly the parameters of design.md D5, carrying the theme and the language of the route (spec: The authorization page carries the theme and language)", async () => {
     const { signIn, flow } = await load();
     locationMock.pathname = route;
     // The route's locale reaches the flow through a mounted session
@@ -214,7 +214,7 @@ describe("signIn — the popup start of design.md D10 (spec: Sign in)", () => {
 
     const pending = flow.readHeldFlow()!;
     const url = openedUrl();
-    expect(url.origin).toBe(API_URL);
+    expect(url.origin).toBe(APP_URL);
     expect(url.pathname).toBe("/oauth/authorize");
     const params = Object.fromEntries(url.searchParams);
     expect(Object.keys(params).sort()).toEqual(
@@ -252,7 +252,7 @@ describe("signIn — the popup start of design.md D10 (spec: Sign in)", () => {
     });
 
     const url = new URL(String(locationMock.assign.mock.calls[0]![0]));
-    expect(url.origin).toBe(API_URL);
+    expect(url.origin).toBe(APP_URL);
     expect(url.pathname).toBe("/oauth/authorize");
 
     const pending = flow.readFlow();
@@ -483,7 +483,7 @@ describe("requestProfileWrite — step-up in the popup of design.md D10 (spec: S
     document.body.innerHTML = "";
   });
 
-  it("opens {NEXT_PUBLIC_API_URL}/oauth/authorize in a popup with scope=profile:write and no prompt parameter, leaving the route that asked and its typed input as they are (spec: Requesting the write scope)", async () => {
+  it("opens {NEXT_PUBLIC_APP_URL}/oauth/authorize in a popup with scope=profile:write and no prompt parameter, leaving the route that asked and its typed input as they are (spec: Requesting the write scope)", async () => {
     const loaded = await loadWithSession();
     await signedIn(loaded);
     const input = document.createElement("input");
@@ -493,7 +493,7 @@ describe("requestProfileWrite — step-up in the popup of design.md D10 (spec: S
     const url = await stepUp(loaded);
 
     expect(openMock).toHaveBeenCalledTimes(1);
-    expect(url.origin).toBe(API_URL);
+    expect(url.origin).toBe(APP_URL);
     expect(url.pathname).toBe("/oauth/authorize");
     const params = Object.fromEntries(url.searchParams);
     expect(Object.keys(params).sort()).toEqual(

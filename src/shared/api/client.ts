@@ -124,7 +124,16 @@ function configured(): ClientSeam {
   return seam;
 }
 
-/** `{NEXT_PUBLIC_API_URL}` (design.md Context), read per call like every env value here. */
+/**
+ * The base of a request, read per call like every env value here
+ * (route-api-web-pages-through-front design.md D5): on the front's server
+ * (no `window`) the server-only `API_INTERNAL_URL`, with the API's own paths;
+ * in the browser `NEXT_PUBLIC_API_URL` (`{NEXT_PUBLIC_APP_URL}/api`). Neither
+ * falls back to the other.
+ */
 function apiUrl(): string {
+  if (typeof window === "undefined") {
+    return process.env.API_INTERNAL_URL ?? "";
+  }
   return process.env.NEXT_PUBLIC_API_URL ?? "";
 }

@@ -2,6 +2,7 @@
 
 import type { MouseEvent, ReactNode } from "react";
 import { AccountSection, ExternalLink } from "@/features/user-account";
+import { apiWebPageUrl } from "@/shared/api";
 import { openSecurityPopup } from "@/shared/lib/security-popup";
 import { Button } from "@/shared/ui";
 
@@ -40,7 +41,7 @@ export function SecuritySection({
   onChangePassword,
   refreshProfile,
 }: SecuritySectionProps): ReactNode {
-  const securityUrl = `${process.env.NEXT_PUBLIC_API_URL}/user/security`;
+  const securityUrl = apiWebPageUrl("/user/security");
   const openPopup = (event: MouseEvent<HTMLAnchorElement>): void =>
     openSecurityPopup(event, () => void refreshProfile());
   return (
@@ -53,7 +54,7 @@ export function SecuritySection({
           {emailVerifiedAt === null && (
             <li>
               <ExternalLink
-                href={`${process.env.NEXT_PUBLIC_API_URL}/email/verify`}
+                href={apiWebPageUrl("/email/verify")}
                 onClick={openPopup}
               >
                 {texts.verifyEmail}
