@@ -2,7 +2,8 @@
 
 import type { ReactNode } from "react";
 import NextLink from "next/link";
-import { apiWebPageUrl, type SessionUser } from "@/shared/api";
+import type { SessionUser } from "@/shared/api";
+import { apiWebPageUrl } from "@/shared/api";
 import { openSecurityPopup } from "@/shared/lib/security-popup";
 import {
   DropdownMenu,
