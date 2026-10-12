@@ -30,7 +30,7 @@ The Password section SHALL collect the current password, a new password and its 
 - **THEN** its "Forgot your password?" link opens `{application origin}/forgot-password`, the API's password reset page, as an external navigation in the same tab, and the front sends no request for it
 
 ### Requirement: Grouped security section
-The Security section SHALL carry a short text covering the password, email verification, two-factor authentication and passkeys, and its entries in order: "Change password", which starts the identity check synchronously inside the click for `/{locale}/account/password` and opens that route; then a list whose first item is the email verification entry, followed by "Two-factor authentication" and "Passkeys", each a link to the API's security page at `/user/security` on the application's own origin. While the session user's `data.emailVerifiedAt` is null, the email verification entry SHALL be a "Verify email" link to the API's email verification page on the application's own origin (`{application origin}/email/verify`); when it is set, the entry SHALL be the plain text "Email verified" with no link; when the field is absent, there SHALL be no email verification entry. A plain primary click on any of these API links SHALL open its destination in a popup window synchronously inside the click, and the account tab SHALL NOT navigate, so it keeps the session; when the browser blocks the popup, the destination SHALL open in a new tab instead, the account tab still not navigating. The front SHALL send no request when an API link opens. When the popup window closes, the account page SHALL reload the session's profile from `GET /user`.
+The Security section SHALL carry a short text covering the password, email verification, two-factor authentication and passkeys, and its entries in order: "Change password", which starts the identity check synchronously inside the click for `/{locale}/account/password` and opens that route; then a list whose first item is the email verification entry, followed by "Two-factor authentication" and "Passkeys", each a link to the API's security page at `/user/security` on the application's own origin. Each of these API links SHALL name the signed-in user: its address SHALL carry the query parameter `login_hint` with the session user's `data.ulid`, the same value the step-up sends; while the session holds no `data.ulid`, the address SHALL carry no `login_hint`. While the session user's `data.emailVerifiedAt` is null, the email verification entry SHALL be a "Verify email" link to the API's email verification page on the application's own origin (`{application origin}/email/verify`); when it is set, the entry SHALL be the plain text "Email verified" with no link; when the field is absent, there SHALL be no email verification entry. A plain primary click on any of these API links SHALL open its destination in a popup window synchronously inside the click, and the account tab SHALL NOT navigate, so it keeps the session; when the browser blocks the popup, the destination SHALL open in a new tab instead, the account tab still not navigating. The front SHALL send no request when an API link opens. When the popup window closes, the account page SHALL reload the session's profile from `GET /user`.
 
 #### Scenario: Changing the password
 - **WHEN** the user activates "Change password"
@@ -38,11 +38,11 @@ The Security section SHALL carry a short text covering the password, email verif
 
 #### Scenario: Two-factor authentication and passkeys
 - **WHEN** the Security section renders
-- **THEN** its "Two-factor authentication" and "Passkeys" entries are links to `{application origin}/user/security`, the API's security page, and no request is sent by the front
+- **THEN** its "Two-factor authentication" and "Passkeys" entries are links to `{application origin}/user/security`, the API's security page, with `login_hint` set to the session user's `data.ulid`, and no request is sent by the front
 
 #### Scenario: Verifying the email
 - **WHEN** the Security section renders for a session user whose `data.emailVerifiedAt` is null
-- **THEN** the first item of its list, before "Two-factor authentication", is a "Verify email" link to `{application origin}/email/verify`
+- **THEN** the first item of its list, before "Two-factor authentication", is a "Verify email" link to `{application origin}/email/verify` with `login_hint` set to the session user's `data.ulid`
 
 #### Scenario: The email is verified
 - **WHEN** the Security section renders for a session user whose `data.emailVerifiedAt` is set
@@ -59,3 +59,7 @@ The Security section SHALL carry a short text covering the password, email verif
 #### Scenario: The popup window closes
 - **WHEN** the popup window opened from one of those entries closes
 - **THEN** the account page reloads the session's profile from `GET /user`
+
+#### Scenario: No user identifier in the session
+- **WHEN** the Security section renders for a session user with no `data.ulid` and `data.emailVerifiedAt` null
+- **THEN** its "Verify email", "Two-factor authentication" and "Passkeys" links point at `{application origin}/email/verify` and `{application origin}/user/security` with no `login_hint`
