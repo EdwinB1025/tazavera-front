@@ -4,14 +4,14 @@
 Summary: backlog entry R74 (Product owner, 2026-10-12: traditional workflow, highest priority, last change before the Playwright suite; the design lead decides the open points a–d). Design lead drafted `design-summary.md` (`Status: draft — pending Product owner review`); the orchestrator committed it on `develop`. Stopped because: waiting for Product owner's approval. MVC reachable: not needed (no new screen).
 
 ### Agent feedback
-Decisions in the draft: D1 explicit list of forwarded paths (not a prefix); D2 forwarding in `proxy.ts` with `NextResponse.rewrite`; D3 `X-Forwarded-Host/Proto/Port` from `NEXT_PUBLIC_APP_URL`, no `Location` or body rewriting; D4 the second base URL is `NEXT_PUBLIC_APP_URL` behind one helper (moves: `authorize.ts`, `UserMenu.tsx:123`, `SecuritySection.tsx:43/:56`, `PasswordForm.tsx:92`); D5 server-only `API_INTERNAL_URL` with fallback; D6 front headers unchanged on its own pages, forwarded responses served as the API sends them; D7 cookies move to the front's origin (one extra login after the switch); D8 OAuth issuer stays the API base; D9 demo is an environment matter; D10 same-origin risk accepted and recorded. Supersedes the 2026-10-09 log entry that called `API_INTERNAL_URL` a deploy matter. Ten scenarios with their test files; nine browser checks.
+Decisions in the draft: D1 explicit list of forwarded paths (not a prefix); D2 forwarding in `proxy.ts` with `NextResponse.rewrite`; D3 `X-Forwarded-Host/Proto/Port` from `NEXT_PUBLIC_APP_URL`, no `Location` or body rewriting; D4 the second base URL is `NEXT_PUBLIC_APP_URL` behind one helper (moves: `authorize.ts`, `UserMenu.tsx:123`, `SecuritySection.tsx:43/:56`, `PasswordForm.tsx:92`); D5 server-only `API_INTERNAL_URL` with fallback; D6 front headers unchanged on its own pages, forwarded responses served as the API sends them; D7 cookies move to the front's origin (one extra login after the switch); D8 OAuth issuer stays the API base; D9 access from another device is an environment matter (replaced by option A below); D10 same-origin risk accepted and recorded. Supersedes the 2026-10-09 log entry that called `API_INTERNAL_URL` a deploy matter. Ten scenarios with their test files; nine browser checks.
 
 ### Deferred to Product owner (none blocks propose)
 #### Q1 — API `APP_URL`
 - Recommendation: the front's public origin (passkeys take their domain from it; otherwise only the passkey browser check fails).
 #### Q2 — `TRUSTED_PROXIES`, `SESSION_DOMAIN`, `SESSION_SECURE_COOKIE`
 - Recommendation: trust the front's address (`127.0.0.1` locally, the compose subnet in Docker); `SESSION_DOMAIN` unset; secure cookies on.
-#### Q3 — Demo tunnels
+#### Q3 — Tunnels
 - Recommendation: a second ngrok endpoint for the API, used as `NEXT_PUBLIC_API_URL`.
 #### Q4 — `X-Powered-By` on forwarded responses
 - Recommendation: `expose_php=Off` in the API image.
@@ -19,7 +19,7 @@ Decisions in the draft: D1 explicit list of forwarded paths (not a prefix); D2 f
 - Recommendation: a later backlog entry to build it on the front's address; not part of this change.
 
 ### Product owner's answers (2026-10-12)
-- **Setup assumed:** the demo environment is the production environment: a single server with one public entry point (one ngrok URL).
+- **Setup:** the build environment is a single server with one public entry point (one ngrok URL). It is the only environment the design considers (Product owner, 2026-10-12).
 - **D10 revised — option A:** the front is the only door. It forwards the API's web routes **and** `/oauth/token` and every JSON call (the front calls the API under a path prefix and strips it when forwarding; no API code change). `NEXT_PUBLIC_API_URL` becomes the front's own origin. This replaces R74 end-state point 2 and the "JSON and `/oauth/token` not forwarded" part of D10.
 - Q1: `APP_URL` = the public front URL (accepted).
 - Q2: trust the front's address; `SESSION_DOMAIN` unset; secure cookies on (accepted).
