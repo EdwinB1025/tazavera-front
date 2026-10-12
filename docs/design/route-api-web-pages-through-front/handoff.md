@@ -31,7 +31,8 @@ Decisions in the draft: D1 explicit list of forwarded paths (not a prefix); D2 f
 ### Summary updated for option A (design lead, 2026-10-12)
 D1 two forwarded groups (`/api/*` with the prefix stripped → `/oauth/token` and JSON; the web list unchanged), checked before assets and locale routing; D4 `NEXT_PUBLIC_API_URL` keeps its name, value `{NEXT_PUBLIC_APP_URL}/api`; D5 `API_INTERNAL_URL` required, no fallback (502 without it); D6 `connect-src 'self'` + Nominatim; D7 same-origin, no CORS; 11 scenarios, 11 browser checks.
 
-#### Q6 — How to sign in without ngrok (Blocks propose: no)
+#### Q6 — How to sign in without ngrok (closed: deployment matter)
+- Product owner, 2026-10-12: how the front is served over https (ngrok, Caddy) is a deployment change, not part of R74. The summary states only the requirement: a production build signs in only when the front is served over https. The deployment documentation decides how.
 - Context: the token endpoint is now on the front's origin, so a production build signs in only when the front is served over `https` (ngrok gives it). A local production build on `http://localhost:3000` or the Docker stack without ngrok cannot sign in; Caddy no longer serves the browser. / Options: (A) every end-to-end check through ngrok, Caddy leaves the stack; (B) Caddy in front of the front for local and Docker checks; (C) accept `http` on `localhost` in the token exchange (changes security code). / Recommendation: A (B only if checks without ngrok are wanted; not C). `npm run dev` is unaffected.
 
 ### API callback registration (orchestrator's read-only check of the API, 2026-10-12)
