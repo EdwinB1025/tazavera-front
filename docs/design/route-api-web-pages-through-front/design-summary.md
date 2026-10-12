@@ -301,3 +301,26 @@ None. Q1–Q5 are settled (§0). How the front is served over `https` in each se
   - §2 and D1: `/logout` is in the prefix group only; Fortify's shadowed web `/logout` stays out of the web list.
   - Scenario 1 lists `POST /api/logout`, and scenario 6 lists `/logout` (no prefix) as not forwarded. No new scenario.
   - Browser checks 12–13 added.
+
+## Propose status
+
+- Change-id: `route-api-web-pages-through-front`; date 2026-10-12; architect (cloud session), base head `4e02d8c3`.
+- `openspec validate route-api-web-pages-through-front --strict`: valid.
+- Resolves backlog entry R74.
+- Artifacts: `proposal.md`, `design.md`, `tasks.md` and the deltas `specs/auth`, `specs/app-shell`, `specs/user-account` in `openspec/changes/route-api-web-pages-through-front/`.
+- Resolved in design.md:
+  - Placement: `src/shared/api/forwarding.ts` (`API_PREFIX`, the web list, `apiPathFor`, `forwardToApi`) and `src/shared/api/web-pages.ts` (`apiWebPageUrl`), exported through `src/shared/api/index.ts`; `proxy.ts` calls `forwardToApi` first (order of checks D2); `client.ts` picks `API_INTERNAL_URL` when there is no `window`.
+  - Size limits: the forwarding lives outside `proxy()`; the CSP list moves to a private function only if `proxy()` would pass 80 lines.
+- Researched (§8):
+  - Next.js 16.4.0 overwrites `X-Forwarded-Host` on an external rewrite with the `Host` header that reached the front (`next/dist/server/lib/router-utils/proxy-request.js`, `httpxy` with `changeOrigin` and `xfwd` off); the proxy's `X-Forwarded-Proto`/`-Port` reach the API. D3's outcome holds when the tunnel or TLS terminator keeps the public `Host` (ngrok and Caddy default). Kept as a risk; D3 not changed.
+  - `rewrites()` are loaded at build (`next/dist/build/index.js`): verified.
+  - Laravel 13 `PreventRequestForgery` checks `Sec-Fetch-Site` first and skips the token for same-origin requests (https://laravel.com/docs/13.x/csrf).
+  - Proxy body buffering 10 MB (`proxyClientMaxBodySize.md`), external-rewrite timeout 30 s, unreachable target answers `500` from Next.js.
+- Departures from this summary:
+  - §5 rows 7 and 10 are split into one scenario per capability and link site (two CSP scenarios; four link scenarios), so each scenario has exactly one test.
+  - §5 row 9: no existing test asserts the token endpoint URL, so `tokens.test.ts` gets one new test (it passes immediately).
+  - Existing tests of unchanged scenarios that assert the same destinations (the full-page and step-up authorization tests, the security-entry popup test, the account popup tests) change their expected base only.
+  - §5 note "No QA test is expected to go stale": at least `qa/proxy.test.ts` (whole-policy comparison) is expected to go stale; the build lists it.
+- Open (Product owner, non-blocking):
+  - Whether the proxy should also override the forwarded `host` request header with the public host, so `X-Forwarded-Host` is right even behind a terminator that rewrites `Host`.
+  - `openspec/config.yaml` still describes auth with "JSON calls and the token exchange stay direct" (pre-option A); configuration is Product owner's.
