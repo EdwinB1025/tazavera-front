@@ -17,4 +17,4 @@ No derived API types are needed: the change reads no API field and sends no requ
 
 ## 3. Full checks
 
-- [ ] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass, with two new tests in the validation suite (1.1 and "Entries on the inventory detail"); lint 0 errors. A QA test that fails only on the third sidebar entry gets only that expectation updated and is listed in the final report; any other failure is fixed in its own `fix(offering-management): …` commit or, when outside this change, reported.
+- [x] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass, with two new tests in the validation suite (1.1 and "Entries on the inventory detail"); lint 0 errors. A QA test that fails only on the third sidebar entry gets only that expectation updated and is listed in the final report; any other failure is fixed in its own `fix(offering-management): …` commit or, when outside this change, reported.
