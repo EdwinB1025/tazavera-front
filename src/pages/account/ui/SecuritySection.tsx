@@ -22,6 +22,8 @@ export type SecuritySectionProps = {
   texts: SecuritySectionTexts;
   /** The session user's `emailVerifiedAt`; absent shows no email verification entry. */
   emailVerifiedAt?: string | null;
+  /** The session user's `ulid`, sent as `login_hint` (hint-user-on-security-links design.md D2). */
+  ulid?: string;
   /** Starts the identity check and opens the Change password view. */
   onChangePassword: () => void;
   /** Reloads the session's profile from `GET /user` once an API popup closes. */
@@ -38,10 +40,11 @@ export type SecuritySectionProps = {
 export function SecuritySection({
   texts,
   emailVerifiedAt,
+  ulid,
   onChangePassword,
   refreshProfile,
 }: SecuritySectionProps): ReactNode {
-  const securityUrl = apiWebPageUrl("/user/security");
+  const securityUrl = apiWebPageUrl("/user/security", ulid);
   const openPopup = (event: MouseEvent<HTMLAnchorElement>): void =>
     openSecurityPopup(event, () => void refreshProfile());
   return (
@@ -54,7 +57,7 @@ export function SecuritySection({
           {emailVerifiedAt === null && (
             <li>
               <ExternalLink
-                href={apiWebPageUrl("/email/verify")}
+                href={apiWebPageUrl("/email/verify", ulid)}
                 onClick={openPopup}
               >
                 {texts.verifyEmail}
