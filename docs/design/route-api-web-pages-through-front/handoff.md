@@ -172,3 +172,21 @@ Run it once R74 is on the active front branch, through the **same public entry a
 2. **A2 — a fake IP is ignored.** Within that same minute, turn on the extension with the header `X-Forwarded-For: 203.0.113.7` for the public address. Reload the sign-in window and try a wrong password once more. **Pass:** still "too many attempts". **Fail:** "these credentials do not match" again: the API took the fake address, so anyone can get around the limit by changing it. Repeat once with `203.0.113.8` to confirm.
 3. **A3 — normal sign-in afterwards.** Turn the extension off, wait 60 seconds, sign in with the right password. **Pass:** you are signed in.
 4. Report each result and the entry used (ngrok or local Caddy). A2 failing through ngrok is the case that matters for production.
+
+## Session 2026-10-12 — G1 run (orchestrator with Product owner)
+Summary: G1 run through ngrok (`https://connector-graph-change.ngrok-free.dev` → front `npm start` on `feature/route-api-web-pages-through-front` `5dac0bf1` → API `php artisan serve` on `127.0.0.1:8000`). ModHeader is no longer installable in Chrome, so G1 ran as a curl script (`g1.sh`, orchestrator's scratchpad) that follows the same flow: `/oauth/authorize` → `/login` form (CSRF token) → `POST /login` with `Accept: application/json`. Run by Product owner from the session (the session refused the credential requests). Traffic kept minimal at Product owner's request (~25 KB, no assets). Stopped because: completed. MVC reachable: not needed.
+
+### G1 result — PASS (A1, A2); A3 inconclusive (test account)
+- Entry used: ngrok (the production entry). ngrok agent updated with `ngrok update` (3.3.1 too old for the account; minimum 3.20.0).
+- A1 PASS: tries 1–5 `422` "Estas credenciales no coinciden con nuestros registros."; try 6 `429` "Too Many Attempts." (`ThrottleRequestsException`).
+- A2 PASS: within the same minute, `X-Forwarded-For: 203.0.113.7` and `203.0.113.8` both `429`. The API does not take a visitor-sent address: the limit cannot be bypassed by faking the IP. Finding A closed; D3 unchanged.
+- A3: after 65 s, the right password gave `422` (credentials do not match), not `429`: the limit released as expected, but the test account `especialista.prueba@tazavera.test` no longer accepts its known password (already noted on the board for R73: the account stopped signing in after a reseed). Not an R74 defect; a successful sign-in through the tunnel is covered by browser check 3 (8.1).
+- Seen in passing: browser check 1 partly — `/oauth/authorize` answered `302` to `https://connector-graph-change.ngrok-free.dev/login` (the `Location` stays on the front's origin); round 1 — `HEAD /favicon.svg` through the tunnel `200 image/svg+xml`, rewritten to the API (`X-Middleware-Rewrite: http://127.0.0.1:8000/favicon.svg`).
+
+### Notes for the deployment (Product owner's)
+- The `429` JSON carries the exception class and the server file path: the local API runs with `APP_DEBUG=true`. Production must run `APP_DEBUG=false`.
+- The API was started without `XDEBUG_MODE=off` (the session's allowed command does not set it); no effect on G1.
+
+### Next
+- Browser checks 1–13 (task 8.1) with the design lead, including the design lead's look at round 1 (API pages' tab icon), then verify and archive on Product owner's request. A working test account is needed (re-register `especialista.prueba@tazavera.test` or give another one).
+- ngrok: keep it until Product owner says otherwise (demo on 2026-10-13); uninstall afterwards.
