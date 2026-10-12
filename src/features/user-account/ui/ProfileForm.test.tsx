@@ -15,8 +15,10 @@ const API = "https://api.tazavera.test";
 const TEXTS: ProfileFormTexts = {
   nameLabel: "fx-name",
   surnameLabel: "fx-surname",
+  businessNameLabel: "fx-business-name",
   emailLabel: "fx-email",
   emailFormatError: "fx-email-format",
+  requiredError: "fx-required",
   save: "fx-save",
   profileUpdated: "fx-updated",
   genericError: "fx-generic",
@@ -57,7 +59,13 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-function renderForm() {
+const COFFEESHOP: SessionUser = {
+  ...USER,
+  role: "coffeeshop",
+  businessName: "Nomad Coffee",
+};
+
+function renderForm(user: SessionUser = USER) {
   const refreshProfile = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
   const requestProfileWrite = vi.fn<(returnRoute: string) => void>();
   const endProfileWrite = vi.fn<() => void>();
@@ -65,7 +73,7 @@ function renderForm() {
     <>
       <h2 id="profile-heading">heading</h2>
       <ProfileForm
-        user={USER}
+        user={user}
         locale="es"
         labelledBy="profile-heading"
         texts={TEXTS}
@@ -221,5 +229,65 @@ describe("ProfileForm — the write", () => {
     expect(requestProfileWrite).toHaveBeenCalledWith("/es/account");
     expect(refreshProfile).not.toHaveBeenCalled();
     expect(screen.queryByText("api-message")).toBeNull();
+  });
+});
+
+// user-account "Coffee shop business name" — the profile form scenarios
+// (add-coffeeshop-business-name design.md D1 and D3).
+describe("ProfileForm — the business name", () => {
+  it("The coffee shop's profile form holds the business name: prefilled, required, between Surname and Email, at most 150 characters", () => {
+    renderForm(COFFEESHOP);
+    const businessName = field(TEXTS.businessNameLabel);
+    expect(businessName.value).toBe("Nomad Coffee");
+    expect(businessName.required).toBe(true);
+    expect(businessName.maxLength).toBe(150);
+    const follows = Node.DOCUMENT_POSITION_FOLLOWING;
+    expect(field(TEXTS.surnameLabel).compareDocumentPosition(businessName) & follows).toBeTruthy();
+    expect(businessName.compareDocumentPosition(field(TEXTS.emailLabel)) & follows).toBeTruthy();
+  });
+
+  it("An emptied business name shows requiredError, is invalid, takes focus and nothing is sent", async () => {
+    renderForm(COFFEESHOP);
+    type(TEXTS.businessNameLabel, "");
+    await save();
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(screen.getByText(TEXTS.requiredError)).toBeTruthy();
+    expect(field(TEXTS.businessNameLabel).getAttribute("aria-invalid")).toBe("true");
+    expect(document.activeElement).toBe(field(TEXTS.businessNameLabel));
+  });
+
+  it("The coffee shop's update sends the business name with name, surname and email", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(200));
+    renderForm(COFFEESHOP);
+    type(TEXTS.businessNameLabel, "La Tostadora");
+    await save();
+    expect(sentBody()).toEqual({
+      name: "Ana",
+      surname: "López",
+      businessName: "La Tostadora",
+      email: "ana@example.com",
+    });
+  });
+
+  it("Other roles' profile form has no business name field and sends no businessName", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(200));
+    renderForm({ ...USER, businessName: "Nomad Coffee" });
+    expect(screen.queryByLabelText(new RegExp(`^${TEXTS.businessNameLabel}`))).toBeNull();
+    await save();
+    expect(sentBody()).not.toHaveProperty("businessName");
+  });
+
+  it("The update names an invalid business name: its 422 message shows under the field and the values are kept", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse(422, { message: "api-message", errors: { businessName: ["fx-business-taken"] } }),
+    );
+    renderForm(COFFEESHOP);
+    type(TEXTS.businessNameLabel, "La Tostadora");
+    await save();
+    const businessName = field(TEXTS.businessNameLabel);
+    expect(businessName.getAttribute("aria-invalid")).toBe("true");
+    const describedBy = businessName.getAttribute("aria-describedby") ?? "";
+    expect(document.getElementById(describedBy)?.textContent).toBe("fx-business-taken");
+    expect(businessName.value).toBe("La Tostadora");
   });
 });
