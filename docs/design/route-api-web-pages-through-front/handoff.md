@@ -92,3 +92,15 @@ Summary: Product owner sent his review message (the two `design.md` fixes of the
 - Context: Product owner, 2026-10-12: "submit it as my review message and proceed".
 - Result: cloud run `trig_01Ji2NEC5r9eMbHbLvGNGdYm` at 10:14 UTC, architect only, `openspec-update-change` skill, base `900a4f76`, target `claude/route-api-web-pages-through-front-update`, one commit `docs(auth): update artifacts for route-api-web-pages-through-front`. Prompt written by the design lead (local subagent; usage 36 % / 50 %), checked by the orchestrator (added the fetch/branch setup and the `config.yaml` record).
 - Next: review the commit, duplicates check (§4), ff `feature/…`; then the apply in the cloud (security: auth flow, `proxy.ts`), tasks 1.1–7.1.
+
+## Session 2026-10-12 — artifact update integrated, apply launched
+Summary: architect run `cse_01UUBe3xTyM4ju2t4qGco4Jq` (10:15–10:17 UTC) pushed `2a9e37c4` `docs(auth): update artifacts for route-api-web-pages-through-front`. Stopped because: apply running in the cloud. MVC reachable: not needed.
+
+### Orchestrator review
+- One commit, `docs(auth)` with `Refs:`; only `design.md` (Risks item names only ngrok and records the no-override decision; Open Questions "None.") and `## Propose status` (both open points closed; review recorded; validate `--strict` valid). Specs, tasks and proposal unchanged, so no duplicates check needed beyond confirming that.
+- Integration: `git merge --ff-only` in `tazavera-front` (where `feature/…` is checked out): `900a4f76..2a9e37c4`, pushed.
+
+### Apply launch
+- Weight: cloud from the start (security: `proxy.ts`, auth flow, CSP). Prompt by the design lead (local subagent; usage 38 % / 51 %), checked by the orchestrator: commit scope = each task group's capability (as the propose split), group 2 → `auth`; one cloud session for tasks 1.1–7.1 (long apply, §9); 8.1 left for Product owner and the design lead.
+- Run `trig_01RqrqHSR9MVajRkVSp1KYPJ` at 10:29 UTC, base `2a9e37c4`, target `claude/route-api-web-pages-through-front-apply` (pushed after each task).
+- Next: watch the branch; at 7.1 review commits (test before implementation, files, checkboxes only), re-run the checks, ff `feature/…`; then the code review with Product owner and the browser checks (8.1).
