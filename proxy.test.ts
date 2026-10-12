@@ -25,7 +25,6 @@ import { config, proxy } from "./proxy";
  */
 
 const API_URL = "https://api.tazavera.test";
-const API_ORIGIN = "https://api.tazavera.test";
 
 function expectedCsp(nonce: string, dev: boolean): string {
   return [
@@ -34,7 +33,7 @@ function expectedCsp(nonce: string, dev: boolean): string {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' blob: data: https://tile.openstreetmap.org",
     "font-src 'self'",
-    `connect-src 'self' ${API_ORIGIN} https://nominatim.openstreetmap.org`,
+    "connect-src 'self' https://nominatim.openstreetmap.org",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -131,7 +130,7 @@ describe("proxy.ts locale routing (design.md D2)", () => {
 // ─── `/callback` (design.md D11; spec "Content-Security-Policy on the callback") ───
 // `/callback` joins the proxy's handling with the D9 directive list and its
 // own fresh nonce — redirect mode hydrates for its client-side navigation and
-// exchanges the code at the API origin, named in `connect-src` — and stays
+// exchanges the code through the front's own origin (`connect-src 'self'`) — and stays
 // outside the locale redirect.
 
 describe("proxy.ts on /callback (design.md D11)", () => {
@@ -141,7 +140,7 @@ describe("proxy.ts on /callback (design.md D11)", () => {
     ).toBe(true);
   });
 
-  it("sets Content-Security-Policy to exactly the design.md D9 directive list, the API origin in connect-src", () => {
+  it("sets Content-Security-Policy to exactly the design.md D9 directive list, connect-src naming no API origin", () => {
     vi.stubEnv("NEXT_PUBLIC_API_URL", API_URL);
     const response = runProxyOn("https://tazavera.test/callback?code=c&state=s");
     const csp = response.headers.get("Content-Security-Policy") ?? "";
