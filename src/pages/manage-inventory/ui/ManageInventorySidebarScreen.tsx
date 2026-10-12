@@ -1,9 +1,15 @@
 import type { ReactNode } from "react";
-import { InventoryFacets, inventoryFacetsTexts, parseInventoryFilters } from "@/features/inventory-facets";
+import {
+  INVENTORY_FILTER_KEYS,
+  InventoryFacets,
+  inventoryFacetsTexts,
+  parseInventoryFilters,
+} from "@/features/inventory-facets";
 import { LocationsSidebarEntry } from "@/features/location-management";
 import { ManagementSidebarEntries } from "@/features/offering-management";
 import { getMessages } from "@/shared/lib/i18n";
 import type { QueryRecord } from "@/shared/lib/filter-query";
+import { FilterMemoryScope } from "@/shared/ui";
 import { AppSidebar } from "@/widgets/app-sidebar";
 
 // ─── UI-specific types (declared before the component) ───
@@ -42,11 +48,14 @@ export function ManageInventorySidebarScreen({
         searchParams
           ? {
               title: filters.title!,
+              // The facets keep the list's filters (remember-list-preferences D2, D5).
               content: (
-                <InventoryFacets
-                  values={parseInventoryFilters(searchParams)}
-                  texts={inventoryFacetsTexts(catalog, filters)}
-                />
+                <FilterMemoryScope name="coffee-inventory" keys={INVENTORY_FILTER_KEYS}>
+                  <InventoryFacets
+                    values={parseInventoryFilters(searchParams)}
+                    texts={inventoryFacetsTexts(catalog, filters)}
+                  />
+                </FilterMemoryScope>
               ),
             }
           : undefined
