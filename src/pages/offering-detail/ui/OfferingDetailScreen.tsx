@@ -125,6 +125,8 @@ function detailTexts(
     wheelGroupsLabel: catalog.wheelGroupsLabel,
     wheelGroupAromatics: catalog.wheelGroupAromatics,
     detailAxesHeading: catalog.detailAxesHeading,
+    showNotesLabel: landing.treeShowNotesLabel,
+    hideNotesLabel: landing.treeHideNotesLabel,
   };
 }
 

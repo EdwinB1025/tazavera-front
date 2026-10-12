@@ -40,7 +40,7 @@ const SESSION: Session = {
  * marked as the current entry.
  */
 describe("ManageLocationsSidebarEntries (design.md D8)", () => {
-  it("renders Manage offerings then Manage locations, only the second current", () => {
+  it("renders Manage offerings, Manage locations and Explore coffee inventory, only the second current", () => {
     render(
       <SidebarProvider>
         <AppSidebarProvider session={SESSION} toggleLabel="sidebar.toggle">
@@ -53,12 +53,15 @@ describe("ManageLocationsSidebarEntries (design.md D8)", () => {
     expect(entries.map((a) => a.textContent)).toEqual([
       "Administrar ofertas",
       "Administrar ubicaciones",
+      "Explorar inventario de café",
     ]);
     expect(entries.map((a) => a.getAttribute("href"))).toEqual([
       "/es/manage/offerings",
       "/es/manage/locations",
+      "/es/manage/inventory",
     ]);
     expect(entries[0].hasAttribute("aria-current")).toBe(false);
     expect(entries[1].getAttribute("aria-current")).toBe("page");
+    expect(entries[2].hasAttribute("aria-current")).toBe(false);
   });
 });

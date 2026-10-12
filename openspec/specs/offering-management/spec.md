@@ -138,7 +138,7 @@ Deleting one offering or the selected offerings SHALL ask for confirmation first
 - **THEN** the list moves to the previous page
 
 ### Requirement: Creating offerings
-The create route's form SHALL create one offering per chosen location for one chosen coffee-inventory item. The form SHALL render inside a section card (content-structure "Section card") with no header band, that fills the page container's width, its content at most 40rem wide and start-aligned from 768px. The inventory item is chosen in a search-as-you-type list over the API's coffee inventory filtered by the typed coffee name: while searching the list shows a searching row, the results replace the previous ones, an empty result shows a no-matches row and a failed search shows a failure row. Each result row SHALL show the coffee name and, on a second line, the roastery name, the coffee's country and its process joined in that order with empty parts skipped. Choosing a row sets the item, shows the coffee name in the input, and the field's help then shows that item's `roastLot` and `productionDate` joined in that order; clearing the input clears the choice and the typing hint returns. The locations group SHALL offer one checkbox per location of the coffeeshop by its name, covering loading, empty and error states, preselect the location when the coffeeshop has exactly one, and disable the submit action when the coffeeshop has none. On submit, an unchosen inventory item SHALL show an error under the field, mark the field invalid, move focus to it and send nothing; an empty location set is not checked in the browser and the request is sent. On success the status line announces the number of created offerings with a link to the list route, and the form resets. On failure or a 403 the form error shows and every chosen value is kept. A 422 SHALL show the message for `coffeeInventoryId` under the inventory field as form-fields "Server validation errors" states, and the form error only when one of its keys names no field (the locations group carries no field error, so a message for `locations` shows the form error); every chosen value is kept. A create SHALL be a plain write: no identity check runs before or after it. A "Cancel" button after the submit action SHALL open the list route without sending any request.
+The create route's form SHALL create one offering per chosen location for one chosen coffee-inventory item. The form SHALL render inside a section card (content-structure "Section card") with no header band, that fills the page container's width, its content at most 40rem wide and start-aligned from 768px. The inventory item is chosen in a search-as-you-type list over the API's coffee inventory filtered by the typed coffee name: while searching the list shows a searching row, the results replace the previous ones, an empty result shows a no-matches row and a failed search shows a failure row. Each result row SHALL show the coffee name and, on a second line, the roastery name, the coffee's country and its process joined in that order with empty parts skipped. Choosing a row sets the item, shows the coffee name in the input, and the field's help then shows that item's `roastLot` and `productionDate` joined in that order; clearing the input clears the choice and the typing hint returns. The locations group SHALL offer one checkbox per location of the coffeeshop by its name, covering loading, empty and error states, preselect the location when the coffeeshop has exactly one, and disable the submit action when the coffeeshop has none. On submit, an unchosen inventory item SHALL show an error under the field, mark the field invalid, move focus to it and send nothing; an empty location set is not checked in the browser and the request is sent. On success the status line announces the number of created offerings as text, with no link, and the form resets; while the last create has succeeded and no inventory item is chosen, a "View my offerings" button that opens the list route SHALL take the submit action's place, and choosing an inventory item again SHALL bring the submit action back. On failure or a 403 the form error shows and every chosen value is kept. A 422 SHALL show the message for `coffeeInventoryId` under the inventory field as form-fields "Server validation errors" states, and the form error only when one of its keys names no field (the locations group carries no field error, so a message for `locations` shows the form error); every chosen value is kept. A create SHALL be a plain write: no identity check runs before or after it. A "Cancel" button after the submit action, or after "View my offerings" in its place, SHALL open the list route without sending any request.
 
 #### Scenario: The form panel is a section card
 - **WHEN** the create form renders, including while the session resolves
@@ -194,7 +194,15 @@ The create route's form SHALL create one offering per chosen location for one ch
 
 #### Scenario: Create success
 - **WHEN** the API creates the offerings
-- **THEN** the status line announces the number of created offerings with a link to the list route, and the inventory choice and the location checkboxes reset
+- **THEN** the status line announces the number of created offerings as text, with no link, and the inventory choice and the location checkboxes reset
+
+#### Scenario: View my offerings after a create
+- **WHEN** the API creates the offerings
+- **THEN** the end-aligned action group shows a "View my offerings" button, not a link, in place of "Create offerings", followed by "Cancel", and activating it opens the list route `/{locale}/manage/offerings` with no create request sent
+
+#### Scenario: Create offerings returns on a new choice
+- **WHEN** the offerings have been created and the user chooses an inventory item again
+- **THEN** "Create offerings" shows again in place of "View my offerings", followed by "Cancel", and submitting sends a new create request for the chosen item
 
 #### Scenario: Create failure keeps values
 - **WHEN** the create request fails, or returns a non-success status other than 422
@@ -217,19 +225,19 @@ The create route's form SHALL create one offering per chosen location for one ch
 - **THEN** "Cancel" is a button, not a link, after the submit action, and activating it navigates to the list route
 
 ### Requirement: Management sidebar entry
-The offerings list, offering creation and locations routes SHALL show two sidebar entries in this order, each with an icon and a visible label: "Manage offerings", addressing the list route, and "Manage locations", addressing `/{locale}/manage/locations`. "Manage offerings" SHALL be the current entry on the list and create routes, "Manage locations" on the locations route. The create route has no entry; it stays reachable from the list's "New offering" link and its empty-state link.
+The offerings list, offering creation, locations, inventory list and inventory detail routes SHALL show three sidebar entries in this order, each with an icon and a visible label: "Manage offerings", addressing the list route, "Manage locations", addressing `/{locale}/manage/locations`, and "Explore coffee inventory", addressing `/{locale}/manage/inventory`. "Manage offerings" SHALL be the current entry on the list and create routes, "Manage locations" on the locations route and "Explore coffee inventory" on the inventory list and detail routes. The create route has no entry; it stays reachable from the list's "New offering" link and its empty-state link.
 
 #### Scenario: One entry
 - **WHEN** a signed-in coffeeshop opens any coffee shop management route
-- **THEN** the sidebar shows the "Manage offerings" entry and then the "Manage locations" entry, each with its icon and label, and no "My offerings" or "New offering" entry
+- **THEN** the sidebar shows the "Manage offerings" entry, then the "Manage locations" entry, then the "Explore coffee inventory" entry, each with its icon and label, and no "My offerings" or "New offering" entry
 
 #### Scenario: Current entry marked
 - **WHEN** the list route or the create route is open
-- **THEN** the "Manage offerings" entry is marked as the current page and the "Manage locations" entry is not
+- **THEN** the "Manage offerings" entry is marked as the current page and the "Manage locations" and "Explore coffee inventory" entries are not
 
 #### Scenario: Locations entry marked
 - **WHEN** the locations route is open
-- **THEN** the "Manage locations" entry is marked as the current page and the "Manage offerings" entry is not
+- **THEN** the "Manage locations" entry is marked as the current page and the "Manage offerings" and "Explore coffee inventory" entries are not
 
 #### Scenario: Entry navigates
 - **WHEN** the coffeeshop activates the "Manage offerings" entry
@@ -238,6 +246,10 @@ The offerings list, offering creation and locations routes SHALL show two sideba
 #### Scenario: Locations entry navigates
 - **WHEN** the coffeeshop activates the "Manage locations" entry
 - **THEN** the locations route opens
+
+#### Scenario: Inventory entry navigates
+- **WHEN** the coffeeshop activates the "Explore coffee inventory" entry
+- **THEN** the inventory list `/{locale}/manage/inventory` opens
 
 ### Requirement: Localized management texts
 Every text of both screens — headings, list and form states, actions, the confirmation texts, the status lines and the sidebar entry — SHALL render in the active locale (Spanish, English or Catalan) from the message catalog, and the offering card texts and the pagination labels SHALL come from the landing catalog. API values shown in the interface — coffee, roastery and location names, country, process, `roastLot`, `productionDate` and the counts — SHALL render exactly as returned, untranslated, and the API's own message strings SHALL never render. Numbers and names appended to a catalog word SHALL join it by concatenation.
@@ -531,8 +543,12 @@ New offering opened with the query `inventory={ulid}` SHALL read `GET /coffeeInv
 - **THEN** the inventory input is empty, the typing hint shows as the field's help, and no error renders
 
 ### Requirement: Coffee inventory sidebar
-On the inventory list and the inventory detail, the sidebar SHALL show the coffee shop's management entries "Manage offerings" and "Manage locations", neither marked as the current page, followed by the entry "Explore coffee inventory", addressing `/{locale}/manage/inventory` and marked as the current page. On the list, that entry SHALL hold the inventory facets in its sub-section (filtering "Inventory facets in the sidebar"); on the detail it SHALL hold none.
+On the inventory list and the inventory detail, the sidebar SHALL show the coffee shop's management entries "Manage offerings" and "Manage locations", neither marked as the current page, followed by the entry "Explore coffee inventory", addressing `/{locale}/manage/inventory` and marked as the current page, each with its icon and visible label. On the list, that entry SHALL hold the inventory facets in its sub-section (filtering "Inventory facets in the sidebar"); on the detail it SHALL hold none.
 
 #### Scenario: Entries on the inventory list
 - **WHEN** a signed-in coffeeshop opens the inventory list
-- **THEN** the sidebar shows "Manage offerings", "Manage locations" and "Explore coffee inventory" in this order, only the last marked as the current page, with the "Filters" toggle below it
+- **THEN** the sidebar shows "Manage offerings", "Manage locations" and "Explore coffee inventory" in this order, each with its icon, only the last marked as the current page, with the "Filters" toggle below it
+
+#### Scenario: Entries on the inventory detail
+- **WHEN** a signed-in coffeeshop opens an inventory item's detail
+- **THEN** the sidebar shows the same three entries in this order, each with its icon, only "Explore coffee inventory" marked as the current page, and no "Filters" toggle

@@ -63,6 +63,8 @@ export function HomeScreen({ locale, page }: HomeScreenProps): ReactNode {
     ratingExcellentLabel: catalog.cardRatingExcellentLabel,
     ratingGoodLabel: catalog.cardRatingGoodLabel,
     ratingCommercialLabel: catalog.cardRatingCommercialLabel,
+    showNotesLabel: catalog.treeShowNotesLabel,
+    hideNotesLabel: catalog.treeHideNotesLabel,
     previousLabel: catalog.paginationPreviousLabel,
     nextLabel: catalog.paginationNextLabel,
     navigationLabel: catalog.paginationNavigationLabel,

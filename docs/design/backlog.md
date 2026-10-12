@@ -23,82 +23,9 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
 | 1 | R74 | route-api-web-pages-through-front | Change (traditional workflow; behaviour, security) | M | — (Product owner, 2026-10-12: highest priority, last change before the Playwright suite) |
-| 1 | R77 | collapse-taxonomy-trees | Refactor (fast lane), by Product owner's order (adds behaviour, texts, tests) | M | — (highest priority; runs in parallel with R76, different files) |
-| 1 | R78 | land-on-home-after-registration | Refactor (fast lane), by Product owner's order (changes behaviour) | S | — (highest priority; runs in parallel with R76 and R77, different files) |
-| 1 | R79 | add-inventory-sidebar-entry | Refactor (fast lane), AUT correction by Product owner (changes behaviour) | S | — (highest priority; parallel with R76–R78, different files) |
-| 1 | R80 | show-my-offerings-after-create | Refactor (fast lane), AUT correction by Product owner (changes behaviour) | S | — (highest priority; parallel with R76–R79, different files) |
 | 2 | R75 | update-stale-proxy-qa-test | Refactor (fast lane), by Product owner's order | S | — (on `feature/route-api-web-pages-through-front`, then aligned in `qa`) |
 | 4 | R1 | none yet (Playwright suite) | Change (tests) | — | R74 in `develop` (Product owner, 2026-10-12) |
 | 5 | R45 | none yet | Change (behaviour, API) | M | Product owner: deferred, to review 2026-10-12; not to be designed yet |
-
-## R80 — "View my offerings" replaces "Create offerings" after a creation (Product owner, 2026-10-12)
-
-- **Duplicated:** none. After offerings are created on "New offering", the form resets and keeps "Create offerings" (which cannot act until an inventory item is chosen again), and the status line carries an inline link "View my offerings" (offering-management "Creating offerings": "the status line announces the number of created offerings with a link to the list route, and the inventory choice and the location checkboxes reset").
-- **Where today:** `src/pages/new-offering/ui/NewOfferingForm.tsx` (status line and action group), `openspec/specs/offering-management/spec.md`.
-- **Why it pays off now:** AUT finding (Product owner, 2026-10-12): "la acción crear ofertas no hace nada porque me devuelve al mismo sitio; reemplazarla con ver mis ofertas, y que ver mis ofertas deje de ser un link".
-- **Owning capability:** offering-management.
-- **Proposed change:** show-my-offerings-after-create.
-- **Order:** AUT correction: fast lane, highest priority (standing order of the Product owner for AUT findings).
-- **Settled end state:**
-  1. After a successful creation, the status line (role `status`) keeps announcing the number of created offerings (`createdStatus` + count) **as text only, with no link**.
-  2. In that created state, the action group shows **"View my offerings"** (existing catalog text `viewMyOfferings`) **as a button** in place of "Create offerings": a `RouteButton` to `/{locale}/manage/offerings`, variant `action-3` (navigate/consult, as the button-variant rule), size `base`, in the same end-aligned `ActionGroup`, followed by "Cancel" as today.
-  3. As soon as the user chooses an inventory item again (the form leaves the created state), "Create offerings" returns in its place, so several creations in a row stay possible; the reset of the inventory choice and the location checkboxes stays as today.
-  4. Nothing else changes: requests, errors, the pending state, texts, other screens.
-- **Tests:** one test per new or modified scenario of "Creating offerings"; every other test keeps its assertions. Full checks pass.
-- **Open decision (Product owner):** none. (Orchestrator's reading, for his review: the button swap applies only after a creation, because "Create offerings" is the form's only way to create.)
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** R79 runs in parallel on the new-offering sidebar file only (different file); the archives edit this file.
-
-## R79 — "Explore coffee inventory" in the coffee shop's management sidebar (Product owner, 2026-10-12)
-
-- **Duplicated:** none. The sidebar of the offerings list, offering creation and locations routes shows only "Manage offerings" and "Manage locations" (offering-management "Management sidebar entry"); "Explore coffee inventory" appears only on the inventory list and detail ("Coffee inventory sidebar") and in the user menu.
-- **Where today:** `src/pages/manage-offerings/ui/ManageOfferingsSidebarEntries.tsx`, `src/pages/new-offering/ui/NewOfferingSidebarEntries.tsx`, `src/pages/manage-locations/ui/ManageLocationsSidebarEntries.tsx`, `src/pages/manage-inventory/ui/ManageInventorySidebarScreen.tsx`; `openspec/specs/offering-management/spec.md`.
-- **Why it pays off now:** AUT finding (Product owner, 2026-10-12): "explorar inventario de café no hace parte del menú sidebar del coffeeshop".
-- **Owning capability:** offering-management.
-- **Proposed change:** add-inventory-sidebar-entry.
-- **Order:** AUT correction: fast lane, highest priority (standing order of the Product owner for AUT findings).
-- **Settled end state:** on every coffee shop management route (offerings list, offering creation, locations, inventory list, inventory detail) the sidebar shows the same three entries in this order, each with its icon and visible label: "Manage offerings", "Manage locations", "Explore coffee inventory" (addressing `/{locale}/manage/inventory`, existing catalog text `sidebarExploreInventory`). The current-page marking stays as today for the first two (offerings on list and create, locations on locations) and "Explore coffee inventory" is the current page only on the inventory routes. On the inventory list it still holds the inventory facets; elsewhere it holds none. Icons: the existing inventory entry's icon if it has one, otherwise one from `src/shared/ui/icons.ts` (no new dependency). The requirement "Management sidebar entry" and its scenarios change from two to three entries; one test per new or modified scenario; every other test keeps its assertions. Full checks pass.
-- **Open decision (Product owner):** none.
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** R76–R78 run in parallel (different files); the archives edit this file.
-
-## R78 — Land on the landing page after a registration sign-in (Product owner, 2026-10-12)
-
-- **Duplicated:** none. After a registration whose `201` carries the `token` block, the front opens `/{locale}/account` (`src/pages/register/ui/RegisterClient.tsx:56`; user-account "Registration result", scenario "Signed in by the registration"; decision of `sign-in-after-registration` design.md D4).
-- **Where today:** `src/pages/register/ui/RegisterClient.tsx`, `openspec/specs/user-account/spec.md` ("Registration result"), the test of that scenario.
-- **Why it pays off now:** Product owner, after testing the deploy: the registration should bring the user back to the landing page, as a normal sign-in returns to where it started.
-- **Owning capability:** user-account.
-- **Proposed change:** land-on-home-after-registration.
-- **Order (Product owner, 2026-10-12):** "can you bring me back to the landing page": fast lane, highest priority.
-- **Settled end state:** when `POST /register` answers `201` with a `token` block that signs the user in, the session is authenticated and the landing page `/{locale}` opens through client-side navigation, with no success panel and no full page load (the scenario's destination changes from `/{locale}/account` to `/{locale}`; nothing else in it). Registration without the token block, failures, both roles (specialist and coffee shop), the API requests and every other requirement stay as they are. The scenario's existing test changes only its expected destination; no other test changes. Full checks pass.
-- **Open decision (Product owner):** none.
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** R76 and R77 run in parallel (different files); the three archives edit this file.
-
-## R77 — Collapsible taxonomy trees (Product owner, 2026-10-12)
-
-- **Duplicated:** none. `src/shared/ui/TaxonomyTree.tsx` always renders every level of each taxonomy tree.
-- **Where today:** `TaxonomyTree` and its three consumers: the offering card (`src/entities/offering/ui/OfferingCard.tsx`, landing and lists), the Consensus tab (`src/widgets/offering-detail/ui/SelectionBlock.tsx`, with the `name count/total` shares) and the detail by axis (`src/widgets/offering-detail/ui/AxisDetail.tsx`).
-- **Why it pays off now:** Product owner's request after testing `develop`: long trees crowd the cards.
-- **Owning capability:** the capability whose spec owns the shared tree (the architect decides from `openspec/specs/`: landing "Taxonomy badge trees on the offering card", offering-catalog "Consensus taste trees" and "Consensus detail by axis"); one commit per capability.
-- **Proposed change:** collapse-taxonomy-trees.
-- **Order (Product owner, 2026-10-12):** fast lane, highest priority; the orchestrator's recommendations accepted ("recommendations accepted"): everywhere the tree appears (option 1A), fast lane (2A), and the details below.
-- **Settled end state:**
-  1. Every taxonomy tree starts **closed**: only the top-level (level 0) notes show, in the three places above.
-  2. A note that has children shows a **toggle button right after its badge** (after its share on the Consensus tab), whose visible text is `+` when closed and `−` when open. A note without children has no toggle.
-  3. Opening a level-0 note shows its level-1 children; a level-1 note with children has its own toggle that shows its level-2 children.
-  4. **Closing a note closes all its descendants**: reopening it shows only its direct children, closed.
-  5. The toggle is a real `button` with `aria-expanded`, `aria-controls` pointing at the child list, `focus-visible:focus-ring`, a hover state with existing semantic tokens only (no new token, colour value or dependency), and an accessible name from the message catalogs, passed as props (es "Mostrar las notas de {label}" / "Ocultar las notas de {label}"; en "Show the notes under {label}" / "Hide the notes under {label}"; ca "Mostra les notes de {label}" / "Amaga les notes de {label}"). The `+`/`−` glyph is hidden from assistive technologies. Disabled state not used.
-  6. The open/closed state lives only in the component: it is not remembered across reloads or navigation, and does not change the URL or any request to the API.
-  7. The `role="list"` hierarchy and the existing layout (indented column for level 1, wrapping row for level 2, connector) stay as they are once open; the shares `name count/total` stay next to each badge.
-- **Tests:** one test per new or modified scenario. Existing validation tests of scenarios this entry modifies (all levels visible) are updated to the new scenarios; every other test keeps its assertions. QA tests that fail only because the tree now starts closed may add the clicks that open it, keeping their assertions (orchestrator's decision under the order; list them in the final report).
-- **Open decision (Product owner):** none.
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** R76 runs in parallel (only `next.config.ts`); both archives edit this file.
 
 ## R75 — Stale QA test of the proxy's CSP after R74 (Product owner, 2026-10-12)
 
