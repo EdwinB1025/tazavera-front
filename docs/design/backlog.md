@@ -27,24 +27,9 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 | 1 | R78 | land-on-home-after-registration | Refactor (fast lane), by Product owner's order (changes behaviour) | S | — (highest priority; runs in parallel with R76 and R77, different files) |
 | 1 | R79 | add-inventory-sidebar-entry | Refactor (fast lane), AUT correction by Product owner (changes behaviour) | S | — (highest priority; parallel with R76–R78, different files) |
 | 1 | R80 | show-my-offerings-after-create | Refactor (fast lane), AUT correction by Product owner (changes behaviour) | S | — (highest priority; parallel with R76–R79, different files) |
-| 1 | R82 | hint-user-on-security-links | Refactor (fast lane), security fix by Product owner's order (changes behaviour) | S | — (highest priority; parallel with R77–R80; API side on `tazzavera-api` `feature/bind-web-pages-to-hinted-user`) |
 | 2 | R75 | update-stale-proxy-qa-test | Refactor (fast lane), by Product owner's order | S | — (on `feature/route-api-web-pages-through-front`, then aligned in `qa`) |
 | 4 | R1 | none yet (Playwright suite) | Change (tests) | — | R74 in `develop` (Product owner, 2026-10-12) |
 | 5 | R45 | none yet | Change (behaviour, API) | M | Product owner: deferred, to review 2026-10-12; not to be designed yet |
-
-## R82 — The API's security and email pages open only for the signed-in user (Product owner, 2026-10-12)
-
-- **Duplicated:** none. The front opens the API's web pages `/user/security` (account Security section and the header user menu's "Security" entry) and `/email/verify` (account "Verify email") without saying which user it expects; the API serves them to whichever web session the browser holds. Reproduced by the Product owner: signed in on the front as a specialist, he opened the Security page of a coffee shop account whose web session the browser still held, and could manage its passkeys.
-- **Where today:** `src/pages/account/ui/SecuritySection.tsx` (`apiWebPageUrl("/user/security")`, `apiWebPageUrl("/email/verify")`), `src/widgets/app-header/ui/UserMenu.tsx` (`apiWebPageUrl("/user/security")`); the step-up already sends `login_hint` (`src/features/auth/api/authorize.ts`).
-- **Why it pays off now:** security defect found in the Product owner's tests; the API side (`tazzavera-api` branch `feature/bind-web-pages-to-hinted-user`, from `deploy`) logs out a web session of another user and asks to sign in again when the page is opened with a `login_hint` that does not match.
-- **Owning capability:** user-account (and app-shell for the header entry; one commit per capability).
-- **Proposed change:** hint-user-on-security-links.
-- **Order (Product owner, 2026-10-12):** "realiza el arreglo propuesto": fast lane, highest priority.
-- **Settled end state:** every link the front renders to `/user/security` and `/email/verify` carries `?login_hint=<the signed-in user's ULID>` (the same value the step-up sends), built through the existing `apiWebPageUrl` helper, never by hand; the links keep opening in the security popup as today (`openSecurityPopup`), with the same texts and accessible names. Signed out (no ULID) the links render as today. No other behaviour, text or request changes; no API contract change. One test per new or modified scenario; every other test keeps its assertions. Full checks pass.
-- **Open decision (Product owner):** none.
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** R74 (same helper, already in `develop`); the API branch `feature/bind-web-pages-to-hinted-user`; R77–R80 run in parallel (different files); the archives edit this file.
 
 ## R80 — "View my offerings" replaces "Create offerings" after a creation (Product owner, 2026-10-12)
 
