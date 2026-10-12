@@ -15,7 +15,7 @@ No derived API types are needed: the tree keeps receiving the notes its consumer
 
 ## 2. Collapsible trees on the Consensus tab (offering-catalog)
 
-- [ ] 2.1 Tests in `src/widgets/offering-detail/ui/ConsensusPanel.test.tsx` (`TEXTS` gains `showNotesLabel` and `hideNotesLabel`), one per scenario of the offering-catalog delta:
+- [x] 2.1 Tests in `src/widgets/offering-detail/ui/ConsensusPanel.test.tsx` (`TEXTS` gains `showNotesLabel` and `hideNotesLabel`), one per scenario of the offering-catalog delta:
   - "Trees closed at first with the toggle after the share": in the Defects card Fermentado shows, Vinagre is not visible, and the element right after Fermentado's `Fermentado 1/5` share is a button with visible text `+`.
   - "Identified notes" (modified): the existing test opens Fermentado first and keeps every assertion.
   - "Axis trees closed at first": in the expanded fragrance section Floral shows, Jazmín is not visible, and the element right after the `Floral 3/5` share is a button with visible text `+`.
