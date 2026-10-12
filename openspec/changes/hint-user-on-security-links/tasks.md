@@ -21,4 +21,4 @@ No derived API types are needed: the change reads `data.ulid`, already in `Sessi
 
 ## 3. Full checks
 
-- [ ] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass, with three new tests. A QA test that fails only because one of these links now carries `login_hint` gets only that expected address updated and is listed in the final report; any other failure is fixed in its own `fix(<capability>): …` commit or, outside this change, reported.
+- [x] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass, with three new tests. A QA test that fails only because one of these links now carries `login_hint` gets only that expected address updated and is listed in the final report; any other failure is fixed in its own `fix(<capability>): …` commit or, outside this change, reported.
