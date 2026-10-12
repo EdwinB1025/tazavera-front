@@ -83,3 +83,12 @@ Summary: the propose run (`trig_011ACFx3DJHxHoTy1uTFHWCD`, session `cse_01RnUC1A
 #### Q9 — `openspec/config.yaml` wording (architect's open point 2)
 - Question: update the auth line to option A (your file).
 - Blocks: no.
+
+## Session 2026-10-12 — artifact review (step 7)
+Summary: Product owner sent his review message (the two `design.md` fixes of the Q8 answer: Risks item names only ngrok, no Caddy, records the decision not to override the forwarded `host`; Open Questions "None."; specs and tasks unchanged). Product owner committed the `openspec/config.yaml` auth line on `feature/route-api-web-pages-through-front` (`900a4f76`); the orchestrator pushed it before the architect run so its commit fast-forwards. Stopped because: architect run scheduled. MVC reachable: not needed.
+
+### Decisions taken
+#### D1 — Q7 answered: review message = the Q8 wording fixes
+- Context: Product owner, 2026-10-12: "submit it as my review message and proceed".
+- Result: cloud run `trig_01Ji2NEC5r9eMbHbLvGNGdYm` at 10:14 UTC, architect only, `openspec-update-change` skill, base `900a4f76`, target `claude/route-api-web-pages-through-front-update`, one commit `docs(auth): update artifacts for route-api-web-pages-through-front`. Prompt written by the design lead (local subagent; usage 36 % / 50 %), checked by the orchestrator (added the fetch/branch setup and the `config.yaml` record).
+- Next: review the commit, duplicates check (§4), ff `feature/…`; then the apply in the cloud (security: auth flow, `proxy.ts`), tasks 1.1–7.1.
