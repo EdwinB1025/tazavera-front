@@ -3,7 +3,7 @@ No derived API types are needed: the change reads no API field and sends no requ
 ## 1. The "Explore coffee inventory" entry (offering-management, features)
 
 - [x] 1.1 Test in `src/features/offering-management/ui/InventorySidebarEntry.test.tsx` (validation suite), the `LocationsSidebarEntry.test.tsx` pattern, scenario "Inventory entry navigates": render `<SidebarMenu><InventorySidebarEntry locale="es" label="texts.sidebarExploreInventory" current /></SidebarMenu>` (imported from `@/features/offering-management`); assert the link named `texts.sidebarExploreInventory` has `href` `/es/manage/inventory`, contains `svg.lucide-compass`, has text `texts.sidebarExploreInventory` and `aria-current` `page`. Verify: the test fails only because `InventorySidebarEntry` is not exported yet (test failure and typecheck error for that missing export only); `npm run lint` passes.
-- [ ] 1.2 Implement design.md D1–D2: `src/features/offering-management/ui/InventorySidebarEntry.tsx` and its export in `src/features/offering-management/index.ts`. Verify: `npx vitest related` on the changed files passes, 1.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 1.2 Implement design.md D1–D2: `src/features/offering-management/ui/InventorySidebarEntry.tsx` and its export in `src/features/offering-management/index.ts`. Verify: `npx vitest related` on the changed files passes, 1.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 2. Three entries on every management route (offering-management, pages)
 
