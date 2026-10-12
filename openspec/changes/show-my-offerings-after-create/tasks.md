@@ -11,4 +11,4 @@ No derived API types are needed: the change reads no new API field and sends no 
 
 ## 2. Full checks
 
-- [ ] 2.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass, the validation suite with two more tests than before, lint with 0 errors. A QA test that fails only because the created state now shows the button instead of the link gets only that query adjusted and is listed in the final report; any other failure is fixed in its own `fix(offering-management): …` commit or reported.
+- [x] 2.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass, the validation suite with two more tests than before, lint with 0 errors. A QA test that fails only because the created state now shows the button instead of the link gets only that query adjusted and is listed in the final report; any other failure is fixed in its own `fix(offering-management): …` commit or reported.
