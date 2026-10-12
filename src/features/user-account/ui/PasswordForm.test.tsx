@@ -11,6 +11,7 @@ import { PasswordForm, type PasswordFormTexts } from "@/features/user-account";
  */
 
 const API = "https://api.tazavera.test";
+const APP = "https://tazavera.test";
 
 const TEXTS: PasswordFormTexts = {
   currentPasswordLabel: "fx-current",
@@ -36,6 +37,7 @@ beforeEach(() => {
   fetchMock.mockReset();
   vi.stubGlobal("fetch", fetchMock);
   vi.stubEnv("NEXT_PUBLIC_API_URL", API);
+  vi.stubEnv("NEXT_PUBLIC_APP_URL", APP);
   configureClient({
     getTokens: () => ({
       access_token: "token-1",
@@ -111,10 +113,10 @@ function expectCleared() {
 }
 
 describe("PasswordForm — fields", () => {
-  it("renders the forgot-password line as a same-tab external link to {API}/forgot-password, sending no request", () => {
+  it("renders the forgot-password line as a same-tab external link to {APP}/forgot-password, sending no request", () => {
     renderForm();
     const link = screen.getByRole("link", { name: TEXTS.forgotPasswordLink });
-    expect(link.getAttribute("href")).toBe(`${API}/forgot-password`);
+    expect(link.getAttribute("href")).toBe(`${APP}/forgot-password`);
     expect(link.getAttribute("target")).toBeNull();
     expect(fetchMock).not.toHaveBeenCalled();
   });

@@ -34,7 +34,7 @@ Every test below belongs to the validation suite. Test values: front `https://ta
 
 ## 5. Account links on the front's origin (user-account)
 
-- [ ] 5.1 Tests, with `NEXT_PUBLIC_APP_URL` = `https://tazavera.test` stubbed where the file stubs `NEXT_PUBLIC_API_URL` and the expected base of the links moved from the API value to it:
+- [x] 5.1 Tests, with `NEXT_PUBLIC_APP_URL` = `https://tazavera.test` stubbed where the file stubs `NEXT_PUBLIC_API_URL` and the expected base of the links moved from the API value to it:
   - "Two-factor authentication and passkeys": `src/pages/account/ui/AccountClient.test.tsx` "shows its description and external same-tab links to {API}/user/security…" expects `https://tazavera.test/user/security`.
   - "Verifying the email": `AccountClient.test.tsx` "while the email is unverified lists a same-tab Verify email link to {API}/email/verify…" expects `https://tazavera.test/email/verify`.
   - "The password-reset link": `src/features/user-account/ui/PasswordForm.test.tsx` "renders the forgot-password line as a same-tab external link to {API}/forgot-password…" expects `https://tazavera.test/forgot-password`.
