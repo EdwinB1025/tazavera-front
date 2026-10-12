@@ -12,7 +12,7 @@ No derived API types are needed: the change reads `data.ulid`, already in `Sessi
 
 ## 2. The user menu's Security entry names the user (app-shell)
 
-- [ ] 2.1 Tests in `src/widgets/app-header/ui/AppHeader.test.tsx` (validation suite); the fixture `USER` has `ulid: "01M35F5RX4ADGC3CSDXXYB08DD"`:
+- [x] 2.1 Tests in `src/widgets/app-header/ui/AppHeader.test.tsx` (validation suite); the fixture `USER` has `ulid: "01M35F5RX4ADGC3CSDXXYB08DD"`:
   - New test, scenario "The security entry names the signed-in user": open the menu; assert the security entry's `href` is `https://tazavera.test/user/security?login_hint=01M35F5RX4ADGC3CSDXXYB08DD`.
   - New test, scenario "No user identifier in the session": a session user without `ulid`; open the menu; assert the security entry's `href` is `https://tazavera.test/user/security`.
   - Existing tests "renders the security entry as an external link, natively" and "opens the security entry in a popup window on a plain click …": update only the expected address to carry `?login_hint=01M35F5RX4ADGC3CSDXXYB08DD`.
