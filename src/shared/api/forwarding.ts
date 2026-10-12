@@ -33,6 +33,7 @@ const WEB_PATHS = new Set([
   "/passkeys/login/options",
   "/passkeys/confirm",
   "/passkeys/confirm/options",
+  "/favicon.svg",
 ]);
 
 /**
