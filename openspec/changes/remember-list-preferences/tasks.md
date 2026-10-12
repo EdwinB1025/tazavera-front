@@ -24,4 +24,4 @@ No derived API types are needed: the change reads no API field and sends no new 
 
 ## 4. Full checks
 
-- [ ] 4.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass with six new tests and no QA test made stale. Any QA test made stale on purpose is left untouched and listed in the final report; any other failure is fixed in its own `fix(filtering): …` commit.
+- [x] 4.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass with six new tests and no QA test made stale. Any QA test made stale on purpose is left untouched and listed in the final report; any other failure is fixed in its own `fix(filtering): …` commit.
