@@ -1,5 +1,6 @@
-import { useCallback } from "react";
+import { createContext, useCallback, useContext } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { readTabValue, removeTabValues, writeTabValue } from "@/shared/lib/tab-storage";
 
 /**
  * URL writes of the facet panels (add-offering-facets design.md D4). The
@@ -17,6 +18,12 @@ export type QueryRecord = Record<string, string | string[] | undefined>;
  * element; `undefined`, `""` or `[]` removes the key.
  */
 export type FilterChanges = Record<string, string | readonly string[] | undefined>;
+
+/**
+ * A list's memory (remember-list-preferences design.md D2): its storage name
+ * and the query keys it keeps for the browser tab.
+ */
+export type FilterMemory = { name: string; keys: readonly string[] };
 
 type FilterNavigation = {
   navigate: (changes: FilterChanges) => void;
@@ -75,9 +82,37 @@ export function clearFiltersHref(
   return hrefOf(pathname, next);
 }
 
+// ─── List memory (remember-list-preferences design.md D2) ───
+
+const MEMORY_PREFIX = "tazavera.list-filters.";
+
+/** The memory of the enclosing list, or `null` outside an editing list. */
+export const FilterMemoryContext = createContext<FilterMemory | null>(null);
+
+/** The kept query of a list (`""` when none or unreadable). */
+export function rememberedQuery(memory: FilterMemory): string {
+  return readTabValue(`${MEMORY_PREFIX}${memory.name}`) ?? "";
+}
+
+/** Keeps the href's query restricted to the memory's keys, never `page`. */
+function rememberQuery(memory: FilterMemory, href: string): void {
+  const kept = new URLSearchParams();
+  const query = href.includes("?") ? href.slice(href.indexOf("?") + 1) : "";
+  for (const [key, value] of new URLSearchParams(query)) {
+    if (key !== "page" && memory.keys.includes(key)) kept.append(key, value);
+  }
+  writeTabValue(`${MEMORY_PREFIX}${memory.name}`, kept.toString());
+}
+
+/** Forgets the kept query of every list (design.md D4). */
+export function forgetRememberedFilters(): void {
+  removeTabValues(MEMORY_PREFIX);
+}
+
 /**
  * Client navigation of the facets: one history entry per change and no
- * scroll to top (`router.push(href, { scroll: false })`).
+ * scroll to top (`router.push(href, { scroll: false })`). Inside a list's
+ * memory, every navigation first keeps its filters and order.
  */
 export function useFilterNavigation(): FilterNavigation {
   const router = useRouter();
@@ -85,10 +120,14 @@ export function useFilterNavigation(): FilterNavigation {
   // Both are nullable in the types because the root `pages/` exists; the
   // App Router always provides them.
   const searchParams = useSearchParams();
+  const memory = useContext(FilterMemoryContext);
 
   const navigateTo = useCallback(
-    (href: string) => router.push(href, { scroll: false }),
-    [router],
+    (href: string) => {
+      if (memory) rememberQuery(memory, href);
+      router.push(href, { scroll: false });
+    },
+    [router, memory],
   );
   const navigate = useCallback(
     (changes: FilterChanges) =>
