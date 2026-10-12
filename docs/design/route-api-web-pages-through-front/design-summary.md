@@ -2,15 +2,38 @@ Status: draft — pending Product owner review
 
 # Design summary — route-api-web-pages-through-front
 
-Drafted by the design lead on 2026-10-12 from backlog entry R74 (Product owner, 2026-10-12), decision D10 (`tazavera-documentation/docker-deploy-guideline.md`), the front notes C8/C9, the API notes C8, the build steps C8/C9, `docker-dudas-y-guia-contenedores.md` §4.13, the front code on `develop` (`e34d5e70`), the API's route list (`php artisan route:list`, read only) and views, and the Next.js 16 guides in `node_modules/next/dist/docs/`. Product owner, 2026-10-12: the design lead decides the open points a–d of R74; the values that belong to the API's environment and the demo's tunnels are listed under "Open".
+Drafted by the design lead on 2026-10-12 and revised the same day after Product owner's answers. Sources:
+- backlog entry R74 and `docs/design/route-api-web-pages-through-front/handoff.md` (Product owner, 2026-10-12);
+- decision D10 (`tazavera-documentation/docker-deploy-guideline.md`), revised by Product owner to option A;
+- the front notes C8/C9, the API notes C8, the build steps C8/C9, `docker-dudas-y-guia-contenedores.md` §4.13;
+- the front code on `develop`;
+- the API's route list (`php artisan route:list`, read only) and views;
+- the Next.js 16 guides in `node_modules/next/dist/docs/`.
+
+Product owner delegated the open points a–d to the design lead; only what is genuinely Product owner's stays under "Open".
 
 - Change-id: `route-api-web-pages-through-front`
-- Type: Change (traditional workflow, section 3a): it adds behaviour and touches security (headers, the auth flow).
-- Capabilities: `auth` (owner), `app-shell` (response headers), `user-account` (links to the API's pages).
+- Type: Change (traditional workflow, section 3a). It adds behaviour and touches security (headers, the auth flow, the token exchange).
+- Capabilities: `auth` (owner), `app-shell` (response headers, CSP), `user-account` (links to the API's pages).
 - Branch and folders: `feature/route-api-web-pages-through-front`, `openspec/changes/route-api-web-pages-through-front/`, `docs/design/route-api-web-pages-through-front/`.
-- Contract: no change. The forwarded routes are web routes and are intentionally absent from `contracts/openapi.yaml`.
+- Contract: no change. `contracts/openapi.yaml` keeps describing the API's own paths. The front reaches them under its prefix (D1), which is a routing detail of the front, not of the API.
 - Interface: no visual element is added or changed, so no spacing, token or contrast value applies (criteria A and D). Every visible text stays as it is.
-- Out of scope: any API code (Product owner's), the deploy files (Dockerfile, compose, Caddyfile: the PO builds them), the token storage, PKCE, the scopes, the JSON calls.
+- Out of scope: any API code (none is needed), the deploy files (Dockerfile, compose, Caddyfile: Product owner builds them), the token storage, PKCE, the scopes.
+
+## 0. Product owner's answers (2026-10-12), settled
+
+- **Setup:** the demo environment is the production environment: one server with one public entry point (one ngrok URL). There is no public API address.
+- **D10 revised, option A: the front is the only door.**
+  - It forwards the API's web routes, `POST /oauth/token` and every JSON call.
+  - The front calls the API under a path prefix that the proxy strips when forwarding to `API_INTERNAL_URL`. No API code change.
+  - `NEXT_PUBLIC_API_URL` becomes the front's own origin plus the prefix.
+  - The CSP's `connect-src` drops the API origin.
+  - This replaces R74 end-state point 2 and the first draft's D9.
+- **Q1:** the API's `APP_URL` is the public front URL.
+- **Q2:** the API trusts the front's address (`TRUSTED_PROXIES`); `SESSION_DOMAIN` unset; secure cookies on.
+- **Q3:** not needed (one tunnel, one URL).
+- **Q4:** `expose_php=Off` in the API image.
+- **Q5:** solved. The registration now reaches the API through the front, and `APP_URL` is the front's URL, so the verification link opens on the front, which forwards `/email/verify`. No backlog entry.
 
 ## 1. Today (verified 2026-10-12)
 
@@ -18,200 +41,231 @@ Drafted by the design lead on 2026-10-12 from backlog entry R74 (Product owner, 
 |---|---|---|
 | JSON calls (`request`, `publicRequest`, `requestWithToken`), browser and server | `src/shared/api/client.ts:128-130` | `NEXT_PUBLIC_API_URL` |
 | Token exchange and refresh, OAuth `issuer` | `src/shared/api/tokens.ts:167-170` | `NEXT_PUBLIC_API_URL` |
-| Authorization page (popup, full-page fallback, silent `prompt=none`) | `src/features/auth/api/authorize.ts:300` (`authorizeUrl`), `:344` (`apiUrl`) | `NEXT_PUBLIC_API_URL` |
+| Authorization page (popup, full-page fallback, silent `prompt=none`) | `src/features/auth/api/authorize.ts:300`, `:344` | `NEXT_PUBLIC_API_URL` |
 | User menu "Security" link | `src/widgets/app-header/ui/UserMenu.tsx:123` | `NEXT_PUBLIC_API_URL` |
 | Account security section: security page, "Verify email" | `src/pages/account/ui/SecuritySection.tsx:43`, `:56` | `NEXT_PUBLIC_API_URL` |
 | "Forgot your password?" | `src/features/user-account/ui/PasswordForm.tsx:92` | `NEXT_PUBLIC_API_URL` |
+| CSP `connect-src` | `proxy.ts:80-90` | `'self'` + origin of `NEXT_PUBLIC_API_URL` + Nominatim |
 | Forwarding | `next.config.ts` (no rewrites), `proxy.ts` (headers and locale only) | none |
 | `API_INTERNAL_URL` | — | not read anywhere |
 
-- `proxy.ts` matches every path (`/:path*`). It returns paths under `/_next/` and any path with a file extension untouched (`proxy.ts:74-76`), gives `/callback` its CSP without COOP, and sends every other path through next-intl, which redirects a path without a locale prefix (`/login` → `/es/login`).
-- The server-side reads go through `publicRequest` (taxonomies, coffees, offerings, offering detail, coffee shops, public evaluations, management lists). The front never follows an absolute URL from a response body (no `links`, `next_page_url` or `path` is read; grep of `src/`), so the base of a server-side read can change without touching any parser.
-- Decisions log, 2026-10-09 (2): "reading `API_INTERNAL_URL` on the front's server is a deploy matter, not launched as a front change". R74 (Product owner, 2026-10-12, point 3) supersedes it: the change reads it. Resolved as a semantic point (criterion B): the later decision prevails.
+- `proxy.ts` matches every path (`/:path*`). It returns paths under `/_next/` and any path with a file extension untouched (`proxy.ts:74-76`), gives `/callback` its CSP without COOP, and sends every other path through next-intl, which redirects a path without a supported locale prefix (`/login` → `/es/login`).
+- The front's routes all live under `/[locale]/…` (`es`, `en`, `ca`) plus `/callback`, the framework paths and the app icons. There is no `app/api` route handler, so no front route starts with `/api`.
+- The server-side reads go through `publicRequest` (taxonomies, coffees, offerings, offering detail, coffee shops, public evaluations, management lists). The front never follows an absolute URL from a response body: no `links`, `next_page_url` or `path` is read (grep of `src/`).
+- Decisions log, 2026-10-09 (2), said "reading `API_INTERNAL_URL` on the front's server is a deploy matter". R74 point 3 and option A supersede it. This is a semantic point (criterion B): the later decision prevails.
 
 ## 2. The API routes (read only, `php artisan route:list`, 2026-10-12)
 
-The API has no path prefix: JSON routes and web routes share the root (`/user` is JSON, `/user/security` is web). So the forwarding is an explicit list of paths, never a prefix such as `/user/*`.
+The API has no path prefix of its own: JSON and web routes share the root (`/user` is JSON, `/user/security` is web). None of its routes starts with `/api`.
 
-| Group | Paths | Middleware | Under this change |
+| Group | Paths | Middleware | Reached by the browser as |
 |---|---|---|---|
-| Authorization | `GET`/`POST`/`DELETE /oauth/authorize` | `web` | Forwarded |
-| Fortify screens | `GET`/`POST /login`; `GET`/`POST /two-factor-challenge`; `GET`/`POST /forgot-password`; `GET /reset-password/{token}`, `POST /reset-password`; `GET /email/verify`, `GET /email/verify/{id}/{hash}`, `POST /email/verification-notification` | `web` | Forwarded |
-| Security page and its actions | `GET /user/security`; `/user/confirm-password`; `/user/confirmed-password-status`; `/user/confirmed-two-factor-authentication`; `/user/two-factor-authentication`; `/user/two-factor-qr-code`; `/user/two-factor-recovery-codes`; `/user/two-factor-secret-key`; `/user/passkeys`, `/user/passkeys/options`, `/user/passkeys/{passkey}` | `web` | Forwarded |
-| Passkey sign-in and confirmation | `/passkeys/login`, `/passkeys/login/options`, `/passkeys/confirm`, `/passkeys/confirm/options` | `web` | Forwarded |
-| Assets of those pages | `/build/*` (Vite build), `/flux/*` (Flux scripts), `/livewire-<hash>/*` (Livewire scripts, `update`, uploads; the hash part is per installation, `livewire-eb65e81f` locally) | none or `web` | Forwarded |
-| Token endpoint | `POST /oauth/token` | `throttle` only | Direct (not forwarded) |
-| JSON endpoints | every `api` route (`/user`, `/user/evaluations…`, `/offerings…`, `/register`, `/logout`…) | `api` | Direct (not forwarded) |
-| Not used by the front | `/oauth/token/refresh`, `/oauth/device*`, `/storage/*`, `/up`, `/`, the Scribe docs | — | Not forwarded |
-| Icons of the API's layout | `/favicon.ico`, `/favicon.svg`, `/apple-touch-icon.png` (`partials/head.blade.php:8-10`) | — | Not forwarded: the front serves its own icon at those paths (or none), the same brand |
+| Authorization | `GET`/`POST`/`DELETE /oauth/authorize` | `web` | `{front}/oauth/authorize` (web list) |
+| Fortify screens | `GET`/`POST /login`; `GET`/`POST /two-factor-challenge`; `GET`/`POST /forgot-password`; `GET /reset-password/{token}`, `POST /reset-password`; `GET /email/verify`, `GET /email/verify/{id}/{hash}`, `POST /email/verification-notification` | `web` | same path on the front (web list) |
+| Security page and its actions | `GET /user/security`; `/user/confirm-password`; `/user/confirmed-password-status`; `/user/confirmed-two-factor-authentication`; `/user/two-factor-authentication`; `/user/two-factor-qr-code`; `/user/two-factor-recovery-codes`; `/user/two-factor-secret-key`; `/user/passkeys`, `/user/passkeys/options`, `/user/passkeys/{passkey}` | `web` | same path on the front (web list) |
+| Passkey sign-in and confirmation | `/passkeys/login`, `/passkeys/login/options`, `/passkeys/confirm`, `/passkeys/confirm/options` | `web` | same path on the front (web list) |
+| Assets of those pages | `/build/*` (Vite build), `/flux/*` (Flux scripts), `/livewire-<hash>/*` (Livewire scripts, `update`, uploads; the hash is per installation, `livewire-eb65e81f` locally) | none or `web` | same path on the front (web list) |
+| Token endpoint | `POST /oauth/token` | `throttle` only | `{front}/api/oauth/token` (prefix) |
+| JSON endpoints | every `api` route (`/user`, `/user/evaluations…`, `/offerings…`, `/register`, `/logout`…) | `api` | `{front}/api/<path>` (prefix) |
+| Icons of the API's layout | `/favicon.ico`, `/favicon.svg`, `/apple-touch-icon.png` | — | not forwarded: the front serves its own icon at those paths (or none), the same brand |
 
-- The API's pages build every form action, link and asset URL with `route()`, `url()` and `@vite` (`resources/views/livewire/auth/*.blade.php`, `partials/head.blade.php`), so they come out on whatever origin Laravel takes as the request's root. No `URL::forceRootUrl` or `forceScheme` exists in the API (grep of `app/`, `bootstrap/`, `config/`). This is why the forwarded request must carry the front's public origin (D3).
-- The API's pages load Google Fonts from `fonts.googleapis.com` and send no CSP of their own today.
+The API's pages build every form action, link and asset URL with `route()`, `url()` and `@vite`, so they come out on whatever origin Laravel takes as the request's root. No `URL::forceRootUrl` or `forceScheme` exists in the API. This is why the forwarded request carries the front's public origin (D3).
 
 ## 3. Decisions
 
-### D1 — One allowlist of forwarded web routes
+### D1 — Two forwarded groups: the `/api` prefix and the web list
 
-- The forwarded paths are exactly the groups marked "Forwarded" in §2, kept in one module in `src/shared/api` (for example `web-routes.ts`) as path patterns. `proxy.ts` reads it, and the tests use the same list.
-- Patterns: exact paths for the single routes; `/reset-password/:token`, `/email/verify/:id/:hash` and `/user/passkeys/:passkey` for the parameters; prefixes only for the asset groups (`/build/`, `/flux/`) and for the Livewire group, matched as `/livewire-<hex>/` because its hash changes per installation.
-- Every HTTP method of a listed path is forwarded (GET, HEAD, POST, PUT, PATCH, DELETE), with its query string unchanged.
-- Why: the API has no prefix that separates web from JSON (§2), so a prefix rule would also forward JSON paths. An explicit list exposes nothing beyond the pages the browser needs. Adding a page later is one line.
+- **Prefix group.** Every path that starts with `/api/` is forwarded to `API_INTERNAL_URL` with `/api` removed (`/api/offerings?page=2` → `{internal}/offerings?page=2`; `/api/oauth/token` → `{internal}/oauth/token`).
+  - This is the token endpoint and every JSON call, whatever the path, with no list to keep in step with the API.
+  - `/api` alone (no trailing segment) is not forwarded and keeps today's handling.
+- **Web list.** The web-route groups of §2 are forwarded with their path unchanged, because the API's pages and their links, redirects and assets live at the API's root. The list is explicit (exact paths; `/reset-password/:token`, `/email/verify/:id/:hash`, `/user/passkeys/:passkey`; prefixes only for `/build/`, `/flux/` and the Livewire group, matched as `/livewire-<hex>/`). It is kept in one module in `src/shared/api` that `proxy.ts` and the tests read.
+- Every HTTP method is forwarded, with the query string, headers and body unchanged.
+- **How the proxy tells them apart.** One order of checks in `proxy.ts`, first match wins:
+  1. `/api/…` → forward, prefix stripped;
+  2. a path in the web list → forward as is;
+  3. `/_next/…` or a path with a file extension → untouched (today's early return);
+  4. `/callback` → its own branch;
+  5. anything else → locale routing.
+
+  Steps 1–2 come before step 3 because the API's assets (`/flux/flux.js`, `/build/assets/app-….css`, `/livewire-…/livewire.js`) carry file extensions. `/api` cannot clash with the front: no front route starts with it, `api` is not a supported locale, and `/_next` and the icons do not start with it.
+- Why a prefix for JSON and not a list: the JSON surface is the whole contract and changes with it, while the web routes are a closed set. The prefix also keeps a JSON path and a web path of the same name apart (`/api/user` is JSON, `/user/security` is the web page).
 
 ### D2 — Forwarding happens in `proxy.ts`, not in `next.config.ts` rewrites
 
-- `proxy.ts` checks the allowlist first, before the asset early return and before the `/callback` and locale branches. A match answers `NextResponse.rewrite(<target><path><query>)` to the absolute target of D5 and sets none of the front's headers on it (D6).
-- Why proxy and not `rewrites()`:
-  1. Order: the proxy runs before the `beforeFiles` rewrites (`03-file-conventions/proxy.md` "Execution order"; `05-config/01-next-config-js/rewrites.md` lines 87-96), and today it locale-redirects `/login` and lets `/flux/flux.js` fall through as a file path. A rewrite in `next.config.ts` would still need the proxy to step aside for every listed path, so the list would live in two places.
-  2. Runtime value: the target is `API_INTERNAL_URL`, a server value read when the server runs (D5). The proxy reads `process.env` per request (Node.js runtime by default, `proxy.md` line 255). `rewrites()` are compiled into the build's routing manifest [Likely, not verified in the docs], which would freeze the target at build time.
-  3. Headers: only the proxy can set the forwarded request's headers (D3).
+- A match answers `NextResponse.rewrite(<API_INTERNAL_URL><path><query>)` and sets none of the front's headers on it (D6).
+- Why the proxy:
+  1. Order: the proxy runs before the `beforeFiles` rewrites (`03-file-conventions/proxy.md` "Execution order"; `05-config/01-next-config-js/rewrites.md` lines 87-96), and today it would locale-redirect `/login` and `/api/…`.
+  2. Runtime value: the target is a server value read when the server runs. The proxy runs on the Node.js runtime by default (`proxy.md` line 255) and reads `process.env` per request; `rewrites()` are compiled into the build [Likely, not verified in the docs].
+  3. Headers: only the proxy sets the forwarded request's headers (D3).
 - `NextResponse.rewrite` to an absolute URL proxies the method, headers and body and keeps the browser's URL (`04-functions/next-response.md` `rewrite()`).
 
 ### D3 — The forwarded request carries the front's public origin
 
-- The proxy sets `X-Forwarded-Host`, `X-Forwarded-Proto` and `X-Forwarded-Port` on the forwarded request from `NEXT_PUBLIC_APP_URL` (the front's exact public origin, a build value), replacing any incoming value. `X-Forwarded-For` keeps the client's address, so the API's login and two-factor rate limits keep counting per client.
-- Why: Laravel builds form actions, redirects (`Location`) and asset URLs from the request's root (§2). With the front's address in `TRUSTED_PROXIES` (Open 2) and these headers, every URL the API emits stays on the front's origin. The front never rewrites a `Location` header or a response body: the API emits the right URL in the first place.
-- Taking the origin from `NEXT_PUBLIC_APP_URL` instead of the incoming request keeps it right behind ngrok, which terminates TLS before the front (the request reaching Next.js is plain `http`).
+- On every forwarded request (both groups), the proxy sets `X-Forwarded-Host`, `X-Forwarded-Proto` and `X-Forwarded-Port` from `NEXT_PUBLIC_APP_URL`, replacing any incoming value.
+- `X-Forwarded-For` keeps the client's address, so the API's rate limits (login, two-factor, `/oauth/token`) keep counting per client.
+- `Authorization` and the cookies pass through.
+- With the front's address trusted (Q2), every URL the API emits for the web pages (form actions, `Location`, assets, the reset and verification links) is on the front's origin. The front never rewrites a `Location` header or a body.
+- Taking the origin from `NEXT_PUBLIC_APP_URL` keeps it right behind ngrok, which terminates TLS before the front.
 
-### D4 — The second base URL is `NEXT_PUBLIC_APP_URL` (point a)
+### D4 — Bases: web pages at the front's root, JSON and token under the prefix (point a)
 
-- No new variable. The web routes live on the front's origin by definition, and that origin is already `NEXT_PUBLIC_APP_URL`: a build value, the API's `FRONT_URL`, the client's redirect `<APP>/callback`, and the origin `authorize.ts` checks for the popup's message and opener (`authorize.ts:212`, `:324`). A separate variable could diverge from it and break those checks.
-- One helper in `src/shared/api` builds a web-route URL from it (for example `apiWebPageUrl(path)`), so no call site concatenates the origin by hand.
-- Call sites:
+- `NEXT_PUBLIC_API_URL` keeps its name and its role as the base of the JSON calls and of the token endpoint. Its value in every setup is `{NEXT_PUBLIC_APP_URL}/api`, for example `https://<ngrok-domain>/api` or `http://localhost:3000/api`.
+  - Keeping the variable means `client.ts` and `tokens.ts` do not change, and neither do the many tests that stub it.
+  - The prefix is a fixed constant `/api` in `src/shared/api`, which the proxy uses. The variable's value must end with it (§6 check 1 shows a mismatch at once: every JSON call 404s).
+- The web pages use `NEXT_PUBLIC_APP_URL` (the front's root), behind one helper in `src/shared/api` (for example `apiWebPageUrl(path)`). No second base variable is added.
 
 | Call site | Path | After |
 |---|---|---|
-| `authorize.ts` `authorizeUrl` (popup, full-page fallback, silent `prompt=none`) | `/oauth/authorize` | front origin |
-| `UserMenu.tsx:123` | `/user/security` | front origin |
-| `SecuritySection.tsx:43` | `/user/security` | front origin |
-| `SecuritySection.tsx:56` | `/email/verify` | front origin |
-| `PasswordForm.tsx:92` | `/forgot-password` | front origin |
-| `tokens.ts:168` token endpoint and `issuer` | `/oauth/token` | API (unchanged) |
-| `client.ts` JSON calls in the browser | every JSON path | API (unchanged) |
+| `authorize.ts` `authorizeUrl` (popup, full-page fallback, silent `prompt=none`) | `/oauth/authorize` | `{APP}/oauth/authorize` |
+| `UserMenu.tsx:123` | `/user/security` | `{APP}/user/security` |
+| `SecuritySection.tsx:43` | `/user/security` | `{APP}/user/security` |
+| `SecuritySection.tsx:56` | `/email/verify` | `{APP}/email/verify` |
+| `PasswordForm.tsx:92` | `/forgot-password` | `{APP}/forgot-password` |
+| `tokens.ts:168` token endpoint and `issuer` | `/oauth/token` | `{API}/oauth/token` = `{APP}/api/oauth/token` (code unchanged, value changes) |
+| `client.ts` JSON calls in the browser | every JSON path | `{API}/<path>` = `{APP}/api/<path>` (code unchanged, value changes) |
 
-- The parameters of the authorization request (`redirect_uri`, `client_id`, `scope`, `state`, PKCE, `theme`, `lang`, `prompt`, `login_hint`) do not change. The links keep their presentation and popup behaviour (`openSecurityPopup`, `ExternalLink`).
+- The parameters of the authorization request (`redirect_uri`, `client_id`, `scope`, `state`, PKCE, `theme`, `lang`, `prompt`, `login_hint`) do not change. The links keep their presentation and popup behaviour.
 
-### D5 — `API_INTERNAL_URL`: server only, with a fallback
+### D5 — `API_INTERNAL_URL`: required on the server, no fallback
 
-- A server-only variable (no `NEXT_PUBLIC_` prefix, never inlined into the browser bundle), read per call. It is:
-  1. the target of the forwarding (D2);
-  2. the base of every request the front's **server** sends (the server-side `publicRequest` reads).
-- When it is unset or empty, both fall back to `NEXT_PUBLIC_API_URL`, so `npm run dev` with today's `.env.local` keeps working.
-- The browser never uses it: `client.ts` picks the server base only when it runs on the server (no `window`); in the browser every JSON call, the token exchange and the CSP's `connect-src` keep `NEXT_PUBLIC_API_URL`'s public origin.
-- Values (environment, not code): Docker `http://api:80`; local without Docker `http://localhost:8000` (`artisan serve`, the address the local Caddy proxies to). Pointing it at the local Caddy (`https://localhost:8443`) also works, but Caddy then replaces the forwarded host with its own and the API's URLs leave the front's origin (D3), so the documented local value is the plain `http` address.
-- It also removes the need for `NODE_EXTRA_CA_CERTS` for the server-side reads in Docker (front notes C7, row 3).
+- A server-only variable (no `NEXT_PUBLIC_` prefix, never in the browser bundle), read per call. It is the base of:
+  1. the forwarding target of both groups (D1, D2);
+  2. every request the front's **server** sends. Server components and the server-side `publicRequest` reads call the API directly at `API_INTERNAL_URL` + the API's own path, with no prefix and without going through the proxy. `client.ts` picks it only when it runs on the server (no `window`).
+- **No fallback to `NEXT_PUBLIC_API_URL`** (this replaces R74 point 3's fallback). `NEXT_PUBLIC_API_URL` now points at the front itself, so falling back would forward the front to itself.
+  - When `API_INTERNAL_URL` is unset, a forwarded request answers `502` with an empty body.
+  - A server-side read fails as an unreachable API does today, showing the existing error states.
+  - Nothing is retried or guessed.
+- Values (environment): Docker `http://api:80`; local without Docker `http://localhost:8000` (`artisan serve`), in `.env.local`. Plain `http` inside the machine or network is enough, and Node needs no extra CA (front notes C7 row 3).
 
-### D6 — Headers: the front's pages unchanged, the forwarded responses as the API sends them
+### D6 — Headers and CSP
 
-- The front's own pages keep every header they carry today: the CSP with its nonce (`connect-src` = `'self'` + the API's public origin + Nominatim; `form-action 'self'`), `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, and COOP `same-origin-allow-popups`; `/callback` keeps its CSP and no COOP. Nothing is added to `connect-src`: the authorization page is a navigation, not a connection.
-- A forwarded response carries none of the front's headers: no CSP (its nonce would block the Livewire and Flux scripts), no COOP, no security headers. It is served as the API sends it (R74 point 4).
-- COOP across the popup (`add-auth` D11): the opener page keeps `same-origin-allow-popups`; the authorization popup is now on the same origin and the API's pages send no COOP (`unsafe-none`), so the popup keeps its opener, and `/callback` (no COOP) posts the result back as today. No change to D11.
-- Spec impact: app-shell "Content-Security-Policy", "Cross-Origin-Opener-Policy" and "Response security headers" add the forwarded web routes to the paths they leave untouched, next to the static assets. "No response of the application SHALL carry `X-Powered-By`" is scoped to the front's own responses; a forwarded response is the API's (Open 4).
+- The front's own pages keep the CSP with its nonce, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` and COOP `same-origin-allow-popups`. `/callback` keeps its CSP and no COOP.
+- **`connect-src` = `'self'` + Nominatim.** The API origin is dropped (option A): every browser call to the API is same-origin. `proxy.ts` stops reading `NEXT_PUBLIC_API_URL` for the CSP.
+- A forwarded response, page or JSON, carries none of the front's headers. It is served as the API sends it: a front CSP nonce would block the Livewire and Flux scripts, and the JSON responses need none.
+- COOP across the popup (`add-auth` D11) is unchanged. The opener keeps `same-origin-allow-popups`, the same-origin authorization popup gets no COOP from the API, and `/callback` (no COOP) posts the result back as today.
+- Spec impact:
+  - app-shell "Content-Security-Policy": `connect-src` names the application itself and Nominatim only, and the forwarded paths are left untouched like the static assets.
+  - "Cross-Origin-Opener-Policy" and "Response security headers": the forwarded paths are left untouched.
+  - "No `X-Powered-By`": scoped to the front's own responses. The API's is removed by `expose_php=Off` (Q4).
 
-### D7 — Cookies and redirects
+### D7 — Cookies, CORS and redirects
 
-- The API's web session cookie and `XSRF-TOKEN` are set by the API's response and pass through unchanged. The browser stores them on the front's origin (host-only, `SESSION_DOMAIN` unset). The front sets no cookie of its own except `theme`; Laravel ignores a cookie it cannot decrypt, and the front ignores the API's cookies.
-- `Location` headers and form actions come from the API with the front's origin (D3). The front does not follow redirects for the browser: the rewrite returns the API's `302` to the browser as is.
-- A session started on the API's own origin before this change does not carry over: the first sign-in after the switch shows the login once.
+- The API's web session cookie and `XSRF-TOKEN` are set by the API's responses and stored on the front's origin (host-only, `SESSION_DOMAIN` unset, secure; Q2). On `http://localhost` Chromium and Firefox accept secure cookies.
+- The browser now sends those cookies on the JSON calls too, because they are same-origin. The `api` routes are stateless and read only the bearer token, so they ignore them. The front sets only its `theme` cookie, which Laravel ignores (it cannot decrypt it).
+- CORS no longer applies to the browser: every call is same-origin, so no preflight is sent. The API's `FRONT_URL` CORS setting stays harmless.
+- `Location` headers and form actions come from the API on the front's origin (D3). The rewrite returns the API's `302` to the browser as is.
+- A session started on the API's own address before this change does not carry over: the first sign-in after the switch shows the login once.
 
-### D8 — The OAuth `issuer` stays the API base (point c)
+### D8 — The OAuth `issuer` (point c)
 
-- Verified: nothing compares the issuer with the origin that served `/oauth/authorize`.
-  - `tokens.ts` calls `validateAuthResponse` with only the `code` (`tokens.ts:101-106`); no `iss` parameter is passed, so no RFC 9207 issuer check runs.
-  - The front requests no `openid` scope, so no ID token and no issuer claim are validated (`processAuthorizationCodeResponse`, `processRefreshTokenResponse`).
-  - The API's OAuth server (league/oauth2-server under Passport) sends no `iss` in the authorization response (no match for `iss` in `vendor/league/oauth2-server/src`).
-- The token endpoint stays on the API (`POST /oauth/token` is stateless, R74). So `tokens.ts` does not change: `issuer` and `token_endpoint` keep `NEXT_PUBLIC_API_URL`.
+- `tokens.ts` keeps `issuer` = `token_endpoint` base = `NEXT_PUBLIC_API_URL`, now `{APP}/api`. Verified that nothing checks the issuer:
+  - `validateAuthResponse` gets only the `code` (`tokens.ts:101-106`), so no RFC 9207 `iss` check runs;
+  - no `openid` scope is requested, so there is no ID token to validate;
+  - Passport (league/oauth2-server) sends no `iss` in the authorization response.
+- `oauth4webapi` refuses a non-`https` token endpoint in a production build (`tokens.ts:178-182`). With the token endpoint on the front's origin, **a production build signs in only when the front itself is served over `https`** (ngrok in the demo/production setup). See the Open question.
 
-### D9 — The demo from another device (point b): the front forwards no JSON
+### D9 — One public entry point (replaces the first draft's D9)
 
-- The front does not forward the JSON calls or `/oauth/token`, in any setup (D10 as decided by Product owner). No demo-only code path is added: the front reads its two public addresses from `NEXT_PUBLIC_APP_URL` and `NEXT_PUBLIC_API_URL`, so the demo is an environment matter.
-- Consequence: from another device the API also needs a public `https` address, and the CSP's `connect-src` then names it. How the demo exposes it is Product owner's (Open 3).
+- One public address: the front's. The API is reachable only from the front (forwarding, server-side reads), at `API_INTERNAL_URL`, and publishes no public port.
+- The browser's network shows only the front's origin plus Nominatim and the map tiles.
+- The demo and production run the same build, whose public values are all the ngrok origin:
+  - `NEXT_PUBLIC_APP_URL` = the ngrok origin;
+  - `NEXT_PUBLIC_API_URL` = the ngrok origin + `/api`;
+  - the API's `APP_URL` and `FRONT_URL` = the ngrok origin (Q1);
+  - the client's redirect = `<ngrok origin>/callback`.
 
 ### D10 — Same-origin consequences, accepted
 
-- The API's pages now run on the front's origin. Their scripts (Livewire, Flux, the API's own) share the front's `sessionStorage` and `localStorage` (the full-page flow record `tazavera.pending-flow`, the signed-in marker, the list preferences) and can reach the opener window, where the tokens live in memory. The API is first-party, and D10 is Product owner's decision, so this is accepted. It is recorded as a risk (§8), with a backlog candidate for an API-side CSP on its web pages.
-- `authorize.ts` keeps its checks: the message must come from `NEXT_PUBLIC_APP_URL` and from the popup it opened (`:212`); the callback posts only to an opener of the front's origin (`:324`). They hold as they are.
+- The API's pages run on the front's origin. Their scripts (Livewire, Flux, the API's own) share the front's `sessionStorage` and `localStorage` and can reach the opener window, where the tokens live in memory.
+- The API is first-party and option A is Product owner's decision, so this is accepted and recorded as a risk (§8).
+- `authorize.ts` keeps its checks: messages only from `NEXT_PUBLIC_APP_URL` and the popup it opened (`:212`); the callback posts only to an opener of the front's origin (`:324`).
 
 ## 4. Requirements for propose (spec deltas)
 
 - **auth**
-  - ADDED "API web routes through the front": the listed web routes (§2) are answered on the front's origin by forwarding to the API, with method, path, query, headers and body unchanged; the forwarded request carries the front's public origin as `X-Forwarded-Host`/`-Proto`/`-Port`; the target is the server-only internal API address, or the public API address when none is set; any path outside the list keeps its current handling.
-  - MODIFIED "Sign in", "Silent re-authentication", "Step-up to the write scope": "the API's authorization page" opens at `{front origin}/oauth/authorize`, with the same parameters.
-  - Unchanged and restated by a scenario: "Credential handling" / token exchange at `{API}/oauth/token`.
+  - ADDED "One public entry point":
+    - paths under `/api/` are forwarded to the internal API address with the prefix removed;
+    - the listed web routes (§2) are forwarded unchanged;
+    - the forwarded request carries the front's public origin as `X-Forwarded-Host`/`-Proto`/`-Port`;
+    - without an internal API address a forwarded request answers `502`;
+    - every other path keeps its current handling.
+  - MODIFIED "Sign in", "Silent re-authentication", "Step-up to the write scope": the authorization page opens at `{front origin}/oauth/authorize`, with the same parameters.
+  - MODIFIED "Credential handling" (or the requirement that names the token exchange): the exchange and refresh go to `{NEXT_PUBLIC_API_URL}/oauth/token`, which is on the front's origin.
 - **app-shell**
-  - MODIFIED "Content-Security-Policy", "Cross-Origin-Opener-Policy", "Response security headers": the forwarded web routes are left untouched, like the static assets; `connect-src` keeps the public API origin.
-  - ADDED (or in "Content-Security-Policy"): a server-side read uses the internal API address when set; the browser never does.
+  - MODIFIED "Content-Security-Policy": `connect-src` allows the application itself and Nominatim only; the forwarded paths carry no policy from the front.
+  - MODIFIED "Cross-Origin-Opener-Policy" and "Response security headers": the forwarded paths are left untouched.
+  - ADDED (or within an existing requirement): a server-side read goes to the internal API address; the browser never uses it.
+  - MODIFIED "Signed-in header and user menu" for the security entry's address.
 - **user-account**
-  - MODIFIED "Grouped security section" (security page and "Verify email" at `{front origin}/…`), "Password change" ("Forgot your password?" at `{front origin}/forgot-password`), and the user menu's security entry (app-shell "Signed-in header and user menu").
+  - MODIFIED "Grouped security section" (security page and "Verify email" at `{front origin}/…`) and "Password change" ("Forgot your password?" at `{front origin}/forgot-password`).
+- **auth "Content-Security-Policy on the callback"**: MODIFIED. Its `connect-src` names the application itself (and Nominatim, the shared list), no longer the API origin.
 
 ## 5. Scenarios and their tests (one test each)
 
 | # | Scenario | Test (file) |
 |:-:|---|---|
-| 1 | A listed web route (e.g. `GET /login`, `POST /oauth/authorize`, `GET /user/security`, `GET /reset-password/{token}?email=…`, `POST /livewire-<hash>/update`, `GET /flux/flux.js`, `GET /build/assets/app.css`) is rewritten to `{target}{path}{query}` | `proxy.test.ts` (rewrite header `x-middleware-rewrite`) |
-| 2 | A forwarded response carries no CSP, no COOP and none of the security headers | `proxy.test.ts` |
-| 3 | The forwarded request carries `X-Forwarded-Host`/`-Proto`/`-Port` of `NEXT_PUBLIC_APP_URL` | `proxy.test.ts` (`x-middleware-request-*`) |
-| 4 | Target fallback: without `API_INTERNAL_URL` the target is `NEXT_PUBLIC_API_URL` | `proxy.test.ts` |
-| 5 | Not forwarded: `POST /oauth/token`, `GET /user`, `/user/evaluations`, `/offerings`, `/callback`, `/es/…`, `/login` under a locale | `proxy.test.ts` |
-| 6 | The authorization page opens at `{NEXT_PUBLIC_APP_URL}/oauth/authorize` with the same parameters (popup, full-page, silent) | `src/features/auth/api/authorize.test.ts` (existing scenarios, their base URL updated) |
-| 7 | The token exchange and refresh go to `{NEXT_PUBLIC_API_URL}/oauth/token` | `src/shared/api/tokens.test.ts` (existing) |
-| 8 | User menu, security section and "Forgot your password?" link to the front's origin | `AppHeader.test.tsx`, `AccountClient.test.tsx` / `SecuritySection`, `PasswordForm.test.tsx` (existing scenarios, their base URL updated) |
-| 9 | A server-side read uses `API_INTERNAL_URL` when set, `NEXT_PUBLIC_API_URL` when not | `src/shared/api/client.test.ts` |
-| 10 | A browser read always uses `NEXT_PUBLIC_API_URL`, and `connect-src` names its origin, never the internal one | `src/shared/api/client.test.ts`, `proxy.test.ts` |
+| 1 | `/api/<path>?<query>` (e.g. `GET /api/offerings?page=2`, `POST /api/oauth/token`, `PUT /api/users/{ulid}`) is rewritten to `{API_INTERNAL_URL}/<path>?<query>` | `proxy.test.ts` (`x-middleware-rewrite`) |
+| 2 | A listed web route (e.g. `GET /login`, `POST /oauth/authorize`, `GET /user/security`, `GET /reset-password/{token}?email=…`, `POST /livewire-<hash>/update`, `GET /flux/flux.js`, `GET /build/assets/app.css`) is rewritten to `{API_INTERNAL_URL}{path}{query}` | `proxy.test.ts` |
+| 3 | A forwarded response carries no CSP, no COOP and none of the security headers | `proxy.test.ts` |
+| 4 | The forwarded request carries `X-Forwarded-Host`/`-Proto`/`-Port` of `NEXT_PUBLIC_APP_URL` | `proxy.test.ts` (`x-middleware-request-*`) |
+| 5 | Without `API_INTERNAL_URL` a forwarded request answers `502` and is not rewritten | `proxy.test.ts` |
+| 6 | Not forwarded: `/api` alone, `/_next/…`, `/favicon.ico`, `/callback`, `/es/…`, `/user` (no prefix), `/offerings` (no prefix) keep their current handling | `proxy.test.ts` |
+| 7 | The front's page CSP has `connect-src 'self' https://nominatim.openstreetmap.org`, on pages and on `/callback` | `proxy.test.ts` (existing scenarios, their expected `connect-src` updated) |
+| 8 | The authorization page opens at `{NEXT_PUBLIC_APP_URL}/oauth/authorize` with the same parameters (popup, full-page, silent) | `src/features/auth/api/authorize.test.ts` (existing scenarios, their base updated) |
+| 9 | The token exchange and refresh go to `{NEXT_PUBLIC_API_URL}/oauth/token` | `src/shared/api/tokens.test.ts` (existing, unchanged) |
+| 10 | User menu, security section and "Forgot your password?" link to `{NEXT_PUBLIC_APP_URL}/…` | `AppHeader.test.tsx`, `AccountClient.test.tsx` / `SecuritySection`, `PasswordForm.test.tsx` (existing scenarios, their base updated) |
+| 11 | A server-side read requests `{API_INTERNAL_URL}/<path>`; a browser read requests `{NEXT_PUBLIC_API_URL}/<path>` | `src/shared/api/client.test.ts` |
 
-- The tests listed as existing assert the old base URL for scenarios this change modifies; they are those scenarios' tests and change their expected base only. No other existing assertion changes.
+- The tests marked "existing" assert the old base or the old `connect-src` for scenarios this change modifies. They are those scenarios' tests and change their expected value only. No other existing assertion changes.
 - No QA test is expected to go stale. Any that does is listed in the build's report, not edited.
 
 ## 6. Browser checks at the end (design lead and Product owner)
 
-Run on a production build (`npm run build` + `npm start`) with `API_INTERNAL_URL=http://localhost:8000`, `NEXT_PUBLIC_API_URL=https://localhost:8443`, `NEXT_PUBLIC_APP_URL=http://localhost:3000`, and the API's environment of Open 1 and 2. Then repeat in Docker, and then over ngrok, when Product owner builds them.
+Run on a production build over `https`: through ngrok (the target setup), or with a local TLS front, depending on the Open question. Environment:
+- `NEXT_PUBLIC_APP_URL=<https front origin>`, `NEXT_PUBLIC_API_URL=<https front origin>/api`;
+- `API_INTERNAL_URL=http://localhost:8000` (or `http://api:80` in Docker);
+- the API with `APP_URL`/`FRONT_URL` = the front's origin, `TRUSTED_PROXIES` = the front's address, `SESSION_DOMAIN` unset, secure cookies.
 
-1. "Sign in" opens the popup at `http://localhost:3000/oauth/authorize?…`; `/login` loads with its styles and fonts; every redirect stays on `:3000` (DevTools Network, `Location` headers).
-2. Coffee shop and specialist sign in end to end. The popup closes, the page is signed in, and `POST /oauth/token`, `GET /user` and every JSON call go to `https://localhost:8443`.
-3. Step-up (edit profile) opens the popup on `:3000` with `login_hint`; a different user gets `access_denied`.
-4. Silent re-authentication after a reload works with the session cookie on `:3000`.
-5. User menu → Security opens `:3000/user/security` in a popup; the confirm-password screen, two-factor enable/confirm (Livewire) and passkey options work without `419`.
-6. "Verify email" and "Forgot your password?" open on `:3000`; the reset form posts and redirects on `:3000`.
-7. Headers: a front page has CSP + COOP + security headers; `/callback` has CSP and no COOP; `/login` has none of the front's headers.
-8. Cookies: the API's session and `XSRF-TOKEN` cookies are on `localhost:3000`, not on `:8443`.
-9. Server-side reads: the landing lists the verified offerings with `API_INTERNAL_URL` set and with it unset.
+1. **One origin.** DevTools Network on the landing, a list, sign-in and an authenticated page: every request goes to the front's origin, except Nominatim and the map tiles. The JSON calls are `/api/…`; nothing goes to the API's own address.
+2. **Sign-in popup.** "Sign in" opens the popup at `{front}/oauth/authorize?…`. `/login` loads with its styles and fonts, and every `Location` header stays on the front's origin.
+3. **Both roles.** Coffee shop and specialist sign in end to end: the popup closes, `POST /api/oauth/token` and `GET /api/user` answer `200`, and the page is signed in.
+4. **Step-up.** Edit profile opens the popup on the front with `login_hint`; a different user gets `access_denied`.
+5. **Silent re-authentication** works after a reload.
+6. **Security page.** User menu → Security opens `{front}/user/security`. Password confirm, two-factor enable/confirm (Livewire) and passkey registration work, with no `419`.
+7. **Email links.** "Verify email" and "Forgot your password?" open on the front, and the reset form posts and redirects on the front. The reset e-mail's link (in the API's log) is on the front's origin.
+8. **Headers.**
+   - A front page has CSP (`connect-src 'self' https://nominatim.openstreetmap.org`) + COOP + security headers.
+   - `/callback` has CSP and no COOP.
+   - `/login` and `/api/offerings` have none of the front's headers and no `X-Powered-By`.
+9. **Cookies.** The API's session and `XSRF-TOKEN` cookies are on the front's origin.
+10. **Server-side reads.** The landing and the offerings list render, and their reads appear in the API's log as coming from the front's server, not from the browser.
+11. **No internal address.** With `API_INTERNAL_URL` unset, `/api/offerings` answers `502` and the landing shows its existing error state.
 
 ## 7. Open — Product owner's
 
-1. **The API's `APP_URL` under the router role** (point d). Passkeys take their relying party from `APP_URL` (API notes C8). The passkey screens now run on the front's origin, so a passkey ceremony fails while `APP_URL` names the API's address. Today the API's request-time URLs follow the request root, not `APP_URL` (§2).
-   - A: `APP_URL` = the front's public origin. Passkeys work on the forwarded pages, and console-generated URLs point to the front. Registered passkeys bound to the old host stop working (local data only today).
-   - B: `APP_URL` stays the API's address. Passkeys fail on the forwarded pages.
-   - Recommendation: A, from the API notes C8 ("passkeys ... `allowed_origins` = `[APP_URL]`") and D10. The front notes B3 table ("`NEXT_PUBLIC_API_URL` must match `APP_URL`") would then change to "`NEXT_PUBLIC_APP_URL` must match `APP_URL`".
-   - Blocks propose: no (the front code is the same either way; it blocks browser check 5 for passkeys).
-2. **`TRUSTED_PROXIES`, `SESSION_DOMAIN` and `SESSION_SECURE_COOKIE`** (point d). D3 needs the API to trust the front's forwarded headers.
-   - Recommendation: `TRUSTED_PROXIES` names the front's address as the API sees it: `127.0.0.1` locally (already in the local Caddy setup), the compose subnet in Docker (already `172.30.0.0/24`), the front server's address when the two are split. Keep `SESSION_DOMAIN` unset (host-only cookie on the front's origin). `SESSION_SECURE_COOKIE=true` works on `http://localhost:3000` in Chromium and Firefox (localhost counts as secure) and on any `https` front; it does not on a plain-`http` front outside localhost.
-   - Options: A as recommended; B trust `'*'`, which is rejected by the decision of 2026-10-08 (API notes C8).
-   - Blocks propose: no.
-3. **The demo's tunnels** (point b, D9). The front needs `NEXT_PUBLIC_API_URL` to be a public `https` address reachable from the other device.
-   - A: a second ngrok endpoint for the API (to Caddy, or to the API's `http` port with ngrok's TLS); its origin becomes `NEXT_PUBLIC_API_URL` and the API's `APP_URL` side follows Open 1.
-   - B: one ngrok agent with a configuration file that starts both endpoints. Technically the same as A, in one command; it depends on the ngrok plan's endpoint limit [not verified].
-   - C: forward the JSON calls too for the demo. Rejected: it contradicts D10 and adds a demo-only code path.
-   - Recommendation: A (or B if the plan allows two endpoints).
-   - Blocks propose: no.
-4. **`X-Powered-By` on forwarded responses.** PHP sends `X-Powered-By: PHP/…` unless `expose_php=Off`. The front's spec forbids it on the front's own responses only (D6).
-   - Recommendation: `expose_php=Off` in the API image's `php.ini` (the production `php.ini` already has it off).
-   - Options: A as recommended; B accept it.
-   - Blocks propose: no.
-5. **Email-verification link after registration.** The registration (`POST /register`) is a JSON call sent directly to the API, so the verification e-mail's signed link is built on the API's address. Opening it lands on the API's origin, where the user has no web session, so the API asks for the login there, outside the front. The password-reset link is unaffected: `/forgot-password` is requested through the front, so its link is built on the front's origin.
-   - A: accept for now. It works, with one extra login on the API's address.
-   - B: an API change later (the link built on `FRONT_URL`), as a backlog entry.
-   - Recommendation: B, as a separate entry; not part of this change.
-   - Blocks propose: no.
+1. **`https` for the front outside ngrok.** With the token endpoint on the front's origin (D8), a production build signs in only when the front is served over `https`.
+   - The demo/production setup has it (ngrok).
+   - A local production build on `http://localhost:3000`, and the Docker stack without ngrok, cannot sign in. Before this change the API's Caddy gave the token endpoint `https`.
+   - Caddy's role (D1) changes accordingly: the browser no longer reaches the API.
+   - Options:
+     - A: every end-to-end check runs through ngrok, the real setup, and Caddy leaves the stack.
+     - B: Caddy moves in front of the front for local and Docker checks (`https://localhost:<port>` → `:3000`), and ngrok stays the public door.
+     - C: let the token exchange accept `http` when its endpoint is on `localhost`. A code change in the security path.
+   - Recommendation: A for the end-to-end checks (one setup, the one shipped), B only if checks without ngrok are wanted. Not C: a production build would trust plain `http` for credentials.
+   - `npm run dev` is unaffected: outside production `http` is allowed.
+   - Blocks propose: no. It decides where §6 runs, not the code.
 
-Not a question: Caddy's role becomes "TLS for the browser's direct calls" (JSON and `/oauth/token`); the web routes reach the API from the front over the internal network (front notes C9 point 5). Nothing in the front depends on it.
+No other point is open: Q1–Q5 are settled (§0).
 
 ## 8. Risks and unverified points
 
-- [Likely, not verified] `rewrites()` in `next.config.ts` are compiled at build time. D2 does not depend on it: the ordering and header reasons hold on their own.
-- [Unverified] Whether Next.js, when it proxies an external rewrite, appends its own `X-Forwarded-*` after the ones the proxy sets. Browser check 1 (the `Location` headers stay on `:3000`) settles it. If Next overrides them, the build reports it and the design falls back to the API trusting Next's own values, which carry the same host but `http` as scheme behind ngrok.
-- [Unverified] Laravel 13's CSRF check, if it compares `Origin` with the request's host, passes only with the trusted forwarded host (Open 2). Browser check 5 (no `419`).
-- [Unverified] The Livewire path hash (`livewire-<hex>`) is stable per installation. The pattern of D1 does not depend on its value.
-- Same-origin exposure of D10. Backlog candidate (for Product owner to add or not): a CSP and `frame-ancestors` on the API's web pages, so a script injected into an API page cannot reach the front's storage or be framed.
-- Request size and time limits of the proxy's forwarding (Next.js defaults) are far above the size of these forms. There are no uploads besides Livewire's, which the front does not use.
+- [Likely, not verified] `rewrites()` in `next.config.ts` are compiled at build time. D2 does not depend on it.
+- [Unverified] Whether Next.js, when it proxies an external rewrite, appends its own `X-Forwarded-*` after the ones the proxy sets. Check 2 (every `Location` on the front) settles it. If Next overrides them, the build reports it.
+- [Unverified] Laravel 13's CSRF check with the forwarded host. Check 6 (no `419`).
+- [Unverified] The Livewire path hash is stable per installation. The pattern of D1 does not depend on its value.
+- Absolute URLs inside JSON bodies (pagination `links`) are built by the API without the `/api` prefix. The front does not read them (verified, §1). A future feature that follows them would need `X-Forwarded-Prefix` support on the API. This is not needed now.
+- The same-origin exposure of D10. Backlog candidate (for Product owner to add or not): a CSP and `frame-ancestors` on the API's web pages.
+- Every API request now passes through the front's server, which adds one local hop. Request size and time limits of the forwarding (Next.js defaults) are far above these requests.
 
 ## 9. Tests and checks to keep green
 
@@ -221,6 +275,17 @@ Not a question: Caddy's role becomes "TLS for the browser's direct calls" (JSON 
 ## Review log
 
 - 2026-10-12, design lead, first draft.
-  - Settled by Product owner's mandate: a (D4, no new variable: `NEXT_PUBLIC_APP_URL` and one helper), c (D8, the issuer stays, verified in code), the front side of b (D9, no JSON forwarding), the forwarding mechanism and list (D1, D2), headers, cookies and redirects (D3, D6, D7), `API_INTERNAL_URL` (D5).
-  - Semantic (criterion B): the decisions log entry of 2026-10-09 (2) is superseded by R74 point 3.
-  - Left to Product owner: the API's environment (Open 1, 2, 4), the demo's tunnels (Open 3), and an API link (Open 5). None blocks propose.
+  - Decided D1–D10, with the web routes forwarded and JSON and the token direct.
+  - Five questions for Product owner.
+- 2026-10-12, design lead, revision after Product owner's answers (§0).
+  - D1: forwarded set = the `/api/` prefix (token and JSON, prefix stripped) + the web list; the order of checks in the proxy.
+  - D3: applies to both groups.
+  - D4: `NEXT_PUBLIC_API_URL` = `{APP}/api`; the web pages on `NEXT_PUBLIC_APP_URL`; no second variable.
+  - D5: `API_INTERNAL_URL` required, no fallback (a fallback would loop to the front); server components read it directly.
+  - D6: `connect-src` without the API origin.
+  - D7: CORS no longer applies; cookies on the JSON calls are ignored.
+  - D8: issuer moves with `NEXT_PUBLIC_API_URL`; consequence on `https`.
+  - D9: one public entry point.
+  - Spec deltas, scenarios (11) and browser checks (11) rewritten.
+  - Q1–Q5 recorded as settled.
+  - New open point: `https` for the front outside ngrok (Open 1). It does not block propose.
