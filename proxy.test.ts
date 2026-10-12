@@ -234,6 +234,7 @@ describe("proxy.ts forwarding to the API (auth: One public entry point)", () => 
       ["POST", "/livewire-eb65e81f/update"],
       ["GET", "/flux/flux.js"],
       ["GET", "/build/assets/app.css"],
+      ["GET", "/favicon.svg"],
     ];
     for (const [method, path] of cases) {
       expect(forward(path, method).headers.get("x-middleware-rewrite")).toBe(
