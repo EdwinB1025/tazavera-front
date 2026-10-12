@@ -45,7 +45,7 @@ Every test below belongs to the validation suite. Test values: front `https://ta
 ## 6. Server-side reads at the internal address (app-shell)
 
 - [x] 6.1 Test "Server and browser reads take their own base" in `src/shared/api/client.test.ts`: with `API_INTERNAL_URL` = `http://api.internal:8000` and `NEXT_PUBLIC_API_URL` = `https://tazavera.test/api`, `publicRequest("/offerings")` run with no `window` (the server) requests `http://api.internal:8000/offerings`, and run with `window` present (the browser) requests `https://tazavera.test/api/offerings`. Verify: the test fails on the server half only; `npm run lint` passes.
-- [ ] 6.2 Implement design.md D5 in `src/shared/api/client.ts`: `apiUrl()` returns `API_INTERNAL_URL` when there is no `window` and `NEXT_PUBLIC_API_URL` otherwise, each read per call and `""` when unset; no fallback between them. Verify: `npx vitest related src/shared/api/client.ts --run` passes, 6.1 included, with no existing assertion edited; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 6.2 Implement design.md D5 in `src/shared/api/client.ts`: `apiUrl()` returns `API_INTERNAL_URL` when there is no `window` and `NEXT_PUBLIC_API_URL` otherwise, each read per call and `""` when unset; no fallback between them. Verify: `npx vitest related src/shared/api/client.ts --run` passes, 6.1 included, with no existing assertion edited; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 7. Full checks
 

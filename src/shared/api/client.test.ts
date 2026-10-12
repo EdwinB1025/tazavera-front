@@ -1,6 +1,7 @@
 // @vitest-environment node
-// The node environment has no `window`, so a read runs as on the front's
-// server unless the test stubs one (route-api-web-pages-through-front D5).
+// The node environment lets a test remove `window`: every request runs as in
+// the browser (`window` stubbed below) unless a test removes it to run as on
+// the front's server (route-api-web-pages-through-front design.md D5).
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { configureClient, request, publicRequest } from "./client";
 import type { TokenGrant } from "./tokens";
@@ -83,6 +84,7 @@ beforeEach(() => {
   process.env.NEXT_PUBLIC_API_URL = API_URL;
   fetchMock.mockReset();
   vi.stubGlobal("fetch", fetchMock);
+  vi.stubGlobal("window", globalThis);
 });
 
 afterEach(() => {
@@ -140,6 +142,7 @@ describe("the base of a read (route-api-web-pages-through-front design.md D5)", 
     vi.stubEnv("NEXT_PUBLIC_API_URL", "https://tazavera.test/api");
     fetchMock.mockImplementation(async () => jsonResponse({}));
     try {
+      vi.stubGlobal("window", undefined);
       await publicRequest("/offerings");
       vi.stubGlobal("window", globalThis);
       await publicRequest("/offerings");
