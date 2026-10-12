@@ -7,7 +7,7 @@ No derived API types are needed: the change reads no API field and sends no requ
 
 ## 2. Three entries on every management route (offering-management, pages)
 
-- [ ] 2.1 Update the tests of the modified scenarios (validation suite):
+- [x] 2.1 Update the tests of the modified scenarios (validation suite):
   - `src/pages/manage-offerings/ui/ManageOfferingsSidebarEntries.test.tsx`, test "renders the Manage offerings entry in %s" (scenarios "One entry" and "Current entry marked"): the entries' texts become `[LABELS[locale], LOCATION_LABELS[locale], INVENTORY_LABELS[locale]]` with `INVENTORY_LABELS` `es` "Explorar inventario de café", `en` "Explore coffee inventory", `ca` the catalog's `sidebarExploreInventory`; add that the third entry's `href` is `/${locale}/manage/inventory` without `aria-current`, and that every entry contains an `svg`. The other assertions stay.
   - `src/pages/new-offering/ui/NewOfferingSidebarEntries.test.tsx` ("Current entry marked" on the create route): the same three-entry texts, the third entry's `href` and no `aria-current`.
   - `src/pages/manage-locations/ui/ManageLocationsSidebarEntries.test.tsx` ("Locations entry marked"): texts `["Administrar ofertas", "Administrar ubicaciones", <es sidebarExploreInventory>]`, hrefs ending with `/es/manage/inventory`, and only the second entry with `aria-current`.
