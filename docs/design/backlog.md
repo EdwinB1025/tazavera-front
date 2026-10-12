@@ -24,6 +24,7 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 |:-:|---|---|---|:-:|---|
 | 4 | R1 | none yet (Playwright suite) | Change (tests) | — | Product owner, 2026-10-11: start once R70–R72 and the QA cleanup are in `develop` |
 | 5 | R45 | none yet | Change (behaviour, API) | M | Product owner: deferred, to review 2026-10-12; not to be designed yet |
+| 3 | R73 | remember-list-preferences | Refactor (fast lane), by Product owner's order | S | R72 and the QA cleanup; taken before R1 |
 
 ## R45 — Ask for the first location in coffee-shop registration
 
@@ -48,6 +49,25 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 - **Type:** Change
 - **Status:** deferred
 - **Affects:** none
+
+## R73 — Editing lists remember their filters and order for the browser tab (Product owner, 2026-10-11)
+
+- **Duplicated:** none. Today the filters and order of the editing lists live only in the page address; leaving the list and coming back from the menu opens it with no filters and the default order.
+- **Where today:** My evaluations (`src/pages/evaluations-list/`: filters and sort in the URL, `parseEvaluationFilters`, `EVALUATION_SORT_KEYS`), Coffee inventory (`src/pages/manage-inventory/`: six text filters in the URL), My offerings (`src/pages/manage-offerings/`: no filters or order today); `src/shared/lib/filter-query`
+- **Why it pays off now:** specialists and coffee shops work the same filtered list across several visits
+- **Owning capability:** filtering (with offering-management and evaluations for the lists)
+- **Proposed change:** remember-list-preferences. Settled end state (Product owner, 2026-10-11):
+  1. Every editing list (My evaluations, Coffee inventory, My offerings) keeps its last applied filters and order **for the browser tab** (option A, `sessionStorage`): they survive leaving the list and coming back, and are forgotten when the tab is closed or the user signs out (or another user signs in).
+  2. Opening the list in the same tab (from the menu or a link) with no filters or order in its address applies the stored ones; the address then shows them, as when the user applies them by hand.
+  3. The stored filters and order change only when the user applies new filters or another order; clearing the filters ("Borrar todo" / removing every chip) stores the empty state.
+  4. The page number is not stored: a restored list starts at page 1 (option A).
+  5. A list with nothing stored behaves as today. My offerings has no filters or order today, so it stores nothing until it gets some.
+  6. If the browser storage cannot be read or written (private mode, blocked storage), the list works as today, with no error shown.
+  7. No request to the API changes; no API or contract change.
+- **Open decision (Augusto):** answered 2026-10-11: 1 → A (browser tab, until new filters or order are applied; first answered C, changed to A the same day), 2 → all editing lists, 3 → A (no page), 4 → fast lane.
+- **Type:** Refactor (fast lane), by Product owner's order of 2026-10-11 (one test per new scenario)
+- **Status:** accepted
+- **Affects:** R1 (runs after it)
 
 ## Closed entries
 
