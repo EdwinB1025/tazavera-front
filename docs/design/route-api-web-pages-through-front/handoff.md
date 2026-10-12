@@ -39,6 +39,9 @@ D1 two forwarded groups (`/api/*` with the prefix stripped → `/oauth/token` an
 - The OAuth front client's `redirect_uris` are written by `FrontClientSeeder` as `{FRONT_URL}/callback`. Product owner: the seeder is re-run once the API configuration is in place, so the client gets `https://<public origin>/callback`. Added to the summary (§0, browser check 3).
 - Product owner asked for a summary of the decided setup for the deploy assistant to update the deployment documentation (given in chat, 2026-10-12).
 
+### Local test setup (Product owner, 2026-10-12)
+- Local tests serve the front over https through Caddy (a site in front of the front, in the local Caddyfile, Product owner's file); Caddy takes no role in the deploy. The browser checks of R74 run on that local https origin.
+
 ### Open until the browser checks
 - Whether Next.js adds its own `X-Forwarded-*` after the proxy's (check 1: every `Location` stays on the front's origin).
 - Whether Laravel's CSRF check passes with the forwarded host (check 5: no `419` on the security pages).
