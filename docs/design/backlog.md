@@ -23,8 +23,23 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
 | 1 | R74 | route-api-web-pages-through-front | Change (traditional workflow; behaviour, security) | M | — (Product owner, 2026-10-12: highest priority, last change before the Playwright suite) |
+| 2 | R75 | update-stale-proxy-qa-test | Refactor (fast lane), by Product owner's order | S | — (on `feature/route-api-web-pages-through-front`, then aligned in `qa`) |
 | 4 | R1 | none yet (Playwright suite) | Change (tests) | — | R74 in `develop` (Product owner, 2026-10-12) |
 | 5 | R45 | none yet | Change (behaviour, API) | M | Product owner: deferred, to review 2026-10-12; not to be designed yet |
+
+## R75 — Stale QA test of the proxy's CSP after R74 (Product owner, 2026-10-12)
+
+- **Duplicated:** none. `qa/proxy.test.ts` "appends 'unsafe-eval' to script-src only in development" still expects the API origin in `connect-src` (`expectedCsp`, `API_ORIGIN`); R74 (design.md D6) made it `connect-src 'self' https://nominatim.openstreetmap.org`. It is the only failing QA test on `7e9f88ae` (1974 / 1975).
+- **Where today:** `qa/proxy.test.ts:23-38` (constants and `expectedCsp`), `:63-74`.
+- **Why it pays off now:** the branch passes directly into `develop` after Product owner's tests; the QA suite must be green before `develop` → `master`.
+- **Owning capability:** app-shell.
+- **Proposed change:** update-stale-proxy-qa-test.
+- **Order (Product owner, 2026-10-12):** fast lane, highest priority: "clean it or update it in the current branch and align it in `qa`". Done on `feature/route-api-web-pages-through-front`, not from `qa` (the code it tests is only on that branch); `qa` takes it when `develop` is merged into `qa` after R74 reaches `develop` (applied on `qa` alone it would fail, because `qa` still sends the API origin).
+- **Settled end state:** `expectedCsp` writes `connect-src 'self' https://nominatim.openstreetmap.org`; `API_ORIGIN` removed if unused; no other test, title, assertion or production file changes. `npm run test:qa` passes in full.
+- **Open decision (Product owner):** none.
+- **Type:** Refactor (fast lane)
+- **Status:** accepted
+- **Affects:** R74 (`route-api-web-pages-through-front`).
 
 ## R74 — The front is the entry point of the API's web routes (Product owner, 2026-10-12)
 

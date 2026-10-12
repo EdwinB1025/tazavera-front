@@ -6,6 +6,9 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./src/shared/lib/i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  // Self-contained server in `.next/standalone` for the Docker image
+  // (app-shell "Self-contained production server").
+  output: "standalone",
   // No `X-Powered-By` on any response (app-shell "Response security headers").
   poweredByHeader: false,
 };

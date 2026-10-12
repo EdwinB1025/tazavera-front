@@ -25,6 +25,7 @@ const API = "https://api.tazavera.test";
 const TEXTS: RegisterFormTexts = {
   nameLabel: "fx-name",
   surnameLabel: "fx-surname",
+  businessNameLabel: "fx-business-name",
   emailLabel: "fx-email",
   passwordLabel: "fx-password",
   passwordConfirmationLabel: "fx-confirmation",
@@ -84,6 +85,9 @@ function fillValid() {
   type(TEXTS.emailLabel, "ana@example.com");
   type(TEXTS.passwordLabel, "Secret123");
   type(TEXTS.passwordConfirmationLabel, "Secret123");
+  if (screen.queryByLabelText(new RegExp(`^${TEXTS.businessNameLabel}`))) {
+    type(TEXTS.businessNameLabel, "Nomad Coffee");
+  }
 }
 
 async function submit() {
@@ -119,6 +123,7 @@ describe("RegisterForm — the request", () => {
         password: "Secret123",
         passwordConfirmation: "Secret123",
         role,
+        ...(role === "coffeeshop" ? { businessName: "Nomad Coffee" } : {}),
       });
     });
   }
@@ -255,5 +260,69 @@ describe("RegisterForm — actions", () => {
     expect(submitButton.parentElement).toBe(cancel.parentElement);
     expect(cancel.parentElement!.classList.contains("grid-cols-2")).toBe(true);
     expect([submitButton, cancel].some((button) => button.classList.contains("w-full"))).toBe(false);
+  });
+});
+
+// user-account "Coffee shop business name" — the registration scenarios
+// (add-coffeeshop-business-name design.md D1 and D2).
+describe("RegisterForm — the business name", () => {
+  it("The coffee shop registration asks for the business name: required, between Surname and Email, at most 150 characters", () => {
+    renderForm("coffeeshop");
+    const businessName = field(TEXTS.businessNameLabel);
+    expect(businessName.required).toBe(true);
+    expect(businessName.maxLength).toBe(150);
+    const follows = Node.DOCUMENT_POSITION_FOLLOWING;
+    expect(field(TEXTS.surnameLabel).compareDocumentPosition(businessName) & follows).toBeTruthy();
+    expect(businessName.compareDocumentPosition(field(TEXTS.emailLabel)) & follows).toBeTruthy();
+  });
+
+  it("An empty business name at registration shows requiredError, is invalid, takes focus and nothing is sent", async () => {
+    renderForm("coffeeshop");
+    fillValid();
+    type(TEXTS.businessNameLabel, "");
+    await submit();
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(field(TEXTS.businessNameLabel).getAttribute("aria-invalid")).toBe("true");
+    expect(screen.getByText(TEXTS.requiredError)).toBeTruthy();
+    expect(document.activeElement).toBe(field(TEXTS.businessNameLabel));
+  });
+
+  it("The coffee shop registration sends the business name as businessName", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(201));
+    renderForm("coffeeshop");
+    fillValid();
+    type(TEXTS.businessNameLabel, "La Tostadora");
+    await submit();
+
+    const body = JSON.parse(String(fetchMock.mock.calls[0]![1]?.body)) as Record<string, unknown>;
+    expect(body.businessName).toBe("La Tostadora");
+    expect(body.role).toBe("coffeeshop");
+  });
+
+  it("The specialist registration has no business name field and sends no businessName", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(201));
+    renderForm("specialist");
+    expect(screen.queryByLabelText(new RegExp(`^${TEXTS.businessNameLabel}`))).toBeNull();
+    fillValid();
+    await submit();
+
+    const body = JSON.parse(String(fetchMock.mock.calls[0]![1]?.body)) as Record<string, unknown>;
+    expect("businessName" in body).toBe(false);
+  });
+
+  it("The registration names an invalid business name: its 422 message shows under the field", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse(422, { message: "api-message", errors: { businessName: ["fx-business-taken"] } }),
+    );
+    renderForm("coffeeshop");
+    fillValid();
+    await submit();
+
+    const businessName = field(TEXTS.businessNameLabel);
+    expect(businessName.getAttribute("aria-invalid")).toBe("true");
+    const describedBy = businessName.getAttribute("aria-describedby") ?? "";
+    expect(document.getElementById(describedBy)?.textContent).toBe("fx-business-taken");
+    expect(screen.queryByRole("alert")).toBeNull();
   });
 });

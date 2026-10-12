@@ -11,6 +11,7 @@ import { ProfileDetails, type ProfileDetailsTexts } from "@/features/user-accoun
 const TEXTS: ProfileDetailsTexts = {
   nameLabel: "fx-name",
   surnameLabel: "fx-surname",
+  businessNameLabel: "fx-business-name",
   emailLabel: "fx-email",
   roleLabel: "fx-role",
   emailVerificationLabel: "fx-email-verification",
@@ -73,5 +74,48 @@ describe("ProfileDetails", () => {
   it("shows no verification row when emailVerifiedAt is absent", () => {
     render(<ProfileDetails user={{ email: "ana@example.com" }} texts={TEXTS} />);
     expect(screen.queryByText(TEXTS.emailVerificationLabel)).toBeNull();
+  });
+});
+
+// user-account "Coffee shop business name" — the read-only scenarios
+// (add-coffeeshop-business-name design.md D3).
+describe("ProfileDetails — the business name", () => {
+  function rowLabels(): (string | null | undefined)[] {
+    return Array.from(document.querySelectorAll("dl > div dt")).map((dt) => dt.textContent);
+  }
+
+  it("A coffee shop's business name is shown after Surname and before Email", () => {
+    render(
+      <ProfileDetails
+        user={{
+          ulid: "u1",
+          name: "Ana",
+          surname: "López",
+          businessName: "Nomad Coffee",
+          email: "ana@example.com",
+          role: "coffeeshop",
+        }}
+        texts={TEXTS}
+      />,
+    );
+    expect(screen.getByText(TEXTS.businessNameLabel).nextElementSibling?.textContent).toBe(
+      "Nomad Coffee",
+    );
+    expect(rowLabels().slice(0, 4)).toEqual([
+      TEXTS.nameLabel,
+      TEXTS.surnameLabel,
+      TEXTS.businessNameLabel,
+      TEXTS.emailLabel,
+    ]);
+  });
+
+  it("No business name row for other roles", () => {
+    render(
+      <ProfileDetails
+        user={{ ulid: "u1", name: "Ana", businessName: "Nomad Coffee", role: "specialist" }}
+        texts={TEXTS}
+      />,
+    );
+    expect(screen.queryByText(TEXTS.businessNameLabel)).toBeNull();
   });
 });

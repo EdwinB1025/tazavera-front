@@ -110,7 +110,7 @@ While the session is anonymous, the header SHALL show the language selector, the
 - **THEN** the header's sign-in label fits on one line
 
 ### Requirement: Signed-in header and user menu
-While the session is authenticated, the header SHALL show the brand logotype, the language selector, the theme switch and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The control SHALL show an initials circle and, on a medium or larger viewport, the user's name and a chevron after the circle; below that viewport it SHALL show the circle alone. The menu SHALL offer one account entry pointing at the account page, the security entry as an external link to the API's security page, the management entries for the user's role — for a coffeeshop "Manage offerings", "Manage locations" and "Explore coffee inventory" in this order — for a specialist the offerings entry, and sign out. Each entry SHALL show a decorative icon that reflects its action before its text and SHALL take the header menu entry treatment, not the inline link treatment, while keeping its order, destination and behaviour.
+While the session is authenticated, the header SHALL show the brand logotype, the language selector, the theme switch and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The control SHALL show an initials circle and, on a medium or larger viewport, the user's name and a chevron after the circle; below that viewport it SHALL show the circle alone. The menu SHALL offer one account entry pointing at the account page, the security entry as an external link to the API's security page whose address carries the query parameter `login_hint` with the session user's `data.ulid`, the same value the step-up sends, or no `login_hint` while the session holds no `data.ulid`, the management entries for the user's role — for a coffeeshop "Manage offerings", "Manage locations" and "Explore coffee inventory" in this order — for a specialist the offerings entry, and sign out. Each entry SHALL show a decorative icon that reflects its action before its text and SHALL take the header menu entry treatment, not the inline link treatment, while keeping its order, destination and behaviour.
 
 #### Scenario: User control carries the user's initials
 - **WHEN** the session is authenticated
@@ -171,6 +171,14 @@ While the session is authenticated, the header SHALL show the brand logotype, th
 #### Scenario: Menu entries carry icons and the header look
 - **WHEN** the user opens the user menu
 - **THEN** each entry shows a decorative icon hidden from assistive technology before its text, takes `nav-text` with `nav-text-hover` on hover and focus, and shows no underline and no link colour, in both themes
+
+#### Scenario: The security entry names the signed-in user
+- **WHEN** the user opens the user menu
+- **THEN** its security entry points at the API's security page with `login_hint` set to the session user's `data.ulid`
+
+#### Scenario: No user identifier in the session
+- **WHEN** the user opens the user menu and the session user has no `data.ulid`
+- **THEN** its security entry points at the API's security page with no `login_hint`
 
 ### Requirement: Session states in the shell
 The shell SHALL follow the session state. While the session is still resolving it SHALL show neither the "Sign in" action nor the user menu, and when the session cannot be resolved it SHALL render the anonymous shell.
@@ -603,3 +611,14 @@ The application SHALL take the locale of a request only from the locale prefix o
 #### Scenario: Browser language ignored
 - **WHEN** a browser whose language preference is English and which carries a locale cookie for English opens the root URL
 - **THEN** the application redirects to the default locale and its response sets no cookie
+
+### Requirement: Self-contained production server
+The production build SHALL produce a self-contained server that runs with Node.js alone, without the project's sources or development dependencies. Started with the build's static assets placed next to it, that server SHALL serve every locale page with its localized texts and its stylesheets, exactly as the regular production server does. If a locale's texts are missing from the self-contained output, its page fails to render and the build does not meet this requirement.
+
+#### Scenario: Locale page served by the self-contained server
+- **WHEN** the self-contained server, started with the static assets next to it, answers a request for `/es`, `/en` or `/ca`
+- **THEN** the response has status 200 and carries the page in that locale's language, and the stylesheet the page references answers with status 200
+
+#### Scenario: Message catalogs missing from the output
+- **WHEN** a locale's message catalogs are not part of the self-contained output
+- **THEN** that locale's page fails to render, and the build is not accepted until the catalogs are included

@@ -46,6 +46,12 @@ const LOCATION_LABELS: Record<string, string> = {
   ca: "Administra les ubicacions",
 };
 
+const INVENTORY_LABELS: Record<string, string> = {
+  es: "Explorar inventario de café",
+  en: "Explore coffee inventory",
+  ca: "Explora l'inventari de cafè",
+};
+
 const REMOVED = [
   "Mis ofertas",
   "My offerings",
@@ -73,11 +79,17 @@ describe("NewOfferingSidebarEntries (design.md D8)", () => {
     const link = screen.getByRole("link", { name: LABELS[locale]! });
     expect(link.getAttribute("href")).toBe(`/${locale}/manage/offerings`);
     expect(link.getAttribute("aria-current")).toBe("page");
-    // Two entries in order, only "Manage offerings" current (add-coffeeshop-location D8).
+    // Three entries in order, only "Manage offerings" current (add-inventory-sidebar-entry).
     const entries = Array.from(link.closest("ul")!.querySelectorAll("a"));
-    expect(entries.map((a) => a.textContent)).toEqual([LABELS[locale], LOCATION_LABELS[locale]]);
+    expect(entries.map((a) => a.textContent)).toEqual([
+      LABELS[locale],
+      LOCATION_LABELS[locale],
+      INVENTORY_LABELS[locale],
+    ]);
     expect(entries[1].getAttribute("href")).toBe(`/${locale}/manage/locations`);
     expect(entries[1].hasAttribute("aria-current")).toBe(false);
+    expect(entries[2].getAttribute("href")).toBe(`/${locale}/manage/inventory`);
+    expect(entries[2].hasAttribute("aria-current")).toBe(false);
     expect(
       screen
         .queryAllByRole("link")

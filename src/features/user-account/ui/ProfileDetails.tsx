@@ -7,6 +7,7 @@ import { LabelValueRow } from "@/shared/ui";
 export type ProfileDetailsTexts = {
   nameLabel: string;
   surnameLabel: string;
+  businessNameLabel: string;
   emailLabel: string;
   roleLabel: string;
   emailVerificationLabel: string;
@@ -23,6 +24,7 @@ export type ProfileDetailsProps = {
 const ROWS: ReadonlyArray<[keyof SessionUser, keyof ProfileDetailsTexts]> = [
   ["name", "nameLabel"],
   ["surname", "surnameLabel"],
+  ["businessName", "businessNameLabel"],
   ["email", "emailLabel"],
   ["role", "roleLabel"],
 ];
@@ -47,8 +49,10 @@ export function ProfileDetails({ user, texts }: ProfileDetailsProps): ReactNode 
     <dl className="grid gap-y-3">
       {ROWS.flatMap(([key, labelKey]) => {
         const value = user[key];
+        // The business name is a coffee shop's only (add-coffeeshop-business-name D3).
+        const hidden = key === "businessName" && user.role !== "coffeeshop";
         const row =
-          value == null
+          value == null || hidden
             ? []
             : [<LabelValueRow key={key} label={texts[labelKey]} value={String(value)} />];
         return key === "email" ? [...row, ...verificationRow(user, texts)] : row;

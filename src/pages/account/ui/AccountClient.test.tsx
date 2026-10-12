@@ -292,7 +292,7 @@ describe("AccountClient — Security section", () => {
     expect(region.textContent).toContain(TEXTS.securityDescription);
     for (const name of [TEXTS.twoFactor, TEXTS.passkeys]) {
       const link = screen.getByRole("link", { name });
-      expect(link.getAttribute("href")).toBe(`${APP}/user/security`);
+      expect(link.getAttribute("href")).toBe(`${APP}/user/security?login_hint=u1`);
       expect(link.getAttribute("target")).toBeNull();
     }
     expect(fetchMock).not.toHaveBeenCalled();
@@ -302,11 +302,27 @@ describe("AccountClient — Security section", () => {
     auth.session = { state: "authenticated", user: { ...USER, emailVerifiedAt: null } };
     renderClient();
     const link = screen.getByRole("link", { name: TEXTS.verifyEmail });
-    expect(link.getAttribute("href")).toBe(`${APP}/email/verify`);
+    expect(link.getAttribute("href")).toBe(`${APP}/email/verify?login_hint=u1`);
     expect(link.getAttribute("target")).toBeNull();
     const items = link.closest("ul")!.querySelectorAll("li");
     expect(items[0].contains(link)).toBe(true);
     expect(items[1].textContent).toBe(TEXTS.twoFactor);
+  });
+
+  it("with no user identifier in the session the API links carry no login_hint", () => {
+    auth.session = {
+      state: "authenticated",
+      user: { ...USER, ulid: undefined, emailVerifiedAt: null },
+    };
+    renderClient();
+    expect(
+      screen.getByRole("link", { name: TEXTS.verifyEmail }).getAttribute("href"),
+    ).toBe(`${APP}/email/verify`);
+    for (const name of [TEXTS.twoFactor, TEXTS.passkeys]) {
+      expect(screen.getByRole("link", { name }).getAttribute("href")).toBe(
+        `${APP}/user/security`,
+      );
+    }
   });
 
   it("when the email is verified lists the text Email verified first and no Verify email link", () => {
@@ -324,9 +340,9 @@ describe("AccountClient — Security section", () => {
 
 describe("AccountClient — Security section popup", () => {
   const ENTRIES = [
-    [TEXTS.verifyEmail, `${APP}/email/verify`],
-    [TEXTS.twoFactor, `${APP}/user/security`],
-    [TEXTS.passkeys, `${APP}/user/security`],
+    [TEXTS.verifyEmail, `${APP}/email/verify?login_hint=u1`],
+    [TEXTS.twoFactor, `${APP}/user/security?login_hint=u1`],
+    [TEXTS.passkeys, `${APP}/user/security?login_hint=u1`],
   ] as const;
 
   function renderUnverified() {
@@ -353,7 +369,7 @@ describe("AccountClient — Security section popup", () => {
     renderUnverified();
     const notPrevented = fireEvent.click(screen.getByRole("link", { name: TEXTS.verifyEmail }));
     expect(notPrevented).toBe(false);
-    expect(open).toHaveBeenLastCalledWith(`${APP}/email/verify`, "_blank", "noopener");
+    expect(open).toHaveBeenLastCalledWith(`${APP}/email/verify?login_hint=u1`, "_blank", "noopener");
   });
 
   it("reloads the profile once the popup window closes", () => {

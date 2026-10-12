@@ -690,12 +690,28 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
     // The menu content is portaled, so it is queried through the screen.
     const security = screen.getByRole("menuitem", { name: TEXTS.security });
     expect(security.getAttribute("href")).toBe(
-      "https://tazavera.test/user/security",
+      "https://tazavera.test/user/security?login_hint=01M35F5RX4ADGC3CSDXXYB08DD",
     );
     // not the internal Link treatment (base-controls: external destinations
     // are rendered natively)
     expect(security.className).not.toContain("underline");
     expect(security.className).not.toContain("text-text-link");
+  });
+
+  it("points the security entry at the API's security page naming the signed-in user in login_hint", () => {
+    renderSignedIn("specialist");
+    openMenu();
+    expect(
+      screen.getByRole("menuitem", { name: TEXTS.security }).getAttribute("href"),
+    ).toBe("https://tazavera.test/user/security?login_hint=01M35F5RX4ADGC3CSDXXYB08DD");
+  });
+
+  it("points the security entry at the API's security page with no login_hint when the session user has no ulid", () => {
+    renderHeader({ state: "authenticated", user: { ...USER, ulid: undefined } });
+    openMenu();
+    expect(
+      screen.getByRole("menuitem", { name: TEXTS.security }).getAttribute("href"),
+    ).toBe("https://tazavera.test/user/security");
   });
 
   it("opens the security entry in a popup window on a plain click and the tab does not navigate (open-security-pages-in-popup D4)", () => {
@@ -709,7 +725,7 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
       );
       expect(notPrevented).toBe(false);
       expect(open).toHaveBeenCalledWith(
-        "https://tazavera.test/user/security",
+        "https://tazavera.test/user/security?login_hint=01M35F5RX4ADGC3CSDXXYB08DD",
         "tazavera-security",
         "popup",
       );

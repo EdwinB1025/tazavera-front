@@ -6,10 +6,10 @@ import {
   parseInventoryFilters,
 } from "@/features/inventory-facets";
 import { LocationsSidebarEntry } from "@/features/location-management";
-import { ManagementSidebarEntries } from "@/features/offering-management";
+import { InventorySidebarEntry, ManagementSidebarEntries } from "@/features/offering-management";
 import { getMessages } from "@/shared/lib/i18n";
 import type { QueryRecord } from "@/shared/lib/filter-query";
-import { FilterMemoryScope } from "@/shared/ui";
+import { FilterMemoryScope, SidebarMenuSub } from "@/shared/ui";
 import { AppSidebar } from "@/widgets/app-sidebar";
 
 // ─── UI-specific types (declared before the component) ───
@@ -23,8 +23,9 @@ export type ManageInventorySidebarScreenProps = {
 /**
  * The inventory routes' sidebar (add-coffee-inventory-explorer design.md D6,
  * D7; spec "Coffee inventory sidebar"): "Manage offerings" and "Manage
- * locations", not current, then "Explore coffee inventory" as the list's
- * entry, current, holding the inventory facets on the list.
+ * locations", not current, then "Explore coffee inventory", current, with
+ * their icons in one list (add-inventory-sidebar-entry D1), holding the
+ * inventory facets' sub-section on the list (D3).
  */
 export function ManageInventorySidebarScreen({
   locale,
@@ -41,24 +42,25 @@ export function ManageInventorySidebarScreen({
             label={getMessages("location-management", locale).sidebarEntry!}
             current={false}
           />
-        </ManagementSidebarEntries>
-      }
-      listEntry={{ label: catalog.sidebarExploreInventory!, href: `/${locale}/manage/inventory` }}
-      subsection={
-        searchParams
-          ? {
-              title: filters.title!,
-              // The facets keep the list's filters (remember-list-preferences D2, D5).
-              content: (
-                <FilterMemoryScope name="coffee-inventory" keys={INVENTORY_FILTER_KEYS}>
-                  <InventoryFacets
-                    values={parseInventoryFilters(searchParams)}
-                    texts={inventoryFacetsTexts(catalog, filters)}
-                  />
-                </FilterMemoryScope>
-              ),
+          <InventorySidebarEntry
+            locale={locale}
+            label={catalog.sidebarExploreInventory!}
+            current
+            subsection={
+              searchParams && (
+                <SidebarMenuSub title={filters.title!}>
+                  {/* The facets keep the list's filters (remember-list-preferences D2, D5). */}
+                  <FilterMemoryScope name="coffee-inventory" keys={INVENTORY_FILTER_KEYS}>
+                    <InventoryFacets
+                      values={parseInventoryFilters(searchParams)}
+                      texts={inventoryFacetsTexts(catalog, filters)}
+                    />
+                  </FilterMemoryScope>
+                </SidebarMenuSub>
+              )
             }
-          : undefined
+          />
+        </ManagementSidebarEntries>
       }
     />
   );

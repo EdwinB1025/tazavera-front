@@ -121,7 +121,7 @@ export function UserMenu({
 }: UserMenuProps): ReactNode {
   const initials = `${user.name?.charAt(0) ?? ""}${user.surname?.charAt(0) ?? ""}`.toUpperCase();
   const name = `${user.name ?? ""} ${user.surname ?? ""}`.trim();
-  const securityUrl = apiWebPageUrl("/user/security");
+  const securityUrl = apiWebPageUrl("/user/security", user.ulid);
   const management: { text: string; href: `/${string}` } | null =
     user.role === "coffeeshop"
       ? { text: texts.manageOfferings, href: `/${locale}/manage/offerings` }
