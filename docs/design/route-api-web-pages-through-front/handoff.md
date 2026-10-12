@@ -42,6 +42,12 @@ D1 two forwarded groups (`/api/*` with the prefix stripped → `/oauth/token` an
 ### Local test setup (Product owner, 2026-10-12)
 - Local tests serve the front over https through Caddy (a site in front of the front, in the local Caddyfile, Product owner's file); Caddy takes no role in the deploy. The browser checks of R74 run on that local https origin.
 
+### Approval and propose launch (2026-10-12)
+- Product owner approved the summary in the orchestrator session ("I approve") and asked the orchestrator to commit it and run the rest in the cloud: `docs: approve design summary for route-api-web-pages-through-front` (`4e02d8c3`), committed by the orchestrator at the Product owner's request (deviation from step 4, where Product owner commits the approval himself).
+- Branch `feature/route-api-web-pages-through-front` created on origin from `develop` `4e02d8c3`.
+- Propose (step 6) in the cloud: `trig_011ACFx3DJHxHoTy1uTFHWCD`, 08:37 UTC, architect only, prompt written by the design lead; target `claude/route-api-web-pages-through-front-propose`.
+- **Next session (orchestrator):** list the routine's runs; review the branch (commit format, one commit per capability, `validate --strict`, `## Propose status`, departures from the summary in the final report); fast-forward `feature/route-api-web-pages-through-front`; then Product owner's artifact review (step 7) before apply. The session was closed by Product owner after the launch: no watch is running.
+
 ### Open until the browser checks
 - Whether Next.js adds its own `X-Forwarded-*` after the proxy's (check 1: every `Location` stays on the front's origin).
 - Whether Laravel's CSRF check passes with the forwarded host (check 5: no `419` on the security pages).
