@@ -190,3 +190,109 @@ describe("proxy.ts response security headers", () => {
     );
   });
 });
+
+// ─── One public entry point (auth "One public entry point"; design.md D1–D3, D5) ───
+// The front forwards every path under `/api/` with the prefix removed and the
+// API's web routes unchanged to the server-only `API_INTERNAL_URL`. A rewrite
+// to an external URL is observable as `x-middleware-rewrite`, and the
+// forwarded request headers as `x-middleware-request-<key>`.
+
+const APP_URL = "https://tazavera.test";
+const INTERNAL_URL = "http://api.internal:8000";
+
+function stubForwarding() {
+  vi.stubEnv("API_INTERNAL_URL", INTERNAL_URL);
+  vi.stubEnv("NEXT_PUBLIC_APP_URL", APP_URL);
+}
+
+function forward(path: string, method = "GET", headers: Record<string, string> = {}) {
+  return proxy(new NextRequest(`${APP_URL}${path}`, { method, headers }));
+}
+
+describe("proxy.ts forwarding to the API (auth: One public entry point)", () => {
+  it("A path under the prefix is forwarded without it", () => {
+    stubForwarding();
+    const cases: [string, string, string][] = [
+      ["GET", "/api/offerings?page=2", "/offerings?page=2"],
+      ["POST", "/api/oauth/token", "/oauth/token"],
+      ["PUT", "/api/users/01J0", "/users/01J0"],
+      ["POST", "/api/logout", "/logout"],
+    ];
+    for (const [method, path, apiPath] of cases) {
+      expect(forward(path, method).headers.get("x-middleware-rewrite")).toBe(
+        `${INTERNAL_URL}${apiPath}`,
+      );
+    }
+  });
+
+  it("A listed web route is forwarded unchanged", () => {
+    stubForwarding();
+    const cases: [string, string][] = [
+      ["GET", "/login"],
+      ["POST", "/oauth/authorize"],
+      ["GET", "/user/security"],
+      ["GET", "/reset-password/abc123?email=a%40b.test"],
+      ["POST", "/livewire-eb65e81f/update"],
+      ["GET", "/flux/flux.js"],
+      ["GET", "/build/assets/app.css"],
+    ];
+    for (const [method, path] of cases) {
+      expect(forward(path, method).headers.get("x-middleware-rewrite")).toBe(
+        `${INTERNAL_URL}${path}`,
+      );
+    }
+  });
+
+  it("A forwarded response is served as the API sends it", () => {
+    stubForwarding();
+    for (const path of ["/login", "/api/offerings"]) {
+      const headers = forward(path).headers;
+      expect(headers.has("Content-Security-Policy")).toBe(false);
+      expect(headers.has("Cross-Origin-Opener-Policy")).toBe(false);
+      expect(headers.has("X-Content-Type-Options")).toBe(false);
+      expect(headers.has("Referrer-Policy")).toBe(false);
+      expect(headers.has("Permissions-Policy")).toBe(false);
+    }
+  });
+
+  it("The forwarded request carries the public origin", () => {
+    stubForwarding();
+    const response = forward("/api/offerings", "GET", {
+      "x-forwarded-host": "evil.example",
+      "x-forwarded-proto": "http",
+      "x-forwarded-port": "8080",
+    });
+    expect(response.headers.get("x-middleware-request-x-forwarded-host")).toBe("tazavera.test");
+    expect(response.headers.get("x-middleware-request-x-forwarded-proto")).toBe("https");
+    expect(response.headers.get("x-middleware-request-x-forwarded-port")).toBe("443");
+  });
+
+  it("No internal API address", () => {
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", APP_URL);
+    vi.stubEnv("API_INTERNAL_URL", undefined);
+    for (const path of ["/api/offerings", "/login"]) {
+      const response = forward(path);
+      expect(response.status).toBe(502);
+      expect(response.headers.has("x-middleware-rewrite")).toBe(false);
+    }
+  });
+
+  it("Paths that are not forwarded", () => {
+    stubForwarding();
+    const paths = [
+      "/logout",
+      "/api",
+      "/_next/static/x.js",
+      "/favicon.ico",
+      "/callback",
+      "/es/offerings",
+      "/user",
+      "/offerings",
+    ];
+    for (const path of paths) {
+      const response = forward(path);
+      expect(response.headers.get("x-middleware-rewrite") ?? "").not.toContain(INTERNAL_URL);
+      expect(response.status).not.toBe(502);
+    }
+  });
+});

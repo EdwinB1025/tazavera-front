@@ -4,7 +4,7 @@ Every test below belongs to the validation suite. Test values: front `https://ta
 
 ## 1. Forwarding through the front (auth)
 
-- [ ] 1.1 Tests in `proxy.test.ts`, one per scenario of the auth requirement "One public entry point", each with `API_INTERNAL_URL` and `NEXT_PUBLIC_APP_URL` stubbed (except where stated) and its title naming its scenario:
+- [x] 1.1 Tests in `proxy.test.ts`, one per scenario of the auth requirement "One public entry point", each with `API_INTERNAL_URL` and `NEXT_PUBLIC_APP_URL` stubbed (except where stated) and its title naming its scenario:
   - "A path under the prefix is forwarded without it": for `GET /api/offerings?page=2`, `POST /api/oauth/token`, `PUT /api/users/01J0` and `POST /api/logout`, the response's `x-middleware-rewrite` is `http://api.internal:8000/offerings?page=2`, `…/oauth/token`, `…/users/01J0` and `…/logout`.
   - "A listed web route is forwarded unchanged": for `GET /login`, `POST /oauth/authorize`, `GET /user/security`, `GET /reset-password/abc123?email=a%40b.test`, `POST /livewire-eb65e81f/update`, `GET /flux/flux.js` and `GET /build/assets/app.css`, `x-middleware-rewrite` is `http://api.internal:8000` followed by the same path and query.
   - "A forwarded response is served as the API sends it": the response to `GET /login` and to `GET /api/offerings` carries no `Content-Security-Policy`, no `Cross-Origin-Opener-Policy`, no `X-Content-Type-Options`, no `Referrer-Policy` and no `Permissions-Policy`.
