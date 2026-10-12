@@ -2,7 +2,7 @@ No derived API types are needed: the change reads no new API field (design.md Co
 
 ## 1. A registration sign-in lands on the landing page (user-account)
 
-- [ ] 1.1 In `src/pages/register/ui/RegisterClient.test.tsx`, the test of "Signed in by the registration" (line 169) changes only its expected destination: its title says `/{locale}` instead of `/{locale}/account`, it expects `routerReplace` to have been called with `"/es"` instead of `"/es/account"`, and it expects `routerReplace` not to have been called with `"/es/account"` instead of `"/es"`. No other assertion, query, structure or test changes. Verify: the edited test fails only because `routerReplace` is called with `"/es/account"`; the rest of the file passes; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 1.1 In `src/pages/register/ui/RegisterClient.test.tsx`, the test of "Signed in by the registration" (line 169) changes only its expected destination: its title says `/{locale}` instead of `/{locale}/account`, it expects `routerReplace` to have been called with `"/es"` instead of `"/es/account"`, and it expects `routerReplace` not to have been called with `"/es/account"` instead of `"/es"`. No other assertion, query, structure or test changes. Verify: the edited test fails only because `routerReplace` is called with `"/es/account"`; the rest of the file passes; `npx tsc --noEmit` and `npm run lint` report no errors.
 - [ ] 1.2 Implement design.md D1 in `src/pages/register/ui/RegisterClient.tsx`. Verify: `npx vitest related src/pages/register/ui/RegisterClient.tsx --run` passes, 1.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 2. Full checks
