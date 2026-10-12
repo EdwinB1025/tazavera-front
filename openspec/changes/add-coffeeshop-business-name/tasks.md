@@ -12,4 +12,4 @@ No derived API types are needed: `RegisterPayload`, `ProfileUpdatePayload` and `
 
 ## 3. Full checks
 
-- [ ] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass, lint with 0 errors. A QA test that fails only because its text fixture lacks `businessNameLabel` or because it submits the coffee shop registration without a business name gets only that fixture changed and is listed in the final report; any other failure is fixed in its own `fix(user-account): …` commit, or reported when it lies outside this change.
+- [x] 3.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass, lint with 0 errors. A QA test that fails only because its text fixture lacks `businessNameLabel` or because it submits the coffee shop registration without a business name gets only that fixture changed and is listed in the final report; any other failure is fixed in its own `fix(user-account): …` commit, or reported when it lies outside this change.
