@@ -6,9 +6,6 @@ export default defineConfig({
     ...baseConfig,
     test: {
         ...baseConfig.test,
-        exclude: [
-            ...configDefaults.exclude,
-            'qa/src/features/offering-management/ui/OfferingActions.test.tsx',
-        ],
+        exclude: [...configDefaults.exclude],
     },
 })

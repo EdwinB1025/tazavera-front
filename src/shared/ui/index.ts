@@ -80,6 +80,8 @@ export { StepUpNotice } from "./StepUpNotice";
 export { SessionGate } from "./SessionGate";
 export { SignedOutPrompt } from "./SignedOutPrompt";
 export { ClearFiltersButton } from "./ClearFiltersButton";
+export { FilterMemoryScope } from "./FilterMemoryScope";
+export { RememberedFiltersGate } from "./RememberedFiltersGate";
 export { ViewToggle } from "./ViewToggle";
 export { LocationsMapLoader } from "./LocationsMapLoader";
 export type { LocationsMapLoaderProps } from "./LocationsMapLoader";

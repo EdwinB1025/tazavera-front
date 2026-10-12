@@ -107,20 +107,42 @@ describe("CoffeeshopDetailContent", () => {
 
   it("links back to the directory of the locale (spec: Back link)", () => {
     renderDetail("offerings");
-    expect(screen.getByRole("link", { name: "Volver a cafeterías" }).getAttribute("href")).toBe(
+    expect(screen.getByRole("link", { name: "Volver" }).getAttribute("href")).toBe(
       "/es/coffeeshops",
     );
   });
 
   it("Back link at the end", () => {
     renderDetail("offerings");
-    const top = screen.getByRole("link", { name: "Volver a cafeterías" });
-    const end = screen.getByRole("button", { name: "Volver a cafeterías" });
+    const top = screen.getByRole("link", { name: "Volver" });
+    const end = screen.getByRole("button", { name: "Volver" });
     fireEvent.click(end);
     expect([top.getAttribute("href"), ...router.push.mock.calls[0]]).toEqual(["/es/coffeeshops", "/es/coffeeshops"]);
     const panel = screen.getByRole("tabpanel");
     expect(panel.contains(end)).toBe(false);
     expect(panel.compareDocumentPosition(end) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("labels both back controls with the short back text of each locale (spec: Back label in each locale)", () => {
+    for (const [locale, label] of [["es", "Volver"], ["en", "Back"], ["ca", "Tornar"]] as const) {
+      const texts = coffeeshopDetailTexts(
+        getMessages("coffeeshops", locale),
+        getMessages("contact", locale),
+        getMessages("landing", locale),
+      );
+      render(
+        <CoffeeshopDetailContent
+          result={{ state: "success", coffeeshop: NOMAD }}
+          locale={locale}
+          ulid="01SHOP"
+          tab="offerings"
+          texts={texts}
+        />,
+      );
+      expect(screen.getByRole("link", { name: label }).getAttribute("href")).toBe(`/${locale}/coffeeshops`);
+      expect(screen.getByRole("button", { name: label })).toBeDefined();
+      cleanup();
+    }
   });
 
   it("selects Ofertas with no tab or an unknown one (spec: Default tab)", () => {
@@ -182,7 +204,7 @@ describe("CoffeeshopDetailContent", () => {
       <CoffeeshopDetailContent result={{ state: "not-found" }} locale="es" ulid="01SHOP" tab="offerings" texts={TEXTS} />,
     );
     const title = screen.getByRole("heading", { level: 1, name: "Cafetería no encontrada" });
-    const back = screen.getByRole("button", { name: "Volver a cafeterías" });
+    const back = screen.getByRole("button", { name: "Volver" });
     expect(screen.getByText("Puede que se haya retirado o que el enlace no sea correcto.")).toBeDefined();
     expect(title.compareDocumentPosition(back) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Reintentar" })).toBeNull();
@@ -193,7 +215,7 @@ describe("CoffeeshopDetailContent", () => {
     render(
       <CoffeeshopDetailContent result={{ state: "error" }} locale="es" ulid="01SHOP" tab="offerings" texts={TEXTS} />,
     );
-    expect(screen.getByRole("link", { name: "Volver a cafeterías" })).toBeDefined();
+    expect(screen.getByRole("link", { name: "Volver" })).toBeDefined();
     expect(screen.getByText("No se pudo cargar la cafetería.")).toBeDefined();
     expect(screen.getByRole("button", { name: "Reintentar" })).toBeDefined();
     expect(screen.queryByRole("tab")).toBeNull();

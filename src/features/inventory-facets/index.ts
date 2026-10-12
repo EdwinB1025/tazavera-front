@@ -5,5 +5,5 @@
  */
 export { InventoryFacets } from "./ui/InventoryFacets";
 export { InventoryToolbar } from "./ui/InventoryToolbar";
-export { parseInventoryFilters } from "./model/query";
+export { INVENTORY_FILTER_KEYS, parseInventoryFilters } from "./model/query";
 export { inventoryFacetsTexts } from "./model/texts";

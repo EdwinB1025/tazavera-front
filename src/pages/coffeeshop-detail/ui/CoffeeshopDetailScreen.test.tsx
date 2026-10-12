@@ -57,7 +57,7 @@ describe("CoffeeshopDetailScreen", () => {
   it("shows the back link, three placeholder bars and two skeleton cards while loading (spec: Loading)", () => {
     block.suspend = true;
     const { container } = render(<CoffeeshopDetailScreen locale="es" ulid="01SHOP" searchParams={{}} />);
-    expect(screen.getByRole("link", { name: "Volver a cafeterías" }).getAttribute("href")).toBe(
+    expect(screen.getByRole("link", { name: "Volver" }).getAttribute("href")).toBe(
       "/es/coffeeshops",
     );
     expect(container.querySelectorAll(".animate-pulse.h-4, .animate-pulse.h-6").length).toBeGreaterThanOrEqual(3);

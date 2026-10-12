@@ -20,6 +20,9 @@ export const INVENTORY_LIMITS = {
 
 const KEYS = Object.keys(INVENTORY_LIMITS) as CoffeeInventoryFilterKey[];
 
+/** The keys the inventory list keeps for the tab (remember-list-preferences design.md D5). */
+export const INVENTORY_FILTER_KEYS: readonly string[] = KEYS;
+
 function firstValue(params: URLSearchParams | QueryRecord, key: string): string | undefined {
   if (params instanceof URLSearchParams) return params.get(key) ?? undefined;
   const value = params[key];

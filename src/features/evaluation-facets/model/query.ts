@@ -49,6 +49,20 @@ const TEXT_LIMIT = 90;
 export const SCORE_MIN = 0;
 export const SCORE_MAX = 100;
 
+/**
+ * The keys "My evaluations" keeps for the tab: its facets and its sort pair
+ * (remember-list-preferences design.md D5).
+ */
+export const MY_EVALUATION_KEYS = [
+  "status",
+  "scoreMin",
+  "scoreMax",
+  "process",
+  "city",
+  "orderBy",
+  "orderDirection",
+] as const;
+
 /** The sort options in display order (design.md D6). */
 export const EVALUATION_SORT_OPTIONS: readonly EvaluationSortOption[] = [
   { id: "default", textKey: "sortDefault", orderBy: undefined, orderDirection: undefined },

@@ -6,7 +6,8 @@ import { RouteButton } from "@/shared/ui";
 export type OfferingViewButtonProps = {
   ulid: string;
   locale: string;
-  label: string;
+  /** The visible label, optionally followed by visually hidden words that name the offering. */
+  label: ReactNode;
 };
 
 /**

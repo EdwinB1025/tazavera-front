@@ -15,6 +15,7 @@ import {
 } from "@/widgets/app-sidebar";
 import type { AppHeaderTexts } from "@/widgets/app-header";
 import { ShellChrome } from "./ShellChrome";
+import { useForgetListPreferences } from "./forget-list-preferences";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -58,6 +59,8 @@ export function SessionShell({
   children,
 }: SessionShellProps): ReactNode {
   const hookValue = useSession();
+  // The editing lists' kept filters end with the session (remember-list-preferences D4).
+  useForgetListPreferences(hookValue);
   // A new route is a new arrival for the sidebar state (spec "Closed on
   // arrival on a small viewport").
   const pathname = usePathname();

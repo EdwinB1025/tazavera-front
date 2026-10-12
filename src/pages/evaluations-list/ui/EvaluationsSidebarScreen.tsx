@@ -4,9 +4,11 @@ import { getMessages } from "@/shared/lib/i18n";
 import type { QueryRecord } from "@/shared/lib/filter-query";
 import {
   EvaluationFacets,
+  MY_EVALUATION_KEYS,
   parseEvaluationFilters,
   type EvaluationFacetsTexts,
 } from "@/features/evaluation-facets";
+import { FilterMemoryScope } from "@/shared/ui";
 import { AppSidebar } from "@/widgets/app-sidebar";
 
 // ─── UI-specific types (declared before the component) ───
@@ -60,12 +62,15 @@ export async function EvaluationsSidebarScreen({
     <AppSidebar
       subsection={{
         title: texts.title,
+        // The facets keep the list's filters (remember-list-preferences D2, D5).
         content: (
-          <EvaluationFacets
-            values={parseEvaluationFilters(searchParams)}
-            options={{ processes }}
-            texts={texts}
-          />
+          <FilterMemoryScope name="my-evaluations" keys={MY_EVALUATION_KEYS}>
+            <EvaluationFacets
+              values={parseEvaluationFilters(searchParams)}
+              options={{ processes }}
+              texts={texts}
+            />
+          </FilterMemoryScope>
         ),
       }}
     />

@@ -4,11 +4,17 @@ import type { QueryRecord } from "@/shared/lib/filter-query";
 import { EvaluationsGate } from "@/widgets/evaluations-gate";
 import {
   EVALUATION_SORT_KEYS,
+  MY_EVALUATION_KEYS,
   EvaluationsToolbar,
   appliedEvaluationFilters,
   parseEvaluationFilters,
 } from "@/features/evaluation-facets";
-import { ClearFiltersButton, PageSection } from "@/shared/ui";
+import {
+  ClearFiltersButton,
+  FilterMemoryScope,
+  PageSection,
+  RememberedFiltersGate,
+} from "@/shared/ui";
 import { EvaluationsList } from "./EvaluationsList";
 import type { EvaluationsListTexts } from "./EvaluationsList";
 
@@ -107,35 +113,40 @@ export function EvaluationsListScreen({
         <EvaluationsGate
           texts={{ message: catalog.accessMessage, signInLabel: catalog.signInLabel }}
         >
-          <div className={BODY_CLASSES}>
-            <EvaluationsToolbar
-              count={applied.length}
-              sort={values.sort}
-              texts={{
-                trigger: filters.trigger,
-                triggerWithCount: filters.triggerWithCount,
-                sortBy: filters.sortBy,
-                sortDefault: filters.sortDefault,
-                sortScoreDesc: filters.sortScoreDesc,
-                sortScoreAsc: filters.sortScoreAsc,
-                sortNewest: filters.sortNewest,
-                sortOldest: filters.sortOldest,
-              }}
-            />
-            <EvaluationsList
-              locale={locale}
-              texts={texts}
-              values={values}
-              page={pageFrom(searchParams.page)}
-              query={searchParams}
-              resultCountText={catalog.resultCount}
-              emptyAction={
-                applied.length > 0 ? (
-                  <ClearFiltersButton label={filters.clearAll} keep={EVALUATION_SORT_KEYS} />
-                ) : undefined
-              }
-            />
-          </div>
+          {/* The list's kept filters and order (remember-list-preferences D3, D5). */}
+          <FilterMemoryScope name="my-evaluations" keys={MY_EVALUATION_KEYS}>
+            <div className={BODY_CLASSES}>
+              <EvaluationsToolbar
+                count={applied.length}
+                sort={values.sort}
+                texts={{
+                  trigger: filters.trigger,
+                  triggerWithCount: filters.triggerWithCount,
+                  sortBy: filters.sortBy,
+                  sortDefault: filters.sortDefault,
+                  sortScoreDesc: filters.sortScoreDesc,
+                  sortScoreAsc: filters.sortScoreAsc,
+                  sortNewest: filters.sortNewest,
+                  sortOldest: filters.sortOldest,
+                }}
+              />
+              <RememberedFiltersGate fallback={null}>
+                <EvaluationsList
+                  locale={locale}
+                  texts={texts}
+                  values={values}
+                  page={pageFrom(searchParams.page)}
+                  query={searchParams}
+                  resultCountText={catalog.resultCount}
+                  emptyAction={
+                    applied.length > 0 ? (
+                      <ClearFiltersButton label={filters.clearAll} keep={EVALUATION_SORT_KEYS} />
+                    ) : undefined
+                  }
+                />
+              </RememberedFiltersGate>
+            </div>
+          </FilterMemoryScope>
         </EvaluationsGate>
       </PageSection>
     </div>

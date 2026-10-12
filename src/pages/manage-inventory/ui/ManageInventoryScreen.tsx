@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { getMessages, type MessageCatalog } from "@/shared/lib/i18n";
 import type { QueryRecord } from "@/shared/lib/filter-query";
-import { parseInventoryFilters } from "@/features/inventory-facets";
-import { PageSection } from "@/shared/ui";
+import { INVENTORY_FILTER_KEYS, parseInventoryFilters } from "@/features/inventory-facets";
+import { FilterMemoryScope, PageSection } from "@/shared/ui";
 import { InventoryListClient, type InventoryListTexts } from "./InventoryListClient";
 
 // ─── UI-specific types (declared before the component) ───
@@ -60,12 +60,15 @@ export function ManageInventoryScreen({ locale, searchParams }: ManageInventoryS
   return (
     <div className="flex-1">
       <PageSection surface="page">
-        <InventoryListClient
-          locale={locale}
-          query={query}
-          count={Object.keys(query).length}
-          texts={texts}
-        />
+        {/* The list's kept filters (remember-list-preferences D3, D5). */}
+        <FilterMemoryScope name="coffee-inventory" keys={INVENTORY_FILTER_KEYS}>
+          <InventoryListClient
+            locale={locale}
+            query={query}
+            count={Object.keys(query).length}
+            texts={texts}
+          />
+        </FilterMemoryScope>
       </PageSection>
     </div>
   );

@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import type { CoffeeInventoryQuery } from "@/shared/api";
 import { signIn, useSession } from "@/features/auth";
-import { SessionGate, SignedOutPrompt } from "@/shared/ui";
+import { RememberedFiltersGate, SessionGate, SignedOutPrompt } from "@/shared/ui";
 import {
   InventoryResults,
   InventorySkeletonGrid,
@@ -51,7 +51,7 @@ export function InventoryListClient({
   return (
     <div className={SECTION_CLASSES}>
       <div className={HEADING_BLOCK_CLASSES}>
-        <p className="type-eyebrow">{texts.eyebrow}</p>
+        <p className="type-eyebrow-strong">{texts.eyebrow}</p>
         <h1 className="type-heading">{texts.heading}</h1>
         <p className="type-body">{texts.intro}</p>
       </div>
@@ -67,7 +67,12 @@ export function InventoryListClient({
         }
         allows={(user) => user.role === "coffeeshop"}
       >
-        {() => <InventoryResults locale={locale} query={query} count={count} texts={texts} />}
+        {() => (
+          // The kept filters are restored before the read (remember-list-preferences D3).
+          <RememberedFiltersGate fallback={<InventorySkeletonGrid />}>
+            <InventoryResults locale={locale} query={query} count={count} texts={texts} />
+          </RememberedFiltersGate>
+        )}
       </SessionGate>
     </div>
   );
