@@ -25,9 +25,24 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 | 1 | R74 | route-api-web-pages-through-front | Change (traditional workflow; behaviour, security) | M | — (Product owner, 2026-10-12: highest priority, last change before the Playwright suite) |
 | 1 | R76 | build-standalone-output | Refactor (fast lane), by Product owner's order (hotfix for the Docker deploy) | S | — (highest priority) |
 | 1 | R77 | collapse-taxonomy-trees | Refactor (fast lane), by Product owner's order (adds behaviour, texts, tests) | M | — (highest priority; runs in parallel with R76, different files) |
+| 1 | R78 | land-on-home-after-registration | Refactor (fast lane), by Product owner's order (changes behaviour) | S | — (highest priority; runs in parallel with R76 and R77, different files) |
 | 2 | R75 | update-stale-proxy-qa-test | Refactor (fast lane), by Product owner's order | S | — (on `feature/route-api-web-pages-through-front`, then aligned in `qa`) |
 | 4 | R1 | none yet (Playwright suite) | Change (tests) | — | R74 in `develop` (Product owner, 2026-10-12) |
 | 5 | R45 | none yet | Change (behaviour, API) | M | Product owner: deferred, to review 2026-10-12; not to be designed yet |
+
+## R78 — Land on the landing page after a registration sign-in (Product owner, 2026-10-12)
+
+- **Duplicated:** none. After a registration whose `201` carries the `token` block, the front opens `/{locale}/account` (`src/pages/register/ui/RegisterClient.tsx:56`; user-account "Registration result", scenario "Signed in by the registration"; decision of `sign-in-after-registration` design.md D4).
+- **Where today:** `src/pages/register/ui/RegisterClient.tsx`, `openspec/specs/user-account/spec.md` ("Registration result"), the test of that scenario.
+- **Why it pays off now:** Product owner, after testing the deploy: the registration should bring the user back to the landing page, as a normal sign-in returns to where it started.
+- **Owning capability:** user-account.
+- **Proposed change:** land-on-home-after-registration.
+- **Order (Product owner, 2026-10-12):** "can you bring me back to the landing page": fast lane, highest priority.
+- **Settled end state:** when `POST /register` answers `201` with a `token` block that signs the user in, the session is authenticated and the landing page `/{locale}` opens through client-side navigation, with no success panel and no full page load (the scenario's destination changes from `/{locale}/account` to `/{locale}`; nothing else in it). Registration without the token block, failures, both roles (specialist and coffee shop), the API requests and every other requirement stay as they are. The scenario's existing test changes only its expected destination; no other test changes. Full checks pass.
+- **Open decision (Product owner):** none.
+- **Type:** Refactor (fast lane)
+- **Status:** accepted
+- **Affects:** R76 and R77 run in parallel (different files); the three archives edit this file.
 
 ## R77 — Collapsible taxonomy trees (Product owner, 2026-10-12)
 
