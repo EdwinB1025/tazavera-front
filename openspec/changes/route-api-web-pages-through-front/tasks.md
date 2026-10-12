@@ -17,7 +17,7 @@ Every test below belongs to the validation suite. Test values: front `https://ta
 ## 2. Content-Security-Policy without the API origin (app-shell, auth callback)
 
 - [x] 2.1 In `proxy.test.ts`, the expected `connect-src` of `expectedCsp` becomes `connect-src 'self' https://nominatim.openstreetmap.org`. This is the expected value of the existing tests of the scenarios "Connections to the API are allowed" (app-shell, "sets Content-Security-Policy to exactly the design.md D9 directive list") and "Policy present on the callback" (auth, "sets Content-Security-Policy to exactly the design.md D9 directive list, the API origin in connect-src", whose title now says `connect-src` names no API origin). A constant left unused by this edit is removed. No other assertion changes. Verify: those two tests fail while `NEXT_PUBLIC_API_URL` is stubbed, because the policy still names the API origin; `npm run lint` passes.
-- [ ] 2.2 Implement design.md D6: `proxy.ts` builds `connect-src` from `'self'` and `NOMINATIM_ORIGIN` only and no longer reads `NEXT_PUBLIC_API_URL`. Verify: `npx vitest related proxy.ts --run` passes, 2.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 2.2 Implement design.md D6: `proxy.ts` builds `connect-src` from `'self'` and `NOMINATIM_ORIGIN` only and no longer reads `NEXT_PUBLIC_API_URL`. Verify: `npx vitest related proxy.ts --run` passes, 2.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 3. Authorization page and token endpoint on the front's origin (auth)
 

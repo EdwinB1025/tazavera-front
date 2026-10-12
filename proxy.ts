@@ -86,9 +86,6 @@ export function proxy(request: NextRequest) {
 
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const isDev = process.env.NODE_ENV === "development";
-  const apiOrigin = process.env.NEXT_PUBLIC_API_URL
-    ? new URL(process.env.NEXT_PUBLIC_API_URL).origin
-    : null;
 
   const cspHeader = [
     "default-src 'self'",
@@ -96,7 +93,7 @@ export function proxy(request: NextRequest) {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' blob: data: https://tile.openstreetmap.org",
     "font-src 'self'",
-    ["connect-src 'self'", apiOrigin, NOMINATIM_ORIGIN].filter(Boolean).join(" "),
+    `connect-src 'self' ${NOMINATIM_ORIGIN}`,
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -105,7 +102,7 @@ export function proxy(request: NextRequest) {
 
   // `/callback` (`add-auth` design.md D11): the same directive list with its
   // own nonce — redirect mode hydrates for its client-side navigation and
-  // exchanges the code at the API origin in `connect-src` — and no locale.
+  // exchanges the code through the front's own origin — and no locale.
   if (pathname === "/callback") {
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set("x-nonce", nonce);
