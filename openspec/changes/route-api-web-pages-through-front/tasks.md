@@ -49,7 +49,7 @@ Every test below belongs to the validation suite. Test values: front `https://ta
 
 ## 7. Full checks
 
-- [ ] 7.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite, the typecheck, lint and the build pass, with eight new tests (six in `proxy.test.ts`, one in `tokens.test.ts`, one in `client.test.ts`). QA tests that assert the old API base or the old `connect-src` (for example the `'unsafe-eval'` test of `qa/proxy.test.ts`, which compares the whole policy) may go stale: they are left untouched and listed in the final report. Any other failure is fixed in its own `fix(auth): …` commit. The build's final report states whether `npm run build` prerenders any page that reads the API (design.md Risks, "Prerendered pages").
+- [x] 7.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite, the typecheck, lint and the build pass, with eight new tests (six in `proxy.test.ts`, one in `tokens.test.ts`, one in `client.test.ts`). QA tests that assert the old API base or the old `connect-src` (for example the `'unsafe-eval'` test of `qa/proxy.test.ts`, which compares the whole policy) may go stale: they are left untouched and listed in the final report. Any other failure is fixed in its own `fix(auth): …` commit. The build's final report states whether `npm run build` prerenders any page that reads the API (design.md Risks, "Prerendered pages").
 
 ## 8. Browser checks (Product owner and design lead, not the build)
 
