@@ -128,3 +128,36 @@ Summary: cloud apply `cse_01BhYZD7iyMdm9yqPQpYmFbY` (10:29–11:01 UTC) finished
 - `qa/proxy.test.ts` 'unsafe-eval': update its expected `connect-src` (QA suite changes go through your reduction plan) — recommended: a fast-lane QA cleanup after the archive, as with R69–R72.
 - Blocks: no (verify gate is the validation suite).
 #### Note — the feature branch is now free for Product owner's deploy work (no executor on it).
+
+## Session 2026-10-12 — code review (step 9, orchestrator)
+Summary: Product owner, 2026-10-12: the orchestrator reviews the code and explains the findings functionally; Product owner approves or recommends. Diff `develop...feature/route-api-web-pages-through-front` (`7e9f88ae`), 9 production files, read against the API's route files (`routes/web.php`, Fortify, Passport, passkeys, Livewire endpoint) and views. Stopped because: Product owner's decisions taken (below); C waits for his choice. MVC reachable: not needed.
+
+### Review result
+- Forwarded list (`src/shared/api/forwarding.ts`) matches every API web route the API's pages use; every form and link in `resources/views` targets a forwarded path. Not forwarded and not used by any API page or by the front through the web side: `/register` (GET page), `/logout` (web), `/user/profile-information`, `/user/password`, Passport's management routes; the front calls register, logout, profile and password as JSON under `/api`.
+- Server reads use `API_INTERNAL_URL`, browser calls `NEXT_PUBLIC_API_URL`; the token exchange stays in `tokens.ts:168` on `NEXT_PUBLIC_API_URL`. No hand-built API URL left (`apiWebPageUrl` replaces 5). CSP `connect-src 'self'` + Nominatim. Lint 0 production warnings; no `eslint-disable` added.
+- `client.test.ts` node environment (apply deviation): accepted; the existing assertions are unchanged and pass.
+
+### Decisions taken
+#### D2 — Finding A (visitor IP): verify in the browser, guide below
+- Context: the API's sign-in limit is 5 attempts per minute per email and IP (`tazavera-api/app/Providers/FortifyServiceProvider.php:77-80`), and the API trusts the front as a proxy. Next.js's external rewrite sets only `x-forwarded-host` (`node_modules/next/dist/server/lib/router-utils/proxy-request.js:30-41`); it never appends the real client address, so an `X-Forwarded-For` sent by the visitor reaches the API unchanged. Whether a visitor can fake an IP therefore depends on the entry in front of the front (ngrok, or Caddy locally) writing the real address. Not verified.
+- Decision (Product owner): record a functional test guide; he runs it once the change is on the active front branch.
+- Result: guide G1 below. If A2 fails, the fix changes D3 and touches security: it comes back to Product owner as a correction.
+#### D3 — Finding B (`NEXT_PUBLIC_APP_URL` unset → plain server error instead of 502): not an issue
+- Product owner: managed in the deployment.
+#### D4 — Finding D (stale QA test): fixed on the feature branch by Product owner's order
+- Product owner: clean or update `qa/proxy.test.ts` on the current branch and align it in `qa`; after his tests the branch passes directly into `develop`. Backlog R75 (fast lane by order). This replaces Q11's "after the archive".
+- QA suite already run for R74: yes, cloud run `trig_01SQzWKBsxaxrsFEA6KAj2tL` on `7e9f88ae` (11:28–11:33 UTC): 1974 / 1975, the only failure is this test.
+
+### Deferred to Product owner
+#### Q12 — Finding C (the API pages' tab icon), corrected
+- Correction of the first reading: the front already serves `/favicon.ico` (`app/favicon.ico`), and the API's `favicon.svg` is the same Tazavera logo (with a leaf gradient). What breaks: the API's pages (`partials/head.blade.php:8-10`) ask for `/favicon.svg`, which the front does not forward and does not have (404), so their tab falls back to the front's `.ico`, without the dark-mode colours of the SVG. `/apple-touch-icon.png` exists on neither side (pre-existing).
+- Options: (A) forward `/favicon.svg` to the API (one entry in the forwarded list; changes design D1 and the auth spec's list → correction round on R74); (B) the API's head points to `/icon.svg`, the front's icon on the same origin (API change, Product owner's; breaks the icon when the API is opened directly); (C) the front serves its own `/favicon.svg` (new asset, a design change).
+- Recommendation: A — the API keeps owning its pages' icons, and it is the smallest change.
+- Blocks: verify and archive, once Product owner chooses.
+
+### G1 — Functional test guide: visitor IP and the sign-in limit (finding A)
+Run it once R74 is on the active front branch, through the **same public entry as production** (the ngrok URL; locally the https origin behind Caddy), with the API configured as in the summary §0 (`TRUSTED_PROXIES`, `APP_URL`). You need a Chrome extension that adds a request header (for example ModHeader) and the test account (`especialista.prueba@tazavera.test`).
+1. **A1 — the limit works.** Open the front, choose "Iniciar sesión". In the sign-in window enter the test email with a wrong password 5 times in a row. Expected: "these credentials do not match" each time. On the 6th try, still within the minute: a "too many attempts, try again in N seconds" message. **Pass:** the 6th try is blocked.
+2. **A2 — a fake IP is ignored.** Within that same minute, turn on the extension with the header `X-Forwarded-For: 203.0.113.7` for the public address. Reload the sign-in window and try a wrong password once more. **Pass:** still "too many attempts". **Fail:** "these credentials do not match" again: the API took the fake address, so anyone can get around the limit by changing it. Repeat once with `203.0.113.8` to confirm.
+3. **A3 — normal sign-in afterwards.** Turn the extension off, wait 60 seconds, sign in with the right password. **Pass:** you are signed in.
+4. Report each result and the entry used (ngrok or local Caddy). A2 failing through ngrok is the case that matters for production.
