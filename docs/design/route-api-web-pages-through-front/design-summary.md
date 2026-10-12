@@ -107,11 +107,11 @@ The API's pages build every form action, link and asset URL with `route()`, `url
 - `Authorization` and the cookies pass through.
 - The API honours these headers once the front's address is listed: its `TrustProxies` reads `config('trustedproxy.proxies')` (= `TRUSTED_PROXIES`) and trusts `X-Forwarded-For`/`-Host`/`-Port`/`-Proto`/`-Prefix` (orchestrator's read-only check of the API, 2026-10-12). So `X-Forwarded-Prefix` is available later if JSON bodies' absolute URLs ever need the `/api` prefix (§8).
 - With the front's address trusted (Q2), every URL the API emits for the web pages (form actions, `Location`, assets, the reset and verification links) is on the front's origin. The front never rewrites a `Location` header or a body.
-- Taking the origin from `NEXT_PUBLIC_APP_URL` keeps it right behind ngrok, which terminates TLS before the front.
+- Taking the origin from `NEXT_PUBLIC_APP_URL` keeps it right whatever terminates TLS before the front (the request reaching Next.js may be plain `http`).
 
 ### D4 — Bases: web pages at the front's root, JSON and token under the prefix (point a)
 
-- `NEXT_PUBLIC_API_URL` keeps its name and its role as the base of the JSON calls and of the token endpoint. Its value in every setup is `{NEXT_PUBLIC_APP_URL}/api`, for example `https://<ngrok-domain>/api` or `http://localhost:3000/api`.
+- `NEXT_PUBLIC_API_URL` keeps its name and its role as the base of the JSON calls and of the token endpoint. Its value in every setup is `{NEXT_PUBLIC_APP_URL}/api`, for example `https://<public origin>/api` or `http://localhost:3000/api`.
   - Keeping the variable means `client.ts` and `tokens.ts` do not change, and neither do the many tests that stub it.
   - The prefix is a fixed constant `/api` in `src/shared/api`, which the proxy uses. The variable's value must end with it (§6 check 1 shows a mismatch at once: every JSON call 404s).
 - The web pages use `NEXT_PUBLIC_APP_URL` (the front's root), behind one helper in `src/shared/api` (for example `apiWebPageUrl(path)`). No second base variable is added.
@@ -164,7 +164,7 @@ The API's pages build every form action, link and asset URL with `route()`, `url
   - `validateAuthResponse` gets only the `code` (`tokens.ts:101-106`), so no RFC 9207 `iss` check runs;
   - no `openid` scope is requested, so there is no ID token to validate;
   - Passport (league/oauth2-server) sends no `iss` in the authorization response.
-- `oauth4webapi` refuses a non-`https` token endpoint in a production build (`tokens.ts:178-182`). With the token endpoint on the front's origin, **a production build signs in only when the front itself is served over `https`** (the ngrok origin in the build environment). See the Open question.
+- `oauth4webapi` refuses a non-`https` token endpoint in a production build (`tokens.ts:178-182`). With the token endpoint on the front's origin, **a production build signs in only when the front is served over `https`**. How the front is served over `https` in each setup belongs to the deployment documentation. `npm run dev` is unaffected: outside production `http` is allowed.
 
 ### D9 — One public entry point (replaces the first draft's D9)
 
@@ -223,7 +223,7 @@ The API's pages build every form action, link and asset URL with `route()`, `url
 
 ## 6. Browser checks at the end (design lead and Product owner)
 
-Run on a production build over `https`: through ngrok (the target setup), or with a local TLS front, depending on the Open question. Environment:
+Run on a production build, on whatever `https` origin the environment provides for the front. Environment:
 - `NEXT_PUBLIC_APP_URL=<https front origin>`, `NEXT_PUBLIC_API_URL=<https front origin>/api`;
 - `API_INTERNAL_URL=http://localhost:8000` (or `http://api:80` in Docker);
 - the API with `APP_URL`/`FRONT_URL` = the front's origin, the front client's `redirect_uris` containing `<front origin>/callback`, `TRUSTED_PROXIES` = the front's address, `SESSION_DOMAIN` unset, secure cookies.
@@ -245,19 +245,7 @@ Run on a production build over `https`: through ngrok (the target setup), or wit
 
 ## 7. Open — Product owner's
 
-1. **`https` for the front outside ngrok.** With the token endpoint on the front's origin (D8), a production build signs in only when the front is served over `https`.
-   - The build environment has it (the ngrok origin).
-   - A local production build on `http://localhost:3000`, and the Docker stack without ngrok, cannot sign in. Before this change the API's Caddy gave the token endpoint `https`.
-   - Caddy's role (D1) changes accordingly: the browser no longer reaches the API.
-   - Options:
-     - A: every end-to-end check runs through ngrok, the real setup, and Caddy leaves the stack.
-     - B: Caddy moves in front of the front for local and Docker checks (`https://localhost:<port>` → `:3000`), and ngrok stays the public door.
-     - C: let the token exchange accept `http` when its endpoint is on `localhost`. A code change in the security path.
-   - Recommendation: A for the end-to-end checks (one setup, the one shipped), B only if checks without ngrok are wanted. Not C: a production build would trust plain `http` for credentials.
-   - `npm run dev` is unaffected: outside production `http` is allowed.
-   - Blocks propose: no. It decides where §6 runs, not the code.
-
-No other point is open: Q1–Q5 are settled (§0).
+None. Q1–Q5 are settled (§0). How the front is served over `https` in each setup is a deployment matter (Product owner, 2026-10-12), not part of this change (D8).
 
 ## 8. Risks and unverified points
 
@@ -290,8 +278,13 @@ No other point is open: Q1–Q5 are settled (§0).
   - D9: one public entry point.
   - Spec deltas, scenarios (11) and browser checks (11) rewritten.
   - Q1–Q5 recorded as settled.
-  - New open point: `https` for the front outside ngrok (Open 1). It does not block propose.
+  - New open point: `https` for the front outside ngrok (Open 1). It does not block propose. Withdrawn the same day (see below).
 - 2026-10-12, design lead, addition from the orchestrator's read-only check of the API.
   - §0: the OAuth client's registered redirect (`FrontClientSeeder.php`, `{FRONT_URL}/callback` at seed time) must be `<public origin>/callback`. API environment, Product owner's.
   - §6: the environment line and check 3 cover it.
   - D3: the API's `TrustProxies` honours the forwarded headers, `-Prefix` included, once the front's address is in `TRUSTED_PROXIES`.
+- 2026-10-12, design lead, Product owner's rewording.
+  - "Demo" wording replaced by "the build environment" / "the ngrok origin"; meaning unchanged.
+  - Open 1 removed (Product owner, 2026-10-12: serving the front over `https` is a deployment matter). Kept as a stated fact in D8.
+  - No decision, scenario or browser check depends on Caddy or names a way of serving `https`.
+  - "Open" is empty.
