@@ -23,7 +23,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
 | 1 | R74 | route-api-web-pages-through-front | Change (traditional workflow; behaviour, security) | M | — (Product owner, 2026-10-12: highest priority, last change before the Playwright suite) |
-| 1 | R80 | show-my-offerings-after-create | Refactor (fast lane), AUT correction by Product owner (changes behaviour) | S | — (highest priority; parallel with R76–R79, different files) |
 | 1 | R82 | hint-user-on-security-links | Refactor (fast lane), security fix by Product owner's order (changes behaviour) | S | — (highest priority; parallel with R77–R80; API side on `tazzavera-api` `feature/bind-web-pages-to-hinted-user`) |
 | 2 | R75 | update-stale-proxy-qa-test | Refactor (fast lane), by Product owner's order | S | — (on `feature/route-api-web-pages-through-front`, then aligned in `qa`) |
 | 4 | R1 | none yet (Playwright suite) | Change (tests) | — | R74 in `develop` (Product owner, 2026-10-12) |
@@ -42,25 +41,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 - **Type:** Refactor (fast lane)
 - **Status:** accepted
 - **Affects:** R74 (same helper, already in `develop`); the API branch `feature/bind-web-pages-to-hinted-user`; R77–R80 run in parallel (different files); the archives edit this file.
-
-## R80 — "View my offerings" replaces "Create offerings" after a creation (Product owner, 2026-10-12)
-
-- **Duplicated:** none. After offerings are created on "New offering", the form resets and keeps "Create offerings" (which cannot act until an inventory item is chosen again), and the status line carries an inline link "View my offerings" (offering-management "Creating offerings": "the status line announces the number of created offerings with a link to the list route, and the inventory choice and the location checkboxes reset").
-- **Where today:** `src/pages/new-offering/ui/NewOfferingForm.tsx` (status line and action group), `openspec/specs/offering-management/spec.md`.
-- **Why it pays off now:** AUT finding (Product owner, 2026-10-12): "la acción crear ofertas no hace nada porque me devuelve al mismo sitio; reemplazarla con ver mis ofertas, y que ver mis ofertas deje de ser un link".
-- **Owning capability:** offering-management.
-- **Proposed change:** show-my-offerings-after-create.
-- **Order:** AUT correction: fast lane, highest priority (standing order of the Product owner for AUT findings).
-- **Settled end state:**
-  1. After a successful creation, the status line (role `status`) keeps announcing the number of created offerings (`createdStatus` + count) **as text only, with no link**.
-  2. In that created state, the action group shows **"View my offerings"** (existing catalog text `viewMyOfferings`) **as a button** in place of "Create offerings": a `RouteButton` to `/{locale}/manage/offerings`, variant `action-3` (navigate/consult, as the button-variant rule), size `base`, in the same end-aligned `ActionGroup`, followed by "Cancel" as today.
-  3. As soon as the user chooses an inventory item again (the form leaves the created state), "Create offerings" returns in its place, so several creations in a row stay possible; the reset of the inventory choice and the location checkboxes stays as today.
-  4. Nothing else changes: requests, errors, the pending state, texts, other screens.
-- **Tests:** one test per new or modified scenario of "Creating offerings"; every other test keeps its assertions. Full checks pass.
-- **Open decision (Product owner):** none. (Orchestrator's reading, for his review: the button swap applies only after a creation, because "Create offerings" is the form's only way to create.)
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** R79 runs in parallel on the new-offering sidebar file only (different file); the archives edit this file.
 
 ## R75 — Stale QA test of the proxy's CSP after R74 (Product owner, 2026-10-12)
 
