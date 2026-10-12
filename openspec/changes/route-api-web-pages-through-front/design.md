@@ -29,6 +29,7 @@
 
 - Prefix group: every path starting with `/api/` is forwarded with `/api` removed. `/api` alone is not forwarded. `/logout` belongs only to this group (`/api/logout`).
 - Web list: the API's web routes, forwarded with the path unchanged. Exact paths; three parameterised paths (`/reset-password/{token}`, `/email/verify/{id}/{hash}`, `/user/passkeys/{passkey}`, one non-empty segment per parameter); three prefixes (`/build/`, `/flux/`, and the Livewire group matched as `/livewire-` followed by one or more lowercase hexadecimal characters and `/`). The full list is the one the auth delta's "One public entry point" states; Fortify's web `/logout` is not in it.
+- Correction round 1 (`corrections.md`, Round 1, item 1): `/favicon.svg`, the tab icon the API's pages ask for, joins the web list as an exact path, forwarded unchanged like `/login`; this supersedes the summary §2 row that kept it on the front. `/favicon.ico` stays not forwarded (the front serves `app/favicon.ico`), and `/apple-touch-icon.png` stays out of scope (neither app has one).
 - Every method is forwarded with its query string, headers and body.
 
 **Placement (FSD).** A new file `src/shared/api/forwarding.ts` holds:

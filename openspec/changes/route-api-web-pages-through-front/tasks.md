@@ -54,3 +54,8 @@ Every test below belongs to the validation suite. Test values: front `https://ta
 ## 8. Browser checks (Product owner and design lead, not the build)
 
 - [ ] 8.1 Run the browser checks 1–13 of `docs/design/route-api-web-pages-through-front/design-summary.md` §6 on a production build served over `https`, with the environment §6 lists: one origin; sign-in popup; both roles; step-up; silent re-authentication; security page; email links; headers; cookies; server-side reads; no internal address; sign out ends the web session; a step-up by another account. Check 2 also settles the `X-Forwarded-Host` risk of design.md (every `Location` stays on the front's origin), and check 6 the CSRF one (no `419`). The build leaves this task unchecked.
+
+## 9. Correction round 1: forward the API pages' tab icon (auth)
+
+- [ ] 9.1 Test "A listed web route is forwarded unchanged" in `proxy.test.ts`: add `["GET", "/favicon.svg"]` to the paths the existing case checks, so `x-middleware-rewrite` is `http://api.internal:8000/favicon.svg`. No new test file and no other assertion changes; the "Paths that are not forwarded" case keeps `/favicon.ico`. Verify: the test fails on `/favicon.svg` only, because the path is not in the web list yet; `npm run lint` passes.
+- [ ] 9.2 Implement design.md D1 (correction round 1): add `/favicon.svg` to the exact paths of the web list in `src/shared/api/forwarding.ts`. No other route, header, CSP or production file changes. Verify: `npx vitest related proxy.ts src/shared/api/forwarding.ts --run` passes, 9.1 and "Paths that are not forwarded" included; `npx tsc --noEmit` and `npm run lint` report no errors. Then run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`; all pass.
