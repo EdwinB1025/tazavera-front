@@ -23,24 +23,9 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
 | 1 | R74 | route-api-web-pages-through-front | Change (traditional workflow; behaviour, security) | M | — (Product owner, 2026-10-12: highest priority, last change before the Playwright suite) |
-| 1 | R76 | build-standalone-output | Refactor (fast lane), by Product owner's order (hotfix for the Docker deploy) | S | — (highest priority) |
 | 2 | R75 | update-stale-proxy-qa-test | Refactor (fast lane), by Product owner's order | S | — (on `feature/route-api-web-pages-through-front`, then aligned in `qa`) |
 | 4 | R1 | none yet (Playwright suite) | Change (tests) | — | R74 in `develop` (Product owner, 2026-10-12) |
 | 5 | R45 | none yet | Change (behaviour, API) | M | Product owner: deferred, to review 2026-10-12; not to be designed yet |
-
-## R76 — Standalone build output for the Docker image (Product owner, 2026-10-12)
-
-- **Duplicated:** none. The front's Docker image copies the whole project (sources, tests, docs, OpenSpec, dev dependencies) and runs `next start` as root (technical review 2026-10-12, risk 3).
-- **Where today:** `next.config.ts` (no `output`).
-- **Why it pays off now:** the deploy image (Product owner's `Dockerfile`, outside the OpenSpec flow) will copy only `.next/standalone` and `.next/static` and run `node server.js` as user `node`.
-- **Owning capability:** app-shell.
-- **Proposed change:** build-standalone-output.
-- **Order (Product owner, 2026-10-12, relayed by the deploy assistant):** hotfix, fast lane, highest priority, merged into `develop`.
-- **Settled end state:** `next.config.ts` adds `output: "standalone"` to `nextConfig`, keeping `poweredByHeader: false` and the next-intl plugin. Nothing else in the front changes; what users see, the requests to the API and every requirement in `openspec/specs/` stay the same. Check: `npm run build`, then `node .next/standalone/server.js` (with `.next/static` copied next to it, as the Dockerfile will) serves `/es` with its styles and translations; if a locale page fails because the message catalogs are not traced, add `outputFileTracingIncludes` for `messages/**` (same config file, no other change). No new tests; existing tests keep their assertions. Full checks (validation, QA, tsc, lint, build) pass. The `Dockerfile` is not changed by this entry.
-- **Open decision (Product owner):** none.
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** the deploy `Dockerfile` (Product owner's, after this reaches `develop`).
 
 ## R75 — Stale QA test of the proxy's CSP after R74 (Product owner, 2026-10-12)
 
