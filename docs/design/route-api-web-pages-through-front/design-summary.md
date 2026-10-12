@@ -321,6 +321,11 @@ None. Q1–Q5 are settled (§0). How the front is served over `https` in each se
   - §5 row 9: no existing test asserts the token endpoint URL, so `tokens.test.ts` gets one new test (it passes immediately).
   - Existing tests of unchanged scenarios that assert the same destinations (the full-page and step-up authorization tests, the security-entry popup test, the account popup tests) change their expected base only.
   - §5 note "No QA test is expected to go stale": at least `qa/proxy.test.ts` (whole-policy comparison) is expected to go stale; the build lists it.
-- Open (Product owner, non-blocking):
-  - Whether the proxy should also override the forwarded `host` request header with the public host, so `X-Forwarded-Host` is right even behind a terminator that rewrites `Host`.
-  - `openspec/config.yaml` still describes auth with "JSON calls and the token exchange stay direct" (pre-option A); configuration is Product owner's.
+- Open (Product owner, non-blocking), both closed by the artifact review below:
+  - Whether the proxy should also override the forwarded `host` request header with the public host, so `X-Forwarded-Host` is right even behind a terminator that rewrites `Host`. Decided: not overridden (Product owner, 2026-10-12).
+  - `openspec/config.yaml` still describes auth with "JSON calls and the token exchange stay direct" (pre-option A); configuration is Product owner's. Closed: Product owner updated `openspec/config.yaml` in `900a4f76` (2026-10-12).
+- Artifact review (Product owner, 2026-10-12), architect (cloud session), base head `900a4f76`; `openspec validate route-api-web-pages-through-front --strict`: valid.
+  - design.md, Risks, the `X-Forwarded-Host` item: names only ngrok (the build environment's single public entry point keeps the public `Host`); Caddy dropped; records Product owner's decision of 2026-10-12 not to override the forwarded `host` request header (D3 unchanged; browser check 2 confirms that every `Location` stays on the front's origin). The source analysis is kept.
+  - design.md, Open Questions: "None."
+  - Specs, tasks and proposal unchanged.
+  - Open: none.
