@@ -12,7 +12,7 @@ No derived API types are needed: the change reads no API field and sends no new 
 
 ## 2. Forgetting with the session (filtering, app)
 
-- [ ] 2.1 Tests in `src/app/shell/forget-list-preferences.test.ts` (validation suite), with `renderHook` and `sessionStorage` holding `tazavera.list-filters.my-evaluations` = `process=washed` and an unrelated key `tazavera.pending-flow` before each:
+- [x] 2.1 Tests in `src/app/shell/forget-list-preferences.test.ts` (validation suite), with `renderHook` and `sessionStorage` holding `tazavera.list-filters.my-evaluations` = `process=washed` and an unrelated key `tazavera.pending-flow` before each:
   - "Forgotten on sign out": the hook renders with an `authenticated` session (user `ulid` `A`), then with `anonymous`. Assert the list key is gone and `tazavera.pending-flow` is still there.
   - "Forgotten when another user signs in": the hook renders with `authenticated` user `A`, then with `authenticated` user `B`. Assert the list key is gone; a re-render with user `B` and a value written again keeps that value.
   Verify: the tests fail only because `useForgetListPreferences` does not exist yet; `npm run lint` passes.
