@@ -16,7 +16,7 @@ No derived API types are needed: the change reads no API field and sends no new 
   - "Forgotten on sign out": the hook renders with an `authenticated` session (user `ulid` `A`), then with `anonymous`. Assert the list key is gone and `tazavera.pending-flow` is still there.
   - "Forgotten when another user signs in": the hook renders with `authenticated` user `A`, then with `authenticated` user `B`. Assert the list key is gone; a re-render with user `B` and a value written again keeps that value.
   Verify: the tests fail only because `useForgetListPreferences` does not exist yet; `npm run lint` passes.
-- [ ] 2.2 Implement design.md D4: `src/app/shell/forget-list-preferences.ts` (`useForgetListPreferences`) and its call in `src/app/shell/SessionShell.tsx` with the value of `useSession()`. Verify: `npx vitest related` on the changed files passes, 2.1 and `src/app/shell/AppShell.test.tsx` included, with no existing assertion edited; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 2.2 Implement design.md D4: `src/app/shell/forget-list-preferences.ts` (`useForgetListPreferences`) and its call in `src/app/shell/SessionShell.tsx` with the value of `useSession()`. Verify: `npx vitest related` on the changed files passes, 2.1 and `src/app/shell/AppShell.test.tsx` included, with no existing assertion edited; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 3. Wiring the editing lists (filtering, features and pages)
 
