@@ -48,6 +48,9 @@ D1 two forwarded groups (`/api/*` with the prefix stripped → `/oauth/token` an
 - Propose (step 6) in the cloud: `trig_011ACFx3DJHxHoTy1uTFHWCD`, 08:37 UTC, architect only, prompt written by the design lead; target `claude/route-api-web-pages-through-front-propose`.
 - **Next session (orchestrator):** list the routine's runs; review the branch (commit format, one commit per capability, `validate --strict`, `## Propose status`, departures from the summary in the final report); fast-forward `feature/route-api-web-pages-through-front`; then Product owner's artifact review (step 7) before apply. The session was closed by Product owner after the launch: no watch is running.
 
+### Pending task for the orchestrator (Product owner, 2026-10-12)
+- Create a separate branch named `deploy` to test this change before it passes into `develop`. Task for the orchestrator when Product owner comes back (Product owner's order: an exception to "no agent creates branches"). To settle with Product owner then: the branch it starts from and how R74 reaches it (expected: `develop` plus `feature/route-api-web-pages-through-front` once applied), and what is tested there before the merge into `develop`.
+
 ### Open until the browser checks
 - Whether Next.js adds its own `X-Forwarded-*` after the proxy's (check 1: every `Location` stays on the front's origin).
 - Whether Laravel's CSRF check passes with the forwarded host (check 5: no `419` on the security pages).
