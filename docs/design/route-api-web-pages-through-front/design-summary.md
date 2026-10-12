@@ -70,6 +70,12 @@ The API has no path prefix of its own: JSON and web routes share the root (`/use
 | JSON endpoints | every `api` route (`/user`, `/user/evaluations…`, `/offerings…`, `/register`, `/logout`…) | `api` | `{front}/api/<path>` (prefix) |
 | Icons of the API's layout | `/favicon.ico`, `/favicon.svg`, `/apple-touch-icon.png` | — | not forwarded: the front serves its own icon at those paths (or none), the same brand |
 
+**`/logout` (orchestrator's read-only check of the API, 2026-10-12).**
+- Only one `POST /logout` is live: `routes/api.php:37` `UserController@logout`. It revokes all access and refresh tokens, deletes the user's web sessions from the sessions table and regenerates the remember token.
+- Fortify's web `POST /logout` has the same method and path. The `api` route, registered after the web routes, replaces it, which is why `route:list` shows only the `api` one.
+- The front calls it as JSON with the token: `src/features/auth/model/session.ts:103` (sign out) and `src/features/auth/api/identity.ts:52` (a step-up confirmed by another account). Under option A both go to `{front}/api/logout` → `{API_INTERNAL_URL}/logout`.
+- The server-side session deletion does not depend on the cookie's origin. The session cookie left in the browser is orphaned and harmless.
+
 The API's pages build every form action, link and asset URL with `route()`, `url()` and `@vite`, so they come out on whatever origin Laravel takes as the request's root. No `URL::forceRootUrl` or `forceScheme` exists in the API. This is why the forwarded request carries the front's public origin (D3).
 
 ## 3. Decisions
@@ -79,6 +85,7 @@ The API's pages build every form action, link and asset URL with `route()`, `url
 - **Prefix group.** Every path that starts with `/api/` is forwarded to `API_INTERNAL_URL` with `/api` removed (`/api/offerings?page=2` → `{internal}/offerings?page=2`; `/api/oauth/token` → `{internal}/oauth/token`).
   - This is the token endpoint and every JSON call, whatever the path, with no list to keep in step with the API.
   - `/api` alone (no trailing segment) is not forwarded and keeps today's handling.
+  - `POST /logout` belongs to this group only, as `/api/logout`. Fortify's web `/logout` is shadowed by the `api` route (§2) and must **not** be in the web list.
 - **Web list.** The web-route groups of §2 are forwarded with their path unchanged, because the API's pages and their links, redirects and assets live at the API's root. The list is explicit (exact paths; `/reset-password/:token`, `/email/verify/:id/:hash`, `/user/passkeys/:passkey`; prefixes only for `/build/`, `/flux/` and the Livewire group, matched as `/livewire-<hex>/`). It is kept in one module in `src/shared/api` that `proxy.ts` and the tests read.
 - Every HTTP method is forwarded, with the query string, headers and body unchanged.
 - **How the proxy tells them apart.** One order of checks in `proxy.ts`, first match wins:
@@ -206,12 +213,12 @@ The API's pages build every form action, link and asset URL with `route()`, `url
 
 | # | Scenario | Test (file) |
 |:-:|---|---|
-| 1 | `/api/<path>?<query>` (e.g. `GET /api/offerings?page=2`, `POST /api/oauth/token`, `PUT /api/users/{ulid}`) is rewritten to `{API_INTERNAL_URL}/<path>?<query>` | `proxy.test.ts` (`x-middleware-rewrite`) |
+| 1 | `/api/<path>?<query>` (e.g. `GET /api/offerings?page=2`, `POST /api/oauth/token`, `PUT /api/users/{ulid}`, `POST /api/logout`) is rewritten to `{API_INTERNAL_URL}/<path>?<query>` | `proxy.test.ts` (`x-middleware-rewrite`) |
 | 2 | A listed web route (e.g. `GET /login`, `POST /oauth/authorize`, `GET /user/security`, `GET /reset-password/{token}?email=…`, `POST /livewire-<hash>/update`, `GET /flux/flux.js`, `GET /build/assets/app.css`) is rewritten to `{API_INTERNAL_URL}{path}{query}` | `proxy.test.ts` |
 | 3 | A forwarded response carries no CSP, no COOP and none of the security headers | `proxy.test.ts` |
 | 4 | The forwarded request carries `X-Forwarded-Host`/`-Proto`/`-Port` of `NEXT_PUBLIC_APP_URL` | `proxy.test.ts` (`x-middleware-request-*`) |
 | 5 | Without `API_INTERNAL_URL` a forwarded request answers `502` and is not rewritten | `proxy.test.ts` |
-| 6 | Not forwarded: `/api` alone, `/_next/…`, `/favicon.ico`, `/callback`, `/es/…`, `/user` (no prefix), `/offerings` (no prefix) keep their current handling | `proxy.test.ts` |
+| 6 | Not forwarded: `/logout` (no prefix), `/api` alone, `/_next/…`, `/favicon.ico`, `/callback`, `/es/…`, `/user` (no prefix), `/offerings` (no prefix) keep their current handling | `proxy.test.ts` |
 | 7 | The front's page CSP has `connect-src 'self' https://nominatim.openstreetmap.org`, on pages and on `/callback` | `proxy.test.ts` (existing scenarios, their expected `connect-src` updated) |
 | 8 | The authorization page opens at `{NEXT_PUBLIC_APP_URL}/oauth/authorize` with the same parameters (popup, full-page, silent) | `src/features/auth/api/authorize.test.ts` (existing scenarios, their base updated) |
 | 9 | The token exchange and refresh go to `{NEXT_PUBLIC_API_URL}/oauth/token` | `src/shared/api/tokens.test.ts` (existing, unchanged) |
@@ -242,6 +249,8 @@ Run on a production build, on whatever `https` origin the environment provides f
 9. **Cookies.** The API's session and `XSRF-TOKEN` cookies are on the front's origin.
 10. **Server-side reads.** The landing and the offerings list render, and their reads appear in the API's log as coming from the front's server, not from the browser.
 11. **No internal address.** With `API_INTERNAL_URL` unset, `/api/offerings` answers `502` and the landing shows its existing error state.
+12. **Sign out ends the web session.** Sign out from the user menu (`POST /api/logout` answers), then sign in again: the login asks for credentials instead of approving silently.
+13. **A step-up by another account.** Confirm a step-up with a different account: the previous session stays, and that other account's web session is ended (`POST /api/logout` with its token); a later sign-in as that account asks for credentials.
 
 ## 7. Open — Product owner's
 
@@ -288,3 +297,7 @@ None. Q1–Q5 are settled (§0). How the front is served over `https` in each se
   - Open 1 removed (Product owner, 2026-10-12: serving the front over `https` is a deployment matter). Kept as a stated fact in D8.
   - No decision, scenario or browser check depends on Caddy or names a way of serving `https`.
   - "Open" is empty.
+- 2026-10-12, design lead, `/logout` from the orchestrator's read-only check of the API.
+  - §2 and D1: `/logout` is in the prefix group only; Fortify's shadowed web `/logout` stays out of the web list.
+  - Scenario 1 lists `POST /api/logout`, and scenario 6 lists `/logout` (no prefix) as not forwarded. No new scenario.
+  - Browser checks 12–13 added.
