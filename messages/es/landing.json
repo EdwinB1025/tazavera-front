@@ -21,6 +21,8 @@
   "cardRatingExcellentLabel": "Excelente",
   "cardRatingGoodLabel": "Bueno",
   "cardRatingCommercialLabel": "Comercial",
+  "treeShowNotesLabel": "Mostrar las notas de {label}",
+  "treeHideNotesLabel": "Ocultar las notas de {label}",
   "paginationPreviousLabel": "Anterior",
   "paginationNextLabel": "Siguiente",
   "paginationNavigationLabel": "Paginación",

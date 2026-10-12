@@ -24,7 +24,7 @@ export { DescriptorChipGroup } from "./DescriptorChipGroup";
 export { DescriptorCascade } from "./DescriptorCascade";
 export type { CascadeNode } from "./descriptor-cascade";
 export { TaxonomyTree } from "./TaxonomyTree";
-export type { TaxonomyTreeNode } from "./TaxonomyTree";
+export type { TaxonomyTreeNode, TaxonomyTreeTexts } from "./TaxonomyTree";
 export { ConfirmDialog } from "./ConfirmDialog";
 export { Loader2, ArrowLeft } from "./icons";
 export { Logo } from "./Logo";

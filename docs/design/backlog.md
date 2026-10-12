@@ -23,7 +23,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
 | 1 | R74 | route-api-web-pages-through-front | Change (traditional workflow; behaviour, security) | M | — (Product owner, 2026-10-12: highest priority, last change before the Playwright suite) |
-| 1 | R77 | collapse-taxonomy-trees | Refactor (fast lane), by Product owner's order (adds behaviour, texts, tests) | M | — (highest priority; runs in parallel with R76, different files) |
 | 1 | R78 | land-on-home-after-registration | Refactor (fast lane), by Product owner's order (changes behaviour) | S | — (highest priority; runs in parallel with R76 and R77, different files) |
 | 1 | R79 | add-inventory-sidebar-entry | Refactor (fast lane), AUT correction by Product owner (changes behaviour) | S | — (highest priority; parallel with R76–R78, different files) |
 | 1 | R80 | show-my-offerings-after-create | Refactor (fast lane), AUT correction by Product owner (changes behaviour) | S | — (highest priority; parallel with R76–R79, different files) |
@@ -92,28 +91,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 - **Type:** Refactor (fast lane)
 - **Status:** accepted
 - **Affects:** R76 and R77 run in parallel (different files); the three archives edit this file.
-
-## R77 — Collapsible taxonomy trees (Product owner, 2026-10-12)
-
-- **Duplicated:** none. `src/shared/ui/TaxonomyTree.tsx` always renders every level of each taxonomy tree.
-- **Where today:** `TaxonomyTree` and its three consumers: the offering card (`src/entities/offering/ui/OfferingCard.tsx`, landing and lists), the Consensus tab (`src/widgets/offering-detail/ui/SelectionBlock.tsx`, with the `name count/total` shares) and the detail by axis (`src/widgets/offering-detail/ui/AxisDetail.tsx`).
-- **Why it pays off now:** Product owner's request after testing `develop`: long trees crowd the cards.
-- **Owning capability:** the capability whose spec owns the shared tree (the architect decides from `openspec/specs/`: landing "Taxonomy badge trees on the offering card", offering-catalog "Consensus taste trees" and "Consensus detail by axis"); one commit per capability.
-- **Proposed change:** collapse-taxonomy-trees.
-- **Order (Product owner, 2026-10-12):** fast lane, highest priority; the orchestrator's recommendations accepted ("recommendations accepted"): everywhere the tree appears (option 1A), fast lane (2A), and the details below.
-- **Settled end state:**
-  1. Every taxonomy tree starts **closed**: only the top-level (level 0) notes show, in the three places above.
-  2. A note that has children shows a **toggle button right after its badge** (after its share on the Consensus tab), whose visible text is `+` when closed and `−` when open. A note without children has no toggle.
-  3. Opening a level-0 note shows its level-1 children; a level-1 note with children has its own toggle that shows its level-2 children.
-  4. **Closing a note closes all its descendants**: reopening it shows only its direct children, closed.
-  5. The toggle is a real `button` with `aria-expanded`, `aria-controls` pointing at the child list, `focus-visible:focus-ring`, a hover state with existing semantic tokens only (no new token, colour value or dependency), and an accessible name from the message catalogs, passed as props (es "Mostrar las notas de {label}" / "Ocultar las notas de {label}"; en "Show the notes under {label}" / "Hide the notes under {label}"; ca "Mostra les notes de {label}" / "Amaga les notes de {label}"). The `+`/`−` glyph is hidden from assistive technologies. Disabled state not used.
-  6. The open/closed state lives only in the component: it is not remembered across reloads or navigation, and does not change the URL or any request to the API.
-  7. The `role="list"` hierarchy and the existing layout (indented column for level 1, wrapping row for level 2, connector) stay as they are once open; the shares `name count/total` stay next to each badge.
-- **Tests:** one test per new or modified scenario. Existing validation tests of scenarios this entry modifies (all levels visible) are updated to the new scenarios; every other test keeps its assertions. QA tests that fail only because the tree now starts closed may add the clicks that open it, keeping their assertions (orchestrator's decision under the order; list them in the final report).
-- **Open decision (Product owner):** none.
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** R76 runs in parallel (only `next.config.ts`); both archives edit this file.
 
 ## R75 — Stale QA test of the proxy's CSP after R74 (Product owner, 2026-10-12)
 

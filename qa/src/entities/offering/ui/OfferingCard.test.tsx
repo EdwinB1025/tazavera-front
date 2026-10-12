@@ -50,6 +50,13 @@ const TEXTS = {
   ratingCommercialLabel: "texts.ratingCommercialLabel",
 };
 
+// The tree toggles' names (collapse-taxonomy-trees D2): accessible names,
+// not visible text, so kept out of `TEXTS`.
+const TREE_TEXTS = {
+  showNotesLabel: "Show the notes under {label}",
+  hideNotesLabel: "Hide the notes under {label}",
+};
+
 // ─── Resolved taxonomy badge tree (nest-card-taste-notes design.md D1: the
 // labels, colors and levels arrive resolved, nested as the concordance) ─────
 
@@ -154,7 +161,7 @@ function renderCard(options: RenderOptions = {}) {
     <OfferingCard
       offering={options.offering ?? OFFERING}
       taxonomies={options.taxonomies ?? TAXONOMIES}
-      texts={TEXTS}
+      texts={{ ...TEXTS, ...TREE_TEXTS }}
       actions={options.actions}
     />,
   );
