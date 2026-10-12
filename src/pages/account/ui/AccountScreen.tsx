@@ -29,6 +29,7 @@ export function AccountScreen({ locale }: AccountScreenProps): ReactNode {
     roleLabel: catalog.roleLabel,
     nameLabel: catalog.nameLabel,
     surnameLabel: catalog.surnameLabel,
+    businessNameLabel: catalog.businessNameLabel,
     emailLabel: catalog.emailLabel,
     emailVerificationLabel: catalog.emailVerificationLabel,
     emailVerified: catalog.emailVerified,

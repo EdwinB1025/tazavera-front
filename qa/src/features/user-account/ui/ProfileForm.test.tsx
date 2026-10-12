@@ -15,8 +15,10 @@ const API = "https://api.tazavera.test";
 const TEXTS: ProfileFormTexts = {
   nameLabel: "fx-name",
   surnameLabel: "fx-surname",
+  businessNameLabel: "fx-business-name",
   emailLabel: "fx-email",
   emailFormatError: "fx-email-format",
+  requiredError: "fx-required",
   save: "fx-save",
   profileUpdated: "fx-updated",
   genericError: "fx-generic",
