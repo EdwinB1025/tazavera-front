@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { LocationsSidebarEntry } from "@/features/location-management";
-import { ManagementSidebarEntries } from "@/features/offering-management";
+import { InventorySidebarEntry, ManagementSidebarEntries } from "@/features/offering-management";
 import { getMessages } from "@/shared/lib/i18n";
 import { AppSidebar } from "@/widgets/app-sidebar";
 
@@ -14,7 +14,8 @@ export type NewOfferingSidebarEntriesProps = {
  * The create route's sidebar (design.md D8 as revised by review round 1;
  * spec "Management sidebar entry"): the sidebar frame with the
  * "Manage offerings" entry, current, then "Manage locations"
- * (add-coffeeshop-location D8), the `OfferingsSidebarScreen` pattern.
+ * (add-coffeeshop-location D8) and "Explore coffee inventory"
+ * (add-inventory-sidebar-entry D1), the `OfferingsSidebarScreen` pattern.
  */
 export function NewOfferingSidebarEntries({ locale }: NewOfferingSidebarEntriesProps): ReactNode {
   const catalog = getMessages("offering-management", locale);
@@ -26,6 +27,11 @@ export function NewOfferingSidebarEntries({ locale }: NewOfferingSidebarEntriesP
           <LocationsSidebarEntry
             locale={locale}
             label={locationsCatalog.sidebarEntry!}
+            current={false}
+          />
+          <InventorySidebarEntry
+            locale={locale}
+            label={catalog.sidebarExploreInventory!}
             current={false}
           />
         </ManagementSidebarEntries>

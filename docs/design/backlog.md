@@ -23,7 +23,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
 | 1 | R74 | route-api-web-pages-through-front | Change (traditional workflow; behaviour, security) | M | — (Product owner, 2026-10-12: highest priority, last change before the Playwright suite) |
-| 1 | R79 | add-inventory-sidebar-entry | Refactor (fast lane), AUT correction by Product owner (changes behaviour) | S | — (highest priority; parallel with R76–R78, different files) |
 | 1 | R80 | show-my-offerings-after-create | Refactor (fast lane), AUT correction by Product owner (changes behaviour) | S | — (highest priority; parallel with R76–R79, different files) |
 | 1 | R82 | hint-user-on-security-links | Refactor (fast lane), security fix by Product owner's order (changes behaviour) | S | — (highest priority; parallel with R77–R80; API side on `tazzavera-api` `feature/bind-web-pages-to-hinted-user`) |
 | 2 | R75 | update-stale-proxy-qa-test | Refactor (fast lane), by Product owner's order | S | — (on `feature/route-api-web-pages-through-front`, then aligned in `qa`) |
@@ -62,20 +61,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 - **Type:** Refactor (fast lane)
 - **Status:** accepted
 - **Affects:** R79 runs in parallel on the new-offering sidebar file only (different file); the archives edit this file.
-
-## R79 — "Explore coffee inventory" in the coffee shop's management sidebar (Product owner, 2026-10-12)
-
-- **Duplicated:** none. The sidebar of the offerings list, offering creation and locations routes shows only "Manage offerings" and "Manage locations" (offering-management "Management sidebar entry"); "Explore coffee inventory" appears only on the inventory list and detail ("Coffee inventory sidebar") and in the user menu.
-- **Where today:** `src/pages/manage-offerings/ui/ManageOfferingsSidebarEntries.tsx`, `src/pages/new-offering/ui/NewOfferingSidebarEntries.tsx`, `src/pages/manage-locations/ui/ManageLocationsSidebarEntries.tsx`, `src/pages/manage-inventory/ui/ManageInventorySidebarScreen.tsx`; `openspec/specs/offering-management/spec.md`.
-- **Why it pays off now:** AUT finding (Product owner, 2026-10-12): "explorar inventario de café no hace parte del menú sidebar del coffeeshop".
-- **Owning capability:** offering-management.
-- **Proposed change:** add-inventory-sidebar-entry.
-- **Order:** AUT correction: fast lane, highest priority (standing order of the Product owner for AUT findings).
-- **Settled end state:** on every coffee shop management route (offerings list, offering creation, locations, inventory list, inventory detail) the sidebar shows the same three entries in this order, each with its icon and visible label: "Manage offerings", "Manage locations", "Explore coffee inventory" (addressing `/{locale}/manage/inventory`, existing catalog text `sidebarExploreInventory`). The current-page marking stays as today for the first two (offerings on list and create, locations on locations) and "Explore coffee inventory" is the current page only on the inventory routes. On the inventory list it still holds the inventory facets; elsewhere it holds none. Icons: the existing inventory entry's icon if it has one, otherwise one from `src/shared/ui/icons.ts` (no new dependency). The requirement "Management sidebar entry" and its scenarios change from two to three entries; one test per new or modified scenario; every other test keeps its assertions. Full checks pass.
-- **Open decision (Product owner):** none.
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** R76–R78 run in parallel (different files); the archives edit this file.
 
 ## R75 — Stale QA test of the proxy's CSP after R74 (Product owner, 2026-10-12)
 
