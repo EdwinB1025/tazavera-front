@@ -26,7 +26,7 @@ context: |
   - feedback: status and messaging components (badge, callout, toast, modal, empty state)
   - content-structure: content containers (card, collapsible, tabs, label/value row, pagination)
   - app-shell: app layout (signed-in and signed-out header, avatar menu, management sidebar, main area, logo, language selector), next-intl setup and message structure, and front-wide security rules (no dangerouslySetInnerHTML, Content-Security-Policy)
-  - auth: OAuth Authorization Code + PKCE flow against the API (callback, in-memory tokens, refresh, silent re-authentication with prompt=none, sign out, profile:write step-up), session state and API client
+  - auth: OAuth Authorization Code + PKCE flow against the API (callback, in-memory tokens, refresh, silent re-authentication with prompt=none, sign out, profile:write step-up), session state and API client, and the front as entry point of the API's web routes (sign-in, consent, Fortify and security pages forwarded through the front's origin; JSON calls and the token exchange stay direct)
   - landing: public entry page with verified offerings and the About us page
   - user-account: registration (specialist and coffeeshop) and profile settings (view, edit, password, deactivate, delete, contact details)
   - evaluations: specialist evaluation workflow (CVA combined form, draft and close, read-only view of closed evaluations, my evaluations list with its filter, delete) and the public evaluations list with its filter (by offering, among others) and read-only evaluation view
