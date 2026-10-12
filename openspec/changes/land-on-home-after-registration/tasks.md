@@ -7,4 +7,4 @@ No derived API types are needed: the change reads no new API field (design.md Co
 
 ## 2. Full checks
 
-- [ ] 2.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass, lint with 0 errors. A QA test that fails only because it expects `/{locale}/account` after a registration sign-in gets only that expected destination changed and is listed in the final report; any other failure is fixed in its own `fix(user-account): …` commit, or reported when it lies outside this change.
+- [x] 2.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass, lint with 0 errors. A QA test that fails only because it expects `/{locale}/account` after a registration sign-in gets only that expected destination changed and is listed in the final report; any other failure is fixed in its own `fix(user-account): …` commit, or reported when it lies outside this change.
