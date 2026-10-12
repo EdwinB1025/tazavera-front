@@ -2,13 +2,13 @@ No derived API types are needed: the change reads `data.ulid`, already in `Sessi
 
 ## 1. The account's Security links name the user (user-account)
 
-- [ ] 1.1 Tests in `src/pages/account/ui/AccountClient.test.tsx` (validation suite); the fixture `USER` has `ulid: "u1"`:
+- [x] 1.1 Tests in `src/pages/account/ui/AccountClient.test.tsx` (validation suite); the fixture `USER` has `ulid: "u1"`:
   - Scenario "Two-factor authentication and passkeys" (existing test "shows its description and external same-tab links to {APP}/user/security …"): update only the expected `href` to `${APP}/user/security?login_hint=u1`.
   - Scenario "Verifying the email" (existing test "while the email is unverified lists a same-tab Verify email link …"): update only the expected `href` to `${APP}/email/verify?login_hint=u1`.
   - Popup scenarios (existing `ENTRIES` of "AccountClient — Security section popup" and the blocked-popup test's expected `${APP}/email/verify`): update only the expected addresses to carry `?login_hint=u1`.
   - New test, scenario "No user identifier in the session": an authenticated session whose user has no `ulid` and `emailVerifiedAt: null`; assert the `href` of "Verify email" is `${APP}/email/verify` and of "Two-factor authentication" and "Passkeys" is `${APP}/user/security`.
   Verify: the updated tests fail on the missing `login_hint`; the new test passes already (today's behaviour), which is expected; `npm run lint` passes.
-- [ ] 1.2 Implement design.md D1 (`apiWebPageUrl(path, loginHint?)` in `src/shared/api/web-pages.ts`) and D2 for the account: `SecuritySection` takes `ulid?: string` and passes it to both addresses; `AccountReadView` and `AccountEditView` pass `ulid={user.ulid}`. Verify: `npx vitest related` on the changed files passes, 1.1 included, with no other assertion edited; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 1.2 Implement design.md D1 (`apiWebPageUrl(path, loginHint?)` in `src/shared/api/web-pages.ts`) and D2 for the account: `SecuritySection` takes `ulid?: string` and passes it to both addresses; `AccountReadView` and `AccountEditView` pass `ulid={user.ulid}`. Verify: `npx vitest related` on the changed files passes, 1.1 included, with no other assertion edited; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 2. The user menu's Security entry names the user (app-shell)
 
