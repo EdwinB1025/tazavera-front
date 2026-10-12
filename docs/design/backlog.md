@@ -22,8 +22,29 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
-| 4 | R1 | none yet (Playwright suite) | Change (tests) | — | Product owner, 2026-10-11: start once R70–R72 and the QA cleanup are in `develop` |
+| 1 | R74 | route-api-web-pages-through-front | Change (traditional workflow; behaviour, security) | M | — (Product owner, 2026-10-12: highest priority, last change before the Playwright suite) |
+| 4 | R1 | none yet (Playwright suite) | Change (tests) | — | R74 in `develop` (Product owner, 2026-10-12) |
 | 5 | R45 | none yet | Change (behaviour, API) | M | Product owner: deferred, to review 2026-10-12; not to be designed yet |
+
+## R74 — The front is the entry point of the API's web routes (Product owner, 2026-10-12)
+
+- **Duplicated:** none. New front capability (decision D10, `tazavera-documentation/docker-deploy-guideline.md`): the front is the entry point ("router") of the API's WEB routes in every setup (local Docker, demo, production). The API's JSON endpoints and `POST /oauth/token` are not forwarded: the front keeps calling them on the API's own https address.
+- **Where today (verified against `develop` 2026-10-12):** nothing is forwarded. `next.config.ts` has no rewrites; `proxy.ts` only sets the security headers (CSP `connect-src` = 'self' + API origin + Nominatim, `form-action 'self'`, `proxy.ts:80-93`). Every route is built on `NEXT_PUBLIC_API_URL`: JSON client `src/shared/api/client.ts:129`, token exchange `src/shared/api/tokens.ts:168`, authorize popup `src/features/auth/api/authorize.ts:300`, links to API web pages `UserMenu.tsx:123`, `SecuritySection.tsx:43` and `:56`, `PasswordForm.tsx:92`. `API_INTERNAL_URL` is not read anywhere.
+- **Route groups (verified against the API 2026-10-12):**
+  - Through the front (Laravel `web` middleware, session cookie): `GET/POST/DELETE /oauth/authorize` (sign-in popup, consent), `/login` and the Fortify screens (two-factor challenge, `/forgot-password`, `/reset-password`, `/email/verify`), `/user/security` (`routes/web.php`), plus the assets those pages load (to confirm).
+  - Direct to the API (stateless): `POST /oauth/token` (Passport registers it with `throttle` only, `vendor/laravel/passport/routes/web.php:6-10`) and every route in `routes/api.php`.
+- **Why it pays off now:** the deploy (local Docker, demo, production) depends on it; last change before the Playwright suite (R1).
+- **Owning capability:** auth (with app-shell for the security headers)
+- **Proposed change:** route-api-web-pages-through-front. Expected end state (Product owner):
+  1. The front forwards the web-route group to the API; the browser sees those routes on the front's origin.
+  2. A second base URL for the web routes (the front's origin); `NEXT_PUBLIC_API_URL` stays the base of the JSON calls and of `/oauth/token`.
+  3. A server-only `API_INTERNAL_URL` (e.g. `http://api:80` in Docker): the forwarding target and the base of the server-side reads, falling back to `NEXT_PUBLIC_API_URL`.
+  4. The CSP and COOP rules of the auth spec are kept (COOP `same-origin-allow-popups` on pages, none on `/callback`); the API's forwarded pages are served as the API sends them.
+  5. Check: `/login`, `/oauth/authorize` and `/user/security` load through the front's origin; the JSON calls still go to the API's address; specialist and coffee shop sign in end to end.
+- **Open decision (Augusto):** Product owner, 2026-10-12: the design lead decides the open points (detail in `tazavera-documentation/front-implementation-notes.md` C9; API side in `api-implementation-notes.md` C8 and `docker-build-steps.md` C8/C9): (a) name of the second base URL and the call sites that move to it; (b) demo from another device: ngrok exposes only the front, so the direct JSON calls need the API's own public https address (a second tunnel) or must be forwarded too for the demo; (c) the OAuth issuer in `tokens.ts:168` is the API base: confirm nothing checks it against the origin that served `/oauth/authorize`; (d) API side (no code change, environment only, Product owner's): the session cookie and `TRUSTED_PROXIES` likely follow the front's origin for the web routes.
+- **Type:** Change (adds behaviour, touches security). Traditional workflow (section 3a), not fast lane (Product owner, 2026-10-12).
+- **Status:** accepted; design summary to draft
+- **Affects:** R1 (runs after it); the deploy guides in `tazavera-documentation/`. The contract does not change: these web routes are intentionally absent from `contracts/openapi.yaml`.
 
 ## R45 — Ask for the first location in coffee-shop registration
 
