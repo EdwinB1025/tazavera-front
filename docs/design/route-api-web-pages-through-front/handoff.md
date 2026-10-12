@@ -74,10 +74,12 @@ Summary: the propose run (`trig_011ACFx3DJHxHoTy1uTFHWCD`, session `cse_01RnUC1A
 #### Q7 — Artifact review (step 7)
 - Question: review `openspec/changes/route-api-web-pages-through-front/` on `feature/route-api-web-pages-through-front` and send the review message (or "no changes") for the architect.
 - Blocks: apply.
+#### ANSWERED 2026-10-12: no override; D3 stays as approved. The build environment has one entry point (ngrok), which keeps the public `Host`; Caddy is not part of the architecture
 #### Q8 — Forwarded `host` header (architect's open point 1)
 - Options: (A) keep D3 as approved, the risk checked in browser check 2; (B) the proxy also sets the forwarded `host` to the public host (design change, through the artifact review).
 - Recommendation: A — ngrok and Caddy keep the public `Host`, and browser check 2 confirms it before archive.
 - Blocks: no.
+#### ANSWERED 2026-10-12: Product owner updates the auth line himself; the orchestrator gave him the new text
 #### Q9 — `openspec/config.yaml` wording (architect's open point 2)
 - Question: update the auth line to option A (your file).
 - Blocks: no.
