@@ -12,7 +12,7 @@ A read the application's server sends to the API SHALL go directly to the intern
 ## MODIFIED Requirements
 
 ### Requirement: Signed-in header and user menu
-While the session is authenticated, the header SHALL show the brand logotype, the language selector, the theme switch and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The control SHALL show an initials circle and, on a medium or larger viewport, the user's name and a chevron after the circle; below that viewport it SHALL show the circle alone. The menu SHALL offer one account entry pointing at the account page, the security entry as an external link to the API's security page at `/user/security` on the application's own origin, the management entries for the user's role — for a coffeeshop "Manage offerings", "Manage locations" and "Explore coffee inventory" in this order — for a specialist the offerings entry, and sign out. Each entry SHALL show a decorative icon that reflects its action before its text and SHALL take the header menu entry treatment, not the inline link treatment, while keeping its order, destination and behaviour.
+While the session is authenticated, the header SHALL show the brand logotype, the language selector, the theme switch and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The control SHALL show an initials circle and, on a medium or larger viewport, the user's name and a chevron after the circle; below that viewport it SHALL show the circle alone. The menu SHALL offer one account entry pointing at the account page, the security entry as an external link to the API's security page at `/user/security` on the application's own origin whose address carries the query parameter `login_hint` with the session user's `data.ulid`, the same value the step-up sends, or no `login_hint` while the session holds no `data.ulid`, the management entries for the user's role — for a coffeeshop "Manage offerings", "Manage locations" and "Explore coffee inventory" in this order — for a specialist the offerings entry, and sign out. Each entry SHALL show a decorative icon that reflects its action before its text and SHALL take the header menu entry treatment, not the inline link treatment, while keeping its order, destination and behaviour.
 
 #### Scenario: User control carries the user's initials
 - **WHEN** the session is authenticated
@@ -77,6 +77,14 @@ While the session is authenticated, the header SHALL show the brand logotype, th
 #### Scenario: Menu entries carry icons and the header look
 - **WHEN** the user opens the user menu
 - **THEN** each entry shows a decorative icon hidden from assistive technology before its text, takes `nav-text` with `nav-text-hover` on hover and focus, and shows no underline and no link colour, in both themes
+
+#### Scenario: The security entry names the signed-in user
+- **WHEN** the user opens the user menu
+- **THEN** its security entry points at `{application origin}/user/security` with `login_hint` set to the session user's `data.ulid`
+
+#### Scenario: No user identifier in the session
+- **WHEN** the user opens the user menu and the session user has no `data.ulid`
+- **THEN** its security entry points at `{application origin}/user/security` with no `login_hint`
 
 ### Requirement: Content-Security-Policy
 Every document response of the application SHALL carry a Content-Security-Policy that allows scripts only from the application itself, allows connections only to the application itself and to `https://nominatim.openstreetmap.org`, and allows images from the map tile server `https://tile.openstreetmap.org`. Every call to the API goes to the application's own origin, so the policy names no API origin. Static assets — framework paths under `/_next/` and file paths — are intentionally excluded from the policy, the paths the application forwards to the API carry no policy from the application, and `/callback` gets its policy from `add-auth`, which owns that route.
