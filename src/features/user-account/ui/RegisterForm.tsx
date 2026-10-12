@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import type { RegisterPayload, RegistrationToken } from "@/shared/api";
 import { ActionGroup, Button, Field, Input, FormStatus, RouteButton } from "@/shared/ui";
 import { useRegisterForm } from "../model/use-register-form";
+import { BusinessNameField } from "./BusinessNameField";
 import { NewPasswordFields } from "./NewPasswordFields";
 import {
   RegisterSuccessPanel,
@@ -21,6 +22,7 @@ export type RegisterRole = Extract<
 export type RegisterFormTexts = RegisterSuccessPanelTexts & {
   nameLabel: string;
   surnameLabel: string;
+  businessNameLabel: string;
   emailLabel: string;
   passwordLabel: string;
   passwordConfirmationLabel: string;
@@ -103,6 +105,14 @@ export function RegisterForm({
           onChange={(event) => update("surname", event.target.value)}
         />
       </Field>
+      {role === "coffeeshop" && (
+        <BusinessNameField
+          label={texts.businessNameLabel}
+          value={values.businessName}
+          error={errors.businessName ?? serverErrors.businessName}
+          onChange={(value) => update("businessName", value)}
+        />
+      )}
       <Field label={texts.emailLabel} error={errors.email ?? serverErrors.email} required>
         <Input
           name="email"

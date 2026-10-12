@@ -56,6 +56,7 @@ afterEach(() => {
 const TEXTS: RegisterClientTexts = {
   nameLabel: "fx-name",
   surnameLabel: "fx-surname",
+  businessNameLabel: "fx-business-name",
   emailLabel: "fx-email",
   passwordLabel: "fx-password",
   passwordConfirmationLabel: "fx-confirmation",
@@ -111,6 +112,7 @@ describe("RegisterClient — injection", () => {
       [TEXTS.emailLabel, "ana@example.com"],
       [TEXTS.passwordLabel, "Secret123"],
       [TEXTS.passwordConfirmationLabel, "Secret123"],
+      [TEXTS.businessNameLabel, "Nomad Coffee"],
     ] as const) {
       fireEvent.change(screen.getByLabelText(new RegExp(`^${label}`)), {
         target: { value },

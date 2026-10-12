@@ -61,6 +61,7 @@ afterEach(() => {
 const TEXTS: RegisterClientTexts = {
   nameLabel: "fx-name",
   surnameLabel: "fx-surname",
+  businessNameLabel: "fx-business-name",
   emailLabel: "fx-email",
   passwordLabel: "fx-password",
   passwordConfirmationLabel: "fx-confirmation",
@@ -161,6 +162,8 @@ describe("RegisterClient — the registration result (sign-in-after-registration
         target: { value },
       });
     }
+    const businessName = screen.queryByLabelText(new RegExp(`^${TEXTS.businessNameLabel}`));
+    if (businessName) fireEvent.change(businessName, { target: { value: "Nomad Coffee" } });
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: TEXTS.registerSubmit }));
     });

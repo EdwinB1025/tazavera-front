@@ -7,6 +7,7 @@
   "registerSuccessText": "Ja pots iniciar sessió amb el teu correu i la contrasenya.",
   "nameLabel": "Nom",
   "surnameLabel": "Cognom",
+  "businessNameLabel": "Nom comercial",
   "emailLabel": "Correu electrònic",
   "passwordLabel": "Contrasenya",
   "passwordConfirmationLabel": "Confirma la contrasenya",
