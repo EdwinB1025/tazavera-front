@@ -155,6 +155,17 @@ Summary: Product owner, 2026-10-12: the orchestrator reviews the code and explai
 - Recommendation: A — the API keeps owning its pages' icons, and it is the smallest change.
 - Blocks: verify and archive, once Product owner chooses.
 
+#### ANSWERED 2026-10-12: option A (forward `/favicon.svg`) — correction round 1
+- `corrections.md` Round 1 committed by the orchestrator (`049c93bd`, after R75's ff so it stays a fast-forward). Cloud run `trig_018PDJg9aM8TDhNNEXktc7s2`, 15:08 UTC, architect (`openspec-update-change`) then build (`openspec-apply-change`), base `049c93bd`, target `claude/route-api-web-pages-through-front-round-1`. Prompt written by the orchestrator: the design lead subagent is not available in a session started from the Sprint5 root (orchestrator §7 step 2); the design lead reviews the result before the round ends.
+
+### R75 integrated (Product owner's order, D4)
+- Cloud run `trig_01PkWnYT5BaUZDvFftgmLR4p` (session `cse_01FmtKq1fFqfVKLSS2GM3VKz`, 14:48–14:53 UTC): one commit `7871bd7e` `test(app-shell): drop the API origin from the expected connect-src`, only `qa/proxy.test.ts`. Cloud checks: validation 209/1190, QA 364/1975 (all pass), tsc, lint 0 errors (old warning in `qa/…/ConsensusPanel.test.tsx:529`), build OK. Not re-run locally (session refused npm); integrated on the session's counts. ff `7e9f88ae..7871bd7e`, pushed.
+- The build's open question (its role file says it works only on `feature/<change-id>` and does not push; it followed the prompt): answered by the precedent of the cloud cycle (orchestrator §7), no action.
+- `qa` gets the fix when `develop` is merged into `qa` after this branch reaches `develop`.
+
+### G1 run (Product owner, 2026-10-12)
+- Product owner: the orchestrator runs G1 (the design lead would need to start the servers). Entry: ngrok `https://connector-graph-change.ngrok-free.dev`. ngrok installed with winget for the test (3.3.1), to be uninstalled after. Waiting for Product owner's `.env` changes (API: `APP_URL`, `FRONT_URL`, `TRUSTED_PROXIES=127.0.0.1`, `SESSION_SECURE_COOKIE=true`, `SESSION_DOMAIN` empty; front: `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_API_URL={public}/api`, `API_INTERNAL_URL=http://127.0.0.1:8000`) and the OAuth client redirect update (the seeder does not update an existing client).
+
 ### G1 — Functional test guide: visitor IP and the sign-in limit (finding A)
 Run it once R74 is on the active front branch, through the **same public entry as production** (the ngrok URL; locally the https origin behind Caddy), with the API configured as in the summary §0 (`TRUSTED_PROXIES`, `APP_URL`). You need a Chrome extension that adds a request header (for example ModHeader) and the test account (`especialista.prueba@tazavera.test`).
 1. **A1 — the limit works.** Open the front, choose "Iniciar sesión". In the sign-in window enter the test email with a wrong password 5 times in a row. Expected: "these credentials do not match" each time. On the 6th try, still within the minute: a "too many attempts, try again in N seconds" message. **Pass:** the 6th try is blocked.
