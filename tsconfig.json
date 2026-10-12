@@ -31,7 +31,6 @@
     "**/*.mts"
   ],
   "exclude": [
-    "node_modules",
-    "qa/src/features/offering-management/ui/OfferingActions.test.tsx"
+    "node_modules"
   ]
 }
