@@ -2,7 +2,7 @@ No derived API types are needed: the tree keeps receiving the notes its consumer
 
 ## 1. Collapsible trees on the offering card (landing)
 
-- [ ] 1.1 Tests in `src/entities/offering/ui/OfferingCard.test.tsx` (fixture: Floral → Jazmin → Bergamota, Frutal without children; `TEXTS` gains `showNotesLabel` and `hideNotesLabel` with a `{label}` placeholder), one per scenario of the landing delta:
+- [x] 1.1 Tests in `src/entities/offering/ui/OfferingCard.test.tsx` (fixture: Floral → Jazmin → Bergamota, Frutal without children; `TEXTS` gains `showNotesLabel` and `hideNotesLabel` with a `{label}` placeholder), one per scenario of the landing delta:
   - "Closed at first": Floral and Frutal show; Jazmin and Bergamota are not visible (inside a `hidden` list).
   - "Toggle on notes with children": a button follows Floral's badge in its row, with visible text `+`; Frutal's item holds no button.
   - "Opening a note": after clicking Floral's toggle its text is `−`, Jazmin shows with its own toggle reading `+`, Bergamota does not show; after clicking Jazmin's toggle Bergamota shows.
