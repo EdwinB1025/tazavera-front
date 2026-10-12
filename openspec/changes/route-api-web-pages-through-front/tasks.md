@@ -21,7 +21,7 @@ Every test below belongs to the validation suite. Test values: front `https://ta
 
 ## 3. Authorization page and token endpoint on the front's origin (auth)
 
-- [ ] 3.1 Tests:
+- [x] 3.1 Tests:
   - "The authorization page is on the application's origin": in `src/features/auth/api/authorize.test.ts`, the test "opens {NEXT_PUBLIC_API_URL}/oauth/authorize with exactly the parameters of design.md D5…" expects `url.origin` to be `APP_URL` instead of `API_URL`, and its title names `{NEXT_PUBLIC_APP_URL}`. The tests "navigates the current page to the authorization URL…" and "opens {NEXT_PUBLIC_API_URL}/oauth/authorize in a popup with scope=profile:write…" take the same expected origin (and title) only. No other assertion changes.
   - "The token requests go to the application's origin": a new test in `src/shared/api/tokens.test.ts` that stubs `NEXT_PUBLIC_API_URL` = `${APP_URL}/api`, runs `exchangeCode` and then `refreshTokens` against mocked `200` grants, and asserts that both requests were sent to `${APP_URL}/api/oauth/token`. It passes immediately: `tokens.ts` does not change (design.md D4, D8).
   Verify: the three `authorize.test.ts` tests fail on the origin only; the new `tokens.test.ts` test passes; `npm run lint` passes.
