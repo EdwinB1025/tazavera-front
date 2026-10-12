@@ -53,7 +53,7 @@ Every test below belongs to the validation suite. Test values: front `https://ta
 
 ## 8. Browser checks (Product owner and design lead, not the build)
 
-- [ ] 8.1 Run the browser checks 1–13 of `docs/design/route-api-web-pages-through-front/design-summary.md` §6 on a production build served over `https`, with the environment §6 lists: one origin; sign-in popup; both roles; step-up; silent re-authentication; security page; email links; headers; cookies; server-side reads; no internal address; sign out ends the web session; a step-up by another account. Check 2 also settles the `X-Forwarded-Host` risk of design.md (every `Location` stays on the front's origin), and check 6 the CSRF one (no `419`). The build leaves this task unchecked.
+- [x] 8.1 Run the browser checks 1–13 of `docs/design/route-api-web-pages-through-front/design-summary.md` §6 on a production build served over `https`, with the environment §6 lists: one origin; sign-in popup; both roles; step-up; silent re-authentication; security page; email links; headers; cookies; server-side reads; no internal address; sign out ends the web session; a step-up by another account. Check 2 also settles the `X-Forwarded-Host` risk of design.md (every `Location` stays on the front's origin), and check 6 the CSRF one (no `419`). The build leaves this task unchecked.
 
 ## 9. Correction round 1: forward the API pages' tab icon (auth)
 

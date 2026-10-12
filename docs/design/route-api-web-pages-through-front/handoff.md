@@ -190,3 +190,41 @@ Summary: G1 run through ngrok (`https://connector-graph-change.ngrok-free.dev` �
 ### Next
 - Browser checks 1–13 (task 8.1) with the design lead, including the design lead's look at round 1 (API pages' tab icon), then verify and archive on Product owner's request. A working test account is needed (re-register `especialista.prueba@tazavera.test` or give another one).
 - ngrok: keep it until Product owner says otherwise (demo on 2026-10-13); uninstall afterwards.
+
+## Session 2026-10-12 — artifact update (R82 sync)
+Summary: R82 `hint-user-on-security-links` was archived into `develop` after this change's artifacts were written and MODIFIED the same two requirements this change's delta MODIFIES (user-account "Grouped security section", app-shell "Signed-in header and user menu"); archiving R74 unchanged would have dropped R82's `login_hint` wording (R82 design.md, Risks). Product owner ordered the update. Stopped because: completed. MVC reachable: n/a.
+
+### Decisions taken
+#### D1 — Carry R82's login_hint into this change's deltas
+- Context: R82 risk above. / Decision: cloud architect session `trig_01P51RgQxFkeANX6RhESXc4Y` (openspec-update-change) merged both blocks: this change's front-origin addresses plus R82's `login_hint` text and scenarios ("The security entry names the signed-in user", "No user identifier in the session"); nothing else changed. / Why: Product owner's order; keeps both settled behaviours, already in code. / Result: `35b7daae` docs(user-account), `3aebf6ca` docs(app-shell); `openspec validate --strict` valid; reviewed by the orchestrator (two spec files only, commit format) and fast-forwarded into `feature/route-api-web-pages-through-front`, pushed.
+
+### Final checks
+No code changed; validation suite not re-run (spec text only).
+
+## Session 2026-10-12 — task 8.1 verified in code; browser run deferred to the deploy
+Summary: Product owner (2026-10-12): the browser checks need the deploy and run on 2026-10-13; the design lead verifies the 13 checks of design-summary §6 in code and tests now and, if verified, the change is archived and merged per the workflow. Design lead (read-only, code and tests at `26a177d9`): **no finding**. Checks 1, 4, 8, 10 verified in code; 2, 5, 7, 11, 12, 13 partial (code right, part browser-only); 3, 6, 9 browser-only. Open risks: `X-Forwarded-Proto/Port` code-addressed (`forwarding.ts:71-79`; Next.js only overwrites `x-forwarded-host` with the incoming `Host`, `proxy-request.js:30-41`), `X-Forwarded-Host` and the CSRF `419` browser-only. Note: the "Open until the browser checks" points refer to §6 checks 2 and 6 in the current numbering. Test gaps (not findings, backlog candidates): forwarding of `/forgot-password`, `/email/verify` and the passkey routes; `poweredByHeader`; the landing's error state when the server-side fetch is rejected.
+
+### Deferred to Product owner
+#### Q7 — Browser checks on the production deploy (2026-10-13)
+Production build over https, environment of §6. For each: qué abrir / qué hacer / qué debes ver.
+1. **Un solo origen.** DevTools → Red en portada, listado, inicio de sesión y Mi cuenta: todas las peticiones van a la dirección del front (datos por `/api/…`); solo Nominatim y teselas del mapa salen fuera; nada a `localhost:8000` ni a la API directa.
+2. **Ventana de inicio de sesión.** "Iniciar sesión" con Red abierta en la ventana: está en `{front}/oauth/authorize?…`; `/login` carga con estilos y fuentes; cada `Location` de los `302` apunta al front (riesgo `X-Forwarded-Host`).
+3. **Los dos roles.** Entrar como cafetería y como especialista: sin error de `redirect_uri`; la ventana se cierra; `POST /api/oauth/token` y `GET /api/user` responden `200`; queda la sesión iniciada.
+4. **Step-up.** Editar perfil → ventana en el front con `login_hint` en la URL; con otro usuario, `access_denied` y tu sesión sigue igual.
+5. **Reautenticación silenciosa.** Con sesión, recargar: sigues dentro sin ver el login (petición `/oauth/authorize?…prompt=none` y vuelta por `/callback`).
+6. **Página de seguridad.** Menú → Seguridad: en `{front}/user/security`; confirmar contraseña, activar doble factor, registrar passkey; ninguna respuesta `419` (riesgo CSRF).
+7. **Enlaces de correo.** "Verificar email" y "¿Olvidaste tu contraseña?", pedir el restablecimiento y abrir el enlace del log de la API: todo en el front; el formulario envía y redirige dentro del front; el enlace empieza por la dirección del front.
+8. **Cabeceras.** DevTools → Cabeceras de respuesta: página del front con CSP (`connect-src 'self' https://nominatim.openstreetmap.org`), COOP y las cabeceras de seguridad; `/callback` con CSP y sin COOP; `/login` y `/api/offerings` sin cabeceras del front ni `X-Powered-By` (si sale `X-Powered-By: PHP…`, falta `expose_php=Off` en la API).
+9. **Cookies.** DevTools → Aplicación → Cookies: la cookie de sesión de la API y `XSRF-TOKEN` guardadas en la dirección del front, con Secure.
+10. **Lecturas en el servidor.** Portada y listado con el log de la API abierto: se muestran; en el log las lecturas llegan del servidor del front; no aparecen en Red del navegador.
+11. **Sin dirección interna.** Front sin `API_INTERNAL_URL`: `/api/offerings` responde `502` vacío; la portada muestra su estado de error habitual.
+12. **Cerrar sesión.** Cerrar sesión y volver a entrar: `POST /api/logout` responde; el login pide credenciales otra vez.
+13. **Step-up con otra cuenta.** Confirmar un step-up con otra cuenta y luego entrar con ella: tu sesión sigue igual; hay `POST /api/logout`; la otra cuenta debe escribir sus credenciales.
+
+Also on the deploy (visual review of `develop`, blocked locally: browser tools denied in the orchestrator's session), at 375 and 1280 px, both themes:
+14. **R77** tarjetas y consenso: solo notas principales; cada nota con hijos se abre con su botón; cerrar una cierra sus descendientes.
+15. **R78** registrarse: se llega a la portada `/es`, no a Mi cuenta.
+16. **R81** registro de cafetería: "Nombre comercial" obligatorio entre apellido y email; especialista sin ese campo; en Mi cuenta (cafetería) se ve y se edita; el directorio muestra el nombre comercial.
+17. **R79** las cinco pantallas de gestión de la cafetería: tres entradas en el lateral, en orden, con icono.
+18. **R80** crear ofertas: "Ver mis ofertas" sustituye a "Crear ofertas"; al elegir otro café vuelve "Crear ofertas".
+19. **R82** enlaces de seguridad de Mi cuenta y del menú con `?login_hint=…`.
