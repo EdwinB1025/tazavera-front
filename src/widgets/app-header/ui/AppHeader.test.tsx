@@ -531,6 +531,7 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
 
   beforeAll(() => {
     process.env.NEXT_PUBLIC_API_URL = "https://api.tazavera.test";
+    process.env.NEXT_PUBLIC_APP_URL = "https://tazavera.test";
   });
 
   function renderSignedIn(role: string) {
@@ -689,7 +690,7 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
     // The menu content is portaled, so it is queried through the screen.
     const security = screen.getByRole("menuitem", { name: TEXTS.security });
     expect(security.getAttribute("href")).toBe(
-      "https://api.tazavera.test/user/security",
+      "https://tazavera.test/user/security",
     );
     // not the internal Link treatment (base-controls: external destinations
     // are rendered natively)
@@ -708,7 +709,7 @@ describe("UserMenu (spec: Signed-in header and user menu)", () => {
       );
       expect(notPrevented).toBe(false);
       expect(open).toHaveBeenCalledWith(
-        "https://api.tazavera.test/user/security",
+        "https://tazavera.test/user/security",
         "tazavera-security",
         "popup",
       );

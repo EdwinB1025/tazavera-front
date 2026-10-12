@@ -29,7 +29,7 @@ Every test below belongs to the validation suite. Test values: front `https://ta
 
 ## 4. User menu security entry on the front's origin (app-shell)
 
-- [ ] 4.1 Test "The security entry points at the application's origin": in `src/widgets/app-header/ui/AppHeader.test.tsx`, the signed-in `beforeAll` also sets `NEXT_PUBLIC_APP_URL` = `https://tazavera.test`, and "renders the security entry as an external link, natively" expects `https://tazavera.test/user/security`; "opens the security entry in a popup window on a plain click…" expects the same URL in its `open` call. No other assertion changes. Verify: both tests fail on the URL only; `npm run lint` passes.
+- [x] 4.1 Test "The security entry points at the application's origin": in `src/widgets/app-header/ui/AppHeader.test.tsx`, the signed-in `beforeAll` also sets `NEXT_PUBLIC_APP_URL` = `https://tazavera.test`, and "renders the security entry as an external link, natively" expects `https://tazavera.test/user/security`; "opens the security entry in a popup window on a plain click…" expects the same URL in its `open` call. No other assertion changes. Verify: both tests fail on the URL only; `npm run lint` passes.
 - [ ] 4.2 Implement design.md D4 in `src/widgets/app-header/ui/UserMenu.tsx`: the security entry's URL is `apiWebPageUrl("/user/security")` from `@/shared/api`. Verify: `npx vitest related src/widgets/app-header/ui/UserMenu.tsx --run` passes, 4.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 5. Account links on the front's origin (user-account)
