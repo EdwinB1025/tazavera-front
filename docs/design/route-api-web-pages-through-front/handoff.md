@@ -18,6 +18,16 @@ Decisions in the draft: D1 explicit list of forwarded paths (not a prefix); D2 f
 #### Q5 — Email-verification link built on the API's address
 - Recommendation: a later backlog entry to build it on the front's address; not part of this change.
 
+### Product owner's answers (2026-10-12)
+- **Setup assumed:** the demo environment is the production environment: a single server with one public entry point (one ngrok URL).
+- **D10 revised — option A:** the front is the only door. It forwards the API's web routes **and** `/oauth/token` and every JSON call (the front calls the API under a path prefix and strips it when forwarding; no API code change). `NEXT_PUBLIC_API_URL` becomes the front's own origin. This replaces R74 end-state point 2 and the "JSON and `/oauth/token` not forwarded" part of D10.
+- Q1: `APP_URL` = the public front URL (accepted).
+- Q2: trust the front's address; `SESSION_DOMAIN` unset; secure cookies on (accepted).
+- Q3: not needed (one tunnel, one URL).
+- Q4: `expose_php=Off` in the API image (accepted).
+- Q5: solved by Q1 (the link is built on `APP_URL`, opens on the front, which forwards `/email/verify`); no backlog entry.
+- Next: the design lead updates the summary (end-state point 2, D4, D9, CSP, scenarios); then Product owner's approval.
+
 ### Open until the browser checks
 - Whether Next.js adds its own `X-Forwarded-*` after the proxy's (check 1: every `Location` stays on the front's origin).
 - Whether Laravel's CSRF check passes with the forwarded host (check 5: no `419` on the security pages).
