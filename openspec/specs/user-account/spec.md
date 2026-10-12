@@ -126,7 +126,7 @@ The Profile section SHALL show the session user's name (`data.name`), surname (`
 - **THEN** that message renders under the Email field, which is marked invalid, the values are kept, and the message clears when the user edits the Email field
 
 ### Requirement: Password change
-The Password section SHALL collect the current password, a new password and its confirmation, and SHALL send `PUT /users/{data.ulid}/password` with `currentPassword`, `password` and `passwordConfirmation`, with an external link to the API's password reset under the current-password field. Before sending, the form SHALL check only the rules its request documents: the three fields are required and the confirmation equals the new password. A `200` SHALL clear the three fields and show the success status above the actions. A `422` SHALL show each field's first message under that field as form-fields "Server validation errors" states, and the generic form-level error only when one of its keys names no field of the form, and SHALL clear the three fields. A server error, a network failure or any other status except `403` SHALL show the generic form-level error and clear the three fields.
+The Password section SHALL collect the current password, a new password and its confirmation, and SHALL send `PUT /users/{data.ulid}/password` with `currentPassword`, `password` and `passwordConfirmation`, with an external link to the API's password reset, at `/forgot-password` on the application's own origin, under the current-password field. Before sending, the form SHALL check only the rules its request documents: the three fields are required and the confirmation equals the new password. A `200` SHALL clear the three fields and show the success status above the actions. A `422` SHALL show each field's first message under that field as form-fields "Server validation errors" states, and the generic form-level error only when one of its keys names no field of the form, and SHALL clear the three fields. A server error, a network failure or any other status except `403` SHALL show the generic form-level error and clear the three fields.
 
 #### Scenario: An empty required field
 - **WHEN** the user submits the password form with an empty field
@@ -150,7 +150,7 @@ The Password section SHALL collect the current password, a new password and its 
 
 #### Scenario: The password-reset link
 - **WHEN** the Password section renders
-- **THEN** its "Forgot your password?" link opens the API's password reset page as an external navigation in the same tab, and the front sends no request for it
+- **THEN** its "Forgot your password?" link opens `{application origin}/forgot-password`, the API's password reset page, as an external navigation in the same tab, and the front sends no request for it
 
 ### Requirement: Account deactivation and deletion
 The Danger zone SHALL offer deactivation and permanent deletion, each with its heading, its explanation and one action. Activating the action SHALL open its confirmation dialog and send nothing before the user confirms. While a confirmed request is pending, the dialog's confirm action SHALL show its busy state, its cancel action SHALL be disabled and Escape SHALL not close the dialog. A `200` SHALL sign the user out — the session becomes `anonymous` and the user lands on the root of the active locale — with no message shown there. A server error or a network failure SHALL show the generic error inside the dialog and allow retry.
@@ -369,7 +369,7 @@ The account page at `/{locale}/account` SHALL show one heading block and, for an
 - **THEN** the page stays in its mode and shows one status message (role `status`) asking the user to confirm their identity with the account they signed in with
 
 ### Requirement: Grouped security section
-The Security section SHALL carry a short text covering the password, email verification, two-factor authentication and passkeys, and its entries in order: "Change password", which starts the identity check synchronously inside the click for `/{locale}/account/password` and opens that route; then a list whose first item is the email verification entry, followed by "Two-factor authentication" and "Passkeys", each a link to the API's security page. Each of these API links SHALL name the signed-in user: its address SHALL carry the query parameter `login_hint` with the session user's `data.ulid`, the same value the step-up sends; while the session holds no `data.ulid`, the address SHALL carry no `login_hint`. While the session user's `data.emailVerifiedAt` is null, the email verification entry SHALL be a "Verify email" link to the API's email verification page (`{API}/email/verify`); when it is set, the entry SHALL be the plain text "Email verified" with no link; when the field is absent, there SHALL be no email verification entry. A plain primary click on any of these API links SHALL open its destination in a popup window synchronously inside the click, and the account tab SHALL NOT navigate, so it keeps the session; when the browser blocks the popup, the destination SHALL open in a new tab instead, the account tab still not navigating. The front SHALL send no request when an API link opens. When the popup window closes, the account page SHALL reload the session's profile from `GET /user`.
+The Security section SHALL carry a short text covering the password, email verification, two-factor authentication and passkeys, and its entries in order: "Change password", which starts the identity check synchronously inside the click for `/{locale}/account/password` and opens that route; then a list whose first item is the email verification entry, followed by "Two-factor authentication" and "Passkeys", each a link to the API's security page at `/user/security` on the application's own origin. Each of these API links SHALL name the signed-in user: its address SHALL carry the query parameter `login_hint` with the session user's `data.ulid`, the same value the step-up sends; while the session holds no `data.ulid`, the address SHALL carry no `login_hint`. While the session user's `data.emailVerifiedAt` is null, the email verification entry SHALL be a "Verify email" link to the API's email verification page on the application's own origin (`{application origin}/email/verify`); when it is set, the entry SHALL be the plain text "Email verified" with no link; when the field is absent, there SHALL be no email verification entry. A plain primary click on any of these API links SHALL open its destination in a popup window synchronously inside the click, and the account tab SHALL NOT navigate, so it keeps the session; when the browser blocks the popup, the destination SHALL open in a new tab instead, the account tab still not navigating. The front SHALL send no request when an API link opens. When the popup window closes, the account page SHALL reload the session's profile from `GET /user`.
 
 #### Scenario: Changing the password
 - **WHEN** the user activates "Change password"
@@ -377,11 +377,11 @@ The Security section SHALL carry a short text covering the password, email verif
 
 #### Scenario: Two-factor authentication and passkeys
 - **WHEN** the Security section renders
-- **THEN** its "Two-factor authentication" and "Passkeys" entries are links to the API's security page with `login_hint` set to the session user's `data.ulid`, and no request is sent by the front
+- **THEN** its "Two-factor authentication" and "Passkeys" entries are links to `{application origin}/user/security`, the API's security page, with `login_hint` set to the session user's `data.ulid`, and no request is sent by the front
 
 #### Scenario: Verifying the email
 - **WHEN** the Security section renders for a session user whose `data.emailVerifiedAt` is null
-- **THEN** the first item of its list, before "Two-factor authentication", is a "Verify email" link to `{API}/email/verify` with `login_hint` set to the session user's `data.ulid`
+- **THEN** the first item of its list, before "Two-factor authentication", is a "Verify email" link to `{application origin}/email/verify` with `login_hint` set to the session user's `data.ulid`
 
 #### Scenario: The email is verified
 - **WHEN** the Security section renders for a session user whose `data.emailVerifiedAt` is set
@@ -401,7 +401,7 @@ The Security section SHALL carry a short text covering the password, email verif
 
 #### Scenario: No user identifier in the session
 - **WHEN** the Security section renders for a session user with no `data.ulid` and `data.emailVerifiedAt` null
-- **THEN** its "Verify email", "Two-factor authentication" and "Passkeys" links point at their API pages with no `login_hint`
+- **THEN** its "Verify email", "Two-factor authentication" and "Passkeys" links point at `{application origin}/email/verify` and `{application origin}/user/security` with no `login_hint`
 
 ### Requirement: Change password view
 The application SHALL offer the Change password view at `/{locale}/account/password`, with the account page's session gate and page shell: a back link to the previous page, whose fallback destination is `/{locale}/account`, a heading block, and, for an authenticated session, one section card named "Change password" holding the password form of "Password change", its states and its reactive step-up unchanged.
