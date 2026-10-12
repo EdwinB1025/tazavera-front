@@ -31,6 +31,7 @@ Product owner delegated the open points a–d to the design lead; only what is g
   - This replaces R74 end-state point 2 and the first draft's D9.
 - **Q1:** the API's `APP_URL` is the public front URL.
 - **Q2:** the API trusts the front's address (`TRUSTED_PROXIES`); `SESSION_DOMAIN` unset; secure cookies on.
+- **OAuth client redirect (API environment, Product owner's; added from the orchestrator's read-only check of the API, 2026-10-12).** The front client's registered `redirect_uris` live in the API database. `database/seeders/FrontClientSeeder.php` writes them as `{FRONT_URL}/callback` at seed time; today that is `http://localhost:3000/callback`. With one public entry point the client must have `https://<public origin>/callback` registered, or `/oauth/authorize` rejects the redirect. Product owner sets `FRONT_URL` to the public origin before seeding, or adds that URI to the existing client. Not a front code change; checked in §6 check 3.
 - **Q3:** not needed (one tunnel, one URL).
 - **Q4:** `expose_php=Off` in the API image.
 - **Q5:** solved. The registration now reaches the API through the front, and `APP_URL` is the front's URL, so the verification link opens on the front, which forwards `/email/verify`. No backlog entry.
@@ -104,6 +105,7 @@ The API's pages build every form action, link and asset URL with `route()`, `url
 - On every forwarded request (both groups), the proxy sets `X-Forwarded-Host`, `X-Forwarded-Proto` and `X-Forwarded-Port` from `NEXT_PUBLIC_APP_URL`, replacing any incoming value.
 - `X-Forwarded-For` keeps the client's address, so the API's rate limits (login, two-factor, `/oauth/token`) keep counting per client.
 - `Authorization` and the cookies pass through.
+- The API honours these headers once the front's address is listed: its `TrustProxies` reads `config('trustedproxy.proxies')` (= `TRUSTED_PROXIES`) and trusts `X-Forwarded-For`/`-Host`/`-Port`/`-Proto`/`-Prefix` (orchestrator's read-only check of the API, 2026-10-12). So `X-Forwarded-Prefix` is available later if JSON bodies' absolute URLs ever need the `/api` prefix (§8).
 - With the front's address trusted (Q2), every URL the API emits for the web pages (form actions, `Location`, assets, the reset and verification links) is on the front's origin. The front never rewrites a `Location` header or a body.
 - Taking the origin from `NEXT_PUBLIC_APP_URL` keeps it right behind ngrok, which terminates TLS before the front.
 
@@ -224,11 +226,11 @@ The API's pages build every form action, link and asset URL with `route()`, `url
 Run on a production build over `https`: through ngrok (the target setup), or with a local TLS front, depending on the Open question. Environment:
 - `NEXT_PUBLIC_APP_URL=<https front origin>`, `NEXT_PUBLIC_API_URL=<https front origin>/api`;
 - `API_INTERNAL_URL=http://localhost:8000` (or `http://api:80` in Docker);
-- the API with `APP_URL`/`FRONT_URL` = the front's origin, `TRUSTED_PROXIES` = the front's address, `SESSION_DOMAIN` unset, secure cookies.
+- the API with `APP_URL`/`FRONT_URL` = the front's origin, the front client's `redirect_uris` containing `<front origin>/callback`, `TRUSTED_PROXIES` = the front's address, `SESSION_DOMAIN` unset, secure cookies.
 
 1. **One origin.** DevTools Network on the landing, a list, sign-in and an authenticated page: every request goes to the front's origin, except Nominatim and the map tiles. The JSON calls are `/api/…`; nothing goes to the API's own address.
 2. **Sign-in popup.** "Sign in" opens the popup at `{front}/oauth/authorize?…`. `/login` loads with its styles and fonts, and every `Location` header stays on the front's origin.
-3. **Both roles.** Coffee shop and specialist sign in end to end: the popup closes, `POST /api/oauth/token` and `GET /api/user` answer `200`, and the page is signed in.
+3. **Both roles.** The first sign-in reaches `/callback` on the public origin: `/oauth/authorize` accepts the `redirect_uri` `<public origin>/callback`, so the client's registered redirect matches (§0). Coffee shop and specialist sign in end to end: the popup closes, `POST /api/oauth/token` and `GET /api/user` answer `200`, and the page is signed in.
 4. **Step-up.** Edit profile opens the popup on the front with `login_hint`; a different user gets `access_denied`.
 5. **Silent re-authentication** works after a reload.
 6. **Security page.** User menu → Security opens `{front}/user/security`. Password confirm, two-factor enable/confirm (Livewire) and passkey registration work, with no `419`.
@@ -289,3 +291,7 @@ No other point is open: Q1–Q5 are settled (§0).
   - Spec deltas, scenarios (11) and browser checks (11) rewritten.
   - Q1–Q5 recorded as settled.
   - New open point: `https` for the front outside ngrok (Open 1). It does not block propose.
+- 2026-10-12, design lead, addition from the orchestrator's read-only check of the API.
+  - §0: the OAuth client's registered redirect (`FrontClientSeeder.php`, `{FRONT_URL}/callback` at seed time) must be `<public origin>/callback`. API environment, Product owner's.
+  - §6: the environment line and check 3 cover it.
+  - D3: the API's `TrustProxies` honours the forwarded headers, `-Prefix` included, once the front's address is in `TRUSTED_PROXIES`.
