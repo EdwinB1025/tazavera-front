@@ -45,3 +45,13 @@ D1 two forwarded groups (`/api/*` with the prefix stripped → `/oauth/token` an
 ### Open until the browser checks
 - Whether Next.js adds its own `X-Forwarded-*` after the proxy's (check 1: every `Location` stays on the front's origin).
 - Whether Laravel's CSRF check passes with the forwarded host (check 5: no `419` on the security pages).
+
+## Session 2026-10-12 — artifact update (R82 sync)
+Summary: R82 `hint-user-on-security-links` was archived into `develop` after this change's artifacts were written and MODIFIED the same two requirements this change's delta MODIFIES (user-account "Grouped security section", app-shell "Signed-in header and user menu"); archiving R74 unchanged would have dropped R82's `login_hint` wording (R82 design.md, Risks). Product owner ordered the update. Stopped because: completed. MVC reachable: n/a.
+
+### Decisions taken
+#### D1 — Carry R82's login_hint into this change's deltas
+- Context: R82 risk above. / Decision: cloud architect session `trig_01P51RgQxFkeANX6RhESXc4Y` (openspec-update-change) merged both blocks: this change's front-origin addresses plus R82's `login_hint` text and scenarios ("The security entry names the signed-in user", "No user identifier in the session"); nothing else changed. / Why: Product owner's order; keeps both settled behaviours, already in code. / Result: `35b7daae` docs(user-account), `3aebf6ca` docs(app-shell); `openspec validate --strict` valid; reviewed by the orchestrator (two spec files only, commit format) and fast-forwarded into `feature/route-api-web-pages-through-front`, pushed.
+
+### Final checks
+No code changed; validation suite not re-run (spec text only).
