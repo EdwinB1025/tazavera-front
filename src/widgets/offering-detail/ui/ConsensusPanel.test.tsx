@@ -770,7 +770,9 @@ describe("ConsensusPanel — detail by axis (spec: Consensus detail by axis; des
   });
 
   it("renders five sections in the axis order, each collapsed at first (spec: Sections collapsed by default)", () => {
-    renderAxes();
+    // No identified note, so no tree toggle (collapse-taxonomy-trees D4) is
+    // counted among the section headers.
+    renderAxes({ ...AXES, sensoryTaxonomy: [] });
     const buttons = Array.from(
       axesItem().querySelectorAll("button[aria-expanded]"),
     );
