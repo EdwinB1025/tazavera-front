@@ -17,7 +17,7 @@ No derived API types are needed: the change reads `data.ulid`, already in `Sessi
   - New test, scenario "No user identifier in the session": a session user without `ulid`; open the menu; assert the security entry's `href` is `https://tazavera.test/user/security`.
   - Existing tests "renders the security entry as an external link, natively" and "opens the security entry in a popup window on a plain click …": update only the expected address to carry `?login_hint=01M35F5RX4ADGC3CSDXXYB08DD`.
   Verify: the new "names the signed-in user" test and the two updated tests fail on the missing `login_hint`; the new "No user identifier" test passes already, which is expected; `npm run lint` passes.
-- [ ] 2.2 Implement design.md D2 for the header: `UserMenu` builds `apiWebPageUrl("/user/security", user.ulid)`. Verify: `npx vitest related` on the changed files passes, 2.1 included, with no other assertion edited; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 2.2 Implement design.md D2 for the header: `UserMenu` builds `apiWebPageUrl("/user/security", user.ulid)`. Verify: `npx vitest related` on the changed files passes, 2.1 included, with no other assertion edited; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 3. Full checks
 
