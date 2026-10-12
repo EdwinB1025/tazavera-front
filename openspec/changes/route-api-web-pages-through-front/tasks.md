@@ -40,7 +40,7 @@ Every test below belongs to the validation suite. Test values: front `https://ta
   - "The password-reset link": `src/features/user-account/ui/PasswordForm.test.tsx` "renders the forgot-password line as a same-tab external link to {API}/forgot-password…" expects `https://tazavera.test/forgot-password`.
   - The `AccountClient — Security section popup` tests (`ENTRIES` and the blocked-popup `open` call) take the same base as their expected value only.
   Test titles that name `{API}` name the front's base. No other assertion changes. Verify: these tests fail on the URL only; `npm run lint` passes.
-- [ ] 5.2 Implement design.md D4 in `src/pages/account/ui/SecuritySection.tsx` (`/user/security` and `/email/verify`) and `src/features/user-account/ui/PasswordForm.tsx` (`/forgot-password`) with `apiWebPageUrl` from `@/shared/api`. Verify: `npx vitest related src/pages/account/ui/SecuritySection.tsx src/features/user-account/ui/PasswordForm.tsx --run` passes, 5.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 5.2 Implement design.md D4 in `src/pages/account/ui/SecuritySection.tsx` (`/user/security` and `/email/verify`) and `src/features/user-account/ui/PasswordForm.tsx` (`/forgot-password`) with `apiWebPageUrl` from `@/shared/api`. Verify: `npx vitest related src/pages/account/ui/SecuritySection.tsx src/features/user-account/ui/PasswordForm.tsx --run` passes, 5.1 included; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 6. Server-side reads at the internal address (app-shell)
 
