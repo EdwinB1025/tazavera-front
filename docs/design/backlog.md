@@ -24,27 +24,8 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 |:-:|---|---|---|:-:|---|
 | 1 | R74 | route-api-web-pages-through-front | Change (traditional workflow; behaviour, security) | M | — (Product owner, 2026-10-12: highest priority, last change before the Playwright suite) |
 | 2 | R75 | update-stale-proxy-qa-test | Refactor (fast lane), by Product owner's order | S | — (on `feature/route-api-web-pages-through-front`, then aligned in `qa`) |
-| 1 | R81 | add-coffeeshop-business-name | Refactor (fast lane), by Product owner's order (adds behaviour, texts, tests) | S | — (contract in `develop` `f14cb2a9`) |
 | 4 | R1 | none yet (Playwright suite) | Change (tests) | — | R74 in `develop` (Product owner, 2026-10-12) |
 | 5 | R45 | none yet | Change (behaviour, API) | M | Product owner: deferred, to review 2026-10-12; not to be designed yet |
-
-## R81 — The coffee shop's business name in registration and profile (Product owner, 2026-10-12)
-
-- **Duplicated:** none. The API (`deploy` `0b4d1fc`, contract copied to `develop` in `f14cb2a9`) added `businessName`: `POST /register` requires it when `role` is `coffeeshop` (max 150) and rejects it for every other role (422); `PUT /users/{user}` accepts it only for a coffee shop (`sometimes|required|max:150`) and rejects it for other roles; the user resource returns `businessName` (`null` for other roles); the coffee shop directory's `name` is now the business name. The front never sends or shows it.
-- **Where today:** the coffee shop registration route `/{locale}/register/coffeeshop` (`src/pages/register`, `src/features/user-account/ui/RegisterForm.tsx`, `src/features/user-account/api/register.ts`); the account page read and edit views (`src/pages/account/ui/AccountReadView.tsx`, `AccountEditView.tsx`, `src/features/user-account/ui/ProfileDetails.tsx`, `ProfileForm.tsx`, `model/use-profile-form.ts`, `api/account.ts`).
-- **Why it pays off now:** without it a coffee shop cannot register (the API answers 422 for the missing field), and the demo of 2026-10-13 shows the coffee shop's business name.
-- **Owning capability:** user-account.
-- **Proposed change:** add-coffeeshop-business-name.
-- **Order (Product owner, 2026-10-12):** fast lane, launched from `qa` once the contract is in `develop`.
-- **Settled end state:**
-  1. Coffee shop registration: a required text field "Nombre comercial" / "Business name" / "Nom comercial" (es/en/ca, from the message catalog), placed after surname and before email, max 150 characters, sent as `businessName`. A 422 message for `businessName` renders under that field like the other fields' errors. The specialist and generic user registration forms are unchanged and never send `businessName`.
-  2. Account page, coffee shop only: the read view shows the business name with its label (same pattern as name and surname); the edit form has the same required field, prefilled from `businessName`, sent as `businessName` on save; its 422 message renders under it. For any other role nothing is shown and `businessName` is never sent.
-  3. Texts in `messages/{es,en,ca}/` only; no new tokens, components or dependencies; existing field components reused.
-  4. One test per new scenario; existing tests keep their assertions (fixtures may add the new texts or field).
-- **Open decision (Product owner):** none.
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** none.
 
 ## R75 — Stale QA test of the proxy's CSP after R74 (Product owner, 2026-10-12)
 
