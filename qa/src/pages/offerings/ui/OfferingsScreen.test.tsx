@@ -58,6 +58,8 @@ describe("OfferingsScreen", () => {
       ratingExcellentLabel: landing.cardRatingExcellentLabel,
       ratingGoodLabel: landing.cardRatingGoodLabel,
       ratingCommercialLabel: landing.cardRatingCommercialLabel,
+      showNotesLabel: landing.treeShowNotesLabel,
+      hideNotesLabel: landing.treeHideNotesLabel,
       previousLabel: landing.paginationPreviousLabel,
       nextLabel: landing.paginationNextLabel,
       navigationLabel: landing.paginationNavigationLabel,
