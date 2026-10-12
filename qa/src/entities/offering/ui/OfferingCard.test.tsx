@@ -48,6 +48,8 @@ const TEXTS = {
   ratingExcellentLabel: "texts.ratingExcellentLabel",
   ratingGoodLabel: "texts.ratingGoodLabel",
   ratingCommercialLabel: "texts.ratingCommercialLabel",
+  showNotesLabel: "Show the notes under {label}",
+  hideNotesLabel: "Hide the notes under {label}",
 };
 
 // ─── Resolved taxonomy badge tree (nest-card-taste-notes design.md D1: the

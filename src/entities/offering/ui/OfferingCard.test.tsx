@@ -459,7 +459,9 @@ describe("OfferingCard", () => {
     });
 
     it("renders no action of its own when the consumer supplies none (spec: 'No consumer actions')", () => {
-      renderCard();
+      // No taxonomy tree, so no tree toggle (collapse-taxonomy-trees D4) is
+      // counted among the card's buttons.
+      renderCard({ taxonomies: [] });
       expect(screen.queryAllByRole("link")).toHaveLength(0);
       expect(screen.queryAllByRole("button")).toHaveLength(0);
     });

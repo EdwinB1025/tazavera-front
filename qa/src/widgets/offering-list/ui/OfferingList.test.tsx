@@ -84,6 +84,8 @@ const TEXTS = {
   ratingExcellentLabel: "texts.ratingExcellentLabel",
   ratingGoodLabel: "texts.ratingGoodLabel",
   ratingCommercialLabel: "texts.ratingCommercialLabel",
+  showNotesLabel: "Show the notes under {label}",
+  hideNotesLabel: "Hide the notes under {label}",
   emptyMessage: "texts.emptyMessage",
   errorMessage: "texts.errorMessage",
   retryLabel: "texts.retryLabel",
