@@ -35,7 +35,7 @@ const SESSION: Session = {
   user: { name: "Lucía", surname: "Pérez", role: "coffeeshop" },
 };
 
-/** The inventory list's sidebar (spec "Coffee inventory sidebar"). */
+/** The inventory routes' sidebar (spec "Coffee inventory sidebar"). */
 describe("ManageInventorySidebarScreen", () => {
   it("Entries on the inventory list: the three entries in order, only the last current, with the Filters toggle", () => {
     render(
@@ -57,8 +57,33 @@ describe("ManageInventorySidebarScreen", () => {
       "/en/manage/inventory",
     ]);
     expect(links.map((link) => link.getAttribute("aria-current"))).toEqual([null, null, "page"]);
+    expect(links.every((link) => link.querySelector("svg"))).toBe(true);
     expect(
       within(screen.getByRole("complementary")).getByRole("button", { name: "Filters" }),
     ).toBeTruthy();
+  });
+
+  it("Entries on the inventory detail: the three entries in order with their icons, only the last current, no Filters toggle", () => {
+    render(
+      <SidebarProvider>
+        <AppSidebarProvider session={SESSION} toggleLabel="sidebar.toggle">
+          <ManageInventorySidebarScreen locale="en" />
+        </AppSidebarProvider>
+      </SidebarProvider>,
+    );
+    const links = within(screen.getByRole("navigation")).getAllByRole("link");
+    expect(links.map((link) => link.textContent)).toEqual([
+      "Manage offerings",
+      "Manage locations",
+      "Explore coffee inventory",
+    ]);
+    expect(links.map((link) => link.getAttribute("href"))).toEqual([
+      "/en/manage/offerings",
+      "/en/manage/locations",
+      "/en/manage/inventory",
+    ]);
+    expect(links.map((link) => link.getAttribute("aria-current"))).toEqual([null, null, "page"]);
+    expect(links.every((link) => link.querySelector("svg"))).toBe(true);
+    expect(screen.queryByRole("button", { name: "Filters" })).toBeNull();
   });
 });

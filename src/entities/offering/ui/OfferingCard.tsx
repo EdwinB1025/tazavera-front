@@ -9,7 +9,7 @@ import {
   CardFooter,
   TaxonomyTree,
 } from "@/shared/ui";
-import type { TaxonomyTreeNode } from "@/shared/ui";
+import type { TaxonomyTreeNode, TaxonomyTreeTexts } from "@/shared/ui";
 import { ratingTierFor } from "../lib/rating";
 
 // ─── UI-specific types (declared before the component) ───
@@ -22,8 +22,11 @@ import { ratingTierFor } from "../lib/rating";
 
 export type ResolvedTaxonomyBadge = TaxonomyTreeNode;
 
-/** Every label and caption of the card, as props (design.md D11). */
-export type OfferingCardTexts = {
+/**
+ * Every label and caption of the card, as props (design.md D11), with the
+ * taxonomy trees' toggle names (collapse-taxonomy-trees design.md D2).
+ */
+export type OfferingCardTexts = TaxonomyTreeTexts & {
   coffeeshopCaption: string;
   roasterCaption: string;
   evaluationsLabel: string;
@@ -144,7 +147,7 @@ export function OfferingCard({
         <p className="type-label">{coffeeshopCaption}</p>
         <p className="type-label">{roasterCaption}</p>
         <p className="type-meta">{origin}</p>
-        <TaxonomyTree notes={taxonomies} />
+        <TaxonomyTree notes={taxonomies} texts={texts} />
       </CardContent>
       <CardFooter className={FOOTER_CLASSES}>
         <div className={FOOTER_COUNTS_CLASSES}>

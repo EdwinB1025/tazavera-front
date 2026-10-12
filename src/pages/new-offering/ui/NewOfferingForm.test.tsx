@@ -217,7 +217,7 @@ describe("NewOfferingForm — create (design.md D5, D10)", () => {
     expect(createCalls()).toHaveLength(0);
   });
 
-  it("on 201 the status shows the created count and the link to the list, and the choice resets", async () => {
+  it("Create success: on 201 the status shows the created count as text with no link, and the choice resets", async () => {
     renderForm();
     await chooseMirador();
     await submit();
@@ -227,11 +227,36 @@ describe("NewOfferingForm — create (design.md D5, D10)", () => {
       .getAllByRole("status")
       .find((node) => node.textContent?.includes(TEXTS.createdStatus))!;
     expect(region.textContent).toContain(`${TEXTS.createdStatus} 2`);
-    const link = within(region).getByRole("link", { name: TEXTS.viewMyOfferings });
-    expect(link.getAttribute("href")).toBe("/en/manage/offerings");
+    expect(within(region).queryByRole("link")).toBeNull();
     expect(input().value).toBe("");
     expect(screen.getByText(TEXTS.inventoryHelp)).toBeTruthy();
     expect(screen.queryByText("Created")).toBeNull();
+  });
+
+  it("View my offerings after a create: a button replaces Create offerings before Cancel and opens the list", async () => {
+    renderForm();
+    await chooseMirador();
+    await submit();
+    expect(screen.queryByRole("button", { name: TEXTS.submitLabel })).toBeNull();
+    expect(screen.queryByRole("link", { name: TEXTS.viewMyOfferings })).toBeNull();
+    const view = screen.getByRole("button", { name: TEXTS.viewMyOfferings });
+    expect(view.nextElementSibling).toBe(screen.getByRole("button", { name: TEXTS.cancelLabel }));
+    fireEvent.click(view);
+    expect(mocks.push).toHaveBeenCalledWith("/en/manage/offerings");
+    expect(createCalls()).toHaveLength(1);
+  });
+
+  it("Create offerings returns on a new choice", async () => {
+    renderForm();
+    await chooseMirador();
+    await submit();
+    await chooseMirador();
+    expect(screen.queryByRole("button", { name: TEXTS.viewMyOfferings })).toBeNull();
+    expect(submitButton().nextElementSibling).toBe(
+      screen.getByRole("button", { name: TEXTS.cancelLabel }),
+    );
+    await submit();
+    expect(createCalls()).toHaveLength(2);
   });
 
   it.each([422])("on a %i the form error shows and the chosen values are kept", async (status) => {

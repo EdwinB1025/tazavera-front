@@ -36,6 +36,8 @@ const TEXTS: OfferingListTexts = {
   ratingExcellentLabel: "ratingExcellentLabel",
   ratingGoodLabel: "ratingGoodLabel",
   ratingCommercialLabel: "ratingCommercialLabel",
+  showNotesLabel: "Show the notes under {label}",
+  hideNotesLabel: "Hide the notes under {label}",
   previousLabel: "previousLabel",
   nextLabel: "nextLabel",
   navigationLabel: "navigationLabel",

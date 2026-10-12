@@ -82,6 +82,8 @@ const TEXTS = {
   wheelCount: "{count} de {total} evaluadores",
   beanValue: "{value}/9",
   beanValueLabel: "{value} de 9",
+  showNotesLabel: "texts.show {label}",
+  hideNotesLabel: "texts.hide {label}",
 } as unknown as ConsensusPanelTexts;
 
 const SWEET = "01JROOTSWEET0000000000000A";

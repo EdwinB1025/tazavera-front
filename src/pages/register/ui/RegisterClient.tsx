@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { signIn, signInWithRegistration, useSession } from "@/features/auth";
 import {
@@ -8,7 +8,6 @@ import {
   type RegisterFormTexts,
   type RegisterRole,
 } from "@/features/user-account";
-import type { RegistrationToken } from "@/shared/api";
 import { Card, CardContent, LoadingStatus } from "@/shared/ui";
 
 // ─── UI-specific types (declared before the component) ───
@@ -32,8 +31,8 @@ export type RegisterClientProps = {
  * user-account pieces as props. While the session resolves it shows the
  * loading status; an authenticated session opens the root of the active
  * locale through the App Router's `replace`, so the in-memory tokens survive,
- * or the account page when the registration itself signed the user in with
- * `signInWithRegistration` (sign-in-after-registration design.md D4).
+ * also when the registration itself signed the user in with
+ * `signInWithRegistration` (land-on-home-after-registration design.md D1).
  */
 export function RegisterClient({
   locale,
@@ -44,20 +43,10 @@ export function RegisterClient({
   const session = useSession();
   const router = useRouter();
   const authenticated = session.state === "authenticated";
-  // Where an authenticated session goes: the locale root, or the account page
-  // after a registration sign-in (sign-in-after-registration design.md D4).
-  const destination = useRef<string | null>(null);
 
   useEffect(() => {
-    if (authenticated) router.replace(destination.current ?? `/${locale}`);
+    if (authenticated) router.replace(`/${locale}`);
   }, [authenticated, locale, router]);
-
-  async function signInWithToken(token: RegistrationToken): Promise<boolean> {
-    destination.current = `/${locale}/account`;
-    const signedIn = await signInWithRegistration(token);
-    if (!signedIn) destination.current = null;
-    return signedIn;
-  }
 
   if (authenticated) return null;
 
@@ -73,7 +62,7 @@ export function RegisterClient({
               labelledBy={labelledBy}
               texts={texts}
               signIn={() => signIn()}
-              signInWithToken={signInWithToken}
+              signInWithToken={(token) => signInWithRegistration(token)}
               cancelHref={`/${locale}`}
             />
           )}

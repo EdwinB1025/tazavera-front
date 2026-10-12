@@ -166,7 +166,7 @@ describe("RegisterClient — the registration result (sign-in-after-registration
     });
   }
 
-  it("signs in with the token block and opens /{locale}/account through the router (spec: Signed in by the registration)", async () => {
+  it("signs in with the token block and opens /{locale} through the router (spec: Signed in by the registration)", async () => {
     auth.session = { state: "anonymous" };
     const view = renderClient("coffeeshop");
     auth.signInWithRegistration.mockImplementation(async () => {
@@ -183,8 +183,8 @@ describe("RegisterClient — the registration result (sign-in-after-registration
     await register({ data: {}, message: "m", token: TOKEN });
 
     expect(auth.signInWithRegistration).toHaveBeenCalledWith(TOKEN);
-    expect(routerReplace).toHaveBeenCalledWith("/es/account");
-    expect(routerReplace).not.toHaveBeenCalledWith("/es");
+    expect(routerReplace).toHaveBeenCalledWith("/es");
+    expect(routerReplace).not.toHaveBeenCalledWith("/es/account");
     expect(screen.queryByRole("heading", { name: TEXTS.registerSuccessTitle })).toBeNull();
     expect(locationMock.assign).not.toHaveBeenCalled();
   });
