@@ -53,7 +53,10 @@ const ROW_CLASSES = ["ml-5", "flex", "flex-wrap", "gap-1.5"].join(" ");
 // A badge and its inline share (nest-consensus-notes D4).
 const SHARE_CLASSES = ["flex", "flex-wrap", "items-center", "gap-2"].join(" ");
 
-/** One note's badge, its share when given a total, then its toggle when it has children. */
+/**
+ * One note's badge — its name, then its toggle when it has children
+ * (unify-taste-trees D1) — and its share after the badge when given a total.
+ */
 function NoteRow({
   note,
   total,
@@ -65,7 +68,8 @@ function NoteRow({
 }): ReactNode {
   const badge = (
     <Badge variant="taxonomy" color={note.color} level={note.level}>
-      {note.label}
+      <span>{note.label}</span>
+      {toggle}
     </Badge>
   );
   if (total === undefined && toggle === undefined) return badge;
@@ -75,7 +79,6 @@ function NoteRow({
     <div className={SHARE_CLASSES}>
       {badge}
       {share !== null ? <span className="type-meta">{share}</span> : null}
-      {toggle}
     </div>
   );
 }

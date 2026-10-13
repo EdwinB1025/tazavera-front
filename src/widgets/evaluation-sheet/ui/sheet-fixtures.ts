@@ -46,6 +46,8 @@ export const SHEET_TEXTS: EvaluationSheetTexts = {
   intensityValueLabel: "{value} de 15",
   beanValueText: "{value}/9",
   beanValueLabel: "{value} de 9",
+  showNotesLabel: "Show the notes under {label}",
+  hideNotesLabel: "Hide the notes under {label}",
   ratingLabels: {
     "rating-exceptional": "Exceptional",
     "rating-excellent": "Excellent",

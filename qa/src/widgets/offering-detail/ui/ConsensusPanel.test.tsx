@@ -562,7 +562,7 @@ describe("ConsensusPanel — detail by axis (spec: Consensus detail by axis; des
 
   function badgesIn(element: Element): string[] {
     return Array.from(element.querySelectorAll("[data-taxonomy]")).map(
-      (badge) => badge.textContent ?? "",
+      (badge) => badge.firstElementChild?.textContent ?? "",
     );
   }
 

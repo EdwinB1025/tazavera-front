@@ -1,4 +1,6 @@
-import type { OfferingSummary, OfferingTaxonomyNode } from "@/shared/api";
+import type { OfferingSummary, OfferingTaxonomyNode, TaxonomyNode } from "@/shared/api";
+import type { CascadeNode } from "@/shared/ui";
+import { buildDescriptorTree } from "./descriptor-tree";
 import type { TaxonomyLookup } from "./lookup";
 
 /**
@@ -98,4 +100,28 @@ export function buildTasteNoteTree(
   lookup: TaxonomyLookup,
 ): TasteNoteNode[] {
   return withoutCounts(buildConsensusNoteTree(offering.cataConcordance ?? [], lookup));
+}
+
+/** The nodes that are chosen or keep a chosen descendant, as taste notes. */
+function keepChosen(nodes: CascadeNode[], chosen: Set<string>): TasteNoteNode[] {
+  return nodes.flatMap(({ value, label, color, level, children }) => {
+    const kept = keepChosen(children, chosen);
+    if (!chosen.has(value) && kept.length === 0) return [];
+    return [{ ref: value, label, color, level, children: kept }];
+  });
+}
+
+/**
+ * The taste note tree of chosen references in one taxonomy category
+ * (unify-taste-trees D3): the category's descriptor tree, levels 0–2 in API
+ * order, keeping each chosen node and every ancestor of one. A reference
+ * outside the category, or unresolved, renders nothing.
+ */
+export function buildChosenNoteTree(
+  nodes: TaxonomyNode[],
+  category: string,
+  chosen: string[],
+  locale: string,
+): TasteNoteNode[] {
+  return keepChosen(buildDescriptorTree(nodes, category, locale), new Set(chosen));
 }

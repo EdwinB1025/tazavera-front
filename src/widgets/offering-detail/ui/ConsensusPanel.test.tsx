@@ -425,19 +425,22 @@ describe("ConsensusPanel — Main tastes and Defects (spec: Consensus Defects an
 
   function badgeItem(element: Element, name: string): Element {
     const badge = Array.from(element.querySelectorAll("[data-taxonomy]")).find(
-      (candidate) => candidate.textContent === name,
+      (candidate) => candidate.firstElementChild?.textContent === name,
     )!;
     return badge.closest("li")!;
   }
 
-  it("shows only the top-level notes at first, the toggle right after the share (spec: Trees closed at first with the toggle after the share)", () => {
+  it("shows only the top-level notes at first, the toggle inside the badge and the share after it (spec: Trees closed at first with the toggle after the share)", () => {
     renderPanel(IDENTIFIED);
     const defects = cardOf(TEXTS.detailDefectsHeading);
-    expect(isShown(textElement(defects, "Fermentado"))).toBe(true);
+    const name = textElement(defects, "Fermentado");
+    expect(isShown(name)).toBe(true);
     expect(isShown(textElement(defects, "Vinagre"))).toBe(false);
-    const toggle = textElement(defects, "Fermentado 1/5").nextElementSibling!;
+    const toggle = name.nextElementSibling!;
     expect(toggle.tagName).toBe("BUTTON");
     expect(toggle.textContent).toBe("+");
+    expect(toggle.parentElement!.hasAttribute("data-taxonomy")).toBe(true);
+    expect(toggle.parentElement!.nextElementSibling!.textContent).toBe("Fermentado 1/5");
   });
 
   it("renders the identified notes as taxonomy badges nested as the concordance's tree, each share inline (spec: Identified notes)", () => {
@@ -726,7 +729,7 @@ describe("ConsensusPanel — detail by axis (spec: Consensus detail by axis; des
 
   function badgesIn(element: Element): string[] {
     return Array.from(element.querySelectorAll("[data-taxonomy]")).map(
-      (badge) => badge.textContent ?? "",
+      (badge) => badge.firstElementChild?.textContent ?? "",
     );
   }
 
@@ -738,7 +741,7 @@ describe("ConsensusPanel — detail by axis (spec: Consensus detail by axis; des
 
   function badgeItem(body: Element, name: string): Element {
     const badge = Array.from(body.querySelectorAll("[data-taxonomy]")).find(
-      (candidate) => candidate.textContent === name,
+      (candidate) => candidate.firstElementChild?.textContent === name,
     )!;
     return badge.closest("li")!;
   }
@@ -784,14 +787,17 @@ describe("ConsensusPanel — detail by axis (spec: Consensus detail by axis; des
     }
   });
 
-  it("shows only the axis's top-level notes at first, the toggle right after the share (spec: Axis trees closed at first)", () => {
+  it("shows only the axis's top-level notes at first, the toggle inside the badge and the share after it (spec: Axis trees closed at first)", () => {
     renderAxes();
     const body = open("attrFragrance");
-    expect(isShown(textElement(body, "Floral"))).toBe(true);
+    const name = textElement(body, "Floral");
+    expect(isShown(name)).toBe(true);
     expect(isShown(textElement(body, "Jazmín"))).toBe(false);
-    const toggle = textElement(body, "Floral 3/5").nextElementSibling!;
+    const toggle = name.nextElementSibling!;
     expect(toggle.tagName).toBe("BUTTON");
     expect(toggle.textContent).toBe("+");
+    expect(toggle.parentElement!.hasAttribute("data-taxonomy")).toBe(true);
+    expect(toggle.parentElement!.nextElementSibling!.textContent).toBe("Floral 3/5");
   });
 
   it("shows the fragrance notes as the axis's tree, each share inline (spec: Identified notes of an axis)", () => {
