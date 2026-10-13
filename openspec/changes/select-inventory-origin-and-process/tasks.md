@@ -28,7 +28,7 @@ No derived API types are needed beyond `InventoryFacetOptions` (design.md D2): t
 
 ## 5. Full checks
 
-- [ ] 5.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass, the validation suite with five more tests than before, lint with 0 errors. Any failure is fixed in its own `fix(filtering): …` commit, never by changing an assertion or a QA test; a failing QA test is reported.
+- [x] 5.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass, the validation suite with five more tests than before, lint with 0 errors. Any failure is fixed in its own `fix(filtering): …` commit, never by changing an assertion or a QA test; a failing QA test is reported.
 
 ## Workflow follow-up
 
