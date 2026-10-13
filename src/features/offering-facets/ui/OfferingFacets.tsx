@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { clearFiltersHref, useFilterNavigation } from "@/shared/lib/filter-query";
 import { FacetPanel, FacetTextField } from "@/shared/ui";
 import { usePathname, useSearchParams } from "next/navigation";
-import { searchCoffees } from "../api/search-coffees";
+import { searchCoffees } from "@/entities/coffee";
 import { searchRoasteries } from "../api/search-roasteries";
 import { appliedOfferingFilters } from "../model/applied";
 import type { OfferingFacetOptions } from "../model/options";

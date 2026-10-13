@@ -1,6 +1,6 @@
 import type { RoasterySummary } from "@/shared/api";
 import type { ComboboxOption } from "@/shared/ui";
-import { searchByName } from "./search-by-name";
+import { searchByName } from "@/entities/coffee";
 
 /**
  * Roastery search of the Roastery combobox (design.md D1, D7): `GET

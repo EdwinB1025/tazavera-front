@@ -2,7 +2,7 @@ No derived API types are needed: the change reads no new API field (`CoffeeSumma
 
 ## 1. Coffee search in the `coffee` entity (design.md D1)
 
-- [ ] 1.1 `git mv` `src/features/offering-facets/api/search-by-name.ts`, `search-coffees.ts` and `search-coffees.test.ts` to `src/entities/coffee/api/`; add `src/entities/coffee/index.ts` exporting only `searchCoffees` and `searchByName`; `search-roasteries.ts` imports `searchByName` from `@/entities/coffee` and `OfferingFacets.tsx` imports `searchCoffees` from `@/entities/coffee`; in `src/features/offering-facets/ui/OfferingFacets.test.tsx` change only `vi.mock("../api/search-coffees", …)` to `vi.mock("@/entities/coffee/api/search-coffees", …)`, same factory. Code bodies unchanged except import paths and doc comments. Verify: `npx vitest related` on every changed file passes with no assertion edited; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 1.1 `git mv` `src/features/offering-facets/api/search-by-name.ts`, `search-coffees.ts` and `search-coffees.test.ts` to `src/entities/coffee/api/`; add `src/entities/coffee/index.ts` exporting only `searchCoffees` and `searchByName`; `search-roasteries.ts` imports `searchByName` from `@/entities/coffee` and `OfferingFacets.tsx` imports `searchCoffees` from `@/entities/coffee`; in `src/features/offering-facets/ui/OfferingFacets.test.tsx` change only `vi.mock("../api/search-coffees", …)` to `vi.mock("@/entities/coffee/api/search-coffees", …)`, same factory. Code bodies unchanged except import paths and doc comments. Verify: `npx vitest related` on every changed file passes with no assertion edited; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 2. Padded combobox in `shared/ui` (design.md D2)
 
