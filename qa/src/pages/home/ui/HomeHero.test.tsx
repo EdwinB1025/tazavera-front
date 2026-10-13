@@ -77,7 +77,7 @@ describe("HomeHero", () => {
       expect(classTokens(column)).toEqual(
         expect.arrayContaining(["flex", "flex-col", "gap-4"]),
       );
-      const actions = screen.getByRole("button").parentElement!;
+      const actions = screen.getByRole("link", { name: TEXTS.exploreLabel }).parentElement!;
       expect(actions).not.toBe(column);
       expect(classTokens(actions)).toEqual(
         expect.arrayContaining(["mt-2", "flex", "flex-col", "items-start", "gap-4"]),

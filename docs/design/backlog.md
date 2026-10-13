@@ -22,7 +22,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
-| 3 | R86 | `open-directory-from-hero` | Refactor (fast lane), AUT | S | — |
 | 3a | R88 | `suggest-inventory-coffee-names` | Refactor (fast lane), AUT | S | — |
 | 3b | R87 | `unify-taste-trees` | Refactor (fast lane), AUT, separate round | M | — (integrated only if ready in time) |
 | 3c | R89 | `select-inventory-origin-and-process` | Refactor (fast lane), AUT, round 2 | S | R88 in `qa` |
@@ -53,18 +52,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 - **Open decision (Augusto):** none
 - **Type:** Change
 - **Status:** deferred
-- **Affects:** none
-
-## R86 — The landing's "Explore coffees" opens the coffee shop directory (production AUT, 2026-10-13)
-
-- **Duplicated:** none. The hero's `ExploreButton` (`src/pages/home/ui/ExploreButton.tsx`) scrolls to the landing's own offerings block (`#offerings`), as the landing spec "Explore scrolls to the offerings" states.
-- **Where today:** `src/pages/home/ui/ExploreButton.tsx`, `HomeHero.tsx`; `openspec/specs/landing/spec.md` (scenario "Explore scrolls to the offerings")
-- **Why it pays off now:** Product owner expects the button to open the list of coffee shops
-- **Owning capability:** landing
-- **Proposed change:** `open-directory-from-hero`. Settled end state: the hero's "Explore coffees" button opens the coffee shop directory of the active locale (`/{locale}/coffeeshops`) and no longer scrolls; its label, look and place stay the same. The about page's closing action is unchanged
-- **Open decision (Augusto):** none. Fast lane by Product owner's order (AUT correction, 2026-10-13), maximum priority
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
 - **Affects:** none
 
 ## R88 — The inventory "Coffee name" facet suggests coffees as you type (production AUT, 2026-10-13)

@@ -5,7 +5,7 @@
  * consumer imports through this entry point. Importing a slice through its
  * public API keeps the internal structure free to change.
  */
-export { Button } from "./Button";
+export { Button, buttonLinkClasses } from "./Button";
 export { Link, LINK_CLASSES } from "./Link";
 export { RouteButton } from "./RouteButton";
 export { ActionGroup } from "./ActionGroup";
