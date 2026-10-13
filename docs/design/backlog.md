@@ -23,7 +23,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
 | 1 | R84 | `fill-inventory-detail-width` | Refactor (fast lane), AUT | S | — |
-| 2 | R85 | `show-pointer-on-actions` | Refactor (fast lane), AUT | S | — |
 | 3 | R86 | `open-directory-from-hero` | Refactor (fast lane), AUT | S | — |
 | 3a | R88 | `suggest-inventory-coffee-names` | Refactor (fast lane), AUT | S | — |
 | 3b | R87 | `unify-taste-trees` | Refactor (fast lane), AUT, separate round | M | — (integrated only if ready in time) |
@@ -63,18 +62,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 - **Why it pays off now:** Product owner sees the detail cut short on desktop when opening a card from the inventory list
 - **Owning capability:** offering-management
 - **Proposed change:** `fill-inventory-detail-width`. Settled end state: the detail body (header, panels, error and loading states) fills the page container at every width, like the offering detail; the back link keeps its own width at the start of its line
-- **Open decision (Augusto):** none. Fast lane by Product owner's order (AUT correction, 2026-10-13), maximum priority
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** none
-
-## R85 — Pointer cursor on every link and action (production AUT, 2026-10-13)
-
-- **Duplicated:** none. Tailwind 4 no longer gives buttons the pointer cursor; only a few controls set `cursor-pointer` themselves (`BeanScale`, `DescriptorChipGroup`, `FlavorWheelChart`, `FlavorWheelNoteList`, `IntensitySlider`, `Tabs`, `facet-row`), so most buttons, toggles and clickable elements show the arrow.
-- **Where today:** `src/app/styles/globals.css` (base layer) and the controls above
-- **Why it pays off now:** Product owner's order: every object with a route or an action shows the link pointer
-- **Owning capability:** base-controls
-- **Proposed change:** `show-pointer-on-actions`. Settled end state: every enabled link, button, `role="button"`, toggle, tab, chip, select trigger and other clickable control shows the pointer cursor on hover, from one rule in the base layer; disabled controls keep the default cursor; text fields keep the text cursor
 - **Open decision (Augusto):** none. Fast lane by Product owner's order (AUT correction, 2026-10-13), maximum priority
 - **Type:** Refactor (fast lane)
 - **Status:** accepted
