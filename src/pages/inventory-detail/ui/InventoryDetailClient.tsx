@@ -28,6 +28,8 @@ export type InventoryDetailClientProps = {
 
 // The back link → the content below it: 1.5rem.
 const COLUMN_CLASSES = ["flex", "flex-col", "items-start", "gap-6"].join(" ");
+// The content below the back link fills the column; the back link keeps its own width.
+const CONTENT_CLASSES = "self-stretch";
 // The error message and its retry, 1rem apart.
 const ERROR_CLASSES = ["flex", "flex-col", "items-start", "gap-4"].join(" ");
 
@@ -36,7 +38,7 @@ function WithBackLink({ locale, texts, children }: { locale: string; texts: Inve
   return (
     <div className={COLUMN_CLASSES}>
       <BackLink fallback={`/${locale}/manage/inventory`}>{texts.back}</BackLink>
-      {children}
+      <div className={CONTENT_CLASSES}>{children}</div>
     </div>
   );
 }
