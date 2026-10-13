@@ -2,7 +2,7 @@ No derived API types are needed beyond `InventoryFacetOptions` (design.md D2): t
 
 ## 1. `asOptions` in `shared/ui` (design.md D1)
 
-- [ ] 1.1 Move `asOptions` from `src/features/offering-facets/ui/OfferingFacetParts.tsx` to `src/shared/ui/FacetRadioList.tsx`, right after `FacetOption`, same name and body; export it from `src/shared/ui/index.ts` next to `FacetRadioList`; `OfferingFacetParts.tsx` and `OfferingFacets.tsx` import it from `@/shared/ui`. Verify: `npx vitest related` on every changed file passes with no assertion edited; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 1.1 Move `asOptions` from `src/features/offering-facets/ui/OfferingFacetParts.tsx` to `src/shared/ui/FacetRadioList.tsx`, right after `FacetOption`, same name and body; export it from `src/shared/ui/index.ts` next to `FacetRadioList`; `OfferingFacetParts.tsx` and `OfferingFacets.tsx` import it from `@/shared/ui`. Verify: `npx vitest related` on every changed file passes with no assertion edited; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 2. Inventory options and texts (design.md D2, D5)
 

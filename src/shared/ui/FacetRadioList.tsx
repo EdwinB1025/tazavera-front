@@ -9,6 +9,11 @@ import { SeeMoreButton, type SeeMoreTexts } from "./SeeMoreButton";
 
 export type FacetOption = { value: string; label: string };
 
+/** A list of values as facet options, each labelled with its value; `null` gives none. */
+export function asOptions(values: string[] | null): FacetOption[] {
+  return (values ?? []).map((value) => ({ value, label: value }));
+}
+
 export type FacetRadioListProps = {
   legend: string;
   options: FacetOption[];

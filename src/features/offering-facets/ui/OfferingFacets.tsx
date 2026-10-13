@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { clearFiltersHref, useFilterNavigation } from "@/shared/lib/filter-query";
 import {
   asComboboxValue,
+  asOptions,
   comboboxTexts,
   FacetPanel,
   FacetTextField,
@@ -17,7 +18,6 @@ import type { OfferingFacetOptions } from "../model/options";
 import type { OfferingFilterValues } from "../model/query";
 import type { OfferingFilterTexts } from "../model/texts";
 import {
-  asOptions,
   OfferingListFacets,
   OfferingScoreFacet,
   OfferingTasteNotesFacet,

@@ -2,12 +2,7 @@
 
 import type { ReactNode } from "react";
 import type { FilterChanges } from "@/shared/lib/filter-query";
-import {
-  FacetCascade,
-  FacetRadioList,
-  ScoreRangeFacet,
-  type FacetOption,
-} from "@/shared/ui";
+import { asOptions, FacetCascade, FacetRadioList, ScoreRangeFacet } from "@/shared/ui";
 import type { OfferingFacetOptions, TasteNoteOption } from "../model/options";
 import {
   SCORE_MAX,
@@ -24,10 +19,6 @@ type OfferingFacetProps = {
   texts: OfferingFacetsTexts;
   navigate: (changes: FilterChanges) => void;
 };
-
-export function asOptions(values: string[] | null): FacetOption[] {
-  return (values ?? []).map((value) => ({ value, label: value }));
-}
 
 /** Every taste-note ref the options list, level 0 and level 1. */
 function listedTasteNotes(tasteNotes: TasteNoteOption[] | null): Set<string> {

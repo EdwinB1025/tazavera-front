@@ -62,7 +62,7 @@ export { FacetPanel } from "./FacetPanel";
 export type { AppliedFilter } from "./FacetPanel";
 export { FacetTextField } from "./FacetTextField";
 export { SeeMoreButton } from "./SeeMoreButton";
-export { FacetRadioList } from "./FacetRadioList";
+export { asOptions, FacetRadioList } from "./FacetRadioList";
 export type { FacetOption } from "./FacetRadioList";
 export { FacetCascade } from "./FacetCascade";
 export type { CascadeOption } from "./FacetCascade";
