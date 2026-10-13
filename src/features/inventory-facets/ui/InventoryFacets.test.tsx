@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach, beforeAll, beforeEach } from "vitest";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup, within } from "@testing-library/react";
 import { getMessages } from "@/shared/lib/i18n";
 import {
   InventoryFacets,
@@ -78,6 +78,25 @@ const OPTIONS = {
   processes: ["natural", "washed"],
 };
 
+const UNAVAILABLE: InventoryFacetOptions = {
+  countries: null,
+  regions: null,
+  regionsByCountry: null,
+  processes: null,
+};
+
+function choose(facet: string, option: string) {
+  fireEvent.click(
+    within(screen.getByRole("radiogroup", { name: facet })).getByRole("radio", { name: option }),
+  );
+}
+
+function commitCity(value: string) {
+  const city = screen.getByRole("textbox", { name: "Roastery city" });
+  fireEvent.change(city, { target: { value } });
+  fireEvent.keyDown(city, { key: "Enter" });
+}
+
 function renderPanel(search: string, options: InventoryFacetOptions = OPTIONS) {
   nav.search = search;
   return render(
@@ -134,5 +153,51 @@ describe("InventoryFacets", () => {
     renderPanel("process=washed&originCountry=Colombia&city=Barcelona");
     fireEvent.click(screen.getByRole("button", { name: "Clear all" }));
     expect(nav.push).toHaveBeenCalledWith("/en/manage/inventory", { scroll: false });
+  });
+
+  it("Choosing a country: writes originCountry and keeps process", () => {
+    renderPanel("process=washed");
+    choose("Country", "Colombia");
+    expect(nav.push).toHaveBeenCalledWith(
+      "/en/manage/inventory?process=washed&originCountry=Colombia",
+      { scroll: false },
+    );
+  });
+
+  it("Regions narrowed by the country: only Colombia's regions, and Ethiopia drops the region", () => {
+    renderPanel("originCountry=Colombia&originRegion=Huila");
+    const region = within(screen.getByRole("radiogroup", { name: "Region" }));
+    expect(region.getAllByRole("radio")).toHaveLength(3);
+    expect(region.queryByRole("radio", { name: "Yirgacheffe" })).toBeNull();
+    choose("Country", "Ethiopia");
+    expect(nav.push).toHaveBeenCalledWith("/en/manage/inventory?originCountry=Ethiopia", {
+      scroll: false,
+    });
+  });
+
+  it("Choosing a process: writes process and keeps the other filters", () => {
+    renderPanel("originCountry=Colombia");
+    choose("Process", "washed");
+    expect(nav.push).toHaveBeenCalledWith(
+      "/en/manage/inventory?originCountry=Colombia&process=washed",
+      { scroll: false },
+    );
+  });
+
+  it("Roastery city label: the City facet writes city", () => {
+    renderPanel("");
+    commitCity("Barcelona");
+    expect(nav.push).toHaveBeenCalledWith("/en/manage/inventory?city=Barcelona", { scroll: false });
+  });
+
+  it("Coffee catalog fails: the three list facets are disabled, the text facets keep working", () => {
+    renderPanel("", UNAVAILABLE);
+    for (const facet of ["Country", "Region", "Process"]) {
+      const group = screen.getByRole("radiogroup", { name: facet });
+      expect((within(group).getByRole("radio", { name: "Any" }) as HTMLInputElement).disabled).toBe(true);
+    }
+    expect(screen.getAllByText("Options unavailable")).toHaveLength(3);
+    commitCity("Barcelona");
+    expect(nav.push).toHaveBeenCalledWith("/en/manage/inventory?city=Barcelona", { scroll: false });
   });
 });

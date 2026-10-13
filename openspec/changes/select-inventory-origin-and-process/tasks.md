@@ -18,7 +18,7 @@ No derived API types are needed beyond `InventoryFacetOptions` (design.md D2): t
 
 ## 4. New scenarios (spec "Inventory facets in the sidebar")
 
-- [ ] 4.1 Five new tests in `src/features/inventory-facets/ui/InventoryFacets.test.tsx`, English only, with the fixture of 3.1 unless stated, each asserting `nav.push` (URL and `{ scroll: false }`) or the observable attribute with the fewest assertions:
+- [x] 4.1 Five new tests in `src/features/inventory-facets/ui/InventoryFacets.test.tsx`, English only, with the fixture of 3.1 unless stated, each asserting `nav.push` (URL and `{ scroll: false }`) or the observable attribute with the fewest assertions:
   - "Choosing a country": with `process=washed`, clicking "Colombia" in the radiogroup "Country" pushes a URL with `process=washed` and `originCountry=Colombia`.
   - "Regions narrowed by the country": with `originCountry=Colombia&originRegion=Huila`, the radiogroup "Region" has the radios "Any", "Huila", "Nariño" only; clicking "Ethiopia" in "Country" pushes `/en/manage/inventory?originCountry=Ethiopia`.
   - "Choosing a process": with `originCountry=Colombia`, clicking "washed" in "Process" pushes a URL with `originCountry=Colombia` and `process=washed`.
