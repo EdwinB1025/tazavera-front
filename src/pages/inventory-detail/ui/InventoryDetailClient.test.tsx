@@ -140,6 +140,18 @@ describe("InventoryDetailClient (spec 'Coffee inventory detail')", () => {
     expect(screen.getByText(TEXTS.eyebrow).className).toBe("type-eyebrow-strong");
   });
 
+  it("Detail fills the page width: the back link keeps its width, the content after it stretches", async () => {
+    mocks.request.mockResolvedValue(answer(200, [ITEM]));
+    renderDetail();
+
+    const heading = await screen.findByRole("heading", { level: 1, name: "Huila El Mirador" });
+    const back = screen.getByRole("link", { name: TEXTS.back });
+    expect(back.parentElement!.className).toBe("flex flex-col items-start gap-6");
+    const content = back.nextElementSibling!;
+    expect(content.className).toBe("self-stretch");
+    expect(content.contains(heading)).toBe(true);
+  });
+
   it("Detail loading: the back link and the loading status, no heading of the item", () => {
     mocks.request.mockReturnValue(new Promise(() => {}));
     renderDetail();
