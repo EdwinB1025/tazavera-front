@@ -27,6 +27,7 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 | 3 | R86 | `open-directory-from-hero` | Refactor (fast lane), AUT | S | — |
 | 3a | R88 | `suggest-inventory-coffee-names` | Refactor (fast lane), AUT | S | — |
 | 3b | R87 | `unify-taste-trees` | Refactor (fast lane), AUT, separate round | M | — (integrated only if ready in time) |
+| 3c | R89 | `select-inventory-process` | Refactor (fast lane), AUT, round 2 | S | R88 in `qa` |
 | 4 | R1 | none yet (Playwright suite) | Change (tests) | — | R74 in `develop` (Product owner, 2026-10-12) |
 | 5 | R45 | none yet | Change (behaviour, API) | M | Product owner: deferred, to review 2026-10-12; not to be designed yet |
 | 6 | R83 | none yet (API) | Change (API) | S | Product owner: whether to take it |
@@ -102,6 +103,18 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 - **Type:** Refactor (fast lane)
 - **Status:** accepted
 - **Affects:** none
+
+## R89 — The inventory "Process" facet is a select of the existing processes (production AUT, 2026-10-13)
+
+- **Duplicated:** the offering facets list the existing processes (`options.processes`, distinct coffee values in `src/features/offering-facets/model/options.ts`, rendered by `OfferingFacetParts.tsx`); the inventory facets render Process as a free text field.
+- **Where today:** `src/features/inventory-facets/ui/InventoryFacets.tsx`; `src/features/offering-facets/model/options.ts`, `OfferingFacetParts.tsx`
+- **Why it pays off now:** Product owner's AUT review: process has a short closed set of values, a free text field invites misses
+- **Owning capability:** filtering
+- **Proposed change:** `select-inventory-process`. Settled end state: the inventory list's "Process" facet offers the existing process values as a single choice, built the same way and with the same control as the offering facets' process facet (distinct values from the same source, no copy of the derivation); choosing one applies `process`, choosing none removes it; when the values cannot be read the facet is disabled with the existing "options unavailable" help. The other inventory facets are unchanged (Coffee name is R88)
+- **Open decision (Augusto):** none. Fast lane by Product owner's order (AUT, 2026-10-13), round 2 with R87, integrated only if ready in time; approval delegated to the orchestrator
+- **Type:** Refactor (fast lane)
+- **Status:** accepted
+- **Affects:** R88 (same facet panel; R89 starts from `qa` after R88 is integrated, or rebases its design on it)
 
 ## R87 — One collapsible taste tree everywhere, with the toggle inside the note badge (production AUT, 2026-10-13)
 
