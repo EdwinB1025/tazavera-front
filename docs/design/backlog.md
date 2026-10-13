@@ -30,6 +30,7 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 | 3c | R89 | `select-inventory-origin-and-process` | Refactor (fast lane), AUT, round 2 | S | R88 in `qa` |
 | 4 | R1 | none yet (Playwright suite) | Change (tests) | — | R74 in `develop` (Product owner, 2026-10-12) |
 | 5 | R45 | none yet | Change (behaviour, API) | M | Product owner: deferred, to review 2026-10-12; not to be designed yet |
+| 7 | R90 | none yet (API A1 first) | Change (API, behaviour) | M | `tazavera-api` A1; R89 in `develop` |
 | 6 | R83 | none yet (API) | Change (API) | S | Product owner: whether to take it |
 
 ## R45 — Ask for the first location in coffee-shop registration
@@ -127,6 +128,18 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 - **Type:** Refactor (fast lane)
 - **Status:** accepted
 - **Affects:** R84–R86 run in a parallel round on other files
+
+## R90 — Coffee municipality of origin in the facets and the coffee details (front part of API A1)
+
+- **Duplicated:** none. A coffee's origin is `country` and `region` only; the inventory facet "City" filters the roastery's contact city, not the origin (R89 renames it "Roastery city").
+- **Where today:** the inventory and offering facets (`src/features/inventory-facets`, `src/features/offering-facets`); the coffee rows of the inventory card and detail (`src/entities/coffee-inventory/model/rows.ts`, `src/widgets/offering-detail/ui/InventoryPanel.tsx`)
+- **Why it pays off now:** Product owner wants Country → Region → Municipality on the coffee filters (2026-10-13)
+- **Owning capability:** filtering, offering-management, offering-catalog
+- **Proposed change:** none yet. After `tazavera-api` backlog A1 (nullable `municipality` on coffees, a `municipality` filter on `GET /coffeeInventory` and the offering filters) is merged into `deploy` and the contract copied: the facets gain the Country → Region → Municipality cascade (each a select of existing values, the next one listing only the values under the chosen one), and the coffee details show the municipality
+- **Open decision (Augusto):** when to take it; it needs a design summary (new texts and screens)
+- **Type:** Change (API first)
+- **Status:** proposed
+- **Affects:** R89 (same facet panel, must be in `develop` first)
 
 ## R83 — The API accepts any taxonomy descriptor on each sensory axis (API; found by Product owner, 2026-10-13)
 
