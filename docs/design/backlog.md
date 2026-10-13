@@ -24,6 +24,7 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 |:-:|---|---|---|:-:|---|
 | 4 | R1 | none yet (Playwright suite) | Change (tests) | — | R74 in `develop` (Product owner, 2026-10-12) |
 | 5 | R45 | none yet | Change (behaviour, API) | M | Product owner: deferred, to review 2026-10-12; not to be designed yet |
+| 6 | R83 | none yet (API) | Change (API) | S | Product owner: whether to take it |
 
 ## R45 — Ask for the first location in coffee-shop registration
 
@@ -48,6 +49,18 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 - **Type:** Change
 - **Status:** deferred
 - **Affects:** none
+
+## R83 — The API accepts any taxonomy descriptor on each sensory axis (API; found by Product owner, 2026-10-13)
+
+- **Duplicated:** none. `StoreEvaluationRequest` and `UpdateEvaluationRequest` check each `descriptive.<axis>.cata.*` only with `exists:olfactory_taxonomies,ulid`, so the mouthfeel axis accepts aromatic notes (and the aromatic axes, main tastes and defects accept descriptors of other categories). The seeded evaluations showed aromatic notes on the body axis; the seeder is fixed (`tazavera-api` `deploy` `ab6c1d5`), the validation is not.
+- **Where today:** `tazavera-api/app/Http/Requests/StoreEvaluationRequest.php`, `UpdateEvaluationRequest.php`
+- **Why it pays off now:** the front only offers mouthfeel descriptors on the body axis, but any other client can store mixed categories, which then reach the consensus
+- **Owning capability:** API (consumed by evaluations and offering-catalog)
+- **Proposed change:** none yet. In `tazavera-api`, locally from `deploy`: each axis accepts only the descriptors of its category (`mouthfeel` level 1 for the body; aromatic leaves for fragrance, aroma, flavor and aftertaste; `main_tastes` level 0; `defects`), with a translated 422 per field
+- **Open decision (Augusto):** whether to take it, and when
+- **Type:** Change (API)
+- **Status:** proposed
+- **Affects:** none in the front
 
 ## Closed entries
 
