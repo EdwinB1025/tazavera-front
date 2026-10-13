@@ -30,6 +30,12 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
+// The list reads the coffee catalog for the list facets' options.
+vi.mock("@/shared/api", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/shared/api")>()),
+  fetchCoffees: async () => ({ ok: true, data: [] }),
+}));
+
 const SESSION: Session = {
   state: "authenticated",
   user: { name: "Lucía", surname: "Pérez", role: "coffeeshop" },
@@ -37,11 +43,11 @@ const SESSION: Session = {
 
 /** The inventory routes' sidebar (spec "Coffee inventory sidebar"). */
 describe("ManageInventorySidebarScreen", () => {
-  it("Entries on the inventory list: the three entries in order, only the last current, with the Filters toggle", () => {
+  it("Entries on the inventory list: the three entries in order, only the last current, with the Filters toggle", async () => {
     render(
       <SidebarProvider>
         <AppSidebarProvider session={SESSION} toggleLabel="sidebar.toggle">
-          <ManageInventorySidebarScreen locale="en" searchParams={{}} />
+          {await ManageInventorySidebarScreen({ locale: "en", searchParams: {} })}
         </AppSidebarProvider>
       </SidebarProvider>,
     );
@@ -63,11 +69,11 @@ describe("ManageInventorySidebarScreen", () => {
     ).toBeTruthy();
   });
 
-  it("Entries on the inventory detail: the three entries in order with their icons, only the last current, no Filters toggle", () => {
+  it("Entries on the inventory detail: the three entries in order with their icons, only the last current, no Filters toggle", async () => {
     render(
       <SidebarProvider>
         <AppSidebarProvider session={SESSION} toggleLabel="sidebar.toggle">
-          <ManageInventorySidebarScreen locale="en" />
+          {await ManageInventorySidebarScreen({ locale: "en" })}
         </AppSidebarProvider>
       </SidebarProvider>,
     );

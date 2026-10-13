@@ -13,31 +13,34 @@ import {
   PaddedCombobox,
 } from "@/shared/ui";
 import { appliedInventoryFilters } from "../model/applied";
+import type { InventoryFacetOptions } from "../model/options";
 import { INVENTORY_LIMITS } from "../model/query";
 import type { InventoryFilterTexts } from "../model/texts";
+import { InventoryOriginFacets } from "./InventoryFacetParts";
 
 // ─── UI-specific types (declared before the component) ───
 
 export type InventoryFacetsProps = {
   values: CoffeeInventoryQuery;
+  /** Country, Region and Process lists (select-inventory-origin-and-process design.md D2). */
+  options: InventoryFacetOptions;
   /** `loading` is the combobox's loading text (suggest-inventory-coffee-names design.md D3). */
   texts: InventoryFilterTexts & { loading?: string };
 };
 
-/** The text facets, every key but Coffee name, in the limits' order. */
-const TEXT_KEYS = (Object.keys(INVENTORY_LIMITS) as (keyof typeof INVENTORY_LIMITS)[]).filter(
-  (key) => key !== "coffeeName",
-);
+/** The text facets after the list facets (select-inventory-origin-and-process design.md D3). */
+const TEXT_KEYS = ["producer", "city"] as const;
 
 /**
  * The inventory facet panel (add-coffee-inventory-explorer design.md D5;
  * specs "Inventory facets in the sidebar" and "Applied inventory filters"):
  * Coffee name as the coffee combobox of the offering facets
- * (suggest-inventory-coffee-names design.md D2), then five text facets, each
- * writing its key on commit, inside the shared facet panel; the chips remove
- * one key and "Clear all" keeps no key.
+ * (suggest-inventory-coffee-names design.md D2), then Country, Region and
+ * Process as single-choice facets and Producer and Roastery city as text
+ * facets (select-inventory-origin-and-process design.md D3), inside the
+ * shared facet panel; the chips remove one key and "Clear all" keeps no key.
  */
-export function InventoryFacets({ values, texts }: InventoryFacetsProps): ReactNode {
+export function InventoryFacets({ values, options, texts }: InventoryFacetsProps): ReactNode {
   const { navigate, navigateTo } = useFilterNavigation();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -66,6 +69,7 @@ export function InventoryFacets({ values, texts }: InventoryFacetsProps): ReactN
         maxLength={INVENTORY_LIMITS.coffeeName}
         placeholder={texts.coffeeNamePlaceholder}
       />
+      <InventoryOriginFacets values={values} options={options} texts={texts} navigate={navigate} />
       {TEXT_KEYS.map((key) => (
         <FacetTextField
           key={key}

@@ -2,11 +2,13 @@ import type { ReactNode } from "react";
 import {
   INVENTORY_FILTER_KEYS,
   InventoryFacets,
+  inventoryFacetOptions,
   inventoryFacetsTexts,
   parseInventoryFilters,
 } from "@/features/inventory-facets";
 import { LocationsSidebarEntry } from "@/features/location-management";
 import { InventorySidebarEntry, ManagementSidebarEntries } from "@/features/offering-management";
+import { fetchCoffees } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
 import type { QueryRecord } from "@/shared/lib/filter-query";
 import { FilterMemoryScope, SidebarMenuSub } from "@/shared/ui";
@@ -25,14 +27,17 @@ export type ManageInventorySidebarScreenProps = {
  * D7; spec "Coffee inventory sidebar"): "Manage offerings" and "Manage
  * locations", not current, then "Explore coffee inventory", current, with
  * their icons in one list (add-inventory-sidebar-entry D1), holding the
- * inventory facets' sub-section on the list (D3).
+ * inventory facets' sub-section on the list (D3). A thin async composition:
+ * only the list reads the coffee catalog, for the Country, Region and Process
+ * options (select-inventory-origin-and-process design.md D4).
  */
-export function ManageInventorySidebarScreen({
+export async function ManageInventorySidebarScreen({
   locale,
   searchParams,
-}: ManageInventorySidebarScreenProps): ReactNode {
+}: ManageInventorySidebarScreenProps): Promise<ReactNode> {
   const catalog = getMessages("offering-management", locale);
   const filters = getMessages("filters", locale);
+  const options = searchParams && inventoryFacetOptions(await fetchCoffees());
   return (
     <AppSidebar
       entries={
@@ -47,12 +52,14 @@ export function ManageInventorySidebarScreen({
             label={catalog.sidebarExploreInventory!}
             current
             subsection={
-              searchParams && (
+              searchParams &&
+              options && (
                 <SidebarMenuSub title={filters.title!}>
                   {/* The facets keep the list's filters (remember-list-preferences D2, D5). */}
                   <FilterMemoryScope name="coffee-inventory" keys={INVENTORY_FILTER_KEYS}>
                     <InventoryFacets
                       values={parseInventoryFilters(searchParams)}
+                      options={options}
                       texts={{
                         ...inventoryFacetsTexts(catalog, filters),
                         loading: getMessages("account", locale).loading ?? "",

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
-import { render, screen, fireEvent, cleanup, act } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup, act, within } from "@testing-library/react";
 import type { CoffeeInventoryItem } from "@/shared/api";
 import { getMessages } from "@/shared/lib/i18n";
 import { SidebarProvider } from "@/shared/ui";
@@ -91,6 +91,13 @@ function answer(data: CoffeeInventoryItem[]) {
   return { ok: true, status: 200, json: async () => ({ data }) };
 }
 
+const OPTIONS = {
+  countries: ["Colombia", "Ethiopia"],
+  regions: ["Huila", "Nariño", "Yirgacheffe"],
+  regionsByCountry: { Colombia: ["Huila", "Nariño"], Ethiopia: ["Yirgacheffe"] },
+  processes: ["natural", "washed"],
+};
+
 /** The list and its facets for an address, as the route renders them. */
 function page(search: string) {
   mocks.search = search;
@@ -98,7 +105,7 @@ function page(search: string) {
   const count = Object.keys(values).length;
   return (
     <SidebarProvider>
-      <InventoryFacets values={values} texts={FACET_TEXTS} />
+      <InventoryFacets values={values} options={OPTIONS} texts={FACET_TEXTS} />
       <InventoryResults locale="en" query={values} count={count} texts={TEXTS} />
     </SidebarProvider>
   );
@@ -110,9 +117,9 @@ describe("InventoryResults with the inventory facets", () => {
     const { rerender } = render(page("originCountry=Colombia"));
     await act(async () => {});
 
-    const region = screen.getByRole("textbox", { name: "Region" });
-    fireEvent.change(region, { target: { value: "Huila" } });
-    fireEvent.keyDown(region, { key: "Enter" });
+    fireEvent.click(
+      within(screen.getByRole("radiogroup", { name: "Region" })).getByRole("radio", { name: "Huila" }),
+    );
     expect(mocks.push).toHaveBeenCalledWith(
       "/en/manage/inventory?originCountry=Colombia&originRegion=Huila",
       { scroll: false },
@@ -130,7 +137,7 @@ describe("InventoryResults with the inventory facets", () => {
     await act(async () => {});
 
     expect(mocks.request.mock.calls[0]![0]).toBe("/coffeeInventory");
-    expect((screen.getByRole("textbox", { name: "City" }) as HTMLInputElement).value).toBe("");
+    expect((screen.getByRole("textbox", { name: "Roastery city" }) as HTMLInputElement).value).toBe("");
   });
 
   it("Trigger count: Filters (2) and no sort control", async () => {

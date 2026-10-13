@@ -5,6 +5,7 @@ import {
   InventoryFacets,
   inventoryFacetsTexts,
   parseInventoryFilters,
+  type InventoryFacetOptions,
 } from "@/features/inventory-facets";
 
 const nav = vi.hoisted(() => ({ push: vi.fn(), search: "" }));
@@ -70,30 +71,41 @@ const TEXTS = inventoryFacetsTexts(
   getMessages("filters", "en"),
 );
 
-function renderPanel(search: string) {
+const OPTIONS = {
+  countries: ["Colombia", "Ethiopia"],
+  regions: ["Huila", "Nariño", "Yirgacheffe"],
+  regionsByCountry: { Colombia: ["Huila", "Nariño"], Ethiopia: ["Yirgacheffe"] },
+  processes: ["natural", "washed"],
+};
+
+function renderPanel(search: string, options: InventoryFacetOptions = OPTIONS) {
   nav.search = search;
   return render(
-    <InventoryFacets values={parseInventoryFilters(new URLSearchParams(search))} texts={TEXTS} />,
+    <InventoryFacets
+      values={parseInventoryFilters(new URLSearchParams(search))}
+      options={options}
+      texts={TEXTS}
+    />,
   );
 }
 
 describe("InventoryFacets", () => {
-  it("Facets in order: six text facets showing the values of the address", async () => {
+  it("Facets in order: six facets showing the values of the address", async () => {
     renderPanel("coffeeName=geisha&city=Barcelona");
     const facets = [
       await screen.findByRole("combobox", { name: "Coffee name" }),
-      screen.getByRole("textbox", { name: "Country" }),
-      screen.getByRole("textbox", { name: "Region" }),
-      screen.getByRole("textbox", { name: "Process" }),
+      screen.getByRole("radiogroup", { name: "Country" }),
+      screen.getByRole("radiogroup", { name: "Region" }),
+      screen.getByRole("radiogroup", { name: "Process" }),
       screen.getByRole("textbox", { name: "Producer" }),
-      screen.getByRole("textbox", { name: "City" }),
+      screen.getByRole("textbox", { name: "Roastery city" }),
     ];
     for (let index = 1; index < facets.length; index++) {
       expect(
         facets[index - 1]!.compareDocumentPosition(facets[index]!) & Node.DOCUMENT_POSITION_FOLLOWING,
       ).toBeTruthy();
     }
-    expect(screen.getAllByRole("textbox")).toHaveLength(5);
+    expect(screen.getAllByRole("textbox")).toHaveLength(2);
     expect((facets[0] as HTMLInputElement).value).toBe("geisha");
     expect((facets[5] as HTMLInputElement).value).toBe("Barcelona");
   });
