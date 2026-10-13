@@ -7,4 +7,4 @@ No derived API types are needed: the change reads no new API field (design.md Co
 
 ## 2. Full checks
 
-- [ ] 2.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass, lint with 0 errors. Any failure is fixed in its own `fix(offering-management): …` commit, or reported when the fix would go beyond the end state.
+- [x] 2.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: all pass, lint with 0 errors. Any failure is fixed in its own `fix(offering-management): …` commit, or reported when the fix would go beyond the end state.
