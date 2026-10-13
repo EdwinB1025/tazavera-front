@@ -15,7 +15,8 @@ export type TaxonomyTreeToggleProps = {
   texts: TaxonomyTreeTexts;
 };
 
-// ─── Settled classes (collapse-taxonomy-trees design.md D4) ───
+// ─── Settled classes (collapse-taxonomy-trees design.md D4; unify-taste-trees
+// D2): inside the badge, the border and the glyph take the badge's label colour ───
 const TOGGLE_CLASSES = [
   "inline-flex",
   "size-6",
@@ -24,10 +25,8 @@ const TOGGLE_CLASSES = [
   "justify-center",
   "rounded-field",
   "border",
-  "border-border-subtle",
+  "border-current",
   "type-button",
-  "text-text-primary",
-  "hover:bg-surface-section",
   "focus-visible:focus-ring",
 ].join(" ");
 
