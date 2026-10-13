@@ -1,0 +1,11 @@
+/**
+ * Public API of the `inventory-facets` feature slice (Feature-Sliced
+ * Design): the inventory facet panel, the list toolbar, the URL parsing and
+ * the texts (add-coffee-inventory-explorer design.md D5), and the options of
+ * the list facets (select-inventory-origin-and-process design.md D2).
+ */
+export { InventoryFacets } from "./ui/InventoryFacets";
+export { InventoryToolbar } from "./ui/InventoryToolbar";
+export { INVENTORY_FILTER_KEYS, parseInventoryFilters } from "./model/query";
+export { inventoryFacetsTexts } from "./model/texts";
+export { inventoryFacetOptions, type InventoryFacetOptions } from "./model/options";

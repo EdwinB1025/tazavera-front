@@ -55,6 +55,7 @@ export function AccountReadView({
       <SecuritySection
         texts={texts}
         emailVerifiedAt={user.emailVerifiedAt}
+        ulid={user.ulid}
         onChangePassword={onChangePassword}
         refreshProfile={refreshProfile}
       />

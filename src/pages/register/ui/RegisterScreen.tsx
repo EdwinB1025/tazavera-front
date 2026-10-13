@@ -26,6 +26,7 @@ export function RegisterScreen({ locale, role }: RegisterScreenProps): ReactNode
   const texts: RegisterClientTexts = {
     nameLabel: catalog.nameLabel,
     surnameLabel: catalog.surnameLabel,
+    businessNameLabel: catalog.businessNameLabel,
     emailLabel: catalog.emailLabel,
     passwordLabel: catalog.passwordLabel,
     passwordConfirmationLabel: catalog.passwordConfirmationLabel,

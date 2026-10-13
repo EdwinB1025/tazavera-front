@@ -76,6 +76,8 @@ export function evaluationSheetTexts({
     intensityValueLabel: scales.beanValueLabel.replace("9", "15"),
     beanValueText: scales.beanValue,
     beanValueLabel: scales.beanValueLabel,
+    showNotesLabel: landing.treeShowNotesLabel,
+    hideNotesLabel: landing.treeHideNotesLabel,
     ratingLabels: {
       "rating-exceptional": landing.cardRatingExceptionalLabel,
       "rating-excellent": landing.cardRatingExcellentLabel,

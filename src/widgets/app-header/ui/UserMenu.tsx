@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import NextLink from "next/link";
 import type { SessionUser } from "@/shared/api";
+import { apiWebPageUrl } from "@/shared/api";
 import { openSecurityPopup } from "@/shared/lib/security-popup";
 import {
   DropdownMenu,
@@ -16,6 +17,7 @@ import {
   ClipboardList,
   Compass,
   LogOut,
+  MapPin,
   ShieldCheck,
   User,
 } from "@/shared/ui/icons";
@@ -29,6 +31,10 @@ export type UserMenuTexts = {
   myAccount: string;
   security: string;
   manageOfferings: string;
+  /** The coffee shop's locations entry, after "Manage offerings" (add-manage-locations-menu-entry D1). */
+  manageLocations?: string;
+  /** The coffee shop's inventory entry, after "Manage locations" (add-coffee-inventory-explorer D9). */
+  exploreInventory?: string;
   manageEvaluations: string;
   /** The specialist's offerings entry (refine-header-aut D5). */
   exploreOfferings: string;
@@ -101,7 +107,10 @@ const CIRCLE_CLASSES = [
  * security entry as the API's web page rendered
  * natively (an external destination, not the internal link treatment per
  * `base-controls`), the management entry for the user's
- * role, for a specialist the offerings entry (refine-header-aut D5), and
+ * role, for a coffee shop the locations entry after it
+ * (add-manage-locations-menu-entry D1) and then the inventory entry
+ * (add-coffee-inventory-explorer D9), for a specialist the offerings entry
+ * (refine-header-aut D5), and
  * sign out.
  */
 export function UserMenu({
@@ -112,7 +121,7 @@ export function UserMenu({
 }: UserMenuProps): ReactNode {
   const initials = `${user.name?.charAt(0) ?? ""}${user.surname?.charAt(0) ?? ""}`.toUpperCase();
   const name = `${user.name ?? ""} ${user.surname ?? ""}`.trim();
-  const securityUrl = `${process.env.NEXT_PUBLIC_API_URL}/user/security`;
+  const securityUrl = apiWebPageUrl("/user/security", user.ulid);
   const management: { text: string; href: `/${string}` } | null =
     user.role === "coffeeshop"
       ? { text: texts.manageOfferings, href: `/${locale}/manage/offerings` }
@@ -147,6 +156,22 @@ export function UserMenu({
             <NextLink href={management.href}>
               <ClipboardList aria-hidden className="size-4" />
               {management.text}
+            </NextLink>
+          </DropdownMenuItem>
+        )}
+        {user.role === "coffeeshop" && (
+          <DropdownMenuItem asChild>
+            <NextLink href={`/${locale}/manage/locations`}>
+              <MapPin aria-hidden className="size-4" />
+              {texts.manageLocations}
+            </NextLink>
+          </DropdownMenuItem>
+        )}
+        {user.role === "coffeeshop" && (
+          <DropdownMenuItem asChild>
+            <NextLink href={`/${locale}/manage/inventory`}>
+              <Compass aria-hidden className="size-4" />
+              {texts.exploreInventory}
             </NextLink>
           </DropdownMenuItem>
         )}

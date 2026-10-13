@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import type { SessionUser } from "@/shared/api";
 import { Button, Field, Input, FormStatus, StepUpNotice } from "@/shared/ui";
 import { useProfileForm } from "../model/use-profile-form";
+import { BusinessNameField } from "./BusinessNameField";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -12,8 +13,10 @@ export type ProfileFormTexts = {
   stepUpButton: string;
   nameLabel: string;
   surnameLabel: string;
+  businessNameLabel: string;
   emailLabel: string;
   emailFormatError: string;
+  requiredError: string;
   save: string;
   profileUpdated: string;
   genericError: string;
@@ -36,8 +39,10 @@ export type ProfileFormProps = {
 /**
  * The Edit profile section's content (specs "Profile settings" and "Writes
  * and the step-up"; design.md D2, D6, D9 and D10): the form for name,
- * surname and email, prefilled from the session. Only the email format
- * is checked (no field is required); the form sends `PUT /users/{ulid}` and,
+ * surname and email, and a coffee shop's business name, prefilled from the
+ * session. Only the email format and a coffee shop's required business name
+ * are checked (add-coffeeshop-business-name D3); the form sends
+ * `PUT /users/{ulid}` and,
  * on a `200`, keeps the values, shows the success status and refreshes the
  * session profile. A `403` shows the step-up notice, a `422` its messages
  * under their fields (show-field-validation-errors D3) and the generic error
@@ -52,8 +57,9 @@ export function ProfileForm({
   requestProfileWrite,
   endProfileWrite,
 }: ProfileFormProps): ReactNode {
-  const { formRef, values, emailError, serverErrors, pending, outcome, update, handleSubmit } =
-    useProfileForm({ user, texts, refreshProfile, endProfileWrite });
+  const state = useProfileForm({ user, texts, refreshProfile, endProfileWrite });
+  const { formRef, values, emailError, businessNameError, serverErrors } = state;
+  const { pending, outcome, update, handleSubmit } = state;
 
   return (
     <form
@@ -81,6 +87,14 @@ export function ProfileForm({
           onChange={(event) => update("surname", event.target.value)}
         />
       </Field>
+      {user.role === "coffeeshop" && (
+        <BusinessNameField
+          label={texts.businessNameLabel}
+          value={values.businessName}
+          error={businessNameError ?? serverErrors.businessName}
+          onChange={(value) => update("businessName", value)}
+        />
+      )}
       <Field label={texts.emailLabel} error={emailError ?? serverErrors.email}>
         <Input
           name="email"

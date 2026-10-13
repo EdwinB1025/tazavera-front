@@ -2,10 +2,11 @@ import type { ReactNode } from "react";
 import type { OfferingDetail, TaxonomyNode } from "@/shared/api";
 import { buildConsensusNoteTree, buildTaxonomyLookup } from "@/entities/taxonomy";
 import { Card, CardContent, TaxonomyTree } from "@/shared/ui";
+import type { TaxonomyTreeTexts } from "@/shared/ui";
 
 // ─── UI-specific types (declared before the component) ───
 
-export type SelectionBlockTexts = {
+export type SelectionBlockTexts = TaxonomyTreeTexts & {
   detailTasteEmpty: string;
 };
 
@@ -48,7 +49,11 @@ export function SelectionBlock({
       <CardContent className={CONTENT_CLASSES}>
         <h2 className="type-subheading">{heading}</h2>
         {notes.length > 0 ? (
-          <TaxonomyTree notes={notes} total={offering.evaluationCount ?? 0} />
+          <TaxonomyTree
+            notes={notes}
+            total={offering.evaluationCount ?? 0}
+            texts={texts}
+          />
         ) : (
           <p className="type-body">{texts.detailTasteEmpty}</p>
         )}

@@ -32,15 +32,15 @@ Both public pages SHALL be built from full-width sections. Each section's conten
 - **THEN** a visible gap separates them, and they wrap onto separate lines when the row has no room
 
 ### Requirement: Entry page hero
-The entry page SHALL render, in the main content area, an eyebrow label, the entry heading with exactly one emphasized word in the accent text color (in Spanish the settled copy `Tu café, el que merece cada sorbo`), an introduction paragraph, an action that scrolls the verified offerings list into view on the same page, and two navigation links: one registering a coffeeshop and one registering as a specialist. The coffee-beans photograph SHALL accompany the hero from the medium breakpoint (768px) up and be hidden below it.
+The entry page SHALL render, in the main content area, an eyebrow label, the entry heading with exactly one emphasized word in the accent text color (in Spanish the settled copy `Tu café, el que merece cada sorbo`), an introduction paragraph, an action that opens the coffee shop directory of the active locale (`/{locale}/coffeeshops`), and two navigation links: one registering a coffeeshop and one registering as a specialist. The coffee-beans photograph SHALL accompany the hero from the medium breakpoint (768px) up and be hidden below it.
 
 #### Scenario: Hero presentation
 - **WHEN** a visitor opens the entry route in a supported locale
 - **THEN** the eyebrow, the heading with one emphasized word, the paragraph, the explore action and both registration links render with the texts of that locale
 
 #### Scenario: Explore scrolls to the offerings
-- **WHEN** the visitor activates the explore action
-- **THEN** the verified offerings list scrolls into view on the same page and the route does not change
+- **WHEN** a visitor views the hero in the `es` locale
+- **THEN** the explore action is a link, named by its label, addressing `/es/coffeeshops`
 
 #### Scenario: Registration destinations
 - **WHEN** the visitor activates the coffeeshop registration link
@@ -174,7 +174,7 @@ The document metadata of both public pages SHALL carry the title exactly `Tazave
 - **THEN** the document title is exactly `Tazavera` and the document description is the metadata description text of that locale's catalog
 
 ### Requirement: Offering card actions
-The offering card's footer SHALL render, in its group of actions, the actions its consumer supplies for that card, in the order supplied. The card SHALL render no action of its own, so it renders no action at all when the consumer supplies none.
+The offering card's footer SHALL render, in its group of actions, the actions its consumer supplies for that card, in the order supplied, every one of them at the same height. The card SHALL render no action of its own, so it renders no action at all when the consumer supplies none. The card SHALL also render, at the end of the row that holds its verification state badge and aligned to that row's right edge, the content its consumer supplies for that row; when the consumer supplies none, the row shows only the badge, as before.
 
 #### Scenario: Consumer actions after View
 - **WHEN** a consumer renders offering cards and supplies actions for them
@@ -184,15 +184,49 @@ The offering card's footer SHALL render, in its group of actions, the actions it
 - **WHEN** a consumer supplies no actions for a card
 - **THEN** no action renders in the footer and the footer shows only the counts
 
+#### Scenario: Consumer content in the badge row
+- **WHEN** a consumer supplies content for a card's badge row
+- **THEN** that content renders as the last item of the row that holds the verification state badge, after the badge, that row spreads its items to both ends, and the content is not inside the card's footer
+
+#### Scenario: Footer actions share one height
+- **WHEN** the entry-page list renders an offering card for a signed-in specialist
+- **THEN** the View, "View evaluations" and Evaluate buttons of the card's footer all render at the same height
+
 ### Requirement: Taxonomy badge trees on the offering card
 The taxonomy badges of an offering card SHALL come from the offering's consensus — every taxonomy reference of its CATA concordance, including nested children, where the notes marked on several aromatic attributes are already condensed into the single `aromatics` group — and never from its per-attribute sensory taxonomy. Each taxonomy value SHALL render once, however many times its reference appears, with the children of every occurrence nested under that single badge. Each badge SHALL carry the taxonomy's name in the active locale and the taxonomy's data color with the treatment of its own level. The badges SHALL render as nested trees following the concordance tree as the API delivers it: each top-level note starts a tree; its children render below it, indented, in one column behind a left connector line; and each child's own children render below that child, further indented, wrapping. The trees SHALL sit side by side and wrap onto further lines, so that no tree overflows the card at any viewport width. A reference that resolves to no taxonomy SHALL render no badge, and an offering without a consensus SHALL render no taxonomy badge. The hierarchy SHALL be exposed to assistive technologies as nested lists.
+
+Every tree SHALL start closed, showing only its top-level notes. A note that has children SHALL show a toggle button inside its own badge, right after the note's name, whose visible text is `+` while the note is closed and `−` while it is open; a note without children SHALL show no toggle. Only the toggle SHALL be interactive: the badge itself SHALL carry no action, no role and no stop in the tab order. Opening a note SHALL show its direct children, each closed; closing a note SHALL close every descendant, so reopening it shows only its direct children, closed. The toggle SHALL expose its expanded state and the child list it controls, SHALL be named from the active locale's message catalog as showing or hiding the notes under the note's label, and its `+` or `−` glyph SHALL be hidden from assistive technologies. The open state SHALL live only on the page: it SHALL NOT be remembered across a reload or a navigation, and opening or closing a note SHALL change neither the address nor any request to the API.
 
 #### Scenario: Names by locale
 - **WHEN** an offering card renders in the active locale
 - **THEN** each taxonomy badge shows the taxonomy's name in that locale
 
+#### Scenario: Closed at first
+- **WHEN** an offering card renders a tree whose top-level note has children
+- **THEN** only the top-level notes show and no child of any note shows
+
+#### Scenario: Toggle on notes with children
+- **WHEN** an offering card renders a top-level note with children and a top-level note without children
+- **THEN** the note with children shows a toggle button inside its own badge, right after the note's name, with the visible text `+`; the badge itself is neither a button nor focusable; and the note without children shows no toggle
+
+#### Scenario: Opening a note
+- **WHEN** the visitor activates the toggle of a top-level note whose child has children of its own
+- **THEN** the toggle's visible text becomes `−`, the note's children show, and that child shows its own toggle with `+` and none of its children; activating the child's toggle then shows its children
+
+#### Scenario: Closing a note closes its descendants
+- **WHEN** the visitor opens a top-level note and one of its children, closes the top-level note and opens it again
+- **THEN** the top-level note's children show, and the child's toggle reads `+` and none of the child's children show
+
+#### Scenario: Accessible toggle
+- **WHEN** a note with children renders closed, and then open
+- **THEN** its toggle is a button whose expanded state is false and then true, that controls the note's child list, whose accessible name is the catalog's "show the notes under" text with the note's label while closed and the "hide the notes under" text with the label while open, and whose `+` or `−` glyph is hidden from assistive technologies
+
+#### Scenario: Open state stays on the page
+- **WHEN** the visitor opens a note and the card renders again after a reload or a navigation
+- **THEN** the address did not change, no request was sent when the note opened, and the tree renders closed again
+
 #### Scenario: Nested trees
-- **WHEN** an offering's concordance carries a top-level note with a child that has a child of its own
+- **WHEN** an offering's concordance carries a top-level note with a child that has a child of its own, and the visitor opens the top-level note and the child
 - **THEN** the child renders below the top-level note, indented, in one column behind a left connector line, and the grandchild renders below its parent child, further indented, each level as a list nested in the item of its parent
 
 #### Scenario: Trees side by side

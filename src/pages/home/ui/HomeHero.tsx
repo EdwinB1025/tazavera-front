@@ -76,7 +76,7 @@ export function HomeHero({ locale, texts }: HomeHeroProps): ReactNode {
         </h1>
         <p className="type-body">{texts.paragraph}</p>
         <div className={ACTIONS_CLASSES}>
-          <ExploreButton label={texts.exploreLabel} />
+          <ExploreButton locale={locale} label={texts.exploreLabel} />
           <nav aria-label={texts.registerNavigation} className={LINK_GROUP_CLASSES}>
             <Link href={`/${locale}/register/coffeeshop`}>
               {texts.coffeeshopRegisterLabel}

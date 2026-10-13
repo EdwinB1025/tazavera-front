@@ -82,6 +82,8 @@ const TEXTS = {
   wheelCount: "{count} de {total} evaluadores",
   beanValue: "{value}/9",
   beanValueLabel: "{value} de 9",
+  showNotesLabel: "texts.show {label}",
+  hideNotesLabel: "texts.hide {label}",
 } as unknown as ConsensusPanelTexts;
 
 const SWEET = "01JROOTSWEET0000000000000A";
@@ -560,7 +562,7 @@ describe("ConsensusPanel — detail by axis (spec: Consensus detail by axis; des
 
   function badgesIn(element: Element): string[] {
     return Array.from(element.querySelectorAll("[data-taxonomy]")).map(
-      (badge) => badge.textContent ?? "",
+      (badge) => badge.firstElementChild?.textContent ?? "",
     );
   }
 

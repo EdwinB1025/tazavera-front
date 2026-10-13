@@ -1,5 +1,9 @@
+"use client";
+
+import { useId, useState } from "react";
 import type { ReactNode } from "react";
 import { Badge } from "./Badge";
+import { TaxonomyTreeToggle } from "./TaxonomyTreeToggle";
 
 // ─── UI-specific types (declared before the component) ───
 // The notes arrive already resolved by the consumer; no generated API type is
@@ -14,10 +18,18 @@ export type TaxonomyTreeNode = {
   children: TaxonomyTreeNode[];
 };
 
+export type TaxonomyTreeTexts = {
+  /** Accessible name of a closed note's toggle; holds `{label}`. */
+  showNotesLabel: string;
+  /** Accessible name of an open note's toggle; holds `{label}`. */
+  hideNotesLabel: string;
+};
+
 export type TaxonomyTreeProps = {
   notes: TaxonomyTreeNode[];
   /** With it, each note shows its `name count/total` share after its badge. */
   total?: number;
+  texts: TaxonomyTreeTexts;
 };
 
 // ─── Tree layout (nest-card-taste-notes design.md D2) ───
@@ -41,20 +53,100 @@ const ROW_CLASSES = ["ml-5", "flex", "flex-wrap", "gap-1.5"].join(" ");
 // A badge and its inline share (nest-consensus-notes D4).
 const SHARE_CLASSES = ["flex", "flex-wrap", "items-center", "gap-2"].join(" ");
 
-/** One note's badge, at its own level's treatment, and its share when given a total. */
-function NoteBadge({ note, total }: { note: TaxonomyTreeNode; total?: number }): ReactNode {
+/**
+ * One note's badge — its name, then its toggle when it has children
+ * (unify-taste-trees D1) — and its share after the badge when given a total.
+ */
+function NoteRow({
+  note,
+  total,
+  toggle,
+}: {
+  note: TaxonomyTreeNode;
+  total?: number;
+  toggle?: ReactNode;
+}): ReactNode {
   const badge = (
     <Badge variant="taxonomy" color={note.color} level={note.level}>
-      {note.label}
+      <span>{note.label}</span>
+      {toggle}
     </Badge>
   );
-  if (total === undefined) return badge;
-  const share = `${note.label} ${note.count ?? 0}/${total}`;
+  if (total === undefined && toggle === undefined) return badge;
+  const share =
+    total === undefined ? null : `${note.label} ${note.count ?? 0}/${total}`;
   return (
     <div className={SHARE_CLASSES}>
       {badge}
-      <span className="type-meta">{share}</span>
+      {share !== null ? <span className="type-meta">{share}</span> : null}
     </div>
+  );
+}
+
+// The item and child-list classes by depth: the tree, the level-1 column,
+// the level-2 row (nest-card-taste-notes design.md D2).
+const ITEM_CLASSES = [TREE_CLASSES, COLUMN_ITEM_CLASSES, undefined] as const;
+const CHILD_LIST_CLASSES = [COLUMN_CLASSES, ROW_CLASSES, undefined] as const;
+
+type NoteItemProps = {
+  note: TaxonomyTreeNode;
+  depth: 0 | 1 | 2;
+  total?: number;
+  texts: TaxonomyTreeTexts;
+};
+
+/**
+ * One note's item: its row and, when it has children, its toggle and its
+ * child list (collapse-taxonomy-trees design.md D3). The list starts closed
+ * and stays rendered with `hidden` while closed, so the toggle's
+ * `aria-controls` always resolves; closing remounts it (a new `key`), so
+ * every descendant returns to closed.
+ */
+function NoteItem({ note, depth, total, texts }: NoteItemProps): ReactNode {
+  const [open, setOpen] = useState(false);
+  const [round, setRound] = useState(0);
+  const listId = useId();
+  const hasChildren = note.children.length > 0;
+
+  function toggle(): void {
+    if (open) setRound(round + 1);
+    setOpen(!open);
+  }
+
+  const toggleButton = hasChildren ? (
+    <TaxonomyTreeToggle
+      open={open}
+      controls={listId}
+      label={note.label}
+      onToggle={toggle}
+      texts={texts}
+    />
+  ) : undefined;
+  const childDepth = Math.min(depth + 1, 2) as 1 | 2;
+
+  return (
+    <li className={ITEM_CLASSES[depth]}>
+      <NoteRow note={note} total={total} toggle={toggleButton} />
+      {hasChildren ? (
+        <ul
+          key={round}
+          id={listId}
+          role="list"
+          hidden={!open}
+          className={CHILD_LIST_CLASSES[depth]}
+        >
+          {note.children.map((child) => (
+            <NoteItem
+              key={child.ref}
+              note={child}
+              depth={childDepth}
+              total={total}
+              texts={texts}
+            />
+          ))}
+        </ul>
+      ) : null}
+    </li>
   );
 }
 
@@ -64,34 +156,15 @@ function NoteBadge({ note, total }: { note: TaxonomyTreeNode; total?: number }):
  * per top-level note, its children in an indented column, their children in
  * an indented wrapping row. `role="list"` keeps the hierarchy for assistive
  * technologies; a child list renders only when there are children. Given a
- * total, each note's share follows its badge inline.
+ * total, each note's share follows its badge inline. Every tree starts
+ * closed and opens note by note (collapse-taxonomy-trees design.md D3).
  */
-export function TaxonomyTree({ notes, total }: TaxonomyTreeProps): ReactNode {
+export function TaxonomyTree({ notes, total, texts }: TaxonomyTreeProps): ReactNode {
   if (notes.length === 0) return null;
   return (
     <ul role="list" className={TREES_CLASSES}>
       {notes.map((root) => (
-        <li key={root.ref} className={TREE_CLASSES}>
-          <NoteBadge note={root} total={total} />
-          {root.children.length > 0 ? (
-            <ul role="list" className={COLUMN_CLASSES}>
-              {root.children.map((child) => (
-                <li key={child.ref} className={COLUMN_ITEM_CLASSES}>
-                  <NoteBadge note={child} total={total} />
-                  {child.children.length > 0 ? (
-                    <ul role="list" className={ROW_CLASSES}>
-                      {child.children.map((leaf) => (
-                        <li key={leaf.ref}>
-                          <NoteBadge note={leaf} total={total} />
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </li>
+        <NoteItem key={root.ref} note={root} depth={0} total={total} texts={texts} />
       ))}
     </ul>
   );

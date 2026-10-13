@@ -14,8 +14,8 @@ export type ProfileOutcome = "success" | "error" | "stepUp" | null;
 
 export type ProfileFormInput = {
   user: SessionUser;
-  /** The message of the email format check (design.md D2). */
-  texts: { emailFormatError: string };
+  /** The messages of the client checks (design.md D2; add-coffeeshop-business-name D3). */
+  texts: { emailFormatError: string; requiredError: string };
   refreshProfile: () => Promise<void>;
   endProfileWrite?: () => void;
 };
@@ -25,6 +25,8 @@ export type ProfileFormState = {
   values: ProfileValues;
   /** The email format check's message. */
   emailError: string | undefined;
+  /** A coffee shop's required business name check's message. */
+  businessNameError: string | undefined;
   /** The API's `422` messages (show-field-validation-errors D3). */
   serverErrors: Partial<Record<keyof ProfileValues, string>>;
   pending: boolean;
@@ -34,6 +36,21 @@ export type ProfileFormState = {
 };
 
 const PROFILE_FIELDS: (keyof ProfileValues)[] = ["name", "surname", "email"];
+
+/** A coffee shop's fields: the business name too (add-coffeeshop-business-name D3). */
+const COFFEESHOP_FIELDS: (keyof ProfileValues)[] = [...PROFILE_FIELDS, "businessName"];
+
+/** The request body: `businessName` only for a coffee shop (add-coffeeshop-business-name D3). */
+function payloadOf(values: ProfileValues, coffeeshop: boolean): ProfileUpdatePayload {
+  const { businessName, ...rest } = values;
+  return coffeeshop ? { ...rest, businessName } : rest;
+}
+
+/** Moves focus to the named control of the form. */
+function focusField(form: HTMLFormElement | null, name: string): void {
+  const control = form?.elements.namedItem(name);
+  if (control instanceof HTMLElement) control.focus();
+}
 
 /**
  * The profile form's state and submit (design.md D2, D5, D6 and D10): the
@@ -47,15 +64,18 @@ export function useProfileForm({
   endProfileWrite,
 }: ProfileFormInput): ProfileFormState {
   const formRef = useRef<HTMLFormElement>(null);
+  const coffeeshop = user.role === "coffeeshop";
   const [values, setValues] = useState<ProfileValues>({
     name: user.name ?? "",
     surname: user.surname ?? "",
+    businessName: user.businessName ?? "",
     email: user.email ?? "",
   });
   const [emailError, setEmailError] = useState<string | undefined>();
+  const [businessNameError, setBusinessNameError] = useState<string | undefined>();
   const [pending, setPending] = useState(false);
   const [outcome, setOutcome] = useState<ProfileOutcome>(null);
-  const server = useServerFieldErrors(PROFILE_FIELDS);
+  const server = useServerFieldErrors(coffeeshop ? COFFEESHOP_FIELDS : PROFILE_FIELDS);
 
   function update(field: keyof ProfileValues, value: string): void {
     setValues((current) => ({ ...current, [field]: value }));
@@ -66,19 +86,22 @@ export function useProfileForm({
     event.preventDefault();
     if (pending) return;
     server.reset();
+    // A coffee shop's business name is required; it comes before the email
+    // in the form (add-coffeeshop-business-name D3).
+    const businessNameEmpty = coffeeshop && values.businessName.trim() === "";
     // An empty email is not a format failure: it is sent like any emptied
     // field (design.md D2).
-    if (values.email !== "" && !isValidEmail(values.email)) {
-      setEmailError(texts.emailFormatError);
-      const control = formRef.current?.elements.namedItem("email");
-      if (control instanceof HTMLElement) control.focus();
+    const emailInvalid = values.email !== "" && !isValidEmail(values.email);
+    setBusinessNameError(businessNameEmpty ? texts.requiredError : undefined);
+    setEmailError(emailInvalid ? texts.emailFormatError : undefined);
+    if (businessNameEmpty || emailInvalid) {
+      focusField(formRef.current, businessNameEmpty ? "businessName" : "email");
       return;
     }
-    setEmailError(undefined);
 
     setPending(true);
     setOutcome(null);
-    const result = await updateProfile(String(user.ulid), values);
+    const result = await updateProfile(String(user.ulid), payloadOf(values, coffeeshop));
     setPending(false);
     if (result.ok) {
       endProfileWrite?.();
@@ -97,6 +120,7 @@ export function useProfileForm({
     formRef,
     values,
     emailError,
+    businessNameError,
     serverErrors: server.errors,
     pending,
     outcome,

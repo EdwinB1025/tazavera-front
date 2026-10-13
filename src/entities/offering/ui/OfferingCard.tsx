@@ -9,7 +9,7 @@ import {
   CardFooter,
   TaxonomyTree,
 } from "@/shared/ui";
-import type { TaxonomyTreeNode } from "@/shared/ui";
+import type { TaxonomyTreeNode, TaxonomyTreeTexts } from "@/shared/ui";
 import { ratingTierFor } from "../lib/rating";
 
 // ─── UI-specific types (declared before the component) ───
@@ -22,8 +22,11 @@ import { ratingTierFor } from "../lib/rating";
 
 export type ResolvedTaxonomyBadge = TaxonomyTreeNode;
 
-/** Every label and caption of the card, as props (design.md D11). */
-export type OfferingCardTexts = {
+/**
+ * Every label and caption of the card, as props (design.md D11), with the
+ * taxonomy trees' toggle names (collapse-taxonomy-trees design.md D2).
+ */
+export type OfferingCardTexts = TaxonomyTreeTexts & {
   coffeeshopCaption: string;
   roasterCaption: string;
   evaluationsLabel: string;
@@ -41,6 +44,8 @@ export type OfferingCardProps = {
   taxonomies: ResolvedTaxonomyBadge[];
   texts: OfferingCardTexts;
   actions?: ReactNode;
+  /** Rendered at the end of the verification badge's row (fix-offering-card-actions-layout D1). */
+  badgeRowEnd?: ReactNode;
 };
 
 // ─── Fixed pieces (no interface text; design.md D11) ───
@@ -52,6 +57,16 @@ const ORIGIN_SEPARATOR = " · ";
 const SCORE_ROW_CLASSES = ["flex", "flex-wrap", "items-baseline", "gap-2"].join(
   " ",
 );
+// The verification badge, then the consumer's badge-row content at the row's
+// right edge; the content moves under the badge when the row has no room
+// (fix-offering-card-actions-layout D1).
+const BADGE_ROW_CLASSES = [
+  "flex",
+  "flex-wrap",
+  "items-center",
+  "justify-between",
+  "gap-2",
+].join(" ");
 // The counts 1rem apart, the actions grouped at the end; the footer wraps.
 const FOOTER_CLASSES = ["flex", "flex-wrap", "items-center", "gap-4"].join(" ");
 const FOOTER_COUNTS_CLASSES = ["flex", "flex-wrap", "gap-4"].join(" ");
@@ -84,7 +99,7 @@ function cardLines(offering: OfferingSummary, texts: OfferingCardTexts) {
  * D8; the landing spec "Offering card content" and "Taxonomy badge trees on
  * the offering card"). Every label and caption arrives as a prop (design.md
  * D11) and the consumer's actions arrive as the `actions` node, rendered in the
- * footer's group with no wrapper; the card has no action of its own, the View
+ * footer's group with no wrapper, and its badge-row content as `badgeRowEnd`; the card has no action of its own, the View
  * action included (fix-production-aut-findings design.md D3).
  */
 export function OfferingCard({
@@ -92,6 +107,7 @@ export function OfferingCard({
   taxonomies,
   texts,
   actions,
+  badgeRowEnd,
 }: OfferingCardProps): ReactNode {
   const tier = ratingTierFor(offering.cuppingAvg);
   // The badge's text is the word of the tier the score falls in, in place of
@@ -121,14 +137,17 @@ export function OfferingCard({
         </CardAside>
       ) : null}
       <CardContent>
-        <Badge variant={isVerified ? "verified" : "provisional"}>
-          {statusLabel}
-        </Badge>
+        <div className={BADGE_ROW_CLASSES}>
+          <Badge variant={isVerified ? "verified" : "provisional"}>
+            {statusLabel}
+          </Badge>
+          {badgeRowEnd}
+        </div>
         <h2 className="type-card-heading">{coffee?.name}</h2>
         <p className="type-label">{coffeeshopCaption}</p>
         <p className="type-label">{roasterCaption}</p>
         <p className="type-meta">{origin}</p>
-        <TaxonomyTree notes={taxonomies} />
+        <TaxonomyTree notes={taxonomies} texts={texts} />
       </CardContent>
       <CardFooter className={FOOTER_CLASSES}>
         <div className={FOOTER_COUNTS_CLASSES}>

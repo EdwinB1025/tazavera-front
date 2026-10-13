@@ -110,7 +110,7 @@ While the session is anonymous, the header SHALL show the language selector, the
 - **THEN** the header's sign-in label fits on one line
 
 ### Requirement: Signed-in header and user menu
-While the session is authenticated, the header SHALL show the brand logotype, the language selector, the theme switch and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The control SHALL show an initials circle and, on a medium or larger viewport, the user's name and a chevron after the circle; below that viewport it SHALL show the circle alone. The menu SHALL offer one account entry pointing at the account page, the security entry as an external link to the API's security page, the management entry for the user's role, for a specialist the offerings entry, and sign out. Each entry SHALL show a decorative icon that reflects its action before its text and SHALL take the header menu entry treatment, not the inline link treatment, while keeping its order, destination and behaviour.
+While the session is authenticated, the header SHALL show the brand logotype, the language selector, the theme switch and a user menu opened from a control carrying the initials of the user's name and surname and an accessible name. The control SHALL show an initials circle and, on a medium or larger viewport, the user's name and a chevron after the circle; below that viewport it SHALL show the circle alone. The menu SHALL offer one account entry pointing at the account page, the security entry as an external link to the API's security page at `/user/security` on the application's own origin whose address carries the query parameter `login_hint` with the session user's `data.ulid`, the same value the step-up sends, or no `login_hint` while the session holds no `data.ulid`, the management entries for the user's role — for a coffeeshop "Manage offerings", "Manage locations" and "Explore coffee inventory" in this order — for a specialist the offerings entry, and sign out. Each entry SHALL show a decorative icon that reflects its action before its text and SHALL take the header menu entry treatment, not the inline link treatment, while keeping its order, destination and behaviour.
 
 #### Scenario: User control carries the user's initials
 - **WHEN** the session is authenticated
@@ -138,15 +138,27 @@ While the session is authenticated, the header SHALL show the brand logotype, th
 
 #### Scenario: Menu content
 - **WHEN** the user opens the user menu
-- **THEN** it offers the account entry, the external security entry, the management entry for the user's role and, for a specialist, the offerings entry, and the sign out action
+- **THEN** it offers the account entry, the external security entry, the management entries for the user's role and, for a specialist, the offerings entry, and the sign out action
 
 #### Scenario: The account entry points at the account page
 - **WHEN** the user opens the user menu
 - **THEN** its account entry points at `/{locale}/account`
 
+#### Scenario: The security entry points at the application's origin
+- **WHEN** the user opens the user menu
+- **THEN** its security entry is an external link to `{application origin}/user/security`, never the API's own address
+
 #### Scenario: Management entry for a coffeeshop
 - **WHEN** the authenticated user's `data.role` from `GET /user` is `coffeeshop`
 - **THEN** the menu offers "Manage offerings", pointing at the management area for offerings
+
+#### Scenario: Manage locations entry for a coffeeshop
+- **WHEN** the authenticated user's `data.role` from `GET /user` is `coffeeshop`
+- **THEN** the menu offers "Manage locations", pointing at `/{locale}/manage/locations`, right after "Manage offerings"
+
+#### Scenario: Explore coffee inventory entry for a coffeeshop
+- **WHEN** the authenticated user's `data.role` from `GET /user` is `coffeeshop`
+- **THEN** the menu offers "Explore coffee inventory", pointing at `/{locale}/manage/inventory`, right after "Manage locations"
 
 #### Scenario: Management entry for a specialist
 - **WHEN** the authenticated user's `data.role` from `GET /user` is `specialist`
@@ -163,6 +175,14 @@ While the session is authenticated, the header SHALL show the brand logotype, th
 #### Scenario: Menu entries carry icons and the header look
 - **WHEN** the user opens the user menu
 - **THEN** each entry shows a decorative icon hidden from assistive technology before its text, takes `nav-text` with `nav-text-hover` on hover and focus, and shows no underline and no link colour, in both themes
+
+#### Scenario: The security entry names the signed-in user
+- **WHEN** the user opens the user menu
+- **THEN** its security entry points at `{application origin}/user/security` with `login_hint` set to the session user's `data.ulid`
+
+#### Scenario: No user identifier in the session
+- **WHEN** the user opens the user menu and the session user has no `data.ulid`
+- **THEN** its security entry points at `{application origin}/user/security` with no `login_hint`
 
 ### Requirement: Session states in the shell
 The shell SHALL follow the session state. While the session is still resolving it SHALL show neither the "Sign in" action nor the user menu, and when the session cannot be resolved it SHALL render the anonymous shell.
@@ -318,7 +338,7 @@ The application SHALL NOT render markup injected as raw HTML.
 - **THEN** verification fails naming the file and the rendering
 
 ### Requirement: Content-Security-Policy
-Every document response of the application SHALL carry a Content-Security-Policy that allows scripts only from the application itself, allows connections to the API origin and to `https://nominatim.openstreetmap.org`, and allows images from the map tile server `https://tile.openstreetmap.org`. Static assets — framework paths under `/_next/` and file paths — are intentionally excluded from the policy, and `/callback` gets its policy from `add-auth`, which owns that route.
+Every document response of the application SHALL carry a Content-Security-Policy that allows scripts only from the application itself, allows connections only to the application itself and to `https://nominatim.openstreetmap.org`, and allows images from the map tile server `https://tile.openstreetmap.org`. Every call to the API goes to the application's own origin, so the policy names no API origin. Static assets — framework paths under `/_next/` and file paths — are intentionally excluded from the policy, the paths the application forwards to the API carry no policy from the application, and `/callback` gets its policy from `add-auth`, which owns that route.
 
 #### Scenario: Own scripts run
 - **WHEN** the application's own scripts load on a page
@@ -329,12 +349,12 @@ Every document response of the application SHALL carry a Content-Security-Policy
 - **THEN** the policy blocks it
 
 #### Scenario: Connections to the API are allowed
-- **WHEN** the application connects to the API origin
-- **THEN** the policy allows the connection
+- **WHEN** a page of the application answers a request and the page then connects to the API through the application's own origin
+- **THEN** the `connect-src` of its policy is `'self' https://nominatim.openstreetmap.org`, naming no API origin, and the connection is allowed as a connection to the application itself
 
 #### Scenario: Connections to the geocoding service are allowed
 - **WHEN** the application looks up an address at `https://nominatim.openstreetmap.org`
-- **THEN** the policy allows the connection, and connections to any other origin outside the application, the API and that service stay blocked
+- **THEN** the policy allows the connection, and connections to any other origin outside the application and that service stay blocked
 
 #### Scenario: Map images are allowed
 - **WHEN** the map loads its images from the map tile server `https://tile.openstreetmap.org`
@@ -342,7 +362,7 @@ Every document response of the application SHALL carry a Content-Security-Policy
 
 #### Scenario: Policy present on every document response
 - **WHEN** verification inspects the responses of the application
-- **THEN** each document response carries a Content-Security-Policy, while the excluded static assets and the `/callback` route carry none from this policy
+- **THEN** each document response carries a Content-Security-Policy, while the excluded static assets, the forwarded paths and the `/callback` route carry none from this policy
 
 ### Requirement: Header menu triggers
 The controls that open the header menus — the user control and the language selector — are menu triggers and SHALL NOT render as action controls: they take no action-button treatment, and at rest they carry no fill and no border. Their content — text and icons alike — SHALL take the header's navigation text colour and switch to its hover value while the pointer is on the control. On keyboard focus a trigger SHALL keep the visible focus ring defined by `base-controls`: one ring with its offset, rendered from the focus tokens of the active theme.
@@ -360,7 +380,7 @@ The controls that open the header menus — the user control and the language se
 - **THEN** a focus ring with its offset renders around it from the focus tokens of the active theme
 
 ### Requirement: Cross-Origin-Opener-Policy
-Every document response of the application except the callback route SHALL carry `Cross-Origin-Opener-Policy: same-origin-allow-popups`, so the application's pages stay isolated while a popup window keeps its opener.
+Every document response of the application except the callback route SHALL carry `Cross-Origin-Opener-Policy: same-origin-allow-popups`, so the application's pages stay isolated while a popup window keeps its opener. The paths the application forwards to the API are left untouched by this header.
 
 #### Scenario: Opener kept outside the callback
 - **WHEN** a page other than the callback route answers a request
@@ -561,14 +581,14 @@ While the sidebar is open as the full-screen overlay on a small viewport, the ov
 - **THEN** the list's own polite status reads "Results: 12" and no overlay status is rendered
 
 ### Requirement: Response security headers
-Every document response of the application SHALL carry `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin` and a `Permissions-Policy` that allows geolocation only for the application's own origin and denies the camera, the microphone, payment and USB. No response of the application SHALL carry `X-Powered-By`. Static assets — framework paths under `/_next/` and file paths — are left untouched by these headers, as by the Content-Security-Policy.
+Every document response of the application SHALL carry `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin` and a `Permissions-Policy` that allows geolocation only for the application's own origin and denies the camera, the microphone, payment and USB. No response the application produces itself SHALL carry `X-Powered-By`. Static assets — framework paths under `/_next/` and file paths — and the paths the application forwards to the API are left untouched by these headers, as by the Content-Security-Policy.
 
 #### Scenario: Security headers on a page response
 - **WHEN** a page of the application answers a request
 - **THEN** its response carries `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin` and `Permissions-Policy: camera=(), microphone=(), payment=(), usb=(), geolocation=(self)`
 
 #### Scenario: Framework not disclosed
-- **WHEN** the production server answers any request
+- **WHEN** the production server answers a request it does not forward to the API
 - **THEN** the response carries no `X-Powered-By` header
 
 ### Requirement: Client code loaded per route
@@ -595,3 +615,21 @@ The application SHALL take the locale of a request only from the locale prefix o
 #### Scenario: Browser language ignored
 - **WHEN** a browser whose language preference is English and which carries a locale cookie for English opens the root URL
 - **THEN** the application redirects to the default locale and its response sets no cookie
+
+### Requirement: Self-contained production server
+The production build SHALL produce a self-contained server that runs with Node.js alone, without the project's sources or development dependencies. Started with the build's static assets placed next to it, that server SHALL serve every locale page with its localized texts and its stylesheets, exactly as the regular production server does. If a locale's texts are missing from the self-contained output, its page fails to render and the build does not meet this requirement.
+
+#### Scenario: Locale page served by the self-contained server
+- **WHEN** the self-contained server, started with the static assets next to it, answers a request for `/es`, `/en` or `/ca`
+- **THEN** the response has status 200 and carries the page in that locale's language, and the stylesheet the page references answers with status 200
+
+#### Scenario: Message catalogs missing from the output
+- **WHEN** a locale's message catalogs are not part of the self-contained output
+- **THEN** that locale's page fails to render, and the build is not accepted until the catalogs are included
+
+### Requirement: Server-side reads at the internal API address
+A read the application's server sends to the API SHALL go directly to the internal API address with the API's own path, without the `/api` prefix and without passing through the application's forwarding. A read sent from the browser SHALL go to the base of the JSON calls on the application's origin (`{application origin}/api`). The browser SHALL never receive or use the internal API address. When no internal API address is configured, a server-side read SHALL fail as an unreachable API does and the page SHALL show its existing error state; nothing is retried and no other address is tried.
+
+#### Scenario: Server and browser reads take their own base
+- **WHEN** the same read, such as `GET /offerings`, is sent once from the application's server and once from the browser
+- **THEN** the server sends it to `{internal API address}/offerings` and the browser to `{application origin}/api/offerings`

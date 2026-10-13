@@ -56,6 +56,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 const API = "https://api.tazavera.test";
+const APP = "https://tazavera.test";
 const fetchMock =
   vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>();
 
@@ -69,6 +70,7 @@ beforeEach(() => {
   fetchMock.mockReset();
   vi.stubGlobal("fetch", fetchMock);
   vi.stubEnv("NEXT_PUBLIC_API_URL", API);
+  vi.stubEnv("NEXT_PUBLIC_APP_URL", APP);
 });
 
 afterEach(() => {
@@ -283,28 +285,44 @@ describe("AccountClient — Security section", () => {
     });
   });
 
-  it("shows its description and external same-tab links to {API}/user/security for two-factor and passkeys, sending no request", () => {
+  it("shows its description and external same-tab links to {APP}/user/security for two-factor and passkeys, sending no request", () => {
     auth.session = { state: "authenticated", user: USER };
     renderClient();
     const region = screen.getByRole("region", { name: TEXTS.securityHeading });
     expect(region.textContent).toContain(TEXTS.securityDescription);
     for (const name of [TEXTS.twoFactor, TEXTS.passkeys]) {
       const link = screen.getByRole("link", { name });
-      expect(link.getAttribute("href")).toBe(`${API}/user/security`);
+      expect(link.getAttribute("href")).toBe(`${APP}/user/security?login_hint=u1`);
       expect(link.getAttribute("target")).toBeNull();
     }
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("while the email is unverified lists a same-tab Verify email link to {API}/email/verify before two-factor", () => {
+  it("while the email is unverified lists a same-tab Verify email link to {APP}/email/verify before two-factor", () => {
     auth.session = { state: "authenticated", user: { ...USER, emailVerifiedAt: null } };
     renderClient();
     const link = screen.getByRole("link", { name: TEXTS.verifyEmail });
-    expect(link.getAttribute("href")).toBe(`${API}/email/verify`);
+    expect(link.getAttribute("href")).toBe(`${APP}/email/verify?login_hint=u1`);
     expect(link.getAttribute("target")).toBeNull();
     const items = link.closest("ul")!.querySelectorAll("li");
     expect(items[0].contains(link)).toBe(true);
     expect(items[1].textContent).toBe(TEXTS.twoFactor);
+  });
+
+  it("with no user identifier in the session the API links carry no login_hint", () => {
+    auth.session = {
+      state: "authenticated",
+      user: { ...USER, ulid: undefined, emailVerifiedAt: null },
+    };
+    renderClient();
+    expect(
+      screen.getByRole("link", { name: TEXTS.verifyEmail }).getAttribute("href"),
+    ).toBe(`${APP}/email/verify`);
+    for (const name of [TEXTS.twoFactor, TEXTS.passkeys]) {
+      expect(screen.getByRole("link", { name }).getAttribute("href")).toBe(
+        `${APP}/user/security`,
+      );
+    }
   });
 
   it("when the email is verified lists the text Email verified first and no Verify email link", () => {
@@ -322,9 +340,9 @@ describe("AccountClient — Security section", () => {
 
 describe("AccountClient — Security section popup", () => {
   const ENTRIES = [
-    [TEXTS.verifyEmail, `${API}/email/verify`],
-    [TEXTS.twoFactor, `${API}/user/security`],
-    [TEXTS.passkeys, `${API}/user/security`],
+    [TEXTS.verifyEmail, `${APP}/email/verify?login_hint=u1`],
+    [TEXTS.twoFactor, `${APP}/user/security?login_hint=u1`],
+    [TEXTS.passkeys, `${APP}/user/security?login_hint=u1`],
   ] as const;
 
   function renderUnverified() {
@@ -351,7 +369,7 @@ describe("AccountClient — Security section popup", () => {
     renderUnverified();
     const notPrevented = fireEvent.click(screen.getByRole("link", { name: TEXTS.verifyEmail }));
     expect(notPrevented).toBe(false);
-    expect(open).toHaveBeenLastCalledWith(`${API}/email/verify`, "_blank", "noopener");
+    expect(open).toHaveBeenLastCalledWith(`${APP}/email/verify?login_hint=u1`, "_blank", "noopener");
   });
 
   it("reloads the profile once the popup window closes", () => {

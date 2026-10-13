@@ -1,3 +1,7 @@
+// @vitest-environment node
+// The node environment lets a test remove `window`: every request runs as in
+// the browser (`window` stubbed below) unless a test removes it to run as on
+// the front's server (route-api-web-pages-through-front design.md D5).
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { configureClient, request, publicRequest } from "./client";
 import type { TokenGrant } from "./tokens";
@@ -80,6 +84,7 @@ beforeEach(() => {
   process.env.NEXT_PUBLIC_API_URL = API_URL;
   fetchMock.mockReset();
   vi.stubGlobal("fetch", fetchMock);
+  vi.stubGlobal("window", globalThis);
 });
 
 afterEach(() => {
@@ -128,5 +133,24 @@ describe("the request client (design.md D2, D3 and D5)", () => {
     expect(refresh).toHaveBeenCalledTimes(1);
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(onUnrecoverable).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("the base of a read (route-api-web-pages-through-front design.md D5)", () => {
+  it("sends a read from the server to API_INTERNAL_URL and from the browser to NEXT_PUBLIC_API_URL (spec: Server and browser reads take their own base)", async () => {
+    vi.stubEnv("API_INTERNAL_URL", "http://api.internal:8000");
+    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://tazavera.test/api");
+    fetchMock.mockImplementation(async () => jsonResponse({}));
+    try {
+      vi.stubGlobal("window", undefined);
+      await publicRequest("/offerings");
+      vi.stubGlobal("window", globalThis);
+      await publicRequest("/offerings");
+    } finally {
+      vi.unstubAllEnvs();
+    }
+
+    expect(calledUrl(0)).toBe("http://api.internal:8000/offerings");
+    expect(calledUrl(1)).toBe("https://tazavera.test/api/offerings");
   });
 });

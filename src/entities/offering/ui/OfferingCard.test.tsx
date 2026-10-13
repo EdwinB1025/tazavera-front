@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach } from "vitest";
-import { render, cleanup, screen } from "@testing-library/react";
+import { describe, it, expect, afterEach, vi } from "vitest";
+import { render, cleanup, screen, fireEvent } from "@testing-library/react";
 import type { ReactNode } from "react";
 import type { OfferingSummary } from "@/shared/api";
 import { OfferingCard } from "@/entities/offering";
@@ -50,6 +50,8 @@ const TEXTS = {
   ratingExcellentLabel: "texts.ratingExcellentLabel",
   ratingGoodLabel: "texts.ratingGoodLabel",
   ratingCommercialLabel: "texts.ratingCommercialLabel",
+  showNotesLabel: "texts.show {label}",
+  hideNotesLabel: "texts.hide {label}",
 };
 
 // ─── Consumer action fixtures (replace-offering-card-session's design.md D1:
@@ -57,6 +59,7 @@ const TEXTS = {
 
 const ACTION_LABEL = "ACTION";
 const SECOND_ACTION_LABEL = "ACTION_2";
+const ROW_END_LABEL = "ROW_END";
 const ACTION = <Link href="/es/action">{ACTION_LABEL}</Link>;
 const SECOND_ACTION = <Link href="/es/action-2">{SECOND_ACTION_LABEL}</Link>;
 const TWO_ACTIONS = (
@@ -200,9 +203,20 @@ function ratingBadges(root: HTMLElement): HTMLElement[] {
   );
 }
 
+/** False when the element sits inside a hidden (closed) child list. */
+function isShown(element: Element): boolean {
+  return element.closest("[hidden]") === null;
+}
+
+/** The toggle in the row of the note labelled `label`. */
+function toggleOf(label: string): HTMLElement {
+  return screen.getByText(label).parentElement!.querySelector("button")!;
+}
+
 type RenderOptions = {
   offering?: OfferingSummary;
   actions?: ReactNode;
+  badgeRowEnd?: ReactNode;
   taxonomies?: ResolvedTaxonomyBadge[];
 };
 
@@ -214,6 +228,7 @@ function renderCard(options: RenderOptions = {}) {
       taxonomies={options.taxonomies ?? TAXONOMIES}
       texts={TEXTS}
       actions={options.actions}
+      badgeRowEnd={options.badgeRowEnd}
     />,
   );
 }
@@ -297,6 +312,8 @@ describe("OfferingCard", () => {
   describe("Taxonomy badge trees (nest-card-taste-notes design.md D2, D3)", () => {
     it("nests each child list in its parent's item, indented, the level-1 column behind a connector (spec: 'Nested trees')", () => {
       renderCard();
+      fireEvent.click(toggleOf("Floral"));
+      fireEvent.click(toggleOf("Jazmin"));
       const floral = screen.getByText("Floral").closest("li")!;
       const jazmin = screen.getByText("Jazmin").closest("li")!;
       const bergamota = screen.getByText("Bergamota").closest("li")!;
@@ -323,6 +340,81 @@ describe("OfferingCard", () => {
       expect(trees.children).toHaveLength(2);
       expect(trees.getAttribute("role")).toBe("list");
       expect(classTokens(trees)).toContain("flex-wrap");
+    });
+  });
+
+  describe("Collapsible taxonomy trees (spec: 'Taxonomy badge trees on the offering card'; collapse-taxonomy-trees design.md D3, D4)", () => {
+    it("shows only the top-level notes at first (spec: 'Closed at first')", () => {
+      renderCard();
+      expect(isShown(screen.getByText("Floral"))).toBe(true);
+      expect(isShown(screen.getByText("Frutal"))).toBe(true);
+      expect(isShown(screen.getByText("Jazmin"))).toBe(false);
+      expect(isShown(screen.getByText("Bergamota"))).toBe(false);
+    });
+
+    it("puts a + toggle inside the badge, right after the name, of a note with children and none on a note without (spec: 'Toggle on notes with children')", () => {
+      renderCard();
+      const toggle = toggleOf("Floral");
+      const name = screen.getByText("Floral");
+      const badge = name.parentElement!;
+      expect(badge.hasAttribute("data-taxonomy")).toBe(true);
+      expect(name.nextElementSibling).toBe(toggle);
+      expect(toggle.textContent).toBe("+");
+      expect(badge.hasAttribute("role")).toBe(false);
+      expect(badge.hasAttribute("tabindex")).toBe(false);
+      expect(
+        screen.getByText("Frutal").closest("li")!.querySelector("button"),
+      ).toBeNull();
+    });
+
+    it("shows a note's children, each closed, when it opens, and the grandchildren when the child opens (spec: 'Opening a note')", () => {
+      renderCard();
+      fireEvent.click(toggleOf("Floral"));
+      expect(toggleOf("Floral").textContent).toBe("\u2212");
+      expect(isShown(screen.getByText("Jazmin"))).toBe(true);
+      expect(toggleOf("Jazmin").textContent).toBe("+");
+      expect(isShown(screen.getByText("Bergamota"))).toBe(false);
+      fireEvent.click(toggleOf("Jazmin"));
+      expect(isShown(screen.getByText("Bergamota"))).toBe(true);
+    });
+
+    it("closes every descendant when a note closes (spec: 'Closing a note closes its descendants')", () => {
+      renderCard();
+      fireEvent.click(toggleOf("Floral"));
+      fireEvent.click(toggleOf("Jazmin"));
+      fireEvent.click(toggleOf("Floral"));
+      fireEvent.click(toggleOf("Floral"));
+      expect(isShown(screen.getByText("Jazmin"))).toBe(true);
+      expect(toggleOf("Jazmin").textContent).toBe("+");
+      expect(isShown(screen.getByText("Bergamota"))).toBe(false);
+    });
+
+    it("exposes the toggle's state, its child list and its catalog name, the glyph hidden (spec: 'Accessible toggle')", () => {
+      renderCard();
+      const toggle = toggleOf("Floral");
+      expect(toggle.getAttribute("aria-expanded")).toBe("false");
+      expect(toggle.getAttribute("aria-label")).toBe("texts.show Floral");
+      const list = document.getElementById(toggle.getAttribute("aria-controls")!)!;
+      expect(list.tagName).toBe("UL");
+      expect(list).toBe(screen.getByText("Jazmin").closest("li")!.parentElement);
+      expect(toggle.querySelector('[aria-hidden="true"]')!.textContent).toBe("+");
+      fireEvent.click(toggle);
+      expect(toggle.getAttribute("aria-expanded")).toBe("true");
+      expect(toggle.getAttribute("aria-label")).toBe("texts.hide Floral");
+    });
+
+    it("keeps the open state on the page only: no address change, no request, closed again on a new render (spec: 'Open state stays on the page')", () => {
+      const fetchSpy = vi.spyOn(globalThis, "fetch");
+      const href = window.location.href;
+      const { unmount } = renderCard();
+      fireEvent.click(toggleOf("Floral"));
+      expect(window.location.href).toBe(href);
+      expect(fetchSpy).not.toHaveBeenCalled();
+      unmount();
+      renderCard();
+      expect(isShown(screen.getByText("Jazmin"))).toBe(false);
+      expect(toggleOf("Floral").textContent).toBe("+");
+      fetchSpy.mockRestore();
     });
   });
 
@@ -361,8 +453,20 @@ describe("OfferingCard", () => {
       );
     });
 
+    it("renders the consumer's badge-row content last in the badge's row, outside the footer (spec: 'Consumer content in the badge row')", () => {
+      renderCard({ actions: ACTION, badgeRowEnd: <span>{ROW_END_LABEL}</span> });
+      const end = screen.getByText(ROW_END_LABEL);
+      const row = screen.getByText(TEXTS.verifiedLabel).parentElement!;
+      expect(row.lastElementChild).toBe(end);
+      expect(classTokens(row)).toContain("justify-between");
+      const group = screen.getByRole("link", { name: ACTION_LABEL }).parentElement!;
+      expect(group.parentElement!.contains(end)).toBe(false);
+    });
+
     it("renders no action of its own when the consumer supplies none (spec: 'No consumer actions')", () => {
-      renderCard();
+      // No taxonomy tree, so no tree toggle (collapse-taxonomy-trees D4) is
+      // counted among the card's buttons.
+      renderCard({ taxonomies: [] });
       expect(screen.queryAllByRole("link")).toHaveLength(0);
       expect(screen.queryAllByRole("button")).toHaveLength(0);
     });

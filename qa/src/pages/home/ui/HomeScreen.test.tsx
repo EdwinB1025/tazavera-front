@@ -105,6 +105,8 @@ describe("HomeScreen", () => {
       ratingExcellentLabel: es.cardRatingExcellentLabel,
       ratingGoodLabel: es.cardRatingGoodLabel,
       ratingCommercialLabel: es.cardRatingCommercialLabel,
+      showNotesLabel: es.treeShowNotesLabel,
+      hideNotesLabel: es.treeHideNotesLabel,
       previousLabel: es.paginationPreviousLabel,
       nextLabel: es.paginationNextLabel,
       navigationLabel: es.paginationNavigationLabel,

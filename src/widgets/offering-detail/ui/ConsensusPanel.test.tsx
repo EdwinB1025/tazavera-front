@@ -87,7 +87,21 @@ const TEXTS = {
   wheelCount: "{count} de {total} evaluadores",
   beanValue: "{value}/9",
   beanValueLabel: "{value} de 9",
+  showNotesLabel: "texts.show {label}",
+  hideNotesLabel: "texts.hide {label}",
 } as unknown as ConsensusPanelTexts;
+
+/** False when the element sits inside a hidden (closed) child list. */
+function isShown(element: Element): boolean {
+  return element.closest("[hidden]") === null;
+}
+
+/** The element of `root` whose whole text is `text`. */
+function textElement(root: Element, text: string): Element {
+  return Array.from(root.querySelectorAll("*")).find(
+    (element) => element.children.length === 0 && element.textContent === text,
+  )!;
+}
 
 const SWEET = "01JROOTSWEET0000000000000A";
 const SOUR = "01JROOTSOUR00000000000000A";
@@ -411,16 +425,30 @@ describe("ConsensusPanel — Main tastes and Defects (spec: Consensus Defects an
 
   function badgeItem(element: Element, name: string): Element {
     const badge = Array.from(element.querySelectorAll("[data-taxonomy]")).find(
-      (candidate) => candidate.textContent === name,
+      (candidate) => candidate.firstElementChild?.textContent === name,
     )!;
     return badge.closest("li")!;
   }
+
+  it("shows only the top-level notes at first, the toggle inside the badge and the share after it (spec: Trees closed at first with the toggle after the share)", () => {
+    renderPanel(IDENTIFIED);
+    const defects = cardOf(TEXTS.detailDefectsHeading);
+    const name = textElement(defects, "Fermentado");
+    expect(isShown(name)).toBe(true);
+    expect(isShown(textElement(defects, "Vinagre"))).toBe(false);
+    const toggle = name.nextElementSibling!;
+    expect(toggle.tagName).toBe("BUTTON");
+    expect(toggle.textContent).toBe("+");
+    expect(toggle.parentElement!.hasAttribute("data-taxonomy")).toBe(true);
+    expect(toggle.parentElement!.nextElementSibling!.textContent).toBe("Fermentado 1/5");
+  });
 
   it("renders the identified notes as taxonomy badges nested as the concordance's tree, each share inline (spec: Identified notes)", () => {
     renderPanel(IDENTIFIED);
     const card = cardOf(TEXTS.detailMainTastesHeading);
     expect(badgesIn(card)).toEqual(["Dulce", "Ácido"]);
     const defects = cardOf(TEXTS.detailDefectsHeading);
+    fireEvent.click(defects.querySelector("button[aria-expanded]")!);
     expect(badgeItem(defects, "Fermentado").contains(badgeItem(defects, "Vinagre"))).toBe(true);
     const sweet = Array.from(card.querySelectorAll("[data-taxonomy]"))[0]!;
     expect(sweet.nextElementSibling!.className).toBe("type-meta");
@@ -701,7 +729,7 @@ describe("ConsensusPanel — detail by axis (spec: Consensus detail by axis; des
 
   function badgesIn(element: Element): string[] {
     return Array.from(element.querySelectorAll("[data-taxonomy]")).map(
-      (badge) => badge.textContent ?? "",
+      (badge) => badge.firstElementChild?.textContent ?? "",
     );
   }
 
@@ -713,7 +741,7 @@ describe("ConsensusPanel — detail by axis (spec: Consensus detail by axis; des
 
   function badgeItem(body: Element, name: string): Element {
     const badge = Array.from(body.querySelectorAll("[data-taxonomy]")).find(
-      (candidate) => candidate.textContent === name,
+      (candidate) => candidate.firstElementChild?.textContent === name,
     )!;
     return badge.closest("li")!;
   }
@@ -745,7 +773,9 @@ describe("ConsensusPanel — detail by axis (spec: Consensus detail by axis; des
   });
 
   it("renders five sections in the axis order, each collapsed at first (spec: Sections collapsed by default)", () => {
-    renderAxes();
+    // No identified note, so no tree toggle (collapse-taxonomy-trees D4) is
+    // counted among the section headers.
+    renderAxes({ ...AXES, sensoryTaxonomy: [] });
     const buttons = Array.from(
       axesItem().querySelectorAll("button[aria-expanded]"),
     );
@@ -757,9 +787,23 @@ describe("ConsensusPanel — detail by axis (spec: Consensus detail by axis; des
     }
   });
 
+  it("shows only the axis's top-level notes at first, the toggle inside the badge and the share after it (spec: Axis trees closed at first)", () => {
+    renderAxes();
+    const body = open("attrFragrance");
+    const name = textElement(body, "Floral");
+    expect(isShown(name)).toBe(true);
+    expect(isShown(textElement(body, "Jazmín"))).toBe(false);
+    const toggle = name.nextElementSibling!;
+    expect(toggle.tagName).toBe("BUTTON");
+    expect(toggle.textContent).toBe("+");
+    expect(toggle.parentElement!.hasAttribute("data-taxonomy")).toBe(true);
+    expect(toggle.parentElement!.nextElementSibling!.textContent).toBe("Floral 3/5");
+  });
+
   it("shows the fragrance notes as the axis's tree, each share inline (spec: Identified notes of an axis)", () => {
     renderAxes();
     const body = open("attrFragrance");
+    fireEvent.click(body.querySelector("button[aria-expanded]")!);
     expect(header("attrFragrance").getAttribute("aria-expanded")).toBe("true");
     expect(badgesIn(body)).toEqual(["Floral", "Jazmín"]);
     expect(badgeItem(body, "Floral").contains(badgeItem(body, "Jazmín"))).toBe(true);

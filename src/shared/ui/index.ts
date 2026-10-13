@@ -5,7 +5,7 @@
  * consumer imports through this entry point. Importing a slice through its
  * public API keeps the internal structure free to change.
  */
-export { Button } from "./Button";
+export { Button, buttonLinkClasses } from "./Button";
 export { Link, LINK_CLASSES } from "./Link";
 export { RouteButton } from "./RouteButton";
 export { ActionGroup } from "./ActionGroup";
@@ -24,7 +24,7 @@ export { DescriptorChipGroup } from "./DescriptorChipGroup";
 export { DescriptorCascade } from "./DescriptorCascade";
 export type { CascadeNode } from "./descriptor-cascade";
 export { TaxonomyTree } from "./TaxonomyTree";
-export type { TaxonomyTreeNode } from "./TaxonomyTree";
+export type { TaxonomyTreeNode, TaxonomyTreeTexts } from "./TaxonomyTree";
 export { ConfirmDialog } from "./ConfirmDialog";
 export { Loader2, ArrowLeft } from "./icons";
 export { Logo } from "./Logo";
@@ -62,7 +62,7 @@ export { FacetPanel } from "./FacetPanel";
 export type { AppliedFilter } from "./FacetPanel";
 export { FacetTextField } from "./FacetTextField";
 export { SeeMoreButton } from "./SeeMoreButton";
-export { FacetRadioList } from "./FacetRadioList";
+export { asOptions, FacetRadioList } from "./FacetRadioList";
 export type { FacetOption } from "./FacetRadioList";
 export { FacetCascade } from "./FacetCascade";
 export type { CascadeOption } from "./FacetCascade";
@@ -70,6 +70,7 @@ export { ScoreRangeFacet } from "./ScoreRangeFacet";
 export type { ScoreRange } from "./ScoreRangeFacet";
 export { Combobox } from "./Combobox";
 export { ComboboxLoader } from "./ComboboxLoader";
+export { PaddedCombobox, asComboboxValue, comboboxTexts } from "./PaddedCombobox";
 export type { ComboboxOption, ComboboxSearch, ComboboxTexts } from "./Combobox";
 export { LabelValueRow } from "./LabelValueRow";
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./Tabs";
@@ -80,6 +81,8 @@ export { StepUpNotice } from "./StepUpNotice";
 export { SessionGate } from "./SessionGate";
 export { SignedOutPrompt } from "./SignedOutPrompt";
 export { ClearFiltersButton } from "./ClearFiltersButton";
+export { FilterMemoryScope } from "./FilterMemoryScope";
+export { RememberedFiltersGate } from "./RememberedFiltersGate";
 export { ViewToggle } from "./ViewToggle";
 export { LocationsMapLoader } from "./LocationsMapLoader";
 export type { LocationsMapLoaderProps } from "./LocationsMapLoader";

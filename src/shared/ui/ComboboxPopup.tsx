@@ -13,7 +13,7 @@ const POPUP_CLASSES =
   "z-50 w-(--radix-popover-trigger-width) max-h-60 overflow-y-auto rounded-field border border-border-strong bg-nav-surface p-1 text-nav-text shadow-md";
 
 const OPTION_CLASSES =
-  "relative flex min-h-11 cursor-default select-none items-center gap-2 rounded-field px-3 py-2 text-nav-text data-[selected=true]:bg-nav-hover data-[selected=true]:text-nav-text-hover";
+  "relative flex min-h-11 select-none items-center gap-2 rounded-field px-3 py-2 text-nav-text data-[selected=true]:bg-nav-hover data-[selected=true]:text-nav-text-hover";
 
 const STATE_ROW_CLASSES = "type-option-detail px-3 py-2";
 

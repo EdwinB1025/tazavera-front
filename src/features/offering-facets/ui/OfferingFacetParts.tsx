@@ -1,15 +1,8 @@
 "use client";
 
-import type { ComponentProps, ReactNode } from "react";
+import type { ReactNode } from "react";
 import type { FilterChanges } from "@/shared/lib/filter-query";
-import {
-  ComboboxLoader,
-  FacetCascade,
-  FacetRadioList,
-  ScoreRangeFacet,
-  type ComboboxOption,
-  type FacetOption,
-} from "@/shared/ui";
+import { asOptions, FacetCascade, FacetRadioList, ScoreRangeFacet } from "@/shared/ui";
 import type { OfferingFacetOptions, TasteNoteOption } from "../model/options";
 import {
   SCORE_MAX,
@@ -27,25 +20,6 @@ type OfferingFacetProps = {
   navigate: (changes: FilterChanges) => void;
 };
 
-export function asOptions(values: string[] | null): FacetOption[] {
-  return (values ?? []).map((value) => ({ value, label: value }));
-}
-
-export function asComboboxValue(value: string | undefined): ComboboxOption | null {
-  return value === undefined ? null : { value, label: value };
-}
-
-/** The comboboxes' texts, with their loading text (lazy-load-facet-controls design.md D3). */
-export function comboboxTexts(texts: OfferingFacetsTexts) {
-  return {
-    searching: texts.searching,
-    noMatches: texts.noOptionMatches,
-    loadError: texts.searchFailed,
-    optionCount: texts.optionCount,
-    loading: texts.loading ?? "",
-  };
-}
-
 /** Every taste-note ref the options list, level 0 and level 1. */
 function listedTasteNotes(tasteNotes: TasteNoteOption[] | null): Set<string> {
   return new Set(
@@ -58,15 +32,6 @@ function listedTasteNotes(tasteNotes: TasteNoteOption[] | null): Set<string> {
 
 function seeMoreTexts(texts: OfferingFacetsTexts) {
   return { seeMore: texts.seeMore, seeLess: texts.seeLess };
-}
-
-/** A facet combobox inside the panel's side padding (split-oversized-facets design.md D6). */
-export function PaddedCombobox(props: ComponentProps<typeof ComboboxLoader>): ReactNode {
-  return (
-    <div className="px-3">
-      <ComboboxLoader {...props} />
-    </div>
-  );
 }
 
 /**

@@ -505,6 +505,24 @@
 }
 
 /* =========================================================
+   TAZAVERA — POINTER CURSOR ON ACTIONS (show-pointer-on-actions design.md D1)
+   Every enabled link, button and clickable control shows the pointer on
+   hover. Disabled controls are excluded and keep their own cursor; text
+   fields keep the text cursor. Utilities override this base layer.
+   ========================================================= */
+
+@layer base {
+    :is(
+        a[href], button, summary, label[for], select,
+        input:is([type="checkbox"], [type="radio"], [type="range"], [type="submit"], [type="button"], [type="reset"]),
+        [role="button"], [role="tab"], [role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"],
+        [role="option"], [role="switch"], [role="checkbox"], [role="radio"]
+    ):not(:disabled, [aria-disabled="true"], [data-disabled]:not([data-disabled="false"])) {
+        cursor: pointer;
+    }
+}
+
+/* =========================================================
    TAZAVERA — TYPOGRAPHIC ROLES (@utility type-{role})
    Each role fixes family, weight, style, size, line height, tracking and one
    semantic color token. Role metrics are identical in both themes: theme

@@ -18,6 +18,7 @@ export type RegisterCheckTexts = {
 export type RegisterField =
   | "name"
   | "surname"
+  | "businessName"
   | "email"
   | "password"
   | "passwordConfirmation";
@@ -50,23 +51,45 @@ export type RegisterFormState = {
 const FIELD_ORDER: RegisterField[] = [
   "name",
   "surname",
+  "businessName",
   "email",
   "password",
   "passwordConfirmation",
 ];
 
+/**
+ * The route's fields: the business name only on the coffeeshop route
+ * (add-coffeeshop-business-name design.md D2).
+ */
+function fieldsOf(role: RegisterPayload["role"]): RegisterField[] {
+  return role === "coffeeshop"
+    ? FIELD_ORDER
+    : FIELD_ORDER.filter((field) => field !== "businessName");
+}
+
+/** The request body: `businessName` only for a coffee shop (design.md D2). */
+function payloadOf(values: RegisterValues, role: RegisterPayload["role"]): RegisterPayload {
+  const { businessName, ...rest } = values;
+  return role === "coffeeshop" ? { ...rest, businessName, role } : { ...rest, role };
+}
+
 const EMPTY_VALUES: RegisterValues = {
   name: "",
   surname: "",
+  businessName: "",
   email: "",
   password: "",
   passwordConfirmation: "",
 };
 
 /** The checks `registerAUser` documents (design.md D2). */
-function check(values: RegisterValues, texts: RegisterCheckTexts): RegisterErrors {
+function check(
+  values: RegisterValues,
+  fields: RegisterField[],
+  texts: RegisterCheckTexts,
+): RegisterErrors {
   const errors: RegisterErrors = {};
-  for (const field of FIELD_ORDER) {
+  for (const field of fields) {
     if (values[field].trim() === "") errors[field] = texts.requiredError;
   }
   if (!errors.email && !isValidEmail(values.email)) {
@@ -97,7 +120,8 @@ export function useRegisterForm({
   const [pending, setPending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [created, setCreated] = useState(false);
-  const server = useServerFieldErrors(FIELD_ORDER);
+  const fields = fieldsOf(role);
+  const server = useServerFieldErrors(fields);
 
   function update(field: RegisterField, value: string): void {
     setValues((current) => ({ ...current, [field]: value }));
@@ -108,9 +132,9 @@ export function useRegisterForm({
     event.preventDefault();
     if (pending) return;
     server.reset();
-    const found = check(values, texts);
+    const found = check(values, fields, texts);
     setErrors(found);
-    const firstInvalid = FIELD_ORDER.find((field) => found[field]);
+    const firstInvalid = fields.find((field) => found[field]);
     if (firstInvalid) {
       const control = formRef.current?.elements.namedItem(firstInvalid);
       if (control instanceof HTMLElement) control.focus();
@@ -119,8 +143,7 @@ export function useRegisterForm({
 
     setPending(true);
     setFailed(false);
-    const payload: RegisterPayload = { ...values, role };
-    const result = await registerUser(payload);
+    const result = await registerUser(payloadOf(values, role));
     if (result.ok) {
       // Signed in: the submit stays loading while the page navigates.
       if (result.data !== null && (await signInWithToken(result.data))) return;

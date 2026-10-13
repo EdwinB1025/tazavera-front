@@ -29,6 +29,8 @@ export {
   restoreReadTokens,
 } from "./tokens";
 export { distinctCoffeeValues, fetchCoffees } from "./coffees";
+export { API_PREFIX, forwardToApi } from "./forwarding";
+export { apiWebPageUrl } from "./web-pages";
 export type { CoffeeSummary } from "./coffees";
 export type { ApiResult } from "./result";
 
@@ -118,6 +120,14 @@ export type CoffeeInventoryPayload = ListCoffeeInventoryResponse;
 
 /** One item of `GET /coffeeInventory` `data`: `ulid`, `roastLot`, `productionDate`, `coffee`, `roastery`. */
 export type CoffeeInventoryItem = NonNullable<CoffeeInventoryPayload["data"]>[number];
+
+/** The optional filters of `GET /coffeeInventory` (add-coffee-inventory-explorer). */
+export type CoffeeInventoryQuery = NonNullable<
+  operations["listCoffeeInventory"]["parameters"]["query"]
+>;
+
+/** The six filter keys of `listCoffeeInventory`. */
+export type CoffeeInventoryFilterKey = keyof CoffeeInventoryQuery;
 
 /** What `POST /offerings` returns on 201: `data` of the created offerings and `message`. */
 export type CreateOfferingsPayload = CreateOfferingsResponse;

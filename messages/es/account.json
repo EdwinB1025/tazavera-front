@@ -7,6 +7,7 @@
   "registerSuccessText": "Ya puedes iniciar sesión con tu email y tu contraseña.",
   "nameLabel": "Nombre",
   "surnameLabel": "Apellido",
+  "businessNameLabel": "Nombre comercial",
   "emailLabel": "Email",
   "passwordLabel": "Contraseña",
   "passwordConfirmationLabel": "Confirmar contraseña",

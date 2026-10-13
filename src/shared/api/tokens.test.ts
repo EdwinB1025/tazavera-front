@@ -123,6 +123,21 @@ describe("the refresh (design.md D2, D3 and D5)", () => {
   });
 });
 
+describe("the token endpoint (route-api-web-pages-through-front design.md D4, D8)", () => {
+  it("sends the code exchange and the refresh to {NEXT_PUBLIC_APP_URL}/api/oauth/token (spec: The token requests go to the application's origin)", async () => {
+    vi.stubEnv("NEXT_PUBLIC_API_URL", `${APP_URL}/api`);
+    fetchMock.mockImplementation(async () => jsonResponse(GRANT));
+
+    await exchangeCode("code-123", "verifier-123");
+    await refreshTokens();
+
+    const urls = fetchMock.mock.calls.map(([input]) =>
+      input instanceof Request ? input.url : String(input),
+    );
+    expect(urls).toEqual([`${APP_URL}/api/oauth/token`, `${APP_URL}/api/oauth/token`]);
+  });
+});
+
 describe("the registration grant (sign-in-after-registration design.md D1)", () => {
   it("keeps a valid registration block as the grant in memory and writes no storage (spec: Signing in with a registration grant)", () => {
     clearTokens();

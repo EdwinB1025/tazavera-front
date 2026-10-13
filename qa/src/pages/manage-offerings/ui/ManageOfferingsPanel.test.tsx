@@ -60,6 +60,8 @@ const TEXTS = {
   ratingExcellentLabel: "Excellent",
   ratingGoodLabel: "Good",
   ratingCommercialLabel: "Commercial",
+  showNotesLabel: "Show the notes under {label}",
+  hideNotesLabel: "Hide the notes under {label}",
   navigationLabel: "Pagination",
   previousLabel: "Previous",
   nextLabel: "Next",

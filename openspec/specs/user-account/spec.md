@@ -29,7 +29,7 @@ The application SHALL offer registration as a specialist at `/{locale}/register`
 - **THEN** that content sits in one section card with no header band that spans the page container's width, and from the medium breakpoint that content is at most 40rem wide and centred horizontally in the card
 
 ### Requirement: Registration form
-The registration form SHALL collect name, surname, email, password and password confirmation, and SHALL send `POST /register` without credentials with `name`, `surname`, `email`, `password`, `passwordConfirmation` and the route's `role`. Before sending, the form SHALL check only the rules its request documents: the five fields are required, the email is a valid address and the confirmation equals the password. A failing check SHALL show its message under the field, mark the field as invalid, move focus to the first failing field and send nothing. While the request is pending the submit action SHALL show its busy state and the fields SHALL stay editable.
+The registration form SHALL collect name, surname, email, password and password confirmation, and on the coffeeshop route also the business name, after surname and before email. It SHALL send `POST /register` without credentials with `name`, `surname`, `email`, `password`, `passwordConfirmation` and the route's `role`, and on the coffeeshop route also `businessName`; the specialist route never sends `businessName`. Before sending, the form SHALL check only the rules its request documents: every field of the form is required, the business name keeps at most 150 characters, the email is a valid address and the confirmation equals the password. A failing check SHALL show its message under the field, mark the field as invalid, move focus to the first failing field and send nothing. While the request is pending the submit action SHALL show its busy state and the fields SHALL stay editable.
 
 #### Scenario: An empty required field
 - **WHEN** the user submits the form with an empty required field
@@ -45,14 +45,14 @@ The registration form SHALL collect name, surname, email, password and password 
 
 #### Scenario: The request carries the form and the route's role
 - **WHEN** every check passes and the user submits the form
-- **THEN** `POST /register` is sent without credentials with the five field values and the route's role, and the submit action shows its busy state while the fields stay editable
+- **THEN** `POST /register` is sent without credentials with the form's field values and the route's role, and the submit action shows its busy state while the fields stay editable
 
 ### Requirement: Registration result
-A registration answered with `201` whose body carries a `token` block SHALL sign the user in with that block and, once the session is authenticated, SHALL open `/{locale}/account` through client-side navigation, never a full page load, with no confirmation text, for both registration roles. A `201` without a `token` block, or whose block does not sign the user in, SHALL replace the form with a success panel carrying a heading, a text and a "Sign in" action, and focus SHALL move to the panel's heading. Activating "Sign in" SHALL start sign in synchronously inside that click. A `422` SHALL show each field's first message under that field as form-fields "Server validation errors" states, and the generic form-level error only when one of its keys names no field of the form, and SHALL keep every entered value except the password and its confirmation, which are cleared. Every other outcome — a server error, a network failure or any other status — SHALL show the generic form-level error above the actions, keep every entered value except the password and its confirmation, which are cleared, and render no message from the API.
+A registration answered with `201` whose body carries a `token` block SHALL sign the user in with that block and, once the session is authenticated, SHALL open `/{locale}` through client-side navigation, never a full page load, with no confirmation text, for both registration roles. A `201` without a `token` block, or whose block does not sign the user in, SHALL replace the form with a success panel carrying a heading, a text and a "Sign in" action, and focus SHALL move to the panel's heading. Activating "Sign in" SHALL start sign in synchronously inside that click. A `422` SHALL show each field's first message under that field as form-fields "Server validation errors" states, and the generic form-level error only when one of its keys names no field of the form, and SHALL keep every entered value except the password and its confirmation, which are cleared. Every other outcome — a server error, a network failure or any other status — SHALL show the generic form-level error above the actions, keep every entered value except the password and its confirmation, which are cleared, and render no message from the API.
 
 #### Scenario: Signed in by the registration
 - **WHEN** `POST /register` answers `201` with a `token` block that signs the user in
-- **THEN** the session is authenticated and `/{locale}/account` opens through client-side navigation, with no success panel and no full page load
+- **THEN** the session is authenticated and `/{locale}` opens through client-side navigation, with no success panel and no full page load
 
 #### Scenario: The account is created
 - **WHEN** `POST /register` answers `201` without a `token` block, or with one that does not sign the user in
@@ -71,7 +71,7 @@ A registration answered with `201` whose body carries a `token` block SHALL sign
 - **THEN** that message renders under the Email field, which is marked invalid, no generic form-level error renders, and the message clears when the user edits the Email field
 
 ### Requirement: Profile settings
-The Profile section SHALL show the session user's name (`data.name`), surname (`data.surname`), email (`data.email`) and role (`data.role`) read-only, each as the API returns it, one labelled row per non-null value in that order, with no field to edit; right after the email row it SHALL show an "Email verification" row whose value is the text "Verified" when `data.emailVerifiedAt` is set and "Not verified" when it is null, and no such row when the field is absent, the state never shown by colour alone; followed by an "Edit profile" action. Activating "Edit profile" SHALL start the identity check synchronously inside that click for the return route `/{locale}/account?edit=1` and SHALL open that route, where the page is in edit mode. In edit mode the Edit profile section SHALL hold a form for name, surname and email prefilled with `data.name`, `data.surname` and `data.email`, followed by a "Done" action that returns the page to read mode on the same route without sending anything. The form SHALL send `PUT /users/{data.ulid}` with `name`, `surname` and `email`. Before sending, the form SHALL check only the email's format; no field is required. A failing check SHALL show its message under the field, mark the field as invalid, move focus to it and send nothing. A `200` SHALL keep the submitted values in the form, show the success status above the actions, and refresh the profile in the session from `GET /user`, so the rest of the interface follows. A `422` SHALL show each field's first message under that field as form-fields "Server validation errors" states, and the generic form-level error only when one of its keys names no field of the form, and SHALL keep the values. A server error, a network failure or any other status except `403` SHALL show the generic form-level error above the actions and keep the values.
+The Profile section SHALL show the session user's name (`data.name`), surname (`data.surname`), for a coffee shop (`data.role` is `coffeeshop`) its business name (`data.businessName`), email (`data.email`) and role (`data.role`) read-only, each as the API returns it, one labelled row per non-null value in that order, with no field to edit; right after the email row it SHALL show an "Email verification" row whose value is the text "Verified" when `data.emailVerifiedAt` is set and "Not verified" when it is null, and no such row when the field is absent, the state never shown by colour alone; followed by an "Edit profile" action. Activating "Edit profile" SHALL start the identity check synchronously inside that click for the return route `/{locale}/account?edit=1` and SHALL open that route, where the page is in edit mode. In edit mode the Edit profile section SHALL hold a form for name, surname and email prefilled with `data.name`, `data.surname` and `data.email`, and for a coffee shop also the business name after surname and before email, prefilled with `data.businessName`, followed by a "Done" action that returns the page to read mode on the same route without sending anything. The form SHALL send `PUT /users/{data.ulid}` with `name`, `surname` and `email`, and for a coffee shop also `businessName`; for any other role it never sends `businessName`. Before sending, the form SHALL check only the email's format and, for a coffee shop, that the business name is not empty; the business name keeps at most 150 characters and no other field is required. A failing check SHALL show its message under the field, mark the field as invalid, move focus to it and send nothing. A `200` SHALL keep the submitted values in the form, show the success status above the actions, and refresh the profile in the session from `GET /user`, so the rest of the interface follows. A `422` SHALL show each field's first message under that field as form-fields "Server validation errors" states, and the generic form-level error only when one of its keys names no field of the form, and SHALL keep the values. A server error, a network failure or any other status except `403` SHALL show the generic form-level error above the actions and keep the values.
 
 #### Scenario: The profile is shown read-only
 - **WHEN** the Profile section renders for an authenticated session
@@ -103,14 +103,14 @@ The Profile section SHALL show the session user's name (`data.name`), surname (`
 
 #### Scenario: The form is prefilled from the session
 - **WHEN** the Edit profile section renders for an authenticated session
-- **THEN** its three fields hold `data.name`, `data.surname` and `data.email` of the session user
+- **THEN** its name, surname and email fields hold `data.name`, `data.surname` and `data.email` of the session user
 
 #### Scenario: Only the email format is checked
 - **WHEN** the user submits the profile form with an email value that is not a valid address
 - **THEN** the email field shows the email-format message and is marked invalid, focus moves to it, and nothing is sent
 
 #### Scenario: An emptied field reaches the API
-- **WHEN** the user empties any field of the profile form and submits
+- **WHEN** the user empties the name, surname or email field of the profile form and submits
 - **THEN** no client check blocks the submission and the API's `422` shows its messages under the fields they name
 
 #### Scenario: The profile is updated
@@ -126,7 +126,7 @@ The Profile section SHALL show the session user's name (`data.name`), surname (`
 - **THEN** that message renders under the Email field, which is marked invalid, the values are kept, and the message clears when the user edits the Email field
 
 ### Requirement: Password change
-The Password section SHALL collect the current password, a new password and its confirmation, and SHALL send `PUT /users/{data.ulid}/password` with `currentPassword`, `password` and `passwordConfirmation`, with an external link to the API's password reset under the current-password field. Before sending, the form SHALL check only the rules its request documents: the three fields are required and the confirmation equals the new password. A `200` SHALL clear the three fields and show the success status above the actions. A `422` SHALL show each field's first message under that field as form-fields "Server validation errors" states, and the generic form-level error only when one of its keys names no field of the form, and SHALL clear the three fields. A server error, a network failure or any other status except `403` SHALL show the generic form-level error and clear the three fields.
+The Password section SHALL collect the current password, a new password and its confirmation, and SHALL send `PUT /users/{data.ulid}/password` with `currentPassword`, `password` and `passwordConfirmation`, with an external link to the API's password reset, at `/forgot-password` on the application's own origin, under the current-password field. Before sending, the form SHALL check only the rules its request documents: the three fields are required and the confirmation equals the new password. A `200` SHALL clear the three fields and show the success status above the actions. A `422` SHALL show each field's first message under that field as form-fields "Server validation errors" states, and the generic form-level error only when one of its keys names no field of the form, and SHALL clear the three fields. A server error, a network failure or any other status except `403` SHALL show the generic form-level error and clear the three fields.
 
 #### Scenario: An empty required field
 - **WHEN** the user submits the password form with an empty field
@@ -150,7 +150,7 @@ The Password section SHALL collect the current password, a new password and its 
 
 #### Scenario: The password-reset link
 - **WHEN** the Password section renders
-- **THEN** its "Forgot your password?" link opens the API's password reset page as an external navigation in the same tab, and the front sends no request for it
+- **THEN** its "Forgot your password?" link opens `{application origin}/forgot-password`, the API's password reset page, as an external navigation in the same tab, and the front sends no request for it
 
 ### Requirement: Account deactivation and deletion
 The Danger zone SHALL offer deactivation and permanent deletion, each with its heading, its explanation and one action. Activating the action SHALL open its confirmation dialog and send nothing before the user confirms. While a confirmed request is pending, the dialog's confirm action SHALL show its busy state, its cancel action SHALL be disabled and Escape SHALL not close the dialog. A `200` SHALL sign the user out — the session becomes `anonymous` and the user lands on the root of the active locale — with no message shown there. A server error or a network failure SHALL show the generic error inside the dialog and allow retry.
@@ -369,7 +369,7 @@ The account page at `/{locale}/account` SHALL show one heading block and, for an
 - **THEN** the page stays in its mode and shows one status message (role `status`) asking the user to confirm their identity with the account they signed in with
 
 ### Requirement: Grouped security section
-The Security section SHALL carry a short text covering the password, email verification, two-factor authentication and passkeys, and its entries in order: "Change password", which starts the identity check synchronously inside the click for `/{locale}/account/password` and opens that route; then a list whose first item is the email verification entry, followed by "Two-factor authentication" and "Passkeys", each a link to the API's security page. While the session user's `data.emailVerifiedAt` is null, the email verification entry SHALL be a "Verify email" link to the API's email verification page (`{API}/email/verify`); when it is set, the entry SHALL be the plain text "Email verified" with no link; when the field is absent, there SHALL be no email verification entry. A plain primary click on any of these API links SHALL open its destination in a popup window synchronously inside the click, and the account tab SHALL NOT navigate, so it keeps the session; when the browser blocks the popup, the destination SHALL open in a new tab instead, the account tab still not navigating. The front SHALL send no request when an API link opens. When the popup window closes, the account page SHALL reload the session's profile from `GET /user`.
+The Security section SHALL carry a short text covering the password, email verification, two-factor authentication and passkeys, and its entries in order: "Change password", which starts the identity check synchronously inside the click for `/{locale}/account/password` and opens that route; then a list whose first item is the email verification entry, followed by "Two-factor authentication" and "Passkeys", each a link to the API's security page at `/user/security` on the application's own origin. Each of these API links SHALL name the signed-in user: its address SHALL carry the query parameter `login_hint` with the session user's `data.ulid`, the same value the step-up sends; while the session holds no `data.ulid`, the address SHALL carry no `login_hint`. While the session user's `data.emailVerifiedAt` is null, the email verification entry SHALL be a "Verify email" link to the API's email verification page on the application's own origin (`{application origin}/email/verify`); when it is set, the entry SHALL be the plain text "Email verified" with no link; when the field is absent, there SHALL be no email verification entry. A plain primary click on any of these API links SHALL open its destination in a popup window synchronously inside the click, and the account tab SHALL NOT navigate, so it keeps the session; when the browser blocks the popup, the destination SHALL open in a new tab instead, the account tab still not navigating. The front SHALL send no request when an API link opens. When the popup window closes, the account page SHALL reload the session's profile from `GET /user`.
 
 #### Scenario: Changing the password
 - **WHEN** the user activates "Change password"
@@ -377,11 +377,11 @@ The Security section SHALL carry a short text covering the password, email verif
 
 #### Scenario: Two-factor authentication and passkeys
 - **WHEN** the Security section renders
-- **THEN** its "Two-factor authentication" and "Passkeys" entries are links to the API's security page and no request is sent by the front
+- **THEN** its "Two-factor authentication" and "Passkeys" entries are links to `{application origin}/user/security`, the API's security page, with `login_hint` set to the session user's `data.ulid`, and no request is sent by the front
 
 #### Scenario: Verifying the email
 - **WHEN** the Security section renders for a session user whose `data.emailVerifiedAt` is null
-- **THEN** the first item of its list, before "Two-factor authentication", is a "Verify email" link to `{API}/email/verify`
+- **THEN** the first item of its list, before "Two-factor authentication", is a "Verify email" link to `{application origin}/email/verify` with `login_hint` set to the session user's `data.ulid`
 
 #### Scenario: The email is verified
 - **WHEN** the Security section renders for a session user whose `data.emailVerifiedAt` is set
@@ -398,6 +398,10 @@ The Security section SHALL carry a short text covering the password, email verif
 #### Scenario: The popup window closes
 - **WHEN** the popup window opened from one of those entries closes
 - **THEN** the account page reloads the session's profile from `GET /user`
+
+#### Scenario: No user identifier in the session
+- **WHEN** the Security section renders for a session user with no `data.ulid` and `data.emailVerifiedAt` null
+- **THEN** its "Verify email", "Two-factor authentication" and "Passkeys" links point at `{application origin}/email/verify` and `{application origin}/user/security` with no `login_hint`
 
 ### Requirement: Change password view
 The application SHALL offer the Change password view at `/{locale}/account/password`, with the account page's session gate and page shell: a back link to the previous page, whose fallback destination is `/{locale}/account`, a heading block, and, for an authenticated session, one section card named "Change password" holding the password form of "Password change", its states and its reactive step-up unchanged.
@@ -428,3 +432,54 @@ The forms of the `user-account` capability in the pages, widgets, features and e
 #### Scenario: Behaviour unchanged
 - **WHEN** the validation suite and the QA suite run with no test added and no assertion changed
 - **THEN** every test of this capability's units passes as before the split
+
+### Requirement: Coffee shop business name
+The coffee shop's business name SHALL be collected at registration and managed in the account page only for the coffeeshop role, labelled "Business name" in the active locale ("Nombre comercial", "Business name", "Nom comercial"), as a required text field that keeps at most 150 characters. Its value SHALL be sent as `businessName`, and a `422` message for `businessName` SHALL render under that field like the other fields' messages. For any other role the business name SHALL be neither shown nor sent.
+
+#### Scenario: The coffee shop registration asks for the business name
+- **WHEN** the registration form renders on `/{locale}/register/coffeeshop`
+- **THEN** a required "Business name" field sits after Surname and before Email and keeps at most 150 characters
+
+#### Scenario: An empty business name at registration
+- **WHEN** the user submits the coffee shop registration form with an empty business name and every other field valid
+- **THEN** the Business name field shows the required-field message and is marked invalid, focus moves to it, and nothing is sent
+
+#### Scenario: The coffee shop registration sends the business name
+- **WHEN** every check passes and the user submits the coffee shop registration form
+- **THEN** `POST /register` carries the business name as `businessName` with `role: "coffeeshop"`
+
+#### Scenario: The specialist registration has no business name
+- **WHEN** the user submits the registration form on `/{locale}/register`
+- **THEN** the form shows no Business name field and `POST /register` carries no `businessName`
+
+#### Scenario: The registration names an invalid business name
+- **WHEN** `POST /register` answers `422` with a message for `businessName`
+- **THEN** that message renders under the Business name field, which is marked invalid, and no generic form-level error renders
+
+#### Scenario: A coffee shop's business name is shown
+- **WHEN** the Profile section renders for a session user whose `data.role` is `coffeeshop` and whose `data.businessName` is set
+- **THEN** a "Business name" row shows `data.businessName` after the Surname row and before the Email row
+
+#### Scenario: No business name for other roles
+- **WHEN** the Profile section renders for a session user whose `data.role` is not `coffeeshop`
+- **THEN** it shows no "Business name" row
+
+#### Scenario: The coffee shop's profile form holds the business name
+- **WHEN** the Edit profile section renders for a session user whose `data.role` is `coffeeshop`
+- **THEN** a required "Business name" field after Surname and before Email holds `data.businessName` and keeps at most 150 characters
+
+#### Scenario: An emptied business name in the profile
+- **WHEN** a coffee shop empties the Business name field of the profile form and submits
+- **THEN** the field shows the required-field message and is marked invalid, focus moves to it, and nothing is sent
+
+#### Scenario: The coffee shop's update sends the business name
+- **WHEN** a coffee shop submits the profile form
+- **THEN** `PUT /users/{data.ulid}` carries the business name as `businessName` together with `name`, `surname` and `email`
+
+#### Scenario: Other roles' profile form has no business name
+- **WHEN** a session user whose `data.role` is not `coffeeshop` submits the profile form
+- **THEN** the form shows no Business name field and `PUT /users/{data.ulid}` carries no `businessName`
+
+#### Scenario: The update names an invalid business name
+- **WHEN** a coffee shop's update answers `422` with a message for `businessName`
+- **THEN** that message renders under the Business name field, which is marked invalid, and the values are kept

@@ -61,6 +61,7 @@ afterEach(() => {
 const TEXTS: RegisterClientTexts = {
   nameLabel: "fx-name",
   surnameLabel: "fx-surname",
+  businessNameLabel: "fx-business-name",
   emailLabel: "fx-email",
   passwordLabel: "fx-password",
   passwordConfirmationLabel: "fx-confirmation",
@@ -161,12 +162,14 @@ describe("RegisterClient — the registration result (sign-in-after-registration
         target: { value },
       });
     }
+    const businessName = screen.queryByLabelText(new RegExp(`^${TEXTS.businessNameLabel}`));
+    if (businessName) fireEvent.change(businessName, { target: { value: "Nomad Coffee" } });
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: TEXTS.registerSubmit }));
     });
   }
 
-  it("signs in with the token block and opens /{locale}/account through the router (spec: Signed in by the registration)", async () => {
+  it("signs in with the token block and opens /{locale} through the router (spec: Signed in by the registration)", async () => {
     auth.session = { state: "anonymous" };
     const view = renderClient("coffeeshop");
     auth.signInWithRegistration.mockImplementation(async () => {
@@ -183,8 +186,8 @@ describe("RegisterClient — the registration result (sign-in-after-registration
     await register({ data: {}, message: "m", token: TOKEN });
 
     expect(auth.signInWithRegistration).toHaveBeenCalledWith(TOKEN);
-    expect(routerReplace).toHaveBeenCalledWith("/es/account");
-    expect(routerReplace).not.toHaveBeenCalledWith("/es");
+    expect(routerReplace).toHaveBeenCalledWith("/es");
+    expect(routerReplace).not.toHaveBeenCalledWith("/es/account");
     expect(screen.queryByRole("heading", { name: TEXTS.registerSuccessTitle })).toBeNull();
     expect(locationMock.assign).not.toHaveBeenCalled();
   });

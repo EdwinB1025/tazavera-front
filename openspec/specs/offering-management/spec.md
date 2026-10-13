@@ -29,7 +29,7 @@ Both management routes — `/{locale}/manage/offerings` and `/{locale}/manage/of
 - **THEN** the 404 page renders
 
 ### Requirement: My offerings list
-The list route SHALL show the offerings of the signed-in coffeeshop — the API's offering list filtered by the coffeeshop's user identifier — one offering card per offering of the current page, in a grid of one column below the large breakpoint (1024px), two columns from 1024px and three from the extra-large breakpoint (1536px), with the cards of one row sharing their height. The requested page SHALL live in the route's query (`?page=n`) and Previous and Next pagination SHALL follow the API's current and last page. The list SHALL cover loading, empty, success and error states.
+The list route SHALL show the offerings of the signed-in coffeeshop — the API's offering list filtered by the coffeeshop's user identifier — one offering card per offering of the current page, in a grid of one column below the large breakpoint (1024px), two columns from 1024px and three from the extra-large breakpoint (1536px), with the cards of one row sharing their height. Each card's footer SHALL hold the View action followed by the Delete action, each a button of the footer's group of actions with no other control between them, at the same height, so at 375px and at 1280px every button of the card lies inside the card, moving to a new line when the row has no room, and the page does not scroll sideways. The View action's accessible name SHALL start with its visible label and then name the offering by its coffee name and its location name, as the Select and Delete controls do, while its visible text stays the label alone. The requested page SHALL live in the route's query (`?page=n`) and Previous and Next pagination SHALL follow the API's current and last page. The list SHALL cover loading, empty, success and error states.
 
 #### Scenario: Success
 - **WHEN** the coffeeshop's offerings load and the API returns offerings
@@ -38,6 +38,10 @@ The list route SHALL show the offerings of the signed-in coffeeshop — the API'
 #### Scenario: Grid beside the sidebar
 - **WHEN** the list renders offering cards
 - **THEN** the cards fill one column below 1024px, two from 1024px and three from 1536px, separated by a gap, and the cards of one row share the same height
+
+#### Scenario: Card actions fit the card
+- **WHEN** the list renders offering cards
+- **THEN** each card's footer group of actions holds exactly the View button followed by the Delete button, both directly in the group, with no Select control in the footer, and both buttons at the same height
 
 #### Scenario: Loading
 - **WHEN** the list is loading its data
@@ -67,8 +71,16 @@ The list route SHALL show the offerings of the signed-in coffeeshop — the API'
 - **WHEN** the list route renders for a signed-in coffeeshop, in its header or in the empty state
 - **THEN** "New offering" is a button in positional treatment 1, not a link, and activating it opens the create route
 
+#### Scenario: View names the offering
+- **WHEN** the list renders offering cards
+- **THEN** each card's View button is named by its visible label followed by the offering's coffee name and location name, as its Delete button is, and its visible text is the label alone
+
 ### Requirement: Offering selection
-In the success state of the list, each offering card SHALL offer a Select control whose accessible name identifies that offering by its coffee name and its location name, and the selection toolbar SHALL offer a select-all checkbox labelled for the page and show the number of selected offerings. The select-all checkbox SHALL be unchecked when nothing is selected and checked when every card on the page is selected, and activating it on a partial selection SHALL select all offerings of the page. The bulk delete action SHALL be unavailable at zero selected. The selection SHALL cover the current page only and SHALL clear on a page change and after a successful delete.
+In the success state of the list, each offering card SHALL offer a Select control whose accessible name identifies that offering by its coffee name and its location name, and the selection toolbar SHALL offer a select-all checkbox labelled for the page and show the number of selected offerings. The Select control SHALL sit in the card's top row, at the end of the row that holds the verification state badge, aligned to the row's right edge, and not in the card's footer. The select-all checkbox SHALL be unchecked when nothing is selected and checked when every card on the page is selected, and activating it on a partial selection SHALL select all offerings of the page. The bulk delete action SHALL be unavailable at zero selected. The selection SHALL cover the current page only and SHALL clear on a page change and after a successful delete.
+
+#### Scenario: Select in the badge row
+- **WHEN** the list renders offering cards
+- **THEN** each card's Select control, named by its visible label followed by the coffee name and the location name, is the last item of the row that holds the card's verification state badge, that row spreads its items to both ends, and the Select control is not inside the card's footer
 
 #### Scenario: Select one offering
 - **WHEN** the coffeeshop activates a card's Select control
@@ -126,7 +138,7 @@ Deleting one offering or the selected offerings SHALL ask for confirmation first
 - **THEN** the list moves to the previous page
 
 ### Requirement: Creating offerings
-The create route's form SHALL create one offering per chosen location for one chosen coffee-inventory item. The form SHALL render inside a section card (content-structure "Section card") with no header band, that fills the page container's width, its content at most 40rem wide and start-aligned from 768px. The inventory item is chosen in a search-as-you-type list over the API's coffee inventory filtered by the typed coffee name: while searching the list shows a searching row, the results replace the previous ones, an empty result shows a no-matches row and a failed search shows a failure row. Each result row SHALL show the coffee name and, on a second line, the roastery name, the coffee's country and its process joined in that order with empty parts skipped. Choosing a row sets the item, shows the coffee name in the input, and the field's help then shows that item's `roastLot` and `productionDate` joined in that order; clearing the input clears the choice and the typing hint returns. The locations group SHALL offer one checkbox per location of the coffeeshop by its name, covering loading, empty and error states, preselect the location when the coffeeshop has exactly one, and disable the submit action when the coffeeshop has none. On submit, an unchosen inventory item SHALL show an error under the field, mark the field invalid, move focus to it and send nothing; an empty location set is not checked in the browser and the request is sent. On success the status line announces the number of created offerings with a link to the list route, and the form resets. On failure or a 403 the form error shows and every chosen value is kept. A 422 SHALL show the message for `coffeeInventoryId` under the inventory field as form-fields "Server validation errors" states, and the form error only when one of its keys names no field (the locations group carries no field error, so a message for `locations` shows the form error); every chosen value is kept. A create SHALL be a plain write: no identity check runs before or after it. A "Cancel" button after the submit action SHALL open the list route without sending any request.
+The create route's form SHALL create one offering per chosen location for one chosen coffee-inventory item. The form SHALL render inside a section card (content-structure "Section card") with no header band, that fills the page container's width, its content at most 40rem wide and start-aligned from 768px. The inventory item is chosen in a search-as-you-type list over the API's coffee inventory filtered by the typed coffee name: while searching the list shows a searching row, the results replace the previous ones, an empty result shows a no-matches row and a failed search shows a failure row. Each result row SHALL show the coffee name and, on a second line, the roastery name, the coffee's country and its process joined in that order with empty parts skipped. Choosing a row sets the item, shows the coffee name in the input, and the field's help then shows that item's `roastLot` and `productionDate` joined in that order; clearing the input clears the choice and the typing hint returns. The locations group SHALL offer one checkbox per location of the coffeeshop by its name, covering loading, empty and error states, preselect the location when the coffeeshop has exactly one, and disable the submit action when the coffeeshop has none. On submit, an unchosen inventory item SHALL show an error under the field, mark the field invalid, move focus to it and send nothing; an empty location set is not checked in the browser and the request is sent. On success the status line announces the number of created offerings as text, with no link, and the form resets; while the last create has succeeded and no inventory item is chosen, a "View my offerings" button that opens the list route SHALL take the submit action's place, and choosing an inventory item again SHALL bring the submit action back. On failure or a 403 the form error shows and every chosen value is kept. A 422 SHALL show the message for `coffeeInventoryId` under the inventory field as form-fields "Server validation errors" states, and the form error only when one of its keys names no field (the locations group carries no field error, so a message for `locations` shows the form error); every chosen value is kept. A create SHALL be a plain write: no identity check runs before or after it. A "Cancel" button after the submit action, or after "View my offerings" in its place, SHALL open the list route without sending any request.
 
 #### Scenario: The form panel is a section card
 - **WHEN** the create form renders, including while the session resolves
@@ -182,7 +194,15 @@ The create route's form SHALL create one offering per chosen location for one ch
 
 #### Scenario: Create success
 - **WHEN** the API creates the offerings
-- **THEN** the status line announces the number of created offerings with a link to the list route, and the inventory choice and the location checkboxes reset
+- **THEN** the status line announces the number of created offerings as text, with no link, and the inventory choice and the location checkboxes reset
+
+#### Scenario: View my offerings after a create
+- **WHEN** the API creates the offerings
+- **THEN** the end-aligned action group shows a "View my offerings" button, not a link, in place of "Create offerings", followed by "Cancel", and activating it opens the list route `/{locale}/manage/offerings` with no create request sent
+
+#### Scenario: Create offerings returns on a new choice
+- **WHEN** the offerings have been created and the user chooses an inventory item again
+- **THEN** "Create offerings" shows again in place of "View my offerings", followed by "Cancel", and submitting sends a new create request for the chosen item
 
 #### Scenario: Create failure keeps values
 - **WHEN** the create request fails, or returns a non-success status other than 422
@@ -205,19 +225,19 @@ The create route's form SHALL create one offering per chosen location for one ch
 - **THEN** "Cancel" is a button, not a link, after the submit action, and activating it navigates to the list route
 
 ### Requirement: Management sidebar entry
-The offerings list, offering creation and locations routes SHALL show two sidebar entries in this order, each with an icon and a visible label: "Manage offerings", addressing the list route, and "Manage locations", addressing `/{locale}/manage/locations`. "Manage offerings" SHALL be the current entry on the list and create routes, "Manage locations" on the locations route. The create route has no entry; it stays reachable from the list's "New offering" link and its empty-state link.
+The offerings list, offering creation, locations, inventory list and inventory detail routes SHALL show three sidebar entries in this order, each with an icon and a visible label: "Manage offerings", addressing the list route, "Manage locations", addressing `/{locale}/manage/locations`, and "Explore coffee inventory", addressing `/{locale}/manage/inventory`. "Manage offerings" SHALL be the current entry on the list and create routes, "Manage locations" on the locations route and "Explore coffee inventory" on the inventory list and detail routes. The create route has no entry; it stays reachable from the list's "New offering" link and its empty-state link.
 
 #### Scenario: One entry
 - **WHEN** a signed-in coffeeshop opens any coffee shop management route
-- **THEN** the sidebar shows the "Manage offerings" entry and then the "Manage locations" entry, each with its icon and label, and no "My offerings" or "New offering" entry
+- **THEN** the sidebar shows the "Manage offerings" entry, then the "Manage locations" entry, then the "Explore coffee inventory" entry, each with its icon and label, and no "My offerings" or "New offering" entry
 
 #### Scenario: Current entry marked
 - **WHEN** the list route or the create route is open
-- **THEN** the "Manage offerings" entry is marked as the current page and the "Manage locations" entry is not
+- **THEN** the "Manage offerings" entry is marked as the current page and the "Manage locations" and "Explore coffee inventory" entries are not
 
 #### Scenario: Locations entry marked
 - **WHEN** the locations route is open
-- **THEN** the "Manage locations" entry is marked as the current page and the "Manage offerings" entry is not
+- **THEN** the "Manage locations" entry is marked as the current page and the "Manage offerings" and "Explore coffee inventory" entries are not
 
 #### Scenario: Entry navigates
 - **WHEN** the coffeeshop activates the "Manage offerings" entry
@@ -226,6 +246,10 @@ The offerings list, offering creation and locations routes SHALL show two sideba
 #### Scenario: Locations entry navigates
 - **WHEN** the coffeeshop activates the "Manage locations" entry
 - **THEN** the locations route opens
+
+#### Scenario: Inventory entry navigates
+- **WHEN** the coffeeshop activates the "Explore coffee inventory" entry
+- **THEN** the inventory list `/{locale}/manage/inventory` opens
 
 ### Requirement: Localized management texts
 Every text of both screens — headings, list and form states, actions, the confirmation texts, the status lines and the sidebar entry — SHALL render in the active locale (Spanish, English or Catalan) from the message catalog, and the offering card texts and the pagination labels SHALL come from the landing catalog. API values shown in the interface — coffee, roastery and location names, country, process, `roastLot`, `productionDate` and the counts — SHALL render exactly as returned, untranslated, and the API's own message strings SHALL never render. Numbers and names appended to a catalog word SHALL join it by concatenation.
@@ -426,3 +450,109 @@ The forms of the `offering-management` capability in the pages, widgets, feature
 #### Scenario: Behaviour unchanged
 - **WHEN** the validation suite and the QA suite run with no test added and no assertion changed
 - **THEN** every test of this capability's units passes as before the split
+
+### Requirement: Access to the coffee inventory pages
+The inventory list `/{locale}/manage/inventory` and the inventory detail `/{locale}/manage/inventory/{ulid}` SHALL present their content only to a signed-in coffeeshop, through the protected content gate (app-shell "Protected content gate"). While the session is being resolved the page SHALL show its heading block and its loading presentation. An anonymous visitor SHALL see the heading block, the signed-out message and a "Sign in" action in place of the content, with no redirect. A signed-in user whose role is not `coffeeshop` SHALL get the 404 page, and no inventory request SHALL be sent before the session is a signed-in coffeeshop.
+
+#### Scenario: Session loading
+- **WHEN** a visitor opens the inventory list while the session is being resolved
+- **THEN** the heading block and the loading presentation render, and neither the signed-out message, a card nor the 404 page renders
+
+#### Scenario: Anonymous visitor
+- **WHEN** an anonymous visitor opens the inventory list
+- **THEN** the heading block, the signed-out message and its "Sign in" action render in place of the list, no inventory request is sent, and activating "Sign in" starts the sign-in flow for the inventory route
+
+#### Scenario: Another role
+- **WHEN** a signed-in user whose role is not `coffeeshop` opens the inventory list or an inventory detail
+- **THEN** the 404 page renders and no inventory request is sent
+
+### Requirement: Coffee inventory list
+For a signed-in coffeeshop the inventory list SHALL read `GET /coffeeInventory` with the filters the address carries (see filtering "Inventory filter state in the URL") and show every returned item, in the order returned, as one inventory card per item in a grid of one column below 1024px, two columns from 1024px and three from 1536px, the cards of one row sharing their height. The contract has no pagination: the list SHALL show no pagination. The page SHALL show, above the results, the heading block (the "Management" eyebrow, the heading "Coffee inventory" and an intro line) and the list toolbar (filtering "Inventory filter toolbar"). The eyebrow SHALL use the management eyebrow style (`type-eyebrow-strong`: semibold, uppercase, in the label color), the same as My offerings and New offering. The list SHALL cover loading, empty, success and error states.
+
+#### Scenario: Inventory list eyebrow
+- **WHEN** the inventory list renders its heading block
+- **THEN** the "Management" eyebrow renders in the management eyebrow style (`type-eyebrow-strong`), the same as the My offerings eyebrow
+
+#### Scenario: Success
+- **WHEN** the read answers `200` with inventory items
+- **THEN** one inventory card renders per returned item, in the order returned, and no pagination renders
+
+#### Scenario: Loading
+- **WHEN** the read is pending
+- **THEN** three skeleton cards render in the grid's place and no card, empty message or error message renders
+
+#### Scenario: Empty
+- **WHEN** no filter is applied and the read answers `200` with an empty `data`
+- **THEN** the empty message "There is no coffee in the inventory." renders and no card renders
+
+#### Scenario: Error and retry
+- **WHEN** the read answers any non-2xx status or fails, and the coffeeshop then activates the retry action
+- **THEN** the error message and a retry action render in the list's place, no card renders, and the retry sends the read again through the loading state
+
+### Requirement: Coffee inventory card
+Each inventory card SHALL show, from the item's fields only: the coffee name (`coffee.name`) as the card heading; the origin line joining `coffee.country` and `coffee.region` with " · ", skipping an empty part; and labelled values for process (`coffee.process`), variety (`coffee.variety`), roast level (`coffee.roastLevel`), altitude (`coffee.altitude`, followed by " m"), producer (`coffee.producer`, only when not null), certifications (the `code` of each item of `coffee.certifications` joined with ", ", only when there is at least one), roastery (`roastery.name`), roast lot (`roastLot`) and production date (`productionDate`). API values SHALL render exactly as returned, untranslated. The card's actions SHALL be, in this order, "View", an action button in positional treatment 3 that opens the item's detail `/{locale}/manage/inventory/{ulid}`, and "Create offering", an action button in positional treatment 1 that opens New offering with that item preselected (see "Creating an offering from an inventory item"). The accessible name of each of these two actions SHALL start with its visible label and then name the item's coffee (`coffee.name`), followed by its roastery (`roastery.name`) when the item has one, while its visible text stays the label alone.
+
+#### Scenario: Card contents
+- **WHEN** an inventory card renders for an item with a producer and one certification
+- **THEN** it shows the coffee name, the country and region line, and the process, variety, roast level, altitude, producer, certification code, roastery name, roast lot and production date, each exactly as returned, with the altitude followed by " m"
+
+#### Scenario: No producer and no certification
+- **WHEN** an inventory card renders for an item whose `coffee.producer` is null and whose `coffee.certifications` is empty
+- **THEN** no producer row and no certifications row render
+
+#### Scenario: Card actions
+- **WHEN** an inventory card renders
+- **THEN** "View" is a button in positional treatment 3 that opens `/{locale}/manage/inventory/{ulid}`, and "Create offering" is a button in positional treatment 1 that opens `/{locale}/manage/offerings/new?inventory={ulid}`
+
+#### Scenario: Card actions name the coffee
+- **WHEN** the list renders an inventory card for an item with a roastery and one for an item without a roastery
+- **THEN** each card's "View" and "Create offering" are named by their visible label followed by the item's coffee name and, for the item with a roastery, the roastery name, and the visible text of each is the label alone
+
+### Requirement: Coffee inventory detail
+The detail page `/{locale}/manage/inventory/{ulid}` SHALL read the same `GET /coffeeInventory`, with no filter, and show the returned item whose `ulid` is the route's: its header shows, in this order, a back link to the previous page whose fallback destination is `/{locale}/manage/inventory` (base-controls "Back link to the previous page"), the "Coffee inventory" eyebrow in the management eyebrow style (`type-eyebrow-strong`: semibold, uppercase, in the label color, the same as My offerings and New offering), the coffee name as the page heading and "Create offering" as an action button in positional treatment 1 with the card's destination; below the header, a section card lists every field of the item as labelled values — the card's fields plus the coffee's lot (`coffee.lot`), each certification's `code` with its `description`, and the roastery's `description` when present. While the read is pending the page SHALL show the loading status below the back link; when it fails, the error message and a retry action. The content below the back link — the item's header and section card, the loading status, or the error message with its retry action — SHALL fill the page container's width at every width, like the offering detail, while the back link keeps its own width at the start of its line. When no returned item has the route's `ulid`, the page SHALL show, in place of the header and the fields, the title "Inventory item not found" as the page heading, the line "It may have been removed, or the link may be wrong." below it and a back button in positional treatment 3 with the back text, addressing `/{locale}/manage/inventory`, with no retry action.
+
+#### Scenario: Detail of an item
+- **WHEN** the read answers `200` and an item has the route's `ulid`
+- **THEN** the back link renders first, then the eyebrow, the coffee name as the page heading and the "Create offering" button, and the section card shows every field of the item, including the coffee's lot, each certification's code and description and the roastery's description, exactly as returned
+
+#### Scenario: Inventory detail eyebrow
+- **WHEN** the read answers `200` and an item has the route's `ulid`
+- **THEN** the "Coffee inventory" eyebrow renders in the management eyebrow style (`type-eyebrow-strong`), the same as the My offerings eyebrow
+
+#### Scenario: Detail fills the page width
+- **WHEN** the read answers `200` and an item has the route's `ulid`
+- **THEN** the back link's column aligns its items to the start (`items-start`), so the back link keeps its own width, and the block holding the content below the back link stretches across that column (`self-stretch`), so the header and the section card fill the page container's width; the loading status and the error state render in that same stretched block
+
+#### Scenario: Detail loading
+- **WHEN** the read is pending
+- **THEN** the back link and the loading status render, and no heading of the item renders
+
+#### Scenario: Detail error and retry
+- **WHEN** the read answers any non-2xx status or fails, and the coffeeshop then activates the retry action
+- **THEN** the error message and a retry action render, and the retry sends the read again
+
+#### Scenario: Unknown item
+- **WHEN** the read answers `200` and no item has the route's `ulid`
+- **THEN** the heading "Inventory item not found", the line "It may have been removed, or the link may be wrong." and a back button to `/{locale}/manage/inventory` render, with no retry action and no back link
+
+### Requirement: Creating an offering from an inventory item
+New offering opened with the query `inventory={ulid}` SHALL read `GET /coffeeInventory` with no filter and, when an item has that `ulid`, choose it in the inventory field as if the user had chosen its result row: the input shows its coffee name and the field's help shows its `roastLot` and `productionDate`, so the coffee shop only picks the locations. A choice the user makes before the read answers SHALL be kept. When the query is absent, no item has that `ulid`, or the read fails, New offering SHALL behave as it does without the query: the field stays empty and its typing hint shows, with no error. Every other behaviour of "Creating offerings" stays as stated, the reset after a successful create included.
+
+#### Scenario: Preselected item
+- **WHEN** New offering opens with `inventory={ulid}` and the read returns an item with that `ulid`
+- **THEN** the inventory input shows the item's coffee name, the field's help shows its `roastLot` and `productionDate`, and submitting sends that item's `ulid` as `coffeeInventoryId`
+
+#### Scenario: Unknown preselected item
+- **WHEN** New offering opens with `inventory={ulid}` and no returned item has that `ulid`
+- **THEN** the inventory input is empty, the typing hint shows as the field's help, and no error renders
+
+### Requirement: Coffee inventory sidebar
+On the inventory list and the inventory detail, the sidebar SHALL show the coffee shop's management entries "Manage offerings" and "Manage locations", neither marked as the current page, followed by the entry "Explore coffee inventory", addressing `/{locale}/manage/inventory` and marked as the current page, each with its icon and visible label. On the list, that entry SHALL hold the inventory facets in its sub-section (filtering "Inventory facets in the sidebar"); on the detail it SHALL hold none.
+
+#### Scenario: Entries on the inventory list
+- **WHEN** a signed-in coffeeshop opens the inventory list
+- **THEN** the sidebar shows "Manage offerings", "Manage locations" and "Explore coffee inventory" in this order, each with its icon, only the last marked as the current page, with the "Filters" toggle below it
+
+#### Scenario: Entries on the inventory detail
+- **WHEN** a signed-in coffeeshop opens an inventory item's detail
+- **THEN** the sidebar shows the same three entries in this order, each with its icon, only "Explore coffee inventory" marked as the current page, and no "Filters" toggle

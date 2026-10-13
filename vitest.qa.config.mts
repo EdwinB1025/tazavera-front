@@ -6,8 +6,6 @@ export default defineConfig({
     ...baseConfig,
     test: {
         ...baseConfig.test,
-        exclude: [
-            ...configDefaults.exclude,
-        ],
+        exclude: [...configDefaults.exclude],
     },
 })

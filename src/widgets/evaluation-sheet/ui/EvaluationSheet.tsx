@@ -4,10 +4,10 @@ import { formStateFromEvaluation } from "@/entities/evaluation";
 import type { AxisKey, DescriptorSelectionKey } from "@/entities/evaluation";
 import { ratingTierFor } from "@/entities/offering";
 import type { RatingTier } from "@/entities/offering";
+import { DescriptorsCard } from "./EvaluationSheetDescriptors";
 import {
   AFFECTIVE_AXES,
   DESCRIPTIVE_AXES,
-  DescriptorsCard,
   EntriesCard,
   IntensityCard,
   PreferenceCard,
@@ -44,6 +44,9 @@ export type EvaluationSheetTexts = {
   intensityValueLabel: string;
   beanValueText: string;
   beanValueLabel: string;
+  /** The descriptor trees' toggle names; each holds `{label}`. */
+  showNotesLabel: string;
+  hideNotesLabel: string;
   ratingLabels: Record<RatingTier, string>;
 };
 
@@ -115,6 +118,7 @@ export function EvaluationSheet({
         heading={texts.descriptorsHeading}
         emptyText={texts.noDescriptors}
         blockLabels={texts.blockLabels}
+        treeTexts={{ showNotesLabel: texts.showNotesLabel, hideNotesLabel: texts.hideNotesLabel }}
       />
       {notes.length > 0 ? <EntriesCard heading={texts.notesHeading} entries={notes} /> : null}
       {extrinsics.length > 0 ? (

@@ -70,7 +70,8 @@ export interface paths {
          *     one location, each with its counters and all its locations (the map
          *     shows every location of the filtered coffee shops). Only business data
          *     is returned: never the owner's email, surname, personal contacts or
-         *     account data. Sorted by name ascending by default.
+         *     account data. A coffee shop's `name` is its business name (the owner's
+         *     first name only when it has none). Sorted by name ascending by default.
          */
         get: operations["listCoffeeShops"];
         put?: never;
@@ -295,7 +296,7 @@ export interface paths {
             path: {
                 /**
                  * @description The evaluation.
-                 * @example 01M4GDD84946WPV8JQ87V6419V
+                 * @example 01M4RPY6V2SVFSPPA3DWRWVG6D
                  */
                 evaluation: string;
                 /**
@@ -1116,7 +1117,7 @@ export interface operations {
                  */
                 verified?: boolean;
                 /**
-                 * @description Sort field. One of: name. Default: name (applied when omitted, with orderDirection asc unless given).
+                 * @description Sort field. One of: name (the business name). Default: name (applied when omitted, with orderDirection asc unless given).
                  * @example name
                  */
                 orderBy?: "name";
@@ -3779,7 +3780,7 @@ export interface operations {
             path: {
                 /**
                  * @description The evaluation.
-                 * @example 01M4GDD84946WPV8JQ87V6419V
+                 * @example 01M4RPY6V2SVFSPPA3DWRWVG6D
                  */
                 evaluation: string;
                 /**
@@ -7101,6 +7102,11 @@ export interface operations {
                      * @enum {string}
                      */
                     role?: "coffeeshop" | "specialist" | "user";
+                    /**
+                     * @description The coffee shop's business name, its public name in the coffee shop directory (max 150 characters). Required when role is coffeeshop; any other role sending it receives 422. name and surname stay the person's own. This field is required when <code>role</code> is <code>coffeeshop</code>. El campo value no debe ser mayor que 150 caracteres.
+                     * @example Nomad Coffee
+                     */
+                    businessName?: string;
                 };
             };
         };
@@ -7118,6 +7124,8 @@ export interface operations {
                             name?: string;
                             /** @example Gómez */
                             surname?: string;
+                            /** @example Nomad Coffee */
+                            businessName?: string;
                             /** @example laura@tazavera.test */
                             email?: string;
                             /** @example null */
@@ -7211,6 +7219,8 @@ export interface operations {
                             name?: string;
                             /** @example Gómez */
                             surname?: string;
+                            /** @example null */
+                            businessName?: string | null;
                             /** @example andres@tazavera.test */
                             email?: string;
                             /** @example null */
@@ -7505,6 +7515,11 @@ export interface operations {
                      * @example augusto@example.com
                      */
                     email?: string;
+                    /**
+                     * @description Coffee shop only. The business name, its public name in the coffee shop directory (max 150 characters). It cannot be emptied. Any other role sending it receives 422.
+                     * @example Nomad Coffee
+                     */
+                    businessName?: string;
                 };
             };
         };
@@ -7522,6 +7537,8 @@ export interface operations {
                             name?: string;
                             /** @example Gómez Ruiz */
                             surname?: string;
+                            /** @example Nomad Coffee */
+                            businessName?: string;
                             /** @example laura@tazavera.test */
                             email?: string;
                             /** @example null */

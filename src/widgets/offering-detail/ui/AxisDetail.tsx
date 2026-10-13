@@ -10,10 +10,11 @@ import {
   CollapsibleHeader,
   TaxonomyTree,
 } from "@/shared/ui";
+import type { TaxonomyTreeTexts } from "@/shared/ui";
 
 // ─── UI-specific types (declared before the component) ───
 
-export type AxisDetailTexts = {
+export type AxisDetailTexts = TaxonomyTreeTexts & {
   /** The heading of the detail by axis (D18). */
   detailAxesHeading: string;
   detailTasteEmpty: string;
@@ -80,7 +81,11 @@ function AxisSection({
         <CollapsibleBody>
           <CardContent>
             {notes.length > 0 ? (
-              <TaxonomyTree notes={notes} total={offering.evaluationCount ?? 0} />
+              <TaxonomyTree
+                notes={notes}
+                total={offering.evaluationCount ?? 0}
+                texts={texts}
+              />
             ) : (
               <p className="type-body">{texts.detailTasteEmpty}</p>
             )}

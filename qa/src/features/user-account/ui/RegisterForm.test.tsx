@@ -25,6 +25,7 @@ const API = "https://api.tazavera.test";
 const TEXTS: RegisterFormTexts = {
   nameLabel: "fx-name",
   surnameLabel: "fx-surname",
+  businessNameLabel: "fx-business-name",
   emailLabel: "fx-email",
   passwordLabel: "fx-password",
   passwordConfirmationLabel: "fx-confirmation",

@@ -1,11 +1,15 @@
 import type { ReactNode } from "react";
 import type { OfferingSummary } from "@/shared/api";
 import {
+  LABEL_SEPARATOR,
   OfferingActions,
+  OfferingSelect,
+  offeringIdentification,
   SelectionToolbar,
   type DeleteTarget,
   type OwnOfferings,
   type OfferingActionsTexts,
+  type OfferingSelectTexts,
   type SelectionToolbarTexts,
 } from "@/features/offering-management";
 import {
@@ -22,6 +26,7 @@ import { GRID_CLASSES } from "./SkeletonGrid";
 export type OwnOfferingsGridTexts = OfferingCardTexts &
   PaginationTexts &
   OfferingActionsTexts &
+  OfferingSelectTexts &
   SelectionToolbarTexts & {
     viewLabel: string;
   };
@@ -74,17 +79,29 @@ export function OwnOfferingsGrid({
               offering={offering}
               taxonomies={buildTasteNoteTree(offering, lookup)}
               texts={texts}
+              badgeRowEnd={
+                <OfferingSelect
+                  offering={offering}
+                  selected={selection.selected.has(offering.ulid ?? "")}
+                  onToggle={() => selection.toggle(offering.ulid ?? "")}
+                  texts={texts}
+                />
+              }
               actions={
                 <>
                   <OfferingViewButton
                     ulid={offering.ulid ?? ""}
                     locale={locale}
-                    label={texts.viewLabel}
+                    label={
+                      <>
+                        {texts.viewLabel}
+                        {LABEL_SEPARATOR}
+                        <span className="sr-only">{offeringIdentification(offering)}</span>
+                      </>
+                    }
                   />
                   <OfferingActions
                     offering={offering}
-                    selected={selection.selected.has(offering.ulid ?? "")}
-                    onToggle={() => selection.toggle(offering.ulid ?? "")}
                     onDelete={() => onDelete({ kind: "one", ulid: offering.ulid ?? "" })}
                     texts={texts}
                   />
