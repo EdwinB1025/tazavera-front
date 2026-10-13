@@ -32,15 +32,15 @@ Both public pages SHALL be built from full-width sections. Each section's conten
 - **THEN** a visible gap separates them, and they wrap onto separate lines when the row has no room
 
 ### Requirement: Entry page hero
-The entry page SHALL render, in the main content area, an eyebrow label, the entry heading with exactly one emphasized word in the accent text color (in Spanish the settled copy `Tu café, el que merece cada sorbo`), an introduction paragraph, an action that scrolls the verified offerings list into view on the same page, and two navigation links: one registering a coffeeshop and one registering as a specialist. The coffee-beans photograph SHALL accompany the hero from the medium breakpoint (768px) up and be hidden below it.
+The entry page SHALL render, in the main content area, an eyebrow label, the entry heading with exactly one emphasized word in the accent text color (in Spanish the settled copy `Tu café, el que merece cada sorbo`), an introduction paragraph, an action that opens the coffee shop directory of the active locale (`/{locale}/coffeeshops`), and two navigation links: one registering a coffeeshop and one registering as a specialist. The coffee-beans photograph SHALL accompany the hero from the medium breakpoint (768px) up and be hidden below it.
 
 #### Scenario: Hero presentation
 - **WHEN** a visitor opens the entry route in a supported locale
 - **THEN** the eyebrow, the heading with one emphasized word, the paragraph, the explore action and both registration links render with the texts of that locale
 
 #### Scenario: Explore scrolls to the offerings
-- **WHEN** the visitor activates the explore action
-- **THEN** the verified offerings list scrolls into view on the same page and the route does not change
+- **WHEN** a visitor views the hero in the `es` locale
+- **THEN** the explore action is a link, named by its label, addressing `/es/coffeeshops`
 
 #### Scenario: Registration destinations
 - **WHEN** the visitor activates the coffeeshop registration link
