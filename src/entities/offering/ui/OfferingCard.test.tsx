@@ -352,11 +352,16 @@ describe("OfferingCard", () => {
       expect(isShown(screen.getByText("Bergamota"))).toBe(false);
     });
 
-    it("puts a + toggle right after the badge of a note with children and none on a note without (spec: 'Toggle on notes with children')", () => {
+    it("puts a + toggle inside the badge, right after the name, of a note with children and none on a note without (spec: 'Toggle on notes with children')", () => {
       renderCard();
       const toggle = toggleOf("Floral");
-      expect(screen.getByText("Floral").nextElementSibling).toBe(toggle);
+      const name = screen.getByText("Floral");
+      const badge = name.parentElement!;
+      expect(badge.hasAttribute("data-taxonomy")).toBe(true);
+      expect(name.nextElementSibling).toBe(toggle);
       expect(toggle.textContent).toBe("+");
+      expect(badge.hasAttribute("role")).toBe(false);
+      expect(badge.hasAttribute("tabindex")).toBe(false);
       expect(
         screen.getByText("Frutal").closest("li")!.querySelector("button"),
       ).toBeNull();
