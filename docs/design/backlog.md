@@ -22,7 +22,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
-| 3c | R89 | `select-inventory-origin-and-process` | Refactor (fast lane), AUT, round 2 | S | R88 in `qa` |
 | 4 | R1 | none yet (Playwright suite) | Change (tests) | — | R74 in `develop` (Product owner, 2026-10-12) |
 | 5 | R45 | none yet | Change (behaviour, API) | M | Product owner: deferred, to review 2026-10-12; not to be designed yet |
 | 7 | R90 | none yet (API items first) | Change (API, behaviour) | M | API backlog: municipality and roastery origin filters; R89 in `develop` |
@@ -51,18 +50,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 - **Type:** Change
 - **Status:** deferred
 - **Affects:** none
-
-## R89 — The inventory Country, Region and Process facets are selects of existing values; City names the roastery (production AUT, 2026-10-13)
-
-- **Duplicated:** the offering facets list the existing processes (`options.processes`, distinct coffee values in `src/features/offering-facets/model/options.ts`, rendered by `OfferingFacetParts.tsx`); the inventory facets render Process as a free text field.
-- **Where today:** `src/features/inventory-facets/ui/InventoryFacets.tsx`; `src/features/offering-facets/model/options.ts`, `OfferingFacetParts.tsx`
-- **Why it pays off now:** Product owner's AUT review: process has a short closed set of values, a free text field invites misses
-- **Owning capability:** filtering
-- **Proposed change:** `select-inventory-origin-and-process`. Settled end state: (1) the inventory list's "Country", "Region" and "Process" facets offer the existing values as a single choice, built the same way and with the same control as the offering facets' list facets (distinct coffee values from the same source, no copy of the derivation); choosing one applies its key, choosing none removes it; when the values cannot be read the facet is disabled with the existing "options unavailable" help; (2) Region depends on Country: with a country chosen it lists only that country's regions, and changing the country removes a region that no longer belongs to it; (3) the "City" facet keeps filtering the roastery's city (`city`, `roastery.contacts`) and its label names that: es "Ciudad del tostador", en "Roastery city", ca "Ciutat del torrador". The other inventory facets are unchanged (Coffee name is R88). A coffee municipality does not exist in the API (only `country` and `region`); a Country → Region → Municipality cascade needs an API change and is out of scope
-- **Open decision (Augusto):** none for this scope (Product owner, 2026-10-13: country also a select, front only). Whether to add a coffee municipality in the API later is open. Fast lane by Product owner's order (AUT, 2026-10-13), round 2 with R87, integrated only if ready in time; approval delegated to the orchestrator
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** R88 (same facet panel; R89 starts from `qa` after R88 is integrated, or rebases its design on it)
 
 ## R90 — Two origin cascades in the facets: coffee origin and roastery origin (front part of two API backlog items)
 
