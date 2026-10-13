@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import type { EvaluationItem, TaxonomyNode } from "@/shared/api";
 import { EvaluationSheet } from "./EvaluationSheet";
 import { EVALUATION, SHEET_TEXTS, TAXONOMIES } from "./sheet-fixtures";
@@ -18,6 +18,11 @@ function renderSheet(evaluation: EvaluationItem = EVALUATION, taxonomies: Taxono
 function card(name: string): HTMLElement {
   // The card's content box (`CardContent`, 1.5rem padding); its parent is the card.
   return screen.getByRole("heading", { level: 2, name }).closest(".p-6") as HTMLElement;
+}
+
+/** False when the element sits inside a hidden (closed) child list. */
+function isShown(element: Element): boolean {
+  return element.closest("[hidden]") === null;
 }
 
 afterEach(cleanup);
@@ -86,8 +91,24 @@ describe("EvaluationSheet descriptors (spec: Descriptor blocks, An unresolved de
       "Mouthfeel",
       "Defects",
     ]);
-    expect(within(within(groups[0]!).getByRole("group", { name: "Fruity" })).getByText("Berry")).toBeDefined();
-    expect(within(within(groups[0]!).getByRole("group", { name: "Berry" })).getByText("Blackberry")).toBeDefined();
+    // Fruity is not chosen: it shows as the badge its chosen notes nest under, closed.
+    const fragrance = within(groups[0]!);
+    const fruityName = fragrance.getByText("Fruity");
+    expect(fruityName.parentElement!.hasAttribute("data-taxonomy")).toBe(true);
+    const openFruity = fragrance.getByRole("button", { name: "Show the notes under Fruity" });
+    expect(openFruity.textContent).toBe("+");
+    expect(isShown(fragrance.getByText("Berry"))).toBe(false);
+    fireEvent.click(openFruity);
+    const berryName = fragrance.getByText("Berry");
+    expect(isShown(berryName)).toBe(true);
+    expect(fruityName.closest("li")!.contains(berryName)).toBe(true);
+    expect(isShown(fragrance.getByText("Blackberry"))).toBe(false);
+    fireEvent.click(fragrance.getByRole("button", { name: "Show the notes under Berry" }));
+    const blackberryName = fragrance.getByText("Blackberry");
+    expect(isShown(blackberryName)).toBe(true);
+    expect(berryName.closest("li")!.contains(blackberryName)).toBe(true);
+    // No shares on the sheet.
+    expect(descriptors.querySelector(".type-meta")).toBeNull();
     expect(within(groups[2]!).getByText("Sweet")).toBeDefined();
     // The unresolved ref of Flavor / Aftertaste renders no badge.
     expect(within(groups[1]!).getByText("No descriptors.")).toBeDefined();
