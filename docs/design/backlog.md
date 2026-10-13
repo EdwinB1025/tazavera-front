@@ -26,7 +26,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 | 2 | R85 | `show-pointer-on-actions` | Refactor (fast lane), AUT | S | — |
 | 3 | R86 | `open-directory-from-hero` | Refactor (fast lane), AUT | S | — |
 | 3a | R88 | `suggest-inventory-coffee-names` | Refactor (fast lane), AUT | S | — |
-| 3b | R87 | `unify-taste-trees` | Refactor (fast lane), AUT, separate round | M | — (integrated only if ready in time) |
 | 3c | R89 | `select-inventory-origin-and-process` | Refactor (fast lane), AUT, round 2 | S | R88 in `qa` |
 | 4 | R1 | none yet (Playwright suite) | Change (tests) | — | R74 in `develop` (Product owner, 2026-10-12) |
 | 5 | R45 | none yet | Change (behaviour, API) | M | Product owner: deferred, to review 2026-10-12; not to be designed yet |
@@ -116,18 +115,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 - **Type:** Refactor (fast lane)
 - **Status:** accepted
 - **Affects:** R88 (same facet panel; R89 starts from `qa` after R88 is integrated, or rebases its design on it)
-
-## R87 — One collapsible taste tree everywhere, with the toggle inside the note badge (production AUT, 2026-10-13)
-
-- **Duplicated:** two components show taste notes. The offering card, offering detail and consensus use `TaxonomyTree` (`src/shared/ui/TaxonomyTree.tsx`), collapsible with a +/− toggle placed after the badge; the evaluation sheet (`DescriptorsCard` in `src/widgets/evaluation-sheet/ui/EvaluationSheetCards.tsx`) shows them through the form's `DescriptorCascade` in read-only mode, with no tree and no toggles. The tree builder the offering detail uses lives in `src/widgets/offering-detail`, out of reach of the evaluation sheet.
-- **Where today:** `src/shared/ui/TaxonomyTree.tsx`, `TaxonomyTreeToggle.tsx`, `Badge.tsx`; `src/widgets/evaluation-sheet/ui/EvaluationSheetCards.tsx`; the tree builder in `src/widgets/offering-detail`
-- **Why it pays off now:** Product owner's AUT review: the reference notes of an evaluation do not show the developed tree nor the toggles, and the toggle reads better inside the badge
-- **Owning capability:** feedback (taste notes), evaluations
-- **Proposed change:** `unify-taste-trees`. Settled end state: (1) in every taste tree, the +/− toggle of a note with children sits inside that note's badge, after its name; only the toggle is clickable, the badge itself is not; the toggle keeps its accessible names, its `aria-expanded`/`aria-controls` and the closed start; (2) the evaluation sheet shows the selected notes of each descriptor block as that same collapsible tree, built by one shared builder moved to a layer both the offering detail and the evaluation sheet can import; the evaluation form keeps the `DescriptorCascade` for choosing notes
-- **Open decision (Augusto):** none. Fast lane by Product owner's order (AUT, 2026-10-13); a separate round, integrated only if it is ready in time; Product owner delegated its approval to the orchestrator
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** R84–R86 run in a parallel round on other files
 
 ## R90 — Two origin cascades in the facets: coffee origin and roastery origin (front part of API A1 and A3)
 
