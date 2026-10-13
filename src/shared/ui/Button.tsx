@@ -106,6 +106,22 @@ const VARIANT_HOVER: Record<ButtonVariant, string> = {
   ].join(" "),
 };
 
+// The same hover treatment for an anchor carrying the button look
+// (open-directory-from-hero design.md D1): an anchor never matches `:enabled`,
+// so it takes the plain `hover:` form. Written out so Tailwind generates it.
+const VARIANT_LINK_HOVER: Record<ButtonVariant, string> = {
+  primary: "hover:bg-action-primary-hover",
+  "action-1": "hover:bg-action-1-bg-hover hover:text-action-1-text-hover",
+  "action-2": "hover:bg-action-2-bg-hover hover:text-action-2-text-hover",
+  "action-3": "hover:bg-action-3-bg-hover hover:text-action-3-text-hover",
+  "action-4": "hover:bg-action-4-bg-hover hover:text-action-4-text-hover",
+  "nav-button": [
+    "hover:bg-nav-button-bg-hover",
+    "hover:text-nav-button-text-hover",
+    "hover:border-nav-button-border-hover",
+  ].join(" "),
+};
+
 // ─── Geometry (D3) ───
 // base = h-10 px-4, sm = h-8 px-3; icon-only buttons stay square (w-10 / w-8).
 
@@ -140,6 +156,41 @@ const BASE_CLASSES = [
   "disabled:cursor-not-allowed",
 ].join(" ");
 
+/** The classes `Button` renders, before its own `className`. */
+function buttonClasses({ variant, size, iconOnly, busy }: {
+  variant: ButtonVariant;
+  size: ButtonSize;
+  iconOnly: boolean;
+  busy: boolean;
+}): string {
+  const geometry = iconOnly ? ICON_ONLY_GEOMETRY[size] : SIZE_GEOMETRY[size];
+  const width = iconOnly || variant === "nav-button" ? "" : ACTION_WIDTH[size];
+  return [
+    BASE_CLASSES,
+    VARIANT_REST[variant],
+    // Hover treatment is omitted while busy so a busy button shows no
+    // hover change (D4/D5, correction 3). Native disabled is still gated
+    // by `enabled:` within the hover classes themselves.
+    busy ? "" : VARIANT_HOVER[variant],
+    geometry,
+    width,
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+/**
+ * The classes of a labelled `Button` for an anchor that opens a route with
+ * the button's look (open-directory-from-hero design.md D1): the same base,
+ * rest, geometry and width, with the hover treatment in its anchor form.
+ */
+export function buttonLinkClasses(variant: ButtonVariant, size: ButtonSize = "base"): string {
+  const width = variant === "nav-button" ? "" : ACTION_WIDTH[size];
+  return [BASE_CLASSES, VARIANT_REST[variant], VARIANT_LINK_HOVER[variant], SIZE_GEOMETRY[size], width]
+    .filter(Boolean)
+    .join(" ");
+}
+
 /**
  * Tazavera action button.
  *
@@ -162,11 +213,6 @@ export function Button({
   ...rest
 }: ButtonProps): ReactNode {
   const isIconOnly = children === undefined || children === null;
-
-  const geometry = isIconOnly
-    ? ICON_ONLY_GEOMETRY[size]
-    : SIZE_GEOMETRY[size];
-  const width = isIconOnly || variant === "nav-button" ? "" : ACTION_WIDTH[size];
 
   // While busy the spinner (Loader2) replaces any custom icon; for icon-only
   // buttons that keeps the square footprint (D4).
@@ -194,14 +240,7 @@ export function Button({
       aria-busy={loading || undefined}
       aria-disabled={loading || undefined}
       className={[
-        BASE_CLASSES,
-        VARIANT_REST[variant],
-        // Hover treatment is omitted while busy so a busy button shows no
-        // hover change (D4/D5, correction 3). Native disabled is still gated
-        // by `enabled:` within the hover classes themselves.
-        loading ? "" : VARIANT_HOVER[variant],
-        geometry,
-        width,
+        buttonClasses({ variant, size, iconOnly: isIconOnly, busy: loading }),
         className,
       ]
         .filter(Boolean)
