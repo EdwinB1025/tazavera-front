@@ -15,4 +15,4 @@ No derived API types are needed: the builder reads `TaxonomyNode` from `@/shared
 
 ## C. Full checks
 
-- [ ] C.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: both suites pass, no type error, no lint error, the build succeeds. A failure is fixed in its own `fix(<capability>)` commit; a QA failure other than A.4's is a regression.
+- [x] C.1 Run `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: both suites pass, no type error, no lint error, the build succeeds. A failure is fixed in its own `fix(<capability>)` commit; a QA failure other than A.4's is a regression.
