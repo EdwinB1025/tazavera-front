@@ -25,7 +25,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 | 1 | R84 | `fill-inventory-detail-width` | Refactor (fast lane), AUT | S | — |
 | 2 | R85 | `show-pointer-on-actions` | Refactor (fast lane), AUT | S | — |
 | 3 | R86 | `open-directory-from-hero` | Refactor (fast lane), AUT | S | — |
-| 3a | R88 | `suggest-inventory-coffee-names` | Refactor (fast lane), AUT | S | — |
 | 3b | R87 | `unify-taste-trees` | Refactor (fast lane), AUT, separate round | M | — (integrated only if ready in time) |
 | 3c | R89 | `select-inventory-origin-and-process` | Refactor (fast lane), AUT, round 2 | S | R88 in `qa` |
 | 4 | R1 | none yet (Playwright suite) | Change (tests) | — | R74 in `develop` (Product owner, 2026-10-12) |
@@ -89,18 +88,6 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 - **Owning capability:** landing
 - **Proposed change:** `open-directory-from-hero`. Settled end state: the hero's "Explore coffees" button opens the coffee shop directory of the active locale (`/{locale}/coffeeshops`) and no longer scrolls; its label, look and place stay the same. The about page's closing action is unchanged
 - **Open decision (Augusto):** none. Fast lane by Product owner's order (AUT correction, 2026-10-13), maximum priority
-- **Type:** Refactor (fast lane)
-- **Status:** accepted
-- **Affects:** none
-
-## R88 — The inventory "Coffee name" facet suggests coffees as you type (production AUT, 2026-10-13)
-
-- **Duplicated:** the offering facets (`src/features/offering-facets/ui/OfferingFacets.tsx`) and the new-offering form (`src/features/offering-management/ui/InventoryField.tsx`) use the interactive `Combobox` search (suggestions fetched while typing); the inventory facets (`src/features/inventory-facets/ui/InventoryFacets.tsx`) render Coffee name as a plain search text field committed on Enter.
-- **Where today:** `src/features/inventory-facets/ui/InventoryFacets.tsx`; the coffee search `searchCoffees` / `searchByName` in `src/features/offering-facets/api/`
-- **Why it pays off now:** Product owner's AUT review: the inventory list's coffee filter does not behave like the other coffee and roastery filters
-- **Owning capability:** filtering
-- **Proposed change:** `suggest-inventory-coffee-names`. Settled end state: the inventory list's "Coffee name" facet is the same interactive combobox as the offering facets' "Coffee" facet: it fetches coffee suggestions by name while typing (same search, same option lines, same loading/empty/error texts, inverse variant, max 150), choosing an option applies `coffeeName` and clearing it removes the filter; the chip and "Clear all" keep working. The coffee search moves to a layer both features can import (no copy). The other five inventory facets stay text fields
-- **Open decision (Augusto):** none. Fast lane by Product owner's order (AUT, 2026-10-13), round 1, maximum priority; approval delegated to the orchestrator
 - **Type:** Refactor (fast lane)
 - **Status:** accepted
 - **Affects:** none
