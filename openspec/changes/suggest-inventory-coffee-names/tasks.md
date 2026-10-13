@@ -14,7 +14,7 @@ No derived API types are needed: the change reads no new API field (`CoffeeSumma
 
 ## 4. Scenario "Choosing a coffee name"
 
-- [ ] 4.1 New test "Choosing a coffee name" in `src/features/inventory-facets/ui/InventoryFacets.test.tsx`, built like "writes the chosen coffee's name to coffeeName without page" in `OfferingFacets.test.tsx`: `vi.mock("@/entities/coffee/api/search-coffees", …)` returning the "Huila El Mirador" option; render with `originCountry=Colombia`; type "hui" in the combobox "Coffee name", click "Huila El Mirador"; `nav.push` is called with the URL carrying `originCountry=Colombia` and `coffeeName=Huila El Mirador` (key order as the shared navigation writes it) and `{ scroll: false }`. Verify: `npx vitest related src/features/inventory-facets/ui/InventoryFacets.tsx --run` passes; `npm run lint` reports no errors.
+- [x] 4.1 New test "Choosing a coffee name" in `src/features/inventory-facets/ui/InventoryFacets.test.tsx`, built like "writes the chosen coffee's name to coffeeName without page" in `OfferingFacets.test.tsx`: `vi.mock("@/entities/coffee/api/search-coffees", …)` returning the "Huila El Mirador" option; render with `originCountry=Colombia`; type "hui" in the combobox "Coffee name", click "Huila El Mirador"; `nav.push` is called with the URL carrying `originCountry=Colombia` and `coffeeName=Huila El Mirador` (key order as the shared navigation writes it) and `{ scroll: false }`. Verify: `npx vitest related src/features/inventory-facets/ui/InventoryFacets.tsx --run` passes; `npm run lint` reports no errors.
 
 ## 5. Full checks
 
