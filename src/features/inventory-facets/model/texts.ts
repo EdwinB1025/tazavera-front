@@ -18,6 +18,10 @@ export type InventoryFilterTexts = {
   searchFailed: string;
   optionCount: string;
   coffeeNamePlaceholder: string;
+  any: string;
+  seeMore: string;
+  seeLess: string;
+  optionsUnavailable: string;
 };
 
 /** The facet labels from `offering-management`, the generic texts from `filters`. */
@@ -42,5 +46,9 @@ export function inventoryFacetsTexts(
     searchFailed: filters.searchFailed,
     optionCount: filters.optionCount,
     coffeeNamePlaceholder: filters.coffeeNamePlaceholder,
+    any: filters.any,
+    seeMore: filters.seeMore,
+    seeLess: filters.seeLess,
+    optionsUnavailable: filters.optionsUnavailable,
   };
 }
