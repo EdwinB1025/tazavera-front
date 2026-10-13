@@ -1,21 +1,13 @@
 import type { ReactNode } from "react";
-import type { EvaluationItem, TaxonomyNode } from "@/shared/api";
+import type { EvaluationItem } from "@/shared/api";
 import { EVALUATION_GROUPS } from "@/entities/evaluation";
-import type {
-  AxisKey,
-  DescriptiveAxisKey,
-  DescriptorBlockKey,
-  DescriptorSelectionKey,
-  EvaluationFormState,
-} from "@/entities/evaluation";
+import type { AxisKey, DescriptiveAxisKey } from "@/entities/evaluation";
 import type { RatingTier } from "@/entities/offering";
-import { buildDescriptorTree } from "@/entities/taxonomy";
 import {
   Badge,
   BeanScale,
   Card,
   CardContent,
-  DescriptorCascade,
   IntensitySlider,
   LabelValueRow,
 } from "@/shared/ui";
@@ -47,14 +39,6 @@ export type SheetEntry = { key: string; term: string; value: ReactNode };
 // ─── Fixed pieces (no interface text) ───
 const SCORE_SCALE = "/100";
 
-/** The taxonomy category each descriptor selection reads (design.md D8). */
-const CATEGORY_BY_BLOCK: Record<DescriptorBlockKey, string> = {
-  aromatics: "aromatics",
-  main_tastes: "main_tastes",
-  mouthfeel: "mouthfeel",
-  defects: "defects",
-};
-
 const WIDE_CLASSES = "lg:col-span-2";
 // Each card: the heading and its content, 1rem apart.
 const CONTENT_CLASSES = ["flex", "flex-col", "gap-4"].join(" ");
@@ -68,7 +52,6 @@ const HEADER_ROW_CLASSES = [
 const SCORE_ROW_CLASSES = ["flex", "flex-wrap", "items-baseline", "gap-2"].join(" ");
 const LIST_CLASSES = ["grid", "gap-x-6", "gap-y-3", "md:grid-cols-2"].join(" ");
 const SCALES_CLASSES = ["flex", "flex-col", "gap-6"].join(" ");
-const BLOCKS_CLASSES = ["grid", "grid-cols-1", "gap-6", "md:grid-cols-2"].join(" ");
 const ENTRIES_CLASSES = ["flex", "flex-col", "gap-4"].join(" ");
 const ENTRY_CLASSES = ["flex", "flex-col", "gap-1"].join(" ");
 
@@ -79,10 +62,6 @@ export const DESCRIPTIVE_AXES: DescriptiveAxisKey[] = EVALUATION_GROUPS.flatMap(
 export const AFFECTIVE_AXES: AxisKey[] = EVALUATION_GROUPS.flatMap(
   (group) => group.affective?.axes ?? [],
 );
-const BLOCKS = EVALUATION_GROUPS.flatMap((group) => [
-  ...(group.descriptive?.blocks ?? []),
-  ...(group.affective?.blocks ?? []),
-]);
 
 function fill(template: string, value: number): string {
   return template.replace("{value}", String(value));
@@ -94,7 +73,8 @@ function formatDate(value: string, locale: string): string {
   );
 }
 
-function SheetCard({
+/** One card of the sheet: its heading (or header row) and its content. */
+export function SheetCard({
   heading,
   header,
   wide,
@@ -230,40 +210,6 @@ export function PreferenceCard({
             />
           );
         })}
-      </div>
-    </SheetCard>
-  );
-}
-
-/** The Descriptors card: one read-only cascade per descriptor block. */
-export function DescriptorsCard({
-  descriptors,
-  taxonomies,
-  locale,
-  heading,
-  emptyText,
-  blockLabels,
-}: {
-  descriptors: EvaluationFormState["descriptors"];
-  taxonomies: TaxonomyNode[];
-  locale: string;
-  heading: string;
-  emptyText: string;
-  blockLabels: Record<DescriptorSelectionKey, string>;
-}): ReactNode {
-  return (
-    <SheetCard heading={heading} wide>
-      <div className={BLOCKS_CLASSES}>
-        {BLOCKS.map((block) => (
-          <DescriptorCascade
-            key={block.selection}
-            legend={blockLabels[block.selection]}
-            nodes={buildDescriptorTree(taxonomies, CATEGORY_BY_BLOCK[block.key], locale)}
-            value={descriptors[block.selection]}
-            emptyText={emptyText}
-            readOnly
-          />
-        ))}
       </div>
     </SheetCard>
   );
