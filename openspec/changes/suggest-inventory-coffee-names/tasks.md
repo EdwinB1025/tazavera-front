@@ -6,7 +6,7 @@ No derived API types are needed: the change reads no new API field (`CoffeeSumma
 
 ## 2. Padded combobox in `shared/ui` (design.md D2)
 
-- [ ] 2.1 Move `PaddedCombobox`, `asComboboxValue` and `comboboxTexts` from `src/features/offering-facets/ui/OfferingFacetParts.tsx` to the new `src/shared/ui/PaddedCombobox.tsx` ("use client"), same names and markup, `comboboxTexts` taking `{ searching: string; noOptionMatches: string; searchFailed: string; optionCount: string; loading?: string }`; export the three from `src/shared/ui/index.ts` in one line right after the `ComboboxLoader` line; `OfferingFacets.tsx` and `OfferingFacetParts.tsx` import them from `@/shared/ui`. Verify: `npx vitest related` on every changed file passes with no assertion edited; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [x] 2.1 Move `PaddedCombobox`, `asComboboxValue` and `comboboxTexts` from `src/features/offering-facets/ui/OfferingFacetParts.tsx` to the new `src/shared/ui/PaddedCombobox.tsx` ("use client"), same names and markup, `comboboxTexts` taking `{ searching: string; noOptionMatches: string; searchFailed: string; optionCount: string; loading?: string }`; export the three from `src/shared/ui/index.ts` in one line right after the `ComboboxLoader` line; `OfferingFacets.tsx` and `OfferingFacetParts.tsx` import them from `@/shared/ui`. Verify: `npx vitest related` on every changed file passes with no assertion edited; `npx tsc --noEmit` and `npm run lint` report no errors.
 
 ## 3. Inventory Coffee name combobox (spec "Inventory facets in the sidebar"; design.md D2, D3)
 
