@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
+import { describe, it, expect, vi, afterEach, beforeAll, beforeEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { getMessages } from "@/shared/lib/i18n";
 import {
@@ -18,6 +18,32 @@ vi.mock("next/navigation", () => ({
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
   cleanup();
+});
+
+// jsdom has no ResizeObserver; the combobox's popover measures with one.
+// cmdk scrolls the active option into view, which jsdom lacks too, and
+// matchMedia is missing as well. Test infrastructure only.
+beforeAll(() => {
+  window.matchMedia = ((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  })) as unknown as typeof window.matchMedia;
+  if (!("ResizeObserver" in globalThis)) {
+    globalThis.ResizeObserver = class {
+      observe(): void {}
+      unobserve(): void {}
+      disconnect(): void {}
+    } as unknown as typeof ResizeObserver;
+  }
+  if (!Element.prototype.scrollIntoView) {
+    Element.prototype.scrollIntoView = () => {};
+  }
 });
 
 beforeEach(() => {
@@ -42,10 +68,10 @@ function renderPanel(search: string) {
 }
 
 describe("InventoryFacets", () => {
-  it("Facets in order: six text facets showing the values of the address", () => {
+  it("Facets in order: six text facets showing the values of the address", async () => {
     renderPanel("coffeeName=geisha&city=Barcelona");
     const facets = [
-      screen.getByRole("searchbox", { name: "Coffee name" }),
+      await screen.findByRole("combobox", { name: "Coffee name" }),
       screen.getByRole("textbox", { name: "Country" }),
       screen.getByRole("textbox", { name: "Region" }),
       screen.getByRole("textbox", { name: "Process" }),
