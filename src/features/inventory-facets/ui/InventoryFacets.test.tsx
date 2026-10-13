@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
+import { describe, it, expect, vi, afterEach, beforeAll, beforeEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { getMessages } from "@/shared/lib/i18n";
 import {
@@ -15,9 +15,45 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(nav.search),
 }));
 
+vi.mock("@/entities/coffee/api/search-coffees", () => ({
+  searchCoffees: async () => [
+    {
+      value: "Huila El Mirador",
+      label: "Huila El Mirador",
+      detail: "Colombia · Huila · washed · Caturra",
+    },
+  ],
+}));
+
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
   cleanup();
+});
+
+// jsdom has no ResizeObserver; the combobox's popover measures with one.
+// cmdk scrolls the active option into view, which jsdom lacks too, and
+// matchMedia is missing as well. Test infrastructure only.
+beforeAll(() => {
+  window.matchMedia = ((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  })) as unknown as typeof window.matchMedia;
+  if (!("ResizeObserver" in globalThis)) {
+    globalThis.ResizeObserver = class {
+      observe(): void {}
+      unobserve(): void {}
+      disconnect(): void {}
+    } as unknown as typeof ResizeObserver;
+  }
+  if (!Element.prototype.scrollIntoView) {
+    Element.prototype.scrollIntoView = () => {};
+  }
 });
 
 beforeEach(() => {
@@ -42,10 +78,10 @@ function renderPanel(search: string) {
 }
 
 describe("InventoryFacets", () => {
-  it("Facets in order: six text facets showing the values of the address", () => {
+  it("Facets in order: six text facets showing the values of the address", async () => {
     renderPanel("coffeeName=geisha&city=Barcelona");
     const facets = [
-      screen.getByRole("searchbox", { name: "Coffee name" }),
+      await screen.findByRole("combobox", { name: "Coffee name" }),
       screen.getByRole("textbox", { name: "Country" }),
       screen.getByRole("textbox", { name: "Region" }),
       screen.getByRole("textbox", { name: "Process" }),
@@ -60,6 +96,18 @@ describe("InventoryFacets", () => {
     expect(screen.getAllByRole("textbox")).toHaveLength(5);
     expect((facets[0] as HTMLInputElement).value).toBe("geisha");
     expect((facets[5] as HTMLInputElement).value).toBe("Barcelona");
+  });
+
+  it("Choosing a coffee name: writes coffeeName and keeps the other filters", async () => {
+    renderPanel("originCountry=Colombia");
+    fireEvent.change(await screen.findByRole("combobox", { name: "Coffee name" }), {
+      target: { value: "hui" },
+    });
+    fireEvent.click(await screen.findByRole("option", { name: /Huila El Mirador/ }));
+    expect(nav.push).toHaveBeenCalledWith(
+      "/en/manage/inventory?originCountry=Colombia&coffeeName=Huila+El+Mirador",
+      { scroll: false },
+    );
   });
 
   it("Remove one chip: drops only its key", () => {

@@ -70,6 +70,7 @@ export { ScoreRangeFacet } from "./ScoreRangeFacet";
 export type { ScoreRange } from "./ScoreRangeFacet";
 export { Combobox } from "./Combobox";
 export { ComboboxLoader } from "./ComboboxLoader";
+export { PaddedCombobox, asComboboxValue, comboboxTexts } from "./PaddedCombobox";
 export type { ComboboxOption, ComboboxSearch, ComboboxTexts } from "./Combobox";
 export { LabelValueRow } from "./LabelValueRow";
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./Tabs";

@@ -15,7 +15,7 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(nav.search),
 }));
 
-vi.mock("../api/search-coffees", () => ({
+vi.mock("@/entities/coffee/api/search-coffees", () => ({
   searchCoffees: async () => [
     {
       value: "Huila El Mirador",

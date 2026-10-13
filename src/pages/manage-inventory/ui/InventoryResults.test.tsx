@@ -139,7 +139,7 @@ describe("InventoryResults with the inventory facets", () => {
     await act(async () => {});
 
     expect(screen.getByRole("button", { name: "Filters (2)" })).toBeTruthy();
-    expect(screen.queryByRole("combobox")).toBeNull();
+    expect(screen.queryByRole("combobox", { name: "Sort by" })).toBeNull();
   });
 
   it("Filtered empty: no matches and Clear all, not the empty message", async () => {

@@ -2,23 +2,26 @@
 
 import type { ReactNode } from "react";
 import { clearFiltersHref, useFilterNavigation } from "@/shared/lib/filter-query";
-import { FacetPanel, FacetTextField } from "@/shared/ui";
+import {
+  asComboboxValue,
+  comboboxTexts,
+  FacetPanel,
+  FacetTextField,
+  PaddedCombobox,
+} from "@/shared/ui";
 import { usePathname, useSearchParams } from "next/navigation";
-import { searchCoffees } from "../api/search-coffees";
+import { searchCoffees } from "@/entities/coffee";
 import { searchRoasteries } from "../api/search-roasteries";
 import { appliedOfferingFilters } from "../model/applied";
 import type { OfferingFacetOptions } from "../model/options";
 import type { OfferingFilterValues } from "../model/query";
 import type { OfferingFilterTexts } from "../model/texts";
 import {
-  asComboboxValue,
   asOptions,
-  comboboxTexts,
   OfferingListFacets,
   OfferingScoreFacet,
   OfferingTasteNotesFacet,
   OfferingVerificationFacet,
-  PaddedCombobox,
 } from "./OfferingFacetParts";
 
 // ─── UI-specific types (declared before the component) ───

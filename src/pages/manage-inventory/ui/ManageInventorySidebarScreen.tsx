@@ -53,7 +53,10 @@ export function ManageInventorySidebarScreen({
                   <FilterMemoryScope name="coffee-inventory" keys={INVENTORY_FILTER_KEYS}>
                     <InventoryFacets
                       values={parseInventoryFilters(searchParams)}
-                      texts={inventoryFacetsTexts(catalog, filters)}
+                      texts={{
+                        ...inventoryFacetsTexts(catalog, filters),
+                        loading: getMessages("account", locale).loading ?? "",
+                      }}
                     />
                   </FilterMemoryScope>
                 </SidebarMenuSub>
