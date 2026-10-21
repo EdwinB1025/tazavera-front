@@ -26,9 +26,11 @@ Design lead (draft, uncommitted until this commit): landing under the register s
 (none)
 
 ### Deferred to Product owner
+#### ANSWERED 2026-10-21: B, new route `/join` (Product owner: "new route as /join"); the forms stay at `/register` and `/register/coffeeshop`
 #### Q1 — Route of the landing (summary Open 1)
 - Question: where does the landing live? / Why deferred: changes routes and the user-account spec paths. / Options: A. `/{locale}/register` becomes the landing and the specialist form moves to `/{locale}/register/specialist`; B. a new route (e.g. `/{locale}/join`), forms unchanged. / Recommendation: A — symmetric URLs, the landing stays under the existing register* redirect rule, nothing in the auth flow holds the route (verified by the design lead). / Blocks: propose.
 
+#### ANSWERED 2026-10-21: new option — "in small screen the button is part of the landing above the first body" (Product owner). Orchestrator's reading, sent to the design lead and to be confirmed by Product owner: below 768 px the header shows no Register button; the entry page shows a Register button above its first section (the hero), for anonymous sessions only; from 768 px the header button stays. The navigation-menu entry and the `UserPlus` icon (Open 5) fall away
 #### Q2 — The header button on small screens (summary Open 2)
 - Question: the signed-out header has no room at 375 px for a second button. / Why deferred: visible behaviour. / Options: A. button from 768 px; below it, a "Register" entry in the existing navigation menu (anonymous only); B. icon-only button below 768 px (likely overflows); C. shorter labels; D. one account menu (new component). / Recommendation: A, measured at 768 px in the visual review (from 1024 px if it overflows there). / Blocks: propose.
 
@@ -37,3 +39,13 @@ Design lead (draft, uncommitted until this commit): landing under the register s
 
 ### Final checks
 Not run: no code yet.
+
+## Session 2026-10-21 — Summary (answers, step 4)
+Summary: Product owner answered Q1 (`/join`) and Q2 (button on the entry page below 768 px). Relayed to the design lead to update the draft; `/join` sits outside the register* redirect rule, so the landing gets the same gate by the request itself ("only accessible when the user is not authenticated"). Stopped because: waiting for Product owner's approval (commit of the summary with `Status: approved`). MVC reachable: yes.
+
+### Agent feedback
+Design lead (draft updated, committed by the orchestrator as a draft): `/join` routed from `app/[locale]/join/page.tsx` to a `RegisterLandingScreen` inside the `src/pages/register` slice, so the gate shared with `RegisterClient` stays slice-local (FSD: a page slice cannot import another); header "Register" from 768 px only (`hidden md:inline-flex` wrapper); below 768 px a `HomeRegisterButton` client island (`RouteButton action-1`, base size) above the hero, anonymous only, with 1.5rem to the hero; new text `landing.heroRegisterAction`; navigation-menu entry and `UserPlus` icon dropped; if the header overflows at 768 px, both breakpoints move to 1024 px together. New Open 11 (confirm the reading; non-blocking). No point blocks propose. Unverified: contrast script and captures at 375/768/1280 (no shell in the subagent).
+
+### Deferred to Product owner
+#### Q4 — Confirm the reading of the Q2 answer (summary Open 11)
+- Question: below 768 px the "Register" button appears on the entry page only (other pages show just "Sign in"), and it is not rendered while the session resolves, so it pushes the hero down ~4rem once an anonymous session resolves. / Options: A. confirm; B. reserve the space while resolving (signed-in users see a blank 4rem); C. another reading. / Recommendation: A. / Blocks: no.
