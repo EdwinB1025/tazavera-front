@@ -3,32 +3,34 @@ Status: draft — pending Product owner review
 # Design summary — add-register-landing
 
 - **Change-id:** `add-register-landing`
-- **Type:** `Change` (traditional workflow 3a; new screen, new texts, header behaviour change)
-- **Capabilities:** `user-account` (registration landing and routes), `app-shell` (header "Register" action), `landing` (registration links removed from the entry page and About us)
-- **Requested by Product owner:** 2026-10-21 (approved request, relayed by the orchestrator)
-- **Constraint (decisions log 2026-10-07 "nada nuevo en el diseño"):** compose existing components, tokens and patterns. Anything new (an icon export, a new placement in the header) is listed under "Open".
+- **Type:** `Change` (traditional workflow 3a; new screen, new texts, header and entry-page behaviour change)
+- **Capabilities:** `user-account` (registration landing at `/{locale}/join`), `app-shell` (header "Register" action from `md`), `landing` (registration links removed; "Register" button on the entry page below `md`)
+- **Requested by Product owner:** 2026-10-21 (approved request, relayed by the orchestrator); answers to the first draft's open points on the same day (Review log)
+- **Constraint (decisions log 2026-10-07 "nada nuevo en el diseño"):** compose existing components, tokens and patterns. Anything new is listed under "Open".
 
 ## 1. Goal
 
 Today a visitor reaches registration only through two text links in the entry-page hero (`src/pages/home/ui/HomeHero.tsx:80-87`) and in the "who it is for" section of About us (`src/pages/about/ui/AboutContent.tsx:116-123`). Product owner wants:
 
-1. a "Register" action in the app header, next to the sign-in control, shown only while the visitor is not authenticated;
-2. that action to open a new registration landing page that explains the two ways to join (specialist, coffee shop) and leads to each existing form;
+1. a "Register" action next to the sign-in control in the app header, shown only while the visitor is not authenticated; on small screens it is not in the header but on the entry page, above its first section;
+2. that action to open a new registration landing page at `/{locale}/join` that explains the two ways to join (specialist, coffee shop) and leads to each existing form;
 3. the registration links removed from the entry page and About us, with their now-unused catalog texts;
-4. the landing page (and the header action) unavailable to an authenticated user: a signed-in user who reaches the page is sent away.
+4. the landing page (and the "Register" actions) unavailable to an authenticated user: a signed-in user who reaches `/join` is sent away.
 
 ## 2. Scope
 
 **In:**
-- a registration landing page under the `[locale]` segment (route: Open 1);
-- a header "Register" action for anonymous sessions (placement below `md`: Open 2);
+- the registration landing page at `/{locale}/join` (Product owner, Open 1 = B);
+- the header "Register" action for anonymous sessions from `md` (768px);
+- the entry-page "Register" button for anonymous sessions below `md` (Product owner, Open 2; reading to confirm in Open 11);
 - removal of both registration link groups and their six catalog keys per locale;
-- the session gate of the landing page, reusing the existing registration-route gate (§4);
+- the session gate of `/join`, reusing the existing registration-route gate (§4);
 - new texts in es/en/ca (§8).
 
 **Out:**
-- any change to the two registration forms, their fields, their success panel or `POST /register`;
+- any change to the two registration forms, their routes (`/{locale}/register`, `/{locale}/register/coffeeshop`), fields, success panel or `POST /register`;
 - any change to the auth flow (popup, redirect, return route, `login_hint`, tokens);
+- a "Register" entry in the small-viewport navigation menu, and a new icon (dropped with Product owner's Open 2 answer);
 - a "Already have an account? Sign in" line on the landing (Open 8);
 - R45 (first location in coffee-shop registration): untouched.
 
@@ -36,44 +38,63 @@ Today a visitor reaches registration only through two text links in the entry-pa
 
 | Fact | Source |
 |---|---|
-| The header shows "Sign in" only for `session.state === "anonymous"`, the user menu only for `"authenticated"`, and neither while `"loading"`. "Sign in" is `Button variant="nav-button"`. | `src/widgets/app-header/ui/AppHeader.tsx:143-155`; app-shell "Signed-out header", "Session states in the shell" |
-| Auth state on the client comes from `useSession()` (`@/features/auth`); tokens live in memory only. The session is injected into `AppHeader` by `SessionShell`, header texts are composed in `src/app/shell/AppShell.tsx:70-94` from the `shell` catalog. | `AppShell.tsx`, decisions log 2026-10-05 add-auth |
-| **Authenticated users are already sent away from every `/[locale]/register*` route**: `RegisterClient` shows `LoadingStatus` while the session resolves, renders nothing and calls `router.replace(\`/${locale}\`)` when authenticated (client-side navigation keeps the in-memory tokens). | `src/pages/register/ui/RegisterClient.tsx:43-51`; user-account "Registration routes", scenario "A signed-in visitor is taken to the entry page"; decisions log 2026-10-06 "rutas protegidas sin sesión: mensaje con botón" (last sentence); R78 `land-on-home-after-registration` |
-| Gated screens for *authenticated* content use `SessionGate` (`@/shared/ui`) with a signed-out prompt; `EvaluationsGate` is that pattern's client seam. It is the inverse of what the landing needs (anonymous-only), so the landing reuses `RegisterClient`'s gate, not `SessionGate`. | `src/shared/ui/SessionGate.tsx`, `src/widgets/evaluations-gate/ui/EvaluationsGate.tsx` |
-| No other code links to `/register`: the auth return route is generic (`currentRoute()`), `login_hint` carries the user's ULID (not a route), the success panel calls `signIn()` with the current route, the cancel action goes to `/{locale}`, the sidebar has no registration entry. Only `HomeHero`, `AboutContent`, their tests and the two route files reference the paths. | Grep of `src/`, `app/`, `qa/`, `proxy.ts`; `src/features/auth/api/authorize.ts:79-85`, `src/features/auth/model/return-route.ts`, `RegisterSuccessPanel.tsx`, `RegisterClient.tsx:66` |
-| The signed-out header is tight at 375px: `fit-header-at-375` (2026-10-08) fixed a 2–14px overflow by hiding the locale code below `md` and tightening gaps; the Catalan label was shortened to "Entra" (`shorten-ca-header-sign-in`) because it wrapped. | archived proposals of both changes; app-shell scenarios "Header fits a small viewport", "Catalan sign-in label fits on one line" |
+| The header shows "Sign in" only for `session.state === "anonymous"`, the user menu only for `"authenticated"`, and neither while `"loading"`. "Sign in" is `Button variant="nav-button"`. Breakpoint-dependent parts are wrapped in a `span` with `hidden md:inline-flex` / `md:hidden` (the logotype). | `src/widgets/app-header/ui/AppHeader.tsx:121-155`; app-shell "Signed-out header", "Session states in the shell" |
+| Auth state on the client comes from `useSession()` (`@/features/auth`); tokens live in memory only. Page slices already import it (`src/pages/register/ui/RegisterClient.tsx:5`). Header texts are composed in `src/app/shell/AppShell.tsx:70-94` from the `shell` catalog. | `AppShell.tsx`, `RegisterClient.tsx`, decisions log 2026-10-05 add-auth |
+| **Authenticated users are already sent away from every `/[locale]/register*` route**: `RegisterClient` shows `LoadingStatus` while the session resolves, renders nothing and calls `router.replace(\`/${locale}\`)` when authenticated (client-side navigation keeps the in-memory tokens). | `RegisterClient.tsx:43-51`; user-account "Registration routes", scenario "A signed-in visitor is taken to the entry page"; decisions log 2026-10-06 "rutas protegidas sin sesión: mensaje con botón" (last sentence); R78 `land-on-home-after-registration` |
+| Gated screens for *authenticated* content use `SessionGate` (`@/shared/ui`) with a signed-out prompt; `EvaluationsGate` is that pattern's client seam. It is the inverse of what `/join` needs (anonymous only), so `/join` reuses `RegisterClient`'s gate, not `SessionGate`. | `src/shared/ui/SessionGate.tsx`, `src/widgets/evaluations-gate/ui/EvaluationsGate.tsx` |
+| `RouteButton` (`@/shared/ui`) takes `href`, `variant`, `size`, `icon`, `children` and no `className`, so breakpoint visibility goes on a wrapper element. | `src/shared/ui/RouteButton.tsx` |
+| The entry page is a Server Component (`HomeScreen`) that composes `PageSection surface="page"` → `HomeHero`, then the offerings section. The hero's explore action is `ExploreButton`, a small client island in the same slice. | `src/pages/home/ui/HomeScreen.tsx:77-81`, `ExploreButton.tsx` |
+| No code outside `HomeHero`, `AboutContent`, their tests and the two route files references the registration paths; the forms do not move, so the auth flow, success panel, cancel action and sidebar are untouched. | Grep of `src/`, `app/`, `qa/`, `proxy.ts` |
+| The signed-out header is tight at 375px: `fit-header-at-375` (2026-10-08) fixed a 2–14px overflow; the Catalan label was shortened to "Entra" (`shorten-ca-header-sign-in`). | archived proposals of both changes; app-shell "Header fits a small viewport", "Catalan sign-in label fits on one line" |
 | The MVC has no registration chooser: its header shows only "Sign In" (`resources/views/components/welcome/navbar.blade.php:17`) and its register view is a single form without a role (`resources/views/livewire/auth/register.blade.php`). | MVC (found under `C:/Programing/Full Stack/Sprint5/tazavera-app`; the `C:/Porjects/...` path does not exist) |
 
-## 4. Session gate of the landing (settled; reuse)
+## 4. Session gates (settled)
 
-Settled by the decisions log (2026-10-06, "`/[locale]/register*` con sesión `authenticated` lleva al inicio con navegación interna") and the user-account requirement "Registration routes", which the landing joins because it lives under `/[locale]/register`. Mechanism, identical to `RegisterClient`:
+### 4.1 `/{locale}/join`
 
-| Session state | Landing shows | Header shows |
+`/join` sits outside the decisions-log rule for `/[locale]/register*`, but Product owner's request makes the landing available only to unauthenticated users. It therefore gets the same gate as the forms (settled from the request; mechanism from `RegisterClient`):
+
+| Session state | `/join` shows |
+|---|---|
+| `loading` | the heading block and `LoadingStatus` (text `account.loading`) in place of the options; no option card |
+| `anonymous` | the heading block and the two option cards |
+| `authenticated` | nothing in the gated region; `router.replace("/{locale}")` (client-side, no reload, no message) |
+
+- Server-side detection is impossible (tokens only in browser memory, settled), so the gate is client-side, as for the forms.
+- The forms already redirect authenticated users: the orchestrator's first-draft default 3 is closed.
+
+### 4.2 The "Register" actions
+
+| Session state | Header action (from `md`) | Entry-page button (below `md`) |
 |---|---|---|
-| `loading` | the heading block and `LoadingStatus` (text `account.loading`) in place of the options; no option card | neither "Sign in" nor "Register" (same rule as "Sign in", app-shell "Session states in the shell") |
-| `anonymous` | the heading block and the two option cards | "Sign in" and "Register" |
-| `authenticated` | nothing in the gated region; `router.replace("/{locale}")` (client-side, no reload, no message) | the user menu; no "Register" |
+| `loading` | hidden (same rule as "Sign in") | not rendered |
+| `anonymous` | shown | shown |
+| `authenticated` | hidden (user menu instead) | not rendered |
 
-- Server-side detection is impossible (tokens only in browser memory, settled), so the gate is client-side, exactly as for the forms.
-- The forms already redirect authenticated users: the orchestrator's default 3 is **closed** (no change needed, no open point).
-- Reuse: the gate logic (≈10 lines: `useSession`, `useRouter`, the effect and the three branches) would otherwise be copied from `RegisterClient`. Both consumers live in the same page slice `src/pages/register`, so the recommendation is one slice-local client piece used by both (Open 7).
+Neither action redirects; both only decide whether they render.
+
+### 4.3 FSD placement of the `/join` gate (settled)
+
+A page slice cannot import another page slice, so a separate `src/pages/join` slice could not reuse `RegisterClient`'s gate. **Settled: the landing screen lives in the existing `src/pages/register` slice** (it is part of the same registration flow, and the slice already hosts two routes), exported from its public `index.ts`, and the route file `app/[locale]/join/page.tsx` imports it (routing may import any page slice; AGENTS.md "Architecture"). The gate stays one slice-local piece used by the forms and the landing (Open 7).
+
+Alternative considered and not chosen: moving the gate to a lower layer (e.g. `features/auth` or a widget). It would put a page-specific redirect rule ("send an authenticated user to `/{locale}`") into a shared layer for two consumers of one flow, and it is more change for the same result. The architect may still pick it in design.md; it changes nothing the user sees, so it is not a Product owner question.
 
 ## 5. Components and FSD placement
 
 | Piece | Layer / slice | Reuse |
 |---|---|---|
-| `app/[locale]/register/page.tsx` (landing) and the moved specialist route (Open 1) | routing | thin route files, like today |
+| `app/[locale]/join/page.tsx` | routing | thin route file importing `RegisterLandingScreen` from `@/pages/register` |
 | `RegisterLandingScreen` (server; reads the `account` catalog, renders the heading block and the client region) | `src/pages/register/ui/` | mirrors `RegisterScreen` |
-| `RegisterLandingClient` (client; gate + option cards) | `src/pages/register/ui/` | gate per §4 |
+| `RegisterLandingClient` (client; gate + option cards) | `src/pages/register/ui/` | gate per §4.1 / Open 7 |
 | Option card | composed in the slice from `Card layout="stacked"` (content variant), `CardContent`, `RouteButton` | About us "How we evaluate" cards (`AboutContent.tsx:90-109`); `RegisterSuccessPanel` heading/text pattern |
-| Header "Register" action | `src/widgets/app-header/ui/AppHeader.tsx` | `RouteButton variant="nav-button"` (base-controls "Navigation controls by position": a navigation control outside a page header's first line is an action button that opens its route) |
-| Navigation-menu entry (if Open 2 = A) | `src/widgets/app-header/ui/NavigationMenu.tsx` | `DropdownMenuItem asChild` + `next/link`, as the existing entries |
+| Header "Register" action | `src/widgets/app-header/ui/AppHeader.tsx` | `RouteButton variant="nav-button"` in a `span` `hidden md:inline-flex` (logotype wrapper precedent, `AppHeader.tsx:129`) |
+| Entry-page "Register" button (`HomeRegisterButton`, client island) | `src/pages/home/ui/` | `useSession()` from `@/features/auth` (pages → features, as `RegisterClient`); `RouteButton variant="action-1"`; client-island precedent `ExploreButton` |
 
-No new shared component, variant or token. No contract operation consumed.
+`HomeScreen` stays a Server Component and passes `locale` and the label as props to `HomeRegisterButton`; only the island reads the session. No new shared component, variant, token or icon. No contract operation consumed.
 
 ## 6. Layout and spacing (criterion A)
 
-### 6.1 Landing page
+### 6.1 Landing page (`/{locale}/join`)
 
 ```
 main area (shell, bg surface-page)
@@ -88,8 +109,8 @@ main area (shell, bg surface-page)
          └─ gated region
               loading:   LoadingStatus (centred row, 0.5rem icon–text)
               anonymous: options grid — 1 column; 2 equal columns from 768px; 1.5rem gap   [About "How we evaluate": gap-6]
-                 ├─ option card (specialist)  ┐ order: Open 6
-                 └─ option card (coffee shop) ┘
+                 ├─ option card (specialist)   ← first (request order, settled)
+                 └─ option card (coffee shop)
 ```
 
 Option card (both identical in structure):
@@ -103,7 +124,7 @@ Card layout="stacked" (content variant)
       ├─ h2 · type-card-heading            (…Title)
       ├─ p  · type-body                    (…Text)
       └─ action row — pushed to the bottom (mt-auto), 0.5rem extra top space [HomeHero: mt-2 → 1.5rem below text]
-           └─ RouteButton variant="action-1" size="base" → form route
+           └─ RouteButton variant="action-1" size="base" → /{locale}/register or /{locale}/register/coffeeshop
 ```
 
 | Element | Padding | Gap / margin to neighbours | Children gap | Border (width, side, token) | Radius | Container / layout |
@@ -119,50 +140,68 @@ Card layout="stacked" (content variant)
 | Card heading `h2` | none | 1rem above the text | — | none | none | content column |
 | Card text `p` | none | 1.5rem above the action (1rem gap + 0.5rem) | — | none | none | content column |
 | Action row | 0.5rem top | at the card's bottom (`mt-auto`) | — | none | none | start-aligned, button at its own width |
-| `RouteButton` | 1rem sides, height 2.5rem (base) | — | 0.5rem icon–label (no icon) | 1px, all sides, `action-1-border` | `rounded-pill` | min width 10rem, grows with label, one line |
+| `RouteButton` | 1rem sides, height 2.5rem (base) | — | — (no icon) | 1px, all sides, `action-1-border` | `rounded-pill` | min width 10rem, grows with label, one line |
 
 - A single button per card: the "Action group" two-column rule does not apply (it applies to two or more buttons).
+- Treatment `action-1`: base-controls "Action variants by kind": registering creates an account, which is more specific than "navigate".
 - Equal-height cards and aligned buttons follow from the grid's stretch plus `h-full`/`flex-1`/`mt-auto` (computed from the classes; unverified in a browser).
 - At 1280px each card is 532px wide (computed: 72rem = 1152px − 2 × 32px side padding − 24px gap = 1064 / 2).
-- At 375px each card is 343px wide (computed: 375 − 2 × 16); the longest es label "Regístrate como especialista" fits on one line inside 343 − 2 × 24 − 4 = 291px (estimate ≈ 260px with 32px padding; unverified).
+- At 375px each card is 343px wide (computed: 375 − 2 × 16); the longest es label "Regístrate como especialista" fits on one line inside 343 − 2 × 24 − 4 = 291px (estimate ≈ 260px including 32px padding; unverified).
 
-### 6.2 Header "Register" action
+### 6.2 "Register" actions
 
-- **Component:** `RouteButton variant="nav-button"` → landing route; label `shell.register`. Same treatment as "Sign in" (`nav-button-bg`, `nav-button-text`, 1px `nav-button-border`, hover `nav-button-*-hover`, `rounded-pill`, height 2.5rem, 1rem side padding, no action min-width because the navigation treatment keeps its own geometry).
-- **Position:** in the header's right group, **immediately before "Sign in"** (Open 3), so the session control keeps the rightmost slot it shares with the user menu. Gap to neighbours: the right group's existing `gap-2` (0.5rem) below `md`, `gap-4` (1rem) from `md`.
-- **Visibility:** only for `session.state === "anonymous"`; hidden while loading and when authenticated (§4).
-- **Small viewport:** Open 2 (blocks propose). Recommended: from `md` in the header; below `md` as an entry of the existing navigation menu (three-lines control), after "About us", shown only for anonymous sessions, with the menu-entry treatment (`nav-text`, `nav-text-hover`, decorative icon, no underline) and the menu's existing padding and gaps (no new values).
-- **Current page:** the header action is not a navigation entry; it carries no `aria-current`. If Open 2 = A, the menu entry follows the menu rule and carries `aria-current="page"` on the landing route (same `path === currentPath` check).
+**Header action (from `md`, 768px):**
+- **Component:** `RouteButton variant="nav-button"` → `/{locale}/join`; label `shell.register`. base-controls "Navigation controls by position": a navigation control outside a page header's first line is an action button that opens its route. Same treatment as "Sign in" (`nav-button-bg`, `nav-button-text`, 1px `nav-button-border`, hover `nav-button-*-hover`, `rounded-pill`, height 2.5rem, 1rem side padding, no action min-width: the navigation treatment keeps its own geometry).
+- **Wrapper:** `span` with `hidden md:inline-flex` (the logotype precedent), because `RouteButton` takes no `className`. Below `md` the header is exactly today's header.
+- **Position:** in the header's right group, **immediately before "Sign in"** (Open 3), so the session control keeps the rightmost slot it shares with the user menu. Gap to neighbours: the right group's existing `md:gap-4` (1rem).
+- **Visibility:** §4.2. No `aria-current` (it is an action, not a navigation entry).
 
-### 6.3 Entry page and About us after the removal
+**Entry-page button (below `md`):**
+- **Component:** `RouteButton variant="action-1" size="base"` → `/{locale}/join`; label `landing.heroRegisterAction` (§8). Treatment from base-controls "Action variants by kind" (create or start), the same as the landing cards' actions; a button, not a link, per "Navigation controls by position" (it is not a page header's first-line back control).
+- **Where:** first child of the hero's `PageSection surface="page"` container, before `HomeHero` (Product owner: "above the first body"). The section and its container are unchanged: 3rem vertical padding below `md`, 1rem side padding, max 72rem, centred.
+- **Container layout:** `HomeScreen` passes `containerClassName="flex flex-col gap-6"` to the hero section, giving 1.5rem between the button and the hero (source: About "How we evaluate" `gap-6` and the hero's 1.5rem action spacing). From `md` the button's wrapper is `display: none`, which flex `gap` ignores, so the hero's spacing from `md` is exactly today's.
+- **Wrapper:** `div` with `md:hidden`, holding the island; the island renders nothing unless the session is anonymous (§4.2), so a signed-in or still-resolving visitor sees the hero at today's position.
+- **Alignment and width:** start-aligned (left edge of the container, the hero text's edge), at its own width: the action min-width 10rem (160px) in every locale (computed: "Registrarse" ≈ 88px + 32px padding + 2px border = 122px < 160px; unverified), well inside the 343px container at 375px.
+- **Border and radius:** 1px `action-1-border`, `rounded-pill` (from `Button`).
+- **Hero below:** unchanged (eyebrow, heading, paragraph, explore button; photograph hidden below `md`).
+- **Layout shift:** for an anonymous visitor the button appears once the session resolves and pushes the hero down by 4rem (computed: 2.5rem button + 1.5rem gap). Accepted in this design because the reading says "hidden while loading"; Open 11 asks Product owner to confirm.
 
-- **Hero:** the actions block (`mt-2 flex flex-col items-start gap-4`) keeps only the explore button; the `nav` group and `LINK_GROUP_CLASSES` go. The hero's other spacing is unchanged. The explore button still sits 1.5rem below the paragraph.
-- **About us, section 4 ("who it is for"):** keeps the audience text alone in its `PageSection surface="section"`; the `nav` group and `LINK_GROUP_CLASSES` go; `STACK_CLASSES` (1rem gap) stays harmless with one child. The five-section order and alternating surfaces are unchanged.
+| Element | Padding | Gap / margin to neighbours | Children gap | Border | Radius | Container / layout |
+|---|---|---|---|---|---|---|
+| Hero `PageSection` | unchanged (3rem / 4rem vertical; 1rem / 2rem sides) | unchanged | `flex flex-col`, 1.5rem | none | none | full width |
+| `md:hidden` wrapper | none | 1.5rem above the hero (container gap) | — | none | none | container, start-aligned |
+| `RouteButton` | 1rem sides, height 2.5rem | — | — | 1px, all sides, `action-1-border` | `rounded-pill` | min 10rem, own width |
+| Header `hidden md:inline-flex` wrapper | none | 1rem to the theme switch and to "Sign in" | — | none | none | header right group |
+
+### 6.3 Entry page and About us after the link removal
+
+- **Hero:** the actions block (`mt-2 flex flex-col items-start gap-4`) keeps only the explore button; the `nav` group and `LINK_GROUP_CLASSES` go. The explore button still sits 1.5rem below the paragraph.
+- **About us, section 4 ("who it is for"):** keeps the audience text alone in its `PageSection surface="section"`; the `nav` group and `LINK_GROUP_CLASSES` go. The five-section order and alternating surfaces are unchanged.
 - The landing spec's "Link groups" scenario ("the two registration links render on either page") loses its subject; the architect removes or rewords it in the delta.
 
 ## 7. States, accessibility and semantic tokens
 
 **Accessible names and structure:**
-- Landing: one `h1` (`registerLandingTitle`); each card an `h2`; each `RouteButton` named by its visible label (two distinct labels). No landmark of its own (the old `nav aria-label="Registro"` disappears with the links).
-- Header action: named by its visible label `shell.register`; keyboard reachable; shared focus ring (`focus-visible:focus-ring` in `Button`).
+- `/join`: one `h1` (`registerLandingTitle`); each card an `h2`; each `RouteButton` named by its visible label (two distinct labels). No landmark of its own.
+- Header action and entry-page button: named by their visible labels; keyboard reachable; shared focus ring (`focus-visible:focus-ring` in `Button`). The entry-page button comes before the hero's `h1` in reading order (Product owner's placement).
 - `LoadingStatus`: `role="status"`, spinner `aria-hidden`, honours `prefers-reduced-motion`.
-- Focus: no programmatic focus on arrival (route announcer handles the change), like the register forms.
+- Focus: no programmatic focus on arrival, like the register forms.
 
-**States:** buttons rest / hover / keyboard focus as the shared `Button`; no disabled or busy state (navigation only). Landing: loading / options / redirected (§4).
+**States:** buttons rest / hover / keyboard focus as the shared `Button`; no disabled or busy state (navigation only). `/join`: loading / options / redirected (§4.1). Actions: §4.2.
 
 **Tokens and contrast (criterion D).** Every gated pair is already registered in `src/app/styles/theme-tokens.test.ts` (checked by Grep):
 
 | Part | Tokens | Registered pair |
 |---|---|---|
-| `h1`, intro | `text-primary` on `surface-page` | existing (register and about pages) |
+| `/join` `h1`, intro | `text-primary` on `surface-page` | existing (register and about pages) |
 | Card heading and text | `text-primary` on `surface-card` | line 299 |
 | Card action | `action-1-text` on `action-1-bg`; hover `action-1-text-hover` on `action-1-bg-hover`; border `action-1-border` on `surface-card` | lines 330, 334, 427 |
+| Entry-page button | same text pairs; border `action-1-border` on `surface-page` | lines 330, 334, 426 |
 | Header action | `nav-button-text` on `nav-button-bg` (border exempt) | lines 358, 394–395 |
-| Menu entry (Open 2 = A) | `nav-text` / `nav-text-hover` on the nav menu surface | existing entries' pairs |
-| Focus ring | `focus-ring` on `surface-card` | line 381 |
+| Focus ring | `focus-ring` on `surface-card` / `surface-page` | line 381 / existing |
 | Card left border, shadow, page surfaces | decorative | not gated |
 
-No new pair, token or guard test. Ratios were **not re-measured** in this draft: the session's shell access was denied, so no script could run (Unverified 1).
+No new pair, token or guard test. Ratios were **not re-measured** in this draft (Unverified 1).
 
 ## 8. Texts (catalog areas, passed as props)
 
@@ -173,6 +212,14 @@ New keys. Proposed wording; Product owner may revise (Open 9).
 | Key | es | en | ca |
 |---|---|---|---|
 | `register` | Registrarse | Register | Registra't |
+
+**`landing` area** (`messages/{es,en,ca}/landing.json`, read by `HomeScreen`, passed to `HomeRegisterButton`):
+
+| Key | es | en | ca |
+|---|---|---|---|
+| `heroRegisterAction` | Registrarse | Register | Registra't |
+
+Same wording as the header action; a separate key because each capability reads its own catalog area (`HomeScreen` reads `landing`, `AppShell` reads `shell`).
 
 **`account` area** (`messages/{es,en,ca}/account.json`, read by `RegisterLandingScreen`, like `RegisterScreen`):
 
@@ -187,8 +234,8 @@ New keys. Proposed wording; Product owner may revise (Open 9).
 | `registerLandingCoffeeshopText` | Publica tus ofertas, recibe la evaluación de especialistas y muestra con pruebas lo que sirves. | Publish your offerings, have them evaluated by specialists and show with evidence what you serve. | Publica les teves ofertes, rep l'avaluació d'especialistes i mostra amb proves el que serveixes. |
 | `registerLandingCoffeeshopAction` | Registra tu cafetería | Register your coffeeshop | Registra la teva cafeteria |
 
-- Reused: `account.loading` (loading status). The action labels reuse the exact wording of the removed hero/about labels, so the visible names stay familiar. The card texts paraphrase the About us copy (`aboutStepCupping`, `aboutAudienceText`).
-- The en catalog spells "coffeeshop" in the account area and "coffee shops" in the shell; the new card title uses "Coffee shop" as the header does (semantic choice; flag in Open 9).
+- Reused: `account.loading` (loading status). The card action labels reuse the exact wording of the removed hero/about labels. The card texts paraphrase the About us copy (`aboutStepCupping`, `aboutAudienceText`).
+- The en catalog spells "coffeeshop" in the account area and "coffee shops" in the shell; the new card title uses "Coffee shop" as the header does (flag in Open 9).
 
 **Removed keys** (`messages/{es,en,ca}/landing.json`, six per locale, no other consumer found by Grep): `heroCoffeeshopRegisterLabel`, `heroSpecialistRegisterLabel`, `heroRegisterNavigation`, `aboutCoffeeshopRegisterLabel`, `aboutSpecialistRegisterLabel`, `aboutRegisterNavigation`. With them go the props `coffeeshopRegisterLabel`, `specialistRegisterLabel`, `registerNavigation` of `HomeHeroTexts` and `AboutContentTexts`, and the now-unused `Link` imports in both files.
 
@@ -196,19 +243,23 @@ The existing catalog guard ("an area is complete in every locale") covers additi
 
 ## 9. Responsive behaviour
 
-Project breakpoints: `md` 768px (spacing steps, grid columns, header form), `lg` 1024px (not used here).
+Project breakpoints: `md` 768px (spacing steps, grid columns, header form, where "Register" moves from the entry page to the header), `lg` 1024px (fallback, below).
 
-| Width | Landing | Header |
-|---|---|---|
-| 375px | one column; cards 343px; 1rem side padding; 3rem vertical section padding | Open 2. Without a decision, adding a ~130px pill (computed estimate: "Registrarse" ≈ 88px text + 32px padding + 2px border + 8px gap; unverified) to a header that overflowed by up to 14px before `fit-header-at-375` would overflow again (inference). |
-| 768px | two equal columns, 1.5rem gap; 2rem side padding; 4rem vertical | Register beside Sign in **if it fits** with the inline navigation; unmeasured (Unverified 2) |
-| 1280px | two columns of 532px (computed) | Register beside Sign in |
+| Width | `/join` | Header | Entry page |
+|---|---|---|---|
+| 375px | one column; cards 343px; 1rem side padding; 3rem vertical section padding | unchanged from today (no "Register"); still fits as `fit-header-at-375` left it | anonymous: "Register" button (160px, computed) at the top of the hero section, 1.5rem above the eyebrow |
+| 768px | two equal columns, 1.5rem gap; 2rem side padding; 4rem vertical | "Register" before "Sign in" **if it fits** beside the inline navigation; unmeasured (Unverified 2) | no button; hero as today |
+| 1280px | two columns of 532px (computed) | "Register" before "Sign in" | no button; hero as today |
 
-No horizontal scroll is acceptable at 375px (app-shell "Signed-out header").
+- **Fallback if the header overflows at 768px:** both breakpoints move together to `lg` — the header wrapper becomes `hidden lg:inline-flex` and the entry-page wrapper `lg:hidden` — so there is never a width without a way to "Register" on the entry page. The visual review measures it; the architect writes `md` unless the measurement says otherwise.
+- **Pages other than the entry page below `md`:** no "Register" action (only "Sign in"); `/join` stays reachable from the entry page. This follows Product owner's answer; Open 11 confirms it.
+- No horizontal scroll is acceptable at 375px (app-shell "Signed-out header").
 
 ## 10. Visual reference (mock-up)
 
-There is no MVC capture to take: the MVC has no registration chooser and no header register action (§3). Mock-up, 1280px, anonymous, es:
+There is no MVC capture to take: the MVC has no registration chooser and no register action (§3).
+
+**`/es/join`, 1280px, anonymous:**
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────────────────┐
@@ -230,100 +281,109 @@ There is no MVC capture to take: the MVC has no registration chooser and no head
 └───────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-375px, anonymous, es (Open 2 = A): header `[≡] [logo] … (🌐▾) (☾) (Iniciar sesión)`; the ≡ menu lists Mejor valorados · Explora coffees · Sobre nosotros · Registrarse. Content: title, intro, then the two cards stacked 1.5rem apart.
+**`/es` (entry page), 375px, anonymous:**
 
-Live references for the parts: the About us "How we evaluate" cards (`/es/about`) for the card look, `/es/register` for the heading block and loading state.
+```
+┌─────────────────────────────────────┐
+│ [≡] [◉]          (🌐▾) (☾) (Iniciar sesión) │  header unchanged (no "Register")
+├─────────────────────────────────────┤
+│ 1rem                         1rem   │  surface-page, hero section
+│        (3rem top padding)           │
+│ ( Registrarse )   ← action-1, 160px min, start-aligned
+│        (1.5rem)                     │
+│ EYEBROW                             │
+│ Tu café, el que merece cada sorbo   │  ← h1
+│ paragraph…                          │
+│        (1.5rem)                     │
+│ ( Explora coffees )   ← action-3     │
+│        (3rem bottom padding)        │
+├─────────────────────────────────────┤
+│ verified offerings (surface-section)│
+```
 
-## 11. Routes and every reference to `/register` (Open 1 = A)
+Signed in or while the session resolves, the same 375px page shows no button and the eyebrow starts right below the 3rem top padding (today's layout).
 
-| Item | Today | After (Open 1 = A) |
+**`/es/join`, 375px:** header as today; title, intro, then the two cards stacked 1.5rem apart, each 343px wide.
+
+Live references for the parts: the About us "How we evaluate" cards (`/es/about`) for the card look, `/es/register` for the heading block and loading state, the header's "Sign in" for the header action.
+
+## 11. Routes and references
+
+| Item | Today | After |
 |---|---|---|
-| `app/[locale]/register/page.tsx` | specialist form | registration landing |
-| `app/[locale]/register/specialist/page.tsx` | — | specialist form (`RegisterScreen role="specialist"`) |
+| `app/[locale]/join/page.tsx` | — | registration landing (`RegisterLandingScreen` from `@/pages/register`) |
+| `app/[locale]/register/page.tsx` | specialist form | unchanged |
 | `app/[locale]/register/coffeeshop/page.tsx` | coffee-shop form | unchanged |
 | `HomeHero.tsx`, `AboutContent.tsx` links | `/register`, `/register/coffeeshop` | removed |
-| Auth return route, `login_hint`, success panel, cancel, sidebar | no route literal | unaffected (verified, §3) |
-| `src/pages/register/ui/RegisterClient.test.tsx:40` | router mock `pathname: "/es/register"` | fixture only; assertion-neutral (architect decides whether to update it) |
-| `README.md:171`, `:207` | lists `/register` as the specialist form | route table to update |
-| user-account spec | `/{locale}/register` = specialist (Registration routes; Business name scenario at line 452) | specialist at `/{locale}/register/specialist`; landing at `/{locale}/register` |
+| Header (from `md`), entry page (below `md`) | — | "Register" → `/{locale}/join` |
+| `/join` cards | — | `/{locale}/register`, `/{locale}/register/coffeeshop` |
+| Auth return route, `login_hint`, success panel, cancel, sidebar, `proxy.ts` | — | unaffected (no route literal; forms do not move) |
+| `README.md:207` route table | `/register`, `/register/coffeeshop` | add a `/join` row ("Choose how to register") |
 
-Old links to `/es/register` keep working: they land on the chooser, one click from the form.
+- `/join` uses the same English slug in every locale, like `/about`, `/offerings` and `/coffeeshops` (no localized slugs in the project).
+- The proxy matcher and next-intl routing already cover any path under a locale: no proxy change (`proxy.ts:120-137`).
 
 ## 12. Affected capabilities, files and tests
 
 **Spec deltas (architect):**
-- `user-account`: MODIFIED "Registration routes" (paths; "reachable from the header's Register action" instead of "from the entry page and the About us page"); ADDED "Registration landing" (content, the two destinations, the same session gate: loading, redirect when authenticated). MODIFIED "Coffee shop business name" scenario path if Open 1 = A.
-- `app-shell`: MODIFIED "Signed-out header" (Register action, order, fit at 375px), "Session states in the shell" (neither Sign in nor Register while resolving), and "Header brand and primary navigation" if Open 2 = A (menu entry for anonymous sessions).
-- `landing`: MODIFIED "Entry page hero" (no registration links; scenarios "Registration destinations", "Specialist registration destination" removed; "Hero presentation" reworded), "About us page" ("who it is for" without links; scenario "Registration links" removed), "Page layout" (scenario "Link groups").
+- `user-account`: ADDED "Registration landing" (`/{locale}/join`: content, the two destinations, its own gate: loading status while resolving, client-side navigation to `/{locale}` when authenticated). MODIFIED "Registration routes" only for "reachable from the entry page and the About us page" → reachable from the registration landing; the form paths and every other scenario stay.
+- `app-shell`: MODIFIED "Signed-out header" (a "Register" action before "Sign in" from the medium breakpoint, opening `/{locale}/join`; not shown below it, so the 375px scenarios keep holding) and "Session states in the shell" (neither "Sign in" nor "Register" while resolving).
+- `landing`: MODIFIED "Entry page hero" (no registration links; scenarios "Registration destinations" and "Specialist registration destination" removed; "Hero presentation" reworded; ADDED scenarios for the entry-page "Register" button: shown above the hero below the medium breakpoint for an anonymous session and opening `/{locale}/join`; not shown while resolving, when authenticated or from the medium breakpoint), "About us page" ("who it is for" without links; scenario "Registration links" removed), "Page layout" (scenario "Link groups").
 
-**Code (build):** `app/[locale]/register/page.tsx`, `app/[locale]/register/specialist/page.tsx` (new), `src/pages/register/ui/RegisterLandingScreen.tsx` (new), `src/pages/register/ui/RegisterLandingClient.tsx` (new), `src/pages/register/ui/RegisterClient.tsx` (gate reuse, Open 7), `src/pages/register/index.ts`, `src/widgets/app-header/ui/AppHeader.tsx`, `src/widgets/app-header/ui/NavigationMenu.tsx` and `src/widgets/app-header/lib/nav-entries.ts` (Open 2 = A), `src/app/shell/AppShell.tsx` (one text), `src/shared/ui/icons.ts` (Open 5 = A), `src/pages/home/ui/HomeHero.tsx`, `src/pages/home/ui/HomeScreen.tsx`, `src/pages/about/ui/AboutContent.tsx`, `src/pages/about/ui/AboutScreen.tsx`, `messages/{es,en,ca}/{shell,account,landing}.json`, `README.md`.
+**Code (build):**
+- routing: `app/[locale]/join/page.tsx` (new);
+- `src/pages/register/ui/RegisterLandingScreen.tsx` (new), `src/pages/register/ui/RegisterLandingClient.tsx` (new), `src/pages/register/ui/RegisterClient.tsx` (gate reuse, Open 7), `src/pages/register/index.ts`;
+- `src/pages/home/ui/HomeRegisterButton.tsx` (new), `src/pages/home/ui/HomeScreen.tsx`, `src/pages/home/ui/HomeHero.tsx`;
+- `src/pages/about/ui/AboutContent.tsx`, `src/pages/about/ui/AboutScreen.tsx`;
+- `src/widgets/app-header/ui/AppHeader.tsx`, `src/app/shell/AppShell.tsx` (one text);
+- `messages/{es,en,ca}/{shell,account,landing}.json`, `README.md`.
 
-**Validation tests touched:** `src/pages/home/ui/HomeHero.test.tsx` (line 111, scenario removed), `src/pages/about/ui/AboutContent.test.tsx` (line 161, scenario removed), `src/widgets/app-header/ui/AppHeader.test.tsx` (new header scenarios), new tests for the landing scenarios. How a test of a removed scenario is handled is the architect's call (AGENTS.md "Testing").
+Not touched any more: `NavigationMenu.tsx`, `nav-entries.ts`, `icons.ts`, the form route files.
+
+**Validation tests touched:** `src/pages/home/ui/HomeHero.test.tsx` (line 111, scenario removed), `src/pages/about/ui/AboutContent.test.tsx` (line 161, scenario removed), `src/widgets/app-header/ui/AppHeader.test.tsx` (header scenarios), new tests for the `/join` and entry-page button scenarios. How a test of a removed scenario is handled is the architect's call (AGENTS.md "Testing"). `RegisterClient.test.tsx` is untouched (its `/es/register` fixture stays valid).
 
 **QA suite (not touched during the change; build lists them as stale):** `qa/src/pages/home/ui/HomeHero.test.tsx` (texts fixture lines 44–45), `qa/src/pages/home/ui/HomeScreen.test.tsx` (lines 73–74 read the removed keys).
 
-**Shared files:** `messages/*/shell.json`, `account.json`, `landing.json`, `AppHeader.tsx`. No active change in `openspec/changes/` (checked), so no merge simulation needed today.
+**Shared files:** `messages/*/shell.json`, `account.json`, `landing.json`, `AppHeader.tsx`, `HomeScreen.tsx`. No active change in `openspec/changes/` (checked), so no merge simulation needed today.
 
 ## 13. Dependencies
 
-- **Builds on:** `user-account` (register screens, `RegisterClient` gate, R78 `land-on-home-after-registration`), `app-shell` (header, navigation menu, `fit-header-at-375`, `shorten-ca-header-sign-in`), `landing` (hero, About us), `content-structure` (`PageSection`, `Card` stacked), `base-controls` (`RouteButton`, "Navigation controls by position", "Action variants by kind"), `feedback` (`LoadingStatus`), `auth` (`useSession`).
+- **Builds on:** `user-account` (register screens, `RegisterClient` gate, R78 `land-on-home-after-registration`), `app-shell` (header, `fit-header-at-375`, `shorten-ca-header-sign-in`), `landing` (hero, About us), `content-structure` (`PageSection`, `Card` stacked), `base-controls` (`RouteButton`, "Navigation controls by position", "Action variants by kind"), `feedback` (`LoadingStatus`), `auth` (`useSession`).
 - **Contract:** no operation consumed (navigation only; `registerAUser` stays with the forms).
 - **Backlog:** R45 (same registration area; not folded in, not touched). No entry resolved.
-- **Decisions log:** 2026-10-06 "rutas protegidas sin sesión: mensaje con botón" (register* redirect); 2026-10-06 D14 page layout; 2026-10-07 "nada nuevo en el diseño"; 2026-10-09 "enlace o botón de acción según la posición"; 2026-10-12 R78.
+- **Decisions log:** 2026-10-06 "rutas protegidas sin sesión: mensaje con botón" (register* redirect, extended to `/join` by the request); 2026-10-06 D14 page layout; 2026-10-07 "nada nuevo en el diseño"; 2026-10-09 "enlace o botón de acción según la posición"; 2026-10-12 R78.
 
 ## Open
 
-1. **Route of the landing.** Where does the landing live?
-   - A. `/{locale}/register` becomes the landing; the specialist form moves to `/{locale}/register/specialist`; `/register/coffeeshop` unchanged. Symmetric URLs; old `/register` links land on the chooser. Touches the user-account spec paths, two route files, README.
-   - B. A new route for the landing (e.g. `/{locale}/join`), forms unchanged. No path change in specs, but `/register` (specialist form) and `/join` coexist and the header points to a URL unrelated to the forms; the landing would need the gate outside the `register*` rule.
-   - **Recommendation: A.** The §11 check found no route literal in the auth flow, success panel, sidebar or proxy, so the move is limited to the route files, two link groups being removed anyway, one test fixture and README. A keeps the landing under `register*`, where the decisions-log redirect rule already applies.
-   - **Blocks propose: yes** (spec paths and route files).
+1. **Route of the landing.** **Answered by Product owner (2026-10-21): B, `/{locale}/join`** ("new route as /join"). The forms stay at `/{locale}/register` and `/{locale}/register/coffeeshop`. Design consequences in §4.1, §4.3, §11, §12.
 
-2. **Header "Register" on small viewports.** The signed-out header has no room at 375px (§9).
-   - A. From `md`: button in the header before "Sign in". Below `md`: an entry "Register" in the existing navigation menu after "About us", only for anonymous sessions, with a decorative icon (Open 5).
-   - B. Below `md`: an icon-only `nav-button` (40px square, accessible name `shell.register`). Still +48px (computed: 40 + 8 gap) on a header that just fit; likely overflows (inference, unverified).
-   - C. Text button on every viewport, shortening labels to fit. Wording change for Product owner, likely not enough in es ("Iniciar sesión" + "Registrarse").
-   - D. One "account" menu holding Sign in and Register. New component; contradicts "nada nuevo en el diseño".
-   - **Recommendation: A**, reusing the menu and its entry treatment (source: app-shell "Header brand and primary navigation", `NavigationMenu.tsx`). Additionally, measure at 768px during the visual review; if the inline navigation plus both pills overflow there, show the header button from `lg` instead of `md` and keep the menu entry up to that width (the navigation menu control itself is `md:hidden`, so this sub-case would need the entry elsewhere: report as a finding before apply).
-   - **Blocks propose: yes** (visible behaviour and app-shell scenarios).
+2. **"Register" on small viewports.** **Answered by Product owner (2026-10-21): a new option, "in small screen the button is part of the landing above the first body".** Reading applied (orchestrator's): below `md` the header shows no "Register"; the entry page shows a "Register" button above the hero for anonymous sessions only; from `md` the header button stays. Designed in §6.2; the reading is confirmed in Open 11. The navigation-menu entry and the icon question (former Open 5) are dropped: with no menu entry there is no icon to choose.
 
 3. **Order and treatment of the header action.**
    - Order: A. "Register" immediately before "Sign in" (session control keeps the rightmost slot, as the user menu does when signed in); B. after "Sign in".
    - Treatment: A. `nav-button`, same as "Sign in" (all pairs registered); B. `primary` to stress registration (new pair `action-primary` on `nav-header` to measure in both themes, possibly a new token).
    - **Recommendation: order A, treatment A** (reuse, no contrast work; base-controls "Navigation controls by position" → `RouteButton`).
-   - **Blocks propose: no** (the architect can write either; defaults to the recommendation).
-
-4. **Remove the links from both pages?** The orchestrator's default 2. Product owner's request names both files (`HomeHero.tsx` 80–87 and `AboutContent.tsx` ~116).
-   - A. Remove from both (request as written); About's "who it is for" keeps its text only.
-   - B. Remove from the hero only, keep About's links (pointing to the forms).
-   - **Recommendation: A** — it is what the request says; the header action replaces both. Recorded only for confirmation.
    - **Blocks propose: no.**
 
-5. **Icon of the navigation-menu entry (only if Open 2 = A).** Each menu entry shows a decorative icon (app-shell spec).
-   - A. `UserPlus` from `lucide-react`, added to the single entry point `src/shared/ui/icons.ts` (new export, no new dependency).
-   - B. Reuse `User` (already exported; used for the account entry, so two entries would look alike).
-   - **Recommendation: A** (distinct meaning; no dependency change). It is a new icon, so it needs Product owner's yes under "nada nuevo en el diseño".
-   - **Blocks propose: no.**
+4. **Remove the links from both pages.** **Settled by the request** (it names `HomeHero.tsx` 80–87 and `AboutContent.tsx` ~116): removed from both.
 
-6. **Order of the two option cards.**
-   - A. Specialist first, coffee shop second (order of Product owner's request).
-   - B. Coffee shop first (order of today's hero and About links).
-   - **Recommendation: A** (follows the request; nothing else depends on it).
-   - **Blocks propose: no.**
+5. *(Dropped: the menu-entry icon is no longer needed; see Open 2.)*
 
-7. **Sharing the anonymous-only gate.** The landing needs the same gate as `RegisterClient` (§4).
-   - A. One slice-local client piece in `src/pages/register/ui/` (session from `useSession`, replace to `/{locale}` when authenticated, `loading` and `children` slots) used by `RegisterClient` and the landing, inside this change. Same slice, no cross-slice import; `RegisterClient`'s behaviour and test assertions unchanged.
+6. **Order of the two option cards.** **Settled by the request** ("register as a specialist or register as a coffee shop"): specialist first.
+
+7. **Sharing the anonymous-only gate.** With the landing in the `src/pages/register` slice (§4.3), sharing stays inside one slice.
+   - A. One slice-local client piece in `src/pages/register/ui/` (session from `useSession`, replace to `/{locale}` when authenticated, `loading` and `children` slots) used by `RegisterClient` and `RegisterLandingClient`, inside this change. `RegisterClient`'s behaviour and test assertions unchanged.
    - B. Copy the ≈10 lines into the landing client (under the 20-line backlog threshold of AGENTS.md "Code structure").
    - **Recommendation: A** (criterion C, reuse; one place for the redirect rule).
    - **Blocks propose: no** (architect's design decision either way).
 
 8. **"Already have an account? Sign in" line on the landing** (the MVC register view has one, `register.blade.php:71-74`).
-   - A. Not added (header already shows "Sign in"; not requested).
+   - A. Not added (the header shows "Sign in"; not requested).
    - B. Add a line with a sign-in action at the end of the page (new text, new element).
    - **Recommendation: A.**
    - **Blocks propose: no.**
 
-9. **Wording of the new texts (§8)**, including "Coffee shop" vs "Coffeeshop" in en and the Catalan header label "Registra't" (short, like "Entra").
+9. **Wording of the new texts (§8)**, including "Coffee shop" vs "Coffeeshop" in en and the Catalan label "Registra't" (short, like "Entra").
    - A. Accept §8 as proposed.
    - B. Product owner's own wording.
    - **Recommendation: A**; Product owner may edit any string.
@@ -331,18 +391,27 @@ Old links to `/es/register` keep working: they land on the chooser, one click fr
 
 10. **Cancel action of the forms.** Today it opens `/{locale}` (user-account "Cancelling registration").
     - A. Keep `/{locale}` (no spec change).
-    - B. Go back to the landing `/{locale}/register`.
+    - B. Go back to the landing `/{locale}/join`.
     - **Recommendation: A** (fewest decisions changed; not requested).
     - **Blocks propose: no.**
 
-**Closed (not open):** whether the forms must also redirect authenticated users — they already do (`RegisterClient.tsx:43-51`; user-account "Registration routes"; decisions log 2026-10-06). The landing joins the same rule.
+11. **Confirm the reading of the Open 2 answer.** The design (§6.2, §9) applies this reading:
+    - below `md`, "Register" is not in the header but is a button above the hero, **on the entry page only** (other pages below `md` offer only "Sign in");
+    - it shows only for an anonymous session and is not rendered while the session resolves, so for an anonymous visitor it appears once the session resolves and moves the hero down 4rem (computed);
+    - from `md`, the header shows "Register" before "Sign in" and the entry page shows no button.
+    - Options: A. confirm as above; B. reserve the button's space while the session resolves (no shift for anonymous visitors, but a blank 4rem for signed-in ones); C. a different reading (e.g. above the first section of every page, or also kept at `md` and up).
+    - **Recommendation: A** (follows the answer as relayed; no blank space for signed-in users).
+    - **Blocks propose: no** (the design follows reading A; B is a one-line change in design.md).
+
+**Closed:** whether the forms must also redirect authenticated users — they already do (`RegisterClient.tsx:43-51`; user-account "Registration routes"; decisions log 2026-10-06). `/join` gets the same gate (§4.1).
 
 ## Unverified
 
 1. Contrast ratios of §7 were not re-measured: shell access (Bash/PowerShell) was denied in this session, so no script ran. Every pair is already registered in the theme matrix, which measures them.
-2. Header widths at 375px and 768px with the new action (§9): estimates only; no browser capture was possible in this session. The visual review must capture 375/768/1280 in es and ca, both themes.
+2. Header width at 768px with the new action (§9), and the entry-page button width at 375px: estimates only; no browser capture was possible. The visual review must capture 375/768/1280 in es and ca, both themes, signed out and signed in.
 3. Equal-height cards and bottom-aligned buttons (§6.1) are inferred from the classes, not seen in a browser.
-4. The working tree was read as `develop` per the orchestrator; `git status`/`git show develop:` could not be run to confirm the branch and a clean tree.
+4. Flex `gap` ignoring the `md:hidden` wrapper (§6.2) is standard CSS behaviour for `display: none` items; not seen in this project's browser.
+5. The working tree was read as `develop` per the orchestrator; `git status`/`git show develop:` could not be run to confirm the branch and a clean tree.
 
 ## Review log
 
@@ -352,3 +421,11 @@ Old links to `/es/register` keep working: they land on the chooser, one click fr
   - all spacing values from `RegisterScreen`, About us cards, `RegisterSuccessPanel`, `HomeHero` and the shared components; no new value;
   - texts in `shell` (header) and `account` (landing) areas, matching the existing readers;
   - the six landing keys to remove, verified unused elsewhere by Grep.
+- **2026-10-21 — Product owner's answers (Design lead, step 4).** Changes since the generation:
+  - Open 1 answered (B, `/{locale}/join`): forms no longer move; §11 rewritten (new route file only); all text assuming `/register/specialist` removed (§3, §11, §12, user-account delta, README note, `RegisterClient.test.tsx` fixture no longer affected).
+  - `/join` gate: the decisions-log rule covers only `register*`; the same gate is applied to `/join` from Product owner's request (§4.1). FSD placement settled in §4.3: the landing screen stays in the `src/pages/register` slice and is routed from `app/[locale]/join`, so the shared gate (Open 7) stays slice-local; the lower-layer alternative is recorded there as the architect's choice, not a Product owner question.
+  - Open 2 answered with a new option; designed per the orchestrator's reading: header action from `md` only (`hidden md:inline-flex` wrapper), entry-page `RouteButton action-1` above the hero below `md` in a `HomeRegisterButton` client island of `src/pages/home` (§4.2, §6.2, §9, §10). New text `landing.heroRegisterAction` (§8). New Open 11 to confirm the reading (non-blocking).
+  - Navigation-menu entry and former Open 5 (`UserPlus` icon) dropped: no menu entry means no icon; `NavigationMenu.tsx`, `nav-entries.ts` and `icons.ts` removed from the affected files.
+  - Open 4 and Open 6 marked settled by the request (links removed from both pages; specialist card first).
+  - Spec deltas updated: `landing` gains the entry-page button scenarios; `app-shell` "Signed-out header" shows "Register" only from the medium breakpoint; `user-account` only ADDs the landing and rewords "reachable from".
+  - Opens 3, 7–10 unchanged in substance (7 re-worded for the slice placement, 10 option B now points to `/join`).
