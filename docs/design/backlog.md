@@ -22,10 +22,23 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
+| 1 | R91 | `add-register-landing` | Change (screen, texts) | M | Product owner: summary questions (Open 1 and 2 block propose) |
 | 4 | R1 | none yet (Playwright suite) | Change (tests) | — | R74 in `develop` (Product owner, 2026-10-12) |
 | 5 | R45 | none yet | Change (behaviour, API) | M | Product owner: deferred, to review 2026-10-12; not to be designed yet |
 | 7 | R90 | none yet (API items first) | Change (API, behaviour) | M | API backlog: municipality and roastery origin filters; R89 in `develop` |
 | 6 | R83 | none yet (API) | Change (API) | S | Product owner: whether to take it |
+
+## R91 — Register button and registration landing (Product owner, 2026-10-21)
+
+- **Duplicated:** none. Today registration is reached only through two text links in the entry-page hero and in About us.
+- **Where today:** `src/pages/home/ui/HomeHero.tsx:80-87`, `src/pages/about/ui/AboutContent.tsx:116-123`, `app/[locale]/register/page.tsx` (specialist form), `app/[locale]/register/coffeeshop/page.tsx`, `src/widgets/app-header/ui/AppHeader.tsx`
+- **Why it pays off now:** Product owner's request (approved, high priority after the documentation update): one clear way in for visitors
+- **Owning capability:** user-account (with app-shell and landing)
+- **Proposed change:** `add-register-landing`. A "Register" button in the header, only for anonymous sessions; it opens a registration landing that explains both ways to join (specialist, coffee shop) and leads to each form; the registration links are removed from the entry page and About us; the landing, like every `/[locale]/register*` route, sends an authenticated user to the entry page (decisions log 2026-10-06). Design summary draft: `docs/design/add-register-landing/design-summary.md`
+- **Open decision (Augusto):** the summary's Open 1 (route of the landing) and Open 2 (the button below 768px) block propose; Open 3, 5, 7–10 have recommended defaults
+- **Type:** Change
+- **Status:** accepted
+- **Affects:** R45 (same registration area, not folded in)
 
 ## R45 — Ask for the first location in coffee-shop registration
 
