@@ -10,6 +10,7 @@ Design lead (draft, uncommitted until this commit): landing under the register s
 #### D1 — The landing's session gate is the existing register* rule
 - Context: the request says the landing and the button are only for unauthenticated users. / Decision: the landing reuses the gate of the register forms (loading status while the session resolves; an authenticated user is sent to `/{locale}` by client-side navigation). / Why: decisions log 2026-10-06 "rutas protegidas sin sesión: mensaje con botón" (last sentence) and user-account "Registration routes"; `RegisterClient.tsx:43-51`. / Result: summary §4; the design lead's open point "do the forms also redirect" closed (they already do).
 
+#### D2 — WITHDRAWN 2026-10-29: orchestrator's misreading (removing the About us links was never asked). Product owner then answered summary Open 4: the entry-page hero's two registration links become one link to About us, and About us's two registration links become one link to `/join`
 #### D2 — Links removed from both the entry page and About us (summary Open 4 = A)
 - Context: the request says "the links in the initial landing pages"; both pages hold the two registration links. / Decision: remove both groups. / Why: the request as written (plural). / Result: summary Open 4 stays listed with A; no edit to the summary.
 
@@ -57,5 +58,5 @@ Summary: Product owner asked (2026-10-29), within R91, to replace the hero's reg
 Design lead (draft updated): hero actions block keeps the explore button and adds one text `Link` to `/{locale}/about` 1rem below it, for every visitor, no `nav` landmark; new key `landing.heroAboutLabel` (Sobre nosotros / About us / Sobre nosaltres) rather than reusing `shell.aboutUs` (each screen reads its own catalog area; `heroRegisterAction` precedent); `HomeHeroTexts` gains `aboutLabel`. Found: app-shell "Named navigation landmarks" names the registration landmarks (added to the delta); validation-test list completed; QA fixture `qa/src/pages/home/ui/HomeHero.test.tsx` goes stale. New Open 12 (non-blocking). Unverified: no shell (git, captures, contrast script).
 
 ### Deferred to Product owner
-#### Q5 — Hero About us link: text link or button (summary Open 12)
+#### Q5 — Hero About us link and About us `/join` link: text links or buttons (summary Open 12; both links together since 2026-10-29)
 - Question: base-controls "Navigation controls by position" (decisions log 2026-10-09) makes every navigation control outside a page header's first line an action button; a text link in the hero is an exception (the registration links carry the same tension today). / Options: A. text link, the landing delta states the exception; B. `RouteButton` (e.g. `action-3` like the explore button); C. another reading or label. / Recommendation: A. / Blocks: no.
