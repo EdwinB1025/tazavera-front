@@ -22,8 +22,8 @@ Do every step, in order, before answering Product owner or acting. A question fr
 ## 1. Project and folders
 
 - tazavera-front: Next.js 16 (App Router, `proxy.ts`), React 19, TypeScript, Tailwind 4 (tokens in `src/app/styles/globals.css`), Vitest + RTL, FSD. Windows, Git Bash.
-- Base path: `C:/Porjects/Full Stack/Sprint5/`. API: `tazavera-api` (read only). Contract: `contracts/openapi.yaml`; generated types: `src/shared/api/schema.ts`. Agents never edit either.
-- Previous MVC app (visual reference): `C:/Porjects/Full Stack/Sprint4/MVC/tazavera-app` (`resources/views`, `resources/css/app.css`).
+- Base path: `C:/Programing/Full Stack/Sprint5/`. API: `tazavera-api` (read only). Contract: `contracts/openapi.yaml`; generated types: `src/shared/api/schema.ts`. Agents never edit either.
+- Previous MVC app (visual reference): `C:/Programing/Full Stack/Sprint4/MVC/tazavera-app` (`resources/views`, `resources/css/app.css`).
 - `tazavera-front` is the main checkout; it is usually on `develop` but Product owner may move it to another branch. Each change gets its own worktree `tazavera-front-<short-name>` on `feature/<change-id>`.
 - You may be started from any folder under `Sprint5`. Before anything else, find the change's worktree with `git worktree list`: if it exists, `cd` into it; if not, create it (section 6, step 1) and `cd` into it. Run the whole task from there, except the merge steps that section 6 places in `tazavera-front` and the project records (section 12).
 - **Steps that need `develop`** (decisions log, board, general context, merges): run `git worktree list`; if `develop` is not checked out anywhere, add a temporary worktree on it, do the step, and remove the worktree (`git worktree remove`, never `--force`).
@@ -378,7 +378,7 @@ You maintain three records on `develop` and keep them true. They are what the ne
 | `docs/design/general-context.md` → "Registro de decisiones del orquestador" (the decisions log) | Append-only log, inside the general context | See "Decisions log" below |
 | `docs/design/general-context.md` | The project context to paste into a new conversation: state, working agreements, the orchestrator's rules in short, the cloud workflow, the changes, the decisions, the backlog | At the end of every session, and whenever a working agreement, a rule, the folder layout or a change's state moves |
 
-**Decisions log** (`C:/Porjects/Full Stack/Sprint5/tazavera-front/docs/design/general-context.md`, on `develop`; read it at the start of every session by this absolute path):
+**Decisions log** (`C:/Programing/Full Stack/Sprint5/tazavera-front/docs/design/general-context.md`, on `develop`; read it at the start of every session by this absolute path):
 - If the section does not exist, add it with that heading and no entries.
 - Append only. Never rewrite or delete an entry.
 - Add an entry only for a decision you took within section 3 that another change or a design must take into account, for Product owner's answer to a deferred question that affects another change or a design, or for a design lead finding that settles something for other changes:
