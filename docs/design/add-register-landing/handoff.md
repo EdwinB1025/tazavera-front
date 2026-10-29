@@ -49,3 +49,13 @@ Design lead (draft updated, committed by the orchestrator as a draft): `/join` r
 ### Deferred to Product owner
 #### Q4 — Confirm the reading of the Q2 answer (summary Open 11)
 - Question: below 768 px the "Register" button appears on the entry page only (other pages show just "Sign in"), and it is not rendered while the session resolves, so it pushes the hero down ~4rem once an anonymous session resolves. / Options: A. confirm; B. reserve the space while resolving (signed-in users see a blank 4rem); C. another reading. / Recommendation: A. / Blocks: no.
+
+## Session 2026-10-29 — Summary (new answer, step 4)
+Summary: Product owner asked (2026-10-29), within R91, to replace the hero's registration links with one link to About us. Relayed to the design lead, who updated the draft (committed by the orchestrator as a draft). Product owner also confirmed R45 stays a separate change, queued after R91. Stopped because: waiting for Product owner's approval (commit of the summary with `Status: approved`). MVC reachable: not checked this session.
+
+### Agent feedback
+Design lead (draft updated): hero actions block keeps the explore button and adds one text `Link` to `/{locale}/about` 1rem below it, for every visitor, no `nav` landmark; new key `landing.heroAboutLabel` (Sobre nosotros / About us / Sobre nosaltres) rather than reusing `shell.aboutUs` (each screen reads its own catalog area; `heroRegisterAction` precedent); `HomeHeroTexts` gains `aboutLabel`. Found: app-shell "Named navigation landmarks" names the registration landmarks (added to the delta); validation-test list completed; QA fixture `qa/src/pages/home/ui/HomeHero.test.tsx` goes stale. New Open 12 (non-blocking). Unverified: no shell (git, captures, contrast script).
+
+### Deferred to Product owner
+#### Q5 — Hero About us link: text link or button (summary Open 12)
+- Question: base-controls "Navigation controls by position" (decisions log 2026-10-09) makes every navigation control outside a page header's first line an action button; a text link in the hero is an exception (the registration links carry the same tension today). / Options: A. text link, the landing delta states the exception; B. `RouteButton` (e.g. `action-3` like the explore button); C. another reading or label. / Recommendation: A. / Blocks: no.
