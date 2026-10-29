@@ -4,8 +4,8 @@ Status: draft — pending Product owner review
 
 - **Change-id:** `add-register-landing`
 - **Type:** `Change` (traditional workflow 3a; new screen, new texts, header and entry-page behaviour change)
-- **Capabilities:** `user-account` (registration landing at `/{locale}/join`), `app-shell` (header "Register" action from `md`), `landing` (registration links removed; "Register" button on the entry page below `md`)
-- **Requested by Product owner:** 2026-10-21 (approved request, relayed by the orchestrator); answers to the first draft's open points on the same day (Review log)
+- **Capabilities:** `user-account` (registration landing at `/{locale}/join`), `app-shell` (header "Register" action from `md`; registration landmarks dropped from "Named navigation landmarks"), `landing` (hero registration links replaced by one About us link; About us registration links removed; "Register" button on the entry page below `md`)
+- **Requested by Product owner:** 2026-10-21 (approved request, relayed by the orchestrator); answers to the first draft's open points on the same day, and the hero About us link on 2026-10-29 (Review log)
 - **Constraint (decisions log 2026-10-07 "nada nuevo en el diseño"):** compose existing components, tokens and patterns. Anything new is listed under "Open".
 
 ## 1. Goal
@@ -14,7 +14,7 @@ Today a visitor reaches registration only through two text links in the entry-pa
 
 1. a "Register" action next to the sign-in control in the app header, shown only while the visitor is not authenticated; on small screens it is not in the header but on the entry page, above its first section;
 2. that action to open a new registration landing page at `/{locale}/join` that explains the two ways to join (specialist, coffee shop) and leads to each existing form;
-3. the registration links removed from the entry page and About us, with their now-unused catalog texts;
+3. the registration links removed from About us, and on the entry page replaced by one link to the About us page (Product owner, 2026-10-29, Open 12), with their now-unused catalog texts;
 4. the landing page (and the "Register" actions) unavailable to an authenticated user: a signed-in user who reaches `/join` is sent away.
 
 ## 2. Scope
@@ -24,6 +24,7 @@ Today a visitor reaches registration only through two text links in the entry-pa
 - the header "Register" action for anonymous sessions from `md` (768px);
 - the entry-page "Register" button for anonymous sessions below `md` (Product owner, Open 2; reading to confirm in Open 11);
 - removal of both registration link groups and their six catalog keys per locale;
+- one About us link (`/{locale}/about`) in the entry-page hero in place of its link group, for every visitor, with one new `landing` text (Open 12);
 - the session gate of `/join`, reusing the existing registration-route gate (§4);
 - new texts in es/en/ca (§8).
 
@@ -45,6 +46,7 @@ Today a visitor reaches registration only through two text links in the entry-pa
 | `RouteButton` (`@/shared/ui`) takes `href`, `variant`, `size`, `icon`, `children` and no `className`, so breakpoint visibility goes on a wrapper element. | `src/shared/ui/RouteButton.tsx` |
 | The entry page is a Server Component (`HomeScreen`) that composes `PageSection surface="page"` → `HomeHero`, then the offerings section. The hero's explore action is `ExploreButton`, a small client island in the same slice. | `src/pages/home/ui/HomeScreen.tsx:77-81`, `ExploreButton.tsx` |
 | No code outside `HomeHero`, `AboutContent`, their tests and the two route files references the registration paths; the forms do not move, so the auth flow, success panel, cancel action and sidebar are untouched. | Grep of `src/`, `app/`, `qa/`, `proxy.ts` |
+| The hero's actions block is `mt-2 flex flex-col items-start gap-4` (explore button, then the registration `nav` with `LINK_GROUP_CLASSES`); the QA suite asserts those five classes on the explore button's parent. Each `nav` is named by `texts.registerNavigation` (label-landmarks-and-headings D1), and app-shell "Named navigation landmarks" requires that name ("Registration") on both pages. `Link` (`@/shared/ui`, default variant) is an inline, always-underlined `next/link` run in `text-text-link` / `hover:text-text-link-hover` with the shared focus ring; About us is `/{locale}/about`, labelled `shell.aboutUs` in the header's primary navigation. | `HomeHero.tsx:46-56,78-88`; `qa/src/pages/home/ui/HomeHero.test.tsx:80-84`; app-shell spec "Named navigation landmarks"; `src/shared/ui/Link.tsx`; `nav-entries.ts:44` |
 | The signed-out header is tight at 375px: `fit-header-at-375` (2026-10-08) fixed a 2–14px overflow; the Catalan label was shortened to "Entra" (`shorten-ca-header-sign-in`). | archived proposals of both changes; app-shell "Header fits a small viewport", "Catalan sign-in label fits on one line" |
 | The MVC has no registration chooser: its header shows only "Sign In" (`resources/views/components/welcome/navbar.blade.php:17`) and its register view is a single form without a role (`resources/views/livewire/auth/register.blade.php`). | MVC (found under `C:/Programing/Full Stack/Sprint5/tazavera-app`; the `C:/Porjects/...` path does not exist) |
 
@@ -89,8 +91,9 @@ Alternative considered and not chosen: moving the gate to a lower layer (e.g. `f
 | Option card | composed in the slice from `Card layout="stacked"` (content variant), `CardContent`, `RouteButton` | About us "How we evaluate" cards (`AboutContent.tsx:90-109`); `RegisterSuccessPanel` heading/text pattern |
 | Header "Register" action | `src/widgets/app-header/ui/AppHeader.tsx` | `RouteButton variant="nav-button"` in a `span` `hidden md:inline-flex` (logotype wrapper precedent, `AppHeader.tsx:129`) |
 | Entry-page "Register" button (`HomeRegisterButton`, client island) | `src/pages/home/ui/` | `useSession()` from `@/features/auth` (pages → features, as `RegisterClient`); `RouteButton variant="action-1"`; client-island precedent `ExploreButton` |
+| Hero About us link (Open 12) | `src/pages/home/ui/HomeHero.tsx` (stays server-rendered, no session) | `Link` (`@/shared/ui`, default variant), the component the registration links already use |
 
-`HomeScreen` stays a Server Component and passes `locale` and the label as props to `HomeRegisterButton`; only the island reads the session. No new shared component, variant, token or icon. No contract operation consumed.
+`HomeScreen` stays a Server Component and passes `locale` and the label as props to `HomeRegisterButton`; only the island reads the session. The hero About us link needs no session and no client code. No new shared component, variant, token or icon. No contract operation consumed.
 
 ## 6. Layout and spacing (criterion A)
 
@@ -175,15 +178,34 @@ Card layout="stacked" (content variant)
 
 ### 6.3 Entry page and About us after the link removal
 
-- **Hero:** the actions block (`mt-2 flex flex-col items-start gap-4`) keeps only the explore button; the `nav` group and `LINK_GROUP_CLASSES` go. The explore button still sits 1.5rem below the paragraph.
-- **About us, section 4 ("who it is for"):** keeps the audience text alone in its `PageSection surface="section"`; the `nav` group and `LINK_GROUP_CLASSES` go. The five-section order and alternating surfaces are unchanged.
-- The landing spec's "Link groups" scenario ("the two registration links render on either page") loses its subject; the architect removes or rewords it in the delta.
+**Hero (Product owner, 2026-10-29, Open 12):** the two registration links are replaced by **one** text link to the About us page.
+
+```
+text column — flex flex-col, 1rem apart                     [HomeHero TEXT_COLUMN_CLASSES, unchanged]
+├─ eyebrow · heading · paragraph                             [unchanged]
+└─ actions block — mt-2 flex flex-col items-start gap-4      [HomeHero ACTIONS_CLASSES, unchanged]
+   ├─ ExploreButton (action-3) → /{locale}/coffeeshops        [unchanged]
+   └─ Link (default) → /{locale}/about   (landing.heroAboutLabel)
+```
+
+- **Component:** `Link` from `@/shared/ui`, default variant, `href` = `/{locale}/about`: a text link, not a button, as the orchestrator read Product owner's answer and as the registration links it replaces are today. **Tension:** base-controls "Navigation controls by position" (decisions log 2026-10-09 "enlace o botón de acción según la posición") makes every navigation control that is not on a page header's first line, or in running text, an action button; no exemption for the hero's links is recorded (none found in the decisions log or in the archived `apply-header-link-rule`). Open 12 asks Product owner to confirm the link (the architect then states the exception in the landing delta) or to take the button. Treatment from `Link`: underlined in every state, `text-text-link`, hover `text-text-link-hover`, shared `focus-visible:focus-ring`.
+- **Where:** the actions block's second child, where the `nav` was: 1rem below the explore button (the block's existing `gap-4`), start-aligned at its own width (`items-start`). The explore button still sits 1.5rem below the paragraph (column `gap-4` + `mt-2`).
+- **No wrapper, no landmark:** the `nav` element and `LINK_GROUP_CLASSES` go; the link is a direct child of the actions block. A single link is not a group of navigation links, and the About us destination is already inside the header's named "Main" navigation; keeping a one-link `nav` would add a landmark whose only entry duplicates the header's. `heroRegisterNavigation` is removed, not renamed (§8).
+- **Visibility:** rendered for every visitor in every session state (like the links it replaces); `HomeHero` stays a Server Component.
+- **Spacing and boundary (criterion A):** padding none; margin none (gap 1rem above, from the actions block; nothing below inside the block); no children gap (text only, no icon); no border (underline is the link treatment, not a boundary); no radius; container: the actions block of the hero's text column (left column from `md`, single column below).
+- **Wrapping:** an inline text run; it wraps with its text if a locale's label ever exceeds the column (it does not at 375px: the column is 343px, computed; "Sobre nosaltres" is ≈ 120px, estimate, unverified).
+- **Hero height:** unchanged in practice: one link line replaces one link row (both one line of `type-body` at every project width; computed from the classes, unverified in a browser).
+
+**About us, section 4 ("who it is for"):** keeps the audience text alone in its `PageSection surface="section"`; the `nav` group and `LINK_GROUP_CLASSES` go, with no replacement (the page does not link to itself; Open 12). The five-section order and alternating surfaces are unchanged.
+
+- The landing spec's "Link groups" scenario ("the two registration links render on either page") and the "Page layout" sentence on groups of navigation links lose their subject on both pages; the architect removes or rewords them in the delta.
 
 ## 7. States, accessibility and semantic tokens
 
 **Accessible names and structure:**
 - `/join`: one `h1` (`registerLandingTitle`); each card an `h2`; each `RouteButton` named by its visible label (two distinct labels). No landmark of its own.
 - Header action and entry-page button: named by their visible labels; keyboard reachable; shared focus ring (`focus-visible:focus-ring` in `Button`). The entry-page button comes before the hero's `h1` in reading order (Product owner's placement).
+- Hero About us link: a `link` named by its visible label (`landing.heroAboutLabel`), addressing `/{locale}/about`; keyboard reachable after the explore button; no `nav` landmark around it (§6.3). From `md` the header's "About us" entry shows the same name for the same destination (an allowed duplicate: same name, same target).
 - `LoadingStatus`: `role="status"`, spinner `aria-hidden`, honours `prefers-reduced-motion`.
 - Focus: no programmatic focus on arrival, like the register forms.
 
@@ -198,6 +220,7 @@ Card layout="stacked" (content variant)
 | Card action | `action-1-text` on `action-1-bg`; hover `action-1-text-hover` on `action-1-bg-hover`; border `action-1-border` on `surface-card` | lines 330, 334, 427 |
 | Entry-page button | same text pairs; border `action-1-border` on `surface-page` | lines 330, 334, 426 |
 | Header action | `nav-button-text` on `nav-button-bg` (border exempt) | lines 358, 394–395 |
+| Hero About us link | `text-link` / `text-link-hover` on `surface-page` (the pair the removed registration links used) | lines 322, 530–531, 607, 773–774 (both themes, by Grep) |
 | Focus ring | `focus-ring` on `surface-card` / `surface-page` | line 381 / existing |
 | Card left border, shadow, page surfaces | decorative | not gated |
 
@@ -218,8 +241,12 @@ New keys. Proposed wording; Product owner may revise (Open 9).
 | Key | es | en | ca |
 |---|---|---|---|
 | `heroRegisterAction` | Registrarse | Register | Registra't |
+| `heroAboutLabel` | Sobre nosotros | About us | Sobre nosaltres |
 
-Same wording as the header action; a separate key because each capability reads its own catalog area (`HomeScreen` reads `landing`, `AppShell` reads `shell`).
+- `heroRegisterAction`: same wording as the header action.
+- `heroAboutLabel` (Open 12): the hero About us link, passed to `HomeHero` as `texts.aboutLabel`; same wording as the header entry `shell.aboutUs`, so the destination has one name everywhere.
+- **Why new keys, not reuse of `shell.register` / `shell.aboutUs`:** each capability reads its own catalog area (`HomeScreen` reads `landing`, `AppShell` reads `shell`); reusing a `shell` key would make `HomeScreen` read a second area for one string and tie the landing hero to the shell's catalog. The duplicated wording is two strings per locale, below the backlog threshold.
+- **Landmark name:** `heroRegisterNavigation` is **removed, not renamed**: the single link has no `nav` landmark (§6.3), so no navigation name is needed; `aboutRegisterNavigation` goes with the About us links.
 
 **`account` area** (`messages/{es,en,ca}/account.json`, read by `RegisterLandingScreen`, like `RegisterScreen`):
 
@@ -237,7 +264,11 @@ Same wording as the header action; a separate key because each capability reads 
 - Reused: `account.loading` (loading status). The card action labels reuse the exact wording of the removed hero/about labels. The card texts paraphrase the About us copy (`aboutStepCupping`, `aboutAudienceText`).
 - The en catalog spells "coffeeshop" in the account area and "coffee shops" in the shell; the new card title uses "Coffee shop" as the header does (flag in Open 9).
 
-**Removed keys** (`messages/{es,en,ca}/landing.json`, six per locale, no other consumer found by Grep): `heroCoffeeshopRegisterLabel`, `heroSpecialistRegisterLabel`, `heroRegisterNavigation`, `aboutCoffeeshopRegisterLabel`, `aboutSpecialistRegisterLabel`, `aboutRegisterNavigation`. With them go the props `coffeeshopRegisterLabel`, `specialistRegisterLabel`, `registerNavigation` of `HomeHeroTexts` and `AboutContentTexts`, and the now-unused `Link` imports in both files.
+**Removed keys** (`messages/{es,en,ca}/landing.json`, six per locale, no other consumer found by Grep): `heroCoffeeshopRegisterLabel`, `heroSpecialistRegisterLabel`, `heroRegisterNavigation`, `aboutCoffeeshopRegisterLabel`, `aboutSpecialistRegisterLabel`, `aboutRegisterNavigation`. Net per locale in `landing`: six removed, two added (`heroRegisterAction`, `heroAboutLabel`).
+
+**Props:**
+- `HomeHeroTexts`: removes `coffeeshopRegisterLabel`, `specialistRegisterLabel` and `registerNavigation`; adds `aboutLabel: string` (required: the one production caller, `HomeScreen`, always passes it from `catalog.heroAboutLabel`). `HomeHero` keeps its `Link` import (now for the About us link) and drops `LINK_GROUP_CLASSES`. The QA fixture `qa/src/pages/home/ui/HomeHero.test.tsx` has no `aboutLabel`; a required prop makes it stale for the typecheck, which the build lists (AGENTS.md "Testing": never loosen production code for a QA fixture). The optional-prop alternative of label-landmarks-and-headings D1 is the architect's call.
+- `AboutContentTexts`: removes `coffeeshopRegisterLabel`, `specialistRegisterLabel` and `registerNavigation`; adds nothing. `AboutContent` drops its `Link` import and `LINK_GROUP_CLASSES`.
 
 The existing catalog guard ("an area is complete in every locale") covers additions and removals; no new test.
 
@@ -247,9 +278,9 @@ Project breakpoints: `md` 768px (spacing steps, grid columns, header form, where
 
 | Width | `/join` | Header | Entry page |
 |---|---|---|---|
-| 375px | one column; cards 343px; 1rem side padding; 3rem vertical section padding | unchanged from today (no "Register"); still fits as `fit-header-at-375` left it | anonymous: "Register" button (160px, computed) at the top of the hero section, 1.5rem above the eyebrow |
-| 768px | two equal columns, 1.5rem gap; 2rem side padding; 4rem vertical | "Register" before "Sign in" **if it fits** beside the inline navigation; unmeasured (Unverified 2) | no button; hero as today |
-| 1280px | two columns of 532px (computed) | "Register" before "Sign in" | no button; hero as today |
+| 375px | one column; cards 343px; 1rem side padding; 3rem vertical section padding | unchanged from today (no "Register"); still fits as `fit-header-at-375` left it | anonymous: "Register" button (160px, computed) at the top of the hero section, 1.5rem above the eyebrow; every session: About us link 1rem below the explore button |
+| 768px | two equal columns, 1.5rem gap; 2rem side padding; 4rem vertical | "Register" before "Sign in" **if it fits** beside the inline navigation; unmeasured (Unverified 2) | no button; hero as today, with the About us link in place of the registration links |
+| 1280px | two columns of 532px (computed) | "Register" before "Sign in" | no button; hero as today, with the About us link in place of the registration links |
 
 - **Fallback if the header overflows at 768px:** both breakpoints move together to `lg` — the header wrapper becomes `hidden lg:inline-flex` and the entry-page wrapper `lg:hidden` — so there is never a width without a way to "Register" on the entry page. The visual review measures it; the architect writes `md` unless the measurement says otherwise.
 - **Pages other than the entry page below `md`:** no "Register" action (only "Sign in"); `/join` stays reachable from the entry page. This follows Product owner's answer; Open 11 confirms it.
@@ -296,12 +327,16 @@ There is no MVC capture to take: the MVC has no registration chooser and no regi
 │ paragraph…                          │
 │        (1.5rem)                     │
 │ ( Explora coffees )   ← action-3     │
+│        (1rem)                       │
+│ Sobre nosotros   ← Link, underlined, text-link
 │        (3rem bottom padding)        │
 ├─────────────────────────────────────┤
 │ verified offerings (surface-section)│
 ```
 
-Signed in or while the session resolves, the same 375px page shows no button and the eyebrow starts right below the 3rem top padding (today's layout).
+Signed in or while the session resolves, the same 375px page shows no button and the eyebrow starts right below the 3rem top padding (today's layout); the About us link shows in every state. From `md` the hero is today's two-column hero with the About us link in the left column where the registration links were.
+
+(The mock-up's explore label "Explora coffees" is a placeholder; the real `heroExploreLabel` is "Explorar cafés".)
 
 **`/es/join`, 375px:** header as today; title, intro, then the two cards stacked 1.5rem apart, each 343px wide.
 
@@ -314,7 +349,8 @@ Live references for the parts: the About us "How we evaluate" cards (`/es/about`
 | `app/[locale]/join/page.tsx` | — | registration landing (`RegisterLandingScreen` from `@/pages/register`) |
 | `app/[locale]/register/page.tsx` | specialist form | unchanged |
 | `app/[locale]/register/coffeeshop/page.tsx` | coffee-shop form | unchanged |
-| `HomeHero.tsx`, `AboutContent.tsx` links | `/register`, `/register/coffeeshop` | removed |
+| `HomeHero.tsx` links | `/register`, `/register/coffeeshop` | one link to `/{locale}/about` (Open 12) |
+| `AboutContent.tsx` links | `/register`, `/register/coffeeshop` | removed |
 | Header (from `md`), entry page (below `md`) | — | "Register" → `/{locale}/join` |
 | `/join` cards | — | `/{locale}/register`, `/{locale}/register/coffeeshop` |
 | Auth return route, `login_hint`, success panel, cancel, sidebar, `proxy.ts` | — | unaffected (no route literal; forms do not move) |
@@ -327,22 +363,32 @@ Live references for the parts: the About us "How we evaluate" cards (`/es/about`
 
 **Spec deltas (architect):**
 - `user-account`: ADDED "Registration landing" (`/{locale}/join`: content, the two destinations, its own gate: loading status while resolving, client-side navigation to `/{locale}` when authenticated). MODIFIED "Registration routes" only for "reachable from the entry page and the About us page" → reachable from the registration landing; the form paths and every other scenario stay.
-- `app-shell`: MODIFIED "Signed-out header" (a "Register" action before "Sign in" from the medium breakpoint, opening `/{locale}/join`; not shown below it, so the 375px scenarios keep holding) and "Session states in the shell" (neither "Sign in" nor "Register" while resolving).
-- `landing`: MODIFIED "Entry page hero" (no registration links; scenarios "Registration destinations" and "Specialist registration destination" removed; "Hero presentation" reworded; ADDED scenarios for the entry-page "Register" button: shown above the hero below the medium breakpoint for an anonymous session and opening `/{locale}/join`; not shown while resolving, when authenticated or from the medium breakpoint), "About us page" ("who it is for" without links; scenario "Registration links" removed), "Page layout" (scenario "Link groups").
+- `app-shell`: MODIFIED "Signed-out header" (a "Register" action before "Sign in" from the medium breakpoint, opening `/{locale}/join`; not shown below it, so the 375px scenarios keep holding), "Session states in the shell" (neither "Sign in" nor "Register" while resolving) and "Named navigation landmarks" (the registration landmarks of the entry page and About us leave the requirement text; scenario "Registration links named" removed; "Main" and "Management" unchanged).
+- `landing`: MODIFIED "Entry page hero": the requirement's "two navigation links: one registering a coffeeshop and one registering as a specialist" becomes one link that opens the About us page of the active locale (`/{locale}/about`), shown to every visitor; "Hero presentation" lists the About us link instead of "both registration links"; "Registration destinations" becomes an About us scenario (the link, named by its label, addresses `/{locale}/about`, e.g. `/es/about`); "Specialist registration destination" removed; ADDED scenarios for the entry-page "Register" button (shown above the hero below the medium breakpoint for an anonymous session and opening `/{locale}/join`; not shown while resolving, when authenticated or from the medium breakpoint). "About us page" ("who it is for" without links; scenario "Registration links" removed). "Page layout" (scenario "Link groups" and the sentence on groups of navigation links: no group remains on either page). If Product owner confirms the text link (Open 12), the hero requirement states it is a link as an exception to base-controls "Navigation controls by position".
 
 **Code (build):**
 - routing: `app/[locale]/join/page.tsx` (new);
 - `src/pages/register/ui/RegisterLandingScreen.tsx` (new), `src/pages/register/ui/RegisterLandingClient.tsx` (new), `src/pages/register/ui/RegisterClient.tsx` (gate reuse, Open 7), `src/pages/register/index.ts`;
-- `src/pages/home/ui/HomeRegisterButton.tsx` (new), `src/pages/home/ui/HomeScreen.tsx`, `src/pages/home/ui/HomeHero.tsx`;
+- `src/pages/home/ui/HomeRegisterButton.tsx` (new), `src/pages/home/ui/HomeScreen.tsx` (hero texts: three keys out, `heroAboutLabel` in; register-button wrapper), `src/pages/home/ui/HomeHero.tsx` (link group → one About us `Link`; `HomeHeroTexts`);
 - `src/pages/about/ui/AboutContent.tsx`, `src/pages/about/ui/AboutScreen.tsx`;
 - `src/widgets/app-header/ui/AppHeader.tsx`, `src/app/shell/AppShell.tsx` (one text);
 - `messages/{es,en,ca}/{shell,account,landing}.json`, `README.md`.
 
 Not touched any more: `NavigationMenu.tsx`, `nav-entries.ts`, `icons.ts`, the form route files.
 
-**Validation tests touched:** `src/pages/home/ui/HomeHero.test.tsx` (line 111, scenario removed), `src/pages/about/ui/AboutContent.test.tsx` (line 161, scenario removed), `src/widgets/app-header/ui/AppHeader.test.tsx` (header scenarios), new tests for the `/join` and entry-page button scenarios. How a test of a removed scenario is handled is the architect's call (AGENTS.md "Testing"). `RegisterClient.test.tsx` is untouched (its `/es/register` fixture stays valid).
+**Validation tests touched:**
+- `src/pages/home/ui/HomeHero.test.tsx`:
+  - texts fixture (lines 36–46) and the Spanish case's catalog texts (lines 81–91): the two registration labels give way to `aboutLabel` / `catalog.heroAboutLabel`; "Hero presentation" (lines 61–73) then checks the About us label through the fixture loop;
+  - "Registration destinations" (lines 110–122) becomes the About us destination test: the link named `TEXTS.aboutLabel` addresses `/es/about`;
+  - "keeps the two registration links apart in a wrapping row" (lines 147–159, scenario "Link groups") loses its subject.
+- `src/pages/about/ui/AboutContent.test.tsx`: fixture lines 64–65; "Sections and order" (lines 101–104 expect the labels in section 4); "Registration links" (lines 160–174); "keeps the two registration links apart" (lines 222–230).
+- `src/widgets/app-header/ui/AppHeader.test.tsx` (header scenarios); new tests for the `/join` and entry-page button scenarios.
+- No test of app-shell "Registration links named" found by Grep.
+- How a test of a removed scenario is handled is the architect's call (AGENTS.md "Testing"). `RegisterClient.test.tsx` is untouched (its `/es/register` fixture stays valid).
 
-**QA suite (not touched during the change; build lists them as stale):** `qa/src/pages/home/ui/HomeHero.test.tsx` (texts fixture lines 44–45), `qa/src/pages/home/ui/HomeScreen.test.tsx` (lines 73–74 read the removed keys).
+**QA suite (not touched during the change; build lists them as stale):**
+- `qa/src/pages/home/ui/HomeHero.test.tsx`: texts fixture lines 44–45 carry the removed labels and lack the required `aboutLabel`. Its layout test (lines 80–84) asserts `mt-2 flex flex-col items-start gap-4` on the explore button's parent; the design keeps those classes, so that assertion keeps holding.
+- `qa/src/pages/home/ui/HomeScreen.test.tsx`: lines 73–74 read the removed keys.
 
 **Shared files:** `messages/*/shell.json`, `account.json`, `landing.json`, `AppHeader.tsx`, `HomeScreen.tsx`. No active change in `openspec/changes/` (checked), so no merge simulation needed today.
 
@@ -365,7 +411,7 @@ Not touched any more: `NavigationMenu.tsx`, `nav-entries.ts`, `icons.ts`, the fo
    - **Recommendation: order A, treatment A** (reuse, no contrast work; base-controls "Navigation controls by position" → `RouteButton`).
    - **Blocks propose: no.**
 
-4. **Remove the links from both pages.** **Settled by the request** (it names `HomeHero.tsx` 80–87 and `AboutContent.tsx` ~116): removed from both.
+4. **Remove the links from both pages.** **Settled by the request** (it names `HomeHero.tsx` 80–87 and `AboutContent.tsx` ~116): removed from both; on the entry page they are replaced by one About us link (Open 12).
 
 5. *(Dropped: the menu-entry icon is no longer needed; see Open 2.)*
 
@@ -403,6 +449,17 @@ Not touched any more: `NavigationMenu.tsx`, `nav-entries.ts`, `icons.ts`, the fo
     - **Recommendation: A** (follows the answer as relayed; no blank space for signed-in users).
     - **Blocks propose: no** (the design follows reading A; B is a one-line change in design.md).
 
+12. **Hero link to About us.** **Answered by Product owner (2026-10-29): "replace the registration link with a unique link that holds the route to the info page (about us)".** Settled. The design (§6.3, §7, §8, §12) applies the orchestrator's reading:
+    - in the entry-page hero the two registration links are replaced by **one** link to `/{locale}/about`, labelled like the header entry (new key `landing.heroAboutLabel`: "Sobre nosotros" / "About us" / "Sobre nosaltres");
+    - it is shown to every visitor (not session-dependent), as a text `Link` (`@/shared/ui`, default variant), in the hero's actions block 1rem below the explore button, without a `nav` landmark (`heroRegisterNavigation` removed);
+    - About us only loses its registration links (no link to itself).
+    - To confirm:
+      - A. the reading as above (text link);
+      - B. the same link as an action button, `RouteButton` with the treatment of its kind (base-controls "Navigation controls by position"; decisions log 2026-10-09), e.g. `action-3` like the explore button, in an action group with it;
+      - C. a different reading (e.g. a different label such as "Conoce Tazavera", or the link also kept on About us).
+    - **Recommendation: A**, because it follows the answer as relayed and keeps the registration links' place and treatment. Its cost: base-controls says every navigation control outside a page header's first line is an action button, so the landing delta must state the hero link as an exception. The registration links carry the same tension today.
+    - **Blocks propose: no.** The design follows A; B would change only the component and add the action-group layout, with no new token or text.
+
 **Closed:** whether the forms must also redirect authenticated users — they already do (`RegisterClient.tsx:43-51`; user-account "Registration routes"; decisions log 2026-10-06). `/join` gets the same gate (§4.1).
 
 ## Unverified
@@ -411,7 +468,8 @@ Not touched any more: `NavigationMenu.tsx`, `nav-entries.ts`, `icons.ts`, the fo
 2. Header width at 768px with the new action (§9), and the entry-page button width at 375px: estimates only; no browser capture was possible. The visual review must capture 375/768/1280 in es and ca, both themes, signed out and signed in.
 3. Equal-height cards and bottom-aligned buttons (§6.1) are inferred from the classes, not seen in a browser.
 4. Flex `gap` ignoring the `md:hidden` wrapper (§6.2) is standard CSS behaviour for `display: none` items; not seen in this project's browser.
-5. The working tree was read as `develop` per the orchestrator; `git status`/`git show develop:` could not be run to confirm the branch and a clean tree.
+5. The working tree was read as `develop` per the orchestrator; `git status`/`git show develop:` could not be run to confirm the branch and a clean tree (shell denied again on 2026-10-29).
+6. The About us link's width and the unchanged hero height (§6.3) are estimates from the classes; no browser capture.
 
 ## Review log
 
@@ -429,3 +487,8 @@ Not touched any more: `NavigationMenu.tsx`, `nav-entries.ts`, `icons.ts`, the fo
   - Open 4 and Open 6 marked settled by the request (links removed from both pages; specialist card first).
   - Spec deltas updated: `landing` gains the entry-page button scenarios; `app-shell` "Signed-out header" shows "Register" only from the medium breakpoint; `user-account` only ADDs the landing and rewords "reachable from".
   - Opens 3, 7–10 unchanged in substance (7 re-worded for the slice placement, 10 option B now points to `/join`).
+- **2026-10-29 — Product owner's answer on the hero link (Design lead, step 4).** The hero's two registration links are replaced by one About us `Link` to `/{locale}/about`, for every visitor, in the actions block 1rem below the explore button, with no `nav` landmark. About us only loses its links. Changes: §1, §2, §3 (new fact row), §5, §6.3 (rewritten), §7 (accessible name; `text-link` pairs, already registered), §8 (new `landing.heroAboutLabel`; why not `shell.aboutUs`; `heroRegisterNavigation` removed, not renamed; `HomeHeroTexts` gains `aboutLabel`), §9, §10 (375px mock-up), §11, §12 (landing delta, files, tests), Open 4, new Open 12 (settled, reading to confirm, non-blocking), Unverified 6. Settled under criterion B (semantic, contradiction between artifacts):
+  - app-shell "Named navigation landmarks" names the registration landmarks, which this change removes; the first drafts missed it. It is added to the app-shell delta.
+  - The validation-test list was incomplete; the missing AboutContent and HomeHero cases are added.
+  - The mock-up's explore label is flagged as a placeholder.
+  - Not settled: the tension between a text link and base-controls "Navigation controls by position". It changes what is built, so it goes to Open 12 (option B).
