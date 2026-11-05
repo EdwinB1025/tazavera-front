@@ -8,7 +8,7 @@ The board of tazavera-front's OpenSpec changes: only what is **not resolved**. W
 
 | Change | Capabilities | Branch / worktree | Phase | Status | Next phase | Assignee | Blocker | Last commit |
 |---|---|---|---|---|---|---|---|---|
-| `add-register-landing` (R91, `Change`) | user-account, app-shell, landing | `feature/add-register-landing` / `tazavera-front-register-landing` | Apply | Apply weight: long (three capabilities, 15 tasks) → cloud. Cloud build `trig_01RXWWDgLqMaXn4Tv1ocqPgh`, session `cse_016Lpndfr5uMg21DGuUxVYjs` (18:24–18:26 UTC) stopped before task 1.1: no `openspec` CLI in the cloud; nothing committed or pushed | Relaunch the cloud apply | Product owner | Q11 (waiting list, item 5) | `81b1d975` |
+| `add-register-landing` (R91, `Change`) | user-account, app-shell, landing | `feature/add-register-landing` / `tazavera-front-register-landing` | Apply | Apply weight: long (three capabilities, 15 tasks) → cloud. Cloud build `trig_01RXWWDgLqMaXn4Tv1ocqPgh`, session `cse_016Lpndfr5uMg21DGuUxVYjs` (18:24–18:26 UTC) stopped before task 1.1: no `openspec` CLI in the cloud; nothing committed or pushed. Q11 answered: Product owner added `npm install -g @fission-ai/openspec@1.16.0` to the `Default` environment's setup script; same routine rescheduled for 18:44 UTC | Review and integrate the cloud branch (§7 steps 4–8), then the design lead's visual review | Cloud build, then orchestrator | — | `81b1d975` |
 | `require-first-location-on-registration` (R45, `Change`) | user-account, offering-management | — | Queued | Accepted (2026-10-29), option A, front only: after `POST /register` (with `token`) the coffee shop creates its first location with `POST /locations` | Summary — draft (design lead) | Orchestrator | Waits for R91 to reach `develop` (same registration screen) | — |
 | `add-locale-e2e-test` (R1, `Change`) | testing | — (summary on `develop`) | Summary — draft | Draft `a661d9a1` with 9 open points | Summary — approved (Product owner's commit) | Product owner | Block propose: **1** dependency `@playwright/test` (rec. A: exact version, Chromium only); **3** base branch (R74 is already on `develop`); **4** third suite and `testing` delta (rec. A) | `a661d9a1` |
 | R90 (two origin cascades in the facets) | filtering | — | Backlog | Front part of two API backlog entries | — | Product owner | API changes first (municipality and roastery origin filters) | — |
@@ -22,7 +22,6 @@ The board of tazavera-front's OpenSpec changes: only what is **not resolved**. W
 | 2 | `claude/*` branches left unintegrated on purpose: `unify-bean-outline`, `r64-list-spacing-analysis`, `share-active-locale-refactor`, `test-reduction-plan`; and `add-register-landing-propose` (already integrated) | Do you delete them on GitHub? (yours) |
 | 3 | API task (2026-10-11): the front's landing as the callback's return page | Done? The orchestrator acts only if the contract changes |
 | 4 | Flaky test `EvaluationForm.test.tsx` (failed once and passed on retry, 2026-10-11) | Backlog entry or drop it? |
-| 5 | R91 Q11: the cloud apply needs the `openspec` CLI (the apply skill calls it; not in `package.json`). The propose session installed it globally on its own (1.16.0, `package.json` untouched) | Relaunch with a setup line `npm install -g @fission-ai/openspec@1.16.0` (rec.), or have the build go on without the CLI? |
 
 ## Contract coverage
 
