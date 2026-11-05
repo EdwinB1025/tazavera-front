@@ -63,3 +63,13 @@ Design lead (draft updated): hero actions block keeps the explore button and add
 #### ANSWERED 2026-11-05: A, text links (Product owner approved the summary with its defaults, `c6ac3ddf`)
 #### Q5 — Hero About us link and About us `/join` link: text links or buttons (summary Open 12; both links together since 2026-10-29)
 - Question: base-controls "Navigation controls by position" (decisions log 2026-10-09) makes every navigation control outside a page header's first line an action button; a text link in the hero is an exception (the registration links carry the same tension today). / Options: A. text link, the landing delta states the exception; B. `RouteButton` (e.g. `action-3` like the explore button); C. another reading or label. / Recommendation: A. / Blocks: no.
+
+## Session 2026-11-05 — Propose (step 6), cloud
+Summary: Propose launched as a one-off scheduled cloud run: routine `trig_01DGEQDsPoc6k69Y6M3BYNFT`, run at 2026-11-05 09:15 UTC, environment `Default`, model `claude-opus-5-5`, architect only, base `origin/feature/add-register-landing` (`f1b6dc50`), target `claude/add-register-landing-propose`. The prompt was written by the orchestrator (the design lead subagent file `.claude/agents/design-lead.md` is not present in this session, so the design lead could not run; section 7, step 2); the design lead reviews the result before the artifact review. Plan usage at launch: 5 h 3%, 7 d 1%. Stopped because: waiting for the cloud session. MVC reachable: not checked.
+
+### Decisions taken
+#### D4 — Summary status line read as approved
+- Context: the summary's first line reads `Status: draft — approved`, not exactly `Status: approved`. / Decision: treat it as approved and say so in the prompt. / Why: Product owner's commit `c6ac3ddf` "add-register-landing approved", with Q3–Q5 answered by it. / Result: propose prompt.
+
+### Agent feedback
+(pending: the cloud session's final report)
