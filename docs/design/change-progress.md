@@ -2,13 +2,13 @@
 
 The board of tazavera-front's OpenSpec changes: only what is **not resolved**. What is closed (archived and on `develop`) leaves the board: its decisions are in `openspec/changes/archive/`, in each change's handoff, in the decisions log of `docs/design/general-context.md` and in this file's git history.
 
-**Last update:** 2026-11-05 (afternoon) — Cloud routine creation works in `default` mode (disabled test routine `trig_01XnGPPCQNjFiNZAsWNVXSNo`, never scheduled; Product owner may delete it). Design lead reviewed R91's propose; A4–A5 cleanup done. R91 waits for Q9. Assignment loop running; no scheduled routine, watch or active executor.
+**Last update:** 2026-11-05 (afternoon) — Cloud routine creation works in `default` mode (disabled test routine `trig_01XnGPPCQNjFiNZAsWNVXSNo`, never scheduled; Product owner may delete it). R91's artifacts are updated; its cloud apply waits for Q10. Assignment loop stopped (everything waits for Product owner); no scheduled routine, watch or active executor.
 
 ## Board
 
 | Change | Capabilities | Branch / worktree | Phase | Status | Next phase | Assignee | Blocker | Last commit |
 |---|---|---|---|---|---|---|---|---|
-| `add-register-landing` (R91, `Change`) | user-account, app-shell, landing | `feature/add-register-landing` / `tazavera-front-register-landing` | Artifact review | Propose integrated (`0c24bc4a`); design lead review done (D5, D6). Product owner: Q6 = A, Q7 = A, Q8 = A. Cleanup A1–A5 uncommitted in the worktree. Apply weight: long (three capabilities, ~15 tasks) → cloud | (1) review message to the architect (Q6–Q8, D5) and duplicates check; (2) apply in the cloud | Product owner (Q9), then architect | Q9: no restricted OpenCode profile in the worktree and no source named | `4042bb22` |
+| `add-register-landing` (R91, `Change`) | user-account, app-shell, landing | `feature/add-register-landing` / `tazavera-front-register-landing` | Apply | Artifact update `8b7dd162` (Q6–Q8, D5, A1–A5); no duplicates. Apply weight: long (three capabilities, 15 tasks) → cloud. Design lead's prompt ready; branch pushed `9fa5886d` | Apply in the cloud, target `claude/add-register-landing-apply` | Product owner, then cloud build | Q10: `RemoteTrigger` `create` rejects `run_once_at` as past (13:55Z and 14:20Z, local 13:49Z) | `9fa5886d` |
 | `require-first-location-on-registration` (R45, `Change`) | user-account, offering-management | — | Queued | Accepted (2026-10-29), option A, front only: after `POST /register` (with `token`) the coffee shop creates its first location with `POST /locations` | Summary — draft (design lead) | Orchestrator | Waits for R91 to reach `develop` (same registration screen) | — |
 | `add-locale-e2e-test` (R1, `Change`) | testing | — (summary on `develop`) | Summary — draft | Draft `a661d9a1` with 9 open points | Summary — approved (Product owner's commit) | Product owner | Block propose: **1** dependency `@playwright/test` (rec. A: exact version, Chromium only); **3** base branch (R74 is already on `develop`); **4** third suite and `testing` delta (rec. A) | `a661d9a1` |
 | R90 (two origin cascades in the facets) | filtering | — | Backlog | Front part of two API backlog entries | — | Product owner | API changes first (municipality and roastery origin filters) | — |
@@ -22,7 +22,7 @@ The board of tazavera-front's OpenSpec changes: only what is **not resolved**. W
 | 2 | `claude/*` branches left unintegrated on purpose: `unify-bean-outline`, `r64-list-spacing-analysis`, `share-active-locale-refactor`, `test-reduction-plan`; and `add-register-landing-propose` (already integrated) | Do you delete them on GitHub? (yours) |
 | 3 | API task (2026-10-11): the front's landing as the callback's return page | Done? The orchestrator acts only if the contract changes |
 | 4 | Flaky test `EvaluationForm.test.tsx` (failed once and passed on retry, 2026-10-11) | Backlog entry or drop it? |
-| 5 | R91 Q9 (handoff): executor for the architect's update run | A. name the source of the restricted OpenCode profile (and `.env.local`), the architect runs locally with A1–A5 uncommitted (recommended); B. allow committing A1–A5 so the update runs in the cloud? |
+| 5 | R91 Q10: launching the cloud apply | Create the routine unscheduled and fire it once with `RemoteTrigger run` (starts now, one session), instead of a run a few minutes ahead? |
 
 ## Contract coverage
 
