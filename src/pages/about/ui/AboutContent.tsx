@@ -21,10 +21,8 @@ export type AboutContentTexts = {
   stepCupping: string;
   stepConsensus: string;
   audienceText: string;
-  coffeeshopRegisterLabel: string;
-  specialistRegisterLabel: string;
-  /** The registration links' navigation name (label-landmarks-and-headings D1). */
-  registerNavigation?: string;
+  /** The link to the registration landing (add-register-landing D6). */
+  registerLabel: string;
   closingLabel: string;
 };
 
@@ -53,18 +51,14 @@ const SECTION_BACKGROUNDS: readonly PageSectionSurface[] = [
 const STACK_CLASSES = ["flex", "flex-col", "gap-4"].join(" ");
 // The three evaluation cards share the container width equally from `md`.
 const STEPS_CLASSES = ["grid", "gap-6", "md:grid-cols-3"].join(" ");
-// The registration links stay apart and wrap when the row has no room.
-const LINK_GROUP_CLASSES = ["flex", "flex-wrap", "gap-x-6", "gap-y-2"].join(
-  " ",
-);
 
 /**
  * Content of the About us page (design.md D10, D11; the landing spec "About
  * us page"). The five sections render in the design summary §5 order with the
  * alternating backgrounds above (spec "Sections and order"), the evaluation
- * steps fill three shared cards (spec "How we evaluate"), the two registration
- * links address the registration routes of the active locale (spec
- * "Registration links"), and the closing action opens the entry page of that
+ * steps fill three shared cards (spec "How we evaluate"), one link addresses
+ * the registration landing of the active locale (spec "Registration links";
+ * add-register-landing D6), and the closing action opens the entry page of that
  * locale (spec "Closing action"). Every text arrives as a prop (design.md
  * D11).
  */
@@ -113,14 +107,9 @@ export function AboutContent({ locale, texts }: AboutContentProps): ReactNode {
         containerClassName={STACK_CLASSES}
       >
         <p className="type-body">{texts.audienceText}</p>
-        <nav aria-label={texts.registerNavigation} className={LINK_GROUP_CLASSES}>
-          <Link href={`/${locale}/register/coffeeshop`}>
-            {texts.coffeeshopRegisterLabel}
-          </Link>
-          <Link href={`/${locale}/register`}>
-            {texts.specialistRegisterLabel}
-          </Link>
-        </nav>
+        <Link href={`/${locale}/join`} className="self-start">
+          {texts.registerLabel}
+        </Link>
       </PageSection>
 
       <PageSection surface={SECTION_BACKGROUNDS[4]}>
