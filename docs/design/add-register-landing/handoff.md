@@ -64,25 +64,34 @@ Design lead (draft updated): hero actions block keeps the explore button and add
 #### Q5 — Hero About us link and About us `/join` link: text links or buttons (summary Open 12; both links together since 2026-10-29)
 - Question: base-controls "Navigation controls by position" (decisions log 2026-10-09) makes every navigation control outside a page header's first line an action button; a text link in the hero is an exception (the registration links carry the same tension today). / Options: A. text link, the landing delta states the exception; B. `RouteButton` (e.g. `action-3` like the explore button); C. another reading or label. / Recommendation: A. / Blocks: no.
 
-## Session 2026-11-05 — Propose (step 6) and artifact cleanup (step 7)
-Summary: summary approved by Product owner (`c6ac3ddf`); branch `feature/add-register-landing` created from `develop` (`f1b6dc50`). Propose ran in the cloud as architect only: routine `trig_01DGEQDsPoc6k69Y6M3BYNFT` (run once 09:15 UTC), session `cse_016LpndhXN5DNjrfr14AY4TM` (09:15–09:26 UTC, succeeded), branch `claude/add-register-landing-propose`. Orchestrator review (section 7, step 4): commit format, only `openspec/changes/add-register-landing/`, skills followed. Integrated by fast-forward into `feature/add-register-landing` → `0c24bc4a`, pushed. Worktree `tazavera-front-register-landing` created (`npm install` done; `.env.local` and the OpenCode profile not yet copied). Stopped because: waiting for Product owner's artifact review message. MVC reachable: not checked.
+## Session 2026-11-05 — Propose (step 6), cloud
+Summary: Propose launched as a one-off scheduled cloud run: routine `trig_01DGEQDsPoc6k69Y6M3BYNFT`, run at 2026-11-05 09:15 UTC, environment `Default`, model `claude-opus-5-5`, architect only, base `origin/feature/add-register-landing` (`f1b6dc50`), target `claude/add-register-landing-propose`. The prompt was written by the orchestrator (the design lead subagent file `.claude/agents/design-lead.md` is not present in this session, so the design lead could not run; section 7, step 2); the design lead reviews the result before the artifact review. Plan usage at launch: 5 h 3%, 7 d 1%. Stopped because: waiting for the cloud session. MVC reachable: not checked.
+
+### Decisions taken
+#### D4 — Summary status line read as approved
+- Context: the summary's first line reads `Status: draft — approved`, not exactly `Status: approved`. / Decision: treat it as approved and say so in the prompt. / Why: Product owner's commit `c6ac3ddf` "add-register-landing approved", with Q3–Q5 answered by it. / Result: propose prompt.
 
 ### Agent feedback
-Architect (cloud): commits `2f330712` docs(user-account), `a5f6166f` docs(app-shell), `0c24bc4a` docs(landing): propose add-register-landing; `openspec validate add-register-landing --strict` passed.
+Cloud session `cse_016LpndhXN5DNjrfr14AY4TM` (09:15–09:26 UTC, success). Commits `2f330712` docs(user-account), `a5f6166f` docs(app-shell), `0c24bc4a` docs(landing), one per capability; `openspec validate --strict` valid; skills openspec-propose and fsd-architecture followed. Architect settled: gate as a slice-local hook (Open 7 = A, D2); landing in `src/pages/register` (D1); entry-page button renders its own `md:hidden` wrapper (D5); new key `landing.aboutRegisterLabel` (D7); new text props required, stale QA fixtures listed (D8). Open from the architect: 768 px header width unmeasured (visual review); five scenarios keep their names with new content because the validator refuses a MODIFIED block that drops a scenario (D9).
+
+### Review and integration (orchestrator, §7 steps 4 and 7)
+Commit format and footer correct; only `openspec/changes/add-register-landing/` touched; skills named in the run log. `feature/add-register-landing` fast-forwarded to `0c24bc4a` in the new worktree `tazavera-front-register-landing` and pushed. Worktree setup (§6 step 1): `npm install` done; `.env.local` and the restricted OpenCode profile not copied (sources not named yet). No npm checks run: the change touches artifacts only.
 
 ### Artifact fixes
-#### A1 — Test file name in proposal Impact
-- Phase: before review / Conflict: `proposal.md` Impact names `RegisterLandingClient.test.tsx`; the tasks name `RegisterLandingScreen.test.tsx` / Fix: Impact names `RegisterLandingScreen.test.tsx` / Result: `proposal.md` edited, uncommitted (enters the architect's update commit).
-
-#### A2 — Tasks heading
-- Phase: before review / Wording: `tasks.md` had no top heading / Fix: `# Tasks` added / Result: `tasks.md` edited, uncommitted.
-
-#### A3 — README task ahead of the full checks
-- Phase: before review / Wrong order: the README row (old 5.1) sat in the full-checks group, so the full checks were not the last task / Fix: moved to 1.5 (user-account group); group 5 renamed "Full checks" with the checks as 5.1 / Result: `tasks.md` edited, uncommitted.
+#### A1 — Test file name in the proposal
+- Phase: before review / Conflict: proposal Impact named `RegisterLandingClient.test.tsx`; task 1.1 creates `RegisterLandingScreen.test.tsx` / Fix: proposal now names `RegisterLandingScreen.test.tsx` / Result: uncommitted (enters the architect's update commit).
+#### A2 — `# Tasks` title
+- Phase: before review / Conflict: tasks.md lacked the template's `# Tasks` heading / Fix: added / Result: uncommitted.
+#### A3 — README task in its own group
+- Phase: before review / Conflict: the tasks instruction requires each group to land its own documentation and keeps the final group for integration checks; the README `/join` row was task 5.1 / Fix: moved to task 1.5; full checks renumbered 5.1 (no reference to the old numbers) / Result: uncommitted; `openspec validate --strict` valid.
 
 ### Deferred to Product owner
-#### Q6 — Artifact review message (step 7)
-- Question: your review message for the architect. Points the board lists: artifacts self-contained (no references back to the summary); the session scenario at `/join` that cannot be resolved as written; the names of five scenarios. / Blocks: the artifact update and the apply.
+#### Q6 — Artifacts defer to the design summary
+- Question: design.md line 5 calls the summary "the design source of truth" (layout, spacing, tokens, texts "not restated here"), and tasks 1.2 and 3.2 send the build to the summary's §8 wording, so the artifacts are not self-contained. The framing came from the orchestrator's propose prompt. / Why deferred: carrying the values into design.md is an artifact change beyond §4. / Options: A. review message: design.md and tasks carry the settled values and point to design.md, the summary is only the propose input; B. leave as is. / Recommendation: A. / Blocks: apply.
+#### Q7 — Unresolvable session on `/join`
+- Question: the spec rules ask for error states; the landing has no scenario for a session that cannot be resolved (the shell renders it as anonymous). / Options: A. add one scenario (options shown, as anonymous) and its test; B. none. / Recommendation: A. / Blocks: no.
+#### Q8 — Scenario names kept with new content
+- Question: five scenarios ("Link groups", "Registration destinations", "Specialist registration destination", "Registration links", app-shell "Registration links named") keep names that no longer describe them (D9). / Options: A. accept; rename later by a hand edit of the main specs; B. another way. / Recommendation: A. / Blocks: no.
 
 ### Final checks
-Not run: no code yet.
+Not run (artifact-only change); `openspec validate add-register-landing --strict` valid after A1–A3.
