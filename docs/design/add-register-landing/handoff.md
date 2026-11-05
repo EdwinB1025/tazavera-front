@@ -106,3 +106,25 @@ Summary: Product owner answered Q6 = A, Q7 = A, Q8 = A ("I agree with the artifa
 1. The design lead reviews the propose result (section 7, step 2: the orchestrator wrote the prompt), launched as a general agent with `.claude/agents/design-lead.md` when the subagent is not registered.
 2. Send Product owner's review message to the architect as given: his answers Q6 = A, Q7 = A, Q8 = A, with the A1–A3 cleanup already in the worktree; check the `docs(<capability>): update artifacts for add-register-landing` commit, then the duplicates check (section 4).
 3. Classify the apply (three capabilities, about 15 tasks: long scope → cloud, section 9) and launch it.
+
+## Session 2026-11-05 (afternoon) — Artifact review (step 7), design lead review
+Summary: Start checklist done; assignment loop running. Cloud routine creation tested in `default` mode: works (disabled test routine `trig_01XnGPPCQNjFiNZAsWNVXSNo`, never scheduled; the server attached the account connectors Claude_Docs and Claude_Code_Remote). The design lead (run as a general agent, `.claude/agents/design-lead.md` still missing) reviewed the propose result. Stopped because: the architect's update run cannot start: the worktree's `.opencode/agents/` holds no restricted profile (section 6) and no source is named (Q9). MVC reachable: not checked.
+
+### Agent feedback
+Design lead: propose result fit for the artifact review; cloud commits need no fix; A1–A3 correct; deltas keep every untouched sentence and scenario; code facts the tasks rely on hold; every colour pair already in the guard matrix. Findings: (1) the 768px header may overflow (hand estimate ~138px over, not measured); the "correction round" deferral in D4, Risks and the proposal is the wrong path since summary §9 settles the fallback; (2) Q7's test duplicates the anonymous test unless it drives the real session (precedent `src/app/shell/AppShell.test.tsx:221`); (3) Q6 = A still to carry: design.md line 5, tasks 1.2 and 3.2 (summary §8 wording); (4) `h-full`/`flex-1` in D3 repeat what `Card layout="stacked"` applies; (5) no action; (6) `docs/agents/orchestrator.md` modified in the worktree, not the orchestrator's: must stay out of the architect's commit. Unverified: 768px width, run log, contrast by script.
+
+### Decisions taken
+#### D5 — Q7's test drives the real session
+- Context: design lead's open point 1 (finding 2). / Decision: the Q7 scenario's test drives an unresolvable session as `src/app/shell/AppShell.test.tsx:221` does, so it is a distinct test from the anonymous one. / Why: Product owner's Q7 = A asks for "one scenario and its test"; the precedent exists; adds no scope (section 3, answer an agent's question). / Result: included in the review message to the architect.
+#### D6 — 768px measurement at the visual review
+- Context: finding 1. / Decision: no capture before the update commit; the header is measured in the visual review after the header task, and an overflow applies summary §9's fallback (both breakpoints to `lg`) without a correction round. / Why: summary §9 settles the fallback; the wording fix A4 makes the artifacts say so. / Result: A4.
+
+### Artifact fixes
+#### A4 — Overflow fallback path
+- Phase: before review / Conflict: design.md D4 and Risks, tasks 5.x visual review line and proposal "Out of scope" sent the 768px fallback "through a correction round"; summary §9 settles it and `corrections.md` is only for findings after the build has started / Fix: "per summary §9" (D4: "summary §9, the settled fallback") / Result: uncommitted; `openspec validate --strict` valid.
+#### A5 — Classes the stacked card already applies
+- Phase: before review / Conflict: D3 `RegisterOption` added `className="h-full"` on `Card` and `className="flex-1"` on `CardContent`, already applied by `STACKED_CARD_CLASSES` / `STACKED_CONTENT_CLASSES` (`src/shared/ui/Card.tsx:59,63`) / Fix: removed, with a note that the stacked layout applies them; nothing visible changes / Result: uncommitted; `openspec validate --strict` valid.
+
+### Deferred to Product owner
+#### Q9 — Executor for the architect's update run
+- Question: section 6 requires the restricted OpenCode profile in the worktree's `.opencode/agents/` before the first run, from a source the task prompt names; none is there and none is named. The cloud alternative cannot see the uncommitted A1–A5, and section 5 lets the orchestrator commit artifact fixes only during the apply. / Options: A. name the profile source (and `.env.local`): the OpenCode architect runs locally with A1–A5 uncommitted, as section 4 says; B. authorise committing A1–A5 now so the update runs in a cloud session. / Recommendation: A (the rules as written; OpenCode does not use the plan). / Blocks: the artifact update, then the apply.
