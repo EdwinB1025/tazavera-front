@@ -20,7 +20,7 @@ Every "Verify" below runs `npx vitest related <files> --run` on the files the ta
 
 ## 2. Header "Register" action (app-shell)
 
-- [ ] 2.1 Update the tests of app-shell "Signed-out header" and "Session states in the shell":
+- [x] 2.1 Update the tests of app-shell "Signed-out header" and "Session states in the shell":
   - `src/app/shell/AppShell.test.tsx`, "shows the signed-out header while the session is anonymous (spec: Signed-out header renders)": also asserts a button named `texts.register` whose parent element carries `hidden` and `md:inline-flex`, and that it precedes the "Sign in" button in document order. "Session resolving shows neither the Sign in action nor the user menu": also asserts no button named `texts.register`. No other assertion changes.
   - `src/widgets/app-header/ui/AppHeader.test.tsx`: add `register: "texts.register"` to the `TEXTS` fixture and a `next/navigation` mock whose `useRouter` returns a `push` spy (test infrastructure; existing assertions unchanged). New test "Register opens the registration landing": anonymous, clicking the button named `TEXTS.register` calls `push("/es/join")`. New test "No Register action when signed in": an authenticated session renders no button named `TEXTS.register`.
   Verify: the new assertions and tests fail only because no "Register" button renders (and `npx tsc --noEmit` reports the unknown `register` key of `AppHeaderTexts`); every other test in both files passes.
