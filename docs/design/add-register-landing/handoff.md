@@ -63,3 +63,26 @@ Design lead (draft updated): hero actions block keeps the explore button and add
 #### ANSWERED 2026-11-05: A, text links (Product owner approved the summary with its defaults, `c6ac3ddf`)
 #### Q5 — Hero About us link and About us `/join` link: text links or buttons (summary Open 12; both links together since 2026-10-29)
 - Question: base-controls "Navigation controls by position" (decisions log 2026-10-09) makes every navigation control outside a page header's first line an action button; a text link in the hero is an exception (the registration links carry the same tension today). / Options: A. text link, the landing delta states the exception; B. `RouteButton` (e.g. `action-3` like the explore button); C. another reading or label. / Recommendation: A. / Blocks: no.
+
+## Session 2026-11-05 — Propose (step 6) and artifact cleanup (step 7)
+Summary: summary approved by Product owner (`c6ac3ddf`); branch `feature/add-register-landing` created from `develop` (`f1b6dc50`). Propose ran in the cloud as architect only: routine `trig_01DGEQDsPoc6k69Y6M3BYNFT` (run once 09:15 UTC), session `cse_016LpndhXN5DNjrfr14AY4TM` (09:15–09:26 UTC, succeeded), branch `claude/add-register-landing-propose`. Orchestrator review (section 7, step 4): commit format, only `openspec/changes/add-register-landing/`, skills followed. Integrated by fast-forward into `feature/add-register-landing` → `0c24bc4a`, pushed. Worktree `tazavera-front-register-landing` created (`npm install` done; `.env.local` and the OpenCode profile not yet copied). Stopped because: waiting for Product owner's artifact review message. MVC reachable: not checked.
+
+### Agent feedback
+Architect (cloud): commits `2f330712` docs(user-account), `a5f6166f` docs(app-shell), `0c24bc4a` docs(landing): propose add-register-landing; `openspec validate add-register-landing --strict` passed.
+
+### Artifact fixes
+#### A1 — Test file name in proposal Impact
+- Phase: before review / Conflict: `proposal.md` Impact names `RegisterLandingClient.test.tsx`; the tasks name `RegisterLandingScreen.test.tsx` / Fix: Impact names `RegisterLandingScreen.test.tsx` / Result: `proposal.md` edited, uncommitted (enters the architect's update commit).
+
+#### A2 — Tasks heading
+- Phase: before review / Wording: `tasks.md` had no top heading / Fix: `# Tasks` added / Result: `tasks.md` edited, uncommitted.
+
+#### A3 — README task ahead of the full checks
+- Phase: before review / Wrong order: the README row (old 5.1) sat in the full-checks group, so the full checks were not the last task / Fix: moved to 1.5 (user-account group); group 5 renamed "Full checks" with the checks as 5.1 / Result: `tasks.md` edited, uncommitted.
+
+### Deferred to Product owner
+#### Q6 — Artifact review message (step 7)
+- Question: your review message for the architect. Points the board lists: artifacts self-contained (no references back to the summary); the session scenario at `/join` that cannot be resolved as written; the names of five scenarios. / Blocks: the artifact update and the apply.
+
+### Final checks
+Not run: no code yet.
