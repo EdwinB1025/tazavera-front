@@ -250,12 +250,14 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
     expect(screen.queryByRole("alert")).toBeNull();
     expect(screen.queryByRole("status")).toBeNull();
     // exactly these three buttons (with the theme switch, refine-header-aut) besides the small-viewport navigation menu
-    // control (fix-production-aut-findings design.md D7): another one would be
+    // control (fix-production-aut-findings design.md D7) and the CSS-hidden
+    // "Register" action (add-register-landing D4): another one would be
     // a retry affordance
     expect(
       screen
         .getAllByRole("button")
-        .filter((button) => button.getAttribute("aria-label") !== texts.navigationMenu),
+        .filter((button) => button.getAttribute("aria-label") !== texts.navigationMenu)
+        .filter((button) => button.textContent !== texts.register),
     ).toHaveLength(3);
   });
   it("shows the header's re-open control named from the catalog once the sidebar collapses (spec: Control named in every locale)", () => {
