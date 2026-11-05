@@ -11,7 +11,7 @@ Do every step, in order, before answering Product owner or acting. A question fr
 1. **Start the assignment loop** of section 9 (a recurring task every 10 minutes with its prompt). Never stop it while any change, finding or integration has a next phase you may take; stop it only when everything left waits for Product owner, and say so.
 2. Read the Common rules of `AGENTS.md` and this file in full.
 3. Read `docs/agents/workflow_sdd.md` from `develop`. It binds the agents; this file binds you.
-4. Read the records of section 12, in this order: the board (`docs/design/change-progress.md`), `docs/design/general-context.md`, its decisions log, `docs/design/backlog.md`, and the handoff of each active change.
+4. Read the records of section 12, in this order: the board (`docs/design/change-progress.md`; if it holds resolved items, clean it as section 12 says), `docs/design/general-context.md`, its active decisions log, `docs/design/backlog.md`, and the handoff of each active change. Do not read `docs/design/decisions-archive.md` unless a question needs it.
 5. Read the plan usage (section 9, "Plan limits").
 6. Check the state of every executor: running cloud routines and their branches, OpenCode runs, worktrees (`git worktree list`).
 
@@ -22,12 +22,12 @@ Do every step, in order, before answering Product owner or acting. A question fr
 ## 1. Project and folders
 
 - tazavera-front: Next.js 16 (App Router, `proxy.ts`), React 19, TypeScript, Tailwind 4 (tokens in `src/app/styles/globals.css`), Vitest + RTL, FSD. Windows, Git Bash.
-- Base path: `C:/Programing/Full Stack/Sprint5/`. API: `tazavera-api` (read only). Contract: `contracts/openapi.yaml`; generated types: `src/shared/api/schema.ts`. Agents never edit either.
-- Previous MVC app (visual reference): `C:/Programing/Full Stack/Sprint4/MVC/tazavera-app` (`resources/views`, `resources/css/app.css`).
+- API: `../tazavera-api` (read only). Contract: `contracts/openapi.yaml`; generated types: `src/shared/api/schema.ts`. Agents never edit either.
+- Previous MVC app (visual reference): `../../Sprint4/MVC/tazavera-app` (`resources/views`, `resources/css/app.css`).
 - `tazavera-front` is the main checkout; it is usually on `develop` but Product owner may move it to another branch. Each change gets its own worktree `tazavera-front-<short-name>` on `feature/<change-id>`.
-- You may be started from any folder under `Sprint5`. Before anything else, find the change's worktree with `git worktree list`: if it exists, `cd` into it; if not, create it (section 6, step 1) and `cd` into it. Run the whole task from there, except the merge steps that section 6 places in `tazavera-front` and the project records (section 12).
+- Before anything else, find the change's worktree with `git worktree list`; if it does not exist, create it (section 6, step 1). Run the whole task against that worktree, except the merge steps that section 6 places in `tazavera-front` and the project records (section 12).
 - **Steps that need `develop`** (decisions log, board, general context, merges): run `git worktree list`; if `develop` is not checked out anywhere, add a temporary worktree on it, do the step, and remove the worktree (`git worktree remove`, never `--force`).
-- When the session denies chained commands (`cd … &&`), pass the folder to each command instead: `git -C <dir> …`, `env -C <dir> <command>`.
+- **Commands.** Never use `cd`. Pass the folder to each command: `git -C <dir> …` for git, `env -C <dir> <command>` for npm, npx and opencode. One command per call: no `;`, `&&`, `|` or redirects. Read files with the Read, Grep and Glob tools, not with shell commands.
 
 ## 2. Settled decisions you must not reopen
 
@@ -103,7 +103,7 @@ You may commit only:
 - the change's handoff, after each update: `docs(<capability>): update handoff for <change-id>`;
 - the artifact fixes made during the apply (section 4): `docs(<capability>): fix artifacts for <change-id> (task <n>)`;
 - the duplicate removals made after an artifact update or a correction round (section 4): `docs(<capability>): remove duplicates in artifacts for <change-id>`;
-- the project records on `develop` (section 12): `docs: update change progress`, `docs: update general context`, and backlog entries (`docs: …`);
+- the project records on `develop` (section 12): `docs: update change progress`, `docs: update general context` (also when a cleaning moves entries to `docs/design/decisions-archive.md`), and backlog entries (`docs: …`);
 - a design lead draft for a change without a branch (section 11): `docs: draft design summary for <change-id>` on `develop`, only while its first line says `Status: draft`; approving a summary is Product owner's commit;
 - `corrections.md`, if the propose corrections do not contradict `design-summary.md` and are in line with the agreed design.
 
@@ -120,7 +120,7 @@ API branches: every implementation in `tazavera-api` is done on a `feature/*` or
 
 ## 6. OpenCode agents and the change lifecycle
 
-- Run every agent from inside the change's worktree: `cd` into it first (or `env -C <worktree>`), then `opencode run --standalone --agent <architect|build> --model xiaomi/mimo-v2.6-pro --auto --title "<title>" "<prompt>"`. Without `--standalone` and `--model` it picks an unavailable model and fails.
+- Run every agent in the change's worktree with `env -C <worktree> opencode run --standalone --agent <architect|build> --model xiaomi/mimo-v2.6-pro --auto --title "<title>" "<prompt>"`. Without `--standalone` and `--model` it picks an unavailable model and fails.
 - Every prompt you write for an agent includes: "Do not ask questions in this session. If you need a decision that is not in the artifacts, write the question in your final report and stop. Run each command on its own, without pipes, redirects or chaining."
 - Never override or narrow what `AGENTS.md`, the agent's role file and `docs/agents/workflow_sdd.md` tell an agent to do: files it edits, records it keeps (such as `## Propose status`), commit scope and commit message. Your prompts give only the task, the phase, the source of the decisions (for example a corrections round) and the clause above. If an agent's own flow seems to conflict with this file or the task prompt, defer it to Product owner instead of overriding it.
 - If a run ends with an unanswered question, an interruption or a non-zero exit, record it in the handoff with the agent's last message, and do not rerun until the question is answered.
@@ -132,7 +132,7 @@ API branches: every implementation in `tazavera-api` is done on a `feature/*` or
 
 Each step runs only when the task prompt asks for it.
 
-1. **Worktree.** From `tazavera-front`: `git worktree add ../tazavera-front-<short-name> feature/<change-id>` (add `-b feature/<change-id>` and base `develop` if the branch does not exist yet). Then, inside it: `npm install`, copy `.env.local` and the restricted agent profile from the sources the task prompt names, copy `tazavera-front/.claude/` (the entry files and settings), `npx next typegen`, `git status`.
+1. **Worktree.** From `tazavera-front`: `git worktree add ../tazavera-front-<short-name> feature/<change-id>` (add `-b feature/<change-id>` and base `develop` if the branch does not exist yet). Then, against it (section 1, "Commands"): `env -C <worktree> npm install`, copy `.env.local` and the restricted agent profile from the sources the task prompt names, copy `tazavera-front/.claude/` (the entry files and settings), `env -C <worktree> npx next typegen`, `git -C <worktree> status`.
 2. **Explore.** Not run (`/opsx:explore` is no longer used).
 3. **Propose.** Only from an approved summary (section 9, design pipeline). Architect with `openspec-propose`; check `git log -1` shows `docs(<capability>): propose <change-id>` and the architect reports `openspec validate --strict` passed.
 4. **Artifact cleanup and review.** First the cleanup of section 4. Then send Product owner's review message to the architect as given; check the `docs(<capability>): update artifacts for <change-id>` commit.
@@ -370,17 +370,27 @@ This applies only while the correction round is not yet processed. Once the arch
 
 ## 12. Project records
 
-You maintain three records on `develop` and keep them true. They are what the next session, the design lead, the agents' prompts and Product owner start from. Commit each by its exact path (section 5) and push `develop`; use the temporary `develop` worktree of section 1 when needed.
+You maintain four records on `develop` and keep them true. They are what the next session, the design lead, the agents' prompts and Product owner start from. Commit each by its exact path (section 5) and push `develop`; use the temporary `develop` worktree of section 1 when needed.
+
+- Every record (board, general context, decisions log, decisions archive, backlog, handoffs) is written in English. Interface texts stay in their message catalogs.
 
 | Record | What it is | Update it when |
 |---|---|---|
-| `docs/design/change-progress.md` (the board) | **The source of truth for change progress**: phase, status, next phase, assignee and blocker of every change, plus the contract coverage. Where it disagrees with a handoff or a branch, check the branch, fix the board, and say so | A change's phase, assignee or blocker changes; an executor finishes; a change merges; a session ends |
-| `docs/design/general-context.md` → "Registro de decisiones del orquestador" (the decisions log) | Append-only log, inside the general context | See "Decisions log" below |
-| `docs/design/general-context.md` | The project context to paste into a new conversation: state, working agreements, the orchestrator's rules in short, the cloud workflow, the changes, the decisions, the backlog | At the end of every session, and whenever a working agreement, a rule, the folder layout or a change's state moves |
+| `docs/design/change-progress.md` (the board) | **The source of truth for change progress**: only what is not resolved — every open change (phase, status, next phase, assignee, blocker), the questions waiting for Product owner, and the contract coverage. Where it disagrees with a handoff or a branch, check the branch, fix the board, and say so | A change's phase, assignee or blocker changes; an executor finishes; a change merges; a session ends |
+| `docs/design/general-context.md` → "Orchestrator decisions log" (the active log) | Decisions that still affect open work, and the standing working agreements. Append only | See "Decisions log" below |
+| `docs/design/decisions-archive.md` (the archive) | Entries moved out of the active log by the cleaning below, verbatim, oldest first | Only by the cleaning |
+| `docs/design/general-context.md` | The project context to paste into a new conversation: current state, environment, working agreements, and the active log at its end | At the end of every session, and whenever a working agreement, the folder layout or a change's state moves |
 
-**Decisions log** (`C:/Programing/Full Stack/Sprint5/tazavera-front/docs/design/general-context.md`, on `develop`; read it at the start of every session by this absolute path):
+**Board maintenance:** rewritten in place, never appended.
+- One "Last update" line: the current one replaces the previous one.
+- A change leaves the board when it is merged into `develop` (for a refactor round, when `qa` is merged into `develop`). Its decisions are already in its archive, its handoff and, when they affect other changes, the decisions log.
+- A question leaves the board when Product owner answers it; the answer goes to the handoff, and to the active log if it affects another change.
+- The board does not repeat `docs/agents/` (phases, agents, workflow): it points to them.
+- At the end of every session, remove whatever no longer affects open work.
+
+**Decisions log** (`docs/design/general-context.md` on `develop`; read the active log at the start of every session; read `docs/design/decisions-archive.md` only when a question needs an older decision):
 - If the section does not exist, add it with that heading and no entries.
-- Append only. Never rewrite or delete an entry.
+- Append only. Never rewrite or delete an entry; an entry leaves the active log only by the cleaning below.
 - Add an entry only for a decision you took within section 3 that another change or a design must take into account, for Product owner's answer to a deferred question that affects another change or a design, or for a design lead finding that settles something for other changes:
 
 ```markdown
@@ -390,7 +400,17 @@ You maintain three records on `develop` and keep them true. They are what the ne
 - Affects: <change-ids, and the design points it touches>
 ```
 
-- Take the log into account when you answer agents and review artifacts. The design lead reads it before every summary.
+- Take the active log into account when you answer agents and review artifacts. The design lead reads it before every summary.
 - The log never overrides `spec.md`, `design.md`, the design summary or `corrections.md`. A conflict between them is deferred to Product owner; a new entry that contradicts an approved summary is deferred to Product owner as a correction, never applied silently.
 
-**General context:** rewritten in place to stay current and short: keep only what no other record holds, point to the board, the backlog and the rules instead of repeating them, and drop what no longer affects any open work.
+**Cleaning** (at the end of every session, before the general context is rewritten). Move an entry from the active log to the end of `docs/design/decisions-archive.md`, unchanged, when all of these hold:
+- every change named in its "Affects" is archived (under `openspec/changes/archive/`) or withdrawn;
+- what it decided is stated in `openspec/specs/`, or in the `design.md` or `proposal.md` of one of those archived changes;
+- it is not a standing working agreement (how the agents work, who decides what, when to ask). A standing agreement stays until Product owner moves it into the rules.
+
+Also:
+- An entry replaced by a later one moves together with the entry that replaces it, or when that one moves.
+- When in doubt, keep the entry.
+- Record each cleaning in the general context's "Updated" line: how many entries moved.
+
+**General context:** rewritten in place to stay current and short: keep only what no other record holds, point to the board, the backlog, the archive and the rules instead of repeating them, and drop what no longer affects any open work.

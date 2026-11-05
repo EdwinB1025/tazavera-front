@@ -33,8 +33,9 @@ OpenSpec runs with the **core profile plus `verify`**: `/opsx:explore` (installe
 | `docs/design/<change-id>/corrections.md` | Product owner (architect: `### Status`) | Review rounds that change spec or design. |
 | `docs/design/<change-id>/handoff.md` | Orchestrator | Sessions, decisions, points closed for review, deferred questions of a change. |
 | `docs/design/backlog.md` | Product owner and orchestrator (architect: removes resolved entries on archive) | Refactor candidates in priority order. Source of the refactor workflow. |
-| `docs/design/change-progress.md` | Orchestrator | The board: phase, assignee and blocker of every change. |
-| `docs/design/general-context.md` | Orchestrator | Project context and the decisions log. |
+| `docs/design/change-progress.md` | Orchestrator | The board: phase, assignee and blocker of every open change; resolved items leave it. |
+| `docs/design/general-context.md` | Orchestrator | Project context and the active decisions log. |
+| `docs/design/decisions-archive.md` | Orchestrator | Decisions log entries moved out of the active log once archived changes reflect them; not read at session start. |
 | `contracts/openapi.yaml` | Product owner | API contract, copied from the backend. Never edited by agents. |
 | `qa/` | Product owner (through reduction plans) | The QA suite (section 3c). |
 
