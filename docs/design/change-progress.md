@@ -2,7 +2,7 @@
 
 The board of tazavera-front's OpenSpec changes: only what is **not resolved**. What is closed (archived and on `develop`) leaves the board: its decisions are in `openspec/changes/archive/`, in each change's handoff, in the decisions log of `docs/design/general-context.md` and in this file's git history.
 
-**Last update:** 2026-11-05 (afternoon) — Cloud routine creation works in `default` mode (disabled test routine `trig_01XnGPPCQNjFiNZAsWNVXSNo`, never scheduled; Product owner may delete it). R91's artifacts are updated; its cloud apply waits for Q10. Assignment loop stopped (everything waits for Product owner); no scheduled routine, watch or active executor.
+**Last update:** 2026-11-05 (late afternoon) — R91's cloud apply still not launched: in don't-ask mode both `RemoteTrigger` `create` and `claude --cloud` through Bash were denied. Product owner adds a PreToolUse hook that approves `RemoteTrigger` (in `Sprint5/.claude/settings.local.json`) and restarts the session. Assignment loop stopped (everything waits for Product owner); no scheduled routine, watch or active executor. Disabled test routine `trig_01XnGPPCQNjFiNZAsWNVXSNo` still exists (Product owner may delete it).
 
 ## Board
 
@@ -22,7 +22,7 @@ The board of tazavera-front's OpenSpec changes: only what is **not resolved**. W
 | 2 | `claude/*` branches left unintegrated on purpose: `unify-bean-outline`, `r64-list-spacing-analysis`, `share-active-locale-refactor`, `test-reduction-plan`; and `add-register-landing-propose` (already integrated) | Do you delete them on GitHub? (yours) |
 | 3 | API task (2026-10-11): the front's landing as the callback's return page | Done? The orchestrator acts only if the contract changes |
 | 4 | Flaky test `EvaluationForm.test.tsx` (failed once and passed on retry, 2026-10-11) | Backlog entry or drop it? |
-| 5 | R91 Q10: launching the cloud apply | Product owner restarts the session in auto mode (don't-ask mode denies `RemoteTrigger` `create` since Claude Code 2.1.318); then the orchestrator launches the apply with the design lead's prompt (in the 2026-11-05 session scratchpad, `r91-apply-prompt.md`; rewrite it if lost) |
+| 5 | R91 Q10: launching the cloud apply | Product owner adds the PreToolUse hook for `RemoteTrigger` and restarts in don't-ask mode. Next session: create a disabled test routine to check the hook, then launch the apply. The design lead's prompt from session `379e8447` is in that session's scratchpad (`r91-apply-prompt.md`, likely unreadable from a new session): have it rewritten with the current head of `feature/add-register-landing` as base (the handoff commit moved it past `9fa5886d`) |
 
 ## Contract coverage
 
