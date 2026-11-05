@@ -1,0 +1,126 @@
+# Design — add-register-landing
+
+## Context
+
+See proposal.md (Why, What Changes). The design source of truth is `docs/design/add-register-landing/design-summary.md` (approved, `c6ac3ddf`): layout, spacing, tokens, texts and responsive behaviour are settled there (§4–§11) and are not restated here; this document records the implementation decisions the summary leaves to the architect and the file plan.
+
+Current state that constrains the approach (verified on `feature/add-register-landing`):
+
+- Auth state on the client comes only from `useSession()` (`@/features/auth`); tokens live in browser memory, so the `/join` gate is client-side, as for the forms. `useSession()` reads `useLocale()` (next-intl), so a component test that renders it either mocks `@/features/auth` (as `RegisterClient.test.tsx` does) or provides the locale.
+- `RegisterClient` (`src/pages/register/ui/RegisterClient.tsx`) holds the forms' gate: loading status while resolving, `null` plus `router.replace(\`/${locale}\`)` when authenticated.
+- `RouteButton` (`@/shared/ui`) is a `Button` whose click calls `useRouter().push(href)` (App Router). It takes no `className`, so breakpoint visibility goes on a wrapper. `useRouter()` needs the App Router context: a component test that renders it mocks `next/navigation` (as `AppShell.test.tsx` and `RegisterClient.test.tsx` do). Source: `node_modules/next/dist/docs/01-app/03-api-reference/04-functions/use-router.md` (`router.push` and `router.replace` perform client-side navigation; `replace` adds no history entry).
+- Route files receive `params` through the generated `PageProps<"/[locale]/…">` type (`app/[locale]/about/page.tsx`, `app/[locale]/register/page.tsx`); the type of a new route exists after `npx next typegen` or a build. Source: `node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/page.md`.
+- `app/[locale]/@sidebar/[...rest]/page.tsx` already covers `/join` (no sidebar), and the proxy matcher covers every path under a locale: no slot or proxy change.
+- `tsconfig.json` includes `qa/`, so `npx tsc --noEmit` also type-checks the QA suite.
+
+API: no endpoint is consumed (navigation only). No API error is presented, so no error state exists for these screens; the only asynchronous state is the session (resolving, anonymous, authenticated).
+
+## Goals / Non-Goals
+
+**Goals:** one anonymous-only gate rule for `/register*` and `/join`; the summary's layout with existing components, tokens and spacing only; every scenario of the three spec deltas covered by exactly one test.
+
+**Non-Goals:** no new shared component, variant, token, icon or guard test; no change to `RegisterForm`, the success panel or Cancel; no lower-layer gate.
+
+## Files
+
+| Path | Layer | Change |
+|---|---|---|
+| `app/[locale]/join/page.tsx` | routing | new; awaits `params` and renders `RegisterLandingScreen` from `@/pages/register` |
+| `src/pages/register/model/use-anonymous-only.ts` | pages (`register` slice, `model`) | new; D2 |
+| `src/pages/register/ui/RegisterClient.tsx` | pages | uses D2's hook; rendering unchanged |
+| `src/pages/register/ui/RegisterLandingScreen.tsx` | pages | new, server; D3 |
+| `src/pages/register/ui/RegisterLandingClient.tsx` | pages | new, client; D3 |
+| `src/pages/register/ui/RegisterOption.tsx` | pages | new; D3 |
+| `src/pages/register/index.ts` | pages | also exports `RegisterLandingScreen` |
+| `src/widgets/app-header/ui/AppHeader.tsx` | widgets | header action; `AppHeaderTexts.register`; D4 |
+| `src/app/shell/AppShell.tsx` | app | passes `register` from the `shell` catalog; D4 |
+| `src/pages/home/ui/HomeRegisterButton.tsx` | pages (`home` slice) | new, client; D5 |
+| `src/pages/home/ui/HomeScreen.tsx` | pages | hero section layout and texts; D5, D6 |
+| `src/pages/home/ui/HomeHero.tsx` | pages | one About us link; `HomeHeroTexts`; D6 |
+| `src/pages/about/ui/AboutContent.tsx` | pages (`about` slice) | one `/join` link; `AboutContentTexts`; D6 |
+| `src/pages/about/ui/AboutScreen.tsx` | pages | texts; D6 |
+| `messages/{es,en,ca}/shell.json`, `account.json`, `landing.json` | catalogs | D7 |
+| `README.md` | docs | route table: a `/join` row ("Choose how to register") next to the register rows |
+
+## Decisions
+
+### D1 — The landing lives in the `register` page slice
+
+As the summary settles (§4.3): `RegisterLandingScreen` and its client region are in `src/pages/register`, exported from its public index, and `app/[locale]/join/page.tsx` imports it. A page slice cannot import another page slice, so this is what lets the forms and the landing share one gate (D2) without moving it to a lower layer. Alternative not taken: the gate in `features/auth` or a widget, which would put a page-specific redirect rule into a shared layer for two consumers of one flow.
+
+### D2 — The gate is one slice-local hook (summary Open 7 = A)
+
+`src/pages/register/model/use-anonymous-only.ts` exports `useAnonymousOnly(locale: string): Session["state"]`: it reads `useSession()` from `@/features/auth` and `useRouter()` from `next/navigation`, calls `router.replace(\`/${locale}\`)` in an effect while the state is `"authenticated"`, and returns the session state. `RegisterClient` replaces its own `useSession`/`useRouter`/`useEffect` lines with it and keeps its rendering exactly: `null` when authenticated, the loading status or the form inside its section card otherwise. `RegisterLandingClient` uses the same hook. `RegisterClient` uses the returned state for its loading check; `signIn` and `signInWithRegistration` stay direct imports from `@/features/auth`.
+
+Why a hook, not a component with `loading` and `children` slots: the two consumers draw the loading state in different places (the forms inside their section card, the landing in place of the options grid with no card), and the forms render nothing at all when authenticated. A wrapping component would either render the forms' card around nothing for an authenticated visitor or need the card passed in as a slot; the hook shares only the rule. Alternative rejected: copying the ten lines (two places for one redirect rule).
+
+`RegisterClient.test.tsx` mocks `@/features/auth` and `next/navigation` by module, so its tests keep passing through the hook unchanged.
+
+### D3 — Landing screen, client region and option card
+
+- `RegisterLandingScreen({ locale })` (server) reads the `account` catalog and renders the summary §6.1 frame with `RegisterScreen`'s classes: wrapper `div.flex-1` → `PageSection surface="page" containerClassName="flex flex-col"` → column `flex w-full flex-col gap-8` → heading block `flex flex-col gap-2` (`h1.type-heading` = `registerLandingTitle`, `p.type-body` = `registerLandingIntro`) → `RegisterLandingClient`. Unlike `RegisterScreen`, the `h1` needs no id (no form is labelled by it).
+- `RegisterLandingClient({ locale, texts })` (client): `useAnonymousOnly(locale)`; `"authenticated"` → `null`; `"loading"` → `LoadingStatus` with `texts.loading`; `"anonymous"` → the options grid `grid gap-6 md:grid-cols-2` holding two `RegisterOption`s, specialist first (`/${locale}/register`), then coffee shop (`/${locale}/register/coffeeshop`).
+- `RegisterOption({ title, text, actionLabel, href })`: `Card layout="stacked"` (content variant) with `className="h-full"` → `CardContent className="flex-1"` → `div` `flex h-full flex-col gap-4` → `h2.type-card-heading`, `p.type-body`, and an action row `mt-auto pt-2` holding `RouteButton variant="action-1" size="base"`. One component for both cards (no boolean variant). Equal heights and bottom-aligned buttons follow from the grid's stretch (summary Unverified 3: checked in the visual review).
+
+UI types, declared before the components in their files:
+
+```ts
+export type RegisterLandingTexts = {
+  loading: string;
+  specialistTitle: string;
+  specialistText: string;
+  specialistAction: string;
+  coffeeshopTitle: string;
+  coffeeshopText: string;
+  coffeeshopAction: string;
+};
+
+export type RegisterOptionProps = {
+  title: string;
+  text: string;
+  actionLabel: string;
+  href: string;
+};
+```
+
+### D4 — Header "Register" action
+
+In `AppHeader`, the `session.state === "anonymous"` branch renders, in this order, a `span.hidden.md:inline-flex` holding `RouteButton variant="nav-button" href={\`/${locale}/join\`}` with `texts.register`, then the existing "Sign in" `Button` (unchanged, no wrapper). Both stay in the right group, so its `gap-2 md:gap-4` spaces them. No `aria-current`. While resolving and when authenticated the branch does not render, so the action follows "Sign in" (app-shell "Session states in the shell"). `AppHeaderTexts` gains `register: string` (required, D8); `AppShell` passes `register: texts.register!`, read from `shell.register` like the other header texts. If the visual review measures an overflow at 768px, the wrapper becomes `hidden lg:inline-flex` together with D5's `lg:hidden` (summary §9) through a correction round; this design writes `md`.
+
+### D5 — Entry-page "Register" button island renders its own wrapper
+
+`HomeRegisterButton({ locale, label })` (client, `src/pages/home/ui/`) reads `useSession()` from `@/features/auth` and returns `null` unless the state is `"anonymous"`; when anonymous it returns `div.md:hidden` holding `RouteButton variant="action-1" size="base" href={\`/${locale}/join\`}` with `label`. `HomeScreen` passes `containerClassName="flex flex-col gap-6"` to the hero's `PageSection` and renders `HomeRegisterButton` (label `catalog.heroRegisterAction`) before `HomeHero`.
+
+Why the island renders the wrapper: the summary places a `md:hidden` wrapper around the island and requires the hero to start at today's position for a resolving or signed-in visitor (§6.2). A wrapper rendered by `HomeScreen` would stay in the flex column as an empty item even when the island renders nothing, and the column's `gap-6` would push the hero down 1.5rem below `md` for exactly those visitors. Rendering the wrapper inside the island leaves no item at all in those states; from `md` the wrapper is `display: none`, which flex `gap` ignores. The page does not change from `md` for any visitor.
+
+### D6 — The hero and About us links
+
+- `HomeHero`: the `nav` and `LINK_GROUP_CLASSES` go; the actions block (`ACTIONS_CLASSES`, unchanged: `mt-2 flex flex-col items-start gap-4`) holds `ExploreButton`, then `Link href={\`/${locale}/about\`}` with `texts.aboutLabel`. `HomeHeroTexts` drops `coffeeshopRegisterLabel`, `specialistRegisterLabel` and `registerNavigation` and gains `aboutLabel: string`. `HomeScreen` passes `catalog.heroAboutLabel`. The block's `items-start` gives the link its own width ("Link groups").
+- `AboutContent`: in section 4 the `nav` and `LINK_GROUP_CLASSES` go; after the audience text comes `Link href={\`/${locale}/join\`} className="self-start"` with `texts.registerLabel`. `AboutContentTexts` drops the same three keys and gains `registerLabel: string`. `AboutScreen` passes `catalog.aboutRegisterLabel`.
+- Both are text links (summary Open 12 = A); the landing delta states them as exceptions to base-controls "Navigation controls by position".
+
+### D7 — Catalog texts
+
+Added and removed exactly as summary §8 (wording accepted, Open 9 = A): `shell.register`; `landing.heroRegisterAction`, `landing.heroAboutLabel`, `landing.aboutRegisterLabel`; the eight `account.registerLanding*` keys; removed `landing.heroCoffeeshopRegisterLabel`, `heroSpecialistRegisterLabel`, `heroRegisterNavigation`, `aboutCoffeeshopRegisterLabel`, `aboutSpecialistRegisterLabel`, `aboutRegisterNavigation`, in es, en and ca. `account.loading` is reused. `landing.aboutRegisterLabel` stays a new key rather than a reuse of `heroRegisterAction` (summary §8): every About us text is an `about*` key, and sharing a `hero*` key would tie the About us link's wording to the entry-page button. The existing catalog guard ("An area is complete in every locale") covers additions and removals.
+
+### D8 — New text props are required
+
+`HomeHeroTexts.aboutLabel`, `AboutContentTexts.registerLabel` and `AppHeaderTexts.register` are required: each has one production caller that always passes it, and a missing label would render an unnamed control. AGENTS.md forbids loosening production code for a QA fixture, so the QA fixtures that lack them go stale (Risks) and are listed by the build, not edited.
+
+### D9 — Tests of rewritten scenarios
+
+The CLI refuses a MODIFIED block that drops a scenario name, so, as in `open-directory-from-hero` and `show-item-not-found-message`, the scenarios whose subject disappears keep their names with new content: landing "Link groups", "Registration destinations", "Specialist registration destination", "Registration links", and app-shell "Registration links named". Their existing tests are rewritten in the task that changes the behaviour, keeping one test per scenario; the two "Link groups" tests (one per page) stay two, as today. App-shell "Registration links named" has no test today and gets none: its outcome (no navigation landmark around either link) is the same check the landing tests of "Registration destinations" and "Registration links" make, which is not repeated.
+
+## Risks / Trade-offs
+
+- [Header width at 768px with the new action is unmeasured (summary Unverified 2)] → visual review at 375/768/1280 px, es and ca, both themes, signed out and signed in; an overflow moves D4 and D5 to `lg` together through a correction round.
+- [The entry-page button appears once the session resolves and moves the hero down 4rem for an anonymous visitor below `md`] → accepted by Product owner (summary Open 11 = A).
+- [Stale QA tests, not edited in this change] → the build lists them in its final report:
+  - `qa/src/pages/home/ui/HomeHero.test.tsx`: its texts fixture lacks `aboutLabel` (type error under `npx tsc --noEmit`) and carries the removed labels; its layout assertion on `ACTIONS_CLASSES` keeps holding.
+  - `qa/src/pages/home/ui/HomeScreen.test.tsx`: reads the removed `heroCoffeeshopRegisterLabel` and `heroSpecialistRegisterLabel` keys, and renders `HomeScreen` without mocking `@/features/auth`.
+  - `qa/src/widgets/app-header/ui/AppHeader.test.tsx`: its texts fixture lacks `register` (type error), and it renders the anonymous header without mocking `next/navigation`, which `RouteButton` needs.
+- [Kept scenario names no longer describe their content (D9)] → recorded in the propose status; renaming them needs a tool that lets a MODIFIED block drop a scenario or a hand edit of the main specs, which only Product owner can decide.
+
+## Migration Plan
+
+None: front-only, no data or contract change. Rollback is reverting the change's commits; the old registration links come back with their texts.
