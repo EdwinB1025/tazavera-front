@@ -6,7 +6,7 @@ Today a visitor reaches registration only through two text links in the entry-pa
 
 ## What Changes
 
-- New registration landing at `/{locale}/join`: a heading, an introduction and two option cards (specialist first, then coffee shop), each with a short text and an action button that opens its existing form (`/{locale}/register`, `/{locale}/register/coffeeshop`). Like the registration forms, it waits with a loading status while the session resolves and sends an authenticated visitor to `/{locale}` through client-side navigation.
+- New registration landing at `/{locale}/join`: a heading, an introduction and two option cards (specialist first, then coffee shop), each with a short text and an action button that opens its existing form (`/{locale}/register`, `/{locale}/register/coffeeshop`). Like the registration forms, it waits with a loading status while the session resolves and sends an authenticated visitor to `/{locale}` through client-side navigation. When the session cannot be resolved, it shows its heading, its introduction and the two options as for an anonymous visitor, with no error.
 - App header, from the medium breakpoint (768px): a "Register" action button immediately before "Sign in", opening `/{locale}/join`, shown only while the session is anonymous. Below 768px the header is unchanged.
 - Entry page, below 768px: a "Register" action button above the hero, opening `/{locale}/join`, shown only while the session is anonymous.
 - Entry-page hero: its two registration links are replaced by one text link to the About us page (`/{locale}/about`), for every visitor, with no navigation landmark around it.
@@ -42,7 +42,7 @@ Today a visitor reaches registration only through two text links in the entry-pa
 - Routing: new `app/[locale]/join/page.tsx`.
 - `src/pages/register` (new landing screen, its client region and option card; the anonymous-only gate shared with the forms), `src/pages/home` (new entry-page button island; hero link), `src/pages/about` (About us link), `src/widgets/app-header` (header action), `src/app/shell/AppShell.tsx` (one text).
 - `messages/{es,en,ca}/{shell,account,landing}.json`; `README.md` route table.
-- Validation tests: `HomeHero.test.tsx`, `AboutContent.test.tsx`, `HomeScreen.test.tsx`, `AppHeader.test.tsx`, `AppShell.test.tsx`, new `RegisterLandingClient.test.tsx`. QA fixtures that go stale (not edited): `qa/src/pages/home/ui/HomeHero.test.tsx`, `qa/src/pages/home/ui/HomeScreen.test.tsx`, `qa/src/widgets/app-header/ui/AppHeader.test.tsx`.
+- Validation tests: `HomeHero.test.tsx`, `AboutContent.test.tsx`, `HomeScreen.test.tsx`, `AppHeader.test.tsx`, `AppShell.test.tsx`, new `RegisterLandingScreen.test.tsx`. QA fixtures that go stale (not edited): `qa/src/pages/home/ui/HomeHero.test.tsx`, `qa/src/pages/home/ui/HomeScreen.test.tsx`, `qa/src/widgets/app-header/ui/AppHeader.test.tsx`.
 - API: no operation consumed; no contract change. Dependencies: none added. Tokens: none added; every pair is already registered in the theme matrix.
 
 ## Propose status
@@ -61,5 +61,9 @@ Today a visitor reaches registration only through two text links in the entry-pa
   - New text props are required, not optional; the QA fixtures that lack them go stale and are listed, not edited (design.md D8).
   - Scenarios whose subject disappears (landing "Link groups", "Registration destinations", "Specialist registration destination", "Registration links"; app-shell "Registration links named") keep their names with new content, because `openspec validate --strict` (1.16.0) refuses a MODIFIED block that drops a scenario name, as in `open-directory-from-hero`; their existing tests are rewritten in the task that changes the behaviour (design.md D9).
 - **Open:**
-  - The 768px header width with the new action is unmeasured (summary Unverified 2); if the visual review measures an overflow, both breakpoints move to `lg` through a correction round.
-  - The kept scenario names above no longer describe their content; renaming them needs a hand edit of the main specs or a tool that lets a MODIFIED block drop a scenario (Product owner's decision, as for `open-directory-from-hero`).
+  - The 768px header width with the new action is unmeasured (summary Unverified 2); if the visual review measures an overflow, both breakpoints move to `lg`, per summary §9.
+- **Artifact review (2026-11-05), Product owner's review Q6 = A, Q7 = A, Q8 = A:**
+  - Q6 = A → the artifacts carry the settled values themselves and point to design.md: the catalog wording now lives in design.md D7, and tasks 1.2 and 3.2 reference design.md D7 instead of the summary's §8; the design summary is only the propose input (design.md Context).
+  - Q7 = A → user-account "Registration landing session gate" states the unresolvable session and gains scenario "The landing shows its options when the session cannot be resolved" (the two options as for an anonymous visitor, with no error); task 1.1 gains its test, which drives a real unresolvable session as `src/app/shell/AppShell.test.tsx:221` does, distinct from the anonymous test (handoff decision D5; design.md D2).
+  - Q8 = A → the five scenarios keep their names with the new content and are renamed later by a hand edit of the main specs (design.md D9); the renaming question leaves the Open list above.
+  - `openspec validate add-register-landing --strict`: valid.

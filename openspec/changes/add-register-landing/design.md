@@ -2,7 +2,7 @@
 
 ## Context
 
-See proposal.md (Why, What Changes). The design source of truth is `docs/design/add-register-landing/design-summary.md` (approved, `c6ac3ddf`): layout, spacing, tokens, texts and responsive behaviour are settled there (§4–§11) and are not restated here; this document records the implementation decisions the summary leaves to the architect and the file plan.
+See proposal.md (Why, What Changes). This document is self-contained: it carries the settled values (layout, spacing, tokens, texts and responsive behaviour), the implementation decisions and the file plan, and the tasks point to it. `docs/design/add-register-landing/design-summary.md` (approved, `c6ac3ddf`) is only the propose input — the record of the design conversation — and no value is left there (Product owner, review Q6 = A).
 
 Current state that constrains the approach (verified on `feature/add-register-landing`):
 
@@ -17,7 +17,7 @@ API: no endpoint is consumed (navigation only). No API error is presented, so no
 
 ## Goals / Non-Goals
 
-**Goals:** one anonymous-only gate rule for `/register*` and `/join`; the summary's layout with existing components, tokens and spacing only; every scenario of the three spec deltas covered by exactly one test.
+**Goals:** one anonymous-only gate rule for `/register*` and `/join`; the settled layout with existing components, tokens and spacing only; every scenario of the three spec deltas covered by exactly one test.
 
 **Non-Goals:** no new shared component, variant, token, icon or guard test; no change to `RegisterForm`, the success panel or Cancel; no lower-layer gate.
 
@@ -56,11 +56,13 @@ Why a hook, not a component with `loading` and `children` slots: the two consume
 
 `RegisterClient.test.tsx` mocks `@/features/auth` and `next/navigation` by module, so its tests keep passing through the hook unchanged.
 
+A session that cannot be resolved settles to `{ state: "anonymous" }` with no error (`src/features/auth/model/session.ts`), so the landing shows its heading, its introduction and its two options exactly as for an anonymous visitor (user-account "Registration landing session gate"). The scenario's test drives a real unresolvable session as `src/app/shell/AppShell.test.tsx:221` does — the sign-in marker set and `completeCallback` answering nothing that belongs to it — so it is a distinct test from the anonymous one (handoff decision D5).
+
 ### D3 — Landing screen, client region and option card
 
-- `RegisterLandingScreen({ locale })` (server) reads the `account` catalog and renders the summary §6.1 frame with `RegisterScreen`'s classes: wrapper `div.flex-1` → `PageSection surface="page" containerClassName="flex flex-col"` → column `flex w-full flex-col gap-8` → heading block `flex flex-col gap-2` (`h1.type-heading` = `registerLandingTitle`, `p.type-body` = `registerLandingIntro`) → `RegisterLandingClient`. Unlike `RegisterScreen`, the `h1` needs no id (no form is labelled by it).
+- `RegisterLandingScreen({ locale })` (server) reads the `account` catalog and renders the settled frame (summary §6.1, restated by its classes here) with `RegisterScreen`'s classes: wrapper `div.flex-1` → `PageSection surface="page" containerClassName="flex flex-col"` → column `flex w-full flex-col gap-8` → heading block `flex flex-col gap-2` (`h1.type-heading` = `registerLandingTitle`, `p.type-body` = `registerLandingIntro`) → `RegisterLandingClient`. Unlike `RegisterScreen`, the `h1` needs no id (no form is labelled by it).
 - `RegisterLandingClient({ locale, texts })` (client): `useAnonymousOnly(locale)`; `"authenticated"` → `null`; `"loading"` → `LoadingStatus` with `texts.loading`; `"anonymous"` → the options grid `grid gap-6 md:grid-cols-2` holding two `RegisterOption`s, specialist first (`/${locale}/register`), then coffee shop (`/${locale}/register/coffeeshop`).
-- `RegisterOption({ title, text, actionLabel, href })`: `Card layout="stacked"` (content variant) with `className="h-full"` → `CardContent className="flex-1"` → `div` `flex h-full flex-col gap-4` → `h2.type-card-heading`, `p.type-body`, and an action row `mt-auto pt-2` holding `RouteButton variant="action-1" size="base"`. One component for both cards (no boolean variant). Equal heights and bottom-aligned buttons follow from the grid's stretch (summary Unverified 3: checked in the visual review).
+- `RegisterOption({ title, text, actionLabel, href })`: `Card layout="stacked"` (content variant; the stacked layout already applies `h-full` and the content's `flex-1`) → `CardContent` → `div` `flex h-full flex-col gap-4` → `h2.type-card-heading`, `p.type-body`, and an action row `mt-auto pt-2` holding `RouteButton variant="action-1" size="base"`. One component for both cards (no boolean variant). Equal heights and bottom-aligned buttons follow from the grid's stretch (summary Unverified 3: checked in the visual review).
 
 UI types, declared before the components in their files:
 
@@ -85,7 +87,7 @@ export type RegisterOptionProps = {
 
 ### D4 — Header "Register" action
 
-In `AppHeader`, the `session.state === "anonymous"` branch renders, in this order, a `span.hidden.md:inline-flex` holding `RouteButton variant="nav-button" href={\`/${locale}/join\`}` with `texts.register`, then the existing "Sign in" `Button` (unchanged, no wrapper). Both stay in the right group, so its `gap-2 md:gap-4` spaces them. No `aria-current`. While resolving and when authenticated the branch does not render, so the action follows "Sign in" (app-shell "Session states in the shell"). `AppHeaderTexts` gains `register: string` (required, D8); `AppShell` passes `register: texts.register!`, read from `shell.register` like the other header texts. If the visual review measures an overflow at 768px, the wrapper becomes `hidden lg:inline-flex` together with D5's `lg:hidden` (summary §9) through a correction round; this design writes `md`.
+In `AppHeader`, the `session.state === "anonymous"` branch renders, in this order, a `span.hidden.md:inline-flex` holding `RouteButton variant="nav-button" href={\`/${locale}/join\`}` with `texts.register`, then the existing "Sign in" `Button` (unchanged, no wrapper). Both stay in the right group, so its `gap-2 md:gap-4` spaces them. No `aria-current`. While resolving and when authenticated the branch does not render, so the action follows "Sign in" (app-shell "Session states in the shell"). `AppHeaderTexts` gains `register: string` (required, D8); `AppShell` passes `register: texts.register!`, read from `shell.register` like the other header texts. If the visual review measures an overflow at 768px, the wrapper becomes `hidden lg:inline-flex` together with D5's `lg:hidden` (summary §9, the settled fallback); this design writes `md`.
 
 ### D5 — Entry-page "Register" button island renders its own wrapper
 
@@ -101,7 +103,24 @@ Why the island renders the wrapper: the summary places a `md:hidden` wrapper aro
 
 ### D7 — Catalog texts
 
-Added and removed exactly as summary §8 (wording accepted, Open 9 = A): `shell.register`; `landing.heroRegisterAction`, `landing.heroAboutLabel`, `landing.aboutRegisterLabel`; the eight `account.registerLanding*` keys; removed `landing.heroCoffeeshopRegisterLabel`, `heroSpecialistRegisterLabel`, `heroRegisterNavigation`, `aboutCoffeeshopRegisterLabel`, `aboutSpecialistRegisterLabel`, `aboutRegisterNavigation`, in es, en and ca. `account.loading` is reused. `landing.aboutRegisterLabel` stays a new key rather than a reuse of `heroRegisterAction` (summary §8): every About us text is an `about*` key, and sharing a `hero*` key would tie the About us link's wording to the entry-page button. The existing catalog guard ("An area is complete in every locale") covers additions and removals.
+The wording (proposed in the summary §8, accepted as proposed — Open 9 = A — and carried here by review Q6 = A):
+
+| Key | es | en | ca |
+|---|---|---|---|
+| `shell.register` | Registrarse | Register | Registra't |
+| `landing.heroRegisterAction` | Registrarse | Register | Registra't |
+| `landing.heroAboutLabel` | Sobre nosotros | About us | Sobre nosaltres |
+| `landing.aboutRegisterLabel` | Registrarse | Register | Registra't |
+| `account.registerLandingTitle` | Únete a Tazavera | Join Tazavera | Uneix-te a Tazavera |
+| `account.registerLandingIntro` | Elige cómo quieres participar en Tazavera. | Choose how you want to take part in Tazavera. | Tria com vols participar a Tazavera. |
+| `account.registerLandingSpecialistTitle` | Especialista | Specialist | Especialista |
+| `account.registerLandingSpecialistText` | Cata a ciegas las ofertas de las cafeterías con el protocolo de la SCA y registra tus evaluaciones. | Cup the coffee shops' offerings blind with the SCA protocol and record your evaluations. | Tasta a cegues les ofertes de les cafeteries amb el protocol de l'SCA i registra les teves avaluacions. |
+| `account.registerLandingSpecialistAction` | Regístrate como especialista | Register as a specialist | Registra't com a especialista |
+| `account.registerLandingCoffeeshopTitle` | Cafetería | Coffee shop | Cafeteria |
+| `account.registerLandingCoffeeshopText` | Publica tus ofertas, recibe la evaluación de especialistas y muestra con pruebas lo que sirves. | Publish your offerings, have them evaluated by specialists and show with evidence what you serve. | Publica les teves ofertes, rep l'avaluació d'especialistes i mostra amb proves el que serveixes. |
+| `account.registerLandingCoffeeshopAction` | Registra tu cafetería | Register your coffeeshop | Registra la teva cafeteria |
+
+Removed, in es, en and ca: `landing.heroCoffeeshopRegisterLabel`, `heroSpecialistRegisterLabel`, `heroRegisterNavigation`, `aboutCoffeeshopRegisterLabel`, `aboutSpecialistRegisterLabel`, `aboutRegisterNavigation`. `account.loading` is reused for the loading status. `landing.aboutRegisterLabel` stays a new key rather than a reuse of `heroRegisterAction` (summary §8): every About us text is an `about*` key, and sharing a `hero*` key would tie the About us link's wording to the entry-page button. The existing catalog guard ("An area is complete in every locale") covers additions and removals.
 
 ### D8 — New text props are required
 
@@ -109,17 +128,17 @@ Added and removed exactly as summary §8 (wording accepted, Open 9 = A): `shell.
 
 ### D9 — Tests of rewritten scenarios
 
-The CLI refuses a MODIFIED block that drops a scenario name, so, as in `open-directory-from-hero` and `show-item-not-found-message`, the scenarios whose subject disappears keep their names with new content: landing "Link groups", "Registration destinations", "Specialist registration destination", "Registration links", and app-shell "Registration links named". Their existing tests are rewritten in the task that changes the behaviour, keeping one test per scenario; the two "Link groups" tests (one per page) stay two, as today. App-shell "Registration links named" has no test today and gets none: its outcome (no navigation landmark around either link) is the same check the landing tests of "Registration destinations" and "Registration links" make, which is not repeated.
+The CLI refuses a MODIFIED block that drops a scenario name, so, as in `open-directory-from-hero` and `show-item-not-found-message`, the scenarios whose subject disappears keep their names with new content: landing "Link groups", "Registration destinations", "Specialist registration destination", "Registration links", and app-shell "Registration links named". Their existing tests are rewritten in the task that changes the behaviour, keeping one test per scenario; the two "Link groups" tests (one per page) stay two, as today. App-shell "Registration links named" has no test today and gets none: its outcome (no navigation landmark around either link) is the same check the landing tests of "Registration destinations" and "Registration links" make, which is not repeated. The five names are kept as they are and are renamed later by a hand edit of the main specs (Product owner, review Q8 = A).
 
 ## Risks / Trade-offs
 
-- [Header width at 768px with the new action is unmeasured (summary Unverified 2)] → visual review at 375/768/1280 px, es and ca, both themes, signed out and signed in; an overflow moves D4 and D5 to `lg` together through a correction round.
+- [Header width at 768px with the new action is unmeasured (summary Unverified 2)] → visual review at 375/768/1280 px, es and ca, both themes, signed out and signed in; an overflow moves D4 and D5 to `lg` together, per summary §9.
 - [The entry-page button appears once the session resolves and moves the hero down 4rem for an anonymous visitor below `md`] → accepted by Product owner (summary Open 11 = A).
 - [Stale QA tests, not edited in this change] → the build lists them in its final report:
   - `qa/src/pages/home/ui/HomeHero.test.tsx`: its texts fixture lacks `aboutLabel` (type error under `npx tsc --noEmit`) and carries the removed labels; its layout assertion on `ACTIONS_CLASSES` keeps holding.
   - `qa/src/pages/home/ui/HomeScreen.test.tsx`: reads the removed `heroCoffeeshopRegisterLabel` and `heroSpecialistRegisterLabel` keys, and renders `HomeScreen` without mocking `@/features/auth`.
   - `qa/src/widgets/app-header/ui/AppHeader.test.tsx`: its texts fixture lacks `register` (type error), and it renders the anonymous header without mocking `next/navigation`, which `RouteButton` needs.
-- [Kept scenario names no longer describe their content (D9)] → recorded in the propose status; renaming them needs a tool that lets a MODIFIED block drop a scenario or a hand edit of the main specs, which only Product owner can decide.
+- [Kept scenario names no longer describe their content (D9)] → the five scenarios keep their names with the new content and are renamed later by a hand edit of the main specs (Product owner, review Q8 = A; design.md D9).
 
 ## Migration Plan
 
