@@ -2,7 +2,7 @@
 
 The board of tazavera-front's OpenSpec changes: only what is **not resolved**. What is closed (archived and on `develop`) leaves the board: its decisions are in `openspec/changes/archive/`, in each change's handoff, in the decisions log of `docs/design/general-context.md` and in this file's git history.
 
-**Last update:** 2026-11-05 — Board reduced to unresolved items and translated to English (Product owner). The orchestrator session is on hold by Product owner's order (session permissions under review). Assignment loop: session job `88357f17`. No scheduled routine or active executor.
+**Last update:** 2026-11-05 — Session ended for a restart (Product owner). Next session, in order: (1) test cloud routine creation (`RemoteTrigger` `create` of a disabled, unscheduled test routine) with the corrected settings; (2) R91 next steps as in its row. Rule copies for `docs/agents/` (orchestrator, workflow, design lead) handed to Product owner; not yet applied. No scheduled routine, watch or active executor; the assignment loop died with the session.
 
 ## Board
 
