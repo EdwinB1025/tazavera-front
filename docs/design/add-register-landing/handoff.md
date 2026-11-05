@@ -150,3 +150,29 @@ Design lead: prompt checked against §7 step 2. Open points, none blocking: (1) 
 
 ### Next
 Next session: check the hook with a disabled test routine; have the prompt rewritten with the branch's current head as base (this commit moves it past `9fa5886d`); launch the apply as a one-off scheduled run and watch it (§7).
+
+## Session 2026-11-05 (evening) — Apply (step 8), cloud launch
+Summary: Start checklist done; assignment loop running. The PreToolUse hook works: `RemoteTrigger` `create` succeeded (disabled test routine `trig_01NebsWc2injnSM3vGFpUyNG`). The design lead (general agent) rewrote the build prompt on base `81b1d975`; checked against §7 step 2. Apply launched as a one-off scheduled cloud run: routine `trig_01RXWWDgLqMaXn4Tv1ocqPgh`, run at 2026-11-05 18:24 UTC, environment `Default`, model `claude-opus-5-5`, build only, target `claude/add-register-landing-apply`, tasks 1.1–5.1. The server attached the account connectors Claude_Docs and Claude_Code_Remote. Background watch (`Monitor`) denied in don't-ask mode: the assignment loop is the watch (§7). Plan usage at launch: 5 h 8%, 7 d 3%. Stopped because: waiting for the cloud session. MVC reachable: not checked.
+
+### Agent feedback
+Design lead (prompt): open points, none blocking: (1) `openspec` CLI not in `package.json` (the prompt makes a missing CLI a stop); (2) `AGENTS.md` forbids `git push` while §7 needs the session to push its target branch (prompt follows §7, as before); (3) the rule files on the feature branch differ from `develop` (`orchestrator.md`, `design-lead.md`, `workflow_sdd.md`; not `AGENTS.md` or `build.md`); (4) `proposal.md` line 38 still says the `lg` move comes "as a later correction" (wording; not fixed now: §4 forbids editing an artifact while a Build run is in progress); (5) 768px header width stays with the visual review.
+
+First run, session `cse_016Lpndfr5uMg21DGuUxVYjs` (18:24–18:26 UTC): stopped before task 1.1, no `openspec` CLI in the cloud (Q11). Nothing committed or pushed.
+
+### Deferred to Product owner
+#### ANSWERED 2026-11-05: Product owner added `npm install -g @fission-ai/openspec@1.16.0` to the `Default` environment's setup script; the same routine was rescheduled (18:44 UTC)
+#### Q11 — The cloud apply needs the `openspec` CLI
+- Question: the apply skill calls `openspec status` / `openspec instructions apply`; the CLI is not in `package.json` nor in the cloud image (the propose session installed it globally on its own). / Options: 1. setup line in the prompt; 2. go on without the CLI; 3. install it in the environment's setup script; 4. local OpenCode build. / Recommendation: 1. / Blocks: apply.
+
+## Session 2026-11-05 (evening) — Apply (step 8), cloud run 2 and integration
+Summary: Session `cse_016LpndiM3V2aGT6tkbRZmj4` (18:44–18:55 UTC, success): setup script ran, `openspec` CLI present, skills openspec-apply-change and fsd-architecture read. Tasks 1.1–2.2 done (7 of 15), pushed to `claude/add-register-landing-apply`. Stopped at task 2.3 with a question (C1). Stopped because: C1 needs an artifact update before the build continues. MVC reachable: not checked.
+
+### Agent feedback
+Build: commits `6bae12e1` test (landing and its session gate; file added to the forks pool of `vitest.config.mts`, test infrastructure: it drives the real session with `crypto.subtle`), `b8b4642a` feat (landing texts), `902b389b` refactor (`useAnonymousOnly`), `bd8a856e` feat (landing at `/join`; `RegisterOptionProps.href` typed `` `/${string}` `` as `RegisterForm`'s `cancelHref`), `32cd443d` docs (README `/join` row), `c68421f5` test (header Register action), `a6b24853` feat (`shell.register`). Task 2.3: implemented as D4 says, `AppShell.test.tsx` "Session unresolvable renders as anonymous with no error message and no retry affordance" fails (expects 3 buttons besides the navigation-menu control; jsdom counts the CSS-hidden Register button, 4); task 2.1 says "No other assertion changes" and 2.3's Verify requires that test to pass. Options A (expect 4) / B (also exclude the button named `texts.register`, keep 3); recommends B. 2.3 code not committed.
+
+### Review and integration (orchestrator, §7 steps 4–8)
+Commit format, footers and test-first order correct; files all allowed to the build (`vitest.config.mts`, `README.md` included); `tasks.md` checkboxes only. Checks not re-run locally: npm is denied in this session (`env -C … npm ci`); integrated on the session's per-task results (related tests, `npx tsc --noEmit`, lint 0 errors, 1 warning); the full checks run after the last task (task 5.1) and before `qa`/`develop` merges. `git merge --ff-only origin/claude/add-register-landing-apply`: `81b1d975..a6b24853`, `feature/add-register-landing` pushed.
+
+### Closed for review
+#### C1 — The unresolvable-session test counts the CSS-hidden Register button
+- Point: `src/app/shell/AppShell.test.tsx` (last assertion of "Session unresolvable renders as anonymous with no error message and no retry affordance") expects exactly 3 buttons besides the navigation-menu control; D4's Register button sits in the DOM behind `hidden md:inline-flex` and jsdom has no CSS, so the anonymous header has 4. Task 2.1 ("No other assertion changes") and 2.3's Verify contradict D4 and the app-shell "Signed-out header" delta (verified in the test file on `a6b24853`). / Options: A. expect 4; B. also leave out the button named `texts.register`, keep 3. / Choice: B. / Why: two settled artifacts contradict; B keeps the test's intent (another button would be a retry affordance) and every settled decision, changes one assertion only, adds no scope, changes nothing users see, touches no security; it is the build's recommendation and A changes no less (§3). / Result: artifact update by the architect (tasks 2.1/2.3 name this assertion change), then the build continues with 2.3–5.1, in one cloud session.
