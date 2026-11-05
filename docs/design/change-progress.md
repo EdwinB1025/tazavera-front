@@ -22,7 +22,7 @@ The board of tazavera-front's OpenSpec changes: only what is **not resolved**. W
 | 2 | `claude/*` branches left unintegrated on purpose: `unify-bean-outline`, `r64-list-spacing-analysis`, `share-active-locale-refactor`, `test-reduction-plan`; and `add-register-landing-propose` (already integrated) | Do you delete them on GitHub? (yours) |
 | 3 | API task (2026-10-11): the front's landing as the callback's return page | Done? The orchestrator acts only if the contract changes |
 | 4 | Flaky test `EvaluationForm.test.tsx` (failed once and passed on retry, 2026-10-11) | Backlog entry or drop it? |
-| 5 | R91 Q10: launching the cloud apply | Create the routine unscheduled and fire it once with `RemoteTrigger run` (starts now, one session), instead of a run a few minutes ahead? |
+| 5 | R91 Q10: launching the cloud apply | Product owner restarts the session in auto mode (don't-ask mode denies `RemoteTrigger` `create` since Claude Code 2.1.318); then the orchestrator launches the apply with the design lead's prompt (in the 2026-11-05 session scratchpad, `r91-apply-prompt.md`; rewrite it if lost) |
 
 ## Contract coverage
 
