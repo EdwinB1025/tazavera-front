@@ -1,4 +1,4 @@
-Status: draft — pending Product owner review
+Status: draft — approved
 
 # Design summary — add-register-landing
 
