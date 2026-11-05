@@ -5,8 +5,8 @@
   "heroHeadingAfter": " cada glop",
   "heroParagraph": "Avaluacions objectives amb el protocol de tast de l'SCA: cada cafè es tasta a cegues per especialistes i només es marca com a verificat quan el consens el recolza.",
   "heroExploreLabel": "Explorar cafès",
-  "heroCoffeeshopRegisterLabel": "Registra la teva cafeteria",
-  "heroSpecialistRegisterLabel": "Registra't com a especialista",
+  "heroRegisterAction": "Registra't",
+  "heroAboutLabel": "Sobre nosaltres",
   "heroPhotoAlt": "Grans de cafè torrats",
   "cardCoffeeshopCaption": "Cafeteria:",
   "cardRoasterCaption": "Torrador:",
@@ -43,6 +43,5 @@
   "aboutSpecialistRegisterLabel": "Registra't com a especialista",
   "aboutClosingLabel": "Explorar cafès",
   "metaDescription": "Tazavera, la guia del bon cafè: avaluacions objectives amb el protocol de tast de l'SCA que descobreixen què hi ha a cada tassa.",
-  "heroRegisterNavigation": "Registre",
   "aboutRegisterNavigation": "Registre"
 }

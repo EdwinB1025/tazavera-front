@@ -5,8 +5,8 @@
   "heroHeadingAfter": " cada sorbo",
   "heroParagraph": "Evaluaciones objetivas con el protocolo de cata de la SCA: cada café se cata a ciegas por especialistas y solo se marca como verificado cuando el consenso lo respalda.",
   "heroExploreLabel": "Explorar cafés",
-  "heroCoffeeshopRegisterLabel": "Registra tu cafetería",
-  "heroSpecialistRegisterLabel": "Regístrate como especialista",
+  "heroRegisterAction": "Registrarse",
+  "heroAboutLabel": "Sobre nosotros",
   "heroPhotoAlt": "Granos de café tostados",
   "cardCoffeeshopCaption": "Cafetería:",
   "cardRoasterCaption": "Tostador:",
@@ -43,6 +43,5 @@
   "aboutSpecialistRegisterLabel": "Regístrate como especialista",
   "aboutClosingLabel": "Explorar cafés",
   "metaDescription": "Tazavera, la guía del buen café: evaluaciones objetivas con el protocolo de cata de la SCA que descubren qué hay en cada taza.",
-  "heroRegisterNavigation": "Registro",
   "aboutRegisterNavigation": "Registro"
 }
