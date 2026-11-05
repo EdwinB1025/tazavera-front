@@ -39,9 +39,7 @@
   "aboutStepCupping": "Especialistas la catan a ciegas con el protocolo de cata de la SCA y registran su puntuación.",
   "aboutStepConsensus": "El consenso de las evaluaciones decide: solo lo que varias catas respaldan recibe la marca de verificado.",
   "aboutAudienceText": "Tazavera es para cafeterías que quieren mostrar con pruebas lo que sirven, y para especialistas que quieren evaluarlo con rigor.",
-  "aboutCoffeeshopRegisterLabel": "Registra tu cafetería",
-  "aboutSpecialistRegisterLabel": "Regístrate como especialista",
+  "aboutRegisterLabel": "Registrarse",
   "aboutClosingLabel": "Explorar cafés",
-  "metaDescription": "Tazavera, la guía del buen café: evaluaciones objetivas con el protocolo de cata de la SCA que descubren qué hay en cada taza.",
-  "aboutRegisterNavigation": "Registro"
+  "metaDescription": "Tazavera, la guía del buen café: evaluaciones objetivas con el protocolo de cata de la SCA que descubren qué hay en cada taza."
 }

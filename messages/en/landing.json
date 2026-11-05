@@ -39,9 +39,7 @@
   "aboutStepCupping": "Specialists cup it blind with the SCA cupping protocol and record their score.",
   "aboutStepConsensus": "The consensus of the evaluations decides: only what several cuppings back earns the verified mark.",
   "aboutAudienceText": "Tazavera is for coffeeshops that want to show with evidence what they serve, and for specialists who want to evaluate it with rigor.",
-  "aboutCoffeeshopRegisterLabel": "Register your coffeeshop",
-  "aboutSpecialistRegisterLabel": "Register as a specialist",
+  "aboutRegisterLabel": "Register",
   "aboutClosingLabel": "Explore coffees",
-  "metaDescription": "Tazavera, the guide to good coffee: objective evaluations with the SCA cupping protocol that discover what is in every cup.",
-  "aboutRegisterNavigation": "Registration"
+  "metaDescription": "Tazavera, the guide to good coffee: objective evaluations with the SCA cupping protocol that discover what is in every cup."
 }
