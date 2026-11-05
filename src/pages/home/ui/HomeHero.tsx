@@ -13,10 +13,8 @@ export type HomeHeroTexts = {
   headingAfter: string;
   paragraph: string;
   exploreLabel: string;
-  coffeeshopRegisterLabel: string;
-  specialistRegisterLabel: string;
-  /** The registration links' navigation name (label-landmarks-and-headings D1). */
-  registerNavigation?: string;
+  /** The About us link below the explore action (add-register-landing D6). */
+  aboutLabel: string;
   photoAlt: string;
 };
 
@@ -50,17 +48,13 @@ const ACTIONS_CLASSES = [
   "items-start",
   "gap-4",
 ].join(" ");
-// The registration links stay apart and wrap when the row has no room.
-const LINK_GROUP_CLASSES = ["flex", "flex-wrap", "gap-x-6", "gap-y-2"].join(
-  " ",
-);
 
 /**
  * Hero of the entry page (design.md D10, D11, D12; the landing spec "Entry
  * page hero"). The heading renders as three parts so exactly one word takes
  * the accent color (spec "Hero presentation", "Settled Spanish heading"), the
- * two registration links address the registration routes of the active
- * locale (spec "Registration destinations"), and the photograph is hidden
+ * About us link addresses the About us page of the active locale (spec
+ * "Registration destinations"; add-register-landing D6), and the photograph is hidden
  * below `md` and renders beside the text from `md` up (spec "Responsive
  * hero"). Every text arrives as a prop (design.md D11).
  */
@@ -77,14 +71,7 @@ export function HomeHero({ locale, texts }: HomeHeroProps): ReactNode {
         <p className="type-body">{texts.paragraph}</p>
         <div className={ACTIONS_CLASSES}>
           <ExploreButton locale={locale} label={texts.exploreLabel} />
-          <nav aria-label={texts.registerNavigation} className={LINK_GROUP_CLASSES}>
-            <Link href={`/${locale}/register/coffeeshop`}>
-              {texts.coffeeshopRegisterLabel}
-            </Link>
-            <Link href={`/${locale}/register`}>
-              {texts.specialistRegisterLabel}
-            </Link>
-          </nav>
+          <Link href={`/${locale}/about`}>{texts.aboutLabel}</Link>
         </div>
       </div>
       <Image
