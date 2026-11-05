@@ -72,4 +72,26 @@ Summary: Propose launched as a one-off scheduled cloud run: routine `trig_01DGEQ
 - Context: the summary's first line reads `Status: draft — approved`, not exactly `Status: approved`. / Decision: treat it as approved and say so in the prompt. / Why: Product owner's commit `c6ac3ddf` "add-register-landing approved", with Q3–Q5 answered by it. / Result: propose prompt.
 
 ### Agent feedback
-(pending: the cloud session's final report)
+Cloud session `cse_016LpndhXN5DNjrfr14AY4TM` (09:15–09:26 UTC, success). Commits `2f330712` docs(user-account), `a5f6166f` docs(app-shell), `0c24bc4a` docs(landing), one per capability; `openspec validate --strict` valid; skills openspec-propose and fsd-architecture followed. Architect settled: gate as a slice-local hook (Open 7 = A, D2); landing in `src/pages/register` (D1); entry-page button renders its own `md:hidden` wrapper (D5); new key `landing.aboutRegisterLabel` (D7); new text props required, stale QA fixtures listed (D8). Open from the architect: 768 px header width unmeasured (visual review); five scenarios keep their names with new content because the validator refuses a MODIFIED block that drops a scenario (D9).
+
+### Review and integration (orchestrator, §7 steps 4 and 7)
+Commit format and footer correct; only `openspec/changes/add-register-landing/` touched; skills named in the run log. `feature/add-register-landing` fast-forwarded to `0c24bc4a` in the new worktree `tazavera-front-register-landing` and pushed. Worktree setup (§6 step 1): `npm install` done; `.env.local` and the restricted OpenCode profile not copied (sources not named yet). No npm checks run: the change touches artifacts only.
+
+### Artifact fixes
+#### A1 — Test file name in the proposal
+- Phase: before review / Conflict: proposal Impact named `RegisterLandingClient.test.tsx`; task 1.1 creates `RegisterLandingScreen.test.tsx` / Fix: proposal now names `RegisterLandingScreen.test.tsx` / Result: uncommitted (enters the architect's update commit).
+#### A2 — `# Tasks` title
+- Phase: before review / Conflict: tasks.md lacked the template's `# Tasks` heading / Fix: added / Result: uncommitted.
+#### A3 — README task in its own group
+- Phase: before review / Conflict: the tasks instruction requires each group to land its own documentation and keeps the final group for integration checks; the README `/join` row was task 5.1 / Fix: moved to task 1.5; full checks renumbered 5.1 (no reference to the old numbers) / Result: uncommitted; `openspec validate --strict` valid.
+
+### Deferred to Product owner
+#### Q6 — Artifacts defer to the design summary
+- Question: design.md line 5 calls the summary "the design source of truth" (layout, spacing, tokens, texts "not restated here"), and tasks 1.2 and 3.2 send the build to the summary's §8 wording, so the artifacts are not self-contained. The framing came from the orchestrator's propose prompt. / Why deferred: carrying the values into design.md is an artifact change beyond §4. / Options: A. review message: design.md and tasks carry the settled values and point to design.md, the summary is only the propose input; B. leave as is. / Recommendation: A. / Blocks: apply.
+#### Q7 — Unresolvable session on `/join`
+- Question: the spec rules ask for error states; the landing has no scenario for a session that cannot be resolved (the shell renders it as anonymous). / Options: A. add one scenario (options shown, as anonymous) and its test; B. none. / Recommendation: A. / Blocks: no.
+#### Q8 — Scenario names kept with new content
+- Question: five scenarios ("Link groups", "Registration destinations", "Specialist registration destination", "Registration links", app-shell "Registration links named") keep names that no longer describe them (D9). / Options: A. accept; rename later by a hand edit of the main specs; B. another way. / Recommendation: A. / Blocks: no.
+
+### Final checks
+Not run (artifact-only change); `openspec validate add-register-landing --strict` valid after A1–A3.
