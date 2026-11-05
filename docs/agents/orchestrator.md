@@ -28,6 +28,13 @@ Do every step, in order, before answering Product owner or acting. A question fr
 - Before anything else, find the change's worktree with `git worktree list`; if it does not exist, create it (section 6, step 1). Run the whole task against that worktree, except the merge steps that section 6 places in `tazavera-front` and the project records (section 12).
 - **Steps that need `develop`** (decisions log, board, general context, merges): run `git worktree list`; if `develop` is not checked out anywhere, add a temporary worktree on it, do the step, and remove the worktree (`git worktree remove`, never `--force`).
 - **Commands.** Never use `cd`. Pass the folder to each command: `git -C <dir> …` for git, `env -C <dir> <command>` for npm, npx and opencode. One command per call: no `;`, `&&`, `|` or redirects. Read files with the Read, Grep and Glob tools, not with shell commands.
+- **Agent and OpenSpec configuration** (read only; all of it belongs to Product owner):
+  - `openspec/config.yaml`: the OpenSpec project context and the list of capabilities.
+  - `.opencode/agents/architect.md`, `.opencode/agents/build.md`: the OpenCode model (`xiaomi/mimo-v2.6-pro`) and permissions per agent. The committed version is the restricted `--auto` profile; `git restore .opencode/agents/` brings it back.
+  - `.opencode/commands/opsx-*.md`: the `/opsx:*` commands (apply, archive, explore, propose, sync, update, verify), each bound to its agent.
+  - `.opencode/skills/<skill>/SKILL.md`: the OpenSpec skills (`openspec-propose`, `-update-change`, `-apply-change`, `-verify-change`, `-archive-change`, `-sync-specs`, `-explore`) and `fsd-architecture`.
+  - `.claude/agents/architect.md`, `build.md`, `design-lead.md`: the local Claude subagents. They point to the rule files.
+  - `../.claude/settings.local.json`: the permissions of this session.
 
 ## 2. Settled decisions you must not reopen
 

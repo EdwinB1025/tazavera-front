@@ -26,6 +26,21 @@ Every agent follows these Common rules plus the rule file of its own role, and i
 - A prompt that gives you two roles in order (architect, then build) means: read each role's file before acting as that role, and follow only that file while in that role.
 - The architect never implements: it does not create or edit code, tests or configuration. The build never runs `openspec validate`, `openspec archive` or any command that creates or changes OpenSpec artifacts.
 
+### Where each role's instructions live
+
+Your rule file is in `docs/agents/`, under the name in the table above. Nothing else replaces it. The other files only start a session or limit what it may do:
+
+| Role | Rule file (read in full first) | Session entry file | Permissions |
+|---|---|---|---|
+| Architect | `docs/agents/architect.md` | OpenCode: `.opencode/agents/architect.md` (model and permissions only; it cannot carry a prompt). Local Claude subagent: `.claude/agents/architect.md`. Cloud: the orchestrator's prompt | `.opencode/agents/architect.md` |
+| Build | `docs/agents/build.md` | OpenCode: `.opencode/agents/build.md`. Local Claude subagent: `.claude/agents/build.md`. Cloud: the orchestrator's prompt | `.opencode/agents/build.md` |
+| Orchestrator | `docs/agents/orchestrator.md` | `.claude/CLAUDE.md` | `../.claude/settings.local.json` |
+| Design lead | `docs/agents/design-lead.md` | `.claude/agents/design-lead.md` | `.claude/agents/design-lead.md` |
+
+- Paths are relative to the repository root; `../` is the parent folder (`Sprint5`).
+- Every role also follows `docs/agents/workflow_sdd.md` (the process) and the skill of its phase (`.opencode/skills/<skill>/SKILL.md`, see "OpenSpec skills").
+- A cloud session has no `.claude/` and no `/opsx:*` commands. Its prompt names its role file and its skill files, which are in the repository.
+
 ## Working method
 
 - At the start of every request, read the current state by command (tasks.md, `git status`, `git log`, `openspec status`); never rely on command outputs from earlier turns, because the other agent or Product owner may have changed them.
@@ -164,7 +179,8 @@ Mandatory footer: `Refs: <change-id>`
 - `<capability>` is the affected OpenSpec capability (e.g., `base-controls`).
 - The commit scope is the capability of the change being implemented, even when a task touches files owned by another capability.
 - A commit touches only one capability. If a change affects multiple capabilities, one commit is made per capability.
-- `git push`, `git merge`, `git rebase`, `git reset --hard`, `git commit --amend`, and `--force` are never used.
+- `git merge`, `git rebase`, `git reset --hard`, `git commit --amend`, and `--force` are never used.
+- `git push` is never used, except by a cloud session, and only for the target branch its prompt names (`claude/<change-id>-<task>`): `git push -u origin <that branch>`, never `--force`, never another branch, never a pull request.
 - Before each commit, `git status` is executed to verify that only files allowed for the agent are included.
 - AGENTS.md and the role files in `docs/agents/` are read-only for every agent: never edit, stage or commit them, even when the Next.js block above says to commit it. If `git status` shows them modified, leave them unstaged and mention it in the final report. Only Product owner revises them.
 - Stage one path per `git add` command; never list several paths in one command.
