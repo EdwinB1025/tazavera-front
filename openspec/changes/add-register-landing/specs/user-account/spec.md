@@ -14,7 +14,7 @@ The application SHALL offer a registration landing at `/{locale}/join` with a he
 - **THEN** the application opens `/es/register` or `/es/register/coffeeshop` respectively
 
 ### Requirement: Registration landing session gate
-The registration landing SHALL be available only to a visitor who is not signed in. While the session is resolving it SHALL show its heading, its introduction and the loading status, and no option. When the session is authenticated it SHALL show no option and open the root of the active locale through client-side navigation, with no reload and no message. When the session cannot be resolved it SHALL show its heading, its introduction and the two options as for an anonymous visitor, with no error.
+The registration landing SHALL be available only to a visitor who is not signed in. While the session resolves it SHALL show its heading, its introduction and the loading status, and no option. When the session is authenticated it SHALL show no option and open the root of the active locale through client-side navigation, with no reload and no message. When the session cannot be resolved it SHALL show its heading, its introduction and the two options as for an anonymous visitor, with no error.
 
 #### Scenario: The landing waits while the session resolves
 - **WHEN** `/{locale}/join` opens while the session is still resolving
