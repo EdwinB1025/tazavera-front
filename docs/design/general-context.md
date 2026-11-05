@@ -1,618 +1,590 @@
-# Contexto general — tazavera-front
+# General context — tazavera-front
 
-Contexto del orquestador para retomar el trabajo. Lo mantiene el orquestador (`docs/agents/orchestrator.md`, §12): se reescribe para seguir vigente, salvo el registro de decisiones del final, al que solo se añade. Fuentes de verdad que este archivo no repite:
-- `docs/design/change-progress.md`: fase, responsable y bloqueo de cada cambio, y la cobertura del contrato. Lo más reciente va al principio de su primera línea.
-- `docs/design/backlog.md`: lo usan los agentes según el workflow. El build reporta candidatos, Product owner los añade y el arquitecto los retira al archivar el cambio que los resuelve.
-- `docs/agents/workflow_sdd.md`: el proceso (SDD con OpenSpec): workflow tradicional, vía rápida y hallazgos.
-- `AGENTS.md`: las reglas comunes y la tabla de archivos de rol; las reglas de cada rol están en `docs/agents/` (`architect.md`, `build.md`, `orchestrator.md`, `design-lead.md`), y cada agente lee solo el suyo (desde el 11 oct). Los archivos de `.claude/` solo remiten a su archivo de rol.
-- El `handoff.md` y el `corrections.md` de cada cambio.
-- Desde el 11 oct, los artefactos de comunicación (tablero, contexto general y backlog) viven en `docs/design/`, y el workflow en `docs/agents/`, junto a los archivos de rol.
+The orchestrator's context for resuming work. Kept by the orchestrator (`docs/agents/orchestrator.md`, §12): rewritten in place to stay current, except the decisions log at the end, which is append-only. Sources of truth this file does not repeat:
+- `docs/design/change-progress.md` (the board): phase, assignee and blocker of every open change, and the contract coverage.
+- `docs/design/backlog.md`: refactor candidates and accepted entries, used by the agents as the workflow says.
+- `docs/agents/workflow_sdd.md`: the process (SDD with OpenSpec): traditional workflow, fast lane and findings.
+- `AGENTS.md`: the common rules and the table of role files; each role's rules are in `docs/agents/` and each agent reads only its own. The files in `.claude/` only point to the role files.
+- Each change's `handoff.md` and `corrections.md`.
 
-**Actualizado:** 2026-11-05 ~12:15 UTC.
+**Working language:** English for every record and artifact (Product owner, 2026-11-05). Interface texts stay in their catalogs (`messages/{es,en,ca}`).
 
-## Al retomar
+**Updated:** 2026-11-05.
 
-**Primer paso, siempre:** la lista de arranque de `docs/agents/orchestrator.md` antes de cualquier respuesta: arrancar el loop de asignación (cada 10 minutos), leer las reglas comunes de `AGENTS.md`, `docs/agents/orchestrator.md`, `docs/agents/workflow_sdd.md`, el tablero, este contexto con su registro de decisiones, el backlog y los handoffs activos, el uso del plan y el estado de cada ejecutor. El loop de cada sesión muere al cerrarla. El subagente design lead no está registrado si la sesión arranca en `Sprint5`: se lanza como agente general con `.claude/agents/design-lead.md` (lee `docs/agents/design-lead.md`).
+## On resuming
 
-Las reglas están solo en los archivos del proyecto (`AGENTS.md`, `docs/agents/`); este contexto no las repite.
+- **First step, always:** the start checklist of `docs/agents/orchestrator.md` before any answer. The assignment loop dies with each session.
+- The design lead subagent is not registered when the session starts in `Sprint5`, and `.claude/agents/design-lead.md` was missing in the 2026-11-05 sessions: without it, the design lead's steps cannot run locally (Product owner to add the file).
+- **Commands:** never `cd`; one command per call, with `git -C <dir>` and `env -C <dir> <command>`; files are read with the Read, Grep and Glob tools. A chained `cd …;` command always asks for permission, whatever the allow list says.
+- `tazavera-front-qa` is a separate folder (its own `.git`), not a worktree: do not touch it.
 
-**Estado (5 nov, ~12:15 UTC):** en curso solo **R91 `add-register-landing`** (flujo tradicional), fase **Revisión de artefactos**. Propose hecho en la nube e integrado por ff; `feature/add-register-landing` en origin con el handoff al día. Worktree `tazavera-front-register-landing` con `npm install`; faltan `.env.local` y el perfil restringido de OpenCode (el Product owner dice de dónde copiarlos). Limpieza §4 sin commit en el worktree (A1–A3; entra en el commit de actualización del arquitecto). **Respuestas del Product owner (5 nov):** Q6 = A (los artefactos llevan los valores decididos y no remiten al resumen), Q7 = A (un escenario: sesión no resoluble en `/join` → las dos opciones como anónimo, sin error, y su test), Q8 = A (los cinco escenarios conservan el nombre; se renombran luego en las specs principales). **Próxima sesión, en orden:** probar la creación de rutinas; revisión del design lead del propose (§7 paso 2); mensaje de revisión al arquitecto (esas respuestas) y duplicados (§4); apply en la nube (alcance largo). Después: R45.
+## Current state (2026-11-05)
 
-- `tazavera-front-qa` es otra carpeta (con su propio `.git`), no un worktree: no tocarla.
+- Only **R91 `add-register-landing`** is in progress (traditional workflow), phase **Artifact review**: next steps on the board. Worktree `tazavera-front-register-landing`, with `npm install`; `.env.local` and the restricted OpenCode profile not copied yet (Product owner names the sources).
+- Then R45 (after R91 reaches `develop`).
 
-**Entorno local (11 oct):** el orquestador lo arranca solo, según `tazavera-documentation/arranque-local-con-caddy.md`: `php artisan serve` (un `cd` solo a `tazavera-api` antes), `caddy start --config deploy/Caddy/Caddyfile.local --adapter caddyfile` (la CA ya es de confianza) y el front con un lanzador de node (`scratchpad/run-front.mjs <carpeta> run build|start`) que fija `cwd`, `NODE_EXTRA_CA_CERTS` y las tres `NEXT_PUBLIC_*` (las variables en línea y `cp .env*` se deniegan). Cuenta de cafetería sembrada: `nomad-coffee@tazavera.test` / `password` (contraseña por defecto del factory; una por negocio de `coffeeshops-barcelona.json`). El design lead captura con Chrome sin interfaz por el protocolo DevTools, navegando con `window.next.router.push` (una recarga pierde los tokens).
+## Permissions (2026-11-05)
 
-**Permisos (5 nov):** en modo "no preguntar", `RemoteTrigger list/get/list_runs/get_run_log` funcionan, pero `create` se deniega aunque `RemoteTrigger` esté en el `allow` de `Sprint5/.claude/settings.local.json` (3 intentos); en modo auto funcionó. Bash con un solo comando y `env -C <dir> npm|npx` funcionan; PowerShell y los comandos encadenados (`cd … &&`) se deniegan. El Product owner no quiere hooks ni cambios de configuración para esto. Sesión del 5 nov ~11:40–12:15 UTC (arrancada en `Sprint5`): al revés, Bash denegado y PowerShell solo con `git -C "<ruta literal>" …` (sin variables); `create` denegado también tras el cambio de permisos del Product owner en `tazavera-front`, aunque `RemoteTrigger` está en el `allow` de los dos `settings.local.json`; el Product owner reinicia la sesión para probarlo. Los dos `settings.local.json` aún apuntan a la ruta antigua `C:/Porjects/...` (`additionalDirectories` y la regla de `php artisan`).
+- The session runs in `default` mode so that cloud routines can be created (`RemoteTrigger` `create` was denied in "don't ask" mode, three times, even with `RemoteTrigger` allowed). Not yet retested in `default` mode.
+- Both `.claude/settings.local.json` files still point to the old path `C:/Porjects/...` (`additionalDirectories` and the `php artisan` rule). The corrected file was given to Product owner in the 2026-11-05 session.
 
-**Rutinas en la nube:** se programan con al menos 3–5 minutos de margen; si la hora queda en el pasado al crearla, se mueve la hora (nunca se lanza a mano además del planificador: duplica la sesión). El contenido del prompt: `docs/agents/orchestrator.md` §7 paso 2.
+## Environment
 
-**API (`tazavera-api`, 12 oct):** el checkout local está en la rama `deploy` del Product owner (`514bad5`, con Dockerfile; `dev` = `PROD` = `89e25c4`). Por orden del Product owner, los cambios de hoy salen de `deploy` y vuelven a `deploy` (local y GitHub); antes de fusionar, `git status` limpio en el checkout o parar y avisar. Antes (hasta el 11 oct): `dev` = `PROD` = `89e25c4`, en local y en GitHub. Toda implementación va por `feature/*` o `hotfix/*` desde `dev`; al terminar, el orquestador fusiona en `dev` y alinea `PROD`. Hechos el 9 oct: R40 (422/404 documentados, 404 traducido), R50 (consenso sin notas huérfanas), login para las páginas de verificación de correo, `login_hint` del step-up (`RequireHintedUserForStepUp`). Scribe se ejecuta desde la carpeta del API.
+- **Local (2026-10-11):** the orchestrator starts it as `tazavera-documentation/arranque-local-con-caddy.md` says: `php artisan serve` in `tazavera-api`, `caddy start --config deploy/Caddy/Caddyfile.local --adapter caddyfile` (the CA is already trusted), and the front with a node launcher (`scratchpad/run-front.mjs <folder> run build|start`) that sets `cwd`, `NODE_EXTRA_CA_CERTS` and the three `NEXT_PUBLIC_*` variables. Seeded coffee-shop account: `nomad-coffee@tazavera.test` / `password` (one per business in `coffeeshops-barcelona.json`). The design lead captures with headless Chrome over the DevTools protocol, navigating with `window.next.router.push` (a reload loses the tokens).
+- **Local OAuth client of the front:** changes with every `migrate:fresh --seed`; `NEXT_PUBLIC_OAUTH_CLIENT_ID` is inlined at build time, so the production build is redone after it changes. Product owner creates the front's `.env.local`.
+- **Cloud:** environment `env_01DTNNGR37Cgqdaa5ym4Zagr` (`Default`), model `claude-opus-5-5`, repository `EdwinB1025/tazavera-front`. Routines are scheduled at least 3–5 minutes ahead; if the time is already past when creating one, move the time (never also run it by hand: it duplicates the session). Prompt content: `docs/agents/orchestrator.md` §7, step 2.
+- **API (`EdwinB1025/tazzavera-api`, 2026-10-12):** the local checkout is on Product owner's `deploy` branch. By his order, API changes start from `deploy` and return to `deploy` (local and GitHub); before merging, `git status` must be clean in the checkout, otherwise stop and tell him. Scribe runs from the API folder: `php artisan optimize:clear` and `php artisan scribe:generate` (no `--force`).
+- **OpenCode:** `xiaomi/mimo-v2.6-pro` for the architect and the build. The provider sometimes hangs without an error (CPU at zero, empty log): stop after 15–20 minutes without output and relaunch. OpenCode Desktop leaves `opencode-cli serve --service` orphaned.
+- **Project:** Git Bash on Windows (`taskkill //PID <n> //F`); base `C:\Programing\Full Stack\Sprint5\`. GitHub `EdwinB1025/tazavera-front` (private), remote `origin`, default branch `develop`. A fresh folder fails `npx tsc --noEmit` until `npx next typegen` runs.
 
-## Estado
+## Working agreements
 
-- **Nube:** entorno `env_01DTNNGR37Cgqdaa5ym4Zagr` (`Default`), modelo `claude-opus-5-5`, repositorio `EdwinB1025/tazavera-front`. Cobertura del contrato: ver el tablero.
-- **Cliente OAuth local del front:** `01a120d6-90fe-71fa-932e-f3dbbfc7c4eb` (cambia con cada `migrate:fresh`).
-- **Fases por cambio:** ver el tablero.
+- API values are shown as they come (including `roastLevel`).
+- Captures go in `docs/design/<change-id>/captures/`. The build has no browser.
+- After every API `migrate:fresh`, the front's data cache (`.next/cache/fetch-cache`) must be emptied, or cached taxonomies no longer resolve.
 
-## Forma de trabajar
+## Orchestrator decisions log
 
-- El proceso y las reglas: `AGENTS.md`, `docs/agents/workflow_sdd.md` y el archivo de cada rol.
-- Los valores de la API se muestran tal cual (incluido `roastLevel`).
-- **Capturas:** van en `docs/design/<change-id>/captures/` (Product owner, 6 oct). El Build no tiene navegador.
-
-## Proyecto
-
-- Next.js 16 (App Router, `proxy.ts`), React 19, TypeScript, Tailwind 4, Vitest + RTL, FSD. Git Bash en Windows (`taskkill //PID <n> //F`). Base `C:\Programing\Full Stack\Sprint5\`.
-- **GitHub:** `EdwinB1025/tazavera-front` (privado), remoto `origin`, rama por defecto `develop`. Claude GitHub App instalada.
-- **Contrato y tipos:** `develop` tiene el contrato de la API `21752be` y `schema.ts` regenerado (`2d7d8b8`). Scribe: desde `tazavera-api`, `php artisan optimize:clear` y `php artisan scribe:generate` (sin `--force`; el `.env` ya fija `APP_LOCALE=en`). Los ejemplos de respuesta salen de `storage/scribe/responses/*.json`. En una carpeta nueva, `npx tsc --noEmit` falla hasta ejecutar `npx next typegen`.
-- **API (`EdwinB1025/tazzavera-api`):** ramas `dev` y `PROD` alineadas en `eec865e` (9 oct, verificación de email con `emailVerifiedAt`). Client OAuth público del front: `01a11c16-5def-73a2-8060-c018a8ea6a0f` (8 oct, nueva resiembra; sustituye a `01a11aee-170a-71bc-82aa-43344bf1b12d`, de la resiembra de los AUT tras los hotfix `6c2f482` y `18aa1c6` del API; cambia con cada `migrate:fresh --seed`, y como `NEXT_PUBLIC_OAUTH_CLIENT_ID` se incrusta al compilar, el build de producción del front se rehace tras cambiarlo) (`FrontClientSeeder`, redirect `http://localhost:3000/callback`). El `.env.local` del front lo crea Product owner (el orquestador no puede escribir `.env*`).
-- **Verificación visual:** la base de datos local no tiene ofertas. Se usa una API simulada de las lecturas y capturas por el protocolo DevTools (emulación real de 375px). Los scripts eran de sesión: recrearlos o guardarlos en `tools/`.
-- **OpenCode:** `xiaomi/mimo-v2.6-pro` para el arquitecto y el build (GLM 5.2 descartado). El proveedor a veces se cuelga sin error (CPU a cero, log vacío): parar a los 15–20 min sin salida y relanzar. OpenCode Desktop deja huérfano `opencode-cli serve --service`.
-- **Nube:**
-  - Entorno Default, red Trusted, `NEXT_PUBLIC_API_URL=http://localhost:8000`, script de setup vacío (corre fuera del repo). El prompt arranca con `npm ci` y `npx next typegen`.
-  - El orquestador lanza las sesiones como rutinas programadas de un solo uso (Product owner, 11 oct).
-  - Detalle en `docs/agents/orchestrator.md` §7.
-- **Límites del plan Pro:** la barra de estado guarda el uso en `~/.claude/usage-snapshot.json` (5 h y 7 días; el 11 oct ~12:38 UTC: 15 % y 42 %). Reglas en `docs/agents/orchestrator.md` §9.
-
-## Decisiones de producto abiertas o vigentes
-
-**add-auth:**
-- **Vigentes:** ventana emergente, `/callback` con dos modos, COOP `same-origin-allow-popups` como delta de `app-shell`, nonce extendido a `/callback`.
-- **Riesgo abierto:** el COOP de la API sin verificar en vivo (tarea 8.17).
-
-**add-landing:** D4 abierto. El chip de valoración muestra `cuppingAvg`, así que la puntuación sale dos veces en la tarjeta. Si se cambia, en un cambio nuevo.
-
-**add-specialist-evaluations (6 oct):**
-- Sabores básicos sin límite.
-- Descriptores desde `GET /taxonomies` por `categories` (`aromatics`, `main_tastes`, `mouthfeel`, `defects`):
-  - nivel 0 con hijos de nivel 1 en la categoría → una fila, con esos hijos como chips;
-  - nivel 0 sin hijos en la categoría → chips en una fila compartida;
-  - el nivel 2 no se muestra.
-- El diálogo de borrado va en `add-evaluation-scales`.
-
-**add-evaluation-scales:** abierto si se usa shadcn AlertDialog o un componente propio.
-
-**add-user-account:**
-- **Cerrados:** 9.1 (`POST /register` en camelCase, `role` opcional) y 9.6 (contactos fuera).
-- **Recomendados:** 9.2 ("cuenta creada" con botón de iniciar sesión) y 9.3 (step-up al enviar cada escritura).
-- **Pendientes:** 9.7 depende de `tokensExpireIn`; 9.5 y 9.8 son de Product owner. Hay que verificar la clave del 422 de contraseñas.
-
-**API:**
-- `SESSION_LIFETIME=2`, `SESSION_EXPIRE_ON_CLOSE=true`, `FRONT_URL=http://localhost:3000`.
-- Pendientes: `redirect_uri` de Passport = `{front}/callback`; que el login no envíe COOP.
-
-## Registro de decisiones del orquestador
-
-Solo se añade (`.claude/CLAUDE.md` §8). Una entrada por decisión del orquestador, o respuesta de Product owner, que afecta a otro cambio o a un diseño. "Afecta" nombra los cambios y los puntos de diseño.
+Append only (`docs/agents/orchestrator.md` §12). One entry per orchestrator decision, or Product owner answer, that affects another change or a design. "Affects" names the changes and the design points. Entries before 2026-11-05 were translated from Spanish on that date, without changing their content.
 
 ### 2026-10-05 — add-auth
-- **Decisión:** el punto de enganche de la sesión en `src/app/shell` es un `SessionShell.tsx` nuevo (`"use client"`). Llama a `useSession()` y pinta `ShellChrome` y la región del sidebar. `AppShell.tsx` sigue siendo Server Component: resuelve los textos del catálogo y se los pasa a `SessionShell`, junto con el override `session?`.
-- **Por qué:** respuesta de Product owner a Q12–Q14, ronda 2 de add-auth (`dd8b126`).
-- **Afecta:** refine-app-header (ya mergeado; el nombre del selector de idioma se compone en `AppShell.tsx`).
+- **Decision:** the session hook point in `src/app/shell` is a new `SessionShell.tsx` (`"use client"`). It calls `useSession()` and renders `ShellChrome` and the sidebar region. `AppShell.tsx` stays a Server Component: it resolves the catalog texts and passes them to `SessionShell`, together with the `session?` override.
+- **Why:** Product owner's answer to Q12–Q14, add-auth round 2 (`dd8b126`).
+- **Affects:** refine-app-header (already merged; the language selector's name is composed in `AppShell.tsx`).
 
 ### 2026-10-06 — add-landing / refine-app-header → add-auth (Q-merge)
-- **Decisión:** cuando auth mergee `develop`, hay que conservar dos cosas:
-  - el arreglo de altura del shell de header (`cd536d2`, test `2d0da3f`), llevado de las clases de `AppShell.tsx` a `SessionShell.tsx`;
-  - el hijo de relleno de landing en `AppShell.test.tsx`.
+- **Decision:** when auth merges `develop`, two things must be kept:
+  - the header shell height fix (`cd536d2`, test `2d0da3f`), carried from the classes of `AppShell.tsx` to `SessionShell.tsx`;
+  - the landing filler child in `AppShell.test.tsx`.
 
-  El conflicto no se resuelve tomando el lado de auth. `src/shared/api/index.ts` se mergea solo; correr `tsc` después.
-- **Por qué:** simulación de merge (`git merge-tree`) del 6 oct; aprobado por Product owner.
-- **Afecta:** add-auth.
+  The conflict is not resolved by taking auth's side. `src/shared/api/index.ts` merges on its own; run `tsc` afterwards.
+- **Why:** merge simulation (`git merge-tree`) of 6 Oct; approved by Product owner.
+- **Affects:** add-auth.
 
 ### 2026-10-06 — add-landing (D14)
-- **Decisión:** layout de página común: secciones a todo el ancho, contenedor centrado de 72rem como máximo, padding lateral de 1rem/2rem, vertical de 3rem/4rem, y huecos explícitos entre grupos.
-- **Por qué:** ronda 3 de add-landing.
-- **Afecta:** todos los diseños de páginas nuevas (offering-catalog, user-account, evaluations).
+- **Decision:** common page layout: full-width sections, a centred container of at most 72rem, side padding 1rem/2rem, vertical padding 3rem/4rem, and explicit gaps between groups.
+- **Why:** add-landing round 3.
+- **Affects:** every new page design (offering-catalog, user-account, evaluations).
 
-### 2026-10-06 — cobertura del contrato
-- **Decisión:** `GET /coffees` y `GET /roasteries` los consumen `add-offering-management` (alta de ofertas) y `add-filter-controls` (filtros de la lista de ofertas).
-- **Por qué:** respuesta de Product owner del 6 oct.
-- **Afecta:** add-offering-management, add-filter-controls, add-offering-catalog (la lista que aloja esos filtros).
+### 2026-10-06 — contract coverage
+- **Decision:** `GET /coffees` and `GET /roasteries` are consumed by `add-offering-management` (offering creation) and `add-filter-controls` (offering list filters).
+- **Why:** Product owner's answer of 6 Oct.
+- **Affects:** add-offering-management, add-filter-controls, add-offering-catalog (the list that hosts those filters).
 
-### 2026-10-06 — filtros (decisiones del 10-03 y respuesta de Product owner)
-- **Decisión:** los filtros son facetas estilo Amazon en el sidebar (controles `inverse`), a pantalla completa en móvil con los estilos del sidebar, y el orden en el cuerpo de la página. Un sidebar plegado oculta los filtros. Las filterbars del MVC no son referencia. El sidebar aparece solo donde hace falta: la lista de ofertas (pública, cualquier visitante) y la lista de evaluaciones (ruta de gestión, solo especialistas). Requiere un delta de `app-shell` dentro de `add-filter-controls`.
-- **Por qué:** `bycoding/contexto_diseño_claude_1003.md` §5–§6 y respuesta de Product owner del 6 oct.
-- **Afecta:** add-filter-controls (rehecho), add-offering-catalog (la ranura de filtro del cuerpo solo lleva la barra con el botón Filtros y el orden; la retícula convive con el sidebar), add-specialist-evaluations (facetas en el sidebar de su lista), add-offering-management Open 1 (entradas del sidebar).
+### 2026-10-06 — filters (decisions of 10-03 and Product owner's answer)
+- **Decision:** filters are Amazon-style facets in the sidebar (`inverse` controls), full screen on mobile with the sidebar styles, and the sort order in the page body. A collapsed sidebar hides the filters. The MVC filter bars are not a reference. The sidebar appears only where needed: the offering list (public, any visitor) and the evaluation list (management route, specialists only). Requires an `app-shell` delta inside `add-filter-controls`.
+- **Why:** `bycoding/contexto_diseño_claude_1003.md` §5–§6 and Product owner's answer of 6 Oct.
+- **Affects:** add-filter-controls (redone), add-offering-catalog (the body's filter slot holds only the bar with the Filters button and the sort; the grid coexists with the sidebar), add-specialist-evaluations (facets in its list's sidebar), add-offering-management Open 1 (sidebar entries).
 
-### 2026-10-06 — acceso a rutas protegidas
-- **Decisión:** en `/manage/evaluations*`, un visitante sin sesión inicia sesión y vuelve a la ruta; un usuario sin el rol adecuado ve la página 404.
-- **Por qué:** respuesta de Product owner al punto 9 de add-specialist-evaluations.
-- **Afecta:** add-offering-management Open 5, add-user-account Open 5 (pendiente de la propuesta S2: el popup necesita un clic, así que "iniciar sesión" automático es una redirección).
+### 2026-10-06 — access to protected routes
+- **Decision:** on `/manage/evaluations*`, a visitor without a session signs in and returns to the route; a user without the right role sees the 404 page.
+- **Why:** Product owner's answer to point 9 of add-specialist-evaluations.
+- **Affects:** add-offering-management Open 5, add-user-account Open 5 (pending proposal S2: the popup needs a click, so an automatic "sign in" is a redirect).
 
-### 2026-10-06 — refactors previos
-- **Decisión:** tres cambios nuevos van antes que sus consumidores: `refactor-badge-geometry` (feedback, R6) expone la geometría del badge; `fix-button-boundaries` (base-controls) añade un borde de 1px con colores existentes a las variantes de Button que no llegan a 3:1; `extract-offering-list-parts` (content-structure, R7) mueve la lectura y el lookup de taxonomías a `entities/taxonomy` y la paginación a `shared/ui` con props `path` y `query`.
-- **Por qué:** respuestas de Product owner a scales Open 3 y 6 y a evaluations Open 13; nombre y puntos abiertos cerrados por el orquestador.
-- **Afecta:** add-evaluation-scales, add-specialist-evaluations, add-offering-catalog, add-filter-controls, add-offering-management (todos los que usan badges, botones, taxonomías o paginación).
+### 2026-10-06 — refactors first
+- **Decision:** three new changes go before their consumers: `refactor-badge-geometry` (feedback, R6) exposes the badge geometry; `fix-button-boundaries` (base-controls) adds a 1px border with existing colours to the Button variants that do not reach 3:1; `extract-offering-list-parts` (content-structure, R7) moves the taxonomy read and lookup to `entities/taxonomy` and the pagination to `shared/ui` with `path` and `query` props.
+- **Why:** Product owner's answers to scales Open 3 and 6 and evaluations Open 13; name and open points settled by the orchestrator.
+- **Affects:** add-evaluation-scales, add-specialist-evaluations, add-offering-catalog, add-filter-controls, add-offering-management (everything that uses badges, buttons, taxonomies or pagination).
 
-### 2026-10-06 — escrituras, rutas protegidas y 422 (respuestas de Product owner)
-- **Decisión:**
-  - Step-up reactivo: la escritura se envía con el token actual; ante un `403` se muestra el aviso de step-up y el usuario repite la acción tras confirmarse.
-  - Ruta protegida sin sesión: con `loading` se espera; con `anonymous` la página llama a `signIn(rutaActual)` sin clic, lo que termina en la redirección completa de add-auth (corrección 3) y vuelve a la ruta. Usuario sin el rol: página 404 (entrada anterior).
-  - Cualquier 422 muestra el error genérico del formulario; el mapeo por campo queda en el backlog (R8).
-- **Por qué:** respuestas de Product owner del 6 oct a las propuestas 1–3.
-- **Afecta:** add-user-account Open 1, 2 y 5; add-offering-management Open 5, 6 y 7; add-specialist-evaluations (punto 9 y entrada de las escrituras).
+### 2026-10-06 — writes, protected routes and 422 (Product owner's answers)
+- **Decision:**
+  - Reactive step-up: the write is sent with the current token; on a `403` the step-up notice is shown and the user repeats the action after confirming.
+  - Protected route without a session: with `loading`, wait; with `anonymous`, the page calls `signIn(currentRoute)` without a click, which ends in add-auth's full redirect (correction 3) and returns to the route. User without the role: 404 page (previous entry).
+  - Any 422 shows the form's generic error; per-field mapping stays in the backlog (R8).
+- **Why:** Product owner's answers of 6 Oct to proposals 1–3.
+- **Affects:** add-user-account Open 1, 2 and 5; add-offering-management Open 5, 6 and 7; add-specialist-evaluations (point 9 and the writes entry).
 
-### 2026-10-06 — primitivo compartido de sección (respuesta de Product owner)
-- **Decisión:** un cambio de refactor en `content-structure` extrae las clases de sección y contenedor de D14 (hoy copiadas en `HomeScreen.tsx` y `AboutContent.tsx`) a un primitivo compartido, y Home y About lo adoptan. Va antes que las features que añaden páginas.
-- **Por qué:** respuesta de Product owner a la propuesta 4.
-- **Afecta:** add-user-account Open 8, add-offering-management Open 4, add-offering-catalog Open 2.
+### 2026-10-06 — shared section primitive (Product owner's answer)
+- **Decision:** a refactor change in `content-structure` extracts the D14 section and container classes (today copied in `HomeScreen.tsx` and `AboutContent.tsx`) into a shared primitive, and Home and About adopt it. It goes before the features that add pages.
+- **Why:** Product owner's answer to proposal 4.
+- **Affects:** add-user-account Open 8, add-offering-management Open 4, add-offering-catalog Open 2.
 
-### 2026-10-06 — ranura de acción de `OfferingCard` (respuesta de Product owner)
-- **Decisión:** un cambio de refactor en `landing` sustituye la prop `session` de `OfferingCard` por una ranura de acción que rellena quien usa la tarjeta. Va antes que las features que la usan.
-- **Por qué:** respuesta de Product owner a la propuesta 5.
-- **Afecta:** add-offering-management Open 2 (checkbox y Borrar), add-specialist-evaluations §8 (solo aporta `EvaluateLink`), add-offering-catalog (las tarjetas del catálogo).
+### 2026-10-06 — `OfferingCard` action slot (Product owner's answer)
+- **Decision:** a refactor change in `landing` replaces `OfferingCard`'s `session` prop with an action slot filled by whoever uses the card. It goes before the features that use it.
+- **Why:** Product owner's answer to proposal 5.
+- **Affects:** add-offering-management Open 2 (checkbox and Delete), add-specialist-evaluations §8 (only provides `EvaluateLink`), add-offering-catalog (the catalog cards).
 
-### 2026-10-06 — refresco del perfil en la sesión (respuesta de Product owner)
-- **Decisión:** add-auth expone `refreshProfile()`: vuelve a pedir `GET /user` (única fuente de los datos del usuario, D5) y actualiza la sesión; la respuesta del `PUT` no se escribe en la sesión. Ante fallo de red o 5xx reintenta una vez tras una pausa corta; si vuelve a fallar, la sesión conserva el usuario anterior, sin mensaje. El `401` ya lo recupera el cliente de add-auth.
-- **Por qué:** respuesta de Product owner a la propuesta 6.
-- **Afecta:** add-user-account Open 7; add-auth (módulo de sesión, `src/features/auth`).
+### 2026-10-06 — profile refresh in the session (Product owner's answer)
+- **Decision:** add-auth exposes `refreshProfile()`: it requests `GET /user` again (the only source of user data, D5) and updates the session; the `PUT` response is not written to the session. On a network error or 5xx it retries once after a short pause; if it fails again, the session keeps the previous user, with no message. The `401` is already recovered by add-auth's client.
+- **Why:** Product owner's answer to proposal 6.
+- **Affects:** add-user-account Open 7; add-auth (session module, `src/features/auth`).
 
-### 2026-10-06 — librería del combobox (respuesta de Product owner)
-- **Decisión:** el combobox es el de shadcn/ui (Radix Popover + `cmdk`), con estilo propio por tokens; dependencia nueva aprobada. El arquitecto verifica mantenimiento y tamaño de `cmdk` al proponer.
-- **Por qué:** respuesta de Product owner a add-filter-controls Open 1.
-- **Afecta:** add-filter-controls (facetas Productor y Tostador); cualquier cambio futuro que necesite un combobox.
+### 2026-10-06 — combobox library (Product owner's answer)
+- **Decision:** the combobox is shadcn/ui's (Radix Popover + `cmdk`), styled with tokens; new dependency approved. The architect checks `cmdk`'s maintenance and size when proposing.
+- **Why:** Product owner's answer to add-filter-controls Open 1.
+- **Affects:** add-filter-controls (Producer and Roaster facets); any future change that needs a combobox.
 
-### 2026-10-06 — add-filter-controls: resto de puntos (respuesta de Product owner)
-- **Decisión:** se aceptan todas las recomendaciones del resumen. Las que tocan a otros cambios:
-  - la ranura `@sidebar` (ruta paralela en `app/[locale]/`) es el mecanismo del shell para que una ruta ponga contenido en el sidebar;
-  - los defectos F1 y F2 del sidebar se arreglan en el delta de app-shell de este cambio;
-  - las filas de facetas añaden una presentación de fila a `Checkbox` y `RadioGroup` (delta de form-fields en este cambio);
-  - borde de checkbox y radio en filas seleccionadas con `nav-button-border`; hover sin cambio de fondo;
-  - el borde de `primary` en oscuro (F6) va a un cambio aparte de base-controls;
-  - la retícula del catálogo con el sidebar abierto la decide `add-offering-catalog` (columnas según el ancho disponible).
-  - el rango de puntuación admite, además del slider, escribir el mínimo y el máximo en dos campos "Desde / Hasta" sincronizados con él (punto 15, pendiente de detallar).
-  - los combobox con datos de la API buscan mientras se escribe (`?name=`), desde el navegador: excepción aceptada a la regla de carga en servidor de los endpoints públicos. Aplica a Tostador y al alta de ofertas de offering-management (un solo combobox sobre `GET /coffeeInventory?coffeeName=` sustituye a los selects de tostador y café y a los radios del inventario; management deja de consumir `listCoffees` y `listRoasteries`). El combobox es genérico y reutilizable (`shared/ui`, lo construye filter-controls); cada consumidor le pasa la búsqueda y el contenido de la fila. Productor sigue cargándose una vez (punto 16). Hook propio (`fetch` + `AbortController` + espera de 300 ms), sin librería de datos; textos del combobox desde el catálogo es/en/ca.
-- **Por qué:** respuesta de Product owner a add-filter-controls Open 2–16.
-- **Afecta:** add-offering-management Open 1 (entradas del sidebar, misma ranura), add-offering-catalog (retícula, punto 14), add-specialist-evaluations (facetas de su lista), fix-button-boundaries (F6).
+### 2026-10-06 — add-filter-controls: remaining points (Product owner's answer)
+- **Decision:** every recommendation of the summary is accepted. Those that touch other changes:
+  - the `@sidebar` slot (parallel route in `app/[locale]/`) is the shell's mechanism for a route to put content in the sidebar;
+  - sidebar defects F1 and F2 are fixed in this change's app-shell delta;
+  - facet rows add a row presentation to `Checkbox` and `RadioGroup` (form-fields delta in this change);
+  - checkbox and radio border on selected rows with `nav-button-border`; hover without a background change;
+  - the `primary` border in dark (F6) goes to a separate base-controls change;
+  - the catalog grid with the sidebar open is decided by `add-offering-catalog` (columns by available width);
+  - the score range accepts, besides the slider, typing the minimum and maximum in two "From / To" fields synced with it (point 15, to be detailed);
+  - comboboxes with API data search while typing (`?name=`), from the browser: an accepted exception to the server-loading rule for public endpoints. It applies to Roaster and to offering creation in offering-management (one combobox over `GET /coffeeInventory?coffeeName=` replaces the roaster and coffee selects and the inventory radios; management stops consuming `listCoffees` and `listRoasteries`). The combobox is generic and reusable (`shared/ui`, built by filter-controls); each consumer passes it the search and the row content. Producer still loads once (point 16). Own hook (`fetch` + `AbortController` + 300 ms debounce), no data library; combobox texts from the es/en/ca catalog.
+- **Why:** Product owner's answer to add-filter-controls Open 2–16.
+- **Affects:** add-offering-management Open 1 (sidebar entries, same slot), add-offering-catalog (grid, point 14), add-specialist-evaluations (its list's facets), fix-button-boundaries (F6).
 
-### 2026-10-06 — geometría de chip compartida (respuesta de Product owner)
-- **Decisión:** `refactor-badge-geometry` no añade el test del escenario "Chip matches the badge geometry" (WARNING del verify): aún no hay ningún chip que lo consuma. El primer cambio que cree un chip parte de `BADGE_GEOMETRY_CLASSES` (`@/shared/ui`), añade el test de ese escenario y declara sus diferencias (radio, alto, padding, hueco, tipografía) como tratamientos encima de esas clases, nunca como una segunda geometría.
-- **Por qué:** respuesta de Product owner al WARNING del verify de refactor-badge-geometry.
-- **Afecta:** add-filter-controls §6.2 "Chip" y §9.2 (chips aplicados); add-evaluation-scales (chip de descriptor sin seleccionar).
+### 2026-10-06 — shared chip geometry (Product owner's answer)
+- **Decision:** `refactor-badge-geometry` does not add the test of the "Chip matches the badge geometry" scenario (verify WARNING): no chip consumes it yet. The first change that creates a chip starts from `BADGE_GEOMETRY_CLASSES` (`@/shared/ui`), adds that scenario's test and declares its differences (radius, height, padding, gap, typography) as treatments on top of those classes, never as a second geometry.
+- **Why:** Product owner's answer to the WARNING of refactor-badge-geometry's verify.
+- **Affects:** add-filter-controls §6.2 "Chip" and §9.2 (applied chips); add-evaluation-scales (unselected descriptor chip).
 
-### 2026-10-06 — piezas extraídas disponibles (extract-offering-list-parts)
-- **Decisión:** la lectura y el lookup de taxonomías viven en `src/entities/taxonomy` (`fetchTaxonomies`, `buildTaxonomyLookup`) y la paginación es `Pagination` de `@/shared/ui` (props `path`, `query`, `currentPage`, `lastPage`, textos). Los diseños nuevos los consumen; nadie vuelve a copiarlos desde `widgets/offering-list`.
-- **Por qué:** tareas 1.1–4.1 de extract-offering-list-parts hechas (`7e6b777`).
-- **Afecta:** add-filter-controls §9.2 (cascada de sabores), add-specialist-evaluations, add-offering-catalog, add-offering-management.
+### 2026-10-06 — extracted pieces available (extract-offering-list-parts)
+- **Decision:** the taxonomy read and lookup live in `src/entities/taxonomy` (`fetchTaxonomies`, `buildTaxonomyLookup`) and pagination is `Pagination` from `@/shared/ui` (props `path`, `query`, `currentPage`, `lastPage`, texts). New designs consume them; nobody copies them again from `widgets/offering-list`.
+- **Why:** extract-offering-list-parts tasks 1.1–4.1 done (`7e6b777`).
+- **Affects:** add-filter-controls §9.2 (flavour cascade), add-specialist-evaluations, add-offering-catalog, add-offering-management.
 
-### 2026-10-06 — rutas protegidas sin sesión: mensaje con botón (respuesta de Product owner)
-- **Decisión:** sustituye la parte "ruta protegida sin sesión" de la entrada "escrituras, rutas protegidas y 422". Con `loading` se espera; con `anonymous` la página muestra un mensaje y un botón "Iniciar sesión" que llama a `signIn(rutaActual)` dentro del clic (ventana emergente; el usuario se queda en la ruta). Sin redirección automática. Usuario sin el rol: página 404. Además, `/[locale]/register*` con sesión `authenticated` lleva al inicio con navegación interna.
-- **Por qué:** respuesta de Product owner: el mensaje le da al usuario idea de lo que está pasando.
-- **Afecta:** add-user-account Open 4 y 5, add-offering-management Open 5, add-specialist-evaluations punto 9.
+### 2026-10-06 — protected routes without a session: message with a button (Product owner's answer)
+- **Decision:** replaces the "protected route without a session" part of the entry "writes, protected routes and 422". With `loading`, wait; with `anonymous`, the page shows a message and a "Sign in" button that calls `signIn(currentRoute)` inside the click (popup; the user stays on the route). No automatic redirect. User without the role: 404 page. Also, `/[locale]/register*` with an `authenticated` session goes to the home page by client-side navigation.
+- **Why:** Product owner's answer: the message tells the user what is happening.
+- **Affects:** add-user-account Open 4 and 5, add-offering-management Open 5, add-specialist-evaluations point 9.
 
-### 2026-10-06 — página única de cuenta (respuesta de Product owner)
-- **Decisión:** la cuenta es una sola página `/[locale]/account` con secciones (Perfil, Contraseña, Seguridad como enlace externo a `{API}/user/security`, y "Zona peligrosa" con Desactivar y Borrar). El menú de usuario sustituye sus cinco entradas de cuenta por una sola "Mi cuenta"; Seguridad sigue como entrada externa. Lo que vive en la API (seguridad, recuperar contraseña) se queda en la API.
-- **Por qué:** respuesta de Product owner a add-user-account Open 6.
-- **Afecta:** add-user-account (delta de app-shell sobre `UserMenu.tsx`); cualquier cambio que enlace a las rutas de cuenta.
+### 2026-10-06 — single account page (Product owner's answer)
+- **Decision:** the account is one page `/[locale]/account` with sections (Profile, Password, Security as an external link to `{API}/user/security`, and "Danger zone" with Deactivate and Delete). The user menu replaces its five account entries with a single "My account"; Security stays as an external entry. What lives in the API (security, password recovery) stays in the API.
+- **Why:** Product owner's answer to add-user-account Open 6.
+- **Affects:** add-user-account (app-shell delta on `UserMenu.tsx`); any change that links to the account routes.
 
-### 2026-10-06 — validación de formularios en el navegador (respuesta de Product owner)
-- **Decisión:** los formularios son `noValidate` y, antes de enviar, el front valida solo lo que documenta el `requestBody` de cada operación en el contrato (obligatorios, formato de email, confirmación igual, enums y longitudes máximas), con mensajes del catálogo bajo cada `Field`. Lo que el contrato no detalla (fortaleza de contraseña, unicidad, contraseña actual) lo valida la API, con el 422 genérico hasta que R8 documente el 422.
-- **Por qué:** respuesta de Product owner a add-user-account Open 9; Scribe documenta las reglas de los FormRequests en el `requestBody`, pero no la respuesta 422.
-- **Afecta:** add-user-account, add-offering-management, add-specialist-evaluations (todos sus formularios).
+### 2026-10-06 — form validation in the browser (Product owner's answer)
+- **Decision:** forms are `noValidate` and, before submitting, the front validates only what each operation's `requestBody` documents in the contract (required fields, email format, matching confirmation, enums and maximum lengths), with catalog messages under each `Field`. What the contract does not detail (password strength, uniqueness, current password) is validated by the API, with the generic 422 until R8 documents the 422.
+- **Why:** Product owner's answer to add-user-account Open 9; Scribe documents the FormRequest rules in the `requestBody`, but not the 422 response.
+- **Affects:** add-user-account, add-offering-management, add-specialist-evaluations (all their forms).
 
-### 2026-10-06 — entradas del sidebar de gestión (respuesta de Product owner)
-- **Decisión:** cada área de gestión pone sus entradas en el sidebar con la misma ranura `@sidebar` de add-filter-controls (un solo mecanismo para facetas y entradas). `SidebarMenuButton` gana forma de enlace (`asChild`), lo que arregla F5.
-- **Por qué:** respuesta de Product owner a add-offering-management Open 1.
-- **Afecta:** add-offering-management, add-specialist-evaluations punto 10, add-filter-controls (dueño de la ranura).
+### 2026-10-06 — management sidebar entries (Product owner's answer)
+- **Decision:** each management area puts its entries in the sidebar with the same `@sidebar` slot as add-filter-controls (one mechanism for facets and entries). `SidebarMenuButton` gains a link form (`asChild`), which fixes F5.
+- **Why:** Product owner's answer to add-offering-management Open 1.
+- **Affects:** add-offering-management, add-specialist-evaluations point 10, add-filter-controls (owner of the slot).
 
-### 2026-10-06 — petición de ofertas con query (respuesta de Product owner)
-- **Decisión:** `add-offering-catalog` generaliza la petición de ofertas para que acepte una query; landing la llama con `verified=1` sin cambiar su comportamiento y el catálogo con la query de la URL. Paginación y taxonomías ya están extraídas (extract-offering-list-parts), así que offering-management Open 3 queda cubierto.
-- **Por qué:** respuesta de Product owner a add-offering-catalog Open 1.
-- **Afecta:** add-offering-catalog, add-offering-management Open 3, add-filter-controls (la lista que filtra).
+### 2026-10-06 — offerings request with a query (Product owner's answer)
+- **Decision:** `add-offering-catalog` generalises the offerings request so it accepts a query; landing calls it with `verified=1` without changing its behaviour and the catalog with the URL's query. Pagination and taxonomies are already extracted (extract-offering-list-parts), so offering-management Open 3 is covered.
+- **Why:** Product owner's answer to add-offering-catalog Open 1.
+- **Affects:** add-offering-catalog, add-offering-management Open 3, add-filter-controls (the list it filters).
 
-### 2026-10-06 — tokens contra la API local por HTTP (respuesta de Product owner)
-- **Decisión:** `oauth4webapi` rechaza por defecto las peticiones que no van por HTTPS, así que el login no se completaba contra `http://localhost:8000`. Las dos peticiones de tokens (`exchangeCode`, `refreshTokens` en `src/shared/api/tokens.ts`) usan `allowInsecureRequests` solo cuando `NODE_ENV !== "production"`; en producción se sigue exigiendo HTTPS. Fix F3 de add-auth en la nube (`trig_01KCuPWQTXgQYqUshCkLMiPx`, rama `claude/add-auth-f3`).
-- **Por qué:** respuesta de Product owner (opción a) al WARNING W1 del verify de add-auth tras `4ac8129`.
-- **Afecta:** add-auth; todo cambio que pruebe el login en local (user-account, offering-management, specialist-evaluations).
+### 2026-10-06 — tokens against the local API over HTTP (Product owner's answer)
+- **Decision:** `oauth4webapi` rejects non-HTTPS requests by default, so sign-in did not complete against `http://localhost:8000`. Both token requests (`exchangeCode`, `refreshTokens` in `src/shared/api/tokens.ts`) use `allowInsecureRequests` only when `NODE_ENV !== "production"`; production still requires HTTPS. add-auth fix F3 in the cloud (`trig_01KCuPWQTXgQYqUshCkLMiPx`, branch `claude/add-auth-f3`).
+- **Why:** Product owner's answer (option a) to WARNING W1 of add-auth's verify after `4ac8129`.
+- **Affects:** add-auth; every change that tests sign-in locally (user-account, offering-management, specialist-evaluations).
 
-### 2026-10-06 — CORS de la API para el navegador (hallazgo, pendiente de Product owner en la API)
-- **Decisión:** el login real falla en el navegador porque `POST /oauth/token` desde `http://localhost:3000` no recibe `Access-Control-Allow-Origin` (consola de Product owner: "blocked by CORS policy"). Causa en `tazavera-api`: rutas sin prefijo (`bootstrap/app.php`, `apiPrefix: ''`) y sin `config/cors.php`, así que el CORS por defecto de Laravel solo cubre `api/*`. El arreglo va en la API (publicar `config/cors.php` con las rutas que el navegador llama y `allowed_origins` = `FRONT_URL`, sin credenciales); el front no cambia. Hasta entonces, cualquier llamada del navegador a la API falla.
-- **Por qué:** prueba en navegador de add-auth (8.17 bis) con `php artisan serve`, usuario `edwin.specialist@tazavera.test`.
-- **Afecta:** add-auth (prueba en navegador y archive), add-user-account, add-specialist-evaluations, add-offering-management, add-filter-controls (combobox con `?name=` desde el navegador).
+### 2026-10-06 — API CORS for the browser (finding, pending Product owner in the API)
+- **Decision:** real sign-in fails in the browser because `POST /oauth/token` from `http://localhost:3000` gets no `Access-Control-Allow-Origin` (Product owner's console: "blocked by CORS policy"). Cause in `tazavera-api`: routes without a prefix (`bootstrap/app.php`, `apiPrefix: ''`) and no `config/cors.php`, so Laravel's default CORS only covers `api/*`. The fix goes in the API (publish `config/cors.php` with the routes the browser calls and `allowed_origins` = `FRONT_URL`, without credentials); the front does not change. Until then, every browser call to the API fails.
+- **Why:** browser test of add-auth (8.17 bis) with `php artisan serve`, user `edwin.specialist@tazavera.test`.
+- **Affects:** add-auth (browser test and archive), add-user-account, add-specialist-evaluations, add-offering-management, add-filter-controls (combobox with `?name=` from the browser).
 
-### 2026-10-06 — medias SCA en el detalle con la escala de granos (respuesta de Product owner)
-- **Decisión:** las medias de los atributos (1–9) del detalle de oferta se muestran con la escala de granos de solo lectura de add-evaluation-scales (un decimal, corte geométrico, valor también en texto). add-offering-catalog va después de que add-evaluation-scales esté mergeado.
-- **Por qué:** respuesta de Product owner a add-offering-catalog Open 5.
-- **Afecta:** add-offering-catalog (dependencia nueva), add-evaluation-scales (nuevo consumidor del modo `readOnly`).
+### 2026-10-06 — SCA averages in the detail with the bean scale (Product owner's answer)
+- **Decision:** the attribute averages (1–9) in the offering detail are shown with add-evaluation-scales' read-only bean scale (one decimal, geometric cut, value also as text). add-offering-catalog goes after add-evaluation-scales is merged.
+- **Why:** Product owner's answer to add-offering-catalog Open 5.
+- **Affects:** add-offering-catalog (new dependency), add-evaluation-scales (new consumer of the `readOnly` mode).
 
-### 2026-10-06 — pestañas del detalle de oferta (respuesta de Product owner)
-- **Decisión:** el detalle tiene la cabecera con la ficha (como en el MVC) y debajo pestañas (Tabs de shadcn/Radix): "Datos del inventario" y "Consenso"; la pestaña activa va en la URL (`?tab=`). Una tercera pestaña con la evaluación provisional de la oferta, mostrada como el formulario de evaluación en solo lectura, queda para un cambio posterior: necesita que la API exponga esa evaluación.
-- **Por qué:** respuesta de Product owner a add-offering-catalog Open 6.
-- **Afecta:** add-offering-catalog; add-specialist-evaluations (su vista de solo lectura sería la base de la pestaña futura).
+### 2026-10-06 — offering detail tabs (Product owner's answer)
+- **Decision:** the detail has the header with the record (as in the MVC) and tabs below (shadcn/Radix Tabs): "Inventory data" and "Consensus"; the active tab is in the URL (`?tab=`). A third tab with the offering's provisional evaluation, shown as the evaluation form in read-only mode, is left for a later change: it needs the API to expose that evaluation.
+- **Why:** Product owner's answer to add-offering-catalog Open 6.
+- **Affects:** add-offering-catalog; add-specialist-evaluations (its read-only view would be the base of the future tab).
 
-### 2026-10-06 — estilo de la pestaña futura de evaluación provisional (respuesta de Product owner)
-- **Decisión:** sustituye la idea del formulario en solo lectura de la entrada anterior: la pestaña futura de la evaluación provisional usará el mismo estilo que la de Consenso (escalas de granos en solo lectura y la misma disposición). Product owner creará los seeders de la evaluación provisional.
-- **Por qué:** respuesta de Product owner sobre add-offering-catalog Open 6.
-- **Afecta:** el cambio posterior de add-offering-catalog (tercera pestaña); ya no depende de la vista de solo lectura de add-specialist-evaluations.
+### 2026-10-06 — style of the future provisional-evaluation tab (Product owner's answer)
+- **Decision:** replaces the read-only form idea of the previous entry: the future provisional-evaluation tab will use the same style as Consensus (read-only bean scales and the same layout). Product owner will create the provisional evaluation seeders.
+- **Why:** Product owner's answer on add-offering-catalog Open 6.
+- **Affects:** the later add-offering-catalog change (third tab); it no longer depends on add-specialist-evaluations' read-only view.
 
-### 2026-10-06 — landing D4: texto de la insignia de valoración (respuesta de Product owner)
-- **Decisión:** la insignia de valoración de la tarjeta de oferta deja de repetir `cuppingAvg` y muestra una palabra de nivel según la puntuación (por ejemplo "Excepcional", "Excelente", "Muy bueno"), con textos del catálogo es/en/ca. El número sigue mostrándose una vez (`type-score`). Los rangos siguen la escala SCA y deben verificarse en la fuente antes del propose (propuesta sin verificar: 90+ excepcional, 85–89,99 excelente, 80–84,99 muy bueno), junto con qué se muestra por debajo de 80 y sin puntuación. Landing está mergeado: es un cambio nuevo sobre la tarjeta.
-- **Por qué:** respuesta de Product owner a landing D4 (Q17).
-- **Afecta:** la tarjeta de oferta (`OfferingCard`, capability landing) y todo lo que la reutiliza (catálogo, gestión); el refactor de la ranura de `OfferingCard` toca la misma tarjeta.
+### 2026-10-06 — landing D4: rating badge text (Product owner's answer)
+- **Decision:** the offering card's rating badge stops repeating `cuppingAvg` and shows a level word by score (for example "Exceptional", "Excellent", "Very good"), with es/en/ca catalog texts. The number is still shown once (`type-score`). The ranges follow the SCA scale and must be checked at the source before propose (unverified proposal: 90+ exceptional, 85–89.99 excellent, 80–84.99 very good), together with what is shown below 80 and without a score. Landing is merged: it is a new change on the card.
+- **Why:** Product owner's answer to landing D4 (Q17).
+- **Affects:** the offering card (`OfferingCard`, landing capability) and everything that reuses it (catalog, management); the `OfferingCard` slot refactor touches the same card.
 
-### 2026-10-06 — landing D4: valores confirmados con el MVC (decisión delegada por Product owner)
-- **Decisión:** precisa la entrada anterior. Las palabras son las del MVC (`offeringcard.blade.php:20-36`): Excepcional (≥ 90), Excelente (85–89,99), Bueno (80–84,99), Comercial (< 80); sin puntuación no hay insignia (comportamiento actual). Los rangos y las cuatro variantes ya existen en el front (`ratingTierFor`, `Badge`). Cambio nuevo `label-rating-badge`, resumen aprobado en `docs/design/label-rating-badge/`.
-- **Por qué:** Product owner delegó la decisión ("revisa el MVC y confirma").
-- **Afecta:** label-rating-badge; refactor de la ranura de `OfferingCard` (misma tarjeta).
+### 2026-10-06 — landing D4: values confirmed against the MVC (decision delegated by Product owner)
+- **Decision:** refines the previous entry. The words are the MVC's (`offeringcard.blade.php:20-36`): Exceptional (≥ 90), Excellent (85–89.99), Good (80–84.99), Commercial (< 80); without a score there is no badge (current behaviour). The ranges and the four variants already exist in the front (`ratingTierFor`, `Badge`). New change `label-rating-badge`, summary approved in `docs/design/label-rating-badge/`.
+- **Why:** Product owner delegated the decision ("check the MVC and confirm").
+- **Affects:** label-rating-badge; the `OfferingCard` slot refactor (same card).
 
-### 2026-10-06 — lecturas de evaluaciones autenticadas (respuesta de Product owner a evaluations B1)
-- **Decisión:** la API pasa `GET /evaluations` y `GET /evaluations/{ulid}` al grupo autenticado de especialistas; la lista devuelve solo las del usuario del token y el detalle responde 403/404 si no es suya. Product owner lo documenta en Scribe y regenera el contrato. En el front, lista y edición se cargan en el cliente con el token, sin `evaluatorId`; sin vista de solo lectura para no dueños (página 404); la de solo lectura queda para las cerradas propias. La evaluación provisional se define con la oferta y llegará dentro de `GET /offerings/{ulid}`: ninguna lectura pública de evaluaciones hace falta.
-- **Por qué:** respuesta de Product owner a B1 del explore de add-specialist-evaluations (el recurso no trae dueño).
-- **Afecta:** add-specialist-evaluations (punto 6 y propose, que espera al contrato), add-filter-controls (facetas de evaluaciones: sin `evaluatorId`), add-offering-catalog (pestaña provisional futura), cobertura del contrato.
+### 2026-10-06 — authenticated evaluation reads (Product owner's answer to evaluations B1)
+- **Decision:** the API moves `GET /evaluations` and `GET /evaluations/{ulid}` to the authenticated specialist group; the list returns only the token user's and the detail answers 403/404 if it is not theirs. Product owner documents it in Scribe and regenerates the contract. In the front, list and edit load on the client with the token, without `evaluatorId`; no read-only view for non-owners (404 page); the read-only view is for one's own closed evaluations. The provisional evaluation is defined with the offering and will come inside `GET /offerings/{ulid}`: no public evaluation read is needed.
+- **Why:** Product owner's answer to B1 of add-specialist-evaluations' explore (the resource has no owner).
+- **Affects:** add-specialist-evaluations (point 6 and propose, which waits for the contract), add-filter-controls (evaluation facets: no `evaluatorId`), add-offering-catalog (future provisional tab), contract coverage.
 
-### 2026-10-06 — lecturas de evaluaciones: decisión final (respuesta de Product owner)
-- **Decisión:** sustituye la entrada anterior ("lecturas de evaluaciones autenticadas"), que contradecía el diseño de la API (`tazavera-documentation/end-points.md`: lecturas públicas de evaluaciones; la provisional es una evaluación `baseline` de la cafetería). Las lecturas públicas siguen públicas y anónimas. Nuevo `UserEvaluationController` en la API (rama `feature/user_evaluations`): `/user/evaluations` lista, detalle, crear, modificar, cerrar y borrar, solo del usuario del token (ajena → 404); las rutas anteriores de escritura siguen activas (`legacy.*`, fuera de la documentación). Nuevo público `GET /users/{user}/evaluations`. Contrato regenerado en inglés y tipos del front regenerados (sin commitear en `develop`, a la espera del merge de la rama de la API).
-- **Por qué:** respuesta de Product owner a B1 tras revisar el diseño de la API y la seguridad (no exponer el evaluador en respuestas públicas).
-- **Afecta:** add-specialist-evaluations (lista y edición sobre `/user/evaluations…`, sin vista de solo lectura para no dueños), add-filter-controls (facetas de evaluaciones sobre `listMyEvaluations`), cobertura del contrato (nuevas operaciones `listMyEvaluations`, `getMyEvaluation`, `listTheEvaluationsOfAUser`).
+### 2026-10-06 — evaluation reads: final decision (Product owner's answer)
+- **Decision:** replaces the previous entry ("authenticated evaluation reads"), which contradicted the API design (`tazavera-documentation/end-points.md`: public evaluation reads; the provisional one is a coffee shop `baseline` evaluation). Public reads stay public and anonymous. New `UserEvaluationController` in the API (branch `feature/user_evaluations`): `/user/evaluations` list, detail, create, update, close and delete, only for the token's user (someone else's → 404); the previous write routes stay active (`legacy.*`, outside the documentation). New public `GET /users/{user}/evaluations`. Contract regenerated in English and front types regenerated (not committed on `develop`, waiting for the API branch merge).
+- **Why:** Product owner's answer to B1 after reviewing the API design and security (do not expose the evaluator in public responses).
+- **Affects:** add-specialist-evaluations (list and edit over `/user/evaluations…`, no read-only view for non-owners), add-filter-controls (evaluation facets over `listMyEvaluations`), contract coverage (new operations `listMyEvaluations`, `getMyEvaluation`, `listTheEvaluationsOfAUser`).
 
-### 2026-10-06 — add-specialist-evaluations: preguntas del explore (respuestas de Product owner)
-- **Decisión:**
-  - Q1 403: las evaluaciones propias no necesitan `profile:write` ni step-up. La vista solo muestra las del usuario; si una escritura devuelve 403 (petición ajena lanzada por fuera), se muestra el mensaje de "no es tuya", sin pedir inicio de sesión. Sustituye, para este cambio, el step-up reactivo de la entrada "escrituras, rutas protegidas y 422".
-  - Q3 fecha de la fila: abierta → "Creada el" `createdAt`; cerrada → "Cerrada el" `closedAt`; en `type-meta` bajo el nombre del café.
-  - Q5 "Completo" por grupo: un grupo de puntuaciones está completo con todas sus puntuaciones; el descriptor del conjunto fragancia/aroma/sabor/retrogusto es un único requisito compartido entre esos grupos; Defectos y Extrínsecos sin indicador.
-  - Q2 entrada: "Mis evaluaciones" del menú de usuario (ya existe, `UserMenu.tsx`) lleva a `/manage/evaluations`, donde se muestra el sidebar de gestión existente con su entrada. Sin dependencia de la ranura `@sidebar` de add-filter-controls.
-  - Q4 orden por defecto `created_at desc` y Q6 propose ya (orquestador).
-- **Por qué:** respuestas de Product owner del 6 oct a las preguntas del explore.
-- **Afecta:** add-specialist-evaluations (propose); add-filter-controls (la ranura ya no la necesita evaluations); add-user-account y add-offering-management (el step-up reactivo sigue para ellos).
+### 2026-10-06 — add-specialist-evaluations: explore questions (Product owner's answers)
+- **Decision:**
+  - Q1 403: one's own evaluations need neither `profile:write` nor step-up. The view only shows the user's; if a write returns 403 (someone else's request sent from outside), the "not yours" message is shown, without asking to sign in. For this change it replaces the reactive step-up of the entry "writes, protected routes and 422".
+  - Q3 row date: open → "Created on" `createdAt`; closed → "Closed on" `closedAt`; in `type-meta` under the coffee name.
+  - Q5 "Complete" per group: a score group is complete with all its scores; the descriptor of the fragrance/aroma/flavour/aftertaste set is a single requirement shared between those groups; Defects and Extrinsics without an indicator.
+  - Q2 entry: "My evaluations" in the user menu (already exists, `UserMenu.tsx`) leads to `/manage/evaluations`, where the existing management sidebar is shown with its entry. No dependency on add-filter-controls' `@sidebar` slot.
+  - Q4 default order `created_at desc` and Q6 propose now (orchestrator).
+- **Why:** Product owner's answers of 6 Oct to the explore questions.
+- **Affects:** add-specialist-evaluations (propose); add-filter-controls (evaluations no longer needs the slot); add-user-account and add-offering-management (reactive step-up still applies to them).
 
-### 2026-10-06 — catálogo: detalle y consenso; filtros: cascada y división (respuestas de Product owner)
-- **Decisión:**
-  - Cabecera del detalle sin puntuación. La puntuación vive en la pestaña "Consenso" (la `cuppingAvg` de la oferta, la misma de la tarjeta, solo si la oferta está verificada) y en la futura pestaña de la evaluación provisional.
-  - Las tarjetas de árbol (`sensoryTaxonomy`, `cataConcordance`) se sustituyen por una **rueda de sabores estilo SCA** (sunburst) interactiva: se amplía del centro hacia fuera por niveles; la leyenda de cada segmento es "evaluadores que identifican la nota / total de evaluadores" (p. ej. 4/5); al pasar el ratón (y con foco de teclado) por un segmento se muestra la descripción de la olfactory taxonomy. Componente propio en SVG (sin dependencia nueva; decisión del orquestador).
-  - Defectos y sabores principales: se reutilizan los componentes de selección de la evaluación (en solo lectura) y se añade la leyenda de consenso junto a cada tarjeta.
-  - Concordancia (0–1, `max(0, 1 − σ/σmax)` por eje en `OfferingConsensusService`): escala con nombre según Koo y Li (2016): < 0,50 "Baja", 0,50–0,75 "Moderada", 0,75–0,90 "Alta", ≥ 0,90 "Excelente"; el valor se muestra también en texto (nunca solo color).
-  - Q1 resto y Q2 (`LabelValueRow` y `Tabs` en `shared/ui`, content-structure) aceptados como los recomendó el orquestador.
-  - Filtros F1: marcar un padre añade el padre y sus descendientes; marcar un hijo sin su padre envía solo ese hijo. F2: (a) control del shell para desplegar el sidebar plegado (tomado por el orquestador; Product owner aceptó el resto). F3: dividir en cuatro cambios — `add-sidebar-slot` (app-shell), `add-facet-controls` (filtering, form-fields), `add-offering-facets` (tras catálogo), `add-evaluation-facets` (tras evaluations) — y terminarlos hoy con todos los ejecutores.
-- **Por qué:** respuestas de Product owner del 6 oct a las preguntas de los explores de catalog y filter-controls; escala de concordancia: Koo y Li (2016), bandas de coeficientes de acuerdo 0–1.
-- **Afecta:** add-offering-catalog (detalle, consenso, nuevo componente de rueda), add-filter-controls (sustituido por los cuatro cambios), add-public-evaluations (podría reutilizar la rueda).
+### 2026-10-06 — catalog: detail and consensus; filters: cascade and split (Product owner's answers)
+- **Decision:**
+  - Detail header without a score. The score lives in the "Consensus" tab (the offering's `cuppingAvg`, the same as the card's, only if the offering is verified) and in the future provisional-evaluation tab.
+  - The tree cards (`sensoryTaxonomy`, `cataConcordance`) are replaced by an interactive **SCA-style flavour wheel** (sunburst): it expands from the centre outwards by level; each segment's legend is "evaluators who identify the note / total evaluators" (e.g. 4/5); hovering (and keyboard focus) on a segment shows the olfactory taxonomy description. Own SVG component (no new dependency; orchestrator's decision).
+  - Defects and main tastes: the evaluation's selection components are reused (read-only) and the consensus legend is added next to each card.
+  - Concordance (0–1, `max(0, 1 − σ/σmax)` per axis in `OfferingConsensusService`): named scale after Koo and Li (2016): < 0.50 "Low", 0.50–0.75 "Moderate", 0.75–0.90 "High", ≥ 0.90 "Excellent"; the value is also shown as text (never colour alone).
+  - Q1 rest and Q2 (`LabelValueRow` and `Tabs` in `shared/ui`, content-structure) accepted as the orchestrator recommended.
+  - Filters F1: checking a parent adds the parent and its descendants; checking a child without its parent sends only that child. F2: (a) a shell control to expand the collapsed sidebar (taken by the orchestrator; Product owner accepted the rest). F3: split into four changes — `add-sidebar-slot` (app-shell), `add-facet-controls` (filtering, form-fields), `add-offering-facets` (after catalog), `add-evaluation-facets` (after evaluations) — and finish them today with every executor.
+- **Why:** Product owner's answers of 6 Oct to the catalog and filter-controls explore questions; concordance scale: Koo and Li (2016), 0–1 agreement coefficient bands.
+- **Affects:** add-offering-catalog (detail, consensus, new wheel component), add-filter-controls (replaced by the four changes), add-public-evaluations (could reuse the wheel).
 
-### 2026-10-06 — evaluaciones públicas fuera del alcance (respuesta de Product owner)
-- **Decisión:** la vista pública de las evaluaciones es "Mejor valorados": la lista de ofertas verificadas ordenada por puntuación de `add-offering-catalog` (entrada de la cabecera, `verified=1&orderBy=cupping_avg&orderDirection=desc`). La página pública de un especialista (ver evaluaciones de otro especialista) queda fuera del alcance actual. `add-public-evaluations` se retira sin propose. Quedan sin consumidor en esta entrega `listEvaluations`, `getAnEvaluation` y `listTheEvaluationsOfAUser`.
-- **Por qué:** respuesta de Product owner a las dos preguntas del borrador de add-public-evaluations.
-- **Afecta:** add-offering-catalog ("Mejor valorados"), cobertura del contrato (tres operaciones públicas de evaluaciones fuera del alcance).
+### 2026-10-06 — public evaluations out of scope (Product owner's answer)
+- **Decision:** the public view of evaluations is "Top rated": `add-offering-catalog`'s list of verified offerings ordered by score (header entry, `verified=1&orderBy=cupping_avg&orderDirection=desc`). A specialist's public page (seeing another specialist's evaluations) is out of the current scope. `add-public-evaluations` is withdrawn without propose. `listEvaluations`, `getAnEvaluation` and `listTheEvaluationsOfAUser` have no consumer in this delivery.
+- **Why:** Product owner's answer to the two questions of the add-public-evaluations draft.
+- **Affects:** add-offering-catalog ("Top rated"), contract coverage (three public evaluation operations out of scope).
 
-### 2026-10-06 — add-user-account: bloqueos del explore (decidido por el orquestador en ausencia de Product owner)
-- **Decisión:** B1: las pantallas de `src/pages/register` y `src/pages/account` inyectan como props la sesión y las acciones de auth (`signIn`, `signOut`, `requestProfileWrite`, `refreshProfile`) en los componentes de `src/features/user-account`, como `SessionShell` hace con `AppHeader`; ningún feature importa otro feature; `features/user-account` sigue siendo un slice. B2: se cumple la regla "validación de formularios en el navegador": `updateAUser` no documenta campos obligatorios, así que el perfil solo valida el formato del email; un campo vaciado vuelve como el error genérico del 422.
-- **Por qué:** Product owner delegó resolver lo resoluble durante su pausa ("si lo puedes resolver tú, resuélvelo"); B1 sigue el precedente del shell y FSD; B2 sigue su regla registrada. Product owner puede reabrirlo.
-- **Afecta:** add-user-account; add-offering-management y add-specialist-evaluations (mismo patrón de inyección si sus features necesitan acciones de auth).
+### 2026-10-06 — add-user-account: explore blockers (decided by the orchestrator in Product owner's absence)
+- **Decision:** B1: the screens of `src/pages/register` and `src/pages/account` inject the session and the auth actions (`signIn`, `signOut`, `requestProfileWrite`, `refreshProfile`) as props into the components of `src/features/user-account`, as `SessionShell` does with `AppHeader`; no feature imports another feature; `features/user-account` stays one slice. B2: the rule "form validation in the browser" holds: `updateAUser` documents no required fields, so the profile only validates the email format; an emptied field comes back as the generic 422 error.
+- **Why:** Product owner delegated resolving what could be resolved during his break ("if you can resolve it, resolve it"); B1 follows the shell precedent and FSD; B2 follows his recorded rule. Product owner may reopen it.
+- **Affects:** add-user-account; add-offering-management and add-specialist-evaluations (same injection pattern if their features need auth actions).
 
-### 2026-10-06 — add-offering-management: puntos del explore (decidido por el orquestador en ausencia de Product owner)
-- **Decisión:** Q1 Open 23 (c): tras elegir el ítem del inventario se muestra `roastLot · productionDate` como ayuda del campo. Q2 retícula junto al sidebar: (a) 1 / 2 desde `lg` / 3 desde `2xl`. Q3 la lista propia (retícula, tarjetas, esqueletos) se compone en `src/pages/manage-offerings` con el estado y las acciones del feature; no se mueve nada de `widgets/offering-list`. Q4/Q5 en design.md (estado sin sesión en la ruta del formulario; una sola región `role="alert"` en el slot `error` del diálogo). Q6 selección solo de la página actual. B7: `listOfferings` de "Mis ofertas" se pide en el cliente con `publicRequest` porque el filtro es el `ulid` de la sesión (solo en el navegador): segunda excepción aceptada a la carga en servidor de endpoints públicos.
-- **Requisitos para los cambios de filtros:** `add-facet-controls`: el combobox acepta el `variant` de `Input` (default además de inverse). `add-sidebar-slot`: la etiqueta de las entradas en hover usa `nav-text-hover` y el sidebar queda bajo `variant-inverse` para el anillo de foco (F3 de filter-controls = F2 de management).
-- **Por qué:** delegación de Product owner durante su pausa; recomendaciones del explore y del design lead.
-- **Afecta:** add-offering-management, add-facet-controls, add-sidebar-slot.
+### 2026-10-06 — add-offering-management: explore points (decided by the orchestrator in Product owner's absence)
+- **Decision:** Q1 Open 23 (c): after choosing the inventory item, `roastLot · productionDate` is shown as the field's help. Q2 grid next to the sidebar: (a) 1 / 2 from `lg` / 3 from `2xl`. Q3 one's own list (grid, cards, skeletons) is composed in `src/pages/manage-offerings` with the feature's state and actions; nothing moves out of `widgets/offering-list`. Q4/Q5 in design.md (state without a session on the form route; a single `role="alert"` region in the dialog's `error` slot). Q6 selection of the current page only. B7: "My offerings"' `listOfferings` is requested on the client with `publicRequest` because the filter is the session's `ulid` (browser only): second accepted exception to server loading of public endpoints.
+- **Requirements for the filter changes:** `add-facet-controls`: the combobox accepts `Input`'s `variant` (default as well as inverse). `add-sidebar-slot`: the entries' label on hover uses `nav-text-hover` and the sidebar stays under `variant-inverse` for the focus ring (filter-controls F3 = management F2).
+- **Why:** Product owner's delegation during his break; recommendations of the explore and the design lead.
+- **Affects:** add-offering-management, add-facet-controls, add-sidebar-slot.
 
-### 2026-10-06 — filtros: preguntas de los explore en la nube (decidido por el orquestador en ausencia de Product owner)
-- **Decisión:** add-facet-controls Q1 cascada: opción (a). Cada fila padre tiene su propio control de desplegar/plegar, separado de su casilla, y un hijo se marca sin su padre, como pide la respuesta F1 de Product owner. Las casillas son independientes: marcar o desmarcar el padre no cambia a los hijos, y marcar todos los hijos no marca al padre. Los hijos se ocultan solo cuando el usuario pliega la fila, y una fila con algún descendiente marcado arranca desplegada. Q2: se mantiene `cmdk` (dependencia aprobada), con el arreglo dentro del componente: el `label` de cmdk recibe el texto de la etiqueta, y `aria-expanded` y el `for` de la etiqueta se fijan en el input tras el render. Queda como riesgo en design.md. add-sidebar-slot Q1: `SidebarProvider` sube a `SessionShell`, el sidebar de cada ruta informa por el contexto de que existe, y el shell muestra el control de reabrir (`PanelLeft`, botón `nav-button` con nombre accesible) solo en las rutas que tienen sidebar. El resto de puntos de las tres rutinas toma la recomendación del arquitecto.
-- **Coexistencia:** add-specialist-evaluations (D5) llena la ranura `entries` del sidebar de app-shell según el rol desde `SessionShell`, y add-offering-management usa `@sidebar`. add-sidebar-slot debe dejar las dos vías compatibles.
-- **Por qué:** delegación de Product owner durante su pausa.
-- **Afecta:** add-facet-controls, add-sidebar-slot, add-offering-facets, add-evaluation-facets, add-specialist-evaluations, add-offering-management.
+### 2026-10-06 — filters: questions from the cloud explores (decided by the orchestrator in Product owner's absence)
+- **Decision:** add-facet-controls Q1 cascade: option (a). Each parent row has its own expand/collapse control, separate from its checkbox, and a child can be checked without its parent, as Product owner's F1 answer asks. Checkboxes are independent: checking or unchecking the parent does not change the children, and checking every child does not check the parent. Children are hidden only when the user collapses the row, and a row with any checked descendant starts expanded. Q2: `cmdk` stays (approved dependency), with the fix inside the component: cmdk's `label` receives the label text, and `aria-expanded` and the label's `for` are set on the input after render. It stays as a risk in design.md. add-sidebar-slot Q1: `SidebarProvider` moves up to `SessionShell`, each route's sidebar reports through the context that it exists, and the shell shows the reopen control (`PanelLeft`, `nav-button` button with an accessible name) only on routes that have a sidebar. The other points of the three routines take the architect's recommendation.
+- **Coexistence:** add-specialist-evaluations (D5) fills app-shell's sidebar `entries` slot by role from `SessionShell`, and add-offering-management uses `@sidebar`. add-sidebar-slot must keep both ways compatible.
+- **Why:** Product owner's delegation during his break.
+- **Affects:** add-facet-controls, add-sidebar-slot, add-offering-facets, add-evaluation-facets, add-specialist-evaluations, add-offering-management.
 
-### 2026-10-06 — add-offering-catalog: preguntas del propose (decidido por el orquestador en ausencia de Product owner)
-- **Decisión:** 1. No se divide el cambio: el apply va tarea a tarea, una ejecución por tarea, así que el tamaño de la sesión no limita; la frontera entre los grupos 6 y 7–9 queda como punto de corte si hiciera falta. 2. La leyenda de consenso de Defectos y Sabores principales es una línea `type-meta` por nota identificada, `{nombre} {n}/{total}`, y no aparece si el grupo está vacío (design.md D13), igual que la leyenda de la rueda. 3. Las props de `FlavorWheel` son las del resumen aprobado de add-flavor-wheel (`nodes`, `total`, `texts`, más `buildFlavorWheelNodes` en `entities/taxonomy`); la llamada de catalog (D14) se adapta a ellas en su apply.
-- **Por qué:** delegación de Product owner durante su pausa.
-- **Afecta:** add-offering-catalog, add-flavor-wheel.
+### 2026-10-06 — add-offering-catalog: propose questions (decided by the orchestrator in Product owner's absence)
+- **Decision:** 1. The change is not split: the apply goes task by task, one run per task, so the session size does not limit it; the boundary between groups 6 and 7–9 stays as a cut point if needed. 2. The consensus legend of Defects and Main tastes is one `type-meta` line per identified note, `{name} {n}/{total}`, and does not appear if the group is empty (design.md D13), like the wheel's legend. 3. `FlavorWheel`'s props are those of add-flavor-wheel's approved summary (`nodes`, `total`, `texts`, plus `buildFlavorWheelNodes` in `entities/taxonomy`); catalog's call (D14) adapts to them in its apply.
+- **Why:** Product owner's delegation during his break.
+- **Affects:** add-offering-catalog, add-flavor-wheel.
 
-### 2026-10-06 — evaluaciones públicas y evaluación provisional (respuesta de Product owner; corrige "evaluaciones públicas fuera del alcance")
-- **Decisión:** la entrada "evaluaciones públicas fuera del alcance" leyó mal la respuesta de Product owner. "Mejor valorados" sigue siendo la lista de ofertas de `add-offering-catalog`, pero la **lista pública de evaluaciones existe y entra en el alcance**. Opción (b):
-  - El detalle de la oferta tiene un botón "Ver evaluaciones" que abre la lista pública de evaluaciones con el filtro de esa oferta activo en la barra lateral.
-  - El detalle tiene además una pestaña "Evaluación provisional" que muestra la evaluación `baseline` de la cafetería (`GET /evaluations?offeringId=<ulid>&evaluationType=baseline`).
-  - `listEvaluations` y `getAnEvaluation` vuelven a tener consumidor. `listTheEvaluationsOfAUser` (la página pública de un especialista) sigue fuera del alcance.
-- **Cambio en el API, nuevo y en diseño:**
-  - un seeder que crea al menos 3 ofertas por cafetería y una evaluación `baseline` cerrada por oferta (`evaluator_id` = la cafetería, creada con `EvaluationFactory`);
-  - los scopes `offeringId` y `evaluationType` en `Evaluation::filter()`, en `GET /evaluations`, `GET /users/{user}/evaluations` y `GET /user/evaluations`.
-  - La unicidad de la baseline la garantiza solo el seeder: el endpoint de la baseline de la cafetería sigue en el backlog del API (MVC `casos de uso.md:3`, README del API). El resource no cambia, porque ya expone `offeringId` y `evaluationType`.
-- **Pendiente:**
-  - si el botón y la pestaña entran en `add-offering-catalog` o en un cambio aparte;
-  - el nombre del cambio del API;
-  - si el seeder se engancha en `DatabaseSeeder`.
-- **Por qué:** respuestas de Product owner del 6 oct (opción b) y documentos de diseño del MVC (`Diseño.md:96`, `:104`; `casos de uso.md:3`, `:100`).
-- **Afecta:** add-public-evaluations (se recupera), add-offering-catalog (detalle: botón y pestaña), add-flavor-wheel (posible consumidor en la lista pública), cobertura del contrato, nuevo cambio del API.
+### 2026-10-06 — public evaluations and provisional evaluation (Product owner's answer; corrects "public evaluations out of scope")
+- **Decision:** the entry "public evaluations out of scope" misread Product owner's answer. "Top rated" is still `add-offering-catalog`'s offering list, but the **public evaluation list exists and is in scope**. Option (b):
+  - The offering detail has a "See evaluations" button that opens the public evaluation list with that offering's filter active in the sidebar.
+  - The detail also has a "Provisional evaluation" tab that shows the coffee shop's `baseline` evaluation (`GET /evaluations?offeringId=<ulid>&evaluationType=baseline`).
+  - `listEvaluations` and `getAnEvaluation` have a consumer again. `listTheEvaluationsOfAUser` (a specialist's public page) stays out of scope.
+- **API change, new and in design:**
+  - a seeder that creates at least 3 offerings per coffee shop and one closed `baseline` evaluation per offering (`evaluator_id` = the coffee shop, created with `EvaluationFactory`);
+  - the `offeringId` and `evaluationType` scopes in `Evaluation::filter()`, on `GET /evaluations`, `GET /users/{user}/evaluations` and `GET /user/evaluations`.
+  - Baseline uniqueness is guaranteed only by the seeder: the coffee shop baseline endpoint stays in the API backlog (MVC `casos de uso.md:3`, API README). The resource does not change, because it already exposes `offeringId` and `evaluationType`.
+- **Pending:**
+  - whether the button and the tab go into `add-offering-catalog` or a separate change;
+  - the name of the API change;
+  - whether the seeder hooks into `DatabaseSeeder`.
+- **Why:** Product owner's answers of 6 Oct (option b) and the MVC design documents (`Diseño.md:96`, `:104`; `casos de uso.md:3`, `:100`).
+- **Affects:** add-public-evaluations (recovered), add-offering-catalog (detail: button and tab), add-flavor-wheel (possible consumer in the public list), contract coverage, new API change.
 
-### 2026-10-06 — API add-offering-baseline-seed: diseño final, integrado (respuestas de Product owner)
-- **Decisión:** el cambio del API está mergeado en `dev` y `PROD` (`4878ca5`). Contrato y tipos actualizados en el front (`92328fc`).
-  - **Filtros:** `offeringId` y `evaluationType` (`specialist` | `baseline`) en `GET /evaluations`, `GET /users/{user}/evaluations` y `GET /user/evaluations`. El resource no cambia.
-  - **Comportamiento por defecto (1a):** el API sigue devolviendo los dos tipos. La lista pública del front envía siempre `evaluationType=specialist`, y la pestaña provisional envía `evaluationType=baseline`.
-  - **Seeders, llamados desde `DatabaseSeeder`:**
-    - `OfferingBaselineSeeder`: entre 1 y 5 ofertas por cafetería, cada una con su baseline cerrada (`evaluator_id` = la cafetería);
-    - `VerifiedOfferingSeeder`: 15 ofertas con entre 5 y 9 evaluaciones de 10 especialistas, con `EvaluationClosed` por oferta para que se calcule el consenso.
-    - Resultado en local: 73 ofertas, 15 verificadas, 73 baselines.
-  - `GetAnOfferingSeeder` y `CreateOfferingSeeder` se mantienen. Sin tests nuevos.
-  - La baseline queda en el backlog del API solo como endpoint de creación.
-- **Datos de ejemplo:** `migrate:fresh --seed` recrea el cliente OAuth del front, así que hay que actualizar `NEXT_PUBLIC_OAUTH_CLIENT_ID` en cada `.env.local` después de sembrar.
-- **Por qué:** respuestas de Product owner del 6 oct.
-- **Afecta:** add-public-evaluations, add-offering-catalog (pestaña provisional y botón), toda prueba en navegador con datos (ahora hay ofertas verificadas).
+### 2026-10-06 — API add-offering-baseline-seed: final design, integrated (Product owner's answers)
+- **Decision:** the API change is merged into `dev` and `PROD` (`4878ca5`). Contract and types updated in the front (`92328fc`).
+  - **Filters:** `offeringId` and `evaluationType` (`specialist` | `baseline`) on `GET /evaluations`, `GET /users/{user}/evaluations` and `GET /user/evaluations`. The resource does not change.
+  - **Default behaviour (1a):** the API keeps returning both types. The front's public list always sends `evaluationType=specialist`, and the provisional tab sends `evaluationType=baseline`.
+  - **Seeders, called from `DatabaseSeeder`:**
+    - `OfferingBaselineSeeder`: between 1 and 5 offerings per coffee shop, each with its closed baseline (`evaluator_id` = the coffee shop);
+    - `VerifiedOfferingSeeder`: 15 offerings with between 5 and 9 evaluations from 10 specialists, with `EvaluationClosed` per offering so the consensus is computed.
+    - Local result: 73 offerings, 15 verified, 73 baselines.
+  - `GetAnOfferingSeeder` and `CreateOfferingSeeder` are kept. No new tests.
+  - The baseline stays in the API backlog only as a creation endpoint.
+- **Sample data:** `migrate:fresh --seed` recreates the front's OAuth client, so `NEXT_PUBLIC_OAUTH_CLIENT_ID` must be updated in every `.env.local` after seeding.
+- **Why:** Product owner's answers of 6 Oct.
+- **Affects:** add-public-evaluations, add-offering-catalog (provisional tab and button), every browser test with data (there are verified offerings now).
 
-### 2026-10-06 — add-public-evaluations aprobado y piezas compartidas (decidido por el orquestador en ausencia de Product owner)
-- **Decisión:**
-  - **Resumen de `add-public-evaluations` aprobado** con todas las recomendaciones del design lead:
-    - el botón "Ver evaluaciones" y la pestaña provisional van en este cambio, no en uno aparte, como dijo Product owner;
-    - faceta de oferta como lista de opción ("Cualquiera" + la oferta activa);
-    - la tarjeta de fila pasa a `src/widgets/evaluation-row`;
-    - las facetas públicas amplían `features/evaluation-facets`;
-    - descriptores como chips; una evaluación abierta abierta por URL da 404; la baseline más reciente primero; sin entrada en la cabecera; "Ver evaluaciones" como enlace simple, siempre visible.
-  - **`fetchOffering` único:** catalog (D3, lanza error) y specialist-evaluations (D1, `publicRequest` con encontrado / no encontrado / fallo) crean el mismo `src/entities/offering/api/offering.ts`. Vale una sola función con el contrato de D1. El segundo cambio que se mergee adapta su llamada.
-  - **Constructor de filas de descriptores:** el primer cambio que lo aplique (catalog D13 o specialist-evaluations D7) lo deja en `src/entities/taxonomy`, y el otro lo reutiliza.
-  - **Contraste en el consenso de catalog:** la puntuación sobre el fondo de sección da 4,38:1 en el nivel comercial del tema tradicional (medida del design lead). Se corrige sin token nuevo, poniendo esa fila dentro de una tarjeta. Pasa al arquitecto de catalog antes de su apply.
-- **Por qué:** mandato nocturno de Product owner; informe del design lead del 6 oct; regla de reutilizar (criterio C).
-- **Afecta:** add-public-evaluations, add-offering-catalog (D3, D13, contraste del consenso), add-specialist-evaluations (D1, D7), add-evaluation-facets (facetas públicas).
+### 2026-10-06 — add-public-evaluations approved and shared pieces (decided by the orchestrator in Product owner's absence)
+- **Decision:**
+  - **`add-public-evaluations` summary approved** with every recommendation of the design lead:
+    - the "See evaluations" button and the provisional tab go in this change, not a separate one, as Product owner said;
+    - offering facet as an option list ("Any" + the active offering);
+    - the row card moves to `src/widgets/evaluation-row`;
+    - the public facets extend `features/evaluation-facets`;
+    - descriptors as chips; an open evaluation opened by URL gives 404; the most recent baseline first; no header entry; "See evaluations" as a plain link, always visible.
+  - **Single `fetchOffering`:** catalog (D3, throws) and specialist-evaluations (D1, `publicRequest` with found / not found / failure) create the same `src/entities/offering/api/offering.ts`. One function with D1's contract will do. The second change to merge adapts its call.
+  - **Descriptor row builder:** the first change that applies it (catalog D13 or specialist-evaluations D7) leaves it in `src/entities/taxonomy`, and the other reuses it.
+  - **Contrast in catalog's consensus:** the score on the section background gives 4.38:1 at the commercial level of the traditional theme (design lead's measurement). Fixed without a new token, by putting that row inside a card. Goes to catalog's architect before its apply.
+- **Why:** Product owner's overnight mandate; design lead's report of 6 Oct; the reuse rule (criterion C).
+- **Affects:** add-public-evaluations, add-offering-catalog (D3, D13, consensus contrast), add-specialist-evaluations (D1, D7), add-evaluation-facets (public facets).
 
-### 2026-10-06 — secciones plegables, rueda y facetas (respuestas de Product owner)
-- **Decisión:**
-  - **Mecanismo compartido de sección plegable:** se toma del formulario de evaluación del MVC (`evaluation-axis.blade.php`, `evaluation-form.blade.php`).
-    - La cabecera es un botón que ocupa todo el ancho: título a la izquierda y chevron a la derecha (abajo plegado, arriba abierto).
-    - Lleva `aria-expanded` y `aria-controls`, foco visible y animación de apertura.
-    - Va en `shared/ui` (content-structure, "collapsible"), en un cambio propio, `add-collapsible-section`, antes que sus usos.
-  - **Formulario de evaluación (`add-specialist-evaluations`, ronda 1):** cada grupo del CVA y la leyenda 1–9 usan ese mecanismo, sin tocar la estructura. **Todas las secciones arrancan plegadas**, como en el MVC, **salvo en una evaluación cerrada (solo lectura), que arranca con todo abierto.**
-  - **Rueda (`refine-flavor-wheel`, feedback):**
-    - Q4 (b): los anillos se dimensionan según el nivel más profundo expandido en cada momento; la rueda se reescala al expandir.
-    - Q5: el control de la lista de notas pasa a ser la cabecera plegable con chevron.
-  - **Facetas (`refine-facet-controls`, filtering), antes del apply de `add-offering-facets`:**
-    - Q1 (F3): ayuda y error bajo las facetas de fila con 0,75rem de padding lateral, alineados con la leyenda. Decidido por el orquestador por delegación de Product owner.
-    - Q2 (F4): al salir del combobox o pulsar Escape con texto abandonado, sin haber elegido nada, el campo vuelve a mostrar la etiqueta elegida.
-  - **Landing D4: cerrado.** La tarjeta muestra la leyenda del nivel según las reglas del MVC (`label-rating-badge`, mergeado).
-- **Por qué:** respuestas de Product owner del 6 oct por la noche; formulario de evaluación del MVC.
-- **Afecta:** add-collapsible-section (nuevo, content-structure), add-specialist-evaluations (ronda 1), refine-flavor-wheel (nuevo, feedback), refine-facet-controls (nuevo, filtering), add-offering-facets y add-offering-management (combobox), add-landing (D4 cerrado).
+### 2026-10-06 — collapsible sections, wheel and facets (Product owner's answers)
+- **Decision:**
+  - **Shared collapsible section mechanism:** taken from the MVC evaluation form (`evaluation-axis.blade.php`, `evaluation-form.blade.php`).
+    - The header is a full-width button: title on the left and chevron on the right (down when collapsed, up when open).
+    - It has `aria-expanded` and `aria-controls`, visible focus and an opening animation.
+    - It goes in `shared/ui` (content-structure, "collapsible"), in its own change, `add-collapsible-section`, before its uses.
+  - **Evaluation form (`add-specialist-evaluations`, round 1):** each CVA group and the 1–9 legend use that mechanism, without changing the structure. **Every section starts collapsed**, as in the MVC, **except in a closed (read-only) evaluation, which starts with everything open.**
+  - **Wheel (`refine-flavor-wheel`, feedback):**
+    - Q4 (b): the rings are sized by the deepest expanded level at each moment; the wheel rescales on expanding.
+    - Q5: the note list control becomes the collapsible header with a chevron.
+  - **Facets (`refine-facet-controls`, filtering), before `add-offering-facets`' apply:**
+    - Q1 (F3): help and error under the row facets with 0.75rem side padding, aligned with the legend. Decided by the orchestrator by Product owner's delegation.
+    - Q2 (F4): on leaving the combobox or pressing Escape with abandoned text, without having chosen anything, the field shows the chosen label again.
+  - **Landing D4: closed.** The card shows the level legend by the MVC rules (`label-rating-badge`, merged).
+- **Why:** Product owner's answers of 6 Oct in the evening; MVC evaluation form.
+- **Affects:** add-collapsible-section (new, content-structure), add-specialist-evaluations (round 1), refine-flavor-wheel (new, feedback), refine-facet-controls (new, filtering), add-offering-facets and add-offering-management (combobox), add-landing (D4 closed).
 
-### 2026-10-06 — contactos y locales (respuestas de Product owner)
-- **Decisión:**
-  - **API, cambio `add-contacts-and-locations`** (rama `feature/add-contacts-and-locations` desde `dev`; el orquestador mergea a `dev` y `PROD` y actualiza documentación y tipos):
-    - `GET` y `POST /users/{user}/contacts`: un solo contacto principal por usuario, `409` si ya existe; solo para el propio usuario.
-    - `GET /users/{user}/locations`: solo el propio usuario.
-    - `POST /locations`: rol `coffeeshop`; local y contacto en una transacción.
-    - **Todos autenticados**: los datos solo se muestran a usuarios autenticados, como parte del perfil.
-    - Migración: `latitud`, `longitud` y `description` pasan a ser opcionales.
-    - Factories con direcciones reales de Barcelona.
-  - **Coordenadas:** las calcula **el front** con una librería de geocodificación a partir de la dirección, y las envía en `latitud`/`longitud`. El API no geocodifica.
-  - **Registro de cafetería:** como los endpoints son autenticados, el local no se envía en `POST /register`. La cafetería completa su local en el perfil tras su primer inicio de sesión, igual que la sección de contacto: si no hay datos, mensaje y botón que abre el formulario en la misma vista.
-  - **Front:** `add-user-contact` (sección de contacto en el perfil) y `add-coffeeshop-location` (local de la cafetería en el perfil, con geocodificación).
-- **Pendiente:** la geocodificación en el navegador llama a un servicio externo, lo que exige abrir `connect-src` de la CSP (seguridad: decisión de Product owner).
-- **Por qué:** respuestas de Product owner del 6 oct por la noche.
-- **Afecta:** add-user-account (perfil), add-user-contact, add-coffeeshop-location, la CSP de app-shell.
+### 2026-10-06 — contacts and locations (Product owner's answers)
+- **Decision:**
+  - **API, change `add-contacts-and-locations`** (branch `feature/add-contacts-and-locations` from `dev`; the orchestrator merges into `dev` and `PROD` and updates documentation and types):
+    - `GET` and `POST /users/{user}/contacts`: a single primary contact per user, `409` if one already exists; only for the user themselves.
+    - `GET /users/{user}/locations`: only the user themselves.
+    - `POST /locations`: role `coffeeshop`; location and contact in one transaction.
+    - **All authenticated**: the data is shown only to authenticated users, as part of the profile.
+    - Migration: `latitud`, `longitud` and `description` become optional.
+    - Factories with real Barcelona addresses.
+  - **Coordinates:** computed by **the front** with a geocoding library from the address, and sent in `latitud`/`longitud`. The API does not geocode.
+  - **Coffee shop registration:** since the endpoints are authenticated, the location is not sent in `POST /register`. The coffee shop completes its location in the profile after its first sign-in, like the contact section: if there is no data, a message and a button that opens the form in the same view.
+  - **Front:** `add-user-contact` (contact section in the profile) and `add-coffeeshop-location` (the coffee shop's location in the profile, with geocoding).
+- **Pending:** browser geocoding calls an external service, which requires opening the CSP's `connect-src` (security: Product owner's decision).
+- **Why:** Product owner's answers of 6 Oct in the evening.
+- **Affects:** add-user-account (profile), add-user-contact, add-coffeeshop-location, app-shell's CSP.
 
-### 2026-10-06 — directorio de cafeterías (respuestas de Product owner)
-- **Decisión:**
-  - **CSP aprobada por Product owner:**
-    - `connect-src` abierto al servicio de geocodificación (Nominatim de OpenStreetMap);
-    - `img-src` abierto a los servidores de teselas del mapa.
-  - **API**, en el mismo cambio `add-contacts-and-locations` para no chocar en `Location`, factories y seeders:
-    - **Directorio público:** `GET /coffeeshops` (paginado; filtros `name`, `city`, `postalCode`, `verified`; orden por nombre) y `GET /coffeeshops/{location}`. La "cafetería" es el local (`Location`).
-    - **Solo datos del negocio:** nombre, descripción, coordenadas, contacto principal del local y recuentos de ofertas. Nunca datos personales del usuario.
-    - **Seeder** con una lista cerrada de cafeterías de especialidad reales de Barcelona, con dirección y coordenadas.
+### 2026-10-06 — coffee shop directory (Product owner's answers)
+- **Decision:**
+  - **CSP approved by Product owner:**
+    - `connect-src` open to the geocoding service (OpenStreetMap's Nominatim);
+    - `img-src` open to the map tile servers.
+  - **API**, in the same `add-contacts-and-locations` change so as not to clash in `Location`, factories and seeders:
+    - **Public directory:** `GET /coffeeshops` (paginated; filters `name`, `city`, `postalCode`, `verified`; ordered by name) and `GET /coffeeshops/{location}`. The "coffee shop" is the location (`Location`).
+    - **Business data only:** name, description, coordinates, the location's primary contact and offering counts. Never the user's personal data.
+    - **Seeder** with a closed list of real Barcelona specialty coffee shops, with address and coordinates.
   - **Front, `add-coffeeshop-directory`:**
-    - entrada "Explora coffees" en la cabecera;
-    - lista con filtros en la barra lateral (nombre, código postal o barrio, con ofertas verificadas; orden por nombre), tarjetas y paginación, con los patrones de catálogo y facetas;
-    - **mapa con Leaflet y teselas de OpenStreetMap:** conmutador lista/mapa y un icono de mapa en cada tarjeta que centra esa cafetería; en móvil, el mapa a pantalla completa;
-    - **detalle de cafetería**, como el detalle de oferta: los datos del local y la lista de sus ofertas con la misma barra de filtros del catálogo (`locationId`).
-  - El orquestador elige los filtros, la librería y el comportamiento, por delegación de Product owner.
-- **Por qué:** respuestas de Product owner del 6 oct por la noche.
-- **Afecta:** add-coffeeshop-directory (nuevo), add-coffeeshop-location (geocodificación), add-offering-catalog y add-offering-facets (reutilizados), app-shell (cabecera y CSP), API add-contacts-and-locations.
+    - an "Explore coffees" entry in the header;
+    - list with filters in the sidebar (name, postal code or neighbourhood, with verified offerings; ordered by name), cards and pagination, with the catalog and facet patterns;
+    - **map with Leaflet and OpenStreetMap tiles:** list/map toggle and a map icon on each card that centres that coffee shop; on mobile, the map full screen;
+    - **coffee shop detail**, like the offering detail: the location's data and the list of its offerings with the catalog's filter bar (`locationId`).
+  - The orchestrator chooses the filters, the library and the behaviour, by Product owner's delegation.
+- **Why:** Product owner's answers of 6 Oct in the evening.
+- **Affects:** add-coffeeshop-directory (new), add-coffeeshop-location (geocoding), add-offering-catalog and add-offering-facets (reused), app-shell (header and CSP), API add-contacts-and-locations.
 
-### 2026-10-06 — directorio por negocio, pestañas y barra lateral de la cafetería (respuestas de Product owner)
-- **Decisión** (sustituye en lo que contradiga a la entrada anterior):
-  - **La "cafetería" del directorio es el negocio** (usuario con rol `coffeeshop`), con uno o varios locales; no un local suelto.
-    - API: `GET /coffeeshops` (usuarios cafetería con al menos un local; filtros `name`, `city`, `postalCode`, `verified` sobre cualquiera de sus locales; orden por nombre) y `GET /coffeeshops/{user}` (recuentos y `locations[]` con coordenadas y contacto del negocio). Solo datos del negocio.
-    - Las ofertas de la cafetería se leen con `GET /offerings?coffeeshopUlid=` (filtro existente).
-  - **Detalle de cafetería con dos pestañas:** "Ofertas" (con la barra de filtros del catálogo) y "Ubicaciones" (lista y mapa).
-  - **Barra lateral de la cafetería:** "Administrar ofertas" y "Administrar ubicaciones"; la segunda lista los locales propios y permite crear más (`POST /locations`, geocodificado en el front). Sustituye la idea del local en el perfil.
-  - **Contacto personal** (`add-user-contact`) se queda en el perfil.
-  - **Estilo del API:** los endpoints nuevos copian el esquema, la sintaxis y la resolución de consultas en el modelo (scopes y `filter()`) de los existentes.
-- **Por qué:** respuestas de Product owner del 6 oct por la noche.
-- **Afecta:** add-coffeeshop-directory, add-coffeeshop-location (página "Administrar ubicaciones"), add-offering-management (entradas de la barra lateral, tarea 8: pendiente de Product owner), API add-contacts-and-locations.
+### 2026-10-06 — directory by business, tabs and the coffee shop sidebar (Product owner's answers)
+- **Decision** (replaces the previous entry where they contradict):
+  - **The directory's "coffee shop" is the business** (a user with role `coffeeshop`), with one or more locations; not a single location.
+    - API: `GET /coffeeshops` (coffee shop users with at least one location; filters `name`, `city`, `postalCode`, `verified` over any of their locations; ordered by name) and `GET /coffeeshops/{user}` (counts and `locations[]` with coordinates and the business contact). Business data only.
+    - The coffee shop's offerings are read with `GET /offerings?coffeeshopUlid=` (existing filter).
+  - **Coffee shop detail with two tabs:** "Offerings" (with the catalog's filter bar) and "Locations" (list and map).
+  - **Coffee shop sidebar:** "Manage offerings" and "Manage locations"; the second lists one's own locations and allows creating more (`POST /locations`, geocoded in the front). Replaces the idea of the location in the profile.
+  - **Personal contact** (`add-user-contact`) stays in the profile.
+  - **API style:** the new endpoints copy the schema, the syntax and the in-model query resolution (scopes and `filter()`) of the existing ones.
+- **Why:** Product owner's answers of 6 Oct in the evening.
+- **Affects:** add-coffeeshop-directory, add-coffeeshop-location ("Manage locations" page), add-offering-management (sidebar entries, task 8: pending Product owner), API add-contacts-and-locations.
 
-### 2026-10-07 — Combobox dentro de Field (orquestador, cerrado para revisión)
-- **Decisión:** dentro de un `Field`, el `Combobox` compartido no pinta etiqueta ni ayuda propias y su input toma el id del `Field`; fuera de un `Field` (paneles de facetas) no cambia.
-- **Por qué:** la tarea 6.2 de add-offering-management no se podía construir tal como estaba escrita (etiqueta duplicada y sin enlazar); la opción mantiene el texto de la tarea y el diseño de una sola etiqueta.
-- **Afecta:** add-offering-management (D14, tareas 6.0a/6.0b), add-coffeeshop-location y cualquier formulario futuro con combobox.
+### 2026-10-07 — Combobox inside Field (orchestrator, closed for review)
+- **Decision:** inside a `Field`, the shared `Combobox` renders no label or help of its own and its input takes the `Field`'s id; outside a `Field` (facet panels) it does not change.
+- **Why:** add-offering-management task 6.2 could not be built as written (duplicated, unlinked label); the option keeps the task text and the single-label design.
+- **Affects:** add-offering-management (D14, tasks 6.0a/6.0b), add-coffeeshop-location and any future form with a combobox.
 
-### 2026-10-07 — API: borrar una oferta con evaluaciones (Product owner)
-- **Decisión:**
-  - Migración nueva en `tazavera-api` (`2026_10_07_083627_make_evaluation_offering_nullable_on_delete`): `evaluations.offering_id` pasa a nullable con `nullOnDelete()` (antes `restrictOnDelete()`, que daba 500 al borrar una oferta con evaluaciones).
-  - `OfferingController::destroy` y `massDestroy` borran la evaluación baseline de la oferta en la misma transacción; las evaluaciones de especialistas se conservan con `offering_id` nulo.
-  - El usuario que lista evaluaciones con oferta nula ve "oferta inexistente"; **se maneja en el front**.
-  - Todo en la rama `feature/add-contacts-and-locations` (sin commitear; el commit lo hace Product owner). El directorio de cafeterías se retrabajó al estilo de `offerings` (`5874407`, `b8b7fe5`).
-- **Pendiente en el API:** `update` y `close` de una evaluación con oferta nula (el servicio lee `evaluation->offering`) y `EvaluationResource` con oferta nula; el `configure()` del `OfferingFactory` de Product owner crea una baseline en todas las ofertas y deja 4 tests de `SpecialistTest` en rojo.
-- **Por qué:** decisión de Product owner del 7 oct.
-- **Afecta:** contrato (`offering` nulo en las evaluaciones); add-specialist-evaluations (lista, detalle y formulario: estado "oferta inexistente", sin editar ni cerrar) y add-public-evaluations (listados públicos) — corrección o ajuste de diseño cuando llegue el contrato.
+### 2026-10-07 — API: deleting an offering with evaluations (Product owner)
+- **Decision:**
+  - New migration in `tazavera-api` (`2026_10_07_083627_make_evaluation_offering_nullable_on_delete`): `evaluations.offering_id` becomes nullable with `nullOnDelete()` (before `restrictOnDelete()`, which gave a 500 when deleting an offering with evaluations).
+  - `OfferingController::destroy` and `massDestroy` delete the offering's baseline evaluation in the same transaction; specialists' evaluations are kept with a null `offering_id`.
+  - A user who lists evaluations with a null offering sees "offering does not exist"; **handled in the front**.
+  - All in branch `feature/add-contacts-and-locations` (uncommitted; Product owner commits). The coffee shop directory was reworked in the style of `offerings` (`5874407`, `b8b7fe5`).
+- **Pending in the API:** `update` and `close` of an evaluation with a null offering (the service reads `evaluation->offering`) and `EvaluationResource` with a null offering; Product owner's `OfferingFactory` `configure()` creates a baseline on every offering and leaves 4 `SpecialistTest` tests red.
+- **Why:** Product owner's decision of 7 Oct.
+- **Affects:** contract (null `offering` in evaluations); add-specialist-evaluations (list, detail and form: "offering does not exist" state, no edit or close) and add-public-evaluations (public lists) — correction or design adjustment when the contract arrives.
 
-### 2026-10-07 — consenso, barra lateral de gestión y leyenda 1–9 (respuestas de Product owner)
-- **Decisión:**
-  - **Consenso de la oferta:** la pestaña "Consenso" usa solo `cataConcordance` para la rueda y las tarjetas: una sola rueda (CATA, grupo `aromatics`), sin rueda "Perfil sensorial"; Main tastes y Defects leen `cataConcordance`. `mouthfeel` sigue en la rueda CATA como grupo de referencia aparte (separación más marcada, leyenda general de grupos, leyenda interna aromáticos/mouthfeel). `sensoryTaxonomy` se muestra como secciones plegables por eje (fragrance, aroma, flavor, aftertaste, mouthfeel), colapsadas, con el `Collapsible` compartido y `DescriptorChipGroup readOnly` sobre el constructor de filas compartido, con leyenda `n/total` por nota. Una oferta no verificada no muestra la tarjeta SCA, sino un mensaje de "aún no verificada".
-  - **Rejilla del catálogo:** 3 columnas con un umbral de región más bajo (valor no fijado por Product owner; recomendado ~960px).
-  - **Barra lateral de gestión de la cafetería:** una sola entrada "Administrar ofertas" (en "Manage offerings", ca "Gestionar ofertes"), hacia la lista y marcada como actual también en la ruta de crear; "Nueva oferta" desaparece de la barra (crear sigue accesible desde la lista). "Administrar ubicaciones" la añade add-coffeeshop-location junto a ella.
-  - **Leyenda 1–9 del formulario de evaluación:** sección plegable informativa "Impresión de calidad afectiva" tras Main tastes, con las nueve etiquetas en orden SCA (textos es/en/ca en el handoff de add-specialist-evaluations, Q10); sigue la regla de estado inicial de la ronda 1.
-  - **Backlog:** R10 (borde de error de las facetas de fila en el tema tradicional). El refactor de piezas de acceso y estado propuesto por add-coffeeshop-location pasa a R11.
-- **Por qué:** respuestas de Product owner del 7 oct (handoffs de add-offering-catalog Q1–Q5, add-offering-management Q1, add-specialist-evaluations Q10, refine-facet-controls Q1–Q2).
-- **Afecta:** add-offering-catalog (ronda 1); add-public-evaluations (si reutiliza el panel de consenso o la pestaña "Evaluación provisional": solo `cataConcordance`, ejes como secciones plegables); add-offering-management (ronda 1, tareas 8–10); add-coffeeshop-location (resumen, Open 3: añade su entrada junto a "Administrar ofertas"; Open 4 → R11); add-specialist-evaluations (ronda 2); add-offering-facets y add-evaluation-facets (R10).
+### 2026-10-07 — consensus, management sidebar and the 1–9 legend (Product owner's answers)
+- **Decision:**
+  - **Offering consensus:** the "Consensus" tab uses only `cataConcordance` for the wheel and the cards: a single wheel (CATA, `aromatics` group), no "Sensory profile" wheel; Main tastes and Defects read `cataConcordance`. `mouthfeel` stays in the CATA wheel as a separate reference group (stronger separation, a general group legend, an inner aromatics/mouthfeel legend). `sensoryTaxonomy` is shown as collapsible sections per axis (fragrance, aroma, flavour, aftertaste, mouthfeel), collapsed, with the shared `Collapsible` and `DescriptorChipGroup readOnly` over the shared row builder, with an `n/total` legend per note. An unverified offering shows no SCA card, but a "not verified yet" message.
+  - **Catalog grid:** 3 columns with a lower region threshold (value not fixed by Product owner; recommended ~960px).
+  - **Coffee shop management sidebar:** a single "Manage offerings" entry (ca "Gestionar ofertes"), to the list and marked as current also on the create route; "New offering" leaves the sidebar (create is still reachable from the list). "Manage locations" is added by add-coffeeshop-location next to it.
+  - **1–9 legend of the evaluation form:** an informative collapsible section "Affective quality impression" after Main tastes, with the nine labels in SCA order (es/en/ca texts in add-specialist-evaluations' handoff, Q10); it follows round 1's initial-state rule.
+  - **Backlog:** R10 (error border of the row facets in the traditional theme). The access and status pieces refactor proposed by add-coffeeshop-location becomes R11.
+- **Why:** Product owner's answers of 7 Oct (handoffs of add-offering-catalog Q1–Q5, add-offering-management Q1, add-specialist-evaluations Q10, refine-facet-controls Q1–Q2).
+- **Affects:** add-offering-catalog (round 1); add-public-evaluations (if it reuses the consensus panel or the "Provisional evaluation" tab: only `cataConcordance`, axes as collapsible sections); add-offering-management (round 1, tasks 8–10); add-coffeeshop-location (summary, Open 3: adds its entry next to "Manage offerings"; Open 4 → R11); add-specialist-evaluations (round 2); add-offering-facets and add-evaluation-facets (R10).
 
-### 2026-10-07 — catálogo en una columna y `offeringId` nulo (respuestas de Product owner)
-- **Decisión:**
-  - **Catálogo:** la lista de ofertas pasa a una sola columna centrada y más estrecha que la región; varias columnas eran solo para la landing. Sustituye "3 columnas con un umbral más bajo" de la entrada anterior. Ancho: pendiente de una decisión complementaria de Product owner.
-  - **Evaluación de una oferta borrada:** el front asume `offeringId` nullable en las evaluaciones (Product owner actualiza el API y pasa el contrato). La fila muestra "Oferta inexistente" sin pedir la oferta; la evaluación se abre en solo lectura, sin editar ni cerrar, y se puede borrar.
-- **Por qué:** respuestas de Product owner del 7 oct.
-- **Afecta:** add-offering-catalog (ronda 1, punto 4); add-specialist-evaluations (ronda 2, punto 2; las tareas que necesiten el tipo regenerado esperan al contrato); add-public-evaluations (filas y detalle públicos con `offeringId` nulo); add-coffeeshop-directory (la pestaña de ofertas de la cafetería sigue el mismo patrón de una columna).
+### 2026-10-07 — catalog in one column and null `offeringId` (Product owner's answers)
+- **Decision:**
+  - **Catalog:** the offering list becomes a single centred column, narrower than the region; several columns were only for the landing. Replaces "3 columns with a lower threshold" of the previous entry. Width: pending a complementary decision by Product owner.
+  - **Evaluation of a deleted offering:** the front assumes a nullable `offeringId` in evaluations (Product owner updates the API and passes the contract). The row shows "Offering does not exist" without requesting the offering; the evaluation opens read-only, without edit or close, and can be deleted.
+- **Why:** Product owner's answers of 7 Oct.
+- **Affects:** add-offering-catalog (round 1, point 4); add-specialist-evaluations (round 2, point 2; the tasks that need the regenerated type wait for the contract); add-public-evaluations (public rows and detail with a null `offeringId`); add-coffeeshop-directory (the coffee shop's offerings tab follows the same one-column pattern).
 
-### 2026-10-07 — `offeringId` nulo: el contrato ya lo comunica (Product owner; corrige la entrada anterior)
-- **Decisión:** el contrato `290d22e` (API `PROD 37d499a`) comunica el caso en las descripciones de `deleteAnOffering` y `deleteMultipleOfferings` ("specialists' evaluations are kept without an offering"), aunque el esquema de respuesta no marca `offeringId` como `nullable`. El front amplía el tipo a `string | null` en un único punto de lectura (alias `EvaluationItem` / `EvaluationDetail`), sin editar `schema.ts`; ninguna tarea espera al contrato. Sustituye "las tareas que necesiten el tipo regenerado esperan al contrato" de la entrada anterior. Sin oferta, "Oferta inexistente" sustituye la cabecera de la oferta y el nivel de tueste que viene de su café; el método de extracción se mantiene (orquestador, desde la ronda 2 punto 2).
-- **Por qué:** Product owner, 7 oct ("sí es comunicable"); informe del design lead.
-- **Afecta:** add-specialist-evaluations (ronda 2, punto 2; resumen, Open 14); add-public-evaluations (resumen: fila y vista pública con "Oferta inexistente", sin enlace ni petición de la oferta; Open 12; necesita una actualización de artefactos, ya tiene propose).
+### 2026-10-07 — null `offeringId`: the contract already states it (Product owner; corrects the previous entry)
+- **Decision:** contract `290d22e` (API `PROD 37d499a`) states the case in the descriptions of `deleteAnOffering` and `deleteMultipleOfferings` ("specialists' evaluations are kept without an offering"), although the response schema does not mark `offeringId` as `nullable`. The front widens the type to `string | null` at a single read point (aliases `EvaluationItem` / `EvaluationDetail`), without editing `schema.ts`; no task waits for the contract. Replaces "the tasks that need the regenerated type wait for the contract" of the previous entry. Without an offering, "Offering does not exist" replaces the offering header and the roast level that comes from its coffee; the extraction method is kept (orchestrator, from round 2 point 2).
+- **Why:** Product owner, 7 Oct ("yes, it is stated"); design lead's report.
+- **Affects:** add-specialist-evaluations (round 2, point 2; summary, Open 14); add-public-evaluations (summary: public row and view with "Offering does not exist", without a link or request of the offering; Open 12; needs an artifact update, it already has a propose).
 
-### 2026-10-07 — superficies de página: fondo, bandas y secciones flotantes (Product owner)
-- **Decisión:**
-  1. El área principal del shell deja el crema y pasa a un fondo verde azulado claro, escalón entre el verde del header/sidebar y el crema de formularios y tarjetas (MVC `--color-neutral`). Propuesta del design lead: `surface-page` apunta a `sage-100` en el tema claro; el oscuro sin cambios (abierto para Product owner).
-  2. La cabecera de cada sección va en una banda propia (`surface-section`), distinta del cuerpo crema.
-  3. El cuerpo de la vista lleva un borde de 1px `border-subtle`.
-  4. Las secciones cuelgan del fondo dentro de un contenedor de cuerpo, separadas por un gap (MVC, formulario de evaluaciones); aplica a las vistas en general (formularios, detalle, perfil). Propuesta: variante `section` de la `Card` compartida; contenedor solo de maquetación.
-  - El catálogo usa `PageSection surface="page"` para que el fondo se vea en los márgenes laterales (ronda 1 de catalog, punto 4).
-- **Por qué:** decisiones de Product owner del 7 oct; resumen del design lead `docs/design/refine-page-surfaces/design-summary.md`.
-- **Afecta:** refine-page-surfaces (nuevo; va primero, antes de la comprobación en navegador y el archive de catalog); add-offering-catalog (ronda 1, punto 4; secciones por eje del consenso); add-specialist-evaluations y add-offering-management (adopción de la tarjeta de sección cuando se mergee); add-public-evaluations (actualización de artefactos antes del apply); add-user-account (resumen, Open 3); add-user-contact, add-coffeeshop-location y add-coffeeshop-directory (resúmenes).
+### 2026-10-07 — page surfaces: background, bands and floating sections (Product owner)
+- **Decision:**
+  1. The shell's main area leaves cream and moves to a light teal-green background, a step between the header/sidebar green and the cream of forms and cards (MVC `--color-neutral`). Design lead's proposal: `surface-page` points to `sage-100` in the light theme; the dark one unchanged (open for Product owner).
+  2. Each section's header goes in its own band (`surface-section`), distinct from the cream body.
+  3. The view's body has a 1px `border-subtle` border.
+  4. Sections hang from the background inside a body container, separated by a gap (MVC, evaluation form); it applies to views in general (forms, detail, profile). Proposal: a `section` variant of the shared `Card`; a layout-only container.
+  - The catalog uses `PageSection surface="page"` so the background shows in the side margins (catalog round 1, point 4).
+- **Why:** Product owner's decisions of 7 Oct; design lead's summary `docs/design/refine-page-surfaces/design-summary.md`.
+- **Affects:** refine-page-surfaces (new; goes first, before catalog's browser check and archive); add-offering-catalog (round 1, point 4; per-axis consensus sections); add-specialist-evaluations and add-offering-management (adoption of the section card when merged); add-public-evaluations (artifact update before the apply); add-user-account (summary, Open 3); add-user-contact, add-coffeeshop-location and add-coffeeshop-directory (summaries).
 
-### 2026-10-07 — superficies de página: respuestas a Open 1–3 y refactors previos (Product owner y orquestador)
-- **Decisión:**
-  - Fondo claro: `surface-page` → `sage-100` (tema tradicional). Fondo oscuro sin cambios (`night-petrol-950`).
-  - Adopción: catalog, specialist-evaluations y management reciben una ronda pequeña de adopción de la tarjeta de sección tras su ronda actual y antes de su archive (sin borde verde izquierdo, banda de cabecera, borde del panel de management 2px → 1px, padding lateral de la cabecera de evaluations 1rem → 1.5rem desde 768px). user-account adopta en un cambio pequeño posterior; add-user-contact se aplica después de ese cambio. public-evaluations adopta por actualización de artefactos antes de su apply.
-  - Orquestador: el propose de add-coffeeshop-directory y add-coffeeshop-location puede ir antes de que se mergeen R9/R12 y R11; solo su apply espera a los refactors. Listas de directory y location en una columna.
-- **Por qué:** respuestas de Product owner del 7 oct (P1a, P2a, P3a); resúmenes del design lead (`2ce2cd8`).
-- **Afecta:** refine-page-surfaces; add-offering-catalog, add-specialist-evaluations, add-offering-management (ronda de adopción); add-user-account; add-user-contact; add-public-evaluations; add-coffeeshop-location; add-coffeeshop-directory.
+### 2026-10-07 — page surfaces: answers to Open 1–3 and refactors first (Product owner and orchestrator)
+- **Decision:**
+  - Light background: `surface-page` → `sage-100` (traditional theme). Dark background unchanged (`night-petrol-950`).
+  - Adoption: catalog, specialist-evaluations and management get a small section-card adoption round after their current round and before their archive (no green left border, header band, management panel border 2px → 1px, evaluations header side padding 1rem → 1.5rem from 768px). user-account adopts in a small later change; add-user-contact is applied after that change. public-evaluations adopts through an artifact update before its apply.
+  - Orchestrator: the propose of add-coffeeshop-directory and add-coffeeshop-location may go before R9/R12 and R11 are merged; only their apply waits for the refactors. Directory and location lists in one column.
+- **Why:** Product owner's answers of 7 Oct (P1a, P2a, P3a); design lead's summaries (`2ce2cd8`).
+- **Affects:** refine-page-surfaces; add-offering-catalog, add-specialist-evaluations, add-offering-management (adoption round); add-user-account; add-user-contact; add-public-evaluations; add-coffeeshop-location; add-coffeeshop-directory.
 
-### 2026-10-07 — mapa del directorio con Leaflet y `perPage` (Product owner)
-- **Decisión:**
-  - Se aprueba la dependencia `leaflet@1.9.4` + `@types/leaflet@1.9.22` (BSD-2-Clause) para el mapa del directorio de cafeterías (add-coffeeshop-directory D16): conmutador lista/mapa, vista de mapa, botón de mapa en la tarjeta, mapa a pantalla completa en móvil, mapa de la pestaña Ubicaciones, y la línea `img-src` de la CSP para las teselas.
-  - API: `page` y `perPage` (estándar 15, máximo 50) en las cinco listas paginadas (hotfix `6eb8d0f`/`e84b444`). Product owner decide no documentarlo en Scribe: el front lo trata como comunicado por Product owner, igual que `offeringId` nullable. La landing pide `perPage=6` (refine-list-pagination, Q1 opción A).
-  - `openspec/config.yaml` actualizado por Product owner (`bbf5e66`): `offering-catalog` incluye el directorio; `offering-management`, las ubicaciones; `user-account`, los datos de contacto.
-- **Por qué:** respuestas de Product owner del 7 oct.
-- **Afecta:** add-coffeeshop-directory (actualización de artefactos: tareas del mapa); refine-list-pagination; add-coffeeshop-location; add-user-contact.
+### 2026-10-07 — directory map with Leaflet and `perPage` (Product owner)
+- **Decision:**
+  - The dependency `leaflet@1.9.4` + `@types/leaflet@1.9.22` (BSD-2-Clause) is approved for the coffee shop directory map (add-coffeeshop-directory D16): list/map toggle, map view, map button on the card, full-screen map on mobile, the Locations tab map, and the CSP `img-src` line for the tiles.
+  - API: `page` and `perPage` (default 15, maximum 50) on the five paginated lists (hotfix `6eb8d0f`/`e84b444`). Product owner decides not to document it in Scribe: the front treats it as communicated by Product owner, like the nullable `offeringId`. The landing requests `perPage=6` (refine-list-pagination, Q1 option A).
+  - `openspec/config.yaml` updated by Product owner (`bbf5e66`): `offering-catalog` includes the directory; `offering-management`, the locations; `user-account`, the contact data.
+- **Why:** Product owner's answers of 7 Oct.
+- **Affects:** add-coffeeshop-directory (artifact update: map tasks); refine-list-pagination; add-coffeeshop-location; add-user-contact.
 
-### 2026-10-07 — geocodificación propia y mandato de autonomía (orquestador, por mandato de Product owner)
-- **Decisión:**
-  - Mandato de Product owner (7 oct, tarde): el orquestador cierra los puntos en autonomía, salvo los que cambien lo pactado en un design summary.
-  - add-coffeeshop-location Open 5 / D5: geocodificación con un `fetch` propio a Nominatim en el único punto de entrada `src/shared/lib/geocoding` (opción C del resumen), sin dependencia nueva. `leaflet-geosearch` se descarta: solo acepta texto libre, no admite cancelar ni comprueba el estado (verificado en el propose). La CSP `connect-src` a Nominatim ya estaba aprobada (entrada "contactos y locales").
-  - Textos propuestos en en/ca de los proposes del 7 oct (`urlFormatError`, `signedOutText`, `mapLoading`, `locationNoMap`, "Administra les ubicacions") se aceptan tal cual.
-- **Por qué:** mandato de Product owner; resumen de add-coffeeshop-location (Open 5 ofrece C); recomendación del arquitecto.
-- **Afecta:** add-coffeeshop-location (D5 cerrado; sin tarea de librería); add-user-contact; add-coffeeshop-directory.
+### 2026-10-07 — own geocoding and the autonomy mandate (orchestrator, by Product owner's mandate)
+- **Decision:**
+  - Product owner's mandate (7 Oct, afternoon): the orchestrator settles points autonomously, except those that change what was agreed in a design summary.
+  - add-coffeeshop-location Open 5 / D5: geocoding with an own `fetch` to Nominatim in the single entry point `src/shared/lib/geocoding` (option C of the summary), without a new dependency. `leaflet-geosearch` is discarded: it accepts only free text, cannot cancel and does not check the status (verified in the propose). The CSP `connect-src` to Nominatim was already approved (entry "contacts and locations").
+  - The en/ca texts proposed in the proposes of 7 Oct (`urlFormatError`, `signedOutText`, `mapLoading`, `locationNoMap`, "Administra les ubicacions") are accepted as they are.
+- **Why:** Product owner's mandate; add-coffeeshop-location's summary (Open 5 offers C); the architect's recommendation.
+- **Affects:** add-coffeeshop-location (D5 closed; no library task); add-user-contact; add-coffeeshop-directory.
 
-### 2026-10-07 — revisión visual previa al archive: arreglos compartidos (orquestador y Product owner)
-- **Decisión:**
-  - Catalog pasa la revisión del design lead y se archiva y mergea (`589b358`). Evaluations y management cumplen sus rondas, pero esperan a dos arreglos de componentes compartidos ya mergeados, cada uno en su propio cambio: `fix-collapsible-overflow` (un `Collapsible` plegado sigue ocupando altura: hueco en blanco a 375 px) y `fix-combobox-blur` (el `Combobox` se cierra y vacía al llegar los resultados; impide elegir inventario al crear una oferta).
-  - Product owner aprueba `fix-auth-return-query`: la ruta de vuelta tras iniciar sesión conserva la query (`pathname + search`), validada como ruta interna igual que hoy; sin tocar tokens, PKCE, CSP ni `proxy.ts`.
-  - Catalog D13: si un bloque de selección no tiene notas, su tarjeta se ensancha (sin columna de leyenda); se mantiene como dice el diseño.
-- **Por qué:** informe del design lead del 7 oct; mandato de autonomía; respuesta de Product owner ("sí, procede").
-- **Afecta:** add-specialist-evaluations y add-offering-management (archive tras los arreglos); add-offering-facets, add-evaluation-facets y add-coffeeshop-location (usan `Combobox`/`Collapsible`); auth.
+### 2026-10-07 — visual review before the archive: shared fixes (orchestrator and Product owner)
+- **Decision:**
+  - Catalog passes the design lead's review and is archived and merged (`589b358`). Evaluations and management meet their rounds, but wait for two fixes to already merged shared components, each in its own change: `fix-collapsible-overflow` (a collapsed `Collapsible` still takes height: blank gap at 375 px) and `fix-combobox-blur` (the `Combobox` closes and empties when the results arrive; it prevents choosing inventory when creating an offering).
+  - Product owner approves `fix-auth-return-query`: the return route after sign-in keeps the query (`pathname + search`), validated as an internal route as today; without touching tokens, PKCE, CSP or `proxy.ts`.
+  - Catalog D13: if a selection block has no notes, its card widens (no legend column); kept as the design says.
+- **Why:** design lead's report of 7 Oct; the autonomy mandate; Product owner's answer ("yes, go ahead").
+- **Affects:** add-specialist-evaluations and add-offering-management (archive after the fixes); add-offering-facets, add-evaluation-facets and add-coffeeshop-location (use `Combobox`/`Collapsible`); auth.
 
-### 2026-10-07 — nada nuevo en el diseño y suite de tests reducida (Product owner)
-- **Decisión:**
-  - Nada se añade al diseño sin autorización de Product owner: se trabaja con los componentes actuales. Los puntos que el orquestador cierre se resuelven eligiendo entre lo ya pactado, nunca añadiendo. R14 (página 404 con tema) queda en el backlog con la última prioridad.
-  - Tests: en el repo solo quedan los que verifican los requisitos de `openspec/specs/` (simplificados, uno por escenario) y las guardas de reglas del proyecto. Los de refactors se borran o pasan a calidad. El resto va a la carpeta local `Sprint5/tazavera-front-qa` (sin remoto), no se corre en cada cambio y se ejecuta una vez al final del proyecto. Cada cambio escribe solo los tests que nombran sus tareas. Antes de mover nada, un plan con totales (`claude/test-reduction-plan`) para Product owner.
-  - OpenCode no se usa mientras el portátil vaya justo de memoria; proposes y applies van a la nube.
-- **Por qué:** Product owner, 7 oct (unos 2.240 tests inmanejables; timeouts bajo carga, R15).
-- **Afecta:** todos los cambios abiertos (prompts de build: solo los tests nombrados); AGENTS.md `## Testing` (texto pendiente de que Product owner lo aplique); add-public-evaluations, add-evaluation-facets, add-coffeeshop-location, add-coffeeshop-directory, refine-list-pagination.
+### 2026-10-07 — nothing new in the design and a reduced test suite (Product owner)
+- **Decision:**
+  - Nothing is added to the design without Product owner's authorisation: work with the current components. Points the orchestrator settles are resolved by choosing among what was already agreed, never by adding. R14 (themed 404 page) stays in the backlog with the lowest priority.
+  - Tests: only those that verify the requirements of `openspec/specs/` (simplified, one per scenario) and the project rule guards stay in the repo. Refactor tests are deleted or move to quality. The rest goes to the local folder `Sprint5/tazavera-front-qa` (no remote), is not run on every change and is run once at the end of the project. Each change writes only the tests its tasks name. Before moving anything, a plan with totals (`claude/test-reduction-plan`) for Product owner.
+  - OpenCode is not used while the laptop is short of memory; proposes and applies go to the cloud.
+- **Why:** Product owner, 7 Oct (about 2,240 unmanageable tests; timeouts under load, R15).
+- **Affects:** every open change (build prompts: only the named tests); AGENTS.md `## Testing` (text pending Product owner's application); add-public-evaluations, add-evaluation-facets, add-coffeeshop-location, add-coffeeshop-directory, refine-list-pagination.
 
-### 2026-10-07 — R9 resuelto y piezas compartidas (orquestador)
-- **Decisión:**
-  - `ClearFiltersButton` vive en `@/shared/ui` (props `label`, `keep`). add-evaluation-facets y add-public-evaluations lo usan con `keep={["orderBy","orderDirection"]}` y no crean `ClearEvaluationFiltersButton` (artefactos actualizados `39a4504`, `8b13c84`). En R12, `FilteredOfferingsResults` (widget `offering-list`) lo usa con `keep={OFFERING_SORT_KEYS}`.
-  - add-coffeeshop-location: el `isValidEmail` existente se mueve sin cambios a `@/entities/contact`; `user-account` lo importa de ahí. Sin copia.
-  - refine-list-pagination D3: la fila "current 10" de la tabla se corrige para seguir la regla de D3 (puntos suspensivos separados si siguen a páginas distintas); lo visible no cambia.
-  - Seguimientos en el backlog: R13 (`EvaluationsAccess` sobre el `SessionGate` compartido), R15 (tests lentos de `EvaluationForm`).
-- **Por qué:** dos artefactos fijados que se contradecían o no se podían construir tal cual; se elige la opción que cambia menos y no añade nada.
-- **Afecta:** add-evaluation-facets, add-public-evaluations, add-coffeeshop-directory (usa el botón y el widget compartidos; además necesita decidir si la paginación conserva `?tab=`), add-coffeeshop-location, refine-list-pagination.
+### 2026-10-07 — R9 resolved and shared pieces (orchestrator)
+- **Decision:**
+  - `ClearFiltersButton` lives in `@/shared/ui` (props `label`, `keep`). add-evaluation-facets and add-public-evaluations use it with `keep={["orderBy","orderDirection"]}` and do not create `ClearEvaluationFiltersButton` (artifacts updated `39a4504`, `8b13c84`). In R12, `FilteredOfferingsResults` (widget `offering-list`) uses it with `keep={OFFERING_SORT_KEYS}`.
+  - add-coffeeshop-location: the existing `isValidEmail` moves unchanged to `@/entities/contact`; `user-account` imports it from there. No copy.
+  - refine-list-pagination D3: the "current 10" row of the table is corrected to follow D3's rule (separate ellipses if they follow different pages); nothing visible changes.
+  - Follow-ups in the backlog: R13 (`EvaluationsAccess` over the shared `SessionGate`), R15 (slow `EvaluationForm` tests).
+- **Why:** two settled artifacts contradicted each other or could not be built as written; the option that changes least and adds nothing is chosen.
+- **Affects:** add-evaluation-facets, add-public-evaluations, add-coffeeshop-directory (uses the shared button and widget; also needs to decide whether pagination keeps `?tab=`), add-coffeeshop-location, refine-list-pagination.
 
-### 2026-10-07 — paginación con `?tab=` en el directorio (orquestador, cerrado para revisión)
-- **Decisión:** `FilteredOfferingsResults` (widget `offering-list`) gana una prop opcional que añade claves a la query de los enlaces de paginación, sin tocar la petición a la API. El catálogo no la pasa y no cambia. La pestaña "Ofertas" del directorio la usa con `tab`. La implementa la actualización de artefactos de add-coffeeshop-directory, junto con la adopción de R9 y R12.
-- **Por qué:** el resumen del directorio (§5) y el de R12 (§3.2) dicen que la paginación conserva `tab`, pero el código no se puede construir así: `buildOfferingsQuery` descarta `tab` (R12, Open 1 y Risk 2). Es la opción que menos cambia y no añade nada visible fuera de lo pactado.
-- **Afecta:** add-coffeeshop-directory; extract-filtered-offerings (Open 1 cerrado).
+### 2026-10-07 — pagination with `?tab=` in the directory (orchestrator, closed for review)
+- **Decision:** `FilteredOfferingsResults` (widget `offering-list`) gains an optional prop that adds keys to the pagination links' query, without touching the API request. The catalog does not pass it and does not change. The directory's "Offerings" tab uses it with `tab`. It is implemented by add-coffeeshop-directory's artifact update, together with the adoption of R9 and R12.
+- **Why:** the directory summary (§5) and R12's (§3.2) say pagination keeps `tab`, but the code cannot be built that way: `buildOfferingsQuery` drops `tab` (R12, Open 1 and Risk 2). It is the option that changes least and adds nothing visible beyond what was agreed.
+- **Affects:** add-coffeeshop-directory; extract-filtered-offerings (Open 1 closed).
 
-### 2026-10-07 — verificación con navegador en la nube (orquestador)
-- **Decisión:** con el portátil sin memoria, las tareas de verificación visual, los checks y los verify se hacen en sesiones de la nube con Playwright y una API simulada. La sesión commitea las capturas y el resultado en el handoff (`docs(<cap>): update handoff for <change-id>`) antes de marcar el checkbox de la tarea.
-- **Por qué:** el sistema detuvo los procesos locales por falta de memoria (7 oct, ~21:20 UTC); mandato de autonomía de Product owner ("tú eres autónomo", "no esperes por mí").
-- **Afecta:** refine-list-pagination, add-coffeeshop-location, add-evaluation-facets, extract-filtered-offerings, y los siguientes applies (public-evaluations, coffeeshop-directory).
+### 2026-10-07 — browser verification in the cloud (orchestrator)
+- **Decision:** with the laptop out of memory, visual verification tasks, checks and verifies run in cloud sessions with Playwright and a mocked API. The session commits the captures and the result in the handoff (`docs(<cap>): update handoff for <change-id>`) before checking the task's checkbox.
+- **Why:** the system stopped the local processes for lack of memory (7 Oct, ~21:20 UTC); Product owner's autonomy mandate ("you are autonomous", "do not wait for me").
+- **Affects:** refine-list-pagination, add-coffeeshop-location, add-evaluation-facets, extract-filtered-offerings, and the next applies (public-evaluations, coffeeshop-directory).
 
-### 2026-10-07 — R14 autorizado si queda tiempo (Product owner)
-- **Decisión:** R14 (página 404 localizada y con tema) entra si queda tiempo, después de public-evaluations, coffeeshop-directory y la reducción de tests. Cambio nuevo `add-not-found-page` (app-shell): el design lead redacta el resumen solo con componentes y tokens existentes; el orquestador lo aprueba si no deja puntos abiertos.
-- **Por qué:** Product owner, 7 oct noche ("si te queda tiempo incluirá R14").
-- **Afecta:** add-not-found-page (nuevo); backlog R14 (sale al archivar ese cambio).
+### 2026-10-07 — R14 authorised if there is time (Product owner)
+- **Decision:** R14 (localised, themed 404 page) goes in if there is time, after public-evaluations, coffeeshop-directory and the test reduction. New change `add-not-found-page` (app-shell): the design lead writes the summary with existing components and tokens only; the orchestrator approves it if it leaves no open points.
+- **Why:** Product owner, 7 Oct night ("if you have time, include R14").
+- **Affects:** add-not-found-page (new); backlog R14 (leaves when that change is archived).
 
-### 2026-10-08 — reducción de la suite aprobada, con prioridad alta (Product owner)
-- **Decisión:**
-  - Se aprueba el plan `docs/testing/test-reduction-plan.md` (rama `claude/test-reduction-plan`): de 2.239 casos quedan en el repo solo los que verifican escenarios de `openspec/specs/` (uno por escenario) y las guardas; el resto pasa a `../tazavera-front-qa` o se borra.
-  - Las guardas se simplifican a un test general por regla: `theme-tokens` pasa de 707 casos a 4 (temas completos, contraste de los pares registrados, tipografía, radios y foco); `icons` pasa de 13 a 1. Los valores de diseño sin escenario van a QA. Objetivo: unos 820 casos en total.
-  - No se crean guardas nuevas. Un token nuevo solo registra su par en la matriz existente.
-  - Esto autoriza la excepción a `.claude/CLAUDE.md` §3 ("never remove or weaken a test") para lo que mueve o borra este plan.
-  - Se aplica en dos pasadas: ahora sobre `develop`, sin tocar los tests que modifican las ramas en vuelo; la segunda pasada, cuando esas ramas estén mergeadas.
-- **Por qué:** Product owner, 8 oct ("esa cantidad de test no es manejable", "OK con alta prioridad").
-- **Afecta:** todos los cambios abiertos (sus prompts de build: no crear guardas); AGENTS.md `## Testing` (viñeta "no new guard tests", pendiente de Product owner); `.claude/CLAUDE.md` §3.
+### 2026-10-08 — suite reduction approved, high priority (Product owner)
+- **Decision:**
+  - The plan `docs/testing/test-reduction-plan.md` (branch `claude/test-reduction-plan`) is approved: of 2,239 cases, only those that verify scenarios of `openspec/specs/` (one per scenario) and the guards stay in the repo; the rest moves to `../tazavera-front-qa` or is deleted.
+  - The guards are simplified to one general test per rule: `theme-tokens` goes from 707 cases to 4 (complete themes, contrast of the registered pairs, typography, radii and focus); `icons` from 13 to 1. Design values without a scenario go to QA. Target: about 820 cases in total.
+  - No new guards are created. A new token only registers its pair in the existing matrix.
+  - This authorises the exception to `.claude/CLAUDE.md` §3 ("never remove or weaken a test") for what this plan moves or deletes.
+  - Applied in two passes: now on `develop`, without touching the tests changed by branches in flight; the second pass when those branches are merged.
+- **Why:** Product owner, 8 Oct ("that number of tests is not manageable", "OK with high priority").
+- **Affects:** every open change (their build prompts: create no guards); AGENTS.md `## Testing` (bullet "no new guard tests", pending Product owner); `.claude/CLAUDE.md` §3.
 
-### 2026-10-08 — última tarea: revisión técnica ISO 25010 y hoja de ruta de refactorización (Product owner)
-- **Decisión:** al final, con todos los cambios mergeados, una sesión en la nube de solo lectura escribe `docs/review/technical-review.md` (lo commitea el orquestador en `develop`). Contenido:
-  - Cuadro de mando ISO/IEC 25010 con nota A–E por característica (la peor de sus indicadores).
-  - Mantenibilidad: SOLID en React/FSD, coherencia, sobredimensionamiento; métricas SIG ligeras (tamaño, complejidad ESLint, `jscpd`, `dependency-cruiser`, `knip`, props por componente).
-  - Testabilidad (escenarios cubiertos, duración de la suite), adecuación funcional (contrato y escenarios), seguridad (`npm audit`, CSP, cabeceras, tokens), usabilidad (guardas y axe con Playwright en 5–6 pantallas con la API simulada), rendimiento (bundle por ruta de `next build`).
-  - Hoja de ruta de refactorización: hallazgos agrupados en cambios propuestos (change-id y capability), esfuerzo S/M/L con total, impacto (nota actual → objetivo), prioridad, orden por dependencias FSD y riesgo. Candidatos al backlog desde R17.
-  - Herramientas solo con `npx`, sin dependencias nuevas.
-- **Por qué:** petición de Product owner, 8 oct.
-- **Afecta:** cierre del proyecto; backlog.
-- **Orden (Product owner, 8 oct):** directory y public-evaluations → `add-not-found-page` (R14, ya no condicionado a que sobre tiempo) → revisión técnica.
+### 2026-10-08 — last task: ISO 25010 technical review and refactoring roadmap (Product owner)
+- **Decision:** at the end, with every change merged, a read-only cloud session writes `docs/review/technical-review.md` (committed by the orchestrator on `develop`). Content:
+  - ISO/IEC 25010 scorecard with an A–E grade per characteristic (the worst of its indicators).
+  - Maintainability: SOLID in React/FSD, consistency, oversizing; light SIG metrics (size, ESLint complexity, `jscpd`, `dependency-cruiser`, `knip`, props per component).
+  - Testability (scenarios covered, suite duration), functional suitability (contract and scenarios), security (`npm audit`, CSP, headers, tokens), usability (guards and axe with Playwright on 5–6 screens with the mocked API), performance (bundle per route from `next build`).
+  - Refactoring roadmap: findings grouped into proposed changes (change-id and capability), S/M/L effort with a total, impact (current grade → target), priority, order by FSD dependencies and risk. Backlog candidates from R17.
+  - Tools only with `npx`, no new dependencies.
+- **Why:** Product owner's request, 8 Oct.
+- **Affects:** project close; backlog.
+- **Order (Product owner, 8 Oct):** directory and public-evaluations → `add-not-found-page` (R14, no longer conditional on spare time) → technical review.
 
-### 2026-10-08 — refactorización por vía rápida en `qa` y tipos de cambio (Product owner)
-- **Decisión:** `develop` pasa a `master` para las UAT. Las refactorizaciones van en rondas sobre la rama `qa` (vía rápida: sin design summary, explore ni revisión de artefactos; archivo al pasar validación, suite QA, tsc, lint, build y verify) y `qa` vuelve a `develop` al final de cada ronda tras la revisión visual. Cada cambio y entrada del backlog lleva `Type: Refactor (fast lane)` o `Change`. Toda la hoja de ruta de la revisión técnica (R20–R39) va por vía rápida, incluidas R30 (caché de referencias a 1 h; cambia D9 de add-public-evaluations, resuelve R19), R31 (cabeceras de seguridad, manteniendo permitidos el mapa y la ubicación) y R32 (etiquetas es/en/ca que escribe el arquitecto, con R17). Los tests de QA pasan a `qa/` en el repo del front (`npm run test:qa`). El orquestador lleva las conversaciones de diseño; explore ya no se ejecuta.
-- **Por qué:** Product owner, 8 oct.
-- **Afecta:** add-public-evaluations (D9), todas las rondas de refactorización, `AGENTS.md` (Refactor changes, Testing), `.claude/CLAUDE.md` §13.
+### 2026-10-08 — fast-lane refactoring on `qa` and change types (Product owner)
+- **Decision:** `develop` goes to `master` for the UATs. Refactorings go in rounds on the `qa` branch (fast lane: no design summary, explore or artifact review; archived once validation, the QA suite, tsc, lint, build and verify pass) and `qa` returns to `develop` at the end of each round after the visual review. Each change and backlog entry carries `Type: Refactor (fast lane)` or `Change`. The whole technical-review roadmap (R20–R39) goes by the fast lane, including R30 (reference cache at 1 h; changes add-public-evaluations D9, resolves R19), R31 (security headers, keeping the map and location allowed) and R32 (es/en/ca labels written by the architect, with R17). QA tests move to `qa/` in the front repo (`npm run test:qa`). The orchestrator holds the design conversations; explore no longer runs.
+- **Why:** Product owner, 8 Oct.
+- **Affects:** add-public-evaluations (D9), every refactoring round, `AGENTS.md` (Refactor changes, Testing), `.claude/CLAUDE.md` §13.
 
-### 2026-10-08 — respuestas sobre R4, R5, R8 y R18 (Product owner)
-- **Decisión:** R18: un elemento que no existe muestra en su propia vista un mensaje "<elemento> no encontrado" (o "sin resultados"), sin Reintentar; el estado HTTP no se toca. R5: una sola función de idioma en `src/shared/lib/i18n`; el idioma solo se elige con el botón de idioma de la cabecera. R4: menús de tarjeta a 16px (se ajusta `base-controls`). R8: antes, la API documenta sus 422 y los 404 de lecturas por identificador con ficheros de ejemplo de Scribe (R40, en `tazavera-api`, local).
-- **Por qué:** Product owner, 8 oct.
-- **Afecta:** offering-catalog y evaluations (R18), auth (R5), base-controls (R4), formularios (R8), `tazavera-api` (R40).
+### 2026-10-08 — answers on R4, R5, R8 and R18 (Product owner)
+- **Decision:** R18: an item that does not exist shows in its own view a "<item> not found" message (or "no results"), without Retry; the HTTP status is not touched. R5: a single language function in `src/shared/lib/i18n`; the language is chosen only with the header's language button. R4: card menus at 16px (`base-controls` is adjusted). R8: first, the API documents its 422s and the 404s of reads by identifier with Scribe example files (R40, in `tazavera-api`, local).
+- **Why:** Product owner, 8 Oct.
+- **Affects:** offering-catalog and evaluations (R18), auth (R5), base-controls (R4), forms (R8), `tazavera-api` (R40).
 
-### 2026-10-09 — enlace o botón de acción según la posición (Product owner)
-- **Decisión:** el control de navegación en la primera línea del encabezado de una página (volver, encima del título) es un enlace. Cualquier otro control de navegación es un botón de acción (`RouteButton`, con la variante según "Action variants by kind"), tanto en el encabezado después de la primera línea como al final de la vista, la lista o la tarjeta. Una misma acción en dos sitios usa un único componente (p. ej. "Nueva oferta" en la cabecera y en la lista vacía).
-- **Por qué:** Product owner, 9 oct (hallazgos AUT).
-- **Afecta:** `apply-header-link-rule` y toda vista futura con encabezado o acciones finales.
+### 2026-10-09 — link or action button by position (Product owner)
+- **Decision:** the navigation control on the first line of a page header (back, above the title) is a link. Any other navigation control is an action button (`RouteButton`, with the variant per "Action variants by kind"), both in the header after the first line and at the end of the view, the list or the card. The same action in two places uses a single component (e.g. "New offering" in the header and in the empty list).
+- **Why:** Product owner, 9 Oct (AUT findings).
+- **Affects:** `apply-header-link-rule` and every future view with a header or final actions.
 
-### 2026-10-09 — R43 `adopt-next-intl-routing`: respuestas a los Open (Product owner)
-- **Decisión:** se aceptan todas las recomendaciones del resumen: Open 1 A (`request.ts` lee el locale de la cabecera del middleware; no se mueve `<html>`); Open 2 A (`alternateLinks: false`); Open 3 B (los importadores usan `routing.locales`, `routing.defaultLocale` y `hasLocale`, y desaparecen los alias); Open 4 A (`createNavigation` solo para el selector de idioma); Open 5 C (`useSession()` registra el locale con `useLocale()` y el flujo de sesión lo lee de ahí, con `es` como valor por defecto); Open 6 B con un margen de **+3 KB gz por ruta de locale** respecto a la medición "antes"; Open 7 B (`request.ts` sin catálogos).
-- **Por qué:** Product owner, 9 oct ("ok a tu propuesta").
-- **Afecta:** `adopt-next-intl-routing` (app-shell, auth).
+### 2026-10-09 — R43 `adopt-next-intl-routing`: answers to the Open points (Product owner)
+- **Decision:** every recommendation of the summary is accepted: Open 1 A (`request.ts` reads the locale from the middleware header; `<html>` does not move); Open 2 A (`alternateLinks: false`); Open 3 B (importers use `routing.locales`, `routing.defaultLocale` and `hasLocale`, and the aliases go away); Open 4 A (`createNavigation` only for the language selector); Open 5 C (`useSession()` registers the locale with `useLocale()` and the session flow reads it from there, with `es` as the default); Open 6 B with a margin of **+3 KB gz per locale route** over the "before" measurement; Open 7 B (`request.ts` without catalogs).
+- **Why:** Product owner, 9 Oct ("ok to your proposal").
+- **Affects:** `adopt-next-intl-routing` (app-shell, auth).
 
-### 2026-10-09 — permiso de escritura, `login_hint` y `API_INTERNAL_URL` (Product owner)
-- **Decisión:** (1) El permiso de escritura dura solo lo que dura la acción (opción A): el front guarda el token de lectura previo y vuelve a él al guardar, cancelar o salir de la vista de edición o de contraseña. (2) La lectura de `API_INTERNAL_URL` en el servidor del front es de despliegue: no se lanza como cambio del front. (3) Se implementa el `login_hint` del step-up en el API: el front envía el ULID del usuario esperado y el API rechaza otro usuario antes de emitir el código. (4) Las reglas del orquestador y del design lead se integran en `AGENTS.md`, una sección por agente más las reglas comunes, sin dejar fuera ni cambiar ninguna regla existente, y cada agente ignora las secciones que no le corresponden. Las reglas no nombran el modelo ni la herramienta. `.claude/CLAUDE.md` y `.claude/agents/design-lead.md` solo remiten a `AGENTS.md`. Límites verificados: OpenSpec no lee `AGENTS.md` (su límite de 50 KB es para `context` en `openspec/config.yaml`); OpenCode no documenta límite y carga el archivo completo en cada sesión.
-- **Por qué:** Product owner, 9 oct.
-- **Afecta:** `secure-step-up` y el cambio siguiente del step-up (auth, user-account), `tazavera-api` (`login_hint`), `AGENTS.md`.
+### 2026-10-09 — write permission, `login_hint` and `API_INTERNAL_URL` (Product owner)
+- **Decision:** (1) The write permission lasts only as long as the action (option A): the front keeps the previous read token and returns to it on saving, cancelling or leaving the edit or password view. (2) Reading `API_INTERNAL_URL` on the front's server is a deployment matter: it is not launched as a front change. (3) The step-up `login_hint` is implemented in the API: the front sends the expected user's ULID and the API rejects another user before issuing the code. (4) The orchestrator's and the design lead's rules are integrated into `AGENTS.md`, one section per agent plus the common rules, without leaving out or changing any existing rule, and each agent ignores the sections that are not its own. The rules do not name the model or the tool. `.claude/CLAUDE.md` and `.claude/agents/design-lead.md` only point to `AGENTS.md`. Limits checked: OpenSpec does not read `AGENTS.md` (its 50 KB limit is for `context` in `openspec/config.yaml`); OpenCode documents no limit and loads the whole file in every session.
+- **Why:** Product owner, 9 Oct.
+- **Affects:** `secure-step-up` and the next step-up change (auth, user-account), `tazavera-api` (`login_hint`), `AGENTS.md`.
 
-### 2026-10-09 — terminología general en `AGENTS.md` (Product owner)
-- **Decisión:** al integrar las reglas en `AGENTS.md`, los comandos y herramientas que no sean de OpenSpec ni de OpenCode se nombran con terminología general, no con el nombre de una herramienta concreta (p. ej. "programar una sesión en la nube" en lugar de `RemoteTrigger` o `claude --cloud`, "tarea recurrente cada 10 minutos" en lugar de `/loop`, "compactar el contexto" en lugar de `/compact`, "subagente" en lugar de "Agent tool"). Es el único cambio de redacción permitido en las reglas existentes; ninguna regla se quita ni cambia de contenido.
-- **Por qué:** Product owner, 9 oct.
-- **Afecta:** `AGENTS.md` (secciones del orquestador y del design lead).
+### 2026-10-09 — general terminology in `AGENTS.md` (Product owner)
+- **Decision:** when integrating the rules into `AGENTS.md`, commands and tools that are not OpenSpec's or OpenCode's are named with general terminology, not with a specific tool's name (e.g. "schedule a cloud session" instead of `RemoteTrigger` or `claude --cloud`, "recurring task every 10 minutes" instead of `/loop`, "compact the context" instead of `/compact`, "subagent" instead of "Agent tool"). It is the only wording change allowed in the existing rules; no rule is removed or changes content.
+- **Why:** Product owner, 9 Oct.
+- **Affects:** `AGENTS.md` (orchestrator and design lead sections).
 
-### 2026-10-09 — los últimos cambios son `Refactor (fast lane)` (Product owner)
-- **Decisión:** todos los cambios en curso son `Refactor (fast lane)`: `refine-evaluation-flow`, `show-item-not-found-message` (R18), `show-field-validation-errors` (R8), `secure-step-up`, `unify-action-button-widths`, `close-mobile-filters-on-arrival`, `tighten-public-evaluations-spacing`, `adopt-next-intl-routing` (R43, antes `Change`) y el cambio siguiente del step-up. Cada uno se archiva cuando pasan las comprobaciones completas y `/opsx:verify` no da ningún CRITICAL, sin esperar petición del Product owner. R43 deja de esperar la prueba en navegador para archivarse.
-- **Por qué:** Product owner, 9 oct ("los últimos cambios son todos refactoring - fast lane").
-- **Afecta:** los cambios listados.
+### 2026-10-09 — the latest changes are `Refactor (fast lane)` (Product owner)
+- **Decision:** every change in progress is `Refactor (fast lane)`: `refine-evaluation-flow`, `show-item-not-found-message` (R18), `show-field-validation-errors` (R8), `secure-step-up`, `unify-action-button-widths`, `close-mobile-filters-on-arrival`, `tighten-public-evaluations-spacing`, `adopt-next-intl-routing` (R43, before `Change`) and the next step-up change. Each is archived when the full checks pass and `/opsx:verify` gives no CRITICAL, without waiting for Product owner's request. R43 no longer waits for the browser test to be archived.
+- **Why:** Product owner, 9 Oct ("the latest changes are all refactoring - fast lane").
+- **Affects:** the listed changes.
 
-### 2026-10-09 — R43: margen de JS por ruta a +14 KB gz (Product owner)
-- **Decisión:** el margen de Open 6 pasa de +3 KB a **+14 KB gz por ruta de locale** respecto a la medición "antes" (opción A). Medido en la tarea 7.1: +13,4/+13,5 KB gz en cada ruta, por el núcleo de `use-intl` que el provider lleva al cliente. Sustituye solo el número de Open 6 de la entrada "R43: respuestas a los Open".
-- **Por qué:** Product owner, 9 oct ("A").
-- **Afecta:** `adopt-next-intl-routing` (design.md Open 6, tarea 7.1).
+### 2026-10-09 — R43: JS margin per route at +14 KB gz (Product owner)
+- **Decision:** Open 6's margin goes from +3 KB to **+14 KB gz per locale route** over the "before" measurement (option A). Measured in task 7.1: +13.4/+13.5 KB gz on each route, from the `use-intl` core that the provider brings to the client. Replaces only the number of Open 6 in the entry "R43: answers to the Open points".
+- **Why:** Product owner, 9 Oct ("A").
+- **Affects:** `adopt-next-intl-routing` (design.md Open 6, task 7.1).
 
-### 2026-10-09 — autonomía del orquestador (Product owner)
-- **Decisión:** el orquestador decide por su cuenta todo lo que no cambia el comportamiento pedido (archives, integraciones, compuertas, límites, orden del trabajo, redacción de artefactos), lo registra aquí o en el tablero y actúa sin preguntar. Solo pregunta cuando la decisión cambia lo que el usuario ve o lo que se pidió. Primera aplicación: `open-security-pages-in-popup` deja de esperar la prueba en navegador y se archiva como fast lane (comprobaciones completas y verify sin CRITICAL).
-- **Por qué:** Product owner, 9 oct ("you are autonomous to make decision if it does not change the expected behavior requested").
-- **Afecta:** todas las decisiones del orquestador; `open-security-pages-in-popup`.
+### 2026-10-09 — orchestrator autonomy (Product owner)
+- **Decision:** the orchestrator decides on its own everything that does not change the requested behaviour (archives, integrations, gates, limits, work order, artifact wording), records it here or on the board and acts without asking. It only asks when the decision changes what the user sees or what was asked. First application: `open-security-pages-in-popup` no longer waits for the browser test and is archived as fast lane (full checks and verify without CRITICAL).
+- **Why:** Product owner, 9 Oct ("you are autonomous to make decision if it does not change the expected behavior requested").
+- **Affects:** every orchestrator decision; `open-security-pages-in-popup`.
 
-### 2026-10-09 — riesgos del informe técnico 2026-10-09 (orquestador, autonomía)
-- **Decisión:** (1) el toggle "Filtros" del sidebar (1,06:1 en el tema tradicional) usa en reposo el token de texto de las entradas del sidebar: arreglo no planificado, sin token nuevo. (2) Los 9 escenarios sin test de la pasada 2 se cubren como cobertura no planificada (sustituye la pregunta al Product owner del tablero). (3) El Purpose de `openspec/specs/testing/spec.md` se escribe a mano, excepción única a "specs nunca a mano". (4) `move-flavor-wheel-types`, refactor fast lane para los 11 ciclos de tipos. (5) Las 48 advertencias de lint van a la siguiente ronda de refactor. **No decidido** (cambia cuándo cargan las facetas): cargar los combobox de facetas solo al abrir el panel (riesgo 3), pregunta al Product owner en el tablero.
-- **Por qué:** `docs/review/technical-review-2026-10-09.md` (riesgos 1–6); regla de autonomía del 9 oct.
-- **Afecta:** app-shell, theming, testing, feedback.
+### 2026-10-09 — risks of the 2026-10-09 technical report (orchestrator, autonomy)
+- **Decision:** (1) the sidebar "Filters" toggle (1.06:1 in the traditional theme) uses at rest the text token of the sidebar entries: unplanned fix, no new token. (2) The 9 pass-2 scenarios without a test are covered as unplanned coverage (replaces the question to Product owner on the board). (3) The Purpose of `openspec/specs/testing/spec.md` is written by hand, the only exception to "specs never by hand". (4) `move-flavor-wheel-types`, a fast-lane refactor for the 11 type cycles. (5) The 48 lint warnings go to the next refactor round. **Not decided** (changes when the facets load): loading the facet comboboxes only on opening the panel (risk 3), question to Product owner on the board.
+- **Why:** `docs/review/technical-review-2026-10-09.md` (risks 1–6); the autonomy rule of 9 Oct.
+- **Affects:** app-shell, theming, testing, feedback.
 
-### 2026-10-09 — el orquestador fusiona en `master` (Product owner)
-- **Decisión:** el Product owner da permiso al orquestador para fusionar `develop` en `master` y subir `master` (paso 5 de la secuencia final). Hecho: `50f6fba`, árbol idéntico a `develop` comprobado. Excepción a "solo el Product owner fusiona en `master`" para esta secuencia.
-- **Por qué:** Product owner, 9 oct ("You have the permission to merge master").
-- **Afecta:** secuencia final, paso 5.
+### 2026-10-09 — the orchestrator merges into `master` (Product owner)
+- **Decision:** Product owner gives the orchestrator permission to merge `develop` into `master` and push `master` (step 5 of the final sequence). Done: `50f6fba`, tree identical to `develop` checked. Exception to "only Product owner merges into `master`" for this sequence.
+- **Why:** Product owner, 9 Oct ("You have the permission to merge master").
+- **Affects:** final sequence, step 5.
 
-### 2026-10-09 — carga diferida de las facetas (Product owner)
-- **Decisión:** sí. Los combobox de facetas (y lo que solo usan ellos, como cmdk) se cargan con un import dinámico la primera vez que se abre el panel de filtros (como Leaflet), con un breve estado de carga en esa primera apertura; objetivo ≤ 170 KB gz de JS por ruta de lista, sin cambiar qué filtros hay, su orden ni su comportamiento una vez cargados. Cambio normal (`lazy-load-facet-controls`, filtering), lanzado en la nube de propose a archive. La ronda de refactor de las advertencias de lint sigue en paralelo sin tocar las facetas hasta que este cambio se integre.
-- **Por qué:** Product owner, 9 oct ("Yes"), riesgo 3 del informe técnico 2026-10-09.
-- **Afecta:** filtering, app-shell (sidebar); la ronda de refactor de lint.
+### 2026-10-09 — deferred loading of the facets (Product owner)
+- **Decision:** yes. The facet comboboxes (and what only they use, such as cmdk) load with a dynamic import the first time the filter panel opens (like Leaflet), with a short loading state on that first opening; target ≤ 170 KB gz of JS per list route, without changing which filters exist, their order or their behaviour once loaded. Normal change (`lazy-load-facet-controls`, filtering), run in the cloud from propose to archive. The lint-warnings refactor round continues in parallel without touching the facets until this change is integrated.
+- **Why:** Product owner, 9 Oct ("Yes"), risk 3 of the 2026-10-09 technical report.
+- **Affects:** filtering, app-shell (sidebar); the lint refactor round.
 
-### 2026-10-11 — vía rápida por orden del Product owner y lanzamiento de la nube (Product owner)
-- **Decisión:** una entrada que el Product owner ordena "fast lane" (todo hallazgo de la AUT incluido) va por la vía rápida desde `qa` aunque añada comportamiento, textos, pantallas o tests, con un test por escenario nuevo; su entrada del backlog registra la orden y el estado final. El orquestador lanza él mismo cada sesión en la nube como rutina programada, esté o no el Product owner. Cada prompt nombra el archivo de rol, los pasos del workflow y el `SKILL.md` de cada fase.
-- **Por qué:** Product owner, 11 oct (R67 y R68 "en fast lane"; "you are autonomous to run these changes").
-- **Afecta:** todas las entradas de vía rápida y sus prompts; `docs/agents/` (reglas comunes "Refactor changes" y "OpenSpec skills").
+### 2026-10-11 — fast lane by Product owner's order and cloud launching (Product owner)
+- **Decision:** an entry Product owner orders "fast lane" (every AUT finding included) goes by the fast lane from `qa` even if it adds behaviour, texts, screens or tests, with one test per new scenario; its backlog entry records the order and the end state. The orchestrator launches every cloud session itself as a scheduled routine, whether Product owner is present or not. Each prompt names the role file, the workflow steps and the `SKILL.md` of each phase.
+- **Why:** Product owner, 11 Oct (R67 and R68 "in fast lane"; "you are autonomous to run these changes").
+- **Affects:** every fast-lane entry and its prompts; `docs/agents/` (common rules "Refactor changes" and "OpenSpec skills").
 
-### 2026-10-11 — las reglas solo las revisa el Product owner (Product owner)
-- **Decisión:** reglas comunes en `AGENTS.md`, un archivo por rol y el workflow en `docs/agents/`, registros en `docs/design/`. Solo el Product owner revisa `AGENTS.md`, `docs/agents/`, `CLAUDE.md` y `.claude/` (bloqueados en los ajustes); el orquestador sigue el flujo establecido y, si un paso no se puede aplicar, se para y lo dice.
-- **Por qué:** Product owner, 11 oct ("once the flow is established you need to follow it, revisions are only done by me").
-- **Afecta:** todos los agentes; `docs/agents/orchestrator.md` §3 y §5 (`c83919d7`).
+### 2026-10-11 — only Product owner revises the rules (Product owner)
+- **Decision:** common rules in `AGENTS.md`, one file per role and the workflow in `docs/agents/`, records in `docs/design/`. Only Product owner revises `AGENTS.md`, `docs/agents/`, `CLAUDE.md` and `.claude/` (locked in the settings); the orchestrator follows the established flow and, if a step cannot be applied, stops and says so.
+- **Why:** Product owner, 11 Oct ("once the flow is established you need to follow it, revisions are only done by me").
+- **Affects:** every agent; `docs/agents/orchestrator.md` §3 and §5 (`c83919d7`).
 
-### 2026-10-12 — el front es la única puerta del API (R74, Product owner; sustituye la entrada de 2026-10-09 sobre `API_INTERNAL_URL`)
-- **Decisión:** el entorno de build es un servidor con una sola entrada pública (la URL de ngrok) que lleva al front. El front reenvía al API, por `API_INTERNAL_URL` (solo servidor, obligatoria, sin respaldo): las rutas web del API con la misma ruta (`/oauth/authorize`, Fortify, `/user/security` y sus acciones, `/passkeys/*`, y sus recursos `/build`, `/flux`, `/livewire-*`) y, bajo el prefijo `/api` que el proxy quita, `/oauth/token` y todas las llamadas JSON (incluido `/logout`). `NEXT_PUBLIC_API_URL` = `{NEXT_PUBLIC_APP_URL}/api`; `connect-src 'self'` + Nominatim. El API no tiene dirección pública. Ajustes del API (del Product owner): `APP_URL` y `FRONT_URL` = el origen público; `TRUSTED_PROXIES` = la dirección del front; `SESSION_DOMAIN` sin valor; cookies seguras; `expose_php=Off`; los seeders se ejecutan con la configuración puesta (callback del cliente OAuth `{origen público}/callback`). Las pruebas locales sirven el front por https con Caddy; Caddy no tiene papel en el despliegue. No hay entorno de demo en el diseño: solo el entorno de build.
-- **Por qué:** Product owner, 12 oct (opción A: "the front will also forward all the web routes"; "there is no demo environment for our design purpose, it is just the build environment").
-- **Afecta:** `route-api-web-pages-through-front` (resumen aprobado `4e02d8c3`); auth y app-shell; la documentación de despliegue (resumen dado al Product owner para el asistente de despliegue); R1 va después.
+### 2026-10-12 — the front is the API's only door (R74, Product owner; replaces the 2026-10-09 entry on `API_INTERNAL_URL`)
+- **Decision:** the build environment is a server with a single public entry (the ngrok URL) that leads to the front. The front forwards to the API, through `API_INTERNAL_URL` (server only, required, no fallback): the API's web routes on the same path (`/oauth/authorize`, Fortify, `/user/security` and its actions, `/passkeys/*`, and their assets `/build`, `/flux`, `/livewire-*`) and, under the `/api` prefix that the proxy strips, `/oauth/token` and every JSON call (including `/logout`). `NEXT_PUBLIC_API_URL` = `{NEXT_PUBLIC_APP_URL}/api`; `connect-src 'self'` + Nominatim. The API has no public address. API settings (Product owner's): `APP_URL` and `FRONT_URL` = the public origin; `TRUSTED_PROXIES` = the front's address; `SESSION_DOMAIN` empty; secure cookies; `expose_php=Off`; seeders run with the configuration in place (OAuth client callback `{public origin}/callback`). Local tests serve the front over https with Caddy; Caddy has no role in deployment. There is no demo environment in the design: only the build environment.
+- **Why:** Product owner, 12 Oct (option A: "the front will also forward all the web routes"; "there is no demo environment for our design purpose, it is just the build environment").
+- **Affects:** `route-api-web-pages-through-front` (approved summary `4e02d8c3`); auth and app-shell; the deployment documentation (summary given to Product owner for the deployment assistant); R1 goes after.
 
-### 2026-10-12 — listas de edición: filtros y orden por pestaña (R73, Product owner)
-- **Decisión:** las listas de edición recuerdan filtros y orden en `sessionStorage` hasta que se aplican otros; se olvidan al cerrar sesión o cambiar de usuario; sin número de página; sin cambio del API. "Borrar todo" en Mis evaluaciones mantiene el orden.
-- **Por qué:** Product owner, 11 oct (1 → A, tras corregir C; 2 todas; 3 A; 4 vía rápida).
-- **Afecta:** filtering; Mis evaluaciones, Inventario de café, Mis ofertas.
+### 2026-10-12 — edit lists: filters and sort per tab (R73, Product owner)
+- **Decision:** edit lists remember filters and sort in `sessionStorage` until others are applied; they are forgotten on sign-out or user change; no page number; no API change. "Clear all" in My evaluations keeps the sort.
+- **Why:** Product owner, 11 Oct (1 → A, after correcting C; 2 all; 3 A; 4 fast lane).
+- **Affects:** filtering; My evaluations, Coffee inventory, My offerings.
 
-### 2026-10-12 — noche autónoma, ramas del API desde `deploy` y pruebas del design lead (Product owner)
-- **Decisión:** (1) esta noche el orquestador trabaja de forma autónoma hasta dejar en `develop` R76–R82 y R81, y al final el README del front con el estilo del README del API; (2) los cambios del API de hoy (nombre comercial de la cafetería, opción A: columna `users.business_name`; páginas web ligadas al usuario del `login_hint`) salen de la rama `deploy` del API y se fusionan en `deploy`, en local y en GitHub; (3) las pruebas visuales y de navegador las hace el design lead en local; (4) las pruebas por ngrok de R74 están OK; (5) tras un registro con sesión, el usuario va a la landing (R78).
-- **Por qué:** Product owner, 12 oct ("vamos con A, créame la rama a partir de deploy", "realiza el arreglo propuesto", "todas las pruebas las realizará el design lead en local", "registra que esta noche vas a ser autónomo").
-- **Afecta:** R76–R82, R81, el README del front; `tazavera-api` `deploy`; R74 (verify y archive siguen esperando su OK explícito).
+### 2026-10-12 — autonomous night, API branches from `deploy` and the design lead's tests (Product owner)
+- **Decision:** (1) tonight the orchestrator works autonomously until R76–R82 and R81 are on `develop`, and at the end the front's README in the style of the API's README; (2) today's API changes (coffee shop business name, option A: column `users.business_name`; web pages bound to the `login_hint` user) start from the API's `deploy` branch and merge into `deploy`, locally and on GitHub; (3) visual and browser tests are done by the design lead locally; (4) R74's ngrok tests are OK; (5) after a registration with a session, the user goes to the landing (R78).
+- **Why:** Product owner, 12 Oct ("let's go with A, create the branch from deploy", "apply the proposed fix", "all tests will be done by the design lead locally", "record that tonight you will be autonomous").
+- **Affects:** R76–R82, R81, the front's README; `tazavera-api` `deploy`; R74 (verify and archive still wait for his explicit OK).
+
+### 2026-11-05 — English as the working language (Product owner)
+- **Decision:** every record and artifact is written in English, including the board, this general context and its decisions log (translated on this date without changing any entry's content). Interface texts stay in their es/en/ca catalogs. The log's heading is now "Orchestrator decisions log".
+- **Why:** Product owner, 2026-11-05 ("make english our working language"; option A).
+- **Affects:** every agent and record; `docs/agents/orchestrator.md` §12 names the log by its old Spanish heading (Product owner updates it).
+
+### 2026-11-05 — the board holds only unresolved items (Product owner)
+- **Decision:** the board keeps only open changes, the questions waiting for Product owner and the contract coverage; a change leaves the board when it is merged, and its decisions stay in its archive, its handoff and this log.
+- **Why:** Product owner, 2026-11-05 ("leave only not resolved issues").
+- **Affects:** `docs/design/change-progress.md`; every session's board updates.
