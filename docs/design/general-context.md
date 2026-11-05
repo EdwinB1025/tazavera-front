@@ -27,6 +27,7 @@ The orchestrator's context for resuming work. Kept by the orchestrator (`docs/ag
 
 - `RemoteTrigger` `create` is denied in don't-ask mode since Claude Code 2.1.318 (worked through 2.1.299, earlier this month); `list` and `get` still work. It works in auto mode (session `24fbb6cc`) and in `default` mode (with a prompt). Orchestrator sessions start in auto mode (Product owner, 2026-11-05).
 - The permission file in force is `Sprint5/.claude/settings.local.json` (same rules as `tazavera-front/.claude/settings.local.json`, both rewritten 2026-11-05). Use only the tools it allows; it denies writes to `.env*`, so Product owner copies `.env.local` into worktrees.
+- 2026-11-05 (late afternoon): `claude --cloud` (this version has `--cloud`, not `--remote`) run through Bash was also denied in don't-ask mode, although `Bash` is allowed. The docs say a PreToolUse hook's `allow` lets a call run in don't-ask mode; Product owner adds one for `RemoteTrigger` in `Sprint5/.claude/settings.local.json` (untested). Launching with `claude --cloud` instead of a scheduled run would need Product owner's authorisation (§7 step 3).
 - `RemoteTrigger` `create` with `run_once_at` 6–31 minutes ahead was rejected as "in the past" (2026-11-05 ~13:50Z, cause unknown); if it repeats, create the routine unscheduled and fire it once with `run`.
 
 ## Environment
