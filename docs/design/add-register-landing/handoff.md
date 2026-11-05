@@ -35,6 +35,7 @@ Design lead (draft, uncommitted until this commit): landing under the register s
 #### Q2 — The header button on small screens (summary Open 2)
 - Question: the signed-out header has no room at 375 px for a second button. / Why deferred: visible behaviour. / Options: A. button from 768 px; below it, a "Register" entry in the existing navigation menu (anonymous only); B. icon-only button below 768 px (likely overflows); C. shorter labels; D. one account menu (new component). / Recommendation: A, measured at 768 px in the visual review (from 1024 px if it overflows there). / Blocks: propose.
 
+#### ANSWERED 2026-11-05: recommendation accepted (Product owner approved the summary with its defaults, `c6ac3ddf`)
 #### Q3 — Defaults to confirm (summary Open 3, 5, 7–10)
 - Question: confirm or change the recommended defaults: button before "Sign in" with the `nav-button` style; new `UserPlus` icon for the menu entry (new icon export, no dependency: needs your yes under "nothing new in the design"); one shared gate piece in the register slice; no "Already have an account?" line; the proposed es/en/ca texts (§8); the forms' Cancel keeps going to the entry page. / Why deferred: wording and one new icon. / Recommendation: accept all. / Blocks: no.
 
@@ -48,6 +49,7 @@ Summary: Product owner answered Q1 (`/join`) and Q2 (button on the entry page be
 Design lead (draft updated, committed by the orchestrator as a draft): `/join` routed from `app/[locale]/join/page.tsx` to a `RegisterLandingScreen` inside the `src/pages/register` slice, so the gate shared with `RegisterClient` stays slice-local (FSD: a page slice cannot import another); header "Register" from 768 px only (`hidden md:inline-flex` wrapper); below 768 px a `HomeRegisterButton` client island (`RouteButton action-1`, base size) above the hero, anonymous only, with 1.5rem to the hero; new text `landing.heroRegisterAction`; navigation-menu entry and `UserPlus` icon dropped; if the header overflows at 768 px, both breakpoints move to 1024 px together. New Open 11 (confirm the reading; non-blocking). No point blocks propose. Unverified: contrast script and captures at 375/768/1280 (no shell in the subagent).
 
 ### Deferred to Product owner
+#### ANSWERED 2026-11-05: A, confirmed (Product owner approved the summary with its defaults, `c6ac3ddf`)
 #### Q4 — Confirm the reading of the Q2 answer (summary Open 11)
 - Question: below 768 px the "Register" button appears on the entry page only (other pages show just "Sign in"), and it is not rendered while the session resolves, so it pushes the hero down ~4rem once an anonymous session resolves. / Options: A. confirm; B. reserve the space while resolving (signed-in users see a blank 4rem); C. another reading. / Recommendation: A. / Blocks: no.
 
@@ -58,5 +60,6 @@ Summary: Product owner asked (2026-10-29), within R91, to replace the hero's reg
 Design lead (draft updated): hero actions block keeps the explore button and adds one text `Link` to `/{locale}/about` 1rem below it, for every visitor, no `nav` landmark; new key `landing.heroAboutLabel` (Sobre nosotros / About us / Sobre nosaltres) rather than reusing `shell.aboutUs` (each screen reads its own catalog area; `heroRegisterAction` precedent); `HomeHeroTexts` gains `aboutLabel`. Found: app-shell "Named navigation landmarks" names the registration landmarks (added to the delta); validation-test list completed; QA fixture `qa/src/pages/home/ui/HomeHero.test.tsx` goes stale. New Open 12 (non-blocking). Unverified: no shell (git, captures, contrast script).
 
 ### Deferred to Product owner
+#### ANSWERED 2026-11-05: A, text links (Product owner approved the summary with its defaults, `c6ac3ddf`)
 #### Q5 — Hero About us link and About us `/join` link: text links or buttons (summary Open 12; both links together since 2026-10-29)
 - Question: base-controls "Navigation controls by position" (decisions log 2026-10-09) makes every navigation control outside a page header's first line an action button; a text link in the hero is an exception (the registration links carry the same tension today). / Options: A. text link, the landing delta states the exception; B. `RouteButton` (e.g. `action-3` like the explore button); C. another reading or label. / Recommendation: A. / Blocks: no.
