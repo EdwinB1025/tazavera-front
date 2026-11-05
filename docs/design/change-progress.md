@@ -1,37 +1,37 @@
-# Progreso de cambios
+# Change progress
 
-Tablero de los cambios OpenSpec de tazavera-front: solo lo que **no está resuelto**. Lo cerrado (archivado y en `develop`) sale del tablero: sus decisiones están en `openspec/changes/archive/`, en el handoff de cada cambio, en el registro de decisiones de `docs/design/general-context.md` y en el historial de git de este archivo.
+The board of tazavera-front's OpenSpec changes: only what is **not resolved**. What is closed (archived and on `develop`) leaves the board: its decisions are in `openspec/changes/archive/`, in each change's handoff, in the decisions log of `docs/design/general-context.md` and in this file's git history.
 
-**Última actualización:** 2026-11-05 — Tablero reducido a lo no resuelto (Product owner). Sesión del orquestador en espera por orden del Product owner (permisos de la sesión en revisión). Loop de asignación: job de sesión `88357f17`. Ninguna rutina programada ni ejecutor activo.
+**Last update:** 2026-11-05 — Board reduced to unresolved items and translated to English (Product owner). The orchestrator session is on hold by Product owner's order (session permissions under review). Assignment loop: session job `88357f17`. No scheduled routine or active executor.
 
-## Tablero
+## Board
 
-| Cambio | Capabilities | Rama / worktree | Fase | Estado | Siguiente fase | Agente | Bloqueo | Último commit |
+| Change | Capabilities | Branch / worktree | Phase | Status | Next phase | Assignee | Blocker | Last commit |
 |---|---|---|---|---|---|---|---|---|
-| `add-register-landing` (R91, `Change`) | user-account, app-shell, landing | `feature/add-register-landing` / `tazavera-front-register-landing` | Revisión de artefactos | Propose integrado (`0c24bc4a`). Product owner: Q6 = A, Q7 = A, Q8 = A. Limpieza A1–A3 sin commit en el worktree. Peso del apply: largo (tres capabilities, ~15 tareas) → nube | (1) revisión del design lead del resultado del propose; (2) mensaje de revisión al arquitecto (Q6–Q8) y comprobación de duplicados; (3) apply en la nube | Orquestador → design lead, arquitecto | Ninguno del Product owner; crear rutinas en la nube (`RemoteTrigger` `create`) sin probar todavía en modo `default` | `7a8d53cd` |
-| `require-first-location-on-registration` (R45, `Change`) | user-account, offering-management | — | En cola | Aceptado (2026-10-29), opción A, solo front: tras `POST /register` (con `token`) la cafetería crea su primera ubicación con `POST /locations` | Resumen — borrador (design lead) | Orquestador | Espera a que R91 llegue a `develop` (misma pantalla de registro) | — |
-| `add-locale-e2e-test` (R1, `Change`) | testing | — (resumen en `develop`) | Resumen — borrador | Borrador `a661d9a1` con 9 puntos abiertos | Resumen — aprobado (commit del Product owner) | Product owner | Bloquean el propose: **1** dependencia `@playwright/test` (rec. A: versión exacta, solo Chromium); **3** rama base (R74 ya está en `develop`); **4** tercera suite y delta de `testing` (rec. A) | `a661d9a1` |
-| R90 (dos cascadas de origen en las facetas) | filtering | — | Backlog | Parte front de dos entradas del backlog del API | — | Product owner | Cambios del API primero (filtros de municipio y de origen del tostador) | — |
-| R83 (el API acepta cualquier descriptor por eje) | — (API) | — | Backlog | Hallazgo del Product owner (2026-10-13) | — | Product owner | ¿Se hace? | — |
+| `add-register-landing` (R91, `Change`) | user-account, app-shell, landing | `feature/add-register-landing` / `tazavera-front-register-landing` | Artifact review | Propose integrated (`0c24bc4a`). Product owner: Q6 = A, Q7 = A, Q8 = A. Cleanup A1–A3 uncommitted in the worktree. Apply weight: long (three capabilities, ~15 tasks) → cloud | (1) design lead's review of the propose result; (2) review message to the architect (Q6–Q8) and duplicates check; (3) apply in the cloud | Orchestrator → design lead, architect | None from Product owner; creating cloud routines (`RemoteTrigger` `create`) not yet tested in `default` mode | `7a8d53cd` |
+| `require-first-location-on-registration` (R45, `Change`) | user-account, offering-management | — | Queued | Accepted (2026-10-29), option A, front only: after `POST /register` (with `token`) the coffee shop creates its first location with `POST /locations` | Summary — draft (design lead) | Orchestrator | Waits for R91 to reach `develop` (same registration screen) | — |
+| `add-locale-e2e-test` (R1, `Change`) | testing | — (summary on `develop`) | Summary — draft | Draft `a661d9a1` with 9 open points | Summary — approved (Product owner's commit) | Product owner | Block propose: **1** dependency `@playwright/test` (rec. A: exact version, Chromium only); **3** base branch (R74 is already on `develop`); **4** third suite and `testing` delta (rec. A) | `a661d9a1` |
+| R90 (two origin cascades in the facets) | filtering | — | Backlog | Front part of two API backlog entries | — | Product owner | API changes first (municipality and roastery origin filters) | — |
+| R83 (the API accepts any descriptor per axis) | — (API) | — | Backlog | Found by Product owner (2026-10-13) | — | Product owner | Take it or not? | — |
 
-## Espera al Product owner (sin respuesta registrada)
+## Waiting for Product owner (no answer recorded)
 
-| # | Qué | Pregunta exacta |
+| # | What | Exact question |
 |:-:|---|---|
-| 1 | Lista Q7 del handoff de R74 (13 comprobaciones de R74 y revisión visual de R77–R82 y R81 en producción) | ¿Está hecha? Si lo está, sale del tablero |
-| 2 | Ramas `claude/*` sin integrar a propósito: `unify-bean-outline`, `r64-list-spacing-analysis`, `share-active-locale-refactor`, `test-reduction-plan`; y `add-register-landing-propose` (ya integrada) | ¿Las borras en GitHub? (es tuyo) |
-| 3 | Tarea del API (2026-10-11): la landing del front como sitio de retorno del callback | ¿Hecha? El orquestador solo actúa si cambia el contrato |
-| 4 | Test intermitente `EvaluationForm.test.tsx` (falló una vez y pasó al repetir, 2026-10-11) | ¿Entrada en el backlog o se descarta? |
+| 1 | Q7 list of R74's handoff (13 checks of R74 and visual review of R77–R82 and R81 in production) | Is it done? If so, it leaves the board |
+| 2 | `claude/*` branches left unintegrated on purpose: `unify-bean-outline`, `r64-list-spacing-analysis`, `share-active-locale-refactor`, `test-reduction-plan`; and `add-register-landing-propose` (already integrated) | Do you delete them on GitHub? (yours) |
+| 3 | API task (2026-10-11): the front's landing as the callback's return page | Done? The orchestrator acts only if the contract changes |
+| 4 | Flaky test `EvaluationForm.test.tsx` (failed once and passed on retry, 2026-10-11) | Backlog entry or drop it? |
 
-## Cobertura del contrato
+## Contract coverage
 
-Todas las operaciones de `contracts/openapi.yaml` están consumidas y en `master`, salvo `listTheEvaluationsOfAUser` (fuera del alcance, Product owner, 2026-10-06). R91 y R45 no añaden operaciones; R45 consume `registerAUser` y `createALocation`, ya cubiertas.
+Every operation of `contracts/openapi.yaml` is consumed and on `master`, except `listTheEvaluationsOfAUser` (out of scope, Product owner, 2026-10-06). R91 and R45 add no operations; R45 consumes `registerAUser` and `createALocation`, already covered.
 
-## Formato de fila
+## Row format
 
-| Cambio | Capabilities | Rama / worktree | Fase | Estado | Siguiente fase | Agente | Bloqueo | Último commit |
+| Change | Capabilities | Branch / worktree | Phase | Status | Next phase | Assignee | Blocker | Last commit |
 |---|---|---|---|---|---|---|---|---|
 
-- **Agente** es quien tiene el siguiente paso. **Bloqueo** remite a la pregunta del handoff (`Q<n>`) o es "—".
-- Fases: Resumen (borrador, en revisión, aprobado) → Propose → Revisión de artefactos → Apply → Ronda N → Verify → Archive → Merge (`docs/agents/workflow_sdd.md` §3a y §3b).
-- Al mergear un cambio en `develop`, su fila sale del tablero.
+- **Assignee** is whoever has the next step. **Blocker** points to the handoff question (`Q<n>`) or is "—".
+- Phases: Summary (draft, in review, approved) → Propose → Artifact review → Apply → Round N → Verify → Archive → Merge (`docs/agents/workflow_sdd.md` §3a and §3b).
+- When a change is merged into `develop`, its row leaves the board.
