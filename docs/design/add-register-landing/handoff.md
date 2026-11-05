@@ -127,4 +127,17 @@ Design lead: propose result fit for the artifact review; cloud commits need no f
 
 ### Deferred to Product owner
 #### Q9 — Executor for the architect's update run
+#### ANSWERED 2026-11-05: the committed `.opencode/agents/` profile is the restricted (`--auto`) one; run the architect locally (Product owner: "yes")
 - Question: section 6 requires the restricted OpenCode profile in the worktree's `.opencode/agents/` before the first run, from a source the task prompt names; none is there and none is named. The cloud alternative cannot see the uncommitted A1–A5, and section 5 lets the orchestrator commit artifact fixes only during the apply. / Options: A. name the profile source (and `.env.local`): the OpenCode architect runs locally with A1–A5 uncommitted, as section 4 says; B. authorise committing A1–A5 now so the update runs in a cloud session. / Recommendation: A (the rules as written; OpenCode does not use the plan). / Blocks: the artifact update, then the apply.
+
+## Session 2026-11-05 (afternoon) — Artifact review (step 7), architect update
+Summary: OpenCode architect (`xiaomi/mimo-v2.6-pro`, `--auto`, committed profile) applied Product owner's review message (Q6 = A, Q7 = A, Q8 = A) with D5 and A1–A5; exit 0. `.env.local` not copied (denied by the session's settings; not needed by the architect). The stale `docs/agents/orchestrator.md` draft in the worktree was discarded (`develop` holds the applied rules). Stopped because: completed. MVC reachable: not checked.
+
+### Agent feedback
+Architect: commit `8b7dd162` `docs(user-account): update artifacts for add-register-landing` (design.md, proposal.md, tasks.md, user-account spec delta). Q6: design.md self-contained, D7 carries the es/en/ca wording of the new keys; tasks 1.2 and 3.2 point to D7. Q7: one new scenario "The landing shows its options when the session cannot be resolved"; task 1.1 gains a fifth test driving a real unresolvable session (D5). Q8: names kept; rename after the archive by a hand edit of the main specs (Product owner's action). `openspec validate --strict` valid. Open: the 768px header width (visual review; summary §9 fallback).
+
+### Review (orchestrator, section 6 step 4 and section 4)
+Commit format and footer correct; only `openspec/changes/add-register-landing/` touched; tree clean. Duplicates check across spec deltas, design and tasks: none found (the hero's two destination scenarios share one test by Q8 = A, not a duplicate).
+
+### Next
+Apply weight: long (three capabilities, 15 tasks) → cloud session (section 9). Design lead writes the cloud prompt (section 7 step 2).
