@@ -86,12 +86,23 @@ Commit format and footer correct; only `openspec/changes/add-register-landing/` 
 - Phase: before review / Conflict: the tasks instruction requires each group to land its own documentation and keeps the final group for integration checks; the README `/join` row was task 5.1 / Fix: moved to task 1.5; full checks renumbered 5.1 (no reference to the old numbers) / Result: uncommitted; `openspec validate --strict` valid.
 
 ### Deferred to Product owner
+#### ANSWERED 2026-11-05: A (Product owner: "Q6-A")
 #### Q6 — Artifacts defer to the design summary
 - Question: design.md line 5 calls the summary "the design source of truth" (layout, spacing, tokens, texts "not restated here"), and tasks 1.2 and 3.2 send the build to the summary's §8 wording, so the artifacts are not self-contained. The framing came from the orchestrator's propose prompt. / Why deferred: carrying the values into design.md is an artifact change beyond §4. / Options: A. review message: design.md and tasks carry the settled values and point to design.md, the summary is only the propose input; B. leave as is. / Recommendation: A. / Blocks: apply.
+#### ANSWERED 2026-11-05: A (Product owner, after the functional explanation: when the session cannot be resolved, `/join` shows the two options as for an anonymous visitor, with no error; one scenario and its test)
 #### Q7 — Unresolvable session on `/join`
 - Question: the spec rules ask for error states; the landing has no scenario for a session that cannot be resolved (the shell renders it as anonymous). / Options: A. add one scenario (options shown, as anonymous) and its test; B. none. / Recommendation: A. / Blocks: no.
+#### ANSWERED 2026-11-05: A (Product owner: "Q8-A")
 #### Q8 — Scenario names kept with new content
 - Question: five scenarios ("Link groups", "Registration destinations", "Specialist registration destination", "Registration links", app-shell "Registration links named") keep names that no longer describe them (D9). / Options: A. accept; rename later by a hand edit of the main specs; B. another way. / Recommendation: A. / Blocks: no.
 
 ### Final checks
 Not run (artifact-only change); `openspec validate add-register-landing --strict` valid after A1–A3.
+
+## Session 2026-11-05 — Artifact review (step 7), answers
+Summary: Product owner answered Q6 = A, Q7 = A, Q8 = A ("I agree with the artifacts" otherwise). Cloud routine creation still denied in this session (`RemoteTrigger` `create`, also after Product owner's permission change; `list` and `get` work); Product owner restarts the session. Stopped because: session restart. MVC reachable: not checked.
+
+### Next steps (next session)
+1. The design lead reviews the propose result (section 7, step 2: the orchestrator wrote the prompt), launched as a general agent with `.claude/agents/design-lead.md` when the subagent is not registered.
+2. Send Product owner's review message to the architect as given: his answers Q6 = A, Q7 = A, Q8 = A, with the A1–A3 cleanup already in the worktree; check the `docs(<capability>): update artifacts for add-register-landing` commit, then the duplicates check (section 4).
+3. Classify the apply (three capabilities, about 15 tasks: long scope → cloud, section 9) and launch it.
