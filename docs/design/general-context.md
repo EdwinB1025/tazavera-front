@@ -14,19 +14,20 @@ The orchestrator's context for resuming work. Kept by the orchestrator (`docs/ag
 ## On resuming
 
 - **First step, always:** the start checklist of `docs/agents/orchestrator.md` before any answer. The assignment loop dies with each session.
-- The design lead subagent is not registered when the session starts in `Sprint5`, and `.claude/agents/design-lead.md` was missing in the 2026-11-05 sessions: without it, the design lead's steps cannot run locally (Product owner to add the file).
+- The design lead subagent is not registered when the session starts in `Sprint5`: run it as a general agent whose prompt names the role, from `tazavera-front/.claude/agents/design-lead.md` (a hidden folder: Glob skips it, read it by path).
 - **Commands:** never `cd`; one command per call, with `git -C <dir>` and `env -C <dir> <command>`; files are read with the Read, Grep and Glob tools. A chained `cd …;` command always asks for permission, whatever the allow list says.
 - `tazavera-front-qa` is a separate folder (its own `.git`), not a worktree: do not touch it.
 
 ## Current state (2026-11-05)
 
-- Only **R91 `add-register-landing`** is in progress (traditional workflow), phase **Artifact review**: next steps on the board. Worktree `tazavera-front-register-landing`, with `npm install`; `.env.local` and the restricted OpenCode profile not copied yet (Product owner names the sources).
+- Only **R91 `add-register-landing`** is in progress (traditional workflow), phase **Apply** (cloud, not launched yet): next steps on the board. Worktree `tazavera-front-register-landing`; the committed `.opencode/agents/` profile is the restricted `--auto` one; `.env.local` not copied (Product owner's).
 - Then R45 (after R91 reaches `develop`).
 
 ## Permissions (2026-11-05)
 
-- The session runs in `default` mode so that cloud routines can be created (`RemoteTrigger` `create` was denied in "don't ask" mode, three times, even with `RemoteTrigger` allowed). Not yet retested in `default` mode.
-- Both `.claude/settings.local.json` files still point to the old path `C:/Porjects/...` (`additionalDirectories` and the `php artisan` rule). The corrected file was given to Product owner in the 2026-11-05 session.
+- `RemoteTrigger` `create` is denied in don't-ask mode since Claude Code 2.1.318 (worked through 2.1.299, earlier this month); `list` and `get` still work. It works in auto mode (session `24fbb6cc`) and in `default` mode (with a prompt). Orchestrator sessions start in auto mode (Product owner, 2026-11-05).
+- The permission file in force is `Sprint5/.claude/settings.local.json` (same rules as `tazavera-front/.claude/settings.local.json`, both rewritten 2026-11-05). Use only the tools it allows; it denies writes to `.env*`, so Product owner copies `.env.local` into worktrees.
+- `RemoteTrigger` `create` with `run_once_at` 6–31 minutes ahead was rejected as "in the past" (2026-11-05 ~13:50Z, cause unknown); if it repeats, create the routine unscheduled and fire it once with `run`.
 
 ## Environment
 
