@@ -141,3 +141,12 @@ Commit format and footer correct; only `openspec/changes/add-register-landing/` 
 
 ### Next
 Apply weight: long (three capabilities, 15 tasks) → cloud session (section 9). Design lead writes the cloud prompt (section 7 step 2).
+
+## Session 2026-11-05 (late afternoon) — Apply (step 8), launch attempt
+Summary: Start checklist done. On Product owner's request ("proceed with apply"), the design lead (run as a general agent) wrote the cloud prompt for the build (base `9fa5886d`, target `claude/add-register-landing-apply`, every unchecked task, skills openspec-apply-change and fsd-architecture). `RemoteTrigger` `create` was denied (don't-ask mode); `claude --cloud` through Bash, tried at Product owner's prompting, was also denied. Product owner adds a PreToolUse hook approving `RemoteTrigger` and restarts the session. Stopped because: session restart. MVC reachable: not checked.
+
+### Agent feedback
+Design lead: prompt checked against §7 step 2. Open points, none blocking: (1) the apply skill needs the `openspec` CLI, not in `package.json`; the propose cloud session had it, so no install line was added (the stop rule covers it); (2) `AGENTS.md` says no push while §7 needs the session to push its target branch (earlier sessions did); (3) the 768px header overflow stays with the visual review after integration; (4) `proposal.md` "Out of scope" (line 38) still says the `lg` move comes "as a later correction" (wording only; A4 fixed design.md and tasks.md); (5) the rule files on the feature branch differ from `develop` only in the records table of `workflow_sdd.md`.
+
+### Next
+Next session: check the hook with a disabled test routine; have the prompt rewritten with the branch's current head as base (this commit moves it past `9fa5886d`); launch the apply as a one-off scheduled run and watch it (§7).
