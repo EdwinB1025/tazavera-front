@@ -218,3 +218,22 @@ Commit format, footers and order correct. The architect touched only `openspec/c
 ### Deferred to Product owner
 #### Q13 — The visual review needs a local dev server
 - Question: the next phase is the design lead's visual review (375, 768 and 1280 px, the 768px header width included), which needs the app running locally, but npm is denied in this session (don't-ask mode). / Options: A. allow `npm` for this worktree in `../.claude/settings.local.json` so the orchestrator starts the dev server; B. Product owner starts `npm run dev` in `tazavera-front-register-landing` and says on which port; C. skip the local visual review and rely on Product owner's own browser check before the archive (off-rule: the workflow puts the design lead's visual review before verify). / Recommendation: B, no permission change. / Blocks: the visual review, then verify, Product owner's browser check and the archive.
+
+## Session 2026-11-06 — Visual review (step 8), design lead
+Summary: Q13 answered B (Product owner ran `npm run dev` in this worktree, `http://localhost:3000`, local `.env.local` values, API down). Design lead's visual review at 375/768/1280 px (plus 800–1200 for the header), es/ca/en, both themes, signed out only. One finding in this change's scope (C3, closed for review), two deferred.
+
+### Agent feedback
+Design lead (captures untracked in `docs/design/add-register-landing/captures/`; `about-s4-*-768.png` clipped, unusable):
+1. Header overflows at 768px with "Register": content width 903 (es), 894 (ca), 823 (en) of 768; "Sign in" off screen; es still overflows at 900; nothing overflows from 1024.
+2. With `lg`, es wraps "Iniciar sesión" and the three navigation labels to two lines between 1024 and ~1149px (ca to ~1099, en none); no overflow.
+3. With "Register" hidden by script (stand-in for `develop`), the header already overflows at 768px in es (781) and ca (783); en fits. Simulated, not checked on `develop`.
+Everything else matches the artifacts: `/join` layout, spacing and columns at all three widths; the entry-page Register at 375 and hidden from 768; the hero's About us link; About us section 4's `/join` link; no horizontal scroll at 375; contrast in both themes (lowest 4.91); focus rings; the loading and unresolvable states; navigation; no console errors.
+Unverified: signed in (API down), the offerings block (error state), hover colours, the header Register contrast (same registered `nav-button` pair as Sign in), loading state outside 375 traditional, `develop` itself.
+
+### Closed for review
+#### C3 — The header "Register" overflows at 768px
+- Point: the app-shell delta "Signed-out header" and the landing delta "Entry page Register button" say 768px, but the header overflows at 768px in every locale (finding 1, measured); summary §9, design.md D4 and Risks, and handoff D6 settle the fallback: both wrappers move to `lg` together, without a correction round. / Options: A. the settled fallback: header wrapper `hidden lg:inline-flex`, entry-page wrapper `lg:hidden`, and the spec deltas, design.md and tasks say 1024px (`lg`) instead of 768px for these two actions only; B. `xl` (1280px); C. keep 768px and shorten the labels. / Choice: A. / Why: the text cannot be built as written (overflow measured) and the spec deltas contradict the settled fallback of summary §9 and D6; A is the settled decision and changes the fewest; B and C change settled values or wording Product owner did not settle. Adds no scope, screen, dependency, token or colour; no security, no API. / Result: architect artifact update, then build (tests first: the 2.1 and 3.1 assertions move from `md:` to `lg:`), in one cloud session.
+
+### Deferred to Product owner
+#### Q14 — The es header wraps between 1024 and ~1149px, and the header already overflows at 768px on `develop`
+- Question: findings 2 and 3 are not settled by any artifact of this change; finding 3 is a defect in merged code (simulated on this branch). / Options: A. a new change after R91 for the header width (labels wrapping at 1024–1149 in es and the overflow at 768 in es and ca), with its own design summary; B. accept the wrapping and drop it; C. fold it into R91 (needs a correction round). / Recommendation: A. / Blocks: nothing in R91.
