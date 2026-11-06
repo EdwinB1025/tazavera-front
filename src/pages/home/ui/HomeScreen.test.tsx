@@ -98,7 +98,7 @@ describe("HomeScreen", () => {
       expect(
         button.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING,
       ).toBeTruthy();
-      expect(button.parentElement!.classList.contains("md:hidden")).toBe(true);
+      expect(button.parentElement!.classList.contains("lg:hidden")).toBe(true);
       fireEvent.click(button);
       expect(router.push).toHaveBeenCalledWith("/es/join");
     });

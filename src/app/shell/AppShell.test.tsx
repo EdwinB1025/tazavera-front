@@ -219,7 +219,7 @@ describe("AppShell session states (spec: Session states in the shell)", () => {
     expect(signIn).toBeDefined();
     const register = screen.getByRole("button", { name: texts.register });
     expect(register.parentElement!.classList.contains("hidden")).toBe(true);
-    expect(register.parentElement!.classList.contains("md:inline-flex")).toBe(true);
+    expect(register.parentElement!.classList.contains("lg:inline-flex")).toBe(true);
     expect(
       register.compareDocumentPosition(signIn) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
