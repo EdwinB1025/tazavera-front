@@ -255,3 +255,12 @@ Design lead (captures `recheck-*.png`, untracked): header "Register" hidden up t
 
 ### Decisions taken
 - Design lead's open point (between ~900 and 1023px the vertically centred hero leaves the button visually apart from the eyebrow; estimated, not measured): no change. It matches design.md D5 (1.5rem to the hero block) and the landing delta; changing it would be a correction round. Product owner may raise it at the browser check.
+
+## Session 2026-11-06 — Verify (step 10), cloud architect
+Summary: Routine `trig_01WSZAwRVnvM6Dxu23VMsd6z`, session `cse_016LpndhfdepAnayM3E9sBER` (16:42–16:46 UTC), at `ca49025e`, prompt by the design lead (checked against §7 step 2). No CRITICAL, no WARNING, 4 SUGGESTIONs (stale wording; full text in the session: https://claude.ai/code/session_016LpndhfdepAnayM3E9sBER). Nothing committed: the architect's rules make verify a report only, so no `claude/add-register-landing-verify` branch exists. Next: Product owner's browser check (signed in, with the API) and archive request.
+
+### Agent feedback
+Completeness 18/18 tasks; 10 requirements across 3 deltas (3 ADDED, 7 MODIFIED), all implemented. Correctness: every new or changed scenario has its one test. Coherence: D1–D9 followed. Checks: validation suite 212 files, 1233/1233; `tsc` no errors; lint 0 errors, 1 warning (`qa/…/ConsensusPanel.test.tsx:531`); `npm run build` failed on the first run with Next.js's `SecurityFatalError` (16.4.0 flagged) and passed on the rerun (third time; `update-vulnerable-dependencies`); `openspec validate --strict` valid.
+
+### Final checks
+- Ready for Product owner's browser check. Not seen by any agent (API down): the signed-in header and user menu without "Register", no entry-page button when signed in, `/join` sending a signed-in visitor to the locale root, the offerings block. Closed for review before the archive: C1, C2, C3.
