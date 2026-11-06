@@ -7,8 +7,8 @@ Today a visitor reaches registration only through two text links in the entry-pa
 ## What Changes
 
 - New registration landing at `/{locale}/join`: a heading, an introduction and two option cards (specialist first, then coffee shop), each with a short text and an action button that opens its existing form (`/{locale}/register`, `/{locale}/register/coffeeshop`). Like the registration forms, it waits with a loading status while the session resolves and sends an authenticated visitor to `/{locale}` through client-side navigation. When the session cannot be resolved, it shows its heading, its introduction and the two options as for an anonymous visitor, with no error.
-- App header, from the medium breakpoint (768px): a "Register" action button immediately before "Sign in", opening `/{locale}/join`, shown only while the session is anonymous. Below 768px the header is unchanged.
-- Entry page, below 768px: a "Register" action button above the hero, opening `/{locale}/join`, shown only while the session is anonymous.
+- App header, from the large breakpoint (1024px): a "Register" action button immediately before "Sign in", opening `/{locale}/join`, shown only while the session is anonymous. Below 1024px the header is unchanged.
+- Entry page, below 1024px: a "Register" action button above the hero, opening `/{locale}/join`, shown only while the session is anonymous.
 - Entry-page hero: its two registration links are replaced by one text link to the About us page (`/{locale}/about`), for every visitor, with no navigation landmark around it.
 - About us, "who it is for" section: its two registration links are replaced by one text link to `/{locale}/join`, for every visitor, with no navigation landmark around it.
 - **BREAKING (texts and landmarks):** the "Registration" navigation landmark leaves both pages, and the six registration-link texts per locale are removed from the `landing` catalog. New texts: `shell.register`, `landing.heroRegisterAction`, `landing.heroAboutLabel`, `landing.aboutRegisterLabel` and eight `account.registerLanding*` keys, in es, en and ca.
@@ -23,7 +23,7 @@ Today a visitor reaches registration only through two text links in the entry-pa
 ### Modified Capabilities
 
 - `user-account`: ADDED "Registration landing"; MODIFIED "Registration routes" (reachable from the registration landing instead of the entry page and About us).
-- `app-shell`: MODIFIED "Signed-out header" (the "Register" action from the medium breakpoint), "Session states in the shell" (no "Register" while resolving) and "Named navigation landmarks" (the "Registration" landmark removed).
+- `app-shell`: MODIFIED "Signed-out header" (the "Register" action from the large breakpoint), "Session states in the shell" (no "Register" while resolving) and "Named navigation landmarks" (the "Registration" landmark removed).
 - `landing`: MODIFIED "Page layout" (link-group rule removed), "Entry page hero" (one About us link instead of the registration links) and "About us page" (one registration-landing link instead of the registration links); ADDED "Entry page Register button".
 
 ## Out of scope
@@ -32,10 +32,10 @@ Today a visitor reaches registration only through two text links in the entry-pa
 - Any change to the auth flow (popup, return route, `login_hint`, tokens); no CSP or header change.
 - A "Register" entry in the small-viewport navigation menu, and any new icon (dropped with Product owner's Open 2 answer).
 - An "Already have an account? Sign in" line on the landing (summary Open 8 = A).
-- A "Register" action below 768px on pages other than the entry page (summary Open 11 = A).
+- A "Register" action below 1024px on pages other than the entry page (summary Open 11 = A).
 - Hiding the About us `/join` link for signed-in visitors (the landing itself sends them away).
 - R45 (first location in coffee-shop registration): queued after this change, not folded in.
-- Moving the header action and the entry-page button to the `lg` breakpoint: only if the visual review measures an overflow at 768px, as a later correction.
+- Showing the header action or hiding the entry-page button below the large breakpoint (1024px): the visual review measured the header overflowing at 768px, so both settle on `lg` (handoff C3 = A, 2026-11-06).
 
 ## Impact
 
@@ -61,7 +61,7 @@ Today a visitor reaches registration only through two text links in the entry-pa
   - New text props are required, not optional; the QA fixtures that lack them go stale and are listed, not edited (design.md D8).
   - Scenarios whose subject disappears (landing "Link groups", "Registration destinations", "Specialist registration destination", "Registration links"; app-shell "Registration links named") keep their names with new content, because `openspec validate --strict` (1.16.0) refuses a MODIFIED block that drops a scenario name, as in `open-directory-from-hero`; their existing tests are rewritten in the task that changes the behaviour (design.md D9).
 - **Open:**
-  - The 768px header width with the new action is unmeasured (summary Unverified 2); if the visual review measures an overflow, both breakpoints move to `lg`, per summary §9.
+  - The 768px header width with the new action is unmeasured (summary Unverified 2); if the visual review measures an overflow, both breakpoints move to `lg`, per summary §9. Settled 2026-11-06: overflow measured, both actions on `lg` (handoff C3 = A; see below).
 - **Artifact review (2026-11-05), Product owner's review Q6 = A, Q7 = A, Q8 = A:**
   - Q6 = A → the artifacts carry the settled values themselves and point to design.md: the catalog wording now lives in design.md D7, and tasks 1.2 and 3.2 reference design.md D7 instead of the summary's §8; the design summary is only the propose input (design.md Context).
   - Q7 = A → user-account "Registration landing session gate" states the unresolvable session and gains scenario "The landing shows its options when the session cannot be resolved" (the two options as for an anonymous visitor, with no error); task 1.1 gains its test, which drives a real unresolvable session as `src/app/shell/AppShell.test.tsx:221` does, distinct from the anonymous test (handoff decision D5; design.md D2).
@@ -73,4 +73,7 @@ Today a visitor reaches registration only through two text links in the entry-pa
   - `openspec validate add-register-landing --strict`: valid.
 - **Artifact update during apply (2026-11-06), handoff Q12 = A (Product owner, 2026-11-06):**
   - Q12 = A → `next build` type-checks `qa/` (`tsconfig.json` includes it), so the build could not pass while the stale QA fixtures stayed stale. design.md D8: the new text props stay required and production code is not loosened; the build updates only the types of the QA fixtures that lack them in task 5.1 (`aboutLabel` in `qa/src/pages/home/ui/HomeHero.test.tsx`, whose fixture also drops the removed labels, and `register` in `qa/src/widgets/app-header/ui/AppHeader.test.tsx`), with no assertion changed. design.md Risks: the stale assertions stay failing and are listed for the QA run before the merge into `master`; `qa/src/pages/home/ui/HomeScreen.test.tsx` and the missing mocks are not edited. tasks.md: the "Never edit a file under `qa/`" rule allows that one exception; task 5.1 starts with the fixture-type update in one `fix(user-account)` commit and now expects `npx tsc --noEmit` to report no errors. Checked tasks stay checked; no other task, design decision or spec delta changes; nothing users see changes.
+  - `openspec validate add-register-landing --strict`: valid.
+- **Artifact update during apply (2026-11-06), handoff C3 = A (closed by the orchestrator, 2026-11-06):**
+  - C3 = A → the visual review (design lead, 2026-11-06) measured the signed-out header at 768px with the "Register" action: content width 903px (es), 894px (ca) and 823px (en) of 768px, "Sign in" off screen; nothing overflows from 1024px in any locale. The settled fallback of summary §9 applies: both "Register" actions move to the large breakpoint (1024px) together. app-shell "Signed-out header" and its scenario "Signed-out header renders": the action shows from 1024px, not below. landing "Entry page Register button" and its scenario "Register button for an anonymous visitor on a small viewport" (name kept): the button shows below 1024px and not from 1024px. design.md D4 (wrapper `hidden lg:inline-flex`, the settled state), D5 (wrapper `lg:hidden`; the page does not change from `lg`; between 768px and 1023px the button sits 1.5rem above the two-column hero) and Risks (the measurement). proposal.md: What Changes, Capabilities, Out of scope and the Open line above state 1024px; the earlier `md:hidden` entry under "Resolved by the architect" is superseded by D5. tasks.md: new group 6 (tasks 6.1 test, 6.2 implementation, 6.3 full checks) before the workflow follow-up, whose visual-review line now covers the header at 1024px and the entry page between 768px and 1023px. Checked tasks stay checked; every other 768px value (the `/join` columns, page padding, the hero's columns, "Page layout") stays; no text, token, component or test file is added.
   - `openspec validate add-register-landing --strict`: valid.

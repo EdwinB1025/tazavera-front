@@ -3,11 +3,11 @@
 ## ADDED Requirements
 
 ### Requirement: Entry page Register button
-Below the medium breakpoint (768px), while the session is anonymous, the entry page SHALL show a "Register" action button above the hero, before its eyebrow, that opens the registration landing of the active locale (`/{locale}/join`). It SHALL NOT render while the session is resolving or authenticated, nor from 768px, where the header offers the action; then the hero starts where it does without the button.
+Below the large breakpoint (1024px), while the session is anonymous, the entry page SHALL show a "Register" action button above the hero, before its eyebrow, that opens the registration landing of the active locale (`/{locale}/join`). It SHALL NOT render while the session is resolving or authenticated, nor from 1024px, where the header offers the action; then the hero starts where it does without the button.
 
 #### Scenario: Register button for an anonymous visitor on a small viewport
 - **WHEN** an anonymous visitor opens the entry page in the `es` locale
-- **THEN** a "Register" action button renders before the hero heading, only below 768px, and activating it opens `/es/join`
+- **THEN** a "Register" action button renders before the hero heading, only below 1024px, and activating it opens `/es/join`
 
 #### Scenario: No Register button while resolving or signed in
 - **WHEN** the entry page renders while the session is still resolving, or with an authenticated session

@@ -3,11 +3,11 @@
 ## MODIFIED Requirements
 
 ### Requirement: Signed-out header
-While the session is anonymous, the header SHALL show the language selector, the theme switch and a "Sign in" action, and SHALL NOT show a user menu. From the medium breakpoint (768px) it SHALL also show a "Register" action button immediately before "Sign in", in the same group, that opens the registration landing of the active locale (`/{locale}/join`); below 768px the header SHALL NOT show it. The "Register" action SHALL NOT be shown while the session is authenticated. On a 375px-wide viewport the signed-out header SHALL fit without horizontal overflow.
+While the session is anonymous, the header SHALL show the language selector, the theme switch and a "Sign in" action, and SHALL NOT show a user menu. From the large breakpoint (1024px) it SHALL also show a "Register" action button immediately before "Sign in", in the same group, that opens the registration landing of the active locale (`/{locale}/join`); below 1024px the header SHALL NOT show it. The "Register" action SHALL NOT be shown while the session is authenticated. On a 375px-wide viewport the signed-out header SHALL fit without horizontal overflow.
 
 #### Scenario: Signed-out header renders
 - **WHEN** the session is anonymous
-- **THEN** the header shows the brand logotype, the language selector, the theme switch and the "Sign in" action, shows the "Register" action immediately before "Sign in" only from 768px, and shows no user menu
+- **THEN** the header shows the brand logotype, the language selector, the theme switch and the "Sign in" action, shows the "Register" action immediately before "Sign in" only from 1024px, and shows no user menu
 
 #### Scenario: Register opens the registration landing
 - **WHEN** a signed-out visitor activates the header's "Register" action in the `es` locale
