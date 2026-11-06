@@ -44,7 +44,7 @@ Every "Verify" below runs `npx vitest related <files> --run` on the files the ta
 
 ## 5. Full checks
 
-- [ ] 5.1 First, update the stale QA fixture types of design.md D8, in one `fix(user-account): …` commit, with no assertion changed: add `aboutLabel` to the `TEXTS` fixture of `qa/src/pages/home/ui/HomeHero.test.tsx` and drop its removed labels `coffeeshopRegisterLabel` and `specialistRegisterLabel`; add `register` to the texts fixture of `qa/src/widgets/app-header/ui/AppHeader.test.tsx`. Then run `npm run test:run`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes, `npx tsc --noEmit` reports no errors, lint reports 0 errors, and the build succeeds. Any other failure is fixed in its own `fix(user-account): …` commit, or reported when the fix would go beyond the design. The final report lists the stale QA tests (file, line, message).
+- [x] 5.1 First, update the stale QA fixture types of design.md D8, in one `fix(user-account): …` commit, with no assertion changed: add `aboutLabel` to the `TEXTS` fixture of `qa/src/pages/home/ui/HomeHero.test.tsx` and drop its removed labels `coffeeshopRegisterLabel` and `specialistRegisterLabel`; add `register` to the texts fixture of `qa/src/widgets/app-header/ui/AppHeader.test.tsx`. Then run `npm run test:run`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes, `npx tsc --noEmit` reports no errors, lint reports 0 errors, and the build succeeds. Any other failure is fixed in its own `fix(user-account): …` commit, or reported when the fix would go beyond the design. The final report lists the stale QA tests (file, line, message).
 
 ## Workflow follow-up
 

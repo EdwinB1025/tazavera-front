@@ -41,8 +41,7 @@ const TEXTS = {
   headingAfter: "texts.headingAfter",
   paragraph: "texts.paragraph",
   exploreLabel: "texts.exploreLabel",
-  coffeeshopRegisterLabel: "texts.coffeeshopRegisterLabel",
-  specialistRegisterLabel: "texts.specialistRegisterLabel",
+  aboutLabel: "texts.aboutLabel",
   photoAlt: "texts.photoAlt",
 };
 
