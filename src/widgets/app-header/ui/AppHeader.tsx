@@ -23,7 +23,7 @@ export type AppHeaderTexts = {
   /** Accessible name of the primary navigation landmark (label-landmarks-and-headings D1). */
   primaryNavigation?: string;
   signIn: string;
-  /** The signed-out header action to the registration landing (add-register-landing D4). */
+  /** The signed-out header action to the registration landing, shown from `lg` (add-register-landing D4). */
   register: string;
   /**
    * The composed accessible name of the language control the shell passes
@@ -144,7 +144,8 @@ export function AppHeader({
         <ThemeToggle initialTheme={theme} texts={texts} />
         {session.state === "anonymous" && (
           <>
-            <span className="hidden md:inline-flex">
+            {/* From `lg` only: at 768px the header overflows with it (add-register-landing D4, handoff C3). */}
+            <span className="hidden lg:inline-flex">
               <RouteButton variant="nav-button" href={`/${locale}/join`}>
                 {texts.register}
               </RouteButton>

@@ -12,9 +12,9 @@ export type HomeRegisterButtonProps = {
 };
 
 /**
- * The entry page's "Register" action below `md` (add-register-landing D5;
+ * The entry page's "Register" action below `lg` (add-register-landing D5;
  * spec "Entry page Register button"). It renders only for an anonymous
- * session, and renders its own `md:hidden` wrapper so that no empty item
+ * session, and renders its own `lg:hidden` wrapper so that no empty item
  * stays in the hero's column while the session resolves or once signed in.
  */
 export function HomeRegisterButton({
@@ -24,7 +24,7 @@ export function HomeRegisterButton({
   const session = useSession();
   if (session.state !== "anonymous") return null;
   return (
-    <div className="md:hidden">
+    <div className="lg:hidden">
       <RouteButton variant="action-1" size="base" href={`/${locale}/join`}>
         {label}
       </RouteButton>
