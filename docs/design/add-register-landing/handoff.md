@@ -246,3 +246,12 @@ Architect `27385626` `docs(user-account): update artifacts for add-register-land
 
 ### Review and integration (orchestrator, §7 steps 4–8)
 Commit format, footers and test-first order correct; only the two assertions and the two wrappers (plus doc comments) changed, as the prompt named; the architect touched only `openspec/changes/add-register-landing/`. Checks not re-run locally (npm denied in this session); integrated on the session's counts. `git merge --ff-only origin/claude/add-register-landing-apply-5`: `7182f83d..92ade7b7`, pushed.
+
+## Session 2026-11-06 — Visual re-check after C3 (step 8), design lead
+Summary: re-check of tasks.md "Workflow follow-up" on Product owner's dev server at `4c74ad0c` (served the `lg:` classes), es/ca/en, both themes, API down (signed out only). No finding. Next: verify.
+
+### Agent feedback
+Design lead (captures `recheck-*.png`, untracked): header "Register" hidden up to 1023px and shown from 1024px in every locale and theme, before "Sign in", one line, no overflow from 1024px, label contrast 11.67 / 5.38, opens `/es/join`. Entry page from 768 to 1023px: the button above the two-column hero, 160px, 24px above the hero grid, before the `h1`, contrast 4.91 / 5.63 (label) and 5.79 / 13.34 (border); gone from 1024px, hero at 64px as before. No regression at 375 and 1280 (entry page, `/join`, About us); no console errors. Q14 confirmed as deferred (es wraps 1024–1149px, ca 1024–1099px; the header overflows at 768px without "Register" in es and ca). Unverified: signed in, the offerings block, hover colours, focus rings at 1024px (component unchanged since the first review), `develop` itself.
+
+### Decisions taken
+- Design lead's open point (between ~900 and 1023px the vertically centred hero leaves the button visually apart from the eyebrow; estimated, not measured): no change. It matches design.md D5 (1.5rem to the hero block) and the landing delta; changing it would be a correction round. Product owner may raise it at the browser check.
