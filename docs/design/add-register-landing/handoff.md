@@ -199,3 +199,9 @@ Commit format, footers and test-first order correct; files all allowed to the bu
 ### Deferred to Product owner
 #### Q12 — The build cannot pass while the stale QA fixtures stay stale
 - Question: task 5.1 expects the build to succeed and `npx tsc --noEmit` to report errors only in the stale QA files, but `tsconfig.json` includes `qa/` and `next build` type-checks with it, so both cannot hold. / Why deferred: every fix touches the QA suite (Product owner's; agents never write in it during a change) or changes a task's expected result or the build configuration. / Options: A. authorise the build to update only the stale QA fixtures' types (`aboutLabel` in `qa/src/pages/home/ui/HomeHero.test.tsx`, `register` in `qa/src/widgets/app-header/ui/AppHeader.test.tsx`, the removed keys), no assertion changed, one `fix(user-account)` commit; B. leave `qa/` out of the build's type check (`tsconfig.json` exclude plus a QA tsconfig); C. accept a failing build until the QA suite is updated before the release. / Recommendation: A, the smallest change that lets the build type-check everything; the stale QA assertions stay listed for the QA run before the merge into `master`. / Blocks: task 5.1, then the visual review, verify and archive.
+
+## Session 2026-11-06 — Apply (step 8), Product owner's answer to Q12
+Summary: Product owner answered Q12 with option A (2026-11-06). Next: task 5.1 in a cloud session from this commit, prompt by the design lead.
+
+### Decisions taken
+- Q12 → A (Product owner): the build updates only the stale QA fixtures' types (`aboutLabel` in `qa/src/pages/home/ui/HomeHero.test.tsx`, `register` in `qa/src/widgets/app-header/ui/AppHeader.test.tsx`, and the removed keys they read) so that `npx tsc --noEmit` and `npm run build` pass; no assertion changes; one `fix(user-account)` commit within task 5.1. The stale QA assertions (home, header, About us) stay listed for the QA run before the merge into `master`.
