@@ -2,7 +2,7 @@
 
 No derived API types are needed: the change consumes no endpoint and reads no API field (design.md Context).
 
-Every "Verify" below runs `npx vitest related <files> --run` on the files the task changed, `npx tsc --noEmit` and `npm run lint` (0 errors). `npx tsc --noEmit` is expected to report, besides any error a task names, only the stale QA fixtures of design.md Risks once the task that makes them stale is done: `qa/src/pages/home/ui/HomeHero.test.tsx` and `qa/src/pages/home/ui/HomeScreen.test.tsx` from task 3.3, `qa/src/widgets/app-header/ui/AppHeader.test.tsx` from task 2.3. Never edit a file under `qa/`.
+Every "Verify" below runs `npx vitest related <files> --run` on the files the task changed, `npx tsc --noEmit` and `npm run lint` (0 errors). `npx tsc --noEmit` is expected to report, besides any error a task names, only the stale QA fixtures of design.md Risks once the task that makes them stale is done: `qa/src/pages/home/ui/HomeHero.test.tsx` and `qa/src/pages/home/ui/HomeScreen.test.tsx` from task 3.3, `qa/src/widgets/app-header/ui/AppHeader.test.tsx` from task 2.3. Never edit a file under `qa/`, with one exception: the fixture-type update of task 5.1 (design.md D8), which changes no assertion.
 
 ## 1. Registration landing at `/{locale}/join` (user-account)
 
@@ -44,7 +44,7 @@ Every "Verify" below runs `npx vitest related <files> --run` on the files the ta
 
 ## 5. Full checks
 
-- [ ] 5.1 Run `npm run test:run`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes, lint reports 0 errors, the build succeeds, and `npx tsc --noEmit` reports errors only in the three stale QA files of design.md Risks. Any other failure is fixed in its own `fix(user-account): …` commit, or reported when the fix would go beyond the design. The final report lists the stale QA tests (file, line, message).
+- [ ] 5.1 First, update the stale QA fixture types of design.md D8, in one `fix(user-account): …` commit, with no assertion changed: add `aboutLabel` to the `TEXTS` fixture of `qa/src/pages/home/ui/HomeHero.test.tsx` and drop its removed labels `coffeeshopRegisterLabel` and `specialistRegisterLabel`; add `register` to the texts fixture of `qa/src/widgets/app-header/ui/AppHeader.test.tsx`. Then run `npm run test:run`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes, `npx tsc --noEmit` reports no errors, lint reports 0 errors, and the build succeeds. Any other failure is fixed in its own `fix(user-account): …` commit, or reported when the fix would go beyond the design. The final report lists the stale QA tests (file, line, message).
 
 ## Workflow follow-up
 

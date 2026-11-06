@@ -124,7 +124,7 @@ Removed, in es, en and ca: `landing.heroCoffeeshopRegisterLabel`, `heroSpecialis
 
 ### D8 — New text props are required
 
-`HomeHeroTexts.aboutLabel`, `AboutContentTexts.registerLabel` and `AppHeaderTexts.register` are required: each has one production caller that always passes it, and a missing label would render an unnamed control. AGENTS.md forbids loosening production code for a QA fixture, so the QA fixtures that lack them go stale (Risks) and are listed by the build, not edited.
+`HomeHeroTexts.aboutLabel`, `AboutContentTexts.registerLabel` and `AppHeaderTexts.register` are required: each has one production caller that always passes it, and a missing label would render an unnamed control. AGENTS.md forbids loosening production code for a QA fixture, so production code is not loosened. Because `next build` type-checks `qa/` (`tsconfig.json` includes it), the QA fixtures that lack them get only their types updated, by the build in task 5.1, so that `npx tsc --noEmit` and `npm run build` pass: `aboutLabel` in `qa/src/pages/home/ui/HomeHero.test.tsx` (its `TEXTS` fixture also drops the removed labels `coffeeshopRegisterLabel` and `specialistRegisterLabel`) and `register` in `qa/src/widgets/app-header/ui/AppHeader.test.tsx`. No assertion changes (Product owner, handoff Q12 = A, 2026-11-06).
 
 ### D9 — Tests of rewritten scenarios
 
@@ -134,10 +134,10 @@ The CLI refuses a MODIFIED block that drops a scenario name, so, as in `open-dir
 
 - [Header width at 768px with the new action is unmeasured (summary Unverified 2)] → visual review at 375/768/1280 px, es and ca, both themes, signed out and signed in; an overflow moves D4 and D5 to `lg` together, per summary §9.
 - [The entry-page button appears once the session resolves and moves the hero down 4rem for an anonymous visitor below `md`] → accepted by Product owner (summary Open 11 = A).
-- [Stale QA tests, not edited in this change] → the build lists them in its final report:
-  - `qa/src/pages/home/ui/HomeHero.test.tsx`: its texts fixture lacks `aboutLabel` (type error under `npx tsc --noEmit`) and carries the removed labels; its layout assertion on `ACTIONS_CLASSES` keeps holding.
+- [Stale QA tests] → the fixture types of `qa/src/pages/home/ui/HomeHero.test.tsx` and `qa/src/widgets/app-header/ui/AppHeader.test.tsx` are updated in task 5.1 with no assertion changed (D8); the stale assertions (home, header, About us) stay failing and the build lists them in its final report for the QA run before the merge into `master`. `qa/src/pages/home/ui/HomeScreen.test.tsx` is not edited (it reads the removed keys inside an assertion), nor are the missing `@/features/auth` and `next/navigation` mocks:
+  - `qa/src/pages/home/ui/HomeHero.test.tsx`: its texts fixture lacked `aboutLabel` (type error under `npx tsc --noEmit`, fixed in task 5.1) and carried the removed labels; its layout assertion on `ACTIONS_CLASSES` keeps holding.
   - `qa/src/pages/home/ui/HomeScreen.test.tsx`: reads the removed `heroCoffeeshopRegisterLabel` and `heroSpecialistRegisterLabel` keys, and renders `HomeScreen` without mocking `@/features/auth`.
-  - `qa/src/widgets/app-header/ui/AppHeader.test.tsx`: its texts fixture lacks `register` (type error), and it renders the anonymous header without mocking `next/navigation`, which `RouteButton` needs.
+  - `qa/src/widgets/app-header/ui/AppHeader.test.tsx`: its texts fixture lacked `register` (type error, fixed in task 5.1), and it renders the anonymous header without mocking `next/navigation`, which `RouteButton` needs.
 - [Kept scenario names no longer describe their content (D9)] → the five scenarios keep their names with the new content and are renamed later by a hand edit of the main specs (Product owner, review Q8 = A; design.md D9).
 
 ## Migration Plan
