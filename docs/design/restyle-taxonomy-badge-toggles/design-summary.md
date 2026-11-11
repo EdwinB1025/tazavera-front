@@ -1,4 +1,4 @@
-Status: draft — pending Product owner review
+Status: approved
 
 # Design summary — restyle-taxonomy-badge-toggles
 
@@ -228,9 +228,11 @@ Tests: no existing test pins the toggle's classes. The change adds one test, for
    - D. As C with a `surface-textarea` fill: a white chip in the traditional theme. Compliant (min 3.80 / 4.22), closest to "white"; borrows the textarea surface token outside its role and registers `text-strong` on `surface-textarea` as `icon`.
    - E. White glyph and ring on a dark chip (`nav-surface-dark`). Fails on 3 notes in trad (75 Nutty L1 2.80, 94 Floral 2.83, 101 Stale 2.80); making it pass needs a new primitive and token through §11. Not prepared, because C and D already pass.
    - **Recommendation:** C, the only compliant single format built from tokens used in their own role (section 4.4). D if Product owner wants the white look in the traditional theme.
+   - **Answer (Product owner, 2026-11-11): C**, the chip filled with the card's background (`surface-card`), `text-strong` glyph and 1px ring.
 2. **Can a two-tone boundary count?** Blocks propose: **yes** (C, D and E rest on it).
    - With a chip, the fill gives the boundary on dark badges and the 1px ring gives it on light ones. Section 4.4 counts the boundary as met when either reaches 3:1 against the badge. This is the design lead's reading of WCAG 2.2 SC 1.4.11, not a gate `theme-tokens.test.ts` encodes, because data colours are not in the matrix.
    - Options: A. accept the reading (rec.); B. require one element alone at 3:1 everywhere. Then no single format passes and only option 1B (today's colours) is compliant.
+   - **Answer: A, implied by choosing 1C** (C rests on it). Recorded by the orchestrator; Product owner's approval commit confirms it.
 3. **Hit area of the 16px toggle.** Blocks propose: no.
    - A. Keep a 24 × 24px invisible hit area around the 16px box (rec.; project practice, section 7).
    - B. Rely on the WCAG 2.5.8 spacing exception: the closest pair of toggle centres is 33px apart (25px badge + 8px column gap, computed), more than 24.
@@ -268,3 +270,4 @@ Tests: no existing test pins the toggle's classes. The change adds one test, for
   - Contrast measured by `toggle-contrast.mjs` over the 120 seed colours (36 with a toggle).
   - Settled under criterion B: every consumer and its surface (all `surface-card`); the capability that owns the toggle (`landing`); the type (`Change`); the superseded decisions; and that §11's new-token procedure does not apply, because existing tokens pass.
   - Left open: 1–7.
+- **2026-11-11 — Product owner's answer (recorded by the orchestrator).** Open 1: C. Open 2: A, implied by 1C. Open 3–7 not answered: their recommendations stand unless Product owner changes them before approving.
