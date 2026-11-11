@@ -23,3 +23,11 @@ Product owner's browser check, 2026-11-11: the About us button looks right; the 
 3. The hero's About us button (Round 1) follows the same convention: an action that navigates or consults takes positional treatment 3 (base-controls "Action variants by kind"), the treatment of "Explorar cafés" next to it, not `action-1`. End state: `action-3`, standard size; text, destination and position as in item 1. The landing delta "Entry page hero" and design.md D6, which name `action-1` since Round 1, change accordingly.
    Existing tests affected: the `HomeHero.test.tsx` assertion on the About us button's treatment (from Round 1).
    New test: none beyond updating that assertion; it fails on `action-1` and passes on `action-3`.
+
+### Status
+
+2026-11-11 — `openspec validate add-register-landing --strict`: valid.
+
+1. Changes specified behaviour (the hero's actions in one wrapping row). Updated: landing spec delta "Entry page hero" (the actions sit side by side 1.5rem below the paragraph, 1rem apart, each at its own width, wrapping to a further row; stated as an exception to base-controls "Action group") and "Page layout" (the start-aligned rule covers a single text link only; scenario "Link groups" states the hero's wrapping row); design.md D6 (`ACTIONS_CLASSES` `mt-2 flex flex-row flex-wrap items-center gap-4`) and Risks (the QA layout assertion that goes stale); proposal.md What Changes, Capabilities. Tasks created: 8.1 (test-first), 8.2 (implementation), 8.3 (full checks and QA run).
+2. Changes specified behaviour (the entry-page "Register" action joins the hero's actions row as its last action). Updated: landing spec delta "Entry page Register button" (requirement and scenario "Register button for an anonymous visitor on a small viewport"); design.md Files table, D5 (the hero's optional `children` slot, filled by `HomeScreen` with the island; the hero section drops its `flex flex-col gap-6` container; the island keeps its `lg:hidden` wrapper so no empty item stays in the row) and Risks; proposal.md What Changes and Impact. Tasks created: 8.1, 8.2, 8.3 (shared with items 1 and 3).
+3. Changes specified behaviour (the About us button takes `action-3`). Updated: landing spec delta "Entry page hero"; design.md D6; proposal.md What Changes. Tasks created: 8.1, 8.2, 8.3 (shared).

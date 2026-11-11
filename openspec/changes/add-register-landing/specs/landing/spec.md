@@ -3,11 +3,11 @@
 ## ADDED Requirements
 
 ### Requirement: Entry page Register button
-Below the large breakpoint (1024px), while the session is anonymous, the entry page SHALL show a "Register" action button above the hero, before its eyebrow, that opens the registration landing of the active locale (`/{locale}/join`). It SHALL NOT render while the session is resolving or authenticated, nor from 1024px, where the header offers the action; then the hero starts where it does without the button.
+Below the large breakpoint (1024px), while the session is anonymous, the entry page SHALL show a "Register" action button (`action-1`, standard size) as the last action of the hero's actions row, after the About us button, that opens `/{locale}/join`. It SHALL NOT render while the session is resolving or authenticated, nor from 1024px, where the header offers it; then the row holds no item for it.
 
 #### Scenario: Register button for an anonymous visitor on a small viewport
 - **WHEN** an anonymous visitor opens the entry page in the `es` locale
-- **THEN** a "Register" action button renders before the hero heading, only below 1024px, and activating it opens `/es/join`
+- **THEN** a "Register" action button renders in the hero's actions row after the About us button, only below 1024px, and activating it opens `/es/join`
 
 #### Scenario: No Register button while resolving or signed in
 - **WHEN** the entry page renders while the session is still resolving, or with an authenticated session
@@ -16,7 +16,7 @@ Below the large breakpoint (1024px), while the session is anonymous, the entry p
 ## MODIFIED Requirements
 
 ### Requirement: Page layout
-Both public pages SHALL be built from full-width sections. Each section's content SHALL sit in a horizontally centered container at most 72rem wide, with side padding (1rem below the medium breakpoint of 768px, 2rem from it). Each section SHALL have vertical padding (3rem below 768px, 4rem from it). On the entry page, the hero and the verified offerings list SHALL be separate sections, the hero on the page background and the list on the section background. A single text link or single action button of a section SHALL keep its own width, aligned to the start of its column.
+Both public pages SHALL be built from full-width sections. Each section's content SHALL sit in a horizontally centered container at most 72rem wide, with side padding (1rem below the medium breakpoint of 768px, 2rem from it). Each section SHALL have vertical padding (3rem below 768px, 4rem from it). On the entry page, the hero and the verified offerings list SHALL be separate sections, the hero on the page background and the list on the section background. A single text link of a section SHALL keep its own width, aligned to the start of its column.
 
 #### Scenario: Centered content
 - **WHEN** either page renders on a viewport wider than 72rem plus its side padding
@@ -31,11 +31,11 @@ Both public pages SHALL be built from full-width sections. Each section's conten
 - **THEN** the hero renders on the page background and the verified offerings list renders below it, in its own section on the section background
 
 #### Scenario: Link groups
-- **WHEN** the hero's About us button or the about page's registration-landing link renders
-- **THEN** it is aligned to the start of its column at its own width and does not span the row
+- **WHEN** the hero's actions or the about page's registration-landing link render
+- **THEN** the hero's actions sit side by side in one wrapping row, 1rem apart, each at its own width, and the about page's link is aligned to the start of its column at its own width and does not span the row
 
 ### Requirement: Entry page hero
-The entry page SHALL render, in the main content area, an eyebrow label, the entry heading with exactly one emphasized word in the accent text color (in Spanish the settled copy `Tu café, el que merece cada sorbo`), an introduction paragraph, an action that opens the coffee shop directory of the active locale (`/{locale}/coffeeshops`), and below it, 1rem apart in the same actions column, one action button in the primary treatment (`action-1`) at the standard size, for every visitor, that opens the About us page of the active locale (`/{locale}/about`) and sits in no navigation landmark. The coffee-beans photograph SHALL accompany the hero from the medium breakpoint (768px) up and be hidden below it.
+The entry page SHALL render, in the main content area, an eyebrow label, the entry heading with exactly one emphasized word in the accent text color (in Spanish the settled copy `Tu café, el que merece cada sorbo`), an introduction paragraph, an action that opens the coffee shop directory of the active locale (`/{locale}/coffeeshops`), and after it, one action button in positional treatment 3 (`action-3`) at the standard size, for every visitor, that opens the About us page of the active locale (`/{locale}/about`) and sits in no navigation landmark. The hero's actions SHALL sit side by side in one row 1.5rem below the paragraph, starting at the start of the text column, 1rem apart, each at its own width, and SHALL wrap to a further row 1rem below when the row does not fit; this row is an exception to base-controls "Action group". The coffee-beans photograph SHALL accompany the hero from the medium breakpoint (768px) up and be hidden below it.
 
 #### Scenario: Hero presentation
 - **WHEN** a visitor opens the entry route in a supported locale

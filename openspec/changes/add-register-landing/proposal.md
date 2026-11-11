@@ -8,8 +8,8 @@ Today a visitor reaches registration only through two text links in the entry-pa
 
 - New registration landing at `/{locale}/join`: a heading, an introduction and two option cards (specialist first, then coffee shop), each with a short text and an action button that opens its existing form (`/{locale}/register`, `/{locale}/register/coffeeshop`). Like the registration forms, it waits with a loading status while the session resolves and sends an authenticated visitor to `/{locale}` through client-side navigation. When the session cannot be resolved, it shows its heading, its introduction and the two options as for an anonymous visitor, with no error.
 - App header, from the large breakpoint (1024px): a "Register" action button immediately before "Sign in", opening `/{locale}/join`, shown only while the session is anonymous. Below 1024px the header is unchanged.
-- Entry page, below 1024px: a "Register" action button above the hero, opening `/{locale}/join`, shown only while the session is anonymous.
-- Entry-page hero: its two registration links are replaced by one action button to the About us page (`/{locale}/about`), for every visitor, with no navigation landmark around it (corrections Round 1).
+- Entry page, below 1024px: a "Register" action button as the last action of the hero's actions row, opening `/{locale}/join`, shown only while the session is anonymous (corrections Round 2).
+- Entry-page hero: its two registration links are replaced by one action button to the About us page (`/{locale}/about`), in positional treatment 3, for every visitor, with no navigation landmark around it (corrections Round 1 and Round 2); the hero's actions sit side by side in one wrapping row (corrections Round 2).
 - About us, "who it is for" section: its two registration links are replaced by one text link to `/{locale}/join`, for every visitor, with no navigation landmark around it.
 - **BREAKING (texts and landmarks):** the "Registration" navigation landmark leaves both pages, and the six registration-link texts per locale are removed from the `landing` catalog. New texts: `shell.register`, `landing.heroRegisterAction`, `landing.heroAboutLabel`, `landing.aboutRegisterLabel` and eight `account.registerLanding*` keys, in es, en and ca.
 - The registration forms, their routes, their fields, the success panel, Cancel, the auth flow and `POST /register` do not change.
@@ -24,7 +24,7 @@ Today a visitor reaches registration only through two text links in the entry-pa
 
 - `user-account`: ADDED "Registration landing"; MODIFIED "Registration routes" (reachable from the registration landing instead of the entry page and About us).
 - `app-shell`: MODIFIED "Signed-out header" (the "Register" action from the large breakpoint), "Session states in the shell" (no "Register" while resolving) and "Named navigation landmarks" (the "Registration" landmark removed).
-- `landing`: MODIFIED "Page layout" (link-group rule removed), "Entry page hero" (one About us button instead of the registration links) and "About us page" (one registration-landing link instead of the registration links); ADDED "Entry page Register button".
+- `landing`: MODIFIED "Page layout" (link-group rule removed), "Entry page hero" (one About us button instead of the registration links; the actions in one wrapping row) and "About us page" (one registration-landing link instead of the registration links); ADDED "Entry page Register button".
 
 ## Out of scope
 
@@ -40,7 +40,7 @@ Today a visitor reaches registration only through two text links in the entry-pa
 ## Impact
 
 - Routing: new `app/[locale]/join/page.tsx`.
-- `src/pages/register` (new landing screen, its client region and option card; the anonymous-only gate shared with the forms), `src/pages/home` (new entry-page button island; hero About us button), `src/pages/about` (About us link), `src/widgets/app-header` (header action), `src/app/shell/AppShell.tsx` (one text).
+- `src/pages/register` (new landing screen, its client region and option card; the anonymous-only gate shared with the forms), `src/pages/home` (new entry-page button island, placed in the hero's actions row; hero About us button), `src/pages/about` (About us link), `src/widgets/app-header` (header action), `src/app/shell/AppShell.tsx` (one text).
 - `messages/{es,en,ca}/{shell,account,landing}.json`; `README.md` route table.
 - Validation tests: `HomeHero.test.tsx`, `AboutContent.test.tsx`, `HomeScreen.test.tsx`, `AppHeader.test.tsx`, `AppShell.test.tsx`, new `RegisterLandingScreen.test.tsx`. QA fixtures that go stale (not edited): `qa/src/pages/home/ui/HomeHero.test.tsx`, `qa/src/pages/home/ui/HomeScreen.test.tsx`, `qa/src/widgets/app-header/ui/AppHeader.test.tsx`.
 - API: no operation consumed; no contract change. Dependencies: none added. Tokens: none added; every pair is already registered in the theme matrix.
