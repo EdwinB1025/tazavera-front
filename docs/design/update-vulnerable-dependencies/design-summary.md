@@ -103,3 +103,16 @@ Not applicable to this change (criteria A, C, D and §1 items): components, toke
 
 - **2026-11-11 — generated (design lead).** Drafted from Product owner's `npm audit` of 2026-11-11, `package.json` and `package-lock.json` on `develop`, the npm registry and GitHub advisories, app-shell spec line 473 and the archived `upgrade-next-16-4`. Settled D1–D6 by precedent and the `AGENTS.md` rules (no new decision). Found that no stable release fixes the `minimatch` chain, contrary to the audit's "fix available" text (Open 2). Found that `develop` currently fails app-shell's line-473 requirement (finding for the orchestrator; resolved by this change). Open: 4 points, 3 block propose.
 - **2026-11-11 — approved (orchestrator, approval delegated by Product owner the same day).** 1 = B, 2 = A, 3 = A, 4 = A launched at once (highest priority).
+
+## Propose status
+
+- Change-id: `update-vulnerable-dependencies`
+- Date: 2026-11-11
+- `openspec validate update-vulnerable-dependencies --strict`: valid
+- Resolves backlog entry: none (no entry in `docs/design/backlog.md` affects this change).
+- Resolved:
+  - Open 1 = B: app-shell's "No known high or critical framework advisory" is MODIFIED to cover every installed dependency, development included, for high and critical severity; the existing scenarios are kept (the production one unchanged, "High or critical advisory detected" widened to production or development) and two are added: "Development dependency audit is clean for high and critical" and "Moderate or low advisory is reported only". The requirement name is kept unchanged (smallest change; renaming is not settled by the summary).
+  - Open 2 = A: task 1.1 re-checks `npm view typescript-eslint version` and takes 8.72.3 or later only through `npm audit fix`; task 2.1 expects `npm audit` to report at most the moderate `minimatch` chain, reported and not fixed.
+  - Open 3 = A: task 1.1 pins `next` and `eslint-config-next` to 16.4.6 and runs `npm audit fix` without `--force`, no `overrides`, ESLint on v9. The in-range versions `npm audit fix` picks are not known at propose (npm is not run by the architect); the build reports them in its final report.
+  - Open 4 = A: `design.md` is skipped (this summary replaces it); one upgrade group and one full-checks task, `npm run test:qa` included before verify; `npm audit --audit-level=high` verifies the widened requirement; `npm run build` runs twice.
+- Open: none blocking. Unverified points of section 7 stay as risks for the apply (whether 16.4.6 ends the `SecurityFatalError`, the 16.4.1–16.4.6 notes, the Docker base image, the missing moderate advisory of 2026-11-06).
