@@ -118,6 +118,8 @@ describe("HomeHero", () => {
       const { container } = render(<HomeHero locale="es" texts={TEXTS} />);
       const about = screen.getByRole("button", { name: TEXTS.aboutLabel });
       expect(about.closest("nav")).toBeNull();
+      // Positional treatment 3, the navigate treatment (corrections Round 2).
+      expect(about.className).toContain("bg-action-3-bg");
       fireEvent.click(about);
       expect(router.push).toHaveBeenCalledWith("/es/about");
       const hrefs = Array.from(container.querySelectorAll("a")).map((link) =>
@@ -151,14 +153,16 @@ describe("HomeHero", () => {
       );
     });
 
-    it("keeps the About us button at its own width, aligned to the start of the actions column", () => {
+    it("keeps the hero's actions side by side in one wrapping row, each at its own width", () => {
       render(<HomeHero locale="es" texts={TEXTS} />);
       const group = screen.getByRole("button", { name: TEXTS.aboutLabel })
         .parentElement!;
       expect(group).toBe(
         screen.getByRole("link", { name: TEXTS.exploreLabel }).parentElement,
       );
-      expect(classTokens(group)).toContain("items-start");
+      expect(classTokens(group)).toEqual(
+        expect.arrayContaining(["flex-row", "flex-wrap", "items-center", "gap-4"]),
+      );
     });
   });
 });

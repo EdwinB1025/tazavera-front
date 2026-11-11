@@ -94,9 +94,11 @@ describe("HomeScreen", () => {
     it("Register button for an anonymous visitor on a small viewport", () => {
       render(<HomeScreen locale="es" page={undefined} />);
       const button = screen.getByRole("button", { name: es.heroRegisterAction });
-      const heading = screen.getByRole("heading", { level: 1 });
+      const about = screen.getByRole("button", { name: es.heroAboutLabel });
+      // The last action of the hero's actions row (corrections Round 2).
+      expect(button.parentElement!.parentElement).toBe(about.parentElement);
       expect(
-        button.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING,
+        about.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING,
       ).toBeTruthy();
       expect(button.parentElement!.classList.contains("lg:hidden")).toBe(true);
       fireEvent.click(button);
