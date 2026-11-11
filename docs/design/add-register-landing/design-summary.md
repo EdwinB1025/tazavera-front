@@ -1,4 +1,4 @@
-Status: draft — approved
+Status: approved
 
 # Design summary — add-register-landing
 
