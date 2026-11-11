@@ -36,7 +36,7 @@ API: no endpoint is consumed (navigation only). No API error is presented, so no
 | `src/app/shell/AppShell.tsx` | app | passes `register` from the `shell` catalog; D4 |
 | `src/pages/home/ui/HomeRegisterButton.tsx` | pages (`home` slice) | new, client; D5 |
 | `src/pages/home/ui/HomeScreen.tsx` | pages | hero section layout and texts; D5, D6 |
-| `src/pages/home/ui/HomeHero.tsx` | pages | one About us link; `HomeHeroTexts`; D6 |
+| `src/pages/home/ui/HomeHero.tsx` | pages | one About us button; `HomeHeroTexts`; D6 |
 | `src/pages/about/ui/AboutContent.tsx` | pages (`about` slice) | one `/join` link; `AboutContentTexts`; D6 |
 | `src/pages/about/ui/AboutScreen.tsx` | pages | texts; D6 |
 | `messages/{es,en,ca}/shell.json`, `account.json`, `landing.json` | catalogs | D7 |
@@ -95,11 +95,11 @@ In `AppHeader`, the `session.state === "anonymous"` branch renders, in this orde
 
 Why the island renders the wrapper: the summary places a breakpoint-hidden wrapper around the island (`lg:hidden` since handoff C3) and requires the hero to start at today's position for a resolving or signed-in visitor (§6.2). A wrapper rendered by `HomeScreen` would stay in the flex column as an empty item even when the island renders nothing, and the column's `gap-6` would push the hero down 1.5rem below `lg` for exactly those visitors. Rendering the wrapper inside the island leaves no item at all in those states; from `lg` the wrapper is `display: none`, which flex `gap` ignores. The page does not change from `lg` for any visitor. Between 768px and 1023px the button sits above the two-column hero, 1.5rem above it (the hero section's `gap-6`, unchanged).
 
-### D6 — The hero and About us links
+### D6 — The hero's About us button and the About us link
 
-- `HomeHero`: the `nav` and `LINK_GROUP_CLASSES` go; the actions block (`ACTIONS_CLASSES`, unchanged: `mt-2 flex flex-col items-start gap-4`) holds `ExploreButton`, then `Link href={\`/${locale}/about\`}` with `texts.aboutLabel`. `HomeHeroTexts` drops `coffeeshopRegisterLabel`, `specialistRegisterLabel` and `registerNavigation` and gains `aboutLabel: string`. `HomeScreen` passes `catalog.heroAboutLabel`. The block's `items-start` gives the link its own width ("Link groups").
+- `HomeHero`: the `nav` and `LINK_GROUP_CLASSES` go; the actions block (`ACTIONS_CLASSES`, unchanged: `mt-2 flex flex-col items-start gap-4`) holds `ExploreButton`, then `RouteButton variant="action-1" size="base" href={\`/${locale}/about\`}` with `texts.aboutLabel` — the treatment and size of the entry-page Register button (D5) and the `/join` option buttons (D3), with no new text, token or style (corrections Round 1, item 1). `HomeHeroTexts` drops `coffeeshopRegisterLabel`, `specialistRegisterLabel` and `registerNavigation` and gains `aboutLabel: string`. `HomeScreen` passes `catalog.heroAboutLabel`. The block's `items-start` gives the button its own width ("Link groups"). `RouteButton` calls `useRouter()`, so a component test that renders `HomeHero` mocks `next/navigation`.
 - `AboutContent`: in section 4 the `nav` and `LINK_GROUP_CLASSES` go; after the audience text comes `Link href={\`/${locale}/join\`} className="self-start"` with `texts.registerLabel`. `AboutContentTexts` drops the same three keys and gains `registerLabel: string`. `AboutScreen` passes `catalog.aboutRegisterLabel`.
-- Both are text links (summary Open 12 = A); the landing delta states them as exceptions to base-controls "Navigation controls by position".
+- The About us page's link is a text link (summary Open 12 = A); the landing delta states it as an exception to base-controls "Navigation controls by position". The hero's About us action is an action button (corrections Round 1, item 1: Product owner's browser check, 2026-11-11, found a button followed by a text link unbalanced), so it needs no exception.
 
 ### D7 — Catalog texts
 

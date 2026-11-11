@@ -53,7 +53,7 @@ Every navigation landmark of the application SHALL carry an accessible name from
 
 #### Scenario: Registration links named
 - **WHEN** the entry page or the About us page renders in English
-- **THEN** its single link to the About us page or to the registration landing sits in no navigation landmark, so the page shows no navigation landmark named "Registration"
+- **THEN** its About us button or its registration-landing link sits in no navigation landmark, so the page shows no navigation landmark named "Registration"
 
 #### Scenario: Names follow the locale
 - **WHEN** the locale changes

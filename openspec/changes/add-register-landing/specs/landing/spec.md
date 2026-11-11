@@ -16,7 +16,7 @@ Below the large breakpoint (1024px), while the session is anonymous, the entry p
 ## MODIFIED Requirements
 
 ### Requirement: Page layout
-Both public pages SHALL be built from full-width sections. Each section's content SHALL sit in a horizontally centered container at most 72rem wide, with side padding (1rem below the medium breakpoint of 768px, 2rem from it). Each section SHALL have vertical padding (3rem below 768px, 4rem from it). On the entry page, the hero and the verified offerings list SHALL be separate sections, the hero on the page background and the list on the section background. A single text link of a section SHALL keep its own width, aligned to the start of its column.
+Both public pages SHALL be built from full-width sections. Each section's content SHALL sit in a horizontally centered container at most 72rem wide, with side padding (1rem below the medium breakpoint of 768px, 2rem from it). Each section SHALL have vertical padding (3rem below 768px, 4rem from it). On the entry page, the hero and the verified offerings list SHALL be separate sections, the hero on the page background and the list on the section background. A single text link or single action button of a section SHALL keep its own width, aligned to the start of its column.
 
 #### Scenario: Centered content
 - **WHEN** either page renders on a viewport wider than 72rem plus its side padding
@@ -31,15 +31,15 @@ Both public pages SHALL be built from full-width sections. Each section's conten
 - **THEN** the hero renders on the page background and the verified offerings list renders below it, in its own section on the section background
 
 #### Scenario: Link groups
-- **WHEN** the hero's About us link or the about page's registration-landing link renders
+- **WHEN** the hero's About us button or the about page's registration-landing link renders
 - **THEN** it is aligned to the start of its column at its own width and does not span the row
 
 ### Requirement: Entry page hero
-The entry page SHALL render, in the main content area, an eyebrow label, the entry heading with exactly one emphasized word in the accent text color (in Spanish the settled copy `Tu café, el que merece cada sorbo`), an introduction paragraph, an action that opens the coffee shop directory of the active locale (`/{locale}/coffeeshops`), and below it one text link, for every visitor, that opens the About us page of the active locale (`/{locale}/about`) and sits in no navigation landmark; this link is an exception to base-controls "Navigation controls by position". The coffee-beans photograph SHALL accompany the hero from the medium breakpoint (768px) up and be hidden below it.
+The entry page SHALL render, in the main content area, an eyebrow label, the entry heading with exactly one emphasized word in the accent text color (in Spanish the settled copy `Tu café, el que merece cada sorbo`), an introduction paragraph, an action that opens the coffee shop directory of the active locale (`/{locale}/coffeeshops`), and below it, 1rem apart in the same actions column, one action button in the primary treatment (`action-1`) at the standard size, for every visitor, that opens the About us page of the active locale (`/{locale}/about`) and sits in no navigation landmark. The coffee-beans photograph SHALL accompany the hero from the medium breakpoint (768px) up and be hidden below it.
 
 #### Scenario: Hero presentation
 - **WHEN** a visitor opens the entry route in a supported locale
-- **THEN** the eyebrow, the heading with one emphasized word, the paragraph, the explore action and the About us link render with the texts of that locale
+- **THEN** the eyebrow, the heading with one emphasized word, the paragraph, the explore action and the About us button render with the texts of that locale
 
 #### Scenario: Explore scrolls to the offerings
 - **WHEN** a visitor views the hero in the `es` locale
@@ -47,7 +47,7 @@ The entry page SHALL render, in the main content area, an eyebrow label, the ent
 
 #### Scenario: Registration destinations
 - **WHEN** a visitor views the hero in the `es` locale
-- **THEN** the About us link is a link, named by its label, addressing `/es/about`, and it is not inside a navigation landmark
+- **THEN** the About us action is a button, named by its label, that opens `/es/about`, and it is not inside a navigation landmark
 
 #### Scenario: Specialist registration destination
 - **WHEN** a visitor views the hero in the `es` locale
