@@ -264,3 +264,12 @@ Completeness 18/18 tasks; 10 requirements across 3 deltas (3 ADDED, 7 MODIFIED),
 
 ### Final checks
 - Ready for Product owner's browser check. Not seen by any agent (API down): the signed-in header and user menu without "Register", no entry-page button when signed in, `/join` sending a signed-in visitor to the locale root, the offerings block. Closed for review before the archive: C1, C2, C3.
+
+## Session 2026-11-11 — Round 1 (correction round), cloud architect then build, and integration
+Summary: Product owner's browser check produced Round 1 (`corrections.md`, committed by Product owner in `21523f97`): the hero's About us link becomes an `action-1` button. Routine `trig_016sJT8oQu9uLVgEzAvgMrzG`, session `cse_016LpndjVSYfEPnakTgV6xGW` (12:45–12:53 UTC), base `21523f97`, prompt by the design lead. Next: the design lead's visual re-check of the hero (needs Product owner's dev server), then verify, then Product owner's browser check and archive request.
+
+### Agent feedback
+Architect `415c4e79` `docs(user-account): apply review round 1 for add-register-landing`: landing delta ("Entry page hero", scenarios "Hero presentation", "Registration destinations", "Page layout" / "Link groups"), app-shell scenario "Registration links named", design.md Files row and D6, proposal.md, new tasks 7.1–7.3, `### Status` under Round 1; strict validate valid. Build: `3d8744d7` test (7.1, `HomeHero.test.tsx`, failing before the code), `04dd50d7` feat (7.2, `HomeHero.tsx`: `RouteButton variant="action-1" size="base"`; it also checks 7.1's box, left out of the test commit), `8b413587` chore (7.3). Checks: validation suite 212 files, 1233/1233; `tsc` no errors; lint 0 errors, 1 warning (`qa/…/ConsensusPanel.test.tsx:531`); `npm run build` failed on the first run with `SecurityFatalError` and passed on the rerun (fourth time). QA suite: 3 files, 14 tests failing (was 2 files, 12): the 2 new ones are in `qa/src/pages/home/ui/HomeHero.test.tsx` (lines 55 and 73, "invariant expected app router to be mounted": the QA test has no `next/navigation` mock for the new `RouteButton`); stale QA tests, reported, not fixed.
+
+### Review and integration (orchestrator, §7 steps 4–8)
+Commit format, footers and test-first order correct; the architect touched only the change's artifacts and `corrections.md`, the build only `HomeHero.tsx`, its test and `tasks.md`. Checks not re-run locally (npm denied in this session); integrated on the session's counts. `git merge --ff-only origin/claude/add-register-landing-round-1`: `21523f97..8b413587`, pushed.
