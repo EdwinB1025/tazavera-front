@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
-import { Link } from "@/shared/ui";
+import { RouteButton } from "@/shared/ui";
 import { ExploreButton } from "./ExploreButton";
 
 // ─── UI-specific types (declared before the component) ───
@@ -13,7 +13,7 @@ export type HomeHeroTexts = {
   headingAfter: string;
   paragraph: string;
   exploreLabel: string;
-  /** The About us link below the explore action (add-register-landing D6). */
+  /** The About us button below the explore action (add-register-landing D6). */
   aboutLabel: string;
   photoAlt: string;
 };
@@ -53,8 +53,9 @@ const ACTIONS_CLASSES = [
  * Hero of the entry page (design.md D10, D11, D12; the landing spec "Entry
  * page hero"). The heading renders as three parts so exactly one word takes
  * the accent color (spec "Hero presentation", "Settled Spanish heading"), the
- * About us link addresses the About us page of the active locale (spec
- * "Registration destinations"; add-register-landing D6), and the photograph is hidden
+ * About us button (`action-1`, standard size) opens the About us page of the
+ * active locale (spec "Registration destinations"; add-register-landing D6,
+ * corrections Round 1), and the photograph is hidden
  * below `md` and renders beside the text from `md` up (spec "Responsive
  * hero"). Every text arrives as a prop (design.md D11).
  */
@@ -71,7 +72,9 @@ export function HomeHero({ locale, texts }: HomeHeroProps): ReactNode {
         <p className="type-body">{texts.paragraph}</p>
         <div className={ACTIONS_CLASSES}>
           <ExploreButton locale={locale} label={texts.exploreLabel} />
-          <Link href={`/${locale}/about`}>{texts.aboutLabel}</Link>
+          <RouteButton variant="action-1" size="base" href={`/${locale}/about`}>
+            {texts.aboutLabel}
+          </RouteButton>
         </div>
       </div>
       <Image
