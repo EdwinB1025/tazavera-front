@@ -1,7 +1,15 @@
-import { describe, it, expect, afterEach } from "vitest";
-import { render, cleanup, screen } from "@testing-library/react";
+import { describe, it, expect, afterEach, vi } from "vitest";
+import { render, cleanup, screen, fireEvent } from "@testing-library/react";
 import { getMessages } from "@/shared/lib/i18n";
 import { HomeHero } from "./HomeHero";
+
+// The About us button is a `RouteButton`, whose `useRouter()` needs the App
+// Router context (add-register-landing D6): mocked, with a `push` spy.
+const router = vi.hoisted(() => ({ push: vi.fn() }));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => router,
+}));
 
 // This project has no global test setup, so RTL's auto-cleanup (which relies
 // on a framework-provided afterEach) does not run. Clean up manually between
@@ -106,11 +114,12 @@ describe("HomeHero", () => {
   });
 
   describe("Registration destinations (specs: 'Registration destinations', 'Specialist registration destination'; add-register-landing D6)", () => {
-    it("addresses the About us link at /{locale}/about outside any navigation landmark, and no link at a registration route", () => {
+    it("opens /{locale}/about from the About us button outside any navigation landmark, and no link at a registration route", () => {
       const { container } = render(<HomeHero locale="es" texts={TEXTS} />);
-      const about = screen.getByRole("link", { name: TEXTS.aboutLabel });
-      expect(about.getAttribute("href")).toBe("/es/about");
+      const about = screen.getByRole("button", { name: TEXTS.aboutLabel });
       expect(about.closest("nav")).toBeNull();
+      fireEvent.click(about);
+      expect(router.push).toHaveBeenCalledWith("/es/about");
       const hrefs = Array.from(container.querySelectorAll("a")).map((link) =>
         link.getAttribute("href"),
       );
@@ -142,9 +151,9 @@ describe("HomeHero", () => {
       );
     });
 
-    it("keeps the About us link at its own width, aligned to the start of the actions column", () => {
+    it("keeps the About us button at its own width, aligned to the start of the actions column", () => {
       render(<HomeHero locale="es" texts={TEXTS} />);
-      const group = screen.getByRole("link", { name: TEXTS.aboutLabel })
+      const group = screen.getByRole("button", { name: TEXTS.aboutLabel })
         .parentElement!;
       expect(group).toBe(
         screen.getByRole("link", { name: TEXTS.exploreLabel }).parentElement,
