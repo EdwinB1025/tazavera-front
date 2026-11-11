@@ -1,4 +1,4 @@
-Status: draft — pending Product owner review
+Status: approved
 
 # Design summary — update-vulnerable-dependencies
 
@@ -74,18 +74,22 @@ Not applicable to this change (criteria A, C, D and §1 items): components, toke
    - Options: **A.** No new requirement; the architect restates the existing requirement unchanged with a scenario naming 16.4.6's audit result (only if `openspec validate --strict` accepts it; **unverified**). **B.** Widen the requirement to every installed dependency for high and critical severity (dev included); moderate stays report-only. **C.** Widen to every severity, dev included (fails today because of Open 2).
    - Recommendation: **B.** Rows 6–8 are high-severity dev tooling the requirement does not catch today; B is satisfiable now (computed from section 2), C is not. Source: spec line 473; precedent proposal "Modified Capabilities".
    - Blocks propose: **yes** (the architect cannot write the delta without it).
+   - **Answer (orchestrator, approval delegated by Product owner, 2026-11-11): B.**
 2. **The `minimatch` / `typescript-eslint` chain (rows 9–10, 7 moderate, dev only), no stable fix.**
    - Options: **A.** Accept and report: leave it for the next release of `typescript-eslint` (8.72.3+); the apply re-checks `npm view typescript-eslint version` and takes it via `npm audit fix` if released by then. **B.** Add an `overrides` entry in `package.json` forcing `minimatch@^11.0.1` under `@typescript-eslint/typescript-estree` (outside its declared `^10.2.2`; risk of breaking lint; needs approval as a dependency change). **C.** Use the canary `typescript-eslint@8.72.3-alpha.x` (prerelease in the toolchain).
    - Recommendation: **A.** Moderate DoS, lint-time only, patterns come from the project's own config; same treatment as the dev-only `braces` advisory in `upgrade-next-16-4`. Source: npm registry (2026-11-11), GHSA-g3hv-75wg-m249, precedent Propose status.
    - Blocks propose: **yes** (it decides whether a task touches `package.json` `overrides` and what the audit check expects).
+   - **Answer (orchestrator, approval delegated by Product owner, 2026-11-11): A.**
 3. **Approval of the package list.** Approve rows 1–2 (`next` and `eslint-config-next` 16.4.0 → 16.4.6, exact pins) and rows 4–8 by `npm audit fix` within current ranges (lock file only).
    - Options: **A.** Approve as listed. **B.** `next` only to 16.4.1 (lowest patched; earlier `next dev` suggested 16.4.5). **C.** Approve and also allow the latest in-range minor (`vitest` 5.1.0) explicitly.
    - Recommendation: **A.** 16.4.6 is the audit's and npm's latest 16.4.x; the board's 16.4.5 suggestion is older. `npm audit fix` may pick `vitest` 5.1.0 (in range); A accepts whatever in-range version it picks, recorded in the propose status.
    - Blocks propose: **yes** (`AGENTS.md` → Dependencies).
+   - **Answer (orchestrator, approval delegated by Product owner, 2026-11-11): A.** This is the explicit dependency approval `AGENTS.md` → Dependencies requires: `next` and `eslint-config-next` 16.4.0 → 16.4.6 (exact pins), and rows 4–8 through `npm audit fix` within their current ranges (whatever in-range versions it picks, recorded in the propose status). No `--force`, no `overrides`, ESLint stays on v9.
 4. **Workflow weight.** It is a `Change` (security), yet it adds no behaviour or tests.
    - Options: **A.** Traditional workflow, short: propose with `design.md` skipped (as the precedent), one apply task + full checks, verify, archive on Product owner's request. **B.** Product owner orders it fast lane (`AGENTS.md` → Fast lane by Product owner's order), base `qa`.
    - Recommendation: **A**, launched right after R91 merges: the build failures make it urgent, and `qa` would delay it to the next refactoring round. Also run `npm run test:qa` before verify (dependency of the test runner changes).
    - Blocks propose: no.
+   - **Answer (orchestrator, approval delegated by Product owner, 2026-11-11): A, but launched now, not after R91.** Product owner made this change the highest priority: it goes to `develop` first; R91 and the badge-toggle change take `develop` in at their merge. `npm run test:qa` runs before verify.
 
 ## 7. Risks and unverified points
 
@@ -98,3 +102,4 @@ Not applicable to this change (criteria A, C, D and §1 items): components, toke
 ## Review log
 
 - **2026-11-11 — generated (design lead).** Drafted from Product owner's `npm audit` of 2026-11-11, `package.json` and `package-lock.json` on `develop`, the npm registry and GitHub advisories, app-shell spec line 473 and the archived `upgrade-next-16-4`. Settled D1–D6 by precedent and the `AGENTS.md` rules (no new decision). Found that no stable release fixes the `minimatch` chain, contrary to the audit's "fix available" text (Open 2). Found that `develop` currently fails app-shell's line-473 requirement (finding for the orchestrator; resolved by this change). Open: 4 points, 3 block propose.
+- **2026-11-11 — approved (orchestrator, approval delegated by Product owner the same day).** 1 = B, 2 = A, 3 = A, 4 = A launched at once (highest priority).
