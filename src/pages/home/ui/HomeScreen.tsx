@@ -75,12 +75,13 @@ export function HomeScreen({ locale, page }: HomeScreenProps): ReactNode {
 
   return (
     <div className="flex-1">
-      <PageSection surface="page" containerClassName="flex flex-col gap-6">
-        <HomeRegisterButton
-          locale={locale}
-          label={catalog.heroRegisterAction}
-        />
-        <HomeHero locale={locale} texts={heroTexts} />
+      <PageSection surface="page">
+        <HomeHero locale={locale} texts={heroTexts}>
+          <HomeRegisterButton
+            locale={locale}
+            label={catalog.heroRegisterAction}
+          />
+        </HomeHero>
       </PageSection>
       <PageSection surface="section">
         {/* Keyed by the page so a page change shows the skeleton at once

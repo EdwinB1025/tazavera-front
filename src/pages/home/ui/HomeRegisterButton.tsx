@@ -13,9 +13,10 @@ export type HomeRegisterButtonProps = {
 
 /**
  * The entry page's "Register" action below `lg` (add-register-landing D5;
- * spec "Entry page Register button"). It renders only for an anonymous
- * session, and renders its own `lg:hidden` wrapper so that no empty item
- * stays in the hero's column while the session resolves or once signed in.
+ * spec "Entry page Register button"), the last action of the hero's actions
+ * row. It renders only for an anonymous session, and renders its own
+ * `lg:hidden` wrapper so that no empty item stays in the row while the
+ * session resolves or once signed in.
  */
 export function HomeRegisterButton({
   locale,

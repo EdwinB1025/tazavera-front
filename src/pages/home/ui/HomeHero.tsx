@@ -13,7 +13,7 @@ export type HomeHeroTexts = {
   headingAfter: string;
   paragraph: string;
   exploreLabel: string;
-  /** The About us button below the explore action (add-register-landing D6). */
+  /** The About us button after the explore action (add-register-landing D6). */
   aboutLabel: string;
   photoAlt: string;
 };
@@ -21,6 +21,8 @@ export type HomeHeroTexts = {
 export type HomeHeroProps = {
   locale: string;
   texts: HomeHeroTexts;
+  /** Further actions, rendered last in the actions row (add-register-landing D5). */
+  children?: ReactNode;
 };
 
 // ─── Settled pieces (no interface text; design.md D11, D12) ───
@@ -40,12 +42,15 @@ const HERO_CLASSES = ["grid", "items-center", "gap-8", "md:grid-cols-2"].join(
 );
 // Eyebrow, heading and paragraph 1rem apart.
 const TEXT_COLUMN_CLASSES = ["flex", "flex-col", "gap-4"].join(" ");
-// The actions sit 1.5rem below the paragraph (the column gap plus `mt-2`).
+// The actions sit 1.5rem below the paragraph (the column gap plus `mt-2`),
+// side by side 1rem apart, wrapping when the row does not fit
+// (add-register-landing D6, corrections Round 2).
 const ACTIONS_CLASSES = [
   "mt-2",
   "flex",
-  "flex-col",
-  "items-start",
+  "flex-row",
+  "flex-wrap",
+  "items-center",
   "gap-4",
 ].join(" ");
 
@@ -53,13 +58,18 @@ const ACTIONS_CLASSES = [
  * Hero of the entry page (design.md D10, D11, D12; the landing spec "Entry
  * page hero"). The heading renders as three parts so exactly one word takes
  * the accent color (spec "Hero presentation", "Settled Spanish heading"), the
- * About us button (`action-1`, standard size) opens the About us page of the
- * active locale (spec "Registration destinations"; add-register-landing D6,
- * corrections Round 1), and the photograph is hidden
+ * actions sit in one wrapping row: the explore action, the About us button
+ * (`action-3`, standard size), which opens the About us page of the active
+ * locale (spec "Registration destinations"; add-register-landing D6), and the
+ * `children` (the entry page's Register action, D5); the photograph is hidden
  * below `md` and renders beside the text from `md` up (spec "Responsive
  * hero"). Every text arrives as a prop (design.md D11).
  */
-export function HomeHero({ locale, texts }: HomeHeroProps): ReactNode {
+export function HomeHero({
+  locale,
+  texts,
+  children,
+}: HomeHeroProps): ReactNode {
   return (
     <div className={HERO_CLASSES}>
       <div className={TEXT_COLUMN_CLASSES}>
@@ -72,9 +82,10 @@ export function HomeHero({ locale, texts }: HomeHeroProps): ReactNode {
         <p className="type-body">{texts.paragraph}</p>
         <div className={ACTIONS_CLASSES}>
           <ExploreButton locale={locale} label={texts.exploreLabel} />
-          <RouteButton variant="action-1" size="base" href={`/${locale}/about`}>
+          <RouteButton variant="action-3" size="base" href={`/${locale}/about`}>
             {texts.aboutLabel}
           </RouteButton>
+          {children}
         </div>
       </div>
       <Image
