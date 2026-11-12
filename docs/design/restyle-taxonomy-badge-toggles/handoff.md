@@ -24,3 +24,16 @@ Design lead (cloud prompt, checked against §7 step 2): constraints verified on 
 - Context: Q1 (b) "the toggle shrinks with the text" does not say whether the `+`/`−` glyph shrinks. / Decision: the glyph follows the badge text, 12px below `md` and 14px from `md` up. / Why: the most direct reading of Product owner's answer; a 14px glyph is tight in a 14px box with a 1px ring; adds no token, scope or text (§3). / Result: cloud prompt §5.
 #### D2 — OpenSpec CLI in the prompt
 - Context: the draft prompt pinned `@fission-ai/openspec@1.13.2`; the cloud environment's setup installs 1.16.0, and earlier strict validations ran on it. / Decision: validate with the installed CLI, stop if missing. / Why: §7 environment; R91 C2. / Result: cloud prompt §8.
+
+## Session 2026-11-12 — Artifact review (step 7), cloud architect, and integration
+Summary: routine `trig_01JmRcgxCAoyHkg6cmmBmrQw`, session `cse_016LpndjLosYe8B3EHWm9Dtk` (12:19–12:25 UTC), base `2a33a9ee`, prompt by the design lead. Next: apply (§3a step 8). MVC reachable: not checked.
+
+### Agent feedback
+Architect `3164928` `docs(landing): update artifacts for restyle-taxonomy-badge-toggles`: spec (tree badges' name 12px below `md`, 14px from `md`; toggle box about 14px below `md`, 16px from `md`; glyph at the name's size; hit area at least 24 × 24px and equal badge height at every width; scenario "Toggle at the end of its badge" extended, no new scenario); design D5 (new typographic role `type-tree-badge` in `globals.css`, on `NoteRow`'s name `span` and on the toggle; no token) and D6 (`size-3.5 md:size-4`, `before:-inset-1.25 md:before:-inset-1`, compiled with Tailwind 4.3.3); tasks 1.1 (extended), 1.2 (role and `NoteRow`), 1.3 (toggle classes), 2.1 (checks, visual review at 375 and 1280px); proposal; summary `## Propose status`. Checks: strict validate valid (CLI 1.16.0); validation suite 211 files, 1224/1224; lint 0 errors, 1 warning (`qa/…/ConsensusPanel.test.tsx:531`); `tsc` 0. Open, non-blocking: whether to add `type-tree-badge` to the `ROLES` table of `theme-tokens.test.ts`.
+
+### Review and integration (orchestrator, §7 steps 4–8)
+Commit format and footer correct; only the change folder and the summary's propose status changed. Duplicates check across spec, design and tasks: none. `git merge --ff-only origin/claude/restyle-taxonomy-badge-toggles-artifact-review`: `2a33a9ee..31649282`, pushed.
+
+### Decisions taken
+#### D3 — `type-tree-badge` stays out of the `ROLES` table
+- Context: the architect's open point. / Decision: not added; the change keeps every guard unchanged. / Why: AGENTS.md Testing ("Do not add new guard tests"; only a new token registers its pair); design.md Non-Goals and Risks already say so; the task's test reads the class and the visual review checks the size. / Result: no artifact change.
