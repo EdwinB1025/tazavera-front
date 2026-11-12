@@ -5,3 +5,5 @@
 export { LocationsPanel } from "./ui/LocationsPanel";
 export type { LocationsPanelTexts } from "./ui/LocationsPanel";
 export { LocationsSidebarEntry } from "./ui/LocationsSidebarEntry";
+export { NewLocationForm } from "./ui/NewLocationForm";
+export type { LocationFormTexts } from "./ui/LocationForm";
