@@ -24,5 +24,8 @@
   "genericError": "The action could not be completed. Please try again.",
   "signIn": "Sign in",
   "requiredError": "This field is required.",
-  "emailFormatError": "Enter a valid email address."
+  "emailFormatError": "Enter a valid email address.",
+  "firstLocationTitle": "Add your first location",
+  "firstLocationIntro": "Your account is created. Tell us where your coffee shop is so it appears in the directory.",
+  "firstLocationLater": "Later"
 }
