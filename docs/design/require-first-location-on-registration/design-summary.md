@@ -197,3 +197,21 @@ Product owner delegated R45's approvals to the orchestrator (2026-11-11: "indepe
 - Open 9: A, the form is shown even if the coffee shop already has a location.
 - Visual reference: the step reuses the Manage locations form unchanged; the captures of `/{locale}/manage/locations` with the form open (375 and 1280px, both themes) are taken at the first visual review, which needs Product owner's local server. Not a propose blocker (the screen exists; no new token, component or layout).
 - The design lead's risk (the step's navigation must win over `useAnonymousOnly`'s replace) and reuse note (`LocationsPanel`'s submit handling shared, not copied) go to the architect with the propose.
+
+## Propose status
+
+- **Change-id:** require-first-location-on-registration
+- **Date:** 2026-11-12
+- **Type:** Change (traditional workflow 3a, step 6)
+- **Source:** this summary (approved, `8a445e11`), Review log "2026-11-12 — approval" (Open 1–9 settled as recommended).
+- **`openspec validate require-first-location-on-registration --strict`:** valid
+- **Backlog entries resolved:** R45. No other entry affects the change.
+- **Resolved by the architect (design.md):**
+  - Navigation vs the anonymous-only gate → the gate stays the only navigation and takes the destination; the coffeeshop route sets a "registered here" state before `signInWithRegistration`, so the step wins and a coffee shop already signed in still goes to `/{locale}` (D1). user-account "Registration routes" is MODIFIED too, because its text said an authenticated session always opens the root.
+  - Shared submit handling → `NewLocationForm` in `features/location-management`, used by `LocationsPanel` and the step; the geocoding cache stays the caller's, so Manage locations keeps its per-page cache (D2).
+  - FSD → the step lives in the `manage-locations` page slice, with a slice-local `locationFormTexts(locale)` helper shared with Manage locations (D3, D5).
+  - "Later" → `texts.cancel` set to `firstLocationLater`, `onCancel` pushes `/{locale}`; a `201` replaces with `/{locale}/manage/locations` (D4).
+  - Focus → an effect on mount focuses the `h1` (D6).
+  - Sidebar → no slot page; the catch-all `@sidebar/[...rest]` renders, as on `manage/evaluations/new` (D7).
+  - Spec deltas → "Signed in by the registration" kept by name for the specialist route plus the new "A coffeeshop signed in by the registration"; the offering-management requirement is split in three to stay under strict validation's 500-character limit (D8).
+- **Remains open:** none blocking. Visual reference captures at the first visual review (Review log).
