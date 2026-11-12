@@ -24,5 +24,8 @@
   "genericError": "No s'ha pogut completar l'acció. Torna-ho a provar.",
   "signIn": "Iniciar sessió",
   "requiredError": "Aquest camp és obligatori.",
-  "emailFormatError": "Introdueix un correu vàlid."
+  "emailFormatError": "Introdueix un correu vàlid.",
+  "firstLocationTitle": "Afegeix la teva primera ubicació",
+  "firstLocationIntro": "El teu compte s'ha creat. Indica on és la teva cafeteria perquè aparegui al directori.",
+  "firstLocationLater": "Més tard"
 }

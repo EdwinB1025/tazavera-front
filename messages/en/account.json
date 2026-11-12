@@ -67,5 +67,13 @@
   "emailVerified": "Verified",
   "emailNotVerified": "Not verified",
   "verifyEmail": "Verify email",
-  "emailVerifiedStatus": "Email verified"
+  "emailVerifiedStatus": "Email verified",
+  "registerLandingTitle": "Join Tazavera",
+  "registerLandingIntro": "Choose how you want to take part in Tazavera.",
+  "registerLandingSpecialistTitle": "Specialist",
+  "registerLandingSpecialistText": "Cup the coffee shops' offerings blind with the SCA protocol and record your evaluations.",
+  "registerLandingSpecialistAction": "Register as a specialist",
+  "registerLandingCoffeeshopTitle": "Coffee shop",
+  "registerLandingCoffeeshopText": "Publish your offerings, have them evaluated by specialists and show with evidence what you serve.",
+  "registerLandingCoffeeshopAction": "Register your coffeeshop"
 }

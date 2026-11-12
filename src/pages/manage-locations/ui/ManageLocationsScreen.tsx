@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { getMessages } from "@/shared/lib/i18n";
 import { PageSection } from "@/shared/ui";
+import { locationFormTexts } from "../lib/location-form-texts";
 import {
   ManageLocationsClient,
   type ManageLocationsClientTexts,
@@ -23,9 +24,9 @@ const HEADING_ID = "manage-locations-heading";
  */
 export function ManageLocationsScreen({ locale }: ManageLocationsScreenProps): ReactNode {
   const catalog = getMessages("location-management", locale);
-  const contactCatalog = getMessages("contact", locale);
 
   const texts: ManageLocationsClientTexts = {
+    ...locationFormTexts(locale),
     loading: catalog.loading,
     signedOutText: catalog.signedOutText,
     signIn: catalog.signIn,
@@ -36,27 +37,6 @@ export function ManageLocationsScreen({ locale }: ManageLocationsScreenProps): R
     locationCreated: catalog.locationCreated,
     locationCreatedNoMap: catalog.locationCreatedNoMap,
     locationNoMap: catalog.locationNoMap,
-    newLocationHeading: catalog.newLocationHeading,
-    locationGroupLegend: catalog.locationGroupLegend,
-    contactGroupLegend: catalog.contactGroupLegend,
-    locationNameLabel: catalog.locationNameLabel,
-    locationDescriptionLabel: catalog.locationDescriptionLabel,
-    geocodingHelp: catalog.geocodingHelp,
-    geocodingAttribution: catalog.geocodingAttribution,
-    osmContributors: catalog.osmContributors,
-    save: catalog.save,
-    cancel: catalog.cancel,
-    genericError: catalog.genericError,
-    requiredError: catalog.requiredError,
-    emailFormatError: catalog.emailFormatError,
-    contactAddressLabel: contactCatalog.contactAddressLabel,
-    contactPostalCodeLabel: contactCatalog.contactPostalCodeLabel,
-    contactCityLabel: contactCatalog.contactCityLabel,
-    contactCountryLabel: contactCatalog.contactCountryLabel,
-    contactPhoneLabel: contactCatalog.contactPhoneLabel,
-    contactEmailLabel: contactCatalog.contactEmailLabel,
-    contactWebLabel: contactCatalog.contactWebLabel,
-    contactSocialLabel: contactCatalog.contactSocialLabel,
   };
 
   return (

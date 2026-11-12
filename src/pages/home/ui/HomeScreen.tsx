@@ -9,6 +9,7 @@ import {
 } from "@/widgets/offering-list";
 import { HomeHero } from "./HomeHero";
 import type { HomeHeroTexts } from "./HomeHero";
+import { HomeRegisterButton } from "./HomeRegisterButton";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -43,9 +44,7 @@ export function HomeScreen({ locale, page }: HomeScreenProps): ReactNode {
     headingAfter: catalog.heroHeadingAfter,
     paragraph: catalog.heroParagraph,
     exploreLabel: catalog.heroExploreLabel,
-    coffeeshopRegisterLabel: catalog.heroCoffeeshopRegisterLabel,
-    specialistRegisterLabel: catalog.heroSpecialistRegisterLabel,
-    registerNavigation: catalog.heroRegisterNavigation,
+    aboutLabel: catalog.heroAboutLabel,
     photoAlt: catalog.heroPhotoAlt,
   };
 
@@ -77,7 +76,12 @@ export function HomeScreen({ locale, page }: HomeScreenProps): ReactNode {
   return (
     <div className="flex-1">
       <PageSection surface="page">
-        <HomeHero locale={locale} texts={heroTexts} />
+        <HomeHero locale={locale} texts={heroTexts}>
+          <HomeRegisterButton
+            locale={locale}
+            label={catalog.heroRegisterAction}
+          />
+        </HomeHero>
       </PageSection>
       <PageSection surface="section">
         {/* Keyed by the page so a page change shows the skeleton at once

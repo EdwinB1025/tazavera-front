@@ -1,7 +1,15 @@
-import { describe, it, expect, afterEach } from "vitest";
-import { render, cleanup, screen } from "@testing-library/react";
+import { describe, it, expect, afterEach, vi } from "vitest";
+import { render, cleanup, screen, fireEvent } from "@testing-library/react";
 import { getMessages } from "@/shared/lib/i18n";
 import { HomeHero } from "./HomeHero";
+
+// The About us button is a `RouteButton`, whose `useRouter()` needs the App
+// Router context (add-register-landing D6): mocked, with a `push` spy.
+const router = vi.hoisted(() => ({ push: vi.fn() }));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => router,
+}));
 
 // This project has no global test setup, so RTL's auto-cleanup (which relies
 // on a framework-provided afterEach) does not run. Clean up manually between
@@ -40,8 +48,7 @@ const TEXTS = {
   headingAfter: "texts.headingAfter",
   paragraph: "texts.paragraph",
   exploreLabel: "texts.exploreLabel",
-  coffeeshopRegisterLabel: "texts.coffeeshopRegisterLabel",
-  specialistRegisterLabel: "texts.specialistRegisterLabel",
+  aboutLabel: "texts.aboutLabel",
   photoAlt: "texts.photoAlt",
 };
 
@@ -85,8 +92,7 @@ describe("HomeHero", () => {
         headingAfter: catalog.heroHeadingAfter,
         paragraph: catalog.heroParagraph,
         exploreLabel: catalog.heroExploreLabel,
-        coffeeshopRegisterLabel: catalog.heroCoffeeshopRegisterLabel,
-        specialistRegisterLabel: catalog.heroSpecialistRegisterLabel,
+        aboutLabel: catalog.heroAboutLabel,
         photoAlt: catalog.heroPhotoAlt,
       };
       expect(
@@ -107,17 +113,20 @@ describe("HomeHero", () => {
     });
   });
 
-  describe("Registration destinations (specs: 'Registration destinations', 'Specialist registration destination')", () => {
-    it("addresses the two registration links at /{locale}/register/coffeeshop and /{locale}/register", () => {
-      render(<HomeHero locale="es" texts={TEXTS} />);
-      const coffeeshop = screen.getByRole("link", {
-        name: TEXTS.coffeeshopRegisterLabel,
-      });
-      expect(coffeeshop.getAttribute("href")).toBe("/es/register/coffeeshop");
-      const specialist = screen.getByRole("link", {
-        name: TEXTS.specialistRegisterLabel,
-      });
-      expect(specialist.getAttribute("href")).toBe("/es/register");
+  describe("Registration destinations (specs: 'Registration destinations', 'Specialist registration destination'; add-register-landing D6)", () => {
+    it("opens /{locale}/about from the About us button outside any navigation landmark, and no link at a registration route", () => {
+      const { container } = render(<HomeHero locale="es" texts={TEXTS} />);
+      const about = screen.getByRole("button", { name: TEXTS.aboutLabel });
+      expect(about.closest("nav")).toBeNull();
+      // Positional treatment 3, the navigate treatment (corrections Round 2).
+      expect(about.className).toContain("bg-action-3-bg");
+      fireEvent.click(about);
+      expect(router.push).toHaveBeenCalledWith("/es/about");
+      const hrefs = Array.from(container.querySelectorAll("a")).map((link) =>
+        link.getAttribute("href"),
+      );
+      expect(hrefs).not.toContain("/es/register");
+      expect(hrefs).not.toContain("/es/register/coffeeshop");
     });
   });
 
@@ -136,7 +145,7 @@ describe("HomeHero", () => {
     });
   });
 
-  describe("Hero layout (spec: 'Responsive hero', 'Link groups'; design.md D14)", () => {
+  describe("Hero layout (spec: 'Responsive hero', 'Link groups'; add-register-landing D6)", () => {
     it("splits into two equal, vertically centered columns from md", () => {
       const { container } = render(<HomeHero locale="es" texts={TEXTS} />);
       expect(classTokens(container.firstElementChild!)).toEqual(
@@ -144,17 +153,15 @@ describe("HomeHero", () => {
       );
     });
 
-    it("keeps the two registration links apart in a wrapping row", () => {
+    it("keeps the hero's actions side by side in one wrapping row, each at its own width", () => {
       render(<HomeHero locale="es" texts={TEXTS} />);
-      const group = screen.getByRole("link", {
-        name: TEXTS.coffeeshopRegisterLabel,
-      }).parentElement!;
+      const group = screen.getByRole("button", { name: TEXTS.aboutLabel })
+        .parentElement!;
       expect(group).toBe(
-        screen.getByRole("link", { name: TEXTS.specialistRegisterLabel })
-          .parentElement,
+        screen.getByRole("link", { name: TEXTS.exploreLabel }).parentElement,
       );
       expect(classTokens(group)).toEqual(
-        expect.arrayContaining(["flex", "flex-wrap", "gap-x-6", "gap-y-2"]),
+        expect.arrayContaining(["flex-row", "flex-wrap", "items-center", "gap-4"]),
       );
     });
   });

@@ -95,10 +95,11 @@ describe("RegisterClient — the session gate", () => {
   it("while authenticated replaces the route with /{locale} through the router and renders no form", () => {
     auth.session = {
       state: "authenticated",
-      user: { ulid: "u1", name: "Ana", surname: "López", email: "a@b.c", role: "specialist" },
+      user: { ulid: "u1", name: "Ana", surname: "López", email: "a@b.c", role: "coffeeshop" },
     };
-    renderClient();
+    renderClient("coffeeshop");
     expect(routerReplace).toHaveBeenCalledWith("/es");
+    expect(routerReplace).not.toHaveBeenCalledWith("/es/manage/locations/first");
     expect(document.querySelector("form")).toBeNull();
     expect(locationMock.assign).not.toHaveBeenCalled();
     expect(locationMock.reload).not.toHaveBeenCalled();
@@ -171,6 +172,29 @@ describe("RegisterClient — the registration result (sign-in-after-registration
 
   it("signs in with the token block and opens /{locale} through the router (spec: Signed in by the registration)", async () => {
     auth.session = { state: "anonymous" };
+    const view = renderClient();
+    auth.signInWithRegistration.mockImplementation(async () => {
+      auth.session = {
+        state: "authenticated",
+        user: { ulid: "u1", name: "Ana", surname: "López", email: "a@b.c", role: "specialist" },
+      };
+      view.rerender(
+        <RegisterClient locale="es" role="specialist" labelledBy="register-title" texts={TEXTS} />,
+      );
+      return true;
+    });
+
+    await register({ data: {}, message: "m", token: TOKEN });
+
+    expect(auth.signInWithRegistration).toHaveBeenCalledWith(TOKEN);
+    expect(routerReplace).toHaveBeenCalledWith("/es");
+    expect(routerReplace).not.toHaveBeenCalledWith("/es/account");
+    expect(screen.queryByRole("heading", { name: TEXTS.registerSuccessTitle })).toBeNull();
+    expect(locationMock.assign).not.toHaveBeenCalled();
+  });
+
+  it("signs in with the token block and opens the first location step (spec: A coffeeshop signed in by the registration)", async () => {
+    auth.session = { state: "anonymous" };
     const view = renderClient("coffeeshop");
     auth.signInWithRegistration.mockImplementation(async () => {
       auth.session = {
@@ -186,8 +210,8 @@ describe("RegisterClient — the registration result (sign-in-after-registration
     await register({ data: {}, message: "m", token: TOKEN });
 
     expect(auth.signInWithRegistration).toHaveBeenCalledWith(TOKEN);
-    expect(routerReplace).toHaveBeenCalledWith("/es");
-    expect(routerReplace).not.toHaveBeenCalledWith("/es/account");
+    expect(routerReplace).toHaveBeenCalledWith("/es/manage/locations/first");
+    expect(routerReplace).not.toHaveBeenCalledWith("/es");
     expect(screen.queryByRole("heading", { name: TEXTS.registerSuccessTitle })).toBeNull();
     expect(locationMock.assign).not.toHaveBeenCalled();
   });

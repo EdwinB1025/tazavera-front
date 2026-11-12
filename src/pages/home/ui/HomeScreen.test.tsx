@@ -1,6 +1,7 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, cleanup, screen } from "@testing-library/react";
+import { render, cleanup, screen, fireEvent } from "@testing-library/react";
 import { getMessages } from "@/shared/lib/i18n";
+import type { Session } from "@/shared/api";
 import type { VerifiedOfferingsProps } from "@/widgets/offering-list";
 import { HomeScreen } from "@/pages/home";
 
@@ -9,6 +10,8 @@ afterEach(() => {
   cleanup();
   block.suspend = false;
   block.props = null;
+  auth.session = { state: "anonymous" };
+  router.push.mockReset();
 });
 
 /**
@@ -30,6 +33,24 @@ afterEach(() => {
 const block = vi.hoisted(() => ({
   suspend: false,
   props: null as VerifiedOfferingsProps | null,
+}));
+
+// The entry-page "Register" button reads the session and navigates with the
+// App Router (add-register-landing D5): both are mocked by module (test
+// infrastructure), each test setting the session state it needs.
+const auth = vi.hoisted(() => ({
+  session: { state: "anonymous" } as Session,
+}));
+
+const router = vi.hoisted(() => ({ push: vi.fn() }));
+
+vi.mock("@/features/auth", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/features/auth")>()),
+  useSession: () => auth.session,
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => router,
 }));
 
 vi.mock("@/widgets/offering-list", async (importOriginal) => {
@@ -65,6 +86,38 @@ describe("HomeScreen", () => {
     expect(screen.queryByTestId("offerings-block")).toBeNull();
     expect(screen.getAllByTestId("skeleton-card").length).toBeGreaterThan(1);
     expect(screen.getByRole("heading", { level: 1 })).toBeTruthy();
+  });
+
+  describe("Entry page Register button (spec: 'Entry page Register button'; add-register-landing D5)", () => {
+    const es = getMessages("landing", "es");
+
+    it("Register button for an anonymous visitor on a small viewport", () => {
+      render(<HomeScreen locale="es" page={undefined} />);
+      const button = screen.getByRole("button", { name: es.heroRegisterAction });
+      const about = screen.getByRole("button", { name: es.heroAboutLabel });
+      // The last action of the hero's actions row (corrections Round 2).
+      expect(button.parentElement!.parentElement).toBe(about.parentElement);
+      expect(
+        about.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+      expect(button.parentElement!.classList.contains("lg:hidden")).toBe(true);
+      fireEvent.click(button);
+      expect(router.push).toHaveBeenCalledWith("/es/join");
+    });
+
+    it("No Register button while resolving or signed in", () => {
+      for (const session of [
+        { state: "loading" },
+        { state: "authenticated", user: {} },
+      ] as Session[]) {
+        auth.session = session;
+        const { unmount } = render(<HomeScreen locale="es" page={undefined} />);
+        expect(
+          screen.queryByRole("button", { name: es.heroRegisterAction }),
+        ).toBeNull();
+        unmount();
+      }
+    });
   });
 
   describe("Page layout (spec: 'Entry page sections', 'Centered content', 'Side and section spacing', 'Grid by viewport'; design.md D14)", () => {

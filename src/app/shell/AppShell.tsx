@@ -73,6 +73,7 @@ export function AppShell({
           aboutUs: texts.aboutUs!,
           primaryNavigation: texts.primaryNavigation!,
           signIn: texts.signIn!,
+          register: texts.register!,
           // design.md D6: the shell composes one name — the resolved
           // locale's code in uppercase, then " — ", then the catalog word
           // with the resolved language's own name, e.g.

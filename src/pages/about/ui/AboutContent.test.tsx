@@ -61,8 +61,7 @@ const TEXTS = {
   stepCupping: "texts.stepCupping",
   stepConsensus: "texts.stepConsensus",
   audienceText: "texts.audienceText",
-  coffeeshopRegisterLabel: "texts.coffeeshopRegisterLabel",
-  specialistRegisterLabel: "texts.specialistRegisterLabel",
+  registerLabel: "texts.registerLabel",
   closingLabel: "texts.closingLabel",
 };
 
@@ -100,8 +99,7 @@ describe("AboutContent", () => {
       expect(sections[2].textContent).toContain(TEXTS.stepConsensus);
       // 4. Who it is for: the audience line and the two registration links.
       expect(sections[3].textContent).toContain(TEXTS.audienceText);
-      expect(sections[3].textContent).toContain(TEXTS.coffeeshopRegisterLabel);
-      expect(sections[3].textContent).toContain(TEXTS.specialistRegisterLabel);
+      expect(sections[3].textContent).toContain(TEXTS.registerLabel);
       // 5. Closing: the closing action's label from props.
       expect(sections[4].textContent).toContain(TEXTS.closingLabel);
     });
@@ -157,19 +155,21 @@ describe("AboutContent", () => {
     });
   });
 
-  describe("Registration links (spec: 'Registration links')", () => {
-    it("addresses the two registration links at /{locale}/register/coffeeshop and /{locale}/register", () => {
-      render(<AboutContent locale={LOCALE} texts={TEXTS} />);
-      const coffeeshop = screen.getByRole("link", {
-        name: TEXTS.coffeeshopRegisterLabel,
-      });
-      expect(coffeeshop.getAttribute("href")).toBe(
-        `/${LOCALE}/register/coffeeshop`,
+  describe("Registration links (spec: 'Registration links'; add-register-landing D6)", () => {
+    it("holds one link to /{locale}/join in section 4, outside any navigation landmark, and no link at a registration route", () => {
+      const { container } = render(
+        <AboutContent locale={LOCALE} texts={TEXTS} />,
       );
-      const specialist = screen.getByRole("link", {
-        name: TEXTS.specialistRegisterLabel,
-      });
-      expect(specialist.getAttribute("href")).toBe(`/${LOCALE}/register`);
+      const section = container.querySelectorAll("section")[3];
+      const links = Array.from(section.querySelectorAll("a"));
+      expect(links.map((link) => link.textContent)).toEqual([TEXTS.registerLabel]);
+      expect(links[0].getAttribute("href")).toBe(`/${LOCALE}/join`);
+      expect(links[0].closest("nav")).toBeNull();
+      const hrefs = Array.from(container.querySelectorAll("a")).map((link) =>
+        link.getAttribute("href"),
+      );
+      expect(hrefs).not.toContain(`/${LOCALE}/register`);
+      expect(hrefs).not.toContain(`/${LOCALE}/register/coffeeshop`);
     });
   });
 
@@ -182,7 +182,7 @@ describe("AboutContent", () => {
     });
   });
 
-  describe("Page layout (spec: 'Centered content', 'Side and section spacing', 'How we evaluate', 'Link groups'; design.md D14)", () => {
+  describe("Page layout (spec: 'Centered content', 'Side and section spacing', 'How we evaluate', 'Link groups'; design.md D14, add-register-landing D6)", () => {
     it("pads every section and centers its content in the container", () => {
       const { container } = render(
         <AboutContent locale={LOCALE} texts={TEXTS} />,
@@ -219,14 +219,11 @@ describe("AboutContent", () => {
       expect(card.parentElement!.childElementCount).toBe(3);
     });
 
-    it("keeps the two registration links apart in a wrapping row", () => {
+    it("keeps the registration-landing link at its own width, aligned to the start of its column", () => {
       render(<AboutContent locale={LOCALE} texts={TEXTS} />);
-      const group = screen.getByRole("link", {
-        name: TEXTS.coffeeshopRegisterLabel,
-      }).parentElement!;
-      expect(classTokens(group)).toEqual(
-        expect.arrayContaining(["flex", "flex-wrap", "gap-x-6", "gap-y-2"]),
-      );
+      expect(
+        classTokens(screen.getByRole("link", { name: TEXTS.registerLabel })),
+      ).toContain("self-start");
     });
   });
 });

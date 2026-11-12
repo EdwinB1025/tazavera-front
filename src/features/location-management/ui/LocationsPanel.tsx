@@ -1,15 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import type { FieldErrors } from "@/shared/lib/field-errors";
 import type { GeocodeOutcome } from "@/shared/lib/geocoding";
 import { FormStatus, LoadingStatus } from "@/shared/ui";
-import type { LocationFormValues } from "../model/location-form";
-import { submitLocation } from "../model/submit-location";
-import type { ListState, SubmitState } from "../model/types";
+import type { ListState } from "../model/types";
 import { useOwnLocations } from "../model/use-own-locations";
-import { LocationForm, type LocationFormTexts } from "./LocationForm";
+import type { LocationFormTexts } from "./LocationForm";
 import { LocationList } from "./LocationList";
+import { NewLocationForm } from "./NewLocationForm";
 import {
   AddLocationButton,
   LocationsEmptyCard,
@@ -104,11 +102,12 @@ export function LocationsPanel({
   texts,
 }: LocationsPanelProps): ReactNode {
   const rootRef = useRef<HTMLDivElement>(null);
-  const geocodeCache = useRef(new Map<string, GeocodeOutcome>());
+  // The page's lookup cache, kept across closing and reopening the form; a
+  // state initialiser rather than a ref, since it is read during render.
+  const [geocodeCache] = useState(() => new Map<string, GeocodeOutcome>());
   const focusTarget = useRef<FocusTarget>(null);
-  const { list, reload, mounted } = useOwnLocations(userUlid);
+  const { list, reload } = useOwnLocations(userUlid);
   const [formOpen, setFormOpen] = useState(false);
-  const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [status, setStatus] = useState<string | null>(null);
 
   // Runs once the form has opened or closed.
@@ -124,7 +123,6 @@ export function LocationsPanel({
 
   function openForm(): void {
     setStatus(null);
-    setSubmitState("idle");
     focusTarget.current = "name";
     setFormOpen(true);
   }
@@ -134,37 +132,24 @@ export function LocationsPanel({
     setFormOpen(false);
   }
 
-  /** Sends the form; resolves the messages of a `422` (show-field-validation-errors D6). */
-  async function handleSubmit(values: LocationFormValues): Promise<FieldErrors | null> {
-    setSubmitState("submitting");
-    const outcome = await submitLocation(values, geocodeCache.current);
-    if (!mounted.current) return null;
-    if (outcome.status === "invalid") {
-      setSubmitState("idle");
-      return outcome.errors;
-    }
-    if (outcome.status !== "created") {
-      setSubmitState(outcome.status);
-      return null;
-    }
-    setSubmitState("idle");
+  /** The `201` outcome: close, status, focus to the page heading, reload. */
+  function handleCreated(hadCoordinates: boolean): void {
     setFormOpen(false);
     setStatus(
-      outcome.hadCoordinates
+      hadCoordinates
         ? texts.locationCreated
         : `${texts.locationCreated} ${texts.locationCreatedNoMap}`,
     );
     document.getElementById(headingId)?.focus();
     reload();
-    return null;
   }
 
   const form = (
-    <LocationForm
+    <NewLocationForm
       texts={texts}
-      submitState={submitState}
-      onSubmit={handleSubmit}
+      geocodeCache={geocodeCache}
       onCancel={closeForm}
+      onCreated={handleCreated}
     />
   );
   const addButton = <AddLocationButton label={texts.addLocation} onAdd={openForm} />;

@@ -10,9 +10,19 @@ import {
 import type { Session, SessionUser } from "@/shared/api";
 import { AppHeader, PrimaryNav, LanguageSelect } from "@/widgets/app-header";
 
+// The "Register" action is a `RouteButton`, whose `useRouter()` needs the
+// App Router context jsdom does not provide. Test infrastructure only: the
+// existing assertions do not depend on it.
+const router = vi.hoisted(() => ({ push: vi.fn() }));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => router,
+}));
+
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
   cleanup();
+  router.push.mockReset();
 });
 
 /**
@@ -39,6 +49,7 @@ const TEXTS = {
   exploreCoffeeshops: "texts.exploreCoffeeshops",
   aboutUs: "texts.aboutUs",
   signIn: "texts.signIn",
+  register: "texts.register",
   languageSelector: "texts.languageSelector",
   brandLink: "texts.brandLink",
   myAccount: "texts.myAccount",
@@ -208,6 +219,26 @@ describe("AppHeader, signed-out state", () => {
     for (const control of controls) {
       expect(control.className).toContain("focus-visible:focus-ring");
     }
+  });
+
+  it("Register opens the registration landing", () => {
+    renderHeader();
+    fireEvent.click(screen.getByRole("button", { name: TEXTS.register }));
+    expect(router.push).toHaveBeenCalledWith("/es/join");
+  });
+
+  it("No Register action when signed in", () => {
+    renderHeader({
+      state: "authenticated",
+      user: {
+        ulid: "01M35F5RX4ADGC3CSDXXYB08DD",
+        name: "Andrés",
+        surname: "Gómez",
+        email: "andres@tazavera.test",
+        role: "specialist",
+      },
+    });
+    expect(screen.queryByRole("button", { name: TEXTS.register })).toBeNull();
   });
 });
 

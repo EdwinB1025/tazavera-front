@@ -38,6 +38,7 @@ const TEXTS = {
   topRated: "texts.topRated",
   aboutUs: "texts.aboutUs",
   signIn: "texts.signIn",
+  register: "texts.register",
   languageSelector: "texts.languageSelector",
   brandLink: "texts.brandLink",
   myAccount: "texts.myAccount",

@@ -6,7 +6,7 @@ Lets a visitor create a Tazavera account as a specialist or as a coffeeshop, and
 ## Requirements
 
 ### Requirement: Registration routes
-The application SHALL offer registration as a specialist at `/{locale}/register` and as a coffeeshop at `/{locale}/register/coffeeshop`, reachable from the entry page and the About us page, and each route SHALL send its own role with the registration. While the session is resolving a registration route SHALL wait with no form shown, and when the session is authenticated the application SHALL open the root of the active locale through client-side navigation. Each registration route SHALL present the loading status, the form and the success panel in one section card with no header band. The registration card SHALL fill the page container's width, its content at most 40rem wide and centred horizontally in the card from the medium breakpoint.
+The application SHALL offer registration as a specialist at `/{locale}/register` and as a coffeeshop at `/{locale}/register/coffeeshop`, reachable from the registration landing, and each route SHALL send its own role with the registration. While the session is resolving a registration route SHALL wait with no form shown, and when the session is authenticated the application SHALL open the root of the active locale through client-side navigation, except right after the coffeeshop route's own registration has signed the user in, which opens the first location step as "Registration result" states. Each registration route SHALL present the loading status, the form and the success panel in one section card with no header band. The registration card SHALL fill the page container's width, its content at most 40rem wide and centred horizontally in the card from the medium breakpoint.
 
 #### Scenario: The specialist route registers a specialist
 - **WHEN** a visitor submits the registration form on `/{locale}/register`
@@ -21,8 +21,8 @@ The application SHALL offer registration as a specialist at `/{locale}/register`
 - **THEN** the heading and the loading status render and no form is shown until the session settles
 
 #### Scenario: A signed-in visitor is taken to the entry page
-- **WHEN** a registration route opens with an authenticated session, including right after signing in from the success panel
-- **THEN** the application opens the root of the active locale through client-side navigation, with no reload and no message
+- **WHEN** a registration route, the coffeeshop route included, opens with an authenticated session, including right after signing in from the success panel
+- **THEN** the application opens the root of the active locale through client-side navigation, with no reload and no message, and never the first location step
 
 #### Scenario: The registration card
 - **WHEN** a registration route renders while the session resolves, while it shows the form, or after a `201` has replaced the form with the success panel
@@ -48,11 +48,15 @@ The registration form SHALL collect name, surname, email, password and password 
 - **THEN** `POST /register` is sent without credentials with the form's field values and the route's role, and the submit action shows its busy state while the fields stay editable
 
 ### Requirement: Registration result
-A registration answered with `201` whose body carries a `token` block SHALL sign the user in with that block and, once the session is authenticated, SHALL open `/{locale}` through client-side navigation, never a full page load, with no confirmation text, for both registration roles. A `201` without a `token` block, or whose block does not sign the user in, SHALL replace the form with a success panel carrying a heading, a text and a "Sign in" action, and focus SHALL move to the panel's heading. Activating "Sign in" SHALL start sign in synchronously inside that click. A `422` SHALL show each field's first message under that field as form-fields "Server validation errors" states, and the generic form-level error only when one of its keys names no field of the form, and SHALL keep every entered value except the password and its confirmation, which are cleared. Every other outcome — a server error, a network failure or any other status — SHALL show the generic form-level error above the actions, keep every entered value except the password and its confirmation, which are cleared, and render no message from the API.
+A registration answered with `201` whose body carries a `token` block SHALL sign the user in with that block and, once the session is authenticated, SHALL open through client-side navigation, never a full page load, with no confirmation text, the first location step `/{locale}/manage/locations/first` on the coffeeshop route and `/{locale}` on the specialist route. A `201` without a `token` block, or whose block does not sign the user in, SHALL replace the form with a success panel carrying a heading, a text and a "Sign in" action, and focus SHALL move to the panel's heading. Activating "Sign in" SHALL start sign in synchronously inside that click. A `422` SHALL show each field's first message under that field as form-fields "Server validation errors" states, and the generic form-level error only when one of its keys names no field of the form, and SHALL keep every entered value except the password and its confirmation, which are cleared. Every other outcome — a server error, a network failure or any other status — SHALL show the generic form-level error above the actions, keep every entered value except the password and its confirmation, which are cleared, and render no message from the API.
 
 #### Scenario: Signed in by the registration
-- **WHEN** `POST /register` answers `201` with a `token` block that signs the user in
+- **WHEN** `POST /register` on the specialist route answers `201` with a `token` block that signs the user in
 - **THEN** the session is authenticated and `/{locale}` opens through client-side navigation, with no success panel and no full page load
+
+#### Scenario: A coffeeshop signed in by the registration
+- **WHEN** `POST /register` on the coffeeshop route answers `201` with a `token` block that signs the user in
+- **THEN** the session is authenticated and `/{locale}/manage/locations/first` opens through client-side navigation, with no success panel, no full page load, and `/{locale}` never opened
 
 #### Scenario: The account is created
 - **WHEN** `POST /register` answers `201` without a `token` block, or with one that does not sign the user in
@@ -483,3 +487,29 @@ The coffee shop's business name SHALL be collected at registration and managed i
 #### Scenario: The update names an invalid business name
 - **WHEN** a coffee shop's update answers `422` with a message for `businessName`
 - **THEN** that message renders under the Business name field, which is marked invalid, and the values are kept
+
+### Requirement: Registration landing
+The application SHALL offer a registration landing at `/{locale}/join` with a heading, an introduction and two options, the specialist option first and the coffeeshop option second. Each option SHALL show its title, a short text and one action button that opens its registration route of the active locale. The options SHALL stack in one column below the medium breakpoint (768px) and sit in two equal columns from it. Every text SHALL come from the active locale's catalog.
+
+#### Scenario: The landing offers both ways to join
+- **WHEN** an anonymous visitor opens `/{locale}/join`
+- **THEN** the page shows its heading, its introduction and two options, the specialist option before the coffeeshop option, each with its title as a heading, its text and one action button, in one column below 768px and in two equal columns from it
+
+#### Scenario: Each option opens its form
+- **WHEN** the visitor activates the action button of the specialist option or of the coffeeshop option on `/es/join`
+- **THEN** the application opens `/es/register` or `/es/register/coffeeshop` respectively
+
+### Requirement: Registration landing session gate
+The registration landing SHALL be available only to a visitor who is not signed in. While the session resolves it SHALL show its heading, its introduction and the loading status, and no option. When the session is authenticated it SHALL show no option and open the root of the active locale through client-side navigation, with no reload and no message. When the session cannot be resolved it SHALL show its heading, its introduction and the two options as for an anonymous visitor, with no error.
+
+#### Scenario: The landing waits while the session resolves
+- **WHEN** `/{locale}/join` opens while the session is still resolving
+- **THEN** the heading, the introduction and the loading status render and no option renders until the session settles
+
+#### Scenario: A signed-in visitor is taken from the landing to the entry page
+- **WHEN** `/{locale}/join` opens with an authenticated session
+- **THEN** no option renders and the application opens the root of the active locale through client-side navigation, with no reload and no message
+
+#### Scenario: The landing shows its options when the session cannot be resolved
+- **WHEN** `/{locale}/join` opens while the session cannot be resolved
+- **THEN** the heading, the introduction and the two options render as for an anonymous visitor, and no error renders
