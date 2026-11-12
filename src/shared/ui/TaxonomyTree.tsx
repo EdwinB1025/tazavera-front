@@ -68,7 +68,7 @@ function NoteRow({
 }): ReactNode {
   const badge = (
     <Badge variant="taxonomy" color={note.color} level={note.level}>
-      <span>{note.label}</span>
+      <span className="type-tree-badge">{note.label}</span>
       {toggle}
     </Badge>
   );

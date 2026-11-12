@@ -735,6 +735,18 @@
     line-height: var(--leading-normal);
 }
 
+/* Taxonomy tree badge text, 12px below md and 14px from md (restyle-taxonomy-badge-toggles D5). */
+@utility type-tree-badge {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: var(--text-xs);
+    line-height: var(--leading-normal);
+
+    @media (min-width: 48rem) {
+        font-size: var(--text-sm);
+    }
+}
+
 /* Combobox option lines (add-facet-controls design.md D10): no colour, so
    the popup's text colour applies. */
 @utility type-option {
