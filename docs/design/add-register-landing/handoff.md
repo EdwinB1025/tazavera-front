@@ -285,3 +285,9 @@ Architect `fbd4c5a` `docs(user-account): apply review round 2 for add-register-l
 
 ### Review and integration (orchestrator, §7 steps 4–8)
 Commit format, footers and test-first order correct; the code matches Round 2 (actions row, `children` slot, About us `action-3`, Register island inside the row with its `lg:hidden` wrapper). Checks not re-run locally; integrated on the session's counts. `git merge --ff-only origin/claude/add-register-landing-round-2`: `41d494a5..64dd61ad`.
+
+## Session 2026-11-12 — Visual re-check after Round 2 (step 8), design lead
+Summary: on Product owner's server at `http://localhost:3000` (worktree at `08715e11`), es/ca/en, both themes, 375/768/1023/1024/1280px, signed out. Pass, no finding. Product owner also looked at it and approved the look (2026-11-12), and asked why the hero's "Registrarse" is green (action-1) rather than red; the orchestrator offered a Round 3 (primary treatment) and waits for his answer before verify. MVC reachable: not checked.
+
+### Agent feedback
+Design lead (captures and measurements in the scratchpad, outside the repository): actions block `mt-2 flex flex-row flex-wrap items-center gap-4`, 24px below the paragraph; order explore, About us, Register; each 160 × 40px; 16px gaps; Register wraps alone below 1024px (column 343/336/464px), one row from 1024px; treatments `action-3`, `action-3`, `action-1`; header and hero Register switch at 1024px; no empty item while the session resolves (server HTML); no horizontal scroll at 375px; contrast lowest 4.78 (`action-3` label, traditional, rest), every pair already registered; focus rings present; no console errors. Seen, out of scope: the header still overflows at 768px in es (781px) and ca (783px), already Q14. Unverified: signed in (the local OAuth client does not accept `http://localhost:3000/callback`), the resolving state over time in a real browser, hover and focus at 1023/1024px, `/join` and About us (untouched by Round 2).
