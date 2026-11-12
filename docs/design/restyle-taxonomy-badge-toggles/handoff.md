@@ -46,3 +46,12 @@ Build: `ffc77c7` test (1.1, failing before the code), `00fa306` feat (1.2, `type
 
 ### Review and integration (orchestrator, §7 steps 4–8)
 Commit format, footers and test-first order correct; only the files the tasks name, plus checkboxes. Checks not re-run locally (npm denied in this session); integrated on the session's counts. `git merge --ff-only origin/claude/restyle-taxonomy-badge-toggles-apply`: `6dc3a036..3e4c850f`, pushed.
+
+## Session 2026-11-12 — Round 1 (correction round), cloud architect then build, and integration
+Summary: Product owner asked (2026-11-12) for a white toggle fill in the traditional theme (the card-colour fill was confusing) and to keep the dark theme dark: summary Open 1 option D. The orchestrator wrote and committed Round 1 (`015100b1`, rules §5: in line with the agreed design). Routine `trig_016arwMT51TaxLgPNNRdgR9W`, session `cse_016LpndiBPZJ1mvPoQHB4j7Q` (15:09–15:16 UTC), base `015100b1`, prompt by the design lead. Product owner also said that with the design lead's visual approval of Round 1 the change is ready to archive (his archive request, conditional on that check). Next: the design lead's visual review on Product owner's server, then verify and archive. MVC reachable: no.
+
+### Agent feedback
+Architect `a4a21024` `docs(landing): apply review round 1 for restyle-taxonomy-badge-toggles` (landing delta, design.md D1/D3/D4/Non-Goals/Files, proposal, tasks 3.1–3.3, `### Status`; strict valid, CLI 1.16.0). Build `6b93004b` test (3.1, expected class `bg-surface-textarea`), `4e21618f` feat (3.2, `TOGGLE_CLASSES` and the `text-strong` / `surface-textarea` `icon` pair in both matrices), `dca644db` chore (3.3).
+
+### Review and integration (orchestrator)
+Commit format, footers and test-first order correct; only the round's files. `git merge --ff-only origin/claude/restyle-taxonomy-badge-toggles-round-1`: `015100b1..dca644db`.
