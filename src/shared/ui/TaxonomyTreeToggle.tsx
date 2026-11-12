@@ -15,18 +15,29 @@ export type TaxonomyTreeToggleProps = {
   texts: TaxonomyTreeTexts;
 };
 
-// ─── Settled classes (collapse-taxonomy-trees design.md D4; unify-taste-trees
-// D2): inside the badge, the border and the glyph take the badge's label colour ───
+// ─── Settled classes (restyle-taxonomy-badge-toggles design.md D1–D3, D5, D6):
+// one chip on every badge (surface-card fill, text-strong glyph and ring), 14px
+// below md and 16px from md in a 24px hit area, at the badge's end, glyph in
+// the tree badge text role ───
 const TOGGLE_CLASSES = [
+  "relative",
   "inline-flex",
-  "size-6",
+  "size-3.5",
+  "md:size-4",
   "shrink-0",
   "items-center",
   "justify-center",
-  "rounded-field",
+  "rounded-check",
   "border",
   "border-current",
-  "type-button",
+  "bg-surface-card",
+  "text-text-strong",
+  "type-tree-badge",
+  "ml-1",
+  "-mr-1",
+  "before:absolute",
+  "before:-inset-1.25",
+  "md:before:-inset-1",
   "focus-visible:focus-ring",
 ].join(" ");
 
