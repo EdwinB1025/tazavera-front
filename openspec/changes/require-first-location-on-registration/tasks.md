@@ -26,7 +26,7 @@ Every "Verify" below runs `npx vitest related <files> --run` on the files the ta
 
 ## 3. The coffeeshop registration opens the step (user-account)
 
-- [ ] 3.1 Update `src/pages/register/ui/RegisterClient.test.tsx` for user-account "Registration routes" and "Registration result". No other assertion changes.
+- [x] 3.1 Update `src/pages/register/ui/RegisterClient.test.tsx` for user-account "Registration routes" and "Registration result". No other assertion changes.
   - "while authenticated replaces the route with /{locale} through the router and renders no form" (scenario "A signed-in visitor is taken to the entry page"): render the coffeeshop route (`renderClient("coffeeshop")`) with a session user of role `coffeeshop`; keep its assertions and also assert `replace` was not called with `"/es/manage/locations/first"`.
   - "signs in with the token block and opens /{locale} through the router (spec: Signed in by the registration)": render the specialist route (`renderClient()`, and `role="specialist"` with a session user of role `specialist` in the mocked `signInWithRegistration`'s rerender); its assertions stay.
   - New test "signs in with the token block and opens the first location step (spec: A coffeeshop signed in by the registration)": as the previous test on the coffeeshop route (role `coffeeshop` in the route and the session user), expecting `signInWithRegistration` called with the token, `replace` called with `"/es/manage/locations/first"` and never with `"/es"`, no heading named `registerSuccessTitle`, and `location.assign` not called.
