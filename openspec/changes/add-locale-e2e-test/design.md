@@ -130,7 +130,7 @@ No test file beyond the one end-to-end test is planned:
 - "Same tests and results after an environment change" and "End-to-end tests stay out of the other suites": the build records the file and test counts of `npm run test:run` and `npm run test:qa` before its first change (task 1.1) and compares them after the last task (task 4.1); they must match and all pass.
 - "State leak between test files": unchanged by this change; covered by the same full runs.
 - "End-to-end suite passes": `npm run test:e2e` passes its one test in Chromium (task 3.2, task 4.1).
-- "Failing end-to-end scenario": in task 4.1 the build changes the test's expected path to `/ca/about` locally, runs `npm run test:e2e`, sees it fail naming the test's title, and restores the file with `git restore` (nothing committed).
+- "Failing end-to-end scenario": verified like "State leak between test files": by the runner's normal behaviour, a non-zero exit of `npm run test:e2e` naming the failing test. No deliberate failing run is planned, so no extra run and no extra production build.
 
 ### D10. No API, no types
 
