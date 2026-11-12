@@ -16,7 +16,7 @@ The orchestrator's context for resuming work. Kept by the orchestrator (`docs/ag
 - **First step, always:** the start checklist of `docs/agents/orchestrator.md` before any answer. The assignment loop dies with each session.
 - The design lead subagent is not registered when the session starts in `Sprint5`: run it as a general agent whose prompt names the role, from `tazavera-front/.claude/agents/design-lead.md` (a hidden folder: Glob skips it, read it by path).
 - **Commands:** never `cd`; one command per call, with `git -C <dir>` and `env -C <dir> <command>`; files are read with the Read, Grep and Glob tools. A chained `cd …;` command always asks for permission, whatever the allow list says.
-- `tazavera-front-qa` is a separate folder (its own `.git`), not a worktree: do not touch it.
+- The QA suite lives in the front repository, folder `qa/` (`AGENTS.md` → Testing; `npm run test:qa`). The separate folder `tazavera-front-qa` (its own `.git`, two commits of reduction passes 1–2, clean) is the obsolete pre-integration copy (Product owner, 2026-11-12).
 
 ## Current state (2026-11-05)
 
