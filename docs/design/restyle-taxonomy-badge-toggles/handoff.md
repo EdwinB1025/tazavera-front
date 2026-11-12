@@ -37,3 +37,12 @@ Commit format and footer correct; only the change folder and the summary's propo
 ### Decisions taken
 #### D3 — `type-tree-badge` stays out of the `ROLES` table
 - Context: the architect's open point. / Decision: not added; the change keeps every guard unchanged. / Why: AGENTS.md Testing ("Do not add new guard tests"; only a new token registers its pair); design.md Non-Goals and Risks already say so; the task's test reads the class and the visual review checks the size. / Result: no artifact change.
+
+## Session 2026-11-12 — Apply (step 8), cloud build, and integration
+Summary: routine `trig_01KZ8qP1B7DQxbdErGdqEFxg`, session `cse_016Lpndg8V8AgH9f3XJs7rdq` (12:39–12:46 UTC), base `6dc3a036`, prompt by the design lead (open points: build rerun once on `SecurityFatalError`; 2.1's commit form left to the build's rules). Every task checked. Next: the design lead's visual review (375 and 1280px, both themes; needs a local server), then verify. MVC reachable: not checked.
+
+### Agent feedback
+Build: `ffc77c7` test (1.1, failing before the code), `00fa306` feat (1.2, `type-tree-badge` role in `globals.css`, class on `NoteRow`'s name), `4355d6b` feat (1.3, `TOGGLE_CLASSES`), `3e4c850` chore (2.1 checkbox, no fix needed). Checks: validation suite 211 files, 1225/1225; `tsc` 0; lint 0 errors, 1 warning (`qa/…/ConsensusPanel.test.tsx:531`); `npm run build` failed on the first run with `SecurityFatalError` and passed on the rerun; the built CSS holds `type-tree-badge` (12px, 14px from 48rem), `size-3.5`, `md:size-4` and both insets. QA suite not run.
+
+### Review and integration (orchestrator, §7 steps 4–8)
+Commit format, footers and test-first order correct; only the files the tasks name, plus checkboxes. Checks not re-run locally (npm denied in this session); integrated on the session's counts. `git merge --ff-only origin/claude/restyle-taxonomy-badge-toggles-apply`: `6dc3a036..3e4c850f`, pushed.
