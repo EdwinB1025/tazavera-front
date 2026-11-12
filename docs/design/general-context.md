@@ -178,3 +178,13 @@ The active log: append only (`docs/agents/orchestrator.md` §12). One entry per 
 - **Decision:** the decisions log is split: the active log here keeps the decisions that still affect open work and the standing working agreements; entries whose decisions are reflected in archived changes move, unchanged, to `docs/design/decisions-archive.md`, which is not read at session start. Nothing is deleted. First cleaning on this date: 60 moved, 19 kept; in doubt, kept.
 - **Why:** Product owner, 2026-11-05 ("lets take the split approach active + archive log file").
 - **Affects:** `docs/agents/orchestrator.md` §12 and start checklist step 4 (Product owner updates them); every session's start reading.
+
+### 2026-11-12 — the orchestrator merges into `develop` (Product owner)
+- **Decision:** the orchestrator (and a cloud integration session acting for it) may merge `develop` into a feature branch and a finished feature branch into `develop`, and push both; Product owner handles the rest (`master`, `release/*`, `hotfix/*`, and settling the wording of the rules). It also deletes integrated branches and worktrees (Product owner, same day).
+- **Why:** Product owner, 2026-11-12 ("si como orchestrador puedes hacer merge a develop, yo me encargo del resto"), answering board item 8 (the Common rules forbid agent merges while `docs/agents/orchestrator.md` §6 step 7 and §9 prescribe them).
+- **Affects:** every integration; `AGENTS.md` "Git Flow and Commits" and `docs/agents/orchestrator.md` (Product owner's files, wording unchanged).
+
+### 2026-11-12 — `@playwright/test` and its HTML report (Product owner)
+- **Decision:** the new development dependency `@playwright/test` is approved at an exact version, Chromium only (R1 `add-locale-e2e-test`, Open 1 A); the suite's reporters are `list` and `html` (`playwright-report/`, never opened automatically), and the orchestrator reports each run's output to Product owner. The version follows the Chromium revision the cloud image ships (orchestrator's decision in the propose prompt: 1.63.0 for revision 1243).
+- **Why:** Product owner, 2026-11-12 ("si apruebo"; "ma haces un informe de salida de los test playwright?" … "cuando termines").
+- **Affects:** `add-locale-e2e-test`; `AGENTS.md` → Dependencies and Testing (Product owner's files: "two suites" will read stale after the archive).

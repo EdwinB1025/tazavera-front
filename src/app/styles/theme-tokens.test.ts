@@ -376,6 +376,7 @@ const TRADITIONAL_PAIRS: ContrastPair[] = [
   // refine-app-header D14: the current navigation entry's bar
   { fg: "nav-indicator", bg: "nav-surface", kind: "bound" },
   { fg: "border-muted", bg: "surface-textarea", kind: "bound" },
+  { fg: "text-strong", bg: "surface-textarea", kind: "icon" },
   { fg: "border-accent", bg: "surface-card", kind: "bound" },
   { fg: "focus-ring", bg: "surface-page", kind: "bound" },
   { fg: "focus-ring", bg: "surface-card", kind: "bound" },
@@ -658,6 +659,7 @@ const DARK_PAIRS: ContrastPair[] = [
   // refine-app-header D14: the current navigation entry's bar
   { fg: "nav-indicator", bg: "nav-surface", kind: "bound" },
   { fg: "border-muted", bg: "surface-textarea", kind: "bound" },
+  { fg: "text-strong", bg: "surface-textarea", kind: "icon" },
   { fg: "border-accent", bg: "surface-card", kind: "bound" },
   { fg: "focus-ring", bg: "surface-page", kind: "bound" },
   { fg: "focus-ring", bg: "surface-card", kind: "bound" },

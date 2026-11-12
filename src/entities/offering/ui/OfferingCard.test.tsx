@@ -367,6 +367,56 @@ describe("OfferingCard", () => {
       ).toBeNull();
     });
 
+    it("puts one chip toggle at the end of each badge, white or black label, the tree text by width (spec: 'Toggle at the end of its badge'; restyle-taxonomy-badge-toggles design.md D4)", () => {
+      const child = (ref: string, label: string): ResolvedTaxonomyBadge => ({
+        ref,
+        label,
+        color: "#000000",
+        level: 1,
+        children: [],
+      });
+      renderCard({
+        taxonomies: [
+          {
+            ref: "01JTAXN0DE0000000000000011",
+            label: "Dark",
+            color: "#336699",
+            level: 0,
+            children: [child("01JTAXN0DE0000000000000012", "DarkChild")],
+          },
+          {
+            ref: "01JTAXN0DE0000000000000013",
+            label: "Light",
+            color: "#F2D16B",
+            level: 0,
+            children: [child("01JTAXN0DE0000000000000014", "LightChild")],
+          },
+        ],
+      });
+      const [dark, light] = ["Dark", "Light"].map((label) => {
+        const badge = screen.getByText(label).parentElement!;
+        expect(badge.lastElementChild).toBe(toggleOf(label));
+        expect(classTokens(badge.firstElementChild!)).toContain("type-tree-badge");
+        return toggleOf(label);
+      });
+      expect(dark.className).toBe(light.className);
+      expect(classTokens(dark)).toEqual(
+        expect.arrayContaining([
+          "bg-surface-textarea",
+          "text-text-strong",
+          "border-current",
+          "size-3.5",
+          "md:size-4",
+          "rounded-check",
+          "ml-1",
+          "-mr-1",
+          "before:-inset-1.5",
+          "md:before:-inset-1.25",
+          "type-tree-badge",
+        ]),
+      );
+    });
+
     it("shows a note's children, each closed, when it opens, and the grandchildren when the child opens (spec: 'Opening a note')", () => {
       renderCard();
       fireEvent.click(toggleOf("Floral"));
