@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { signIn, signInWithRegistration } from "@/features/auth";
 import {
   RegisterForm,
@@ -31,8 +31,12 @@ export type RegisterClientProps = {
  * user-account pieces as props. While the session resolves it shows the
  * loading status; an authenticated session opens the root of the active
  * locale through the slice's anonymous-only gate (add-register-landing
- * design.md D2), also when the registration itself signed the user in with
- * `signInWithRegistration` (land-on-home-after-registration design.md D1).
+ * design.md D2), also when the specialist registration itself signed the user
+ * in with `signInWithRegistration` (land-on-home-after-registration design.md
+ * D1). When the coffeeshop registration signed the user in here, the gate
+ * opens the first location step instead (require-first-location-on-
+ * registration D1): a "registered here" flag is set before the sign-in starts
+ * and cleared when it does not sign the user in.
  */
 export function RegisterClient({
   locale,
@@ -40,7 +44,21 @@ export function RegisterClient({
   labelledBy,
   texts,
 }: RegisterClientProps): ReactNode {
-  const state = useAnonymousOnly(locale);
+  const [registeredHere, setRegisteredHere] = useState(false);
+  const destination =
+    role === "coffeeshop" && registeredHere
+      ? `/${locale}/manage/locations/first`
+      : `/${locale}`;
+  const state = useAnonymousOnly(locale, destination);
+
+  async function signInWithToken(
+    token: Parameters<typeof signInWithRegistration>[0],
+  ): Promise<boolean> {
+    setRegisteredHere(true);
+    const signedIn = await signInWithRegistration(token);
+    if (!signedIn) setRegisteredHere(false);
+    return signedIn;
+  }
 
   if (state === "authenticated") return null;
 
@@ -56,7 +74,7 @@ export function RegisterClient({
               labelledBy={labelledBy}
               texts={texts}
               signIn={() => signIn()}
-              signInWithToken={(token) => signInWithRegistration(token)}
+              signInWithToken={signInWithToken}
               cancelHref={`/${locale}`}
             />
           )}
