@@ -11,6 +11,7 @@ const forksFiles = [
     '**/src/features/auth/model/session.test.ts',
     '**/src/pages/callback/ui/CallbackScreen.test.tsx',
     '**/src/pages/register/ui/RegisterClient.test.tsx',
+    '**/src/pages/register/ui/RegisterLandingScreen.test.tsx',
     '**/src/shared/ui/SignedOutPrompt.test.tsx',
 ]
 

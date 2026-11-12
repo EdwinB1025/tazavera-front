@@ -5,8 +5,8 @@
   "heroHeadingAfter": " every sip",
   "heroParagraph": "Objective evaluations with the SCA cupping protocol: every coffee is cupped blind by specialists and only marked as verified when the consensus backs it.",
   "heroExploreLabel": "Explore coffees",
-  "heroCoffeeshopRegisterLabel": "Register your coffeeshop",
-  "heroSpecialistRegisterLabel": "Register as a specialist",
+  "heroRegisterAction": "Register",
+  "heroAboutLabel": "About us",
   "heroPhotoAlt": "Roasted coffee beans",
   "cardCoffeeshopCaption": "Coffeeshop:",
   "cardRoasterCaption": "Roaster:",
@@ -39,10 +39,7 @@
   "aboutStepCupping": "Specialists cup it blind with the SCA cupping protocol and record their score.",
   "aboutStepConsensus": "The consensus of the evaluations decides: only what several cuppings back earns the verified mark.",
   "aboutAudienceText": "Tazavera is for coffeeshops that want to show with evidence what they serve, and for specialists who want to evaluate it with rigor.",
-  "aboutCoffeeshopRegisterLabel": "Register your coffeeshop",
-  "aboutSpecialistRegisterLabel": "Register as a specialist",
+  "aboutRegisterLabel": "Register",
   "aboutClosingLabel": "Explore coffees",
-  "metaDescription": "Tazavera, the guide to good coffee: objective evaluations with the SCA cupping protocol that discover what is in every cup.",
-  "heroRegisterNavigation": "Registration",
-  "aboutRegisterNavigation": "Registration"
+  "metaDescription": "Tazavera, the guide to good coffee: objective evaluations with the SCA cupping protocol that discover what is in every cup."
 }

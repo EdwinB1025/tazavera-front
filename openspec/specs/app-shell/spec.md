@@ -91,11 +91,19 @@ The header SHALL show the brand logotype, linking to the root of the active loca
 - **THEN** each entry shows a decorative icon hidden from assistive technology before its text, takes `nav-text` with `nav-text-hover` on hover and focus, and shows no underline and no link colour, in both themes
 
 ### Requirement: Signed-out header
-While the session is anonymous, the header SHALL show the language selector, the theme switch and a "Sign in" action, and SHALL NOT show a user menu. On a 375px-wide viewport the signed-out header SHALL fit without horizontal overflow.
+While the session is anonymous, the header SHALL show the language selector, the theme switch and a "Sign in" action, and SHALL NOT show a user menu. From the large breakpoint (1024px) it SHALL also show a "Register" action button immediately before "Sign in", in the same group, that opens the registration landing of the active locale (`/{locale}/join`); below 1024px the header SHALL NOT show it. The "Register" action SHALL NOT be shown while the session is authenticated. On a 375px-wide viewport the signed-out header SHALL fit without horizontal overflow.
 
 #### Scenario: Signed-out header renders
 - **WHEN** the session is anonymous
-- **THEN** the header shows the brand logotype, the language selector, the theme switch and the "Sign in" action, and shows no user menu
+- **THEN** the header shows the brand logotype, the language selector, the theme switch and the "Sign in" action, shows the "Register" action immediately before "Sign in" only from 1024px, and shows no user menu
+
+#### Scenario: Register opens the registration landing
+- **WHEN** a signed-out visitor activates the header's "Register" action in the `es` locale
+- **THEN** the application opens `/es/join`
+
+#### Scenario: No Register action when signed in
+- **WHEN** the session is authenticated
+- **THEN** the header shows no "Register" action
 
 #### Scenario: Sign in starts from the current route
 - **WHEN** the user activates "Sign in"
@@ -185,11 +193,11 @@ While the session is authenticated, the header SHALL show the brand logotype, th
 - **THEN** its security entry points at `{application origin}/user/security` with no `login_hint`
 
 ### Requirement: Session states in the shell
-The shell SHALL follow the session state. While the session is still resolving it SHALL show neither the "Sign in" action nor the user menu, and when the session cannot be resolved it SHALL render the anonymous shell.
+The shell SHALL follow the session state. While the session is still resolving it SHALL show neither the "Sign in" action, the "Register" action nor the user menu, and when the session cannot be resolved it SHALL render the anonymous shell.
 
 #### Scenario: Session resolving
 - **WHEN** the session is still resolving
-- **THEN** the header shows neither the "Sign in" action nor the user menu, so the signed-out header never appears before the signed-in one
+- **THEN** the header shows neither the "Sign in" action, the "Register" action nor the user menu, so the signed-out header never appears before the signed-in one
 
 #### Scenario: Session unresolvable
 - **WHEN** the session cannot be resolved
@@ -559,7 +567,7 @@ The menus opened from the header SHALL extend the header surface: their panel SH
 - **THEN** the current entry carries an indicator that takes the entry's text colour — `nav-text`, or `nav-text-hover` while the entry is hovered
 
 ### Requirement: Named navigation landmarks
-Every navigation landmark of the application SHALL carry an accessible name from the message catalog of the active locale, and no two navigation landmarks shown on the same page SHALL share a name: the header's primary navigation is named "Main", the sidebar's navigation "Management", and the registration links of the entry page and of the About us page "Registration" (in Spanish "Principal", "Gestión" and "Registro"; in Catalan "Principal", "Gestió" and "Registre"). Naming a landmark SHALL NOT change any visible text or presentation.
+Every navigation landmark of the application SHALL carry an accessible name from the message catalog of the active locale, and no two navigation landmarks shown on the same page SHALL share a name: the header's primary navigation is named "Main" and the sidebar's navigation "Management" (in Spanish "Principal" and "Gestión"; in Catalan "Principal" and "Gestió"). Naming a landmark SHALL NOT change any visible text or presentation.
 
 #### Scenario: Header navigation named
 - **WHEN** the header renders on a medium or larger viewport in English
@@ -571,7 +579,7 @@ Every navigation landmark of the application SHALL carry an accessible name from
 
 #### Scenario: Registration links named
 - **WHEN** the entry page or the About us page renders in English
-- **THEN** its two registration links sit in a navigation landmark named "Registration"
+- **THEN** its About us button or its registration-landing link sits in no navigation landmark, so the page shows no navigation landmark named "Registration"
 
 #### Scenario: Names follow the locale
 - **WHEN** the locale changes

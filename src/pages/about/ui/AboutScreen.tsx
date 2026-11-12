@@ -30,9 +30,7 @@ export async function AboutScreen({
     stepCupping: catalog.aboutStepCupping,
     stepConsensus: catalog.aboutStepConsensus,
     audienceText: catalog.aboutAudienceText,
-    coffeeshopRegisterLabel: catalog.aboutCoffeeshopRegisterLabel,
-    specialistRegisterLabel: catalog.aboutSpecialistRegisterLabel,
-    registerNavigation: catalog.aboutRegisterNavigation,
+    registerLabel: catalog.aboutRegisterLabel,
     closingLabel: catalog.aboutClosingLabel,
   };
 

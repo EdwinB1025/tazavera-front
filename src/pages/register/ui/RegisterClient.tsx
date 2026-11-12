@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
-import { signIn, signInWithRegistration, useSession } from "@/features/auth";
+import type { ReactNode } from "react";
+import { signIn, signInWithRegistration } from "@/features/auth";
 import {
   RegisterForm,
   type RegisterFormTexts,
   type RegisterRole,
 } from "@/features/user-account";
 import { Card, CardContent, LoadingStatus } from "@/shared/ui";
+import { useAnonymousOnly } from "../model/use-anonymous-only";
 
 // ─── UI-specific types (declared before the component) ───
 
@@ -30,8 +30,8 @@ export type RegisterClientProps = {
  * `useSession()` and `signIn` from `@/features/auth`, passed to the
  * user-account pieces as props. While the session resolves it shows the
  * loading status; an authenticated session opens the root of the active
- * locale through the App Router's `replace`, so the in-memory tokens survive,
- * also when the registration itself signed the user in with
+ * locale through the slice's anonymous-only gate (add-register-landing
+ * design.md D2), also when the registration itself signed the user in with
  * `signInWithRegistration` (land-on-home-after-registration design.md D1).
  */
 export function RegisterClient({
@@ -40,21 +40,15 @@ export function RegisterClient({
   labelledBy,
   texts,
 }: RegisterClientProps): ReactNode {
-  const session = useSession();
-  const router = useRouter();
-  const authenticated = session.state === "authenticated";
+  const state = useAnonymousOnly(locale);
 
-  useEffect(() => {
-    if (authenticated) router.replace(`/${locale}`);
-  }, [authenticated, locale, router]);
-
-  if (authenticated) return null;
+  if (state === "authenticated") return null;
 
   return (
     <Card variant="section">
       <CardContent>
         <div className="w-full md:mx-auto md:max-w-160">
-          {session.state === "loading" ? (
+          {state === "loading" ? (
             <LoadingStatus text={texts.loading} />
           ) : (
             <RegisterForm

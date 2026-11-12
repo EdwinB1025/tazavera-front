@@ -205,6 +205,7 @@ All routes live under `app/[locale]` (`/es/…`, `/en/…`, `/ca/…`), except `
 | `/evaluations`, `/evaluations/{ulid}` | Public specialist evaluations |
 | `/about` | About us |
 | `/register`, `/register/coffeeshop` | Sign up as specialist / as coffee shop |
+| `/join` | Choose how to register |
 
 ### Signed in
 

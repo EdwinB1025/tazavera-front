@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Logo, Button } from "@/shared/ui";
+import { Logo, Button, RouteButton } from "@/shared/ui";
 import type { Session } from "@/shared/api";
 import type { Theme } from "@/shared/lib/theme";
 import { NavigationMenu } from "./NavigationMenu";
@@ -23,6 +23,8 @@ export type AppHeaderTexts = {
   /** Accessible name of the primary navigation landmark (label-landmarks-and-headings D1). */
   primaryNavigation?: string;
   signIn: string;
+  /** The signed-out header action to the registration landing, shown from `lg` (add-register-landing D4). */
+  register: string;
   /**
    * The composed accessible name of the language control the shell passes
    * (design.md D6), one string composed in the shell as the current locale's
@@ -141,9 +143,17 @@ export function AppHeader({
         />
         <ThemeToggle initialTheme={theme} texts={texts} />
         {session.state === "anonymous" && (
-          <Button variant="nav-button" onClick={onSignIn}>
-            {texts.signIn}
-          </Button>
+          <>
+            {/* From `lg` only: at 768px the header overflows with it (add-register-landing D4, handoff C3). */}
+            <span className="hidden lg:inline-flex">
+              <RouteButton variant="nav-button" href={`/${locale}/join`}>
+                {texts.register}
+              </RouteButton>
+            </span>
+            <Button variant="nav-button" onClick={onSignIn}>
+              {texts.signIn}
+            </Button>
+          </>
         )}
         {session.state === "authenticated" && (
           <UserMenu

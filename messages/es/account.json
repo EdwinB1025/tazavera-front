@@ -67,5 +67,13 @@
   "emailVerified": "Verificado",
   "emailNotVerified": "Sin verificar",
   "verifyEmail": "Verificar el correo",
-  "emailVerifiedStatus": "Correo verificado"
+  "emailVerifiedStatus": "Correo verificado",
+  "registerLandingTitle": "Únete a Tazavera",
+  "registerLandingIntro": "Elige cómo quieres participar en Tazavera.",
+  "registerLandingSpecialistTitle": "Especialista",
+  "registerLandingSpecialistText": "Cata a ciegas las ofertas de las cafeterías con el protocolo de la SCA y registra tus evaluaciones.",
+  "registerLandingSpecialistAction": "Regístrate como especialista",
+  "registerLandingCoffeeshopTitle": "Cafetería",
+  "registerLandingCoffeeshopText": "Publica tus ofertas, recibe la evaluación de especialistas y muestra con pruebas lo que sirves.",
+  "registerLandingCoffeeshopAction": "Registra tu cafetería"
 }
