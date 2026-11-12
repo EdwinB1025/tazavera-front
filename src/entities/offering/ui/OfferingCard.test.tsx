@@ -402,7 +402,7 @@ describe("OfferingCard", () => {
       expect(dark.className).toBe(light.className);
       expect(classTokens(dark)).toEqual(
         expect.arrayContaining([
-          "bg-surface-card",
+          "bg-surface-textarea",
           "text-text-strong",
           "border-current",
           "size-3.5",
