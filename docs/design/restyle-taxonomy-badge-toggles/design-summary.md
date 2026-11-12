@@ -271,3 +271,25 @@ Tests: no existing test pins the toggle's classes. The change adds one test, for
   - Settled under criterion B: every consumer and its surface (all `surface-card`); the capability that owns the toggle (`landing`); the type (`Change`); the superseded decisions; and that §11's new-token procedure does not apply, because existing tokens pass.
   - Left open: 1–7.
 - **2026-11-11 — Product owner's answer (recorded by the orchestrator).** Open 1: C. Open 2: A, implied by 1C. Open 3–7 not answered: their recommendations stand unless Product owner changes them before approving.
+
+## Propose status
+
+- **Change-id:** `restyle-taxonomy-badge-toggles` (Product owner, 2026-11-11: replaces Open 7's recommendation and the "Change-id provisional" line; recorded on the board).
+- **Date:** 2026-11-11.
+- **Validation:** `openspec validate restyle-taxonomy-badge-toggles --strict` — valid.
+- **Resolved:**
+  - Open 1: C, the chip with `surface-card` fill, `text-strong` glyph and 1px ring (design.md D1).
+  - Open 2: A, the boundary met by the fill or the ring (design.md D1; spec "(the fill or the ring)").
+  - Open 3: A, a 24 × 24px hit area around the 16px box, through an invisible `before:` pseudo-element (design.md D2).
+  - Open 4: A, 16px box, 0.5rem gap, 0.25rem end padding (design.md D2, D3).
+  - Open 5: A, MODIFIED `landing` "Taxonomy badge trees on the offering card" plus the scenario "Toggle at the end of its badge" and one test (design.md D4).
+  - Open 6: A, the text glyph `+`/`−` kept.
+  - Open 7: the change-id above.
+  - Section 6's note for the architect: gap and end padding come from `ml-1 -mr-1` on the toggle, added to the badge's own `gap-1`/`px-2` (design.md D3). So `Badge.tsx`, `BADGE_GEOMETRY_CLASSES` and `TaxonomyTree.tsx` `NoteRow` are unchanged, and only `TaxonomyTreeToggle.tsx` changes (section 5 listed `NoteRow` as touched; the end state of section 6 is kept).
+- **Backlog entries resolved:** none.
+- **Open:** none blocking. The visual review checks the glyph's centring in the 16px box, the 25px badge height and no overflow at 375px (section "Unverified").
+- **Artifact review (2026-11-12):** source `docs/design/restyle-taxonomy-badge-toggles/handoff.md`, Q1 under "Session 2026-11-11 — Propose (step 6), cloud" (answered with both recommendations) and "Session 2026-11-12 — Artifact review (step 7)" (Product owner's review message; orchestrator's D1 on the glyph). Validation: `openspec validate restyle-taxonomy-badge-toggles --strict` — valid.
+  - (a) Tree badge text by width: every badge `TaxonomyTree` renders shows its name at 12px (`--text-xs`) below `md` and 14px (`--text-sm`) from `md`, through a new typographic role `type-tree-badge` in `globals.css` on the name's `span` in `NoteRow` (design.md D5). Why a role: text sizes come only from `type-*` roles, a `text-xs` class fails `color-guard.test.ts`, and `cn` does not merge; `type-badge`, `BADGE_GEOMETRY_CLASSES` and every other badge stay unchanged.
+  - (b) Toggle by width: box `size-3.5` (14px) below `md`, `md:size-4` (16px) from `md`; hit area at least 24 × 24px at every width (`before:-inset-1.25 md:before:-inset-1`); the glyph takes `type-tree-badge` instead of `type-button`, 12px below `md` and 14px from `md` (design.md D6). Badge height equal with and without a toggle: 22px below `md`, 25px from `md`.
+  - Updated: landing delta (requirement text and the scenario "Toggle at the end of its badge"; no new scenario), design.md (Context, Non-Goals, Files, D2–D4, new D5–D6, Risks), tasks.md (1.1 extended, new 1.2 for the role and `NoteRow`, 1.3 the toggle's classes, 2.1's visual-review note at 375px and 1280px), proposal.md (Why, What Changes, Out of scope, Impact). Main specs outside `landing` unchanged.
+  - Open: whether to register `type-tree-badge` in the `ROLES` table of `theme-tokens.test.ts` (not blocking; not planned).
