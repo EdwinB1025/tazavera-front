@@ -15,3 +15,12 @@ Commit format and footer correct; only the change folder and the summary's propo
 
 ## Session 2026-11-12 — Artifact review (step 7)
 Summary: Product owner answered Q1 with both recommendations. Artifact cleanup before the review (§4): proposal, landing delta, design.md and tasks.md read; no duplicate, broken reference or wording conflict found, nothing edited. Product owner's review message for the architect: Q1 (a) smaller badge text on mobile applies to the taxonomy tree badges only, `--text-xs` (12px) below `md` and 14px from `md`; (b) the toggle's visible box shrinks with the text below `md` (about 14px), its hit area stays 24 × 24px. Executor: cloud session (OpenCode cannot run in this session); the design lead writes the prompt (plan usage 0% / 0%). MVC reachable: not checked.
+
+### Agent feedback
+Design lead (cloud prompt, checked against §7 step 2): constraints verified on `f94f1105` and given to the architect as facts: `cn` does not merge; `color-guard.test.ts` reads any `text-xs` in `src/shared/ui/` as a colour and fails, and text sizes come from the `type-*` roles; the badge-geometry guard and three tests pin `BADGE_GEOMETRY_CLASSES`; design.md's Non-Goals exclude `Badge.tsx`, `TaxonomyTree.tsx` and `globals.css`, which the smaller text may need; below `md` a 14px box needs a 5px inset on each side to keep a 24px hit area (design lead's computation). No decisions-log entry names this change; no file overlap with R91 or `update-vulnerable-dependencies`. Open point 1: glyph size below `md`.
+
+### Decisions taken
+#### D1 — The glyph follows the badge text below `md`
+- Context: Q1 (b) "the toggle shrinks with the text" does not say whether the `+`/`−` glyph shrinks. / Decision: the glyph follows the badge text, 12px below `md` and 14px from `md` up. / Why: the most direct reading of Product owner's answer; a 14px glyph is tight in a 14px box with a 1px ring; adds no token, scope or text (§3). / Result: cloud prompt §5.
+#### D2 — OpenSpec CLI in the prompt
+- Context: the draft prompt pinned `@fission-ai/openspec@1.13.2`; the cloud environment's setup installs 1.16.0, and earlier strict validations ran on it. / Decision: validate with the installed CLI, stop if missing. / Why: §7 environment; R91 C2. / Result: cloud prompt §8.
