@@ -23,3 +23,11 @@ Summary: routine `trig_01LBiNsdZq5WgEVWYSLd5UtT`, session `cse_016LpndjDoh1GkywA
 
 ### Final checks
 `npm audit --omit=dev` exit 0, 0 vulnerabilities; `npm audit --audit-level=high` exit 0; `npm audit` only the accepted moderate `minimatch` chain; validation suite 211 files, 1224/1224; QA suite 366 files, 2009/2009; `tsc` 0; lint 0 errors, 1 warning (`qa/…/ConsensusPanel.test.tsx:531`); `npm run build` twice, both passed on Next.js 16.4.6 with no `SecurityFatalError`; `openspec validate --strict` valid; no file under `src/`, `proxy.ts` or `next.config.ts` changed.
+
+## Session 2026-11-12 — Product owner's browser check (before archive)
+Summary: Product owner ran the production build of this worktree (`npm ci`, `npm run build`, `npm run start`) behind the local Caddy at `https://localhost:8443` and reported the check passed (2026-11-12: "ok it worked, the test passed"): home page with the hero image, sign-in popup, one form submission. Next: Product owner's archive request, then the archive and the merge into `develop`. MVC reachable: not checked.
+
+### Environment findings (not defects of this change)
+- The worktree had no `.env.local`; a build without it leaves `API_INTERNAL_URL` unset and the sign-in popup blank (forwarded paths answer `502`).
+- The local API's `APP_URL`/`FRONT_URL` are `https://localhost:8443`, but its OAuth client `01a120d6-…` listed only the ngrok callback; Product owner added `https://localhost:8443/callback` to its `redirect_uris` (read back by the orchestrator, read only).
+- With the front opened at another origin than `https://localhost:8443`, form requests fail the CSP `connect-src 'self'`; the app must be opened at the configured `NEXT_PUBLIC_APP_URL`.
