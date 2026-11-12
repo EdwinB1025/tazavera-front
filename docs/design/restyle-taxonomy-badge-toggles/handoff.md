@@ -10,4 +10,8 @@ Architect `bf188fc8` `docs(landing): propose restyle-taxonomy-badge-toggles`: pr
 Commit format and footer correct; only the change folder and the summary's propose status changed. `git merge --ff-only origin/claude/restyle-taxonomy-badge-toggles-propose`: `8f003b57..bf188fc8`, pushed.
 
 ### Deferred to Product owner
+#### ANSWERED 2026-11-12: both recommendations — (a) taxonomy tree badges only, (b) the toggle shrinks with the text (Product owner: "both recoomandation are appropiate")
 - Q1 (2026-11-11, Product owner's question during propose): smaller badge text on mobile. Proposed as an artifact-review item: taxonomy tree badges at `--text-xs` (12px) below `md`, 14px from `md`; the toggle box shrinks to about 14px with it, hit area stays 24px. Open: (a) taxonomy badges only (rec.) or every badge (`type-badge` is shared); (b) shrink the toggle with the text (rec.) or keep 16px. Blocks the artifact review.
+
+## Session 2026-11-12 — Artifact review (step 7)
+Summary: Product owner answered Q1 with both recommendations. Artifact cleanup before the review (§4): proposal, landing delta, design.md and tasks.md read; no duplicate, broken reference or wording conflict found, nothing edited. Product owner's review message for the architect: Q1 (a) smaller badge text on mobile applies to the taxonomy tree badges only, `--text-xs` (12px) below `md` and 14px from `md`; (b) the toggle's visible box shrinks with the text below `md` (about 14px), its hit area stays 24 × 24px. Executor: cloud session (OpenCode cannot run in this session); the design lead writes the prompt (plan usage 0% / 0%). MVC reachable: not checked.
