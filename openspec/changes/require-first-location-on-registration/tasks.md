@@ -35,7 +35,7 @@ Every "Verify" below runs `npx vitest related <files> --run` on the files the ta
 
 ## 4. Full checks
 
-- [ ] 4.1 Run `npm run test:run`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes, `npx tsc --noEmit` reports no errors, lint reports 0 errors, and the build succeeds with `/[locale]/manage/locations/first` in its route list. Any failure is fixed in its own `fix(<capability>): …` commit, or reported when the fix would go beyond the design. Then run `npm run test:qa` once; expected: no QA test goes stale because of this change (design.md D8). The final report lists any stale QA test (file, line, message). No file under `qa/` changes.
+- [x] 4.1 Run `npm run test:run`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes, `npx tsc --noEmit` reports no errors, lint reports 0 errors, and the build succeeds with `/[locale]/manage/locations/first` in its route list. Any failure is fixed in its own `fix(<capability>): …` commit, or reported when the fix would go beyond the design. Then run `npm run test:qa` once; expected: no QA test goes stale because of this change (design.md D8). The final report lists any stale QA test (file, line, message). No file under `qa/` changes.
 
 ## Workflow follow-up
 
