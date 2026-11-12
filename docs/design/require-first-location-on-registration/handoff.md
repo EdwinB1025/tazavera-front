@@ -28,3 +28,17 @@ Build: `1b7da8b` refactor (1.1, `NewLocationForm`; the panel's geocoding cache m
 
 ### Review and integration (orchestrator, §7 steps 4–8)
 Commit format, footers and test-first order correct; only the files the tasks name, plus checkboxes. Checks not re-run locally (npm denied in this session); integrated on the session's counts. `git merge --ff-only origin/claude/require-first-location-on-registration-apply`: `7a8a28ae..788ec2b3`.
+
+## Session 2026-11-12 — Verify (step 10), archive (step 11) and merge (step 12)
+Summary: Product owner asked to archive and integrate (2026-11-12: "OK para el R45 se puede archivar e integrar") and so waived the design lead's visual review. Routine `trig_01Vh9rRDjWe7JS7tue45KRTY`, session `cse_016LpndfGNrzskjr1hWimmu2` (15:17–15:22 UTC), base `ebdd2a9a`, prompt by the design lead. MVC reachable: no.
+
+### Agent feedback
+Verify: 9/9 tasks; 5 requirements (2 MODIFIED, 3 ADDED) implemented; all 10 new or changed scenarios tested; design followed; no CRITICAL, no WARNING, 2 SUGGESTIONs (among them design.md "Risks" says "task 1.2" for task 1.1; reported, not fixed). Checks: strict validate valid; validation suite 213 files, 1241/1241; `tsc` 0; lint 0 errors, 1 known warning; `npm run build` passed on Next.js 16.4.6, route `/[locale]/manage/locations/first` listed. Archive `212f8eb8` `chore(openspec): archive require-first-location-on-registration`: user-account (2 MODIFIED) and offering-management (3 ADDED) synced; change moved to `openspec/changes/archive/2026-11-12-require-first-location-on-registration/`; backlog R45 section and row removed. Post-sync strict output byte-identical to the base for both specs (no new warning).
+
+### Not done (waived by Product owner)
+- The design lead's visual review (375 and 1280px, es and ca, both themes).
+- The design summary's visual reference.
+- The signed-in flow from `/es/register/coffeeshop` to the step and on to Manage locations, in a browser.
+
+### Review and integration (orchestrator)
+Commit format and footer correct; only the change folder, the two main specs and the backlog changed. `git merge --ff-only origin/claude/require-first-location-on-registration-verify-archive`: `ebdd2a9a..212f8eb8`. Merge step 2: `develop` changed only `docs/design/change-progress.md` since `ebdd2a9a`, so the validation suite cannot change; not re-run.
