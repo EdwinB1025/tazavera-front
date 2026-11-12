@@ -16,7 +16,7 @@ export type TaxonomyTreeToggleProps = {
 };
 
 // ─── Settled classes (restyle-taxonomy-badge-toggles design.md D1–D3, D5, D6):
-// one chip on every badge (surface-card fill, text-strong glyph and ring), 14px
+// one chip on every badge (surface-textarea fill, text-strong glyph and ring), 14px
 // below md and 16px from md in a 24px hit area, at the badge's end, glyph in
 // the tree badge text role ───
 const TOGGLE_CLASSES = [
@@ -30,7 +30,7 @@ const TOGGLE_CLASSES = [
   "rounded-check",
   "border",
   "border-current",
-  "bg-surface-card",
+  "bg-surface-textarea",
   "text-text-strong",
   "type-tree-badge",
   "ml-1",
