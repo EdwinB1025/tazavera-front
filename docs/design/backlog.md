@@ -23,21 +23,8 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
 | 4 | R1 | none yet (Playwright suite) | Change (tests) | — | R74 in `develop` (Product owner, 2026-10-12) |
-| 5 | R45 | `require-first-location-on-registration` | Change (screen, texts; contract unchanged) | M | Accepted (2026-10-29), option A; summary approved 2026-11-12 (orchestrator, on Product owner's delegation) |
 | 7 | R90 | none yet (API items first) | Change (API, behaviour) | M | API backlog: municipality and roastery origin filters; R89 in `develop` |
 | 6 | R83 | none yet (API) | Change (API) | S | Product owner: whether to take it |
-
-## R45 — Ask for the first location in coffee-shop registration
-
-- **Duplicated:** none. Coffee-shop registration does not ask for a location; the user creates the first one after signing in, in Manage locations.
-- **Where today:** the coffee-shop register form (`/[locale]/register/coffeeshop`, `src/features/user-account`); the Manage locations form (`src/features/location-management`)
-- **Why it pays off now:** the coffee shop is usable as soon as it registers, without a second step
-- **Owning capability:** user-account, offering-management
-- **Proposed change:** `require-first-location-on-registration`, through the normal flow (design summary needed), after `add-register-landing` (R91) because both touch the coffee-shop registration screens. Product owner, 2026-10-29, option A (front only): once the coffee shop registers it is already signed in (the `token` block of `POST /register`), and the front asks for its first location before anything else, creating it with `POST /locations` (no `profile:write` needed since 2026-10-09) and reusing the Manage locations form fields; Manage locations stays for editing and adding more locations. No API change. The two calls are not atomic: if the location step fails or is left, the account exists without a location (the design summary settles how the front handles it)
-- **Open decision (Augusto):** answered 2026-10-08: registration asks for the first location's data, reversing production AUT point 11, decision A ("the location is created after the first sign-in, in Manage locations") once this entry is done; until then the current behaviour stays. Not to be designed now. It cannot be front-only today: `POST /locations` needs `auth:api` + `profile:write`, and the front has no token right after `POST /register` (see R44); `POST /register` (`StoreUserRequest`) does not accept location data. API change first, by Product owner: `StoreUserRequest` accepts a `location` block with the `StoreLocationRequest` rules (`name`, `description`, `latitud`/`longitud`, `contact` with `address` and `city`), required when `role=coffeeshop`; `UserController::store` creates the location and its primary contact in the same `DB::transaction`; Scribe regenerated and `contracts/openapi.yaml` updated. **Superseded 2026-10-29:** both front blockers are gone on API `deploy` `2abf016` (`POST /register` returns a `token` block; `POST /locations` needs only the read floor), and Product owner chose option A (front only, no API change) over that API change
-- **Type:** Change (changes what users see; the API contract stays)
-- **Status:** accepted (2026-10-29), queued after R91
-- **Affects:** the coffee-shop register screen and Manage locations (R44, named here before, is no longer in the backlog)
 
 ## R1 — End-to-end test of "Choosing a locale" (verify W1, deferred here by the product owner)
 
