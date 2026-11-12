@@ -36,8 +36,8 @@ const TOGGLE_CLASSES = [
   "ml-1",
   "-mr-1",
   "before:absolute",
-  "before:-inset-1.25",
-  "md:before:-inset-1",
+  "before:-inset-1.5",
+  "md:before:-inset-1.25",
   "focus-visible:focus-ring",
 ].join(" ");
 
