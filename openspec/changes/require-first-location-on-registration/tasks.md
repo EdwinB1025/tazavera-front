@@ -1,0 +1,43 @@
+# Tasks
+
+No derived API types are needed: the change reads no new API field and uses `registerAUser` and `createALocation` as they are (design.md Context). The UI-specific types of design.md "Files" are declared in the task that creates their file.
+
+Every "Verify" below runs `npx vitest related <files> --run` on the files the task changed, `npx tsc --noEmit` and `npm run lint` (0 errors). Commits of groups 1 and 2 use the scope `offering-management`, group 3 `user-account`. No file under `qa/` changes.
+
+## 1. Shared new-location form (offering-management)
+
+- [ ] 1.1 Implement design.md D2: create `src/features/location-management/ui/NewLocationForm.tsx` (with `NewLocationFormProps`), make `src/features/location-management/ui/LocationsPanel.tsx` render it in place of its own `LocationForm` wiring (its `submitState` state and `handleSubmit` go; its `geocodeCache` ref stays and is passed in; its `onCreated` closes the form, sets the status, focuses the heading and reloads, as its `201` branch does today), and add `NewLocationForm` and `export type { LocationFormTexts }` to `src/features/location-management/index.ts`. No test is added or changed. Verify: `npx vitest related src/features/location-management/ui/NewLocationForm.tsx src/features/location-management/ui/LocationsPanel.tsx --run` passes with `LocationsPanel.test.tsx`, `LocationForm.test.tsx` and `src/pages/manage-locations/ui/ManageLocationsClient.test.tsx` unchanged; both files stay within the size limits (lint reports no `max-lines-per-function`, `complexity` or `max-lines` warning for them).
+
+## 2. First location step at `/{locale}/manage/locations/first` (offering-management)
+
+- [ ] 2.1 Create `src/pages/manage-locations/ui/FirstLocationScreen.test.tsx`, rendering `<FirstLocationScreen locale="es" />` imported from `@/pages/manage-locations`, with `@/features/auth` mocked (`useSession` returning a session each test sets, `signIn` a spy) and `next/navigation` mocked (`useRouter` returning `push` and `replace` spies, `notFound` a spy), and `fetch` stubbed, as `ManageLocationsClient.test.tsx` and `LocationsPanel.test.tsx` do (test infrastructure). Texts are read from `getMessages("location-management", "es")`. One test per scenario of offering-management "First location step", "First location step session gate" and "First location step form":
+  - "The step opens for a coffee shop" (authenticated, role `coffeeshop`): the level-1 heading is `firstLocationTitle`, `firstLocationIntro` renders, a form named `newLocationHeading` renders with buttons named `save` and `firstLocationLater`, `document.activeElement` is the level-1 heading, and `fetch` was not called.
+  - "Step session loading" (`loading`): the level-1 heading and a status containing `loading` render; no form, no `signedOutText`, and `notFound` not called.
+  - "Anonymous visitor on the step" (`anonymous`): the level-1 heading, `signedOutText` and a button named `signIn` render; no form; neither `push` nor `replace` is called.
+  - "Signing in from the step" (`anonymous`): clicking the button named `signIn` calls the mocked `signIn` once with `"/es/manage/locations/first"`.
+  - "Another role on the step" (authenticated, role `specialist`): `notFound` is called and `fetch` is not.
+  - "First location created" (authenticated coffeeshop): filling Name, Address and City and clicking `save`, with the geocoding request answering `200` `[]` and `POST /locations` answering `201`, calls `replace` with `"/es/manage/locations"`, and `locationCreated` does not render.
+  - "Leaving the step for later" (authenticated coffeeshop): clicking `firstLocationLater` calls `push` with `"/es"`, and `fetch` is not called.
+  Verify: the seven tests fail only because `FirstLocationScreen` is not exported from `@/pages/manage-locations` (and `npx tsc --noEmit` reports that missing export).
+- [ ] 2.2 Add `firstLocationTitle`, `firstLocationIntro` and `firstLocationLater` to `messages/es/location-management.json`, `messages/en/location-management.json` and `messages/ca/location-management.json` with design.md D5's wording. Verify: `npx vitest related src/shared/lib/i18n/catalog-guard.test.ts --run` passes.
+- [ ] 2.3 Implement the helper of design.md D5: create `src/pages/manage-locations/lib/location-form-texts.ts` (`locationFormTexts(locale)`) and use it in `src/pages/manage-locations/ui/ManageLocationsScreen.tsx`, whose passed texts do not change. Verify: `npx vitest related src/pages/manage-locations/ui/ManageLocationsScreen.tsx src/pages/manage-locations/lib/location-form-texts.ts --run` passes with `ManageLocationsScreen.test.tsx` unchanged.
+- [ ] 2.4 Implement design.md D3–D6: `src/pages/manage-locations/ui/FirstLocationClient.tsx` (with `FirstLocationClientTexts`), `src/pages/manage-locations/ui/FirstLocationScreen.tsx`, the export in `src/pages/manage-locations/index.ts`, and `app/[locale]/manage/locations/first/page.tsx` (mirroring `app/[locale]/manage/locations/page.tsx`; run `npx next typegen` first so `PageProps<"/[locale]/manage/locations/first">` exists). No `@sidebar` file is created (design.md D7). Verify: task 2.1's seven tests pass; `npx tsc --noEmit` and `npm run lint` report no errors.
+- [ ] 2.5 Add the row `` | `/manage/locations/first` | Coffee shop | Add the first location (opened after registering) | `` to the "Signed in" route table of `README.md`, after the `/manage/locations` row. Verify: the row is present and the existing rows are unchanged.
+
+## 3. The coffeeshop registration opens the step (user-account)
+
+- [ ] 3.1 Update `src/pages/register/ui/RegisterClient.test.tsx` for user-account "Registration routes" and "Registration result". No other assertion changes.
+  - "while authenticated replaces the route with /{locale} through the router and renders no form" (scenario "A signed-in visitor is taken to the entry page"): render the coffeeshop route (`renderClient("coffeeshop")`) with a session user of role `coffeeshop`; keep its assertions and also assert `replace` was not called with `"/es/manage/locations/first"`.
+  - "signs in with the token block and opens /{locale} through the router (spec: Signed in by the registration)": render the specialist route (`renderClient()`, and `role="specialist"` with a session user of role `specialist` in the mocked `signInWithRegistration`'s rerender); its assertions stay.
+  - New test "signs in with the token block and opens the first location step (spec: A coffeeshop signed in by the registration)": as the previous test on the coffeeshop route (role `coffeeshop` in the route and the session user), expecting `signInWithRegistration` called with the token, `replace` called with `"/es/manage/locations/first"` and never with `"/es"`, no heading named `registerSuccessTitle`, and `location.assign` not called.
+  Verify: the new test fails only because `replace` is called with `"/es"`; the two updated tests and every other test in the file pass.
+- [ ] 3.2 Implement design.md D1 in `src/pages/register/model/use-anonymous-only.ts` (optional `destination`, default `` `/${locale}` ``, in the effect's dependencies) and `src/pages/register/ui/RegisterClient.tsx` (the "registered here" state, the wrapped `signInWithToken`, the destination for the coffeeshop route), with both doc comments updated; `RegisterLandingClient.tsx` does not change. Verify: `npx vitest related src/pages/register/model/use-anonymous-only.ts src/pages/register/ui/RegisterClient.tsx --run` passes, task 3.1 included, with `RegisterLandingScreen.test.tsx` and `RegisterScreen.test.tsx` unchanged.
+
+## 4. Full checks
+
+- [ ] 4.1 Run `npm run test:run`, `npx tsc --noEmit`, `npm run lint` and `npm run build`. Expected: the validation suite passes, `npx tsc --noEmit` reports no errors, lint reports 0 errors, and the build succeeds with `/[locale]/manage/locations/first` in its route list. Any failure is fixed in its own `fix(<capability>): …` commit, or reported when the fix would go beyond the design. Then run `npm run test:qa` once; expected: no QA test goes stale because of this change (design.md D8). The final report lists any stale QA test (file, line, message). No file under `qa/` changes.
+
+## Workflow follow-up
+
+- Visual review (design lead) at 375 and 1280 px, es and ca, both themes: `/es/manage/locations/first` signed in as a coffee shop, compared with `/es/manage/locations` with the form open; the flow from `/es/register/coffeeshop` to the step and on to Manage locations after Save. Needs Product owner's local server.
+- Verify (`/opsx:verify require-first-location-on-registration`) and archive on Product owner's request; the archive removes backlog entry R45.
