@@ -19,3 +19,12 @@ Commit format and footers correct; only the change folder and the summary's `## 
 - Context: step 7 needs Product owner's review message. / Decision: no review message; the artifacts carry the approved summary's answers and the design lead's two points (D1, D2). / Why: Product owner delegated R45's approvals to the orchestrator (2026-11-11). / Result: apply next.
 #### D2 — Apply goes to the cloud
 - Context: §9 apply weight. / Decision: cloud session. / Why: two capabilities and nine tasks (long scope), and OpenCode cannot run in this session. / Result: apply prompt by the design lead.
+
+## Session 2026-11-12 — Apply (step 8), cloud build, and integration
+Summary: routine `trig_011QAiAwTiALA6VgzMPT7DLR`, session `cse_016LpndjgxLMgxWpmeEtymP2` (14:29–14:39 UTC), base `7a8a28ae`, prompt by the design lead (it told the build that design.md "Risks" means task 1.1 where it says "task 1.2"; the wording is fixed at verify). Every task checked. Next: the design lead's visual review (375 and 1280px, es and ca, both themes; the flow from `/es/register/coffeeshop` to the step and on to Manage locations; it also gives the summary its visual reference). Needs Product owner's local server. MVC reachable: no.
+
+### Agent feedback
+Build: `1b7da8b` refactor (1.1, `NewLocationForm`; the panel's geocoding cache moved to a state initialiser after lint refused reading a ref during render), `9cc007c` test (2.1, seven tests failing only on the missing export), `b24e137` feat (2.2, three texts), `05a020f` feat (2.3, texts helper), `15b2c24` feat (2.4, step client, screen, route), `87f6748` feat (2.5, README row), `c8d729c` test (3.1, the new test failing only because `replace` got `"/es"`), `4128dbf` feat (3.2), `788ec2b` chore (4.1, no fix needed). Checks: validation suite 213 files, 1241/1241; `tsc` 0; lint 0 errors, 1 known warning; `npm run build` passed, route list includes `/[locale]/manage/locations/first`. QA suite: 14 failures in `qa/src/pages/home/…` and `qa/src/widgets/app-header/ui/AppHeader.test.tsx` ("invariant expected app router to be mounted"), the same 14 on the base `7a8a28ae` (R91's stale QA tests, not this change).
+
+### Review and integration (orchestrator, §7 steps 4–8)
+Commit format, footers and test-first order correct; only the files the tasks name, plus checkboxes. Checks not re-run locally (npm denied in this session); integrated on the session's counts. `git merge --ff-only origin/claude/require-first-location-on-registration-apply`: `7a8a28ae..788ec2b3`.
