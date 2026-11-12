@@ -471,15 +471,23 @@ When a route under a supported locale is not found — the path matches no route
 - **THEN** it offers a link, named with that locale's "back to the home page" text, that opens the root of that locale
 
 ### Requirement: No known high or critical framework advisory
-The installed framework, and every dependency the application ships to production, SHALL carry no known advisory of high or critical severity.
+The installed framework, and every other installed dependency, whether the application ships it to production or uses it only for development, SHALL carry no known advisory of high or critical severity. Advisories of moderate or low severity SHALL be reported without failing verification.
 
 #### Scenario: Production dependency audit is clean for high and critical
 - **WHEN** verification audits the installed production dependencies, the framework included
 - **THEN** the audit reports no advisory of high or critical severity
 
+#### Scenario: Development dependency audit is clean for high and critical
+- **WHEN** verification audits every installed dependency, the development dependencies included
+- **THEN** the audit reports no advisory of high or critical severity
+
 #### Scenario: High or critical advisory detected
-- **WHEN** the audit of the production dependencies reports an advisory of high or critical severity
+- **WHEN** the audit of the installed dependencies, production or development, reports an advisory of high or critical severity
 - **THEN** verification fails naming the affected package
+
+#### Scenario: Moderate or low advisory is reported only
+- **WHEN** the audit of the installed dependencies reports advisories of moderate or low severity and none of high or critical severity
+- **THEN** verification passes and reports each moderate or low advisory with its affected package
 
 ### Requirement: Code-structure rules reported by lint
 The lint run SHALL report, as warnings and never as errors, every production unit over the size and complexity limits (a function or component over 80 lines, a file over 300 lines, a cyclomatic complexity over 15, counting non-blank, non-comment lines) and every production import that reaches another slice of the same layer or re-enters the public index of its own slice or segment. Test files are outside the import rules.
