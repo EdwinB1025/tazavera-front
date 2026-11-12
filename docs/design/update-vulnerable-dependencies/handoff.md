@@ -31,3 +31,16 @@ Summary: Product owner ran the production build of this worktree (`npm ci`, `npm
 - The worktree had no `.env.local`; a build without it leaves `API_INTERNAL_URL` unset and the sign-in popup blank (forwarded paths answer `502`).
 - The local API's `APP_URL`/`FRONT_URL` are `https://localhost:8443`, but its OAuth client `01a120d6-…` listed only the ngrok callback; Product owner added `https://localhost:8443/callback` to its `redirect_uris` (read back by the orchestrator, read only).
 - With the front opened at another origin than `https://localhost:8443`, form requests fail the CSP `connect-src 'self'`; the app must be opened at the configured `NEXT_PUBLIC_APP_URL`.
+
+## Session 2026-11-12 — Archive (step 11) and merge (step 12)
+Summary: Product owner's request (2026-11-12: "verify what is pending, integrate and delete worktrees"). Archive prompt by the design lead. Run 1 (`trig_012S41RAkVWntK37hDph8e21`, session `cse_016Lpndh7sCbYCThPwTU2cBP`) stopped before its commit on the prompt's gate (C1). Run 2 (`trig_01HnFNEHbHk6ij6q4EsfDN22`, session `cse_016Lpndh9mZCrRftR5ZSrbYR`, 13:09–13:11 UTC) archived. MVC reachable: not checked.
+
+### Agent feedback
+Architect `a5fe07a` `chore(openspec): archive update-vulnerable-dependencies`: app-shell "No known high or critical framework advisory" synced (matches the delta word for word; no other requirement changed); change moved to `openspec/changes/archive/2026-11-12-update-vulnerable-dependencies/`; `design` listed as ready (no design.md by design, expected). Checks: change strict validate valid; `app-shell` non-strict valid; strict warnings 12 on the base and the same 12 after the sync.
+
+### Closed for review
+#### C1 — Post-sync strict validation over every main spec
+- Point: the archive prompt required `openspec validate --specs --strict` to pass; 13 of 14 main specs already fail it on the base (long-requirement warnings), so run 1 stopped. / Options: A. gate on no new strict warning versus the base for the synced spec, plus non-strict valid; B. shorten every long requirement first (a separate change); C. skip the check. / Choice: A. / Why: the gate as written could not pass (verified on the base by run 1); A keeps its intent (the archive adds no validation problem) and changes nothing users see; no security, API or contract. / Result: run 2 archived (`a5fe07a`).
+
+### Review and integration (orchestrator)
+Commit format and footer correct; only `openspec/` changed. `git merge --ff-only origin/claude/update-vulnerable-dependencies-archive`: `7ca0773e..a5fe07a2`. Merge step 2 (`git merge develop` then `npm run test:run`): `develop` gained only `docs/design/change-progress.md` commits since this branch's base, so the test run cannot differ; npm cannot run in this session; recorded here instead of a local run.
