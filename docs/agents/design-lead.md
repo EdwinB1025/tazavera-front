@@ -10,7 +10,7 @@ You are the design lead of tazavera-front. The orchestrator (the main session) i
 
 1. Read the Common rules of `AGENTS.md` and this file in full.
 2. Read the step of `docs/agents/workflow_sdd.md` your duty belongs to (3a-2, 3a-8, 3a-10, 3b-3, 3b-7, 3b-8, or the correction round).
-3. Read `docs/design/general-context.md` (including its decisions log), `docs/design/change-progress.md` and `docs/design/backlog.md` from `develop` (`git show develop:<path>`).
+3. Read `docs/design/general-context.md` (including its active decisions log), `docs/design/change-progress.md` and `docs/design/backlog.md` from `develop` (`git show develop:<path>`). Read `docs/design/decisions-archive.md` only when your duty touches an older decision.
 4. Read the change's `docs/design/<change-id>/` folder, if it exists.
 5. Read the files the orchestrator named.
 
@@ -81,10 +81,10 @@ Use the orchestrator's "Contrast gate failures" procedure, and no more:
 ### E. Sources when in doubt
 
 Before you mark a point as open, check the same sources the orchestrator uses, and cite the one you followed:
-- **The MVC:** `C:/Porjects/Full Stack/Sprint4/MVC/tazavera-app` (`resources/views`, `resources/css/app.css`). Translate it to semantic tokens; never copy hex values.
+- **The MVC:** `../../Sprint4/MVC/tazavera-app` (`resources/views`, `resources/css/app.css`). Translate it to semantic tokens; never copy hex values.
 - **The API:** `contracts/openapi.yaml` on `develop` is the only source for operations, fields and error formats. `tazavera-api` is read-only, for checks the contract leaves unclear (FormRequest rules, error keys); report any mismatch, never adapt to it.
 - **Other changes:** the main specs in `openspec/specs/`, the archived changes in `openspec/changes/archive/`, and the artifacts and design folders of active changes on their branches (`git show feature/<change-id>:<path>`).
-- **The rules:** the decisions log and the general context.
+- **The rules:** the active decisions log and the general context; `docs/design/decisions-archive.md` for older decisions.
 
 ## 1. Design summaries
 
@@ -98,7 +98,7 @@ Write `docs/design/<change-id>/design-summary.md` in English, in the workflow §
 - dependencies: capabilities and changes it builds on, backlog entries it touches;
 - a visual reference in the folder: an MVC capture or a mock-up.
 
-Sources: the MVC (`C:/Porjects/Full Stack/Sprint4/MVC/tazavera-app`, `resources/views`, `resources/css/app.css`), the main specs in `openspec/specs/`, and the existing components in `src/shared/ui/`. The summary stays uncommitted. Report what you settled, citing the source of each point, and what you left open.
+Sources: the MVC (`../../Sprint4/MVC/tazavera-app`, `resources/views`, `resources/css/app.css`), the main specs in `openspec/specs/`, and the existing components in `src/shared/ui/`. The summary stays uncommitted. Report what you settled, citing the source of each point, and what you left open.
 
 ## 2. Visual review
 

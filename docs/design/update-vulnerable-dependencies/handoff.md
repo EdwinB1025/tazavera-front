@@ -1,0 +1,46 @@
+# Handoff — update-vulnerable-dependencies
+
+## Session 2026-11-11 — Summary, propose (step 6) and artifact review (step 7)
+Summary: Product owner's `npm audit` on `develop` (13 vulnerabilities: 9 moderate, 3 high, 1 critical in `next` 16.4.0). Product owner delegated this change's approvals to the orchestrator and made it the highest priority (2026-11-11). Summary drafted by the design lead (`3ffdaed5`), approved by the orchestrator on that delegation (`95fc68e4`: 1 = B, 2 = A, 3 = A, 4 = A now). Branch `feature/update-vulnerable-dependencies` from `develop` at `95fc68e4`, worktree `tazavera-front-dependencies`. Propose: routine `trig_01JqnThAexc8kVu4twhbZEWe`, session `cse_016LpndfyoVbo6nLsstbYimV` (14:14–14:18 UTC), prompt by the orchestrator. Artifact review: done by the orchestrator on the delegation, no change. Apply: routine `trig_0122H3ku3QgwzN64E8xaQoAC` (14:28 UTC), target `claude/update-vulnerable-dependencies-apply`.
+
+### Agent feedback
+Architect `194acbf3` `docs(app-shell): propose update-vulnerable-dependencies`: proposal.md; app-shell delta MODIFIED "No known high or critical framework advisory" (every installed dependency, production or development, for high and critical; moderate and low reported only; scenarios: production audit clean, development audit clean (new), high or critical detected (widened), moderate or low reported only (new)); design.md skipped (the approved summary replaces it, as in `upgrade-next-16-4`); tasks 1.1 (pins and `npm audit fix`), 1.2 (Next.js upgrade notes), 2.1 (full checks with `test:qa`, two builds, three audit commands); `## Propose status` in the summary. Strict validate valid.
+
+### Review and integration (orchestrator, §7 steps 4 and 7)
+Commit format and footer correct; only the change folder and the summary's propose status changed. `git merge --ff-only origin/claude/update-vulnerable-dependencies-propose`: `95fc68e4..194acbf3`, pushed.
+
+## Session 2026-11-11 — Apply (step 8), cloud build, and integration
+Summary: routine `trig_0122H3ku3QgwzN64E8xaQoAC`, session `cse_016LpndjR47yT51qLFQ3KaE4` (14:28–14:37 UTC), base `194acbf3`, prompt by the orchestrator. Every task done, no stop. Next: verify (cloud), then Product owner's browser check (recommended in the summary: home page with the `next/image` hero, sign-in popup, one form submission) and archive request.
+
+### Agent feedback
+Build `77b532b` `fix(app-shell): upgrade next to 16.4.6 and apply in-range audit fixes` (1.1), `117bc42` `chore(app-shell): complete tasks for update-vulnerable-dependencies` (1.2 and 2.1, no file changes). `package.json`: only `next` and `eslint-config-next` 16.4.0 → 16.4.6. `npm audit fix` (no `--force`, no range edited, no `overrides`): `vitest`/`@vitest/mocker` 5.1.0, `vite` 8.3.8, `undici` 8.12.4, `zod` 4.6.7; `eslint` stays 9.39.5; `typescript-eslint` 8.72.2 (`npm view`: latest 8.72.2, only canary 8.72.3-alpha.7), so the `minimatch` chain stays. Lock file also lists `@rolldown/binding-wasm32-wasi` 1.2.19 and three `@emnapi/*` (optional, dev-only bindings of the new `vite`, not installed on Linux). Same peer dependencies in 16.4.6. 1.2: the upgrade notes need no change. 2.1: `npm ci` ok; validation suite 211 files, 1224/1224 (same as base); QA suite 366 files, 2009/2009 (same as base); `tsc` 0; lint 0 errors, 1 warning (`qa/…/ConsensusPanel.test.tsx:531`); `npm run build` twice, both passed with no `SecurityFatalError`; `npm audit --omit=dev`: 0 vulnerabilities; `npm audit --audit-level=high`: exit 0; `npm audit`: only the moderate `minimatch` chain (GHSA-g3hv-75wg-m249) and its `@typescript-eslint/*`, `typescript-eslint`, `eslint-config-next` dependents, accepted (summary 2 = A).
+
+### Review and integration (orchestrator, §7 steps 4–8)
+Commit format and footers correct; only `package.json`, `package-lock.json` and `tasks.md` changed; `package.json` diff is exactly the two approved pins. Checks not re-run locally; integrated on the session's counts. `git merge --ff-only origin/claude/update-vulnerable-dependencies-apply`: `194acbf3..117bc420`.
+
+## Session 2026-11-11 — Verify (step 10), cloud architect
+Summary: routine `trig_01LBiNsdZq5WgEVWYSLd5UtT`, session `cse_016LpndjDoh1GkywAxhH4dY4` (14:49–14:54 UTC), at `9f407399`, prompt by the orchestrator. No CRITICAL, no WARNING, 2 SUGGESTIONs (full text in the session: https://claude.ai/code/session_016LpndjDoh1GkywAxhH4dY4); design adherence "not verified" because `design.md` is skipped on purpose (the approved summary replaces it). Nothing committed: verify is a report only. Next: Product owner's browser check (summary section 5: home page with the `next/image` hero, sign-in popup, one form submission) and archive request.
+
+### Final checks
+`npm audit --omit=dev` exit 0, 0 vulnerabilities; `npm audit --audit-level=high` exit 0; `npm audit` only the accepted moderate `minimatch` chain; validation suite 211 files, 1224/1224; QA suite 366 files, 2009/2009; `tsc` 0; lint 0 errors, 1 warning (`qa/…/ConsensusPanel.test.tsx:531`); `npm run build` twice, both passed on Next.js 16.4.6 with no `SecurityFatalError`; `openspec validate --strict` valid; no file under `src/`, `proxy.ts` or `next.config.ts` changed.
+
+## Session 2026-11-12 — Product owner's browser check (before archive)
+Summary: Product owner ran the production build of this worktree (`npm ci`, `npm run build`, `npm run start`) behind the local Caddy at `https://localhost:8443` and reported the check passed (2026-11-12: "ok it worked, the test passed"): home page with the hero image, sign-in popup, one form submission. Next: Product owner's archive request, then the archive and the merge into `develop`. MVC reachable: not checked.
+
+### Environment findings (not defects of this change)
+- The worktree had no `.env.local`; a build without it leaves `API_INTERNAL_URL` unset and the sign-in popup blank (forwarded paths answer `502`).
+- The local API's `APP_URL`/`FRONT_URL` are `https://localhost:8443`, but its OAuth client `01a120d6-…` listed only the ngrok callback; Product owner added `https://localhost:8443/callback` to its `redirect_uris` (read back by the orchestrator, read only).
+- With the front opened at another origin than `https://localhost:8443`, form requests fail the CSP `connect-src 'self'`; the app must be opened at the configured `NEXT_PUBLIC_APP_URL`.
+
+## Session 2026-11-12 — Archive (step 11) and merge (step 12)
+Summary: Product owner's request (2026-11-12: "verify what is pending, integrate and delete worktrees"). Archive prompt by the design lead. Run 1 (`trig_012S41RAkVWntK37hDph8e21`, session `cse_016Lpndh7sCbYCThPwTU2cBP`) stopped before its commit on the prompt's gate (C1). Run 2 (`trig_01HnFNEHbHk6ij6q4EsfDN22`, session `cse_016Lpndh9mZCrRftR5ZSrbYR`, 13:09–13:11 UTC) archived. MVC reachable: not checked.
+
+### Agent feedback
+Architect `a5fe07a` `chore(openspec): archive update-vulnerable-dependencies`: app-shell "No known high or critical framework advisory" synced (matches the delta word for word; no other requirement changed); change moved to `openspec/changes/archive/2026-11-12-update-vulnerable-dependencies/`; `design` listed as ready (no design.md by design, expected). Checks: change strict validate valid; `app-shell` non-strict valid; strict warnings 12 on the base and the same 12 after the sync.
+
+### Closed for review
+#### C1 — Post-sync strict validation over every main spec
+- Point: the archive prompt required `openspec validate --specs --strict` to pass; 13 of 14 main specs already fail it on the base (long-requirement warnings), so run 1 stopped. / Options: A. gate on no new strict warning versus the base for the synced spec, plus non-strict valid; B. shorten every long requirement first (a separate change); C. skip the check. / Choice: A. / Why: the gate as written could not pass (verified on the base by run 1); A keeps its intent (the archive adds no validation problem) and changes nothing users see; no security, API or contract. / Result: run 2 archived (`a5fe07a`).
+
+### Review and integration (orchestrator)
+Commit format and footer correct; only `openspec/` changed. `git merge --ff-only origin/claude/update-vulnerable-dependencies-archive`: `7ca0773e..a5fe07a2`. Merge step 2 (`git merge develop` then `npm run test:run`): `develop` gained only `docs/design/change-progress.md` commits since this branch's base, so the test run cannot differ; npm cannot run in this session; recorded here instead of a local run.
