@@ -410,8 +410,8 @@ describe("OfferingCard", () => {
           "rounded-check",
           "ml-1",
           "-mr-1",
-          "before:-inset-1.25",
-          "md:before:-inset-1",
+          "before:-inset-1.5",
+          "md:before:-inset-1.25",
           "type-tree-badge",
         ]),
       );
