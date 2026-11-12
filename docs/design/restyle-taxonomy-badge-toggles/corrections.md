@@ -11,3 +11,11 @@ Product owner, 2026-11-12, before the visual review: in the traditional theme th
    Existing tests affected: none (the matrix gains one pair per theme; both pass, 13.98 and 15.93).
    New test: none.
 3. Artifacts: the landing delta "Taxonomy badge trees on the offering card" and its scenario "Toggle at the end of its badge" say the chip is filled with "the card's surface colour"; they change to a white fill in the traditional theme and the dark textarea surface in the dark theme (the textarea surface token), with the glyph and ring unchanged and the 3:1 rule unchanged. design.md D1 changes its fill class and contrast figures, and records the reuse of `surface-textarea` outside the textarea (no white surface token exists; summary Open 1 D). The proposal's "What Changes" follows.
+
+### Status
+
+2026-11-12 — architect (cloud). `openspec validate restyle-taxonomy-badge-toggles --strict`: valid (OpenSpec CLI 1.16.0).
+
+1. Fill on the textarea surface: landing delta (requirement "Taxonomy badge trees on the offering card" and scenario "Toggle at the end of its badge": fill is the textarea surface colour, white in the traditional theme, the dark textarea surface in the dark theme); design.md Context, Goals, D1 (fill class `bg-surface-textarea`, figures 3.80 / 4.22 boundary and 13.98 / 15.93 glyph, reuse of `surface-textarea` outside the textarea), D3's class list, D4's expected class. Tasks 3.1 (test-first: the existing scenario test's expected class) and 3.2 (`TOGGLE_CLASSES` and its comment).
+2. Guard registration: design.md Non-Goals, Files table and D1; proposal "Out of scope" and "Impact". Task 3.2 (the pair `text-strong` / `surface-textarea` as `icon` in both matrices, in the same task as the class it covers, since it passes at once).
+3. Artifacts: proposal "Why", "What Changes", "Out of scope" and "Impact"; the spec and design edits above. No task of its own; task 3.3 runs the final checks.

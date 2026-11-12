@@ -2,7 +2,7 @@
 
 ## Context
 
-See proposal.md (Why). The source of truth is `docs/design/restyle-taxonomy-badge-toggles/design-summary.md` (approved; Open 1 = C, Open 2 = A, Open 3–6 at their recommendations) and Product owner's artifact review of 2026-11-12 (`docs/design/restyle-taxonomy-badge-toggles/handoff.md`, "Session 2026-11-12 — Artifact review (step 7)", Q1 answered with both recommendations, and the orchestrator's D1 on the glyph): (a) the tree badges' text at 12px below `md` and 14px from `md`; (b) the toggle's box about 14px below `md`, its hit area still at least 24 × 24px. Current state, checked in the code on the base:
+See proposal.md (Why). The source of truth is `docs/design/restyle-taxonomy-badge-toggles/design-summary.md` (approved; Open 1 = C, Open 2 = A, Open 3–6 at their recommendations) and Product owner's artifact review of 2026-11-12 (`docs/design/restyle-taxonomy-badge-toggles/handoff.md`, "Session 2026-11-12 — Artifact review (step 7)", Q1 answered with both recommendations, and the orchestrator's D1 on the glyph): (a) the tree badges' text at 12px below `md` and 14px from `md`; (b) the toggle's box about 14px below `md`, its hit area still at least 24 × 24px. Review round 1 (`docs/design/restyle-taxonomy-badge-toggles/corrections.md`, 2026-11-12) moves the fill to summary Open 1 option D (D1). Current state, checked in the code on the base:
 
 - `src/shared/ui/TaxonomyTreeToggle.tsx` (`"use client"`) renders the toggle with `TOGGLE_CLASSES` = `inline-flex size-6 shrink-0 items-center justify-center rounded-field border border-current type-button focus-visible:focus-ring` (collapse-taxonomy-trees D4, unify-taste-trees D2). Its glyph is a text `+` or `−` (U+2212) in an `aria-hidden` span.
 - `src/shared/ui/TaxonomyTree.tsx` `NoteRow` renders `<Badge variant="taxonomy">` with the name in a `span`, then the toggle as the badge's last child (unify-taste-trees D1). The badge's geometry is `BADGE_GEOMETRY_CLASSES` (`type-badge rounded-field inline-flex items-center gap-1 px-2 py-0.5`), its label colour comes from `[data-taxonomy] { color: var(--taxonomy-label) }` in `globals.css`.
@@ -18,9 +18,9 @@ API: no endpoint is consumed and no API error is presented; no generated or deri
 
 ## Goals / Non-Goals
 
-**Goals:** the end state of summary section 6 for the toggle and the toggle-bearing badge, with the colour treatment of Open 1 C; from the 2026-11-12 review, the tree badges' smaller text below `md` (D5) and the smaller toggle below `md` (D6).
+**Goals:** the end state of summary section 6 for the toggle and the toggle-bearing badge, with the colour treatment of Open 1 C, its fill moved to option D by review round 1 (D1); from the 2026-11-12 review, the tree badges' smaller text below `md` (D5) and the smaller toggle below `md` (D6).
 
-**Non-Goals:** no change to `Badge.tsx`, `BADGE_GEOMETRY_CLASSES`, the `type-badge` and `type-button` roles, any colour token, catalogs, consumers, guard tests or the `theme-tokens.test.ts` matrix and role table. Other badges (the other `Badge` variants, taxonomy badges outside the trees — facet chips, descriptor chips, the evaluation form's cascade —, `FilterChip`, `DescriptorChipGroup`) keep their text size. `globals.css` changes only by one new typographic role (D5), and `TaxonomyTree.tsx` only by that role on the name's `span` in `NoteRow` (D5): the review's item (a) needs a size that changes with the width, which only a role in `globals.css` can carry under the colour guard, and it applies to the tree's badges only, which `NoteRow` alone renders.
+**Non-Goals:** no change to `Badge.tsx`, `BADGE_GEOMETRY_CLASSES`, the `type-badge` and `type-button` roles, any colour token, catalogs, consumers or guard tests; the `theme-tokens.test.ts` role table is not changed, and its matrix gains only the glyph pair of D1 (review round 1). Other badges (the other `Badge` variants, taxonomy badges outside the trees — facet chips, descriptor chips, the evaluation form's cascade —, `FilterChip`, `DescriptorChipGroup`) keep their text size. `globals.css` changes only by one new typographic role (D5), and `TaxonomyTree.tsx` only by that role on the name's `span` in `NoteRow` (D5): the review's item (a) needs a size that changes with the width, which only a role in `globals.css` can carry under the colour guard, and it applies to the tree's badges only, which `NoteRow` alone renders.
 
 ## Files
 
@@ -29,13 +29,14 @@ API: no endpoint is consumed and no API error is presented; no generated or deri
 | `src/app/styles/globals.css` | app | New role `@utility type-tree-badge` after `type-badge` (D5) |
 | `src/shared/ui/TaxonomyTree.tsx` | shared | `NoteRow`: the name's `span` carries `type-tree-badge` (D5) |
 | `src/shared/ui/TaxonomyTreeToggle.tsx` | shared | New `TOGGLE_CLASSES` (D1–D3, D6) and their comment |
-| `src/entities/offering/ui/OfferingCard.test.tsx` | entities (test) | One test for the scenario "Toggle at the end of its badge" (D4, extended by D5 and D6) |
+| `src/entities/offering/ui/OfferingCard.test.tsx` | entities (test) | One test for the scenario "Toggle at the end of its badge" (D4, extended by D5 and D6; fill class by D1) |
+| `src/app/styles/theme-tokens.test.ts` | app (test) | The pair `text-strong` on `surface-textarea` as `icon` in both theme matrices (D1) |
 
 ## Decisions
 
-### D1 — One chip treatment (summary Open 1 C, Open 2 A)
+### D1 — One chip treatment (summary Open 1 C with option D's fill, Open 2 A; review round 1)
 
-The toggle carries its own fill: `bg-surface-card`, with `text-text-strong` for the glyph and `border border-current` for a 1px ring in the same colour. Because the toggle sets its own text colour, `border-current` now resolves to `text-strong` and no longer to the badge's label colour, so the treatment is the same on every badge. The boundary counts as met when the fill or the ring reaches 3:1 against the badge (Open 2 A); summary section 4.4 measures a minimum of 3.46:1 (traditional) and 3.90:1 (dark) over the 36 toggle-bearing seed colours, and the glyph 11.53:1 / 14.75:1 on its own fill. The glyph pair `text-strong` on `surface-card` is already registered in both themes of `theme-tokens.test.ts` as `text`, so no pair is registered and no token is added.
+The toggle carries its own fill: `bg-surface-textarea` (`#ffffff` in the traditional theme, `#051215` in the dark theme), with `text-text-strong` for the glyph and `border border-current` for a 1px ring in the same colour. Because the toggle sets its own text colour, `border-current` now resolves to `text-strong` and no longer to the badge's label colour, so the treatment is the same on every badge. The boundary counts as met when the fill or the ring reaches 3:1 against the badge (Open 2 A); summary section 4.4 measures a minimum of 3.80:1 (traditional) and 4.22:1 (dark) over the 36 toggle-bearing seed colours, none under 3:1, and the glyph 13.98:1 / 15.93:1 on its own fill. Review round 1 replaced the first fill, `bg-surface-card`, because in the traditional theme it matched the card around the badge. No white surface token exists, so the textarea surface token is reused outside the textarea (summary Open 1 D); no token is added or changed. The glyph pair `text-strong` on `surface-textarea` is registered as `icon` (3:1) once in each theme matrix of `theme-tokens.test.ts`, next to the existing `border-muted` / `surface-textarea` boundary pair (summary section 4.4, "Guard registration"); the boundary pairs involve data colours, which the matrix cannot hold. No guard test is added.
 
 ### D2 — Size, radius and hit area (summary section 6, Open 3 A, Open 6 A)
 
@@ -47,13 +48,13 @@ The badge's geometry is not touched. The toggle carries `ml-1` and `-mr-1`: with
 
 The resulting class list (D1–D3 with D5 and D6), in this order, is the one the test of D4 reads:
 
-`relative inline-flex size-3.5 md:size-4 shrink-0 items-center justify-center rounded-check border border-current bg-surface-card text-text-strong type-tree-badge ml-1 -mr-1 before:absolute before:-inset-1.25 md:before:-inset-1 focus-visible:focus-ring`
+`relative inline-flex size-3.5 md:size-4 shrink-0 items-center justify-center rounded-check border border-current bg-surface-textarea text-text-strong type-tree-badge ml-1 -mr-1 before:absolute before:-inset-1.25 md:before:-inset-1 focus-visible:focus-ring`
 
 The comment above `TOGGLE_CLASSES` cites this change's D1–D3, D5 and D6 instead of collapse-taxonomy-trees D4 and unify-taste-trees D2, which are superseded for the classes. unify-taste-trees D1 (the toggle inside the badge, after the name) stands.
 
 ### D4 — The scenario test (summary Open 5 A)
 
-One test in `src/entities/offering/ui/OfferingCard.test.tsx`, next to the other tree tests, named after the scenario "Toggle at the end of its badge". It renders the card with its `taxonomies` option holding two top-level notes with one child each: one whose data colour gives a white label (`#336699`, as the fixture's Floral) and one whose data colour gives a black label (a light colour such as `#F2D16B`). It asserts, with the fewest assertions: each note's toggle is its badge's last element child; the two toggles have the same `className`; that `className` contains `bg-surface-card`, `text-text-strong`, `border-current`, `size-3.5`, `md:size-4`, `rounded-check`, `ml-1`, `-mr-1`, `before:-inset-1.25`, `md:before:-inset-1` and `type-tree-badge`; and each note's name `span` (the badge's first element child) has the class `type-tree-badge`. Contrast, font sizes and pixel heights are not asserted: jsdom has no CSS engine; they belong to the visual review at 375px and 1280px.
+One test in `src/entities/offering/ui/OfferingCard.test.tsx`, next to the other tree tests, named after the scenario "Toggle at the end of its badge". It renders the card with its `taxonomies` option holding two top-level notes with one child each: one whose data colour gives a white label (`#336699`, as the fixture's Floral) and one whose data colour gives a black label (a light colour such as `#F2D16B`). It asserts, with the fewest assertions: each note's toggle is its badge's last element child; the two toggles have the same `className`; that `className` contains `bg-surface-textarea` (D1, review round 1), `text-text-strong`, `border-current`, `size-3.5`, `md:size-4`, `rounded-check`, `ml-1`, `-mr-1`, `before:-inset-1.25`, `md:before:-inset-1` and `type-tree-badge`; and each note's name `span` (the badge's first element child) has the class `type-tree-badge`. Contrast, font sizes and pixel heights are not asserted: jsdom has no CSS engine; they belong to the visual review at 375px and 1280px.
 
 ### D5 — Tree badge text by width (review 2026-11-12, item a)
 
