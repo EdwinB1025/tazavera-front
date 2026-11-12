@@ -55,3 +55,21 @@ Architect `a4a21024` `docs(landing): apply review round 1 for restyle-taxonomy-b
 
 ### Review and integration (orchestrator)
 Commit format, footers and test-first order correct; only the round's files. `git merge --ff-only origin/claude/restyle-taxonomy-badge-toggles-round-1`: `015100b1..dca644db`.
+
+## Session 2026-11-12 — Visual review, Round 2 (correction round), cloud architect then build, and integration
+Summary: the design lead's visual review after Round 1 (production build at `https://localhost:8443`) passed every point except the toggle's hit area, measured at 22 × 22px (the `::before` inset counts from inside the 1px border). The orchestrator wrote and committed Round 2 (`fe4bae6c`, rules §3 and §5: two settled artifacts contradicted; insets `before:-inset-1.5 md:before:-inset-1.25`, 24px at both widths, nothing visible changes). The design lead's re-check after Round 2 passed. Next: verify and archive. MVC reachable: no.
+
+### Agent feedback
+Architect `7565f5d` `docs(landing): apply review round 2 for restyle-taxonomy-badge-toggles` (design.md D2/D3/D4/D6/Risks, tasks 4.1–4.3, `### Status`; strict valid). Build `e3a4b9c` test (4.1, the two expected inset classes), `be98bb7` fix (4.2, `TOGGLE_CLASSES`), `5544f4c` chore (4.3).
+
+### Review and integration (orchestrator)
+Commit format, footers and test-first order correct; only the round's files. `git merge --ff-only origin/claude/restyle-taxonomy-badge-toggles-round-2`: `fe4bae6c..5544f4ce`. The orchestrator pushed the feature branch late, so the first verify run (session `cse_016LpndiGnkmM8zs9sHnqbrC`, 16:27 UTC) stopped correctly on the base check (`fe4bae6`); rerun after the push.
+
+## Session 2026-11-12 — Verify (step 10) and archive (step 11), cloud architect, and integration
+Summary: Product owner requested the archive on 2026-11-12, conditional on the design lead's visual check, which passed. Routine `trig_0188g1J5qLXUVKTtFbWZ1qHn`, session `cse_016LpndiF92wsMd7bCozJbyz` (16:34–16:39 UTC), base `5544f4ce`. MVC reachable: no.
+
+### Agent feedback
+Checks: change strict valid (CLI 1.16.0); `npm run test:run` 211 files / 1225 tests, 0 failures; `tsc` clean; lint 0 errors, 1 known warning (`qa/src/widgets/offering-detail/ui/ConsensusPanel.test.tsx:531:9`, `@typescript-eslint/no-unused-vars`); build: run 1 `SecurityFatalError` (Next.js 16.4.0 on this branch), run 2 succeeded; `next upgrade` not run. Verify: 10/10 tasks, 1/1 requirement, 15/15 scenarios covered, no CRITICAL, no WARNING. Sync gate on `landing`: non-strict valid; strict warnings identical to the base (the existing long-requirement warnings). Backlog: no entry names the change. Archive `e87f0b5` `chore(openspec): archive restyle-taxonomy-badge-toggles` (`openspec/changes/archive/2026-11-12-restyle-taxonomy-badge-toggles/`, synced `openspec/specs/landing/spec.md`).
+
+### Review and integration (orchestrator)
+One commit, only the synced spec and the move. `git merge --ff-only origin/claude/restyle-taxonomy-badge-toggles-verify-archive`: `5544f4ce..e87f0b53`. Then `develop` into the feature branch and the feature branch into `develop` (Product owner's authorisation of 2026-11-12 for the orchestrator to merge into `develop`).
