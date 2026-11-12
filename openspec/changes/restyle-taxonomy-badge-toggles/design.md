@@ -40,7 +40,7 @@ The toggle carries its own fill: `bg-surface-textarea` (`#ffffff` in the traditi
 
 ### D2 — Size, radius and hit area (summary section 6, Open 3 A, Open 6 A)
 
-From `md` up the visible box is `size-4` (16 × 16px) with `rounded-check` (4px; 0 in the dark theme), as `Checkbox`'s box. The glyph stays the text `+`/`−`, centred (`inline-flex items-center justify-center`), and `shrink-0` stays. From `md` up the hit area stays 24 × 24px, centred on the box, through an invisible pseudo-element: `relative` on the button and `before:absolute` with a 4px inset (`md:before:-inset-1`; Tailwind 4 gives `before:` its empty `content`). Below `md` the box and the inset change by D6; the glyph's role is `type-tree-badge` (D5, D6) instead of `type-button`. Focus stays `focus-visible:focus-ring`; there is no hover.
+From `md` up the visible box is `size-4` (16 × 16px) with `rounded-check` (4px; 0 in the dark theme), as `Checkbox`'s box. The glyph stays the text `+`/`−`, centred (`inline-flex items-center justify-center`), and `shrink-0` stays. From `md` up the hit area stays 24 × 24px, centred on the box, through an invisible pseudo-element: `relative` on the button and `before:absolute` with a 5px inset (`md:before:-inset-1.25`; Tailwind 4 gives `before:` its empty `content`). The inset of a positioned pseudo-element is measured from the button's padding box, inside its 1px border, so the hit area is the 14px inner box plus 2 × 5px = 24px (review round 2: the earlier 4px inset, counted from the outer edge, gave 22px). Below `md` the box and the inset change by D6; the glyph's role is `type-tree-badge` (D5, D6) instead of `type-button`. Focus stays `focus-visible:focus-ring`; there is no hover.
 
 ### D3 — Gap and end padding by margins on the toggle (summary section 6, Open 4 A)
 
@@ -48,13 +48,13 @@ The badge's geometry is not touched. The toggle carries `ml-1` and `-mr-1`: with
 
 The resulting class list (D1–D3 with D5 and D6), in this order, is the one the test of D4 reads:
 
-`relative inline-flex size-3.5 md:size-4 shrink-0 items-center justify-center rounded-check border border-current bg-surface-textarea text-text-strong type-tree-badge ml-1 -mr-1 before:absolute before:-inset-1.25 md:before:-inset-1 focus-visible:focus-ring`
+`relative inline-flex size-3.5 md:size-4 shrink-0 items-center justify-center rounded-check border border-current bg-surface-textarea text-text-strong type-tree-badge ml-1 -mr-1 before:absolute before:-inset-1.5 md:before:-inset-1.25 focus-visible:focus-ring`
 
 The comment above `TOGGLE_CLASSES` cites this change's D1–D3, D5 and D6 instead of collapse-taxonomy-trees D4 and unify-taste-trees D2, which are superseded for the classes. unify-taste-trees D1 (the toggle inside the badge, after the name) stands.
 
 ### D4 — The scenario test (summary Open 5 A)
 
-One test in `src/entities/offering/ui/OfferingCard.test.tsx`, next to the other tree tests, named after the scenario "Toggle at the end of its badge". It renders the card with its `taxonomies` option holding two top-level notes with one child each: one whose data colour gives a white label (`#336699`, as the fixture's Floral) and one whose data colour gives a black label (a light colour such as `#F2D16B`). It asserts, with the fewest assertions: each note's toggle is its badge's last element child; the two toggles have the same `className`; that `className` contains `bg-surface-textarea` (D1, review round 1), `text-text-strong`, `border-current`, `size-3.5`, `md:size-4`, `rounded-check`, `ml-1`, `-mr-1`, `before:-inset-1.25`, `md:before:-inset-1` and `type-tree-badge`; and each note's name `span` (the badge's first element child) has the class `type-tree-badge`. Contrast, font sizes and pixel heights are not asserted: jsdom has no CSS engine; they belong to the visual review at 375px and 1280px.
+One test in `src/entities/offering/ui/OfferingCard.test.tsx`, next to the other tree tests, named after the scenario "Toggle at the end of its badge". It renders the card with its `taxonomies` option holding two top-level notes with one child each: one whose data colour gives a white label (`#336699`, as the fixture's Floral) and one whose data colour gives a black label (a light colour such as `#F2D16B`). It asserts, with the fewest assertions: each note's toggle is its badge's last element child; the two toggles have the same `className`; that `className` contains `bg-surface-textarea` (D1, review round 1), `text-text-strong`, `border-current`, `size-3.5`, `md:size-4`, `rounded-check`, `ml-1`, `-mr-1`, `before:-inset-1.5`, `md:before:-inset-1.25` (review round 2) and `type-tree-badge`; and each note's name `span` (the badge's first element child) has the class `type-tree-badge`. Contrast, font sizes and pixel heights are not asserted: jsdom has no CSS engine; they belong to the visual review at 375px and 1280px.
 
 ### D5 — Tree badge text by width (review 2026-11-12, item a)
 
@@ -68,15 +68,15 @@ The role is not added to the `ROLES` table of `theme-tokens.test.ts`: that table
 
 ### D6 — The toggle below `md` (review 2026-11-12, item b; orchestrator's D1)
 
-Below `md` the visible box is `size-3.5` (14 × 14px), from `md` up `md:size-4` (16 × 16px, D2). In a 22px badge the 14px box leaves 4px above and below, matching the 0.25rem end padding of D3. The hit area stays at least 24 × 24px, centred: the pseudo-element's inset is 5px below `md` (`before:-inset-1.25`, 14 + 10 = 24px) and 4px from `md` (`md:before:-inset-1`, 16 + 8 = 24px). The glyph takes the role `type-tree-badge` instead of `type-button`, so it follows the badge's name: 12px below `md`, 14px from `md`, same weight and line height as before. Radius, colours, margins and focus are the same at every width.
+Below `md` the visible box is `size-3.5` (14 × 14px), from `md` up `md:size-4` (16 × 16px, D2). In a 22px badge the 14px box leaves 4px above and below, matching the 0.25rem end padding of D3. The hit area stays at least 24 × 24px, centred: the pseudo-element's inset is measured from inside the toggle's 1px border, and is 6px below `md` (`before:-inset-1.5`, 12 + 2 × 6 = 24px) and 5px from `md` (`md:before:-inset-1.25`, 14 + 2 × 5 = 24px). Review round 2 corrected the earlier insets (5px and 4px), which counted from the outer edge and gave 22px at both widths (design lead's visual review on `6db24e55`, Chrome's computed `::before` box). The glyph takes the role `type-tree-badge` instead of `type-button`, so it follows the badge's name: 12px below `md`, 14px from `md`, same weight and line height as before. Radius, colours, margins and focus are the same at every width.
 
 ## Risks / Trade-offs
 
 - [The glyph's line (21px from `md`, 18px below) is taller than the box's inner area (14px, 12px below)] → the box keeps its fixed size and the glyph stays centred; whether it reads well is checked in the visual review at 375px and 1280px (summary "Unverified").
 - [Below `md` the 24px hit area is 2px taller than the 22px badge, 1px above and below] → it stays invisible; the vertical gaps between badges (at least 6px) keep two hit areas from overlapping.
-- [Below `md` the 5px inset covers 5px of the 8px gap toward the name and reaches 1px past the badge's end] → it never reaches the name text.
-- [`before:-inset-1.25` and `md:before:-inset-1` set the same property] → they are in different media conditions, and Tailwind emits the `md:` utility after the base one, so the `md:` value wins from `md` up; checked by compiling both classes with the installed Tailwind 4.
+- [Below `md` the hit area reaches 5px beyond the chip's outer edge (6px inset from inside its 1px border): it covers 5px of the 8px gap toward the name and reaches 1px past the badge's end (end padding 4px)] → it never reaches the name text.
+- [`before:-inset-1.5` and `md:before:-inset-1.25` set the same property] → they are in different media conditions, and Tailwind emits the `md:` utility after the base one, so the `md:` value wins from `md` up; checked by compiling both classes with the installed Tailwind 4.
 - [A new typographic role outside `theme-tokens.test.ts`'s role table] → no guard checks its metrics; the task's test reads the class, the visual review the size.
-- [From `md` the hit area overlaps 4px of the 8px gap toward the name and the 4px end padding] → it never reaches the name text; accepted in summary section 7.
+- [From `md` the hit area reaches 4px beyond the chip's outer edge (5px inset from inside its 1px border): it covers 4px of the 8px gap toward the name and the 4px end padding, within the 25px badge] → it never reaches the name text; accepted in summary section 7.
 - [Contrast is measured on the API seed colours, not a live `GET /taxonomies`] → a future colour outside the seed could fall under 3:1; the token matrix cannot hold data colours (summary section 4.4).
 - [No tailwind-merge] → D3 avoids conflicting utilities on one element, so no utility order decides the result.

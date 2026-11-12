@@ -28,3 +28,10 @@ Design lead's visual review after Round 1 (2026-11-12, on `6db24e55`, production
    Existing tests affected: `src/entities/offering/ui/OfferingCard.test.tsx`, test "Toggle at the end of its badge" (design.md D4): its expected classes `before:-inset-1.25` and `md:before:-inset-1` become `before:-inset-1.5` and `md:before:-inset-1.25`; no other assertion changes.
    New test: none (the existing scenario test covers the classes; it fails on the old insets and passes on the new ones).
 2. Artifacts: design.md D2, D3 (the class list), D4 (the asserted classes), D6 and Risks state the new insets, measure the hit area from the inside of the 1px border, and give 24px at both widths. The landing delta does not change.
+
+### Status
+
+2026-11-12 — architect (cloud). `openspec validate restyle-taxonomy-badge-toggles --strict`: valid (OpenSpec CLI 1.16.0).
+
+1. Hit-area insets `before:-inset-1.5` and `md:before:-inset-1.25`: design.md D3's class list and D4's asserted classes. Tasks 4.1 (test-first: the existing scenario test's two expected classes) and 4.2 (`TOGGLE_CLASSES`).
+2. Artifacts: design.md D2 and D6 (inset measured from inside the 1px border; 12 + 2 × 6 = 24px below `md`, 14 + 2 × 5 = 24px from `md`) and Risks (hit area 5px / 4px beyond the chip's outer edge; the same-property bullet with the new values). The landing delta and the proposal do not change. No task of its own; task 4.3 runs the final checks.
