@@ -214,6 +214,7 @@ All routes live under `app/[locale]` (`/es/…`, `/en/…`, `/ca/…`), except `
 | `/account`, `/account/password` | Any | My account (profile, business name for a coffee shop, contact, security, password) |
 | `/manage/offerings`, `/manage/offerings/new` | Coffee shop | Manage offerings, create offerings |
 | `/manage/locations` | Coffee shop | Manage locations (coordinates geocoded client-side) |
+| `/manage/locations/first` | Coffee shop | Add the first location (opened after registering) |
 | `/manage/inventory`, `/manage/inventory/{ulid}` | Coffee shop | Explore the coffee inventory |
 | `/manage/evaluations`, `/manage/evaluations/new`, `/manage/evaluations/{ulid}` | Specialist | Manage evaluations: list, create, edit and close |
 
