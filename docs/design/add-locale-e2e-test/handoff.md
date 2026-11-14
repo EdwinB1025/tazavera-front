@@ -18,5 +18,14 @@ Architect `7555960` `docs(testing): update artifacts for add-locale-e2e-test`: t
 ### Review and integration (orchestrator)
 Only the three files. `git merge --ff-only origin/claude/add-locale-e2e-test-artifact-review`: `61b0c749..7555960d`. Then `develop` (`16835824`: badge toggles, board, decisions log) merged into the feature branch.
 
+## Session 2026-11-12 to 2026-11-14 — Apply (step 8), cloud build, and integration
+Summary: first apply run (routine `trig_014hH1GYXMe2szjQCHPUsKKc`, session `cse_016LpndjJcR2k5t1AEtPJyeq`, 2026-11-12) stopped at task 1.1: `npm run test:qa` had 14 failures on `develop` since R91 (three QA files without the router and session mocks, two stale assertions). Product owner chose to fix them first (board item 10, option B; session mock "yes"; HomeHero assertion A; HomeScreen texts A): unplanned fix `a9a1a349` `fix(app-shell): update the qa header and home tests for the register action` (`Refs: add-register-landing`, three runs, the last one session `cse_016LpndjA1jsUQHxV5p7HzAT`), merged into `develop` (`38c02f9f`), then `develop` into the branch (`f10e76f5`). Second apply run: routine `trig_015egqVP9bRnSrkKrZAPV7DS`, session `cse_016LpndgHDW9r7yqP6BSyMTZ` (12:18–12:25 UTC, 2026-11-14). Next: code review with Product owner, then verify and archive on his request (no UI change, so no visual review). MVC reachable: no.
+
+### Agent feedback
+Commits: 1.1 `37cc58d` (baseline: validation 213 files / 1242 tests, QA 368 / 2027), 2.1 `ce599a7` (`@playwright/test` 1.63.0 exact; lockfile adds only `@playwright/test`, `playwright`, `playwright-core` 1.63.0, no `fsevents`; script `test:e2e`; `.gitignore` `test-results/`, `playwright-report/`), 3.1 `282fc98` (the test), 3.2 `99f34f7` (`playwright.config.ts`), 4.1 `be97c67` (checkbox). Checks at 4.1: both Vitest suites unchanged (213/1242, 368/2027); `tsc` clean; lint 0 errors, 1 known warning (`qa/…/ConsensusPanel.test.tsx:531`); build OK, no `SecurityFatalError`; `test:e2e` 1 passed (`chromium`, 1 worker; 25.2 s with the build at 3.2, 6.0 s at 4.1); Playwright 1.63.0, Chromium 153.0.8010.12 from `/opt/pw-browsers`; `playwright-report/index.html` written and git-ignored; `next start` standalone warning as expected. Diff against `develop` `38c02f9f`: exactly the 12 expected files.
+
+### Review and integration (orchestrator)
+Commit format, scope `testing`, footers and test-first order (3.1 before 3.2) correct; only the allowed files; the test and config match design.md D1–D7. `git merge --ff-only origin/claude/add-locale-e2e-test-apply`: `f10e76f5..be97c67e`, pushed.
+
 ### Deferred to Product owner
 - Non-blocking: `testing` is missing from the capability lists of `openspec/config.yaml` and `docs/agents/workflow_sdd.md` §2; `AGENTS.md` → Testing ("two suites", "Playwright come later") and the `testing` spec's Purpose read stale after the archive (board item 9).
