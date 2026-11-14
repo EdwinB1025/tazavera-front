@@ -17,7 +17,7 @@ Every task commit uses the scope `testing` (`<type>(testing): …`, footer `Refs
 
 ## 4. Full checks
 
-- [ ] 4.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint`, `npm run build` and `npm run test:e2e` (one run). Expected: both Vitest suites pass with the same numbers of test files and tests as in task 1.1; typecheck and lint report no errors; the build succeeds; `npm run test:e2e` passes 1 test; `git status` is clean apart from `tasks.md`; `git diff develop --stat` lists only `package.json`, `package-lock.json`, `.gitignore`, `playwright.config.ts`, `e2e/app-shell/language-selection.e2e.ts`, `docs/design/add-locale-e2e-test/design-summary.md` and the change's `openspec/` files.
+- [x] 4.1 Run, each on its own, `npm run test:run`, `npm run test:qa`, `npx tsc --noEmit`, `npm run lint`, `npm run build` and `npm run test:e2e` (one run). Expected: both Vitest suites pass with the same numbers of test files and tests as in task 1.1; typecheck and lint report no errors; the build succeeds; `npm run test:e2e` passes 1 test; `git status` is clean apart from `tasks.md`; `git diff develop --stat` lists only `package.json`, `package-lock.json`, `.gitignore`, `playwright.config.ts`, `e2e/app-shell/language-selection.e2e.ts`, `docs/design/add-locale-e2e-test/design-summary.md` and the change's `openspec/` files.
 
 ## Workflow follow-up
 
