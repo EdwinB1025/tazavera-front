@@ -27,5 +27,14 @@ Commits: 1.1 `37cc58d` (baseline: validation 213 files / 1242 tests, QA 368 / 20
 ### Review and integration (orchestrator)
 Commit format, scope `testing`, footers and test-first order (3.1 before 3.2) correct; only the allowed files; the test and config match design.md D1–D7. `git merge --ff-only origin/claude/add-locale-e2e-test-apply`: `f10e76f5..be97c67e`, pushed.
 
+## Session 2026-11-14 — Verify (step 10) and archive (step 11), cloud architect, and integration
+Summary: Product owner requested the archive on 2026-11-14 ("archive"); no visual review (no UI change). Routine `trig_01A7U1rp7vCBsU9tzQXqeZ5o`, session `cse_016Lpndh8URQKhowh33wxNUt` (13:37–13:43 UTC), base `297d5f46`. MVC reachable: no.
+
+### Agent feedback
+Checks: change strict valid; validation 213 / 1242 and QA 368 / 2027, 0 failures; `tsc` clean; lint 0 errors, 1 known warning; build OK (Next.js 16.4.6, no `SecurityFatalError`); `test:e2e` 1 passed in `chromium` (10.3 s). Verify: 5/5 tasks, 2/2 requirements, 5/5 scenarios, no CRITICAL, no WARNING. Sync gate on `testing`: valid and no strict warning before or after. Archive `b9817df` `chore(openspec): archive add-locale-e2e-test` (`openspec/changes/archive/2026-11-14-add-locale-e2e-test/`, synced `openspec/specs/testing/spec.md`, backlog R1 entry and table row removed). Note for Product owner: the `testing` spec's Purpose still says "two test suites".
+
+### Review and integration (orchestrator)
+One commit, only the synced spec, the move and the backlog entry. `git merge --ff-only origin/claude/add-locale-e2e-test-verify-archive`: `297d5f46..b9817dff`. Then `develop` into the feature branch and the feature branch into `develop` (Product owner's authorisation of 2026-11-12).
+
 ### Deferred to Product owner
 - Non-blocking: `testing` is missing from the capability lists of `openspec/config.yaml` and `docs/agents/workflow_sdd.md` §2; `AGENTS.md` → Testing ("two suites", "Playwright come later") and the `testing` spec's Purpose read stale after the archive (board item 9).
