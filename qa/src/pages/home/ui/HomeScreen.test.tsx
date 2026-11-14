@@ -1,6 +1,7 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, cleanup, screen } from "@testing-library/react";
 import { getMessages } from "@/shared/lib/i18n";
+import type { Session } from "@/shared/api";
 import type { VerifiedOfferingsProps } from "@/widgets/offering-list";
 import { HomeScreen } from "@/pages/home";
 
@@ -30,6 +31,24 @@ afterEach(() => {
 const block = vi.hoisted(() => ({
   suspend: false,
   props: null as VerifiedOfferingsProps | null,
+}));
+
+// The entry-page "Register" button reads the session and navigates with the
+// App Router (add-register-landing D5): both are mocked by module (test
+// infrastructure), each test setting the session state it needs.
+const auth = vi.hoisted(() => ({
+  session: { state: "anonymous" } as Session,
+}));
+
+const router = vi.hoisted(() => ({ push: vi.fn() }));
+
+vi.mock("@/features/auth", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/features/auth")>()),
+  useSession: () => auth.session,
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => router,
 }));
 
 vi.mock("@/widgets/offering-list", async (importOriginal) => {
@@ -70,8 +89,8 @@ describe("HomeScreen", () => {
       heading,
       es.heroParagraph,
       es.heroExploreLabel,
-      es.heroCoffeeshopRegisterLabel,
-      es.heroSpecialistRegisterLabel,
+      es.heroAboutLabel,
+      es.heroRegisterAction,
     ]) {
       expect(rendered.includes(value), value).toBe(true);
     }
