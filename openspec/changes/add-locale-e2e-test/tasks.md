@@ -4,7 +4,7 @@ Every task commit uses the scope `testing` (`<type>(testing): …`, footer `Refs
 
 ## 1. Baseline
 
-- [ ] 1.1 Before any other change, run `npm run test:run` and `npm run test:qa`, each on its own. Expected: both pass; record each suite's number of test files and tests in the final report (the baseline for task 4.1, design.md D9). No file changes; commit only the checkbox.
+- [x] 1.1 Before any other change, run `npm run test:run` and `npm run test:qa`, each on its own. Expected: both pass; record each suite's number of test files and tests in the final report (the baseline for task 4.1, design.md D9). No file changes; commit only the checkbox.
 
 ## 2. Dependency, script and ignored output
 
