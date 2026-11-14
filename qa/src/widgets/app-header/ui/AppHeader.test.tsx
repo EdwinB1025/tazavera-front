@@ -10,9 +10,19 @@ import {
 import type { Session, SessionUser } from "@/shared/api";
 import { AppHeader, PrimaryNav, LanguageSelect } from "@/widgets/app-header";
 
+// The "Register" action is a `RouteButton`, whose `useRouter()` needs the
+// App Router context jsdom does not provide. Test infrastructure only: the
+// existing assertions do not depend on it.
+const router = vi.hoisted(() => ({ push: vi.fn() }));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => router,
+}));
+
 // No global test setup in this project, so RTL auto-cleanup does not run.
 afterEach(() => {
   cleanup();
+  router.push.mockReset();
 });
 
 /**
