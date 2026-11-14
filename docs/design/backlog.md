@@ -22,21 +22,8 @@ The table lists only open entries, in the order they are to be taken. Effort: S 
 
 | # | Entry | Change | Type | Effort | Waits for |
 |:-:|---|---|---|:-:|---|
-| 4 | R1 | none yet (Playwright suite) | Change (tests) | — | R74 in `develop` (Product owner, 2026-10-12) |
 | 7 | R90 | none yet (API items first) | Change (API, behaviour) | M | API backlog: municipality and roastery origin filters; R89 in `develop` |
 | 6 | R83 | none yet (API) | Change (API) | S | Product owner: whether to take it |
-
-## R1 — End-to-end test of "Choosing a locale" (verify W1, deferred here by the product owner)
-
-- **Duplicated:** none
-- **Where today:** `src/app/shell/ShellChrome.tsx:35-39` (the locale swap), `src/widgets/app-header/ui/LanguageSelect.tsx` (the callback), `src/app/shell/AppShell.test.tsx` (router mocked with a no-op)
-- **Why it pays off now:** the shell's one navigation interaction is verified only up to the callback; every later change that switches locale rides on it
-- **Owning capability:** app-shell
-- **Proposed change:** none yet — belongs to the pre-deployment Playwright suite
-- **Open decision (Augusto):** none
-- **Type:** Change
-- **Status:** deferred
-- **Affects:** none
 
 ## R90 — Two origin cascades in the facets: coffee origin and roastery origin (front part of two API backlog items)
 
