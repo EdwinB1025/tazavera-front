@@ -2,12 +2,12 @@
 
 The board of tazavera-front's OpenSpec changes: only what is **not resolved**. What is closed (archived and on `develop`) leaves the board: its decisions are in `openspec/changes/archive/`, in each change's handoff, in the decisions log of `docs/design/general-context.md` and in this file's git history.
 
-**Last update:** 2026-11-12 16:50 UTC — `restyle-taxonomy-badge-toggles` visual review passed after Round 2, verified and archived (`e87f0b53`), merged into `develop`; worktree removed, its branches deleted: it left the board. Today `update-vulnerable-dependencies`, R91 and R45 also merged and left the board. R1 `add-locale-e2e-test`: summary approved, propose integrated, artifact review with the design lead. Item 8 answered (decisions log 2026-11-12). Assignment loop running. Disabled test routines `trig_01XnGPPCQNjFiNZAsWNVXSNo` and `trig_01NebsWc2injnSM3vGFpUyNG` still exist (Product owner may delete them).
+**Last update:** 2026-11-13 15:55 UTC — item 2 closed (none of those `claude/*` branches remains on GitHub); item 10 answered B (QA router mock fix running, then R1's apply reruns). Earlier, 2026-11-12 16:50 UTC — `restyle-taxonomy-badge-toggles` visual review passed after Round 2, verified and archived (`e87f0b53`), merged into `develop`; worktree removed, its branches deleted: it left the board. Today `update-vulnerable-dependencies`, R91 and R45 also merged and left the board. R1 `add-locale-e2e-test`: summary approved, propose integrated, artifact review with the design lead. Item 8 answered (decisions log 2026-11-12). Assignment loop running. Disabled test routines `trig_01XnGPPCQNjFiNZAsWNVXSNo` and `trig_01NebsWc2injnSM3vGFpUyNG` still exist (Product owner may delete them).
 ## Board
 
 | Change | Capabilities | Branch / worktree | Phase | Status | Next phase | Assignee | Blocker | Last commit |
 |---|---|---|---|---|---|---|---|---|
-| `add-locale-e2e-test` (R1, `Change`) | testing | `feature/add-locale-e2e-test` / `tazavera-front-e2e` | Artifact review | Summary approved (`66b2b305`; `@playwright/test` approved, reporters `list` + `html`); propose integrated (`61b0c749`, cloud architect, strict valid): `@playwright/test` 1.63.0 (cloud Chromium 1243) | Apply (cloud build), then the e2e run report to Product owner | Design lead (artifact review) | — | `61b0c749` |
+| `add-locale-e2e-test` (R1, `Change`) | testing | `feature/add-locale-e2e-test` / `tazavera-front-e2e` | Apply — stopped at 1.1 | Artifact review integrated (`7555960d`), handoff `8a9097c9`; apply session `cse_016LpndjJcR2k5t1AEtPJyeq` stopped at the baseline: `test:qa` had 14 failures on `develop` since R91 (3 QA files without a `next/navigation` mock for R91's Register `RouteButton`). Product owner chose B (2026-11-13): unplanned fix of the 3 QA files on `develop` first (routine `trig_017DNBF5EtdkSB6Mv6pUDxCM`, target `claude/fix-qa-router-mock`) | Integrate the QA fix into `develop`, merge `develop` into the branch, rerun the apply, then the e2e run report to Product owner | Orchestrator | QA fix running | `8a9097c9` |
 | R90 (two origin cascades in the facets) | filtering | — | Backlog | Front part of two API backlog entries | — | Product owner | API changes first (municipality and roastery origin filters) | — |
 | R83 (the API accepts any descriptor per axis) | — (API) | — | Backlog | Found by Product owner (2026-10-13) | — | Product owner | Take it or not? | — |
 
@@ -16,7 +16,6 @@ The board of tazavera-front's OpenSpec changes: only what is **not resolved**. W
 | # | What | Exact question |
 |:-:|---|---|
 | 1 | Q7 list of R74's handoff (13 checks of R74 and visual review of R77–R82 and R81 in production) | Is it done? If so, it leaves the board |
-| 2 | `claude/*` branches left unintegrated on purpose: `unify-bean-outline`, `r64-list-spacing-analysis`, `share-active-locale-refactor`, `test-reduction-plan`; and `add-register-landing-propose` (already integrated) | Do you delete them on GitHub? (yours) |
 | 3 | API task (2026-10-11): the front's landing as the callback's return page | Done? The orchestrator acts only if the contract changes |
 | 4 | Flaky test `EvaluationForm.test.tsx` (failed once and passed on retry, 2026-10-11) | Backlog entry or drop it? |
 | 6 | R91 Q14: the es header wraps between 1024 and ~1149px with the `lg` fallback, and the header already overflows at 768px on `develop` in es and ca (simulated) | A. a new change after R91 for the header width (rec.); B. accept and drop; C. fold into R91 through a correction round? |

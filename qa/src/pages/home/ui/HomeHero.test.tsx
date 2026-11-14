@@ -1,8 +1,16 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve as pathResolve } from "node:path";
 import { render, cleanup, screen } from "@testing-library/react";
 import { HomeHero } from "@/pages/home/ui/HomeHero";
+
+// The About us button is a `RouteButton`, whose `useRouter()` needs the App
+// Router context (add-register-landing D6): mocked, with a `push` spy.
+const router = vi.hoisted(() => ({ push: vi.fn() }));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => router,
+}));
 
 // This project has no global test setup, so RTL's auto-cleanup (which relies
 // on a framework-provided afterEach) does not run. Clean up manually between
@@ -79,7 +87,7 @@ describe("HomeHero", () => {
       const actions = screen.getByRole("link", { name: TEXTS.exploreLabel }).parentElement!;
       expect(actions).not.toBe(column);
       expect(classTokens(actions)).toEqual(
-        expect.arrayContaining(["mt-2", "flex", "flex-col", "items-start", "gap-4"]),
+        expect.arrayContaining(["mt-2", "flex-row", "flex-wrap", "items-center", "gap-4"]),
       );
     });
   });
